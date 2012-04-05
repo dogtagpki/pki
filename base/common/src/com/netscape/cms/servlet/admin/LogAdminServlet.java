@@ -342,14 +342,13 @@ public class LogAdminServlet extends AdminServlet {
         Enumeration<String> e = mSys.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             ILogEventListener value = ((ILogSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_LOG)).getLogInstance(name);
 
             if (value == null)
                 continue;
             String pName = mSys.getLogPluginName(value);
-            LogPlugin pClass = (LogPlugin)
-                    mSys.getLogPlugins().get(pName);
+            LogPlugin pClass = mSys.getLogPlugins().get(pName);
             String c = pClass.getClassPath();
 
             // not show ntEventlog here
@@ -381,7 +380,7 @@ public class LogAdminServlet extends AdminServlet {
     private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) {
         IExtendedPluginInfo ext_info = null;
         Object impl = null;
-        LogPlugin lp = (LogPlugin) mSys.getLogPlugins().get(implName);
+        LogPlugin lp = mSys.getLogPlugins().get(implName);
 
         if (lp != null) {
             impl = getClassByNameAsExtendedPluginInfo(lp.getClassPath());
@@ -460,7 +459,7 @@ public class LogAdminServlet extends AdminServlet {
             }
 
             // is the log id unique?
-            if (mSys.getLogPlugins().containsKey((Object) id)) {
+            if (mSys.getLogPlugins().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
                     auditMessage = CMS.getLogMessage(
@@ -746,7 +745,7 @@ public class LogAdminServlet extends AdminServlet {
                 return;
             }
 
-            if (mSys.getLogInsts().containsKey((Object) id)) {
+            if (mSys.getLogInsts().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
                     auditMessage = CMS.getLogMessage(
@@ -788,8 +787,8 @@ public class LogAdminServlet extends AdminServlet {
 
             // check if implementation exists.
             LogPlugin plugin =
-                    (LogPlugin) mSys.getLogPlugins().get(
-                            implname);
+                    mSys.getLogPlugins().get(
+                    implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -821,7 +820,7 @@ public class LogAdminServlet extends AdminServlet {
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.size(); i++) {
-                    String kv = (String) configParams.elementAt(i);
+                    String kv = configParams.elementAt(i);
                     int index = kv.indexOf('=');
                     String val = req.getParameter(kv.substring(0, index));
 
@@ -1036,9 +1035,8 @@ public class LogAdminServlet extends AdminServlet {
         Enumeration<String> e = mSys.getLogPlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            LogPlugin value = (LogPlugin)
-                    mSys.getLogPlugins().get(name);
+            String name = e.nextElement();
+            LogPlugin value = mSys.getLogPlugins().get(name);
             // get Description
             String c = value.getClassPath();
             String desc = "unknown";
@@ -1308,7 +1306,7 @@ public class LogAdminServlet extends AdminServlet {
             // first check if any instances from this log
             // DON'T remove log if any instance
             for (Enumeration<String> e = mSys.getLogInsts().keys(); e.hasMoreElements();) {
-                String name = (String) e.nextElement();
+                String name = e.nextElement();
                 ILogEventListener log = mSys.getLogInstance(name);
 
                 if (getLogPluginName(log) == id) {
@@ -1331,7 +1329,7 @@ public class LogAdminServlet extends AdminServlet {
             }
 
             // then delete this log
-            mSys.getLogPlugins().remove((Object) id);
+            mSys.getLogPlugins().remove(id);
 
             IConfigStore destStore =
                     mConfig.getSubStore("log");
@@ -1494,7 +1492,7 @@ public class LogAdminServlet extends AdminServlet {
             }
 
             // Does the manager instance exist?
-            if (!mSys.getLogInsts().containsKey((Object) id)) {
+            if (!mSys.getLogInsts().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
                     auditMessage = CMS.getLogMessage(
@@ -1535,7 +1533,7 @@ public class LogAdminServlet extends AdminServlet {
             }
             // get plugin for implementation
             LogPlugin plugin =
-                    (LogPlugin) mSys.getLogPlugins().get(implname);
+                    mSys.getLogPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -1559,7 +1557,7 @@ public class LogAdminServlet extends AdminServlet {
             // save old instance substore params in case new one fails.
 
             ILogEventListener oldinst =
-                    (ILogEventListener) mSys.getLogInstance(id);
+                    mSys.getLogInstance(id);
             Vector<String> oldConfigParms = oldinst.getInstanceParams();
             NameValuePairs saveParams = new NameValuePairs();
 
@@ -1567,7 +1565,7 @@ public class LogAdminServlet extends AdminServlet {
             saveParams.put("pluginName", implname);
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.size(); i++) {
-                    String kv = (String) oldConfigParms.elementAt(i);
+                    String kv = oldConfigParms.elementAt(i);
                     int index = kv.indexOf('=');
 
                     saveParams.put(kv.substring(0, index),
@@ -1629,7 +1627,7 @@ public class LogAdminServlet extends AdminServlet {
                 for (int i = 0; i < configParams.size(); i++) {
                     AUTHZ_RES_NAME =
                             "certServer.log.configuration";
-                    String kv = (String) configParams.elementAt(i);
+                    String kv = configParams.elementAt(i);
                     int index = kv.indexOf('=');
                     String key = kv.substring(0, index);
                     String val = req.getParameter(key);
@@ -2209,7 +2207,7 @@ public class LogAdminServlet extends AdminServlet {
         params.put(Constants.PR_LOG_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 if (index == -1) {
@@ -2246,8 +2244,7 @@ public class LogAdminServlet extends AdminServlet {
             return;
         }
 
-        ILogEventListener logInst = (ILogEventListener)
-                mSys.getLogInstance(id);
+        ILogEventListener logInst = mSys.getLogInstance(id);
         Vector<String> configParams = logInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -2256,7 +2253,7 @@ public class LogAdminServlet extends AdminServlet {
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.put(kv.substring(0, index),

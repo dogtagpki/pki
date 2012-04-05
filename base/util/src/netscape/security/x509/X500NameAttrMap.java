@@ -85,7 +85,7 @@ public class X500NameAttrMap {
                 name2OID.get(name.toUpperCase());
         if (oid == null)
             return null;
-        return (AVAValueConverter) oid2ValueConverter.get(oid);
+        return oid2ValueConverter.get(oid);
     }
 
     /**
@@ -96,7 +96,7 @@ public class X500NameAttrMap {
      * @return An AVAValueConverter for the OID.
      */
     public AVAValueConverter getValueConverter(ObjectIdentifier oid) {
-        return (AVAValueConverter) oid2ValueConverter.get(oid);
+        return oid2ValueConverter.get(oid);
     }
 
     /**

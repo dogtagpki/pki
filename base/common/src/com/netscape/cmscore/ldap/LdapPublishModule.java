@@ -170,9 +170,9 @@ public class LdapPublishModule implements ILdapPublishModule {
         LdapMappers mappers = null;
 
         if (certType == null) {
-            mappers = (LdapMappers) mMappers.get(PROP_TYPE_CLIENT);
+            mappers = mMappers.get(PROP_TYPE_CLIENT);
         } else {
-            mappers = (LdapMappers) mMappers.get(certType);
+            mappers = mMappers.get(certType);
         }
         return mappers;
     }
@@ -326,8 +326,8 @@ public class LdapPublishModule implements ILdapPublishModule {
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
         try {
-            ICertificateRepository certdb = (ICertificateRepository) ca.getCertificateRepository();
-            ICertRecord certRec = (ICertRecord) certdb.readCertificateRecord(serialNo);
+            ICertificateRepository certdb = ca.getCertificateRepository();
+            ICertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
             if (metaInfo == null) {
@@ -464,7 +464,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             throw e;
         } catch (IOException e) {
             CMS.debug("Error publishing CRL to " + dn + ": " + e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_ISSUER_FROM_CRL_FAILED", (String) ""));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_ISSUER_FROM_CRL_FAILED", ""));
         } finally {
             if (conn != null) {
                 mLdapConnFactory.returnConn(conn);
@@ -631,7 +631,7 @@ class HandleRenewal implements IRequestListener {
         boolean error = false;
 
         for (int i = 0; i < certs.length; i++) {
-            cert = (X509CertImpl) certs[i];
+            cert = certs[i];
             if (cert == null)
                 continue; // there was an error issuing this cert.
             try {

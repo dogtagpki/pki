@@ -111,7 +111,7 @@ public class PostQuery {
             os.flush();
             os.close();
 
-            InputStream Content = (InputStream) URLCon.getInputStream();
+            InputStream Content = URLCon.getInputStream();
 
             System.out.println("Configuring Cert Instance : Return Response");
             BufferedReader in = new BufferedReader(

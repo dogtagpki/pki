@@ -506,7 +506,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         X509Certificate[] certs =
-                (X509Certificate[]) user.getX509Certificates();
+                user.getX509Certificates();
 
         if (certs != null) {
             for (int i = 0; i < certs.length; i++) {
@@ -1548,7 +1548,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             while (e.hasMoreElements()) {
-                IGroup group = (IGroup) e.nextElement();
+                IGroup group = e.nextElement();
 
                 if (group.isMember(id) == true) {
                     if (mustDelete) {
@@ -1697,9 +1697,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     Constants.PR_GROUP_DESC);
 
             if (desc != null) {
-                group.set("description", (Object) desc);
+                group.set("description", desc);
             } else {
-                group.set("description", (Object) "");
+                group.set("description", "");
             }
 
             if (members != null) {
@@ -1941,7 +1941,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     Constants.PR_GROUP_DESC);
 
             if (desc != null) {
-                group.set("description", (Object) desc);
+                group.set("description", desc);
             }
 
             String members = super.getParameter(req, Constants.PR_GROUP_USER);

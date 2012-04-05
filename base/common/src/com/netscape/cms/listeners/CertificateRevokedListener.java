@@ -311,7 +311,7 @@ public class CertificateRevokedListener implements IRequestListener {
                 mHttpPort);
 
         try {
-            RevokedCertImpl revCert = (RevokedCertImpl) crlentries[0];
+            RevokedCertImpl revCert = crlentries[0];
             ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
@@ -320,7 +320,7 @@ public class CertificateRevokedListener implements IRequestListener {
                     cert.getIssuerDN().toString());
             mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
                     cert.getSubjectDN().toString());
-            Date date = (Date) crlentries[0].getRevocationDate();
+            Date date = crlentries[0].getRevocationDate();
 
             mContentParams.put(IEmailFormProcessor.TOKEN_REVOCATION_DATE,
                     mDateFormat.format(date));

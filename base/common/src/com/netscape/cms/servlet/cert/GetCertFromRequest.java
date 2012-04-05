@@ -316,7 +316,7 @@ class CertFrRequestFiller extends ImportCertsTemplateFiller {
 
                     if (extensions != null) {
                         for (int i = 0; i < extensions.size(); i++) {
-                            Extension ext = (Extension) extensions.elementAt(i);
+                            Extension ext = extensions.elementAt(i);
 
                             if (ext instanceof NSCertTypeExtension) {
                                 NSCertTypeExtension type = (NSCertTypeExtension) ext;

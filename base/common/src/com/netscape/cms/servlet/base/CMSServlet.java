@@ -329,7 +329,7 @@ public abstract class CMSServlet extends HttpServlet {
             Enumeration<CMSLoadTemplate> templs = mTemplates.elements();
 
             while (templs.hasMoreElements()) {
-                CMSLoadTemplate templ = (CMSLoadTemplate) templs.nextElement();
+                CMSLoadTemplate templ = templs.nextElement();
 
                 if (templ == null || templ.mPropName == null) {
                     continue;
@@ -495,16 +495,16 @@ public abstract class CMSServlet extends HttpServlet {
                 CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate="
                         + endDate + " id=" + mId + " time=" + (endTime - startTime));
             }
-            iCommandQueue.unRegisterProccess((Object) cmsRequest, (Object) this);
+            iCommandQueue.unRegisterProccess(cmsRequest, this);
         } catch (EBaseException e) {
-            iCommandQueue.unRegisterProccess((Object) cmsRequest, (Object) this);
+            iCommandQueue.unRegisterProccess(cmsRequest, this);
             // ByteArrayOutputStream os = new ByteArrayOutputStream(); for debugging only
             // PrintStream ps = new PrintStream(os);
             //e.printStackTrace(ps);
             log(e.toString());
             renderException(cmsRequest, e);
         } catch (Exception ex) {
-            iCommandQueue.unRegisterProccess((Object) cmsRequest, (Object) this);
+            iCommandQueue.unRegisterProccess(cmsRequest, this);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(os);
 
@@ -554,7 +554,7 @@ public abstract class CMSServlet extends HttpServlet {
             return;
         Integer status = cmsReq.getStatus();
 
-        CMSLoadTemplate ltempl = (CMSLoadTemplate) mTemplates.get(status);
+        CMSLoadTemplate ltempl = mTemplates.get(status);
 
         if (ltempl == null || ltempl.mTemplateName == null) {
             // result is previously outputed.
@@ -575,7 +575,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (argBlock != null) {
             Enumeration<String> names = argBlock.getElements();
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
                 String val = argBlock.get(name).toString();
                 val = val.trim();
                 xmlObj.addItemToContainer(argBlockContainer, name, val);
@@ -596,7 +596,7 @@ public abstract class CMSServlet extends HttpServlet {
             Node recordsNode = xmlObj.createContainer(root, "records");
             if (records != null) {
                 while (records.hasMoreElements()) {
-                    IArgBlock record = (IArgBlock) records.nextElement();
+                    IArgBlock record = records.nextElement();
                     outputArgBlockAsXML(xmlObj, recordsNode, "record", record);
                 }
             }
@@ -697,7 +697,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             Locale[] locale = new Locale[1];
             CMSLoadTemplate loadTempl =
-                    (CMSLoadTemplate) mTemplates.get(CMSRequest.EXCEPTION);
+                    mTemplates.get(CMSRequest.EXCEPTION);
             CMSTemplate template = getTemplate(loadTempl.mTemplateName,
                     cmsReq.getHttpReq(), locale);
             ICMSTemplateFiller filler = loadTempl.mFiller;

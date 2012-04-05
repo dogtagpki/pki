@@ -350,7 +350,7 @@ public class AttributePresentConstraints extends APolicyRule
 
         while (e.hasMoreElements()) {
             try {
-                String paramName = (String) e.nextElement();
+                String paramName = e.nextElement();
                 String paramValue = mParamValue.get(paramName).toString();
                 String temp = paramName + "=" + paramValue;
 
@@ -369,7 +369,7 @@ public class AttributePresentConstraints extends APolicyRule
 
         while (e.hasMoreElements()) {
             try {
-                String paramName = (String) e.nextElement();
+                String paramName = e.nextElement();
                 String paramValue = mParamDefault.get(paramName).toString();
                 String temp = paramName + "=" + paramValue;
 

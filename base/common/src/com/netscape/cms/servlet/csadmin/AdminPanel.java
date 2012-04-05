@@ -175,7 +175,7 @@ public class AdminPanel extends WizardPanelBase {
             context.put("admin_pwd_again", "");
             context.put("admin_uid", ADMIN_UID);
         }
-        ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+        ISubsystem ca = CMS.getSubsystem("ca");
 
         if (ca == null) {
             context.put("ca", "false");
@@ -260,7 +260,7 @@ public class AdminPanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+        ISubsystem ca = CMS.getSubsystem("ca");
 
         if (ca == null) {
             context.put("ca", "false");
@@ -606,7 +606,7 @@ public class AdminPanel extends WizardPanelBase {
             // update the locally created request for renewal
             CertUtil.updateLocalRequest(cs, CERT_TAG, cert_request, cert_request_type, subject);
 
-            ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+            ISubsystem ca = CMS.getSubsystem("ca");
             if (ca != null) {
                 createPKCS7(impl);
             }
@@ -627,7 +627,7 @@ public class AdminPanel extends WizardPanelBase {
 
         context.put("title", "Administrator");
         context.put("panel", "admin/console/config/adminpanel.vm");
-        ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+        ISubsystem ca = CMS.getSubsystem("ca");
         IConfigStore cs = CMS.getConfigStore();
         String type = "";
         String info = "";

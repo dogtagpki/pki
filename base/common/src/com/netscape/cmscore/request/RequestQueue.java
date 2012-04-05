@@ -598,7 +598,7 @@ public class RequestQueue
      * return request repository
      */
     public IRepository getRequestRepository() {
-        return (IRepository) mRepository;
+        return mRepository;
     }
 
     public String getPublishingStatus() {

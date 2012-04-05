@@ -201,7 +201,7 @@ public class OtherName implements GeneralNameInterface {
             if ((data[i] & 0xff) < 16) {
                 b.append("0");
             }
-            b.append(Integer.toString((int) (data[i] & 0xff), 0x10));
+            b.append(Integer.toString((data[i] & 0xff), 0x10));
         }
         return b.toString();
     }

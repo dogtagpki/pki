@@ -217,8 +217,7 @@ public class RenewalServlet extends CMSServlet {
                         );
                 // create new certinfo from old_cert contents.
                 X509CertInfo old_certInfo = (X509CertInfo)
-                        ((X509CertImpl) old_cert).get(
-                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                        old_cert.get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 new_certInfo = new X509CertInfo(old_certInfo.getEncodedInfo());
             } else {

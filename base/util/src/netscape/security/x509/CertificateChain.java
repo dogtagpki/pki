@@ -47,7 +47,7 @@ public class CertificateChain implements Serializable {
      * @param chain a certificate array.
      */
     public CertificateChain(X509Certificate[] chain) {
-        mChain = (X509Certificate[]) chain.clone();
+        mChain = chain.clone();
     }
 
     /**
@@ -75,7 +75,7 @@ public class CertificateChain implements Serializable {
      * @return an array of X509 Certificates.
      */
     public X509Certificate[] getChain() {
-        return (X509Certificate[]) mChain.clone();
+        return mChain.clone();
     }
 
     public void encode(OutputStream out)

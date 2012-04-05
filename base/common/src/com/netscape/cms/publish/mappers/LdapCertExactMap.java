@@ -117,17 +117,13 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
 
         try {
             X509Certificate cert = (X509Certificate) obj;
-
-            subjectDN =
-                    (X500Name) ((X509Certificate) cert).getSubjectDN();
+            subjectDN = (X500Name) cert.getSubjectDN();
 
             CMS.debug("LdapCertExactMap: cert subject dn:" + subjectDN.toString());
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
-
-                subjectDN =
-                        (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+                subjectDN = (X500Name) crl.getIssuerDN();
 
                 CMS.debug("LdapCertExactMap: crl issuer dn: " +
                         subjectDN.toString());

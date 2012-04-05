@@ -402,7 +402,7 @@ public class KeyUsageExtension extends Extension
     }
 
     public boolean[] getBits() {
-        return (boolean[]) bitString.clone();
+        return bitString.clone();
     }
 
     /**

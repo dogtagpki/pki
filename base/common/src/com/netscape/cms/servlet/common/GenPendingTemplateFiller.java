@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.common;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -226,7 +225,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
                         ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                        rb.encode((OutputStream) ostream);
+                        rb.encode(ostream);
                         digest = SHADigest.digest(ostream.toByteArray());
                     } catch (NoSuchAlgorithmException ex) {
                         //log("digest fail");
@@ -259,7 +258,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     ByteArrayOutputStream ostream = new
                             ByteArrayOutputStream();
 
-                    fullResponse.encode((OutputStream) ostream);
+                    fullResponse.encode(ostream);
                     byte[] fr = ostream.toByteArray();
 
                     fixed.set(FULL_RESPONSE, CMS.BtoA(fr));

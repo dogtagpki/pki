@@ -176,14 +176,14 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         String map = NOMAPPER;
 
         for (; mappers.hasMoreElements();) {
-            String name = (String) mappers.nextElement();
+            String name = mappers.nextElement();
 
             map = map + "," + name;
         }
         String publish = "";
 
         for (; publishers.hasMoreElements();) {
-            String name = (String) publishers.nextElement();
+            String name = publishers.nextElement();
 
             publish = publish + "," + name;
         }

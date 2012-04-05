@@ -185,7 +185,7 @@ public class CloneServlet extends CMSServlet {
             // cfu maybe don't need CCA_Id, because the above check
             //			was good enough
             CCAUserId = token.getInString("userid");
-            CCA_Id = (String) peerCert.getSubjectDN().toString();
+            CCA_Id = peerCert.getSubjectDN().toString();
         } catch (EInvalidCredentials e) {
             // already logged.
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);

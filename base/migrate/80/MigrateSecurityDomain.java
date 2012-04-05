@@ -192,17 +192,17 @@ public class MigrateSecurityDomain {
                     Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
                     Vector<String> v_port = parser.getValuesFromContainer(nodeList.item(i), "SecurePort");
 
-                    String cn = (String) v_host.elementAt(0) + ":" + (String) v_port.elementAt(0);
+                    String cn = v_host.elementAt(0) + ":" + v_port.elementAt(0);
                     String dn = "cn=" + cn + ",cn=" + type + "List,ou=Security Domain," + basedn;
                     LDAPEntry entry = null;
                     LDAPAttributeSet attrs = null;
                     attrs = new LDAPAttributeSet();
                     attrs.add(new LDAPAttribute("objectclass", "top"));
                     attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-                    attrs.add(new LDAPAttribute("Host", (String) v_host.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SecurePort", (String) v_port.elementAt(0)));
-                    attrs.add(new LDAPAttribute("Clone", (String) v_clone.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SubsystemName", (String) v_name.elementAt(0)));
+                    attrs.add(new LDAPAttribute("Host", v_host.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecurePort", v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("Clone", v_clone.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SubsystemName", v_name.elementAt(0)));
                     attrs.add(new LDAPAttribute("cn", cn));
                     attrs.add(new LDAPAttribute("DomainManager", "true"));
                     // Since the initial port separation feature didn't occur
@@ -210,8 +210,8 @@ public class MigrateSecurityDomain {
                     // value for BOTH the "SecureAgentPort" and the
                     // "SecureAdminPort", and DON'T store any values for the
                     // "UnSecurePort"
-                    attrs.add(new LDAPAttribute("SecureAgentPort", (String) v_port.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SecureAdminPort", (String) v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecureAgentPort", v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecureAdminPort", v_port.elementAt(0)));
                     entry = new LDAPEntry(dn, attrs);
 
                     try {

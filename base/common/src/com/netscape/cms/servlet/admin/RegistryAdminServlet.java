@@ -277,7 +277,7 @@ public class RegistryAdminServlet extends AdminServlet {
                 Enumeration<String> impls = mRegistry.getIds("constraintPolicy");
 
                 while (impls.hasMoreElements()) {
-                    String constraintID = (String) impls.nextElement();
+                    String constraintID = impls.nextElement();
                     IPluginInfo constraintInfo = mRegistry.getPluginInfo(
                             "constraintPolicy", constraintID);
                     IPolicyConstraint policyConstraintClass = (IPolicyConstraint)

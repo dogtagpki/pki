@@ -73,7 +73,7 @@ public class PolicyMappingsExtension extends Extension
         DerOutputStream tmp = new DerOutputStream();
 
         for (int i = 0; i < maps.size(); i++) {
-            ((CertificatePolicyMap) maps.elementAt(i)).encode(tmp);
+            maps.elementAt(i).encode(tmp);
         }
         os.write(DerValue.tag_Sequence, tmp);
         extensionValue = os.toByteArray();

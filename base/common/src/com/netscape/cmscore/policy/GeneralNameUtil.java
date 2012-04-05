@@ -311,7 +311,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         }
 
         public GeneralNameConfig[] getGenNameConfig() {
-            return (GeneralNameConfig[]) mGenNameConfigs.clone();
+            return mGenNameConfigs.clone();
         }
 
         public int getNumGeneralNames() {

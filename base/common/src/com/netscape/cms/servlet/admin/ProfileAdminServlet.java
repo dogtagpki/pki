@@ -384,7 +384,7 @@ public class ProfileAdminServlet extends AdminServlet {
         NameValuePairs nvp = new NameValuePairs();
 
         while (impls.hasMoreElements()) {
-            String id = (String) impls.nextElement();
+            String id = impls.nextElement();
             IPluginInfo info = mRegistry.getPluginInfo("profile", id);
 
             nvp.put(id, info.getClassName() + "," +
@@ -1057,7 +1057,7 @@ public class ProfileAdminServlet extends AdminServlet {
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1206,7 +1206,7 @@ public class ProfileAdminServlet extends AdminServlet {
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1481,7 +1481,7 @@ public class ProfileAdminServlet extends AdminServlet {
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1610,7 +1610,7 @@ public class ProfileAdminServlet extends AdminServlet {
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1730,7 +1730,7 @@ public class ProfileAdminServlet extends AdminServlet {
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -1855,7 +1855,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             CMS.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con);
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 if (name.equals("OP_SCOPE"))
                     continue;
@@ -2056,11 +2056,11 @@ public class ProfileAdminServlet extends AdminServlet {
             return;
         }
         while (setIds.hasMoreElements()) {
-            String setId = (String) setIds.nextElement();
+            String setId = setIds.nextElement();
             Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(setId);
 
             while (policies.hasMoreElements()) {
-                IProfilePolicy policy = (IProfilePolicy) policies.nextElement();
+                IProfilePolicy policy = policies.nextElement();
                 IPolicyDefault def = policy.getDefault();
                 IPolicyConstraint con = policy.getConstraint();
 
@@ -2091,7 +2091,7 @@ public class ProfileAdminServlet extends AdminServlet {
         Enumeration<String> outputs = profile.getProfileOutputIds();
 
         while (outputs.hasMoreElements()) {
-            String outputId = (String) outputs.nextElement();
+            String outputId = outputs.nextElement();
             IProfileOutput output = profile.getProfileOutput(outputId);
 
             nvp.put(outputId, output.getName(getLocale(req)));
@@ -2118,7 +2118,7 @@ public class ProfileAdminServlet extends AdminServlet {
         Enumeration<String> inputs = profile.getProfileInputIds();
 
         while (inputs.hasMoreElements()) {
-            String inputId = (String) inputs.nextElement();
+            String inputId = inputs.nextElement();
             IProfileInput input = profile.getProfileInput(inputId);
 
             nvp.put(inputId, input.getName(getLocale(req)));

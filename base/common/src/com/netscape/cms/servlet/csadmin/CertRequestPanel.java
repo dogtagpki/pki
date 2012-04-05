@@ -502,7 +502,7 @@ public class CertRequestPanel extends WizardPanelBase {
             }
 
             while (c.hasMoreElements()) {
-                Cert cert = (Cert) c.nextElement();
+                Cert cert = c.nextElement();
                 String certTag = cert.getCertTag();
                 String subsystem = cert.getSubsystem();
                 boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);

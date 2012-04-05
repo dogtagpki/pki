@@ -109,7 +109,7 @@ public class EnableEnrollResult extends CMSServlet {
         X509Certificate sslClientCert = null;
 
         sslClientCert = getSSLClientCertificate(httpReq);
-        String dn = (String) sslClientCert.getSubjectDN().toString();
+        String dn = sslClientCert.getSubjectDN().toString();
 
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();

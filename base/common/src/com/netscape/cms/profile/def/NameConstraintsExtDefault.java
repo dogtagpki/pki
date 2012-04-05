@@ -516,7 +516,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
         for (int i = 0; i < size; i++) {
-            GeneralSubtree tree = (GeneralSubtree) trees.elementAt(i);
+            GeneralSubtree tree = trees.elementAt(i);
 
             GeneralName gn = tree.getGeneralName();
             String type = getGeneralNameType(gn);

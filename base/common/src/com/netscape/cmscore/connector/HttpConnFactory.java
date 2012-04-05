@@ -162,7 +162,7 @@ public class HttpConnFactory {
             CMS.debug(
                     "increasing minimum connections by " + increment);
             for (int i = increment - 1; i >= 0; i--) {
-                mConns[i] = (IHttpConnection) createConnection();
+                mConns[i] = createConnection();
             }
             mTotal += increment;
             mNumConns += increment;
@@ -279,7 +279,7 @@ public class HttpConnFactory {
         if (conn == null) {
             return;
         }
-        IHttpConnection boundconn = (IHttpConnection) conn;
+        IHttpConnection boundconn = conn;
 
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {

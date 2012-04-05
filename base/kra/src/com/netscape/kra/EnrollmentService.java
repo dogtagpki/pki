@@ -212,9 +212,8 @@ public class EnrollmentService implements IService {
             }
         } else {
             // profile-based request
-            PKIArchiveOptions options = (PKIArchiveOptions)
-                    toPKIArchiveOptions(
-                    request.getExtDataInByteArray(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS));
+            PKIArchiveOptions options = toPKIArchiveOptions(
+            request.getExtDataInByteArray(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS));
 
             aOpts = new PKIArchiveOptionsContainer[1];
             aOpts[0] = new PKIArchiveOptionsContainer(options,

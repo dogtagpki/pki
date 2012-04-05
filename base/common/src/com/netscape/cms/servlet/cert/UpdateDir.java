@@ -235,7 +235,7 @@ public class UpdateDir extends CMSServlet {
 
         try {
             if (mCRLRepository != null) {
-                crlRecord = (ICRLIssuingPointRecord) mCRLRepository.readCRLIssuingPointRecord(crlIssuingPointId);
+                crlRecord = mCRLRepository.readCRLIssuingPointRecord(crlIssuingPointId);
             }
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_CRL_RECORD", e.toString()));
@@ -383,7 +383,7 @@ public class UpdateDir extends CMSServlet {
             }
         }
 
-        ICertificateRepository certificateRepository = (ICertificateRepository) mCA.getCertificateRepository();
+        ICertificateRepository certificateRepository = mCA.getCertificateRepository();
 
         // all or ca
         if ((updateValue[UPDATE_ALL] != null &&
@@ -473,9 +473,9 @@ public class UpdateDir extends CMSServlet {
 
                             if (r == null) {
                                 if (CMS.isEncryptionCert(cert))
-                                    sc.put((Object) "isEncryptionCert", (Object) "true");
+                                    sc.put("isEncryptionCert", "true");
                                 else
-                                    sc.put((Object) "isEncryptionCert", (Object) "false");
+                                    sc.put("isEncryptionCert", "false");
                                 mPublisherProcessor.publishCert(cert, null);
                             } else {
                                 if (CMS.isEncryptionCert(cert))

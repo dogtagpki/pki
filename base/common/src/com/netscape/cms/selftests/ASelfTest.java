@@ -94,7 +94,7 @@ public abstract class ASelfTest
             EInvalidSelfTestException,
             EMissingSelfTestException {
         // store individual self test class values for this instance
-        mSelfTestSubsystem = (ISelfTestSubsystem) subsystem;
+        mSelfTestSubsystem = subsystem;
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters

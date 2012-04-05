@@ -29,7 +29,6 @@ import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -255,7 +254,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * @return the serial number.
      */
     public BigInteger getSerialNumber() {
-        return ((BigInt) serialNumber.getNumber()).toBigInteger();
+        return serialNumber.getNumber().toBigInteger();
     }
 
     /**
@@ -290,7 +289,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
             sb.append("\n");
             for (int i = 0; i < extensions.size(); i++)
                 sb.append("Entry Extension[" + i + "]: "
-                        + ((Extension) (extensions.elementAt(i))).toString());
+                        + (extensions.elementAt(i)).toString());
         }
         sb.append("\n");
         return (sb.toString());

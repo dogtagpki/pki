@@ -39,7 +39,7 @@ public class PropertySet {
     }
 
     public IDescriptor getDescriptor(String name) {
-        return (IDescriptor) mProperties.get(name);
+        return mProperties.get(name);
     }
 
     public void remove(String name) {

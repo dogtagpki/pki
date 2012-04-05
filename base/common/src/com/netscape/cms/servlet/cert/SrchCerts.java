@@ -105,7 +105,7 @@ public class SrchCerts extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
 
         if (mAuthority instanceof ISubsystem) {
-            ISubsystem sub = (ISubsystem) mAuthority;
+            ISubsystem sub = mAuthority;
             IConfigStore authConfig = sub.getConfigStore();
 
             if (authConfig != null) {
@@ -686,7 +686,7 @@ public class SrchCerts extends CMSServlet {
         rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
         rarg.addStringValue("serialNumberDecimal", cert.getSerialNumber().toString());
 
-        String subject = (String) cert.getSubjectDN().toString();
+        String subject = cert.getSubjectDN().toString();
 
         if (subject.equals("")) {
             rarg.addStringValue("subject", " ");

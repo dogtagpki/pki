@@ -48,15 +48,15 @@ public class AgentApprovalsTest extends CMSBaseTestCase {
         assertNotNull(approvals);
         assertEquals(3, approvals.mVector.size());
 
-        AgentApproval approval = (AgentApproval) approvals.mVector.get(0);
+        AgentApproval approval = approvals.mVector.get(0);
         assertEquals(approval1.getUserName(), approval.getUserName());
         assertEquals(approval1.getDate(), approval.getDate());
 
-        approval = (AgentApproval) approvals.mVector.get(1);
+        approval = approvals.mVector.get(1);
         assertEquals(approval2.getUserName(), approval.getUserName());
         assertEquals(approval2.getDate(), approval.getDate());
 
-        approval = (AgentApproval) approvals.mVector.get(2);
+        approval = approvals.mVector.get(2);
         assertEquals(approval3.getUserName(), approval.getUserName());
         assertEquals(approval3.getDate(), approval.getDate());
 

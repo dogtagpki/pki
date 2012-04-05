@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -250,7 +249,7 @@ public class CMCEnroll {
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                pkidata.encode((OutputStream) ostream);
+                pkidata.encode(ostream);
                 digest = SHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
             }

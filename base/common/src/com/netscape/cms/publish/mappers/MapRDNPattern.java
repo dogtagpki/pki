@@ -208,10 +208,10 @@ class MapRDNPattern {
     }
 
     public String[] getReqAttrs() {
-        return (String[]) mReqAttrs.clone();
+        return mReqAttrs.clone();
     }
 
     public String[] getCertAttrs() {
-        return (String[]) mCertAttrs.clone();
+        return mCertAttrs.clone();
     }
 }

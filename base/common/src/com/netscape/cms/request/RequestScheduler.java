@@ -54,12 +54,12 @@ public class RequestScheduler implements IRequestScheduler {
      */
     public synchronized void requestOut(IRequest r) {
         Thread current = Thread.currentThread();
-        Thread first = (Thread) mRequestThreads.elementAt(0);
+        Thread first = mRequestThreads.elementAt(0);
 
         if (current.equals(first)) {
             // reprioritize
             try {
-                Thread second = (Thread) mRequestThreads.elementAt(1);
+                Thread second = mRequestThreads.elementAt(1);
 
                 second.setPriority(Thread.MAX_PRIORITY);
             } catch (Exception e) {

@@ -195,7 +195,7 @@ public class PluginRegistry implements IPluginRegistry {
         StringBuffer typesBuf = new StringBuffer();
 
         while (types.hasMoreElements()) {
-            String type = (String) types.nextElement();
+            String type = types.nextElement();
 
             typesBuf.append(type);
             if (types.hasMoreElements()) {
@@ -206,13 +206,13 @@ public class PluginRegistry implements IPluginRegistry {
             Enumeration<String> plugins = mPlugins.keys();
 
             while (plugins.hasMoreElements()) {
-                String id = (String) plugins.nextElement();
+                String id = plugins.nextElement();
 
                 idsBuf.append(id);
                 if (plugins.hasMoreElements()) {
                     idsBuf.append(",");
                 }
-                IPluginInfo plugin = (IPluginInfo) mPlugins.get(id);
+                IPluginInfo plugin = mPlugins.get(id);
 
                 mFileConfig.putString(type + "." + id + ".class",
                         plugin.getClassName());

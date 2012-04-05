@@ -397,7 +397,7 @@ public class AuthAdminServlet extends AdminServlet {
                 return;
             }
             // is the manager id unique?
-            if (mAuths.getPlugins().containsKey((Object) id)) {
+            if (mAuths.getPlugins().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
@@ -653,7 +653,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // is the manager instance id unique?
-            if (mAuths.getInstances().containsKey((Object) id)) {
+            if (mAuths.getInstances().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
@@ -699,7 +699,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // check if implementation exists.
             AuthMgrPlugin plugin =
-                    (AuthMgrPlugin) mAuths.getPlugins().get(implname);
+                    mAuths.getPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -916,9 +916,8 @@ public class AuthAdminServlet extends AdminServlet {
         Enumeration<String> e = mAuths.getPlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            AuthMgrPlugin value = (AuthMgrPlugin)
-                    mAuths.getPlugins().get(name);
+            String name = e.nextElement();
+            AuthMgrPlugin value = mAuths.getPlugins().get(name);
 
             if (value.isVisible()) {
                 params.put(name, value.getClassPath() + EDIT);
@@ -944,8 +943,7 @@ public class AuthAdminServlet extends AdminServlet {
                 enableStr = "disabled";
             }
 
-            AuthMgrPlugin amgrplugin = (AuthMgrPlugin)
-                    mAuths.getPlugins().get(value.getImplName());
+            AuthMgrPlugin amgrplugin = mAuths.getPlugins().get(value.getImplName());
 
             if (!amgrplugin.isVisible()) {
                 params.put(name, value.getImplName() + ";invisible;" + enableStr);
@@ -1032,7 +1030,7 @@ public class AuthAdminServlet extends AdminServlet {
             // first check if any instances from this auth manager
             // DON'T remove auth manager if any instance
             for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
-                IAuthManager authMgr = (IAuthManager) mAuths.get((String) e.nextElement());
+                IAuthManager authMgr = mAuths.get((String) e.nextElement());
 
                 if (authMgr.getImplName() == id) {
                     // store a message in the signed audit log file
@@ -1052,7 +1050,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // then delete this auth manager
-            mAuths.getPlugins().remove((Object) id);
+            mAuths.getPlugins().remove(id);
 
             IConfigStore destStore =
                     mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
@@ -1350,7 +1348,7 @@ public class AuthAdminServlet extends AdminServlet {
             return;
         }
 
-        IAuthManager mgrInst = (IAuthManager) mAuths.get(id);
+        IAuthManager mgrInst = mAuths.get(id);
         IConfigStore config = mgrInst.getConfigStore();
         String[] configParams = mgrInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
@@ -1360,7 +1358,7 @@ public class AuthAdminServlet extends AdminServlet {
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
                 String key = configParams[i];
-                String val = (String) config.get(key);
+                String val = config.get(key);
 
                 if (val != null) {
                     params.put(key, val);
@@ -1434,7 +1432,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // Does the manager instance exist?
-            if (!mAuths.getInstances().containsKey((Object) id)) {
+            if (!mAuths.getInstances().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
@@ -1470,8 +1468,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             // get plugin for implementation
-            AuthMgrPlugin plugin =
-                    (AuthMgrPlugin) mAuths.getPlugins().get(implname);
+            AuthMgrPlugin plugin = mAuths.getPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -1493,8 +1490,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // save old instance substore params in case new one fails.
 
-            IAuthManager oldinst =
-                    (IAuthManager) mAuths.get(id);
+            IAuthManager oldinst = mAuths.get(id);
             IConfigStore oldConfig = oldinst.getConfigStore();
 
             String[] oldConfigParms = oldinst.getConfigParams();
@@ -1502,7 +1498,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // implName is always required so always include it it.
             saveParams.put(IAuthSubsystem.PROP_PLUGIN,
-                    (String) oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
+                    oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.length; i++) {
                     String key = oldConfigParms[i];

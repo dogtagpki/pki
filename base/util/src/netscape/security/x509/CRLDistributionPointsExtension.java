@@ -85,7 +85,7 @@ public class CRLDistributionPointsExtension extends Extension
 
             this.extensionId = PKIXExtensions.CRLDistributionPoints_Id;
             this.critical = critical.booleanValue();
-            this.extensionValue = (byte[]) ((byte[]) value).clone();
+            this.extensionValue = ((byte[]) value).clone();
 
             // decode the value
             try {

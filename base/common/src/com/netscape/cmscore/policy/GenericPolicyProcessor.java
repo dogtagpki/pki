@@ -210,7 +210,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
-            String id = (String) mImpls.nextElement();
+            String id = mImpls.nextElement();
 
             // The implementation id should be unique
             if (mImplTable.containsKey(id))
@@ -270,7 +270,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IConfigStore ruleStore = config.getSubStore(PROP_RULE);
 
         for (int i = 0; i < numPolicies; i++) {
-            String instanceName = (String) mPolicyOrder.elementAt(i);
+            String instanceName = mPolicyOrder.elementAt(i);
 
             // The instance id should be unique
             if (mInstanceTable.containsKey(instanceName))
@@ -302,8 +302,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
 
             // Make an instance of the specified policy.
-            RegisteredPolicy regPolicy =
-                    (RegisteredPolicy) mImplTable.get(implName);
+            RegisteredPolicy regPolicy = mImplTable.get(implName);
 
             if (regPolicy == null) {
                 String[] params = { implName, instanceName };
@@ -318,7 +317,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 rule = (IPolicyRule)
                         Class.forName(classpath).newInstance();
                 if (rule instanceof IPolicyRule)
-                    ((IPolicyRule) rule).setInstanceName(instanceName);
+                    rule.setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
                 mAuthority.log(ILogger.LL_FAILURE,
@@ -378,7 +377,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      */
     public PolicyResult apply(IRequest req) {
         IPolicySet rules = null;
-        String op = (String) req.getRequestType();
+        String op = req.getRequestType();
 
         CMS.debug("GenericPolicyProcessor: apply begins");
         if (op == null) {
@@ -465,8 +464,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         try {
             while (enum1.hasMoreElements()) {
-                RegisteredPolicy regPolicy =
-                        (RegisteredPolicy) enum1.nextElement();
+                RegisteredPolicy regPolicy = enum1.nextElement();
 
                 // Make an Instance of it
                 IPolicyRule ruleImpl = (IPolicyRule)
@@ -488,11 +486,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         try {
             while (enum1.hasMoreElements()) {
-                RegisteredPolicy regPolicy =
-                        (RegisteredPolicy) enum1.nextElement();
-
+                RegisteredPolicy regPolicy = enum1.nextElement();
                 impls.addElement(regPolicy.getId());
-
             }
             ret = impls.elements();
         } catch (Exception e) {
@@ -502,8 +497,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public IPolicyRule getPolicyImpl(String id) {
-        RegisteredPolicy regImpl = (RegisteredPolicy)
-                mImplTable.get(id);
+        RegisteredPolicy regImpl = mImplTable.get(id);
 
         if (regImpl == null)
             return null;
@@ -535,8 +529,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public void deletePolicyImpl(String id)
             throws EBaseException {
         // First check if the id is valid;
-        RegisteredPolicy regPolicy =
-                (RegisteredPolicy) mImplTable.get(id);
+        RegisteredPolicy regPolicy = mImplTable.get(id);
 
         if (regPolicy == null)
             throw new EPolicyException(
@@ -547,7 +540,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         Enumeration<PolicyInstance> e = mInstanceTable.elements();
 
         for (; e.hasMoreElements();) {
-            PolicyInstance inst = (PolicyInstance) e.nextElement();
+            PolicyInstance inst = e.nextElement();
 
             if (inst.isInstanceOf(id)) {
                 instanceExist = true;
@@ -636,8 +629,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         try {
             while (enum1.hasMoreElements()) {
-                PolicyInstance instance =
-                        (PolicyInstance) mInstanceTable.get((String) enum1.nextElement());
+                PolicyInstance instance = mInstanceTable.get(enum1.nextElement());
 
                 rules.addElement(instance.getRule());
 
@@ -668,15 +660,13 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public IPolicyRule getPolicyInstance(String id) {
-        PolicyInstance policyInstance = (PolicyInstance)
-                mInstanceTable.get(id);
+        PolicyInstance policyInstance = mInstanceTable.get(id);
 
         return (policyInstance == null) ? null : policyInstance.getRule();
     }
 
     public Vector<String> getPolicyInstanceConfig(String id) {
-        PolicyInstance policyInstance = (PolicyInstance)
-                mInstanceTable.get(id);
+        PolicyInstance policyInstance = mInstanceTable.get(id);
 
         if (policyInstance == null)
             return null;
@@ -702,8 +692,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     CMS.getUserMessage("CMS_POLICY_CANT_DELETE_PERSISTENT_POLICY", id));
 
         // First check if the instance is present.
-        PolicyInstance instance =
-                (PolicyInstance) mInstanceTable.get(id);
+        PolicyInstance instance = mInstanceTable.get(id);
 
         if (instance == null)
             throw new EPolicyException(
@@ -762,7 +751,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DUPLICATE_INST_ID", id));
         // There should be an implmentation for this rule.
-        String implName = (String) ht.get(IPolicyRule.PROP_IMPLNAME);
+        String implName = ht.get(IPolicyRule.PROP_IMPLNAME);
 
         // See if there is an implementation with this name.
         IPolicyRule rule = getPolicyImpl(implName);
@@ -793,7 +782,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         rule.init(this, newStore);
 
         // Add the rule to the table.
-        String enabledStr = (String) ht.get(IPolicyRule.PROP_ENABLE);
+        String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
@@ -801,7 +790,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             active = true;
 
         // Set the predicate if any present on the rule.
-        String predicate = ((String) ht.get(IPolicyRule.PROP_PREDICATE)).trim();
+        String predicate = ht.get(IPolicyRule.PROP_PREDICATE).trim();
         IExpression exp = null;
 
         if (predicate.trim().length() > 0)
@@ -837,8 +826,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public void modifyPolicyInstance(String id, Hashtable<String, String> ht)
             throws EBaseException {
         // The instance id should be there already
-        PolicyInstance policyInstance = (PolicyInstance)
-                mInstanceTable.get(id);
+        PolicyInstance policyInstance = mInstanceTable.get(id);
 
         if (policyInstance == null)
             throw new EPolicyException(
@@ -846,7 +834,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IPolicyRule rule = policyInstance.getRule();
 
         // The impl id shouldn't change
-        String implId = (String) ht.get(IPolicyRule.PROP_IMPLNAME);
+        String implId = ht.get(IPolicyRule.PROP_IMPLNAME);
 
         if (!implId.equals(policyInstance.getImplId()))
             throw new EPolicyException(
@@ -868,7 +856,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IConfigStore newStore = new PropConfigStore(id);
 
         // See if the rule is disabled.
-        String enabledStr = (String) ht.get(IPolicyRule.PROP_ENABLE);
+        String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
@@ -876,7 +864,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             active = true;
 
         // Set the predicate expression.
-        String predicate = ((String) ht.get(IPolicyRule.PROP_PREDICATE)).trim();
+        String predicate = ht.get(IPolicyRule.PROP_PREDICATE).trim();
         IExpression exp = null;
 
         if (predicate.trim().length() > 0)
@@ -890,8 +878,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_INACTIVE", id));
             }
 
-            IExpression defPred = (IExpression)
-                    mUndeletablePolicies.get(id);
+            IExpression defPred = mUndeletablePolicies.get(id);
 
             if (defPred == SimpleExpression.NULL_EXPRESSION)
                 defPred = null;
@@ -922,16 +909,16 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // put old config store parameters first.
         for (Enumeration<String> oldkeys = oldStore.keys(); oldkeys.hasMoreElements();) {
-            String k = (String) oldkeys.nextElement();
-            String v = (String) oldStore.getString(k);
+            String k = oldkeys.nextElement();
+            String v = oldStore.getString(k);
 
             newStore.put(k, v);
         }
 
         // put modified params.
         for (Enumeration<String> newkeys = ht.keys(); newkeys.hasMoreElements();) {
-            String k = (String) newkeys.nextElement();
-            String v = (String) ht.get(k);
+            String k = newkeys.nextElement();
+            String v = ht.get(k);
 
             Debug.trace("newstore key " + k + "=" + v);
             if (v != null) {
@@ -969,13 +956,13 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Store the changes in the file.
         try {
             for (Enumeration<String> e = newStore.keys(); e.hasMoreElements();) {
-                String key = (String) e.nextElement();
+                String key = e.nextElement();
 
                 if (key != null) {
                     Debug.trace(
                             "oldstore.put(" + key + "," +
-                                    (String) newStore.getString(key) + ")");
-                    oldStore.put(key, (String) newStore.getString(key));
+                                    newStore.getString(key) + ")");
+                    oldStore.put(key, newStore.getString(key));
                 }
             }
             mGlobalStore.commit(true);
@@ -1078,9 +1065,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // add rules specified in the new order.
         for (Enumeration<String> enum1 = policyOrder.elements(); enum1.hasMoreElements();) {
-            String instanceName = (String) enum1.nextElement();
-            PolicyInstance pInstance = (PolicyInstance)
-                    mInstanceTable.get(instanceName);
+            String instanceName = enum1.nextElement();
+            PolicyInstance pInstance = mInstanceTable.get(instanceName);
 
             if (!pInstance.isActive())
                 continue;
@@ -1141,7 +1127,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         StringBuffer sb = new StringBuffer();
 
         for (Enumeration<String> e = rules.elements(); e.hasMoreElements();) {
-            sb.append((String) e.nextElement());
+            sb.append(e.nextElement());
             sb.append(",");
         }
         if (sb.length() > 0)
@@ -1379,7 +1365,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // predicate is set.
         mUndeletablePolicies = new Hashtable<String, IExpression>();
         for (Enumeration<String> e = rules.elements(); e.hasMoreElements();) {
-            String urn = (String) e.nextElement();
+            String urn = e.nextElement();
 
             // See if there is predicate in the file
             String pred = mConfig.getString(PROP_UNDELETABLE_POLICIES +
@@ -1426,10 +1412,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // the policy is present, is not disabled and its predicate
         // is not tampered with.
         for (Enumeration<String> e = mUndeletablePolicies.keys(); e.hasMoreElements();) {
-            String urn = (String) e.nextElement();
+            String urn = e.nextElement();
 
             // See if the rule is in the instance table.
-            PolicyInstance inst = (PolicyInstance) mInstanceTable.get(urn);
+            PolicyInstance inst = mInstanceTable.get(urn);
 
             if (inst == null)
                 throw new EPolicyException(
@@ -1441,8 +1427,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_INACTIVE", urn));
 
             // See if the predicated is misconfigured.
-            IExpression defPred = (IExpression)
-                    mUndeletablePolicies.get(urn);
+            IExpression defPred = mUndeletablePolicies.get(urn);
 
             // We used SimpleExpression.NULL_EXPRESSION to indicate a null.
             if (defPred == SimpleExpression.NULL_EXPRESSION)

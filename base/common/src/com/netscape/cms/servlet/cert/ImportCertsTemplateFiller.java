@@ -156,8 +156,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             fixed.set(CERT_TYPE, certType);
 
         // this authority
-        fixed.set(ICMSTemplateFiller.AUTHORITY,
-                (String) authority.getOfficialName());
+        fixed.set(ICMSTemplateFiller.AUTHORITY, authority.getOfficialName());
 
         // CA chain.
         CertificateChain cachain =

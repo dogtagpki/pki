@@ -1500,14 +1500,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         TimeZone tz = TimeZone.getDefault();
         int offset = tz.getOffset(now);
         long oneDay = 1440L * MINUTE;
-        long nowToday = (now + (long) offset) % oneDay;
+        long nowToday = (now + offset) % oneDay;
         long startOfToday = now - nowToday;
 
         long lastUpdated = (mLastUpdate != null) ? mLastUpdate.getTime() : now;
-        long lastUpdateDay = lastUpdated - ((lastUpdated + (long) offset) % oneDay);
+        long lastUpdateDay = lastUpdated - ((lastUpdated + offset) % oneDay);
 
         long lastUpdate = (mLastUpdate != null && fromLastUpdate) ? mLastUpdate.getTime() : now;
-        long last = (lastUpdate + (long) offset) % oneDay;
+        long last = (lastUpdate + offset) % oneDay;
         long lastDay = lastUpdate - last;
 
         boolean isDeltaEnabled = isDeltaCRLEnabled();
@@ -1537,7 +1537,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mDailyUpdates.size() == 1 && mDailyUpdates.elementAt(0).size() == 1 &&
                     mEnableUpdateFreq && mAutoUpdateInterval > 0) {
                 // Interval updates with starting time
-                long firstTime = MINUTE * ((Integer) mDailyUpdates.elementAt(0).elementAt(0)).longValue();
+                long firstTime = MINUTE * mDailyUpdates.elementAt(0).elementAt(0).longValue();
                 long t = firstTime;
                 long interval = mAutoUpdateInterval;
                 if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&
@@ -1580,7 +1580,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
                 // search the current day
                 for (i = 0; i < mDailyUpdates.elementAt(mCurrentDay).size(); i++) {
-                    long t = MINUTE * ((Integer) mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue();
+                    long t = MINUTE * mDailyUpdates.elementAt(mCurrentDay).elementAt(i).longValue();
                     if (mEnableDailyUpdates && mExtendedTimeList) {
                         if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                             if (t < 0) {
@@ -1607,7 +1607,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 if (i < mDailyUpdates.elementAt(mCurrentDay).size()) {
                     // found inside the current day
-                    next = (MINUTE * ((Integer) mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue());
+                    next = (MINUTE * mDailyUpdates.elementAt(mCurrentDay).elementAt(i).longValue());
                     if (mEnableDailyUpdates && mExtendedTimeList && next < 0) {
                         next *= -1;
                         if (fromLastUpdate) {
@@ -1637,7 +1637,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             if (j < mDailyUpdates.elementAt(nextDay).size()) {
                                 if (nextDay == 0 && (!(mEnableDailyUpdates && mExtendedTimeList)))
                                     j = 0;
-                                t = MINUTE * ((Integer) mDailyUpdates.elementAt(nextDay).elementAt(j)).longValue();
+                                t = MINUTE * mDailyUpdates.elementAt(nextDay).elementAt(j).longValue();
                                 if (mEnableDailyUpdates && mExtendedTimeList) {
                                     if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                                         if (t < 0) {
@@ -2018,7 +2018,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     int k;
 
                     for (k = 0; k < exts.size(); k++) {
-                        Extension ext = (Extension) exts.elementAt(k);
+                        Extension ext = exts.elementAt(k);
                         String name = mCMSCRLExtensions.getCRLExtensionName(
                                 ext.getExtensionId().toString());
 
@@ -2085,7 +2085,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     RevokedCertImpl newRevokedCert =
                             new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
-                    mRevokedCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                    mRevokedCerts.put(serialNumber, newRevokedCert);
                 }
             } else if (certType == UNREVOKED_CERT) {
                 if (mRevokedCerts.containsKey(serialNumber)) {
@@ -2101,7 +2101,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
                             CMS.getCurrentDate(), entryExt);
 
-                    mUnrevokedCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                    mUnrevokedCerts.put(serialNumber, newRevokedCert);
                 }
             }
         }
@@ -2177,7 +2177,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
                         CMS.getCurrentDate(), entryExt);
 
-                mExpiredCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                mExpiredCerts.put(serialNumber, newRevokedCert);
             }
 
             if (mCacheUpdateInterval == 0) {
@@ -2221,7 +2221,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 if (crlExtensions != null) {
                     for (int k = 0; k < crlExtensions.size(); k++) {
-                        Extension ext = (Extension) crlExtensions.elementAt(k);
+                        Extension ext = crlExtensions.elementAt(k);
 
                         if (DeltaCRLIndicatorExtension.OID.equals(ext.getExtensionId().toString())) {
                             DeltaCRLIndicatorExtension dExt = (DeltaCRLIndicatorExtension) ext;

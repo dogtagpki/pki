@@ -93,7 +93,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
             context.put("errorString", "Error loading values for Import CA Certificate Panel");
         }
 
-        ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+        ISubsystem ca = CMS.getSubsystem("ca");
 
         if (ca == null) {
             context.put("ca", "false");

@@ -108,7 +108,7 @@ public class TransferProtocolClient extends NetworkClient {
 
     /** converts the server response into a string. */
     public String getResponseString() {
-        return (String) serverResponse.elementAt(0);
+        return serverResponse.elementAt(0);
     }
 
     /** Returns all server response strings. */

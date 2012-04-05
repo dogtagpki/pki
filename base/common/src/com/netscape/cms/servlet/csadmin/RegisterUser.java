@@ -164,13 +164,13 @@ public class RegisterUser extends CMSServlet {
             X509CertImpl cert = null;
             bCert = Utils.base64decode(certsString);
             cert = new X509CertImpl(bCert);
-            certs[0] = (X509Certificate) cert;
+            certs[0] = cert;
 
             // test to see if the cert already belongs to a user
             ICertUserLocator cul = ugsys.getCertUserLocator();
             com.netscape.certsrv.usrgrp.Certificates c =
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
-            user = (IUser) cul.locateUser(c);
+            user = cul.locateUser(c);
         } catch (Exception ec) {
             CMS.debug("RegisterUser: exception thrown: " + ec.toString());
         }

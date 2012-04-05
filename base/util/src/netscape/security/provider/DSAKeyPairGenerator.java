@@ -273,9 +273,8 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
 
             DSAParameterSpec dsaParamSpec;
             try {
-                dsaParamSpec = (DSAParameterSpec)
-                        dsaParamGen.generateParameters().getParameterSpec
-                                (DSAParameterSpec.class);
+                dsaParamSpec = dsaParamGen.generateParameters().getParameterSpec
+                        (DSAParameterSpec.class);
             } catch (InvalidParameterSpecException e) {
                 // this should never happen
                 throw new RuntimeException(e.getMessage());

@@ -251,7 +251,7 @@ public class DisplayBySerial extends CMSServlet {
             Locale locale)
             throws EBaseException {
         try {
-            ICertRecord rec = (ICertRecord) mCertDB.readCertificateRecord(seq);
+            ICertRecord rec = mCertDB.readCertificateRecord(seq);
             if (rec == null) {
                 CMS.debug("DisplayBySerial: failed to read record");
                 throw new ECMSGWException(
@@ -277,7 +277,7 @@ public class DisplayBySerial extends CMSServlet {
 
                 if (extensions != null) {
                     for (int i = 0; i < extensions.size(); i++) {
-                        Extension ext = (Extension) extensions.elementAt(i);
+                        Extension ext = extensions.elementAt(i);
 
                         if (ext instanceof NSCertTypeExtension) {
                             NSCertTypeExtension type = (NSCertTypeExtension) ext;
@@ -336,7 +336,7 @@ public class DisplayBySerial extends CMSServlet {
                     int reason = 0;
 
                     while (enumx.hasMoreElements()) {
-                        Extension ext = (Extension) enumx.nextElement();
+                        Extension ext = enumx.nextElement();
 
                         if (ext instanceof CRLReasonExtension) {
                             reason = ((CRLReasonExtension) ext).getReason().toInt();
@@ -454,7 +454,7 @@ public class DisplayBySerial extends CMSServlet {
         ICertRecord rec = null;
 
         try {
-            rec = (ICertRecord) mCertDB.readCertificateRecord(seq);
+            rec = mCertDB.readCertificateRecord(seq);
             X509CertImpl x509cert = rec.getCertificate();
 
             if (x509cert != null) {

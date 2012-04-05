@@ -98,7 +98,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
             throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
-        this.extensionValue = (byte[]) ((byte[]) value).clone();
+        this.extensionValue = ((byte[]) value).clone();
         decodeThis();
     }
 

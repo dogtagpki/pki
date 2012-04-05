@@ -87,7 +87,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
-                String id = (String) mImpls.nextElement();
+                String id = mImpls.nextElement();
                 String pluginPath = c.getString(id + "." + PROP_CLASS);
 
                 AuthzMgrPlugin plugin = new AuthzMgrPlugin(id, pluginPath);
@@ -104,10 +104,10 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             Enumeration<String> instances = c.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
-                String insName = (String) instances.nextElement();
+                String insName = instances.nextElement();
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
                 AuthzMgrPlugin plugin =
-                        (AuthzMgrPlugin) mAuthzMgrPlugins.get(implName);
+                        mAuthzMgrPlugins.get(implName);
 
                 if (plugin == null) {
                     log(ILogger.LL_FAILURE,
@@ -191,8 +191,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public void authzMgrAccessInit(String authzMgrInstName, String accessInfo)
             throws EAuthzMgrNotFound, EBaseException {
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-                mAuthzMgrInsts.get(authzMgrInstName);
+        AuthzManagerProxy proxy = mAuthzMgrInsts.get(authzMgrInstName);
 
         if (proxy == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -225,8 +224,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             String resource, String operation)
             throws EAuthzMgrNotFound, EBaseException {
 
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-                mAuthzMgrInsts.get(authzMgrInstName);
+        AuthzManagerProxy proxy = mAuthzMgrInsts.get(authzMgrInstName);
 
         if (proxy == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -246,8 +244,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             String authzMgrInstName, IAuthToken authToken, String exp)
             throws EAuthzMgrNotFound, EBaseException {
 
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-                mAuthzMgrInsts.get(authzMgrInstName);
+        AuthzManagerProxy proxy = mAuthzMgrInsts.get(authzMgrInstName);
 
         if (proxy == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -273,7 +270,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public String[] getConfigParams(String implName)
             throws EAuthzMgrPluginNotFound, EBaseException {
         // is this a registered implname?
-        AuthzMgrPlugin plugin = (AuthzMgrPlugin) mAuthzMgrPlugins.get(implName);
+        AuthzMgrPlugin plugin = mAuthzMgrPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
@@ -326,7 +323,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * @return the named authorization manager instance
      */
     public IAuthzManager get(String name) {
-        AuthzManagerProxy proxy = (AuthzManagerProxy) mAuthzMgrInsts.get(name);
+        AuthzManagerProxy proxy = mAuthzMgrInsts.get(name);
 
         if (proxy == null)
             return null;
@@ -341,7 +338,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         Enumeration<String> e = mAuthzMgrInsts.keys();
 
         while (e.hasMoreElements()) {
-            IAuthzManager p = get((String) e.nextElement());
+            IAuthzManager p = get(e.nextElement());
 
             if (p != null) {
                 inst.addElement(p);
@@ -361,7 +358,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * retrieve a single authz manager plugin by name
      */
     public AuthzMgrPlugin getAuthzManagerPluginImpl(String name) {
-        return (AuthzMgrPlugin) mAuthzMgrPlugins.get(name);
+        return mAuthzMgrPlugins.get(name);
     }
 
     /**
@@ -370,7 +367,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /* getconfigparams above should be recoded to use this func */
     public IAuthzManager getAuthzManagerPlugin(String name) {
-        AuthzMgrPlugin plugin = (AuthzMgrPlugin) mAuthzMgrPlugins.get(name);
+        AuthzMgrPlugin plugin = mAuthzMgrPlugins.get(name);
         String classpath = plugin.getClassPath();
         IAuthzManager authzMgrInst = null;
 
@@ -419,7 +416,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public void shutdown() {
         for (Enumeration<String> e = mAuthzMgrInsts.keys(); e.hasMoreElements();) {
 
-            IAuthzManager mgr = (IAuthzManager) get((String) e.nextElement());
+            IAuthzManager mgr = get(e.nextElement());
 
             //String infoMsg =
             //        "Shutting down authz manager instance " + mgr.getName();
@@ -458,7 +455,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * @return the named authorization manager
      */
     public IAuthzManager getAuthzManager(String name) {
-        return ((IAuthzManager) get(name));
+        return get(name);
     }
 
     /**

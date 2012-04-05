@@ -287,9 +287,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
         try {
             X509Certificate cert = (X509Certificate) obj;
-
-            subjectDN =
-                    (X500Name) ((X509Certificate) cert).getSubjectDN();
+            subjectDN = (X500Name) cert.getSubjectDN();
 
             CMS.debug("LdapCaSimpleMap: cert subject dn:" + subjectDN.toString());
             X509CertInfo info = (X509CertInfo)
@@ -307,9 +305,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
-
-                subjectDN =
-                        (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+                subjectDN = (X500Name) crl.getIssuerDN();
 
                 CMS.debug("LdapCaSimpleMap: crl issuer dn: " +
                         subjectDN.toString());

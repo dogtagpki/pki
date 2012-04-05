@@ -235,7 +235,7 @@ public class RAPresence
             }
 
             // Retrieve the RA certificate public key
-            raPubKey = (PublicKey) raCert.getPublicKey();
+            raPubKey = raCert.getPublicKey();
 
             if (raPubKey == null) {
                 // log that something is seriously wrong with the RA

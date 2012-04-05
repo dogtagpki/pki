@@ -1013,7 +1013,7 @@ public class PKCS9Attribute implements DerEncoder {
      * Return the name of this attribute.
      */
     public String getName() {
-        return (String) OID_NAME_TABLE.get(PKCS9_OIDS[index]);
+        return OID_NAME_TABLE.get(PKCS9_OIDS[index]);
     }
 
     /**
@@ -1021,7 +1021,7 @@ public class PKCS9Attribute implements DerEncoder {
      * the name.
      */
     public static ObjectIdentifier getOID(String name) {
-        return (ObjectIdentifier) NAME_OID_TABLE.get(name.toLowerCase());
+        return NAME_OID_TABLE.get(name.toLowerCase());
     }
 
     /**
@@ -1029,7 +1029,7 @@ public class PKCS9Attribute implements DerEncoder {
      * the oid.
      */
     public static String getName(ObjectIdentifier oid) {
-        return (String) OID_NAME_TABLE.get(oid);
+        return OID_NAME_TABLE.get(oid);
     }
 
     /**

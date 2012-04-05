@@ -234,7 +234,7 @@ public final class CertAndKeyGen {
             cert = new X509CertImpl(info);
             cert.sign(privateKey, algID.getName());
 
-            return (X509Certificate) cert;
+            return cert;
 
         } catch (IOException e) {
             throw new CertificateEncodingException("getSelfCert: " +

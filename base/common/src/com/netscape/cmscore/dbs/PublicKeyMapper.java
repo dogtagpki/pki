@@ -83,7 +83,7 @@ public class PublicKeyMapper implements IDBAttrMapper {
         if (attr == null) {
             return;
         }
-        parent.set(name, (byte[]) attr.getByteValues().nextElement());
+        parent.set(name, attr.getByteValues().nextElement());
     }
 
     /**

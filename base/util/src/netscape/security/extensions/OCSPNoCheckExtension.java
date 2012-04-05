@@ -78,7 +78,7 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
             // never here
         }
         critical = crit.booleanValue();
-        extensionValue = (byte[]) ((byte[]) byteVal).clone();
+        extensionValue = ((byte[]) byteVal).clone();
     }
 
     public void setCritical(boolean newValue) {

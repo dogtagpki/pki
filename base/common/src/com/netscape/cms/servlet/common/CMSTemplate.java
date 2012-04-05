@@ -155,7 +155,7 @@ public class CMSTemplate extends CMSFile {
         Enumeration<String> e = null;
         Enumeration<IArgBlock> q = null;
         IArgBlock r = null;
-        CMSTemplateParams data = (CMSTemplateParams) input;
+        CMSTemplateParams data = input;
         HTTPOutputStreamWriter http_out = null;
 
         if (mCharset == null)

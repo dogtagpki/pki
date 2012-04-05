@@ -245,7 +245,7 @@ public class DisplayCRL extends CMSServlet {
 
         try {
             crlRecord =
-                    (ICRLIssuingPointRecord) mCA.getCRLRepository().readCRLIssuingPointRecord(crlIssuingPointId);
+                    mCA.getCRLRepository().readCRLIssuingPointRecord(crlIssuingPointId);
         } catch (EBaseException e) {
             header.addStringValue("error", e.toString(locale));
             return;

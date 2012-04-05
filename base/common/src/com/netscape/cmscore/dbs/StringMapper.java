@@ -78,8 +78,7 @@ public class StringMapper implements IDBAttrMapper {
             return;
         }
         try {
-            parent.set(name, (String)
-                    attr.getStringValues().nextElement());
+            parent.set(name, attr.getStringValues().nextElement());
         } catch (NoSuchElementException e) {
             // attribute present, but without value
         }

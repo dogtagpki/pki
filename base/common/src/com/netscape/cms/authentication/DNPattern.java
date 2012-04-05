@@ -211,6 +211,6 @@ public class DNPattern {
     }
 
     public String[] getLdapAttrs() {
-        return (String[]) mLdapAttrs.clone();
+        return mLdapAttrs.clone();
     }
 }

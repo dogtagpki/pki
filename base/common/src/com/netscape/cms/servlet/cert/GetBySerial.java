@@ -165,7 +165,7 @@ public class GetBySerial extends CMSServlet {
             return;
         }
 
-        ICertRecord certRecord = (ICertRecord) getCertRecord(serialNo);
+        ICertRecord certRecord = getCertRecord(serialNo);
         if (certRecord == null) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
@@ -272,7 +272,7 @@ public class GetBySerial extends CMSServlet {
             }
 
             // use import cert template to return cert.
-            X509CertImpl[] certs = new X509CertImpl[] { (X509CertImpl) cert };
+            X509CertImpl[] certs = new X509CertImpl[] { cert };
 
             cmsReq.setResult(certs);
 

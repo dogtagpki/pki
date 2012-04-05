@@ -127,11 +127,10 @@ public class LdapPredicateParser {
         if (size == 0)
             return null;
         LdapOrExpression orExp = new
-                LdapOrExpression((ILdapExpression) expSet.elementAt(0), null);
+                LdapOrExpression(expSet.elementAt(0), null);
 
         for (int i = 1; i < size; i++)
-            orExp = new LdapOrExpression(orExp,
-                        (ILdapExpression) expSet.elementAt(i));
+            orExp = new LdapOrExpression(orExp, expSet.elementAt(i));
         return orExp;
     }
 
@@ -173,12 +172,12 @@ public class LdapPredicateParser {
         }
 
         int size = expVector.size();
-        LdapSimpleExpression exp1 = (LdapSimpleExpression) expVector.elementAt(0);
-        LdapSimpleExpression exp2 = (LdapSimpleExpression) expVector.elementAt(1);
+        LdapSimpleExpression exp1 = expVector.elementAt(0);
+        LdapSimpleExpression exp2 = expVector.elementAt(1);
         LdapAndExpression andExp = new LdapAndExpression(exp1, exp2);
 
         for (int i = 2; i < size; i++) {
-            andExp = new LdapAndExpression(andExp, (LdapSimpleExpression) expVector.elementAt(i));
+            andExp = new LdapAndExpression(andExp, expVector.elementAt(i));
         }
         return andExp;
     }

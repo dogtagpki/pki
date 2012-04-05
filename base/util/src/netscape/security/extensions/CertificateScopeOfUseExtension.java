@@ -83,7 +83,7 @@ public class CertificateScopeOfUseExtension extends Extension
             throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
-        this.extensionValue = (byte[]) ((byte[]) value).clone();
+        this.extensionValue = ((byte[]) value).clone();
         decodeThis();
     }
 
@@ -154,8 +154,7 @@ public class CertificateScopeOfUseExtension extends Extension
             throw new IOException("Invalid Scope Entries");
 
         for (int i = 0; i < mEntries.size(); i++) {
-            CertificateScopeEntry se = (CertificateScopeEntry)
-                    mEntries.elementAt(i);
+            CertificateScopeEntry se = mEntries.elementAt(i);
 
             se.encode(tmp);
         }
@@ -188,8 +187,7 @@ public class CertificateScopeOfUseExtension extends Extension
 
         if (mEntries != null) {
             for (int i = 0; i < mEntries.size(); i++) {
-                CertificateScopeEntry se = (CertificateScopeEntry)
-                        mEntries.elementAt(i);
+                CertificateScopeEntry se = mEntries.elementAt(i);
 
                 s += se.toString();
             }

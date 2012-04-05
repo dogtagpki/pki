@@ -54,7 +54,7 @@ public class ExtDataHashtable<V> extends Hashtable<String, V> {
 
     public V put(String oKey, V val) {
         if (oKey instanceof String) {
-            String key = (String) oKey;
+            String key = oKey;
             return super.put(key.toLowerCase(), val);
         }
         return super.put(oKey, val);

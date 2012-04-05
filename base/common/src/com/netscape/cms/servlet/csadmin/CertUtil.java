@@ -350,7 +350,7 @@ public class CertUtil {
             }
             ca = (ICertificateAuthority) CMS.getSubsystem(
                     ICertificateAuthority.ID);
-            cr = (ICertificateRepository) ca.getCertificateRepository();
+            cr = ca.getCertificateRepository();
             BigInteger serialNo = cr.getNextSerialNumber();
             if (type.equals("selfsign")) {
                 CMS.debug("Creating local certificate... issuerdn=" + dn);
@@ -466,7 +466,7 @@ public class CertUtil {
             }
 
             meta.set(ICertRecord.META_PROFILE_ID, profileId);
-            record = (ICertRecord) cr.createCertRecord(
+            record = cr.createCertRecord(
                     cert.getSerialNumber(), cert, meta);
         } catch (Exception e) {
             CMS.debug(

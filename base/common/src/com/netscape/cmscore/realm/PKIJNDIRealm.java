@@ -819,7 +819,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 StringTokenizer atok = new StringTokenizer(tr, ";");
 
                 while (atok.hasMoreTokens()) {
-                    String acs = (String) atok.nextToken();
+                    String acs = atok.nextToken();
 
                     // construct ACL entry
                     ACLEntry entry = ACLEntry.parseACLEntry(acl, acs);

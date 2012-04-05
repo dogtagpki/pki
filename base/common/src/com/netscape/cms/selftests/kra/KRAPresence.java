@@ -225,7 +225,7 @@ public class KRAPresence
             }
 
             // Retrieve the KRA certificate public key
-            kraPubKey = (PublicKey) kraCert.getPublicKey();
+            kraPubKey = kraCert.getPublicKey();
 
             if (kraPubKey == null) {
                 // log that something is seriously wrong with the KRA

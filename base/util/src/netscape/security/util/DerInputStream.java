@@ -332,7 +332,7 @@ public class DerInputStream {
         DerValue[] retval = new DerValue[max];
 
         for (i = 0; i < max; i++)
-            retval[i] = (DerValue) vec.elementAt(i);
+            retval[i] = vec.elementAt(i);
 
         return retval;
     }

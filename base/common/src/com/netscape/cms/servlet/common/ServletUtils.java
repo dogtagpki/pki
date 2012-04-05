@@ -98,7 +98,7 @@ public class ServletUtils {
         StringTokenizer tokenizer = new StringTokenizer(aclInfo, "#");
 
         while (tokenizer.hasMoreTokens()) {
-            String acl = (String) tokenizer.nextToken();
+            String acl = tokenizer.nextToken();
 
             authz.authzMgrAccessInit(aclMethod, acl);
         }

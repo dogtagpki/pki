@@ -305,7 +305,7 @@ public class SecurityDataRecoveryService implements IService {
             throw new NoSuchAlgorithmException("Key generation algorithm" +
                     " is not a PBE algorithm");
         }
-        PBEAlgorithm pbeAlg = (PBEAlgorithm) keyGenAlg;
+        PBEAlgorithm pbeAlg = keyGenAlg;
 
         KeyGenerator kg = token.getKeyGenerator(keyGenAlg);
         PBEKeyGenParams pbekgParams = new PBEKeyGenParams(

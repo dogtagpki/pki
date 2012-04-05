@@ -128,11 +128,11 @@ public class PolicyPredicateParser {
         if (size == 0)
             return null;
         OrExpression orExp = new
-                OrExpression((IExpression) expSet.elementAt(0), null);
+                OrExpression(expSet.elementAt(0), null);
 
         for (int i = 1; i < size; i++)
             orExp = new OrExpression(orExp,
-                        (IExpression) expSet.elementAt(i));
+                        expSet.elementAt(i));
         return orExp;
     }
 
@@ -174,12 +174,12 @@ public class PolicyPredicateParser {
         }
 
         int size = expVector.size();
-        SimpleExpression exp1 = (SimpleExpression) expVector.elementAt(0);
-        SimpleExpression exp2 = (SimpleExpression) expVector.elementAt(1);
+        SimpleExpression exp1 = expVector.elementAt(0);
+        SimpleExpression exp2 = expVector.elementAt(1);
         AndExpression andExp = new AndExpression(exp1, exp2);
 
         for (int i = 2; i < size; i++) {
-            andExp = new AndExpression(andExp, (SimpleExpression) expVector.elementAt(i));
+            andExp = new AndExpression(andExp, expVector.elementAt(i));
         }
         return andExp;
     }

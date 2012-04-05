@@ -113,7 +113,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         context.put("caType", type);
 
-        ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
+        ISubsystem ca = CMS.getSubsystem("ca");
 
         if (ca == null) {
             context.put("ca", "false");

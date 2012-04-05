@@ -131,7 +131,7 @@ public class PolicySet implements IPolicySet {
 
         if (index < 0)
             return null;
-        return (IPolicyRule) mRules.elementAt(index);
+        return mRules.elementAt(index);
     }
 
     /**
@@ -167,8 +167,8 @@ public class PolicySet implements IPolicySet {
         int size = mRules.size();
 
         for (int index = 0; index < size; index++) {
-            String name = (String) mRuleNames.elementAt(index);
-            IPolicyRule rule = (IPolicyRule) mRules.elementAt(index);
+            String name = mRuleNames.elementAt(index);
+            IPolicyRule rule = mRules.elementAt(index);
             IExpression exp = rule.getPredicate();
 
             try {
@@ -238,7 +238,7 @@ public class PolicySet implements IPolicySet {
                 // treat as rejected to prevent request from going into
                 // a weird state. request queue doesn't handle this case.
                 rejected = true;
-                ((IPolicyRule) rule).setError(
+                rule.setError(
                         req,
                         CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", rule.getName(), ex.toString()), null);
             }
@@ -265,7 +265,7 @@ public class PolicySet implements IPolicySet {
         int size = mRules.size();
 
         for (int index = 0; index < size; index++) {
-            String ruleName = (String) mRuleNames.elementAt(index);
+            String ruleName = mRuleNames.elementAt(index);
 
             System.out.println("Rule Name: " + ruleName);
             System.out.println("Implementation: " +

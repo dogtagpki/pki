@@ -69,6 +69,6 @@ public class ArgSet implements IArgValue {
      * @return argument value
      */
     public IArgValue get(String name) {
-        return (IArgValue) mArgs.get(name);
+        return mArgs.get(name);
     }
 }

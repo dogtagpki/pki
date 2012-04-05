@@ -152,7 +152,7 @@ public class AclEntryImpl implements AclEntry {
         s.append(user + "=");
         Enumeration<Permission> e = permissions();
         while (e.hasMoreElements()) {
-            Permission p = (Permission) e.nextElement();
+            Permission p = e.nextElement();
             s.append(p);
             if (e.hasMoreElements())
                 s.append(",");

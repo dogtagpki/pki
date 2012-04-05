@@ -48,7 +48,7 @@ public class LdapFilterConverter implements IFilterConverter {
      */
     public String convert(String name, String op, String value) {
         AttributeNameHelper h = new AttributeNameHelper(name);
-        IDBAttrMapper mapper = (IDBAttrMapper) mReg.get(
+        IDBAttrMapper mapper = mReg.get(
                 h.getPrefix().toLowerCase());
 
         if (mapper == null)

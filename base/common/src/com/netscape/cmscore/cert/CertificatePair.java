@@ -104,7 +104,7 @@ public class CertificatePair implements ASN1Value {
         debug("in certOrders() with X509Cert");
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
-        X509Certificate caCert = (X509Certificate) ca.getCACert();
+        X509Certificate caCert = ca.getCACert();
 
         debug("got this caCert");
         // reverse cert is the one signed by this ca

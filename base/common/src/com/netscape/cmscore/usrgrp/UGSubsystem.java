@@ -197,7 +197,7 @@ public final class UGSubsystem implements IUGSubsystem {
                 Enumeration<IUser> e = findUsers(userid);
 
                 if (e != null && e.hasMoreElements()) {
-                    IUser u = (IUser) e.nextElement();
+                    IUser u = e.nextElement();
 
                     return u;
                 } else {
@@ -215,7 +215,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     Enumeration<IUser> e = buildUsers(res);
 
                     if (e.hasMoreElements()) {
-                        return (IUser) e.nextElement();
+                        return e.nextElement();
                     }
                 } finally {
                     if (ldapconn != null)
@@ -460,8 +460,7 @@ public final class UGSubsystem implements IUGSubsystem {
                 int i = 0;
 
                 while (en.hasMoreElements()) {
-                    certArray[i++] = (X509Certificate)
-                            en.nextElement();
+                    certArray[i++] = en.nextElement();
                 }
 
                 id.setX509Certificates(certArray);
@@ -543,7 +542,7 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<String> en = phoneAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
-                String phone = (String) en.nextElement();
+                String phone = en.nextElement();
 
                 if (phone != null) {
                     id.setPhone(phone);
@@ -563,7 +562,7 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<String> en = userTypeAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
-                String userType = (String) en.nextElement();
+                String userType = en.nextElement();
 
                 if ((userType != null) && (!userType.equals("undefined")))
                     id.setUserType(userType);
@@ -582,7 +581,7 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<String> en = userStateAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
-                String userState = (String) en.nextElement();
+                String userState = en.nextElement();
 
                 if (userState != null)
                     id.setState(userState);
@@ -602,9 +601,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             try {
                 for (; e != null && e.hasMoreElements();) {
-                    X509Certificate cert = new X509CertImpl(
-                            (byte[]) e.nextElement());
-
+                    X509Certificate cert = new X509CertImpl(e.nextElement());
                     certVector.addElement(cert);
                 }
             } catch (Exception ex) {
@@ -618,8 +615,7 @@ public final class UGSubsystem implements IUGSubsystem {
                 int i = 0;
 
                 while (en.hasMoreElements()) {
-                    certArray[i++] = (X509Certificate)
-                            en.nextElement();
+                    certArray[i++] = en.nextElement();
                 }
 
                 id.setX509Certificates(certArray);
@@ -1199,7 +1195,7 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<String> en = grpDesc.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
-                String desc = (String) en.nextElement();
+                String desc = en.nextElement();
 
                 if (desc != null) {
                     try {
@@ -1231,7 +1227,7 @@ public final class UGSubsystem implements IUGSubsystem {
         Enumeration<String> e = attr.getStringValues();
 
         while (e.hasMoreElements()) {
-            String v = (String) e.nextElement();
+            String v = e.nextElement();
 
             //		grp.addMemberName(v);
             // DOES NOT SUPPORT NESTED GROUPS...
@@ -1289,7 +1285,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             if (e == null || e.hasMoreElements() == false)
                 return null;
-            return (IGroup) e.nextElement();
+            return e.nextElement();
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_GET_GROUP", e.toString()));
         } finally {
@@ -1321,7 +1317,7 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<String> en = attr.getStringValues();
 
             for (; en.hasMoreElements();) {
-                String v = (String) en.nextElement();
+                String v = en.nextElement();
 
                 if (v.equalsIgnoreCase(GROUP_ATTR_VALUE)) {
                     return true;
@@ -1445,7 +1441,7 @@ public final class UGSubsystem implements IUGSubsystem {
                 LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
 
                 while (e.hasMoreElements()) {
-                    String name = (String) e.nextElement();
+                    String name = e.nextElement();
 
                     // DOES NOT SUPPORT NESTED GROUPS...
                     attrMembers.addValue("uid=" + name + "," +
@@ -1523,7 +1519,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             if (e.hasMoreElements() == true) {
                 while (e.hasMoreElements()) {
-                    String name = (String) e.nextElement();
+                    String name = e.nextElement();
 
                     // DOES NOT SUPPORT NESTED GROUPS...
                     attrMembers.addValue("uid=" + name + "," +

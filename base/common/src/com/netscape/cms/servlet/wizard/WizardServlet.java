@@ -88,7 +88,7 @@ public class WizardServlet extends VelocityServlet {
         Enumeration<IWizardPanel> e = mPanels.elements();
         Vector<IWizardPanel> panels = new Vector<IWizardPanel>();
         while (e.hasMoreElements()) {
-            IWizardPanel p = (IWizardPanel) e.nextElement();
+            IWizardPanel p = e.nextElement();
             panels.addElement(p);
         }
         context.put("panels", panels);
@@ -101,7 +101,7 @@ public class WizardServlet extends VelocityServlet {
         /* panel number starts from zero */
         int s = mPanels.size();
         for (int i = pno; i < s; i++) {
-            IWizardPanel panel = (IWizardPanel) mPanels.elementAt(i);
+            IWizardPanel panel = mPanels.elementAt(i);
             panel.cleanUp();
         }
     }

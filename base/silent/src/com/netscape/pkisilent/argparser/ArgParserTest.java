@@ -72,7 +72,7 @@ public class ArgParserTest {
         }
         String[] result = new String[vec.size()];
         for (int i = 0; i < vec.size(); i++) {
-            result[i] = (String) vec.get(i);
+            result[i] = vec.get(i);
         }
         return result;
     }
@@ -1504,7 +1504,7 @@ public class ArgParserTest {
             } catch (Exception e) {
             }
         }
-        unmatched = (String[]) vec.toArray(new String[0]);
+        unmatched = vec.toArray(new String[0]);
         test.checkStringArray(
                 "My unmatched args:", unmatched, unmatchedCheck);
 

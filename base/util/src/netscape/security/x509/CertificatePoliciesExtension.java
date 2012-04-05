@@ -78,7 +78,7 @@ public class CertificatePoliciesExtension extends Extension
         DerOutputStream tmp = new DerOutputStream();
 
         for (int i = 0; i < mInfos.size(); i++) {
-            ((CertificatePolicyInfo) mInfos.elementAt(i)).encode(tmp);
+            mInfos.elementAt(i).encode(tmp);
         }
         os.write(DerValue.tag_Sequence, tmp);
         extensionValue = os.toByteArray();

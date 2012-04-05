@@ -157,7 +157,7 @@ public class X500NameSubsystem implements ISubsystem {
         Enumeration<String> attrNames = attrSubStore.getSubStoreNames();
 
         while (attrNames.hasMoreElements()) {
-            String name = (String) attrNames.nextElement();
+            String name = attrNames.nextElement();
             IConfigStore substore = attrSubStore.getSubStore(name);
             String oidString = substore.getString(PROP_OID);
             ObjectIdentifier oid = CertUtils.checkOID(name, oidString);
@@ -203,7 +203,7 @@ public class X500NameSubsystem implements ISubsystem {
         byte[] tags = new byte[numTokens];
 
         for (int i = 0; toker.hasMoreTokens(); i++) {
-            String nextTag = (String) toker.nextToken();
+            String nextTag = toker.nextToken();
 
             try {
                 tags[i] = derStr2Tag(nextTag);

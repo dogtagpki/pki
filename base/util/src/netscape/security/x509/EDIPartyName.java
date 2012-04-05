@@ -88,7 +88,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
         for (int i = 0; i < len; i++) {
             DerValue opt = seq[i];
-            if (opt.isContextSpecific((byte) TAG_ASSIGNER) &&
+            if (opt.isContextSpecific(TAG_ASSIGNER) &&
                     !opt.isConstructed()) {
                 if (assigner != null)
                     throw new IOException("Duplicate nameAssigner found in"
@@ -96,7 +96,7 @@ public class EDIPartyName implements GeneralNameInterface {
                 opt = opt.data.getDerValue();
                 assigner = opt.getAsString();
             }
-            if (opt.isContextSpecific((byte) TAG_PARTYNAME) &&
+            if (opt.isContextSpecific(TAG_PARTYNAME) &&
                     !opt.isConstructed()) {
                 if (party != null)
                     throw new IOException("Duplicate partyName found in"

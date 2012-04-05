@@ -223,7 +223,7 @@ public class CrlPrettyPrint {
 
                                 if (crlExtensions != null) {
                                     for (int k = 0; k < crlExtensions.size(); k++) {
-                                        Extension ext = (Extension) crlExtensions.elementAt(k);
+                                        Extension ext = crlExtensions.elementAt(k);
                                         ExtPrettyPrint extpp = new ExtPrettyPrint(ext, 20);
 
                                         sb.append(extpp.toString());
@@ -242,7 +242,7 @@ public class CrlPrettyPrint {
                 sb.append(pp.indent(8) + resource.getString(
                         PrettyPrintResources.TOKEN_EXTENSIONS) + "\n");
                 for (int k = 0; k < crlExtensions.size(); k++) {
-                    Extension ext = (Extension) crlExtensions.elementAt(k);
+                    Extension ext = crlExtensions.elementAt(k);
                     ExtPrettyPrint extpp = new ExtPrettyPrint(ext, 12);
 
                     sb.append(extpp.toString());

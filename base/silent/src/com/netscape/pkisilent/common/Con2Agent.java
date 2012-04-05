@@ -29,7 +29,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs11.PK11Token;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -233,7 +232,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
             System.out.println("Step 2: Login to Cert Database");
             manager = CryptoManager.getInstance();
-            CryptoToken token = (PK11Token) manager.getInternalKeyStorageToken();
+            CryptoToken token = manager.getInternalKeyStorageToken();
 
             if (token.isLoggedIn()) {
                 System.out.println("Con2Agent: Logged in incorrect");
@@ -244,7 +243,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
             tokenpwd.getChars(0, tokenpwd.length(), passchar1, 0);
 
-            pass1 = new Password((char[]) passchar1.clone());
+            pass1 = new Password(passchar1.clone());
             token.login(pass1);
 
             X509Certificate cert2 = manager.findCertByNickname(certnickname);

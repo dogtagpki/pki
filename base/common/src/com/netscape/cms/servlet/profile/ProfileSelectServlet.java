@@ -201,8 +201,7 @@ public class ProfileSelectServlet extends ProfileServlet {
                 if (policyIds != null) {
                     while (policyIds.hasMoreElements()) {
                         String id = policyIds.nextElement();
-                        IProfilePolicy policy = (IProfilePolicy)
-                                profile.getProfilePolicy(setId, id);
+                        IProfilePolicy policy = profile.getProfilePolicy(setId, id);
 
                         // (3) query all the profile policies
                         // (4) default plugins convert request parameters into string

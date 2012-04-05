@@ -220,7 +220,7 @@ public class AclImpl extends OwnerImpl implements Acl {
     public boolean checkPermission(Principal principal, Permission permission) {
         Enumeration<Permission> permSet = getPermissions(principal);
         while (permSet.hasMoreElements()) {
-            Permission p = (Permission) permSet.nextElement();
+            Permission p = permSet.nextElement();
             if (p.equals(permission))
                 return true;
         }
@@ -244,7 +244,7 @@ public class AclImpl extends OwnerImpl implements Acl {
         StringBuffer sb = new StringBuffer();
         Enumeration<AclEntry> entries = entries();
         while (entries.hasMoreElements()) {
-            AclEntry entry = (AclEntry) entries.nextElement();
+            AclEntry entry = entries.nextElement();
             sb.append(entry.toString().trim());
             sb.append("\n");
         }
@@ -319,7 +319,7 @@ public class AclImpl extends OwnerImpl implements Acl {
         while (e.hasMoreElements()) {
             Group g = (Group) e.nextElement();
             if (g.isMember(user)) {
-                AclEntry ae = (AclEntry) allowedGroupsTable.get(g);
+                AclEntry ae = allowedGroupsTable.get(g);
                 groupPositive = union(ae.permissions(), groupPositive);
             }
         }
@@ -332,7 +332,7 @@ public class AclImpl extends OwnerImpl implements Acl {
         while (e.hasMoreElements()) {
             Group g = (Group) e.nextElement();
             if (g.isMember(user)) {
-                AclEntry ae = (AclEntry) deniedGroupsTable.get(g);
+                AclEntry ae = deniedGroupsTable.get(g);
                 groupNegative = union(ae.permissions(), groupNegative);
             }
         }
@@ -341,7 +341,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 
     private Enumeration<Permission> getIndividualPositive(Principal user) {
         Enumeration<Permission> individualPositive = zeroSet.elements();
-        AclEntry ae = (AclEntry) allowedUsersTable.get(user);
+        AclEntry ae = allowedUsersTable.get(user);
         if (ae != null)
             individualPositive = ae.permissions();
         return individualPositive;
@@ -349,7 +349,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 
     private Enumeration<Permission> getIndividualNegative(Principal user) {
         Enumeration<Permission> individualNegative = zeroSet.elements();
-        AclEntry ae = (AclEntry) deniedUsersTable.get(user);
+        AclEntry ae = deniedUsersTable.get(user);
         if (ae != null)
             individualNegative = ae.permissions();
         return individualNegative;

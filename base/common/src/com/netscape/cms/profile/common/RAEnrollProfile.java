@@ -73,7 +73,7 @@ public class RAEnrollProfile extends EnrollProfile {
 
         IRegistrationAuthority ra =
                 (IRegistrationAuthority) getAuthority();
-        IRAService raService = (IRAService) ra.getRAService();
+        IRAService raService = ra.getRAService();
 
         if (raService == null) {
             throw new EProfileException("No RA Service");

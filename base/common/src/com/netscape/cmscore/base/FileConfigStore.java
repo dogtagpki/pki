@@ -181,15 +181,15 @@ public class FileConfigStore extends PropConfigStore implements
 
         // sorting them lexicographically
         while (v.size() > 0) {
-            String pname = (String) v.firstElement();
+            String pname = v.firstElement();
             int j = 0;
 
             for (int i = 1; i < v.size(); i++) {
-                String s = (String) v.elementAt(i);
+                String s = v.elementAt(i);
 
                 if (pname.compareTo(s) > 0) {
                     j = i;
-                    pname = (String) v.elementAt(i);
+                    pname = v.elementAt(i);
                 }
             }
             v.removeElementAt(j);
@@ -203,15 +203,15 @@ public class FileConfigStore extends PropConfigStore implements
             v.addElement(e1.nextElement());
         }
         while (v.size() > 0) {
-            String pname = (String) v.firstElement();
+            String pname = v.firstElement();
             int j = 0;
 
             for (int i = 1; i < v.size(); i++) {
-                String s = (String) v.elementAt(i);
+                String s = v.elementAt(i);
 
                 if (pname.compareTo(s) > 0) {
                     j = i;
-                    pname = (String) v.elementAt(i);
+                    pname = v.elementAt(i);
                 }
             }
             v.removeElementAt(j);

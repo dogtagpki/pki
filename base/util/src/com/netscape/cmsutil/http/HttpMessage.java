@@ -56,7 +56,7 @@ public class HttpMessage {
      * get a header
      */
     public String getHeader(String name) {
-        return (String) mHeaders.get(name.toLowerCase());
+        return mHeaders.get(name.toLowerCase());
     }
 
     /**

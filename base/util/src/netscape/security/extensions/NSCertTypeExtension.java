@@ -237,7 +237,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
         this.extensionId = CertType_Id;
         this.critical = critical.booleanValue();
-        byte[] extValue = (byte[]) ((byte[]) value).clone();
+        byte[] extValue = ((byte[]) value).clone();
 
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);

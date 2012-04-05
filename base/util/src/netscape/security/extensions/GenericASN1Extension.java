@@ -104,55 +104,55 @@ public class GenericASN1Extension extends Extension
                 os.write(DerValue.tag_Sequence, tmp);
                 return os.toByteArray();
             default:
-                type = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_TYPE);
+                type = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_TYPE);
                 if (type.equalsIgnoreCase("integer")) {
-                    int num = Integer.parseInt((String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE));
+                    int num = Integer.parseInt(mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE));
                     PutInteger(tmp, num);
                 } else if (type.equalsIgnoreCase("ia5string")) {
-                    source = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    source = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     if (source.equalsIgnoreCase("file"))
                         PutIA5String(tmp, getFromFile(value));
                     else
                         PutIA5String(tmp, value);
                 } else if (type.equalsIgnoreCase("octetstring")) {
-                    source = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    source = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     // It should be colon seperated ASCII Hexdecimal String
                     if (source.equalsIgnoreCase("file"))
                         PutOctetString(tmp, getFromFile(value));
                     else
                         PutOctetString(tmp, value);
                 } else if (type.equalsIgnoreCase("bmpstring")) {
-                    source = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    source = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     if (source.equalsIgnoreCase("file"))
                         PutBMPString(tmp, getFromFile(value));
                     else
                         PutBMPString(tmp, value);
                 } else if (type.equalsIgnoreCase("printablestring")) {
-                    source = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    source = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     if (source.equalsIgnoreCase("file"))
                         PutPrintableString(tmp, getFromFile(value));
                     else
                         PutPrintableString(tmp, value);
                 } else if (type.equalsIgnoreCase("visiblestring")) {
-                    source = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    source = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     if (source.equalsIgnoreCase("file"))
                         PutVisibleString(tmp, getFromFile(value));
                     else
                         PutVisibleString(tmp, value);
                 } else if (type.equalsIgnoreCase("utctime")) {
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     PutUTCtime(tmp, value);
                 } else if (type.equalsIgnoreCase("oid")) {
-                    value = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    value = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     PutOID(tmp, value);
                 } else if (type.equalsIgnoreCase("boolean")) {
                     boolean bool = false;
-                    String b = (String) mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
+                    String b = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE);
                     if (b.equalsIgnoreCase("true"))
                         bool = true;
                     else
@@ -205,10 +205,10 @@ public class GenericASN1Extension extends Extension
     public GenericASN1Extension(Hashtable<String, String> config)
             throws IOException, ParseException {
         mConfig = config;
-        ObjectIdentifier tmpid = new ObjectIdentifier((String) mConfig.get(PROP_OID));
-        name = (String) mConfig.get(PROP_NAME);
-        OID = (String) mConfig.get(PROP_OID);
-        pattern = (String) mConfig.get(PROP_PATTERN);
+        ObjectIdentifier tmpid = new ObjectIdentifier(mConfig.get(PROP_OID));
+        name = mConfig.get(PROP_NAME);
+        OID = mConfig.get(PROP_OID);
+        pattern = mConfig.get(PROP_PATTERN);
 
         try {
             if (OIDMap.getName(tmpid) == null)
@@ -218,7 +218,7 @@ public class GenericASN1Extension extends Extension
 
         this.extensionId = tmpid;
         this.critical = false;
-        String b = (String) mConfig.get(PROP_CRITICAL);
+        String b = mConfig.get(PROP_CRITICAL);
         if (b.equalsIgnoreCase("true"))
             this.critical = true;
         else
@@ -428,14 +428,14 @@ public class GenericASN1Extension extends Extension
         }
 
         for (i = 0, j = 0; j < s.length(); j++) {
-            int ch = (int) s.charAt(j);
+            int ch = s.charAt(j);
             if (ch == 10 || ch == 13 || ch == 9)
                 continue;
             i++;
         }
         buff = new byte[i];
         for (i = 0, j = 0; j < s.length(); j++) {
-            int ch = (int) s.charAt(j);
+            int ch = s.charAt(j);
             if (ch == 10 || ch == 13 || ch == 9)
                 continue;
             buff[i++] = (byte) ch;

@@ -94,14 +94,11 @@ public final class DSAPrivateKey extends PKCS8Key
             if (algid instanceof DSAParams) {
                 return (DSAParams) algid;
             } else {
-                DSAParameterSpec paramSpec;
                 AlgorithmParameters algParams = algid.getParameters();
                 if (algParams == null) {
                     return null;
                 }
-                paramSpec = (DSAParameterSpec) algParams.getParameterSpec
-                        (DSAParameterSpec.class);
-                return (DSAParams) paramSpec;
+                return algParams.getParameterSpec(DSAParameterSpec.class);
             }
         } catch (InvalidParameterSpecException e) {
             return null;

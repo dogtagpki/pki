@@ -43,7 +43,7 @@ public class CertInfoProfile {
         mProfileSetIDMapping = config.getString("profileSetIDMapping");
         StringTokenizer st = new StringTokenizer(config.getString("list"), ",");
         while (st.hasMoreTokens()) {
-            String id = (String) st.nextToken();
+            String id = st.nextToken();
             String c = config.getString(id + ".default.class");
             try {
                 /* load defaults */
@@ -89,8 +89,7 @@ public class CertInfoProfile {
     public void populate(X509CertInfo info) {
         Enumeration<ICertInfoPolicyDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
-            ICertInfoPolicyDefault def =
-                    (ICertInfoPolicyDefault) e1.nextElement();
+            ICertInfoPolicyDefault def = e1.nextElement();
             try {
                 def.populate(null /* request */, info);
             } catch (Exception e) {

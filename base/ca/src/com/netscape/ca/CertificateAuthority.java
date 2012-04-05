@@ -809,7 +809,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             try {
                 issuingPointClassName = c.getString(PROP_CLASS);
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
-                issuingPoint = (CRLIssuingPoint) issuingPointClass.newInstance();
+                issuingPoint = issuingPointClass.newInstance();
                 issuingPoint.init(this, id, c);
                 mCRLIssuePoints.put(id, issuingPoint);
             } catch (EPropertyNotFound e) {
@@ -1506,13 +1506,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 Enumeration<String> instances = instc.getSubStoreNames();
 
                 while (instances.hasMoreElements()) {
-                    String id = (String) instances.nextElement();
+                    String id = instances.nextElement();
 
                     if (Debug.ON)
                         Debug.trace("registering listener instance: " + id);
                     IConfigStore iConfig = instc.getSubStore(id);
                     String implName = instc.getString(id + "." + PROP_PLUGIN);
-                    ListenerPlugin plugin = (ListenerPlugin) mListenerPlugins.get(implName);
+                    ListenerPlugin plugin = mListenerPlugins.get(implName);
 
                     if (plugin == null) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", implName));
@@ -1618,7 +1618,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private void initRequestQueue()
             throws EBaseException {
         mPolicy = new CAPolicy();
-        ((CAPolicy) mPolicy).init(this, mConfig.getSubStore(PROP_POLICY));
+        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
         CMS.debug("CA policy inited");
         mService = new CAService(this);
         CMS.debug("CA service inited");

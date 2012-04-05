@@ -110,7 +110,7 @@ public abstract class AAclAuthz {
         Enumeration<String> mImpls = i.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
-            String type = (String) mImpls.nextElement();
+            String type = mImpls.nextElement();
             String evalClassPath = null;
 
             try {
@@ -171,7 +171,7 @@ public abstract class AAclAuthz {
     }
 
     public IACL getACL(String target) {
-        return (ACL) mACLs.get(target);
+        return mACLs.get(target);
     }
 
     protected Enumeration<String> getTargetNames() {
@@ -310,7 +310,7 @@ public abstract class AAclAuthz {
      */
     private boolean checkACLs(String name, String perm)
             throws EACLsException {
-        ACL acl = (ACL) mACLs.get(name);
+        ACL acl = mACLs.get(name);
 
         // no such resource, pass it down
         if (acl == null) {
@@ -338,7 +338,7 @@ public abstract class AAclAuthz {
          * must pass all ACLEntry
          */
         for (; e.hasMoreElements();) {
-            ACLEntry entry = (ACLEntry) e.nextElement();
+            ACLEntry entry = e.nextElement();
 
             // if permission not pertinent, move on to next ACLEntry
             if (entry.containPermission(perm) == true) {
@@ -430,7 +430,7 @@ public abstract class AAclAuthz {
         int i = expression.indexOf("=");
         String type = expression.substring(0, i);
         String value = expression.substring(i + 1);
-        IAccessEvaluator evaluator = (IAccessEvaluator) mEvaluators.get(type);
+        IAccessEvaluator evaluator = mEvaluators.get(type);
 
         if (evaluator == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
@@ -486,7 +486,7 @@ public abstract class AAclAuthz {
         boolean permitted = false;
 
         while (entries.hasMoreElements()) {
-            ACLEntry entry = (ACLEntry) entries.nextElement();
+            ACLEntry entry = entries.nextElement();
 
             CMS.debug("checkACLS(): ACLEntry expressions= " +
                     entry.getAttributeExpressions());
@@ -504,7 +504,7 @@ public abstract class AAclAuthz {
             entries = getDenyEntries(nodes, perm);
 
         while (entries.hasMoreElements()) {
-            ACLEntry entry = (ACLEntry) entries.nextElement();
+            ACLEntry entry = entries.nextElement();
 
             CMS.debug("checkACLS(): ACLEntry expressions= " +
                     entry.getAttributeExpressions());
@@ -541,13 +541,13 @@ public abstract class AAclAuthz {
         Vector<ACLEntry> v = new Vector<ACLEntry>();
 
         while (nodes.hasMoreElements()) {
-            name = (String) nodes.nextElement();
-            acl = (ACL) mACLs.get(name);
+            name = nodes.nextElement();
+            acl = mACLs.get(name);
             if (acl == null)
                 continue;
             e = acl.entries();
             while (e.hasMoreElements()) {
-                ACLEntry entry = (ACLEntry) e.nextElement();
+                ACLEntry entry = e.nextElement();
 
                 if (!entry.isNegative() &&
                         entry.containPermission(operation)) {
@@ -566,8 +566,8 @@ public abstract class AAclAuthz {
         Vector<ACLEntry> v = new Vector<ACLEntry>();
 
         while (nodes.hasMoreElements()) {
-            name = (String) nodes.nextElement();
-            acl = (ACL) mACLs.get(name);
+            name = nodes.nextElement();
+            acl = mACLs.get(name);
             if (acl == null)
                 continue;
             e = acl.entries();
@@ -690,7 +690,7 @@ public abstract class AAclAuthz {
             type = expression.substring(0, i).trim();
             value = expression.substring(i + len).trim();
         }
-        IAccessEvaluator evaluator = (IAccessEvaluator) mEvaluators.get(type);
+        IAccessEvaluator evaluator = mEvaluators.get(type);
 
         if (evaluator == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
@@ -799,7 +799,7 @@ public abstract class AAclAuthz {
      * @return true if unique; false otherwise
      */
     public boolean isTypeUnique(String type) {
-        if (mACLs.containsKey((Object) type)) {
+        if (mACLs.containsKey(type)) {
             return false;
         } else {
             return true;

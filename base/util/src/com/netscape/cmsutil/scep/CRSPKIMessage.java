@@ -712,7 +712,7 @@ public class CRSPKIMessage {
 
         sd = (SignedData) sdt.decode(
                     new ByteArrayInputStream(
-                            ((ANY) crsci.getContent()).getEncoded()
+                            crsci.getContent().getEncoded()
                     ));
         this.decodeSD();
     }
@@ -736,19 +736,19 @@ public class CRSPKIMessage {
         sdci = sd.getContentInfo();
 
         // HACK to work with CRS
-        ANY a = (ANY) sdci.getContent();
+        ANY a = sdci.getContent();
         ByteArrayInputStream s = new ByteArrayInputStream(a.getEncoded());
         OCTET_STRING os = (OCTET_STRING) (new OCTET_STRING.Template()).decode(s);
 
         ByteArrayInputStream s2 = new ByteArrayInputStream(os.toByteArray());
         ContentInfo ci = (ContentInfo) (new ContentInfo.Template()).decode(s2);
-        ByteArrayInputStream s3 = new ByteArrayInputStream(((ANY) ci.getContent()).getEncoded());
+        ByteArrayInputStream s3 = new ByteArrayInputStream(ci.getContent().getEncoded());
 
         EnvelopedData.Template edt = new EnvelopedData.Template();
 
         sded = (EnvelopedData) edt.decode(s3);
 
-        SET signerCerts = (SET) sd.getCertificates();
+        SET signerCerts = sd.getCertificates();
         Certificate firstCert = (Certificate) signerCerts.elementAt(0);
 
         signerCertBytes = ASN1Util.encode(firstCert);
@@ -777,7 +777,7 @@ public class CRSPKIMessage {
     private void decodeED() throws Exception {
         SET ris;
 
-        ris = (SET) sded.getRecipientInfos();
+        ris = sded.getRecipientInfos();
 
         if (ris.size() == 0) {
             throw new Exception("RecipientInfos is empty");
@@ -842,7 +842,7 @@ public class CRSPKIMessage {
 
         for (count = 0; count < aa.size(); count++) {
             Attribute a = (Attribute) aa.elementAt(count);
-            SET s = (SET) a.getValues();
+            SET s = a.getValues();
             ANY f = (ANY) s.elementAt(0);
             PrintableString ps;
             PrintableString.Template pst = new PrintableString.Template();

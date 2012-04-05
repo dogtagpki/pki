@@ -58,7 +58,7 @@ public class KeyIdentifier implements java.io.Serializable {
      * Return the value of the KeyIdentifier as byte array.
      */
     public byte[] getIdentifier() {
-        return ((byte[]) octetString.clone());
+        return octetString.clone();
     }
 
     /**

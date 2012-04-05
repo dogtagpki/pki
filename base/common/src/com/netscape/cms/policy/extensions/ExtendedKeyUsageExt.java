@@ -174,7 +174,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
                 params.addElement(PROP_PURPOSE_ID +
                         Integer.toString(i) + "=");
             } else {
-                usage = ((ObjectIdentifier) mUsages.elementAt(i)).toString();
+                usage = mUsages.elementAt(i).toString();
                 if (usage == null) {
                     params.addElement(PROP_PURPOSE_ID +
                             Integer.toString(i) + "=");

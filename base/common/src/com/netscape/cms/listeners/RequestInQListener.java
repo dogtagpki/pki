@@ -227,25 +227,19 @@ public class RequestInQListener implements IRequestListener {
 
         RequestId reqId = r.getRequestId();
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                (Object) reqId.toString());
+        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID, reqId.toString());
 
         mContentParams.put(IEmailFormProcessor.TOKEN_ID, mId);
 
         val = r.getRequestType();
         if (val != null)
-            mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE,
-                    val);
+            mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE, val);
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                (Object) mHttpHost);
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-                (Object) mAgentPort);
+        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
+        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT, mAgentPort);
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-                (Object) mSenderEmail);
-        mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-                (Object) mRecipientEmail);
+        mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL, mSenderEmail);
+        mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL, mRecipientEmail);
     }
 
     /**

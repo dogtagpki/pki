@@ -164,7 +164,7 @@ public class DirAclAuthz extends AAclAuthz
                 LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
 
                 @SuppressWarnings("unchecked")
-                Enumeration<String> en = (Enumeration<String>) aclRes.getStringValues();
+                Enumeration<String> en = aclRes.getStringValues();
 
                 for (; en != null && en.hasMoreElements();) {
                     addACLs(en.nextElement());
@@ -294,7 +294,7 @@ public class DirAclAuthz extends AAclAuthz
 
             if (en.hasMoreElements() == true) {
                 while (en.hasMoreElements()) {
-                    ACL a = (ACL) en.nextElement();
+                    ACL a = en.nextElement();
                     String resAclString = a.getResourceACLs();
 
                     attrs.addValue(resAclString);

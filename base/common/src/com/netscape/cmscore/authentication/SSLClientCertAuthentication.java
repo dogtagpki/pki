@@ -113,7 +113,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
         mCA = (ICertificateAuthority) CMS.getSubsystem("ca");
 
         if (mCA != null) {
-            mCertDB = (ICertificateRepository) mCA.getCertificateRepository();
+            mCertDB = mCA.getCertificateRepository();
         }
 
         X509CertImpl clientCert = (X509CertImpl) x509Certs[0];
@@ -121,7 +121,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
         BigInteger serialNum = null;
 
         try {
-            serialNum = (BigInteger) clientCert.getSerialNumber();
+            serialNum = clientCert.getSerialNumber();
             //serialNum = new BigInteger(s.substring(2), 16);
         } catch (NumberFormatException e) {
             throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
@@ -134,7 +134,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
             ICertRecord record = null;
 
             try {
-                record = (ICertRecord) mCertDB.readCertificateRecord(serialNum);
+                record = mCertDB.readCertificateRecord(serialNum);
             } catch (EBaseException ee) {
                 if (Debug.ON) {
                     Debug.trace(ee.toString());

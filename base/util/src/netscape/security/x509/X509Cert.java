@@ -403,7 +403,7 @@ public class X509Cert implements Certificate, Serializable {
         Signature sig;
 
         if (privateKey instanceof Key) {
-            Key key = (Key) privateKey;
+            Key key = privateKey;
             algorithm = key.getAlgorithm();
         } else {
             throw new InvalidKeyException("private key not a key!");

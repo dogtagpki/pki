@@ -268,7 +268,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 StringTokenizer st = new StringTokenizer(value, "\r\n");
 
                 while (st.hasMoreTokens()) {
-                    String gname = (String) st.nextToken();
+                    String gname = st.nextToken();
                     CMS.debug("SubjectAltNameExtDefault: setValue GN:" + gname);
 
                     if (!isGeneralNameValid(gname)) {

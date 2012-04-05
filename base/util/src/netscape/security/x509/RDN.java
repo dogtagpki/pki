@@ -147,7 +147,7 @@ public class RDN {
      * @param avas a AVA Array.
      */
     public RDN(AVA avas[]) {
-        assertion = (AVA[]) avas.clone();
+        assertion = avas.clone();
     }
 
     /**
@@ -167,7 +167,7 @@ public class RDN {
      * @return array of AVA in this RDN.
      */
     public AVA[] getAssertion() {
-        return (AVA[]) assertion.clone();
+        return assertion.clone();
     }
 
     /**

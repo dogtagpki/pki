@@ -113,7 +113,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
         this.extensionId = PKIXExtensions.ReasonCode_Id;
         this.critical = critical.booleanValue();
 
-        byte[] extValue = (byte[]) ((byte[]) value).clone();
+        byte[] extValue = ((byte[]) value).clone();
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);
         int reasonCode = val.getEnumerated();

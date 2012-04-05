@@ -107,7 +107,7 @@ public class BitArray {
      */
     private BitArray(BitArray ba) {
         length = ba.length;
-        repn = (byte[]) ba.repn.clone();
+        repn = ba.repn.clone();
     }
 
     /**
@@ -156,7 +156,7 @@ public class BitArray {
      * is not a multiple of 8.)
      */
     public byte[] toByteArray() {
-        return (byte[]) repn.clone();
+        return repn.clone();
     }
 
     public boolean equals(Object obj) {

@@ -352,7 +352,7 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         objectclass_values = mObjClasses;
         for (int i = objectclass_values.size() - 1; i >= 0; i--)
-            attr.addValue((String) objectclass_values.elementAt(i));
+            attr.addValue(objectclass_values.elementAt(i));
         attrs.add(attr);
 
         Enumeration<Enumeration<String>> objClasses = mRequiredAttrs.elements();
@@ -369,7 +369,7 @@ public class PortalEnroll extends DirBasedAuthentication {
                 if (attrname.equalsIgnoreCase("objectclass") == true)
                     continue;
                 try {
-                    attrval = (String) argblk.getValueAsString(attrname);
+                    attrval = argblk.getValueAsString(attrname);
                 } catch (EBaseException e) {
                     if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND")) == true)
                         continue;
@@ -393,7 +393,7 @@ public class PortalEnroll extends DirBasedAuthentication {
 
                 CMS.debug("PortalEnroll: attrname is: " + attrname);
                 try {
-                    attrval = (String) argblk.getValueAsString(attrname);
+                    attrval = argblk.getValueAsString(attrname);
                 } catch (EBaseException e) {
                     if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND")) == true)
                         continue;

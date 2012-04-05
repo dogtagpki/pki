@@ -125,7 +125,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             Enumeration<String> mImpls = c.getSubStoreNames();
 
             while (mImpls.hasMoreElements()) {
-                String id = (String) mImpls.nextElement();
+                String id = mImpls.nextElement();
                 String pluginPath = c.getString(id + "." + PROP_CLASS);
 
                 AuthMgrPlugin plugin = new AuthMgrPlugin(id, pluginPath);
@@ -194,10 +194,10 @@ public class AuthSubsystem implements IAuthSubsystem {
             Enumeration<String> instances = c.getSubStoreNames();
 
             while (instances.hasMoreElements()) {
-                String insName = (String) instances.nextElement();
+                String insName = instances.nextElement();
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
                 AuthMgrPlugin plugin =
-                        (AuthMgrPlugin) mAuthMgrPlugins.get(implName);
+                        mAuthMgrPlugins.get(implName);
 
                 if (plugin == null) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANT_FIND_PLUGIN", implName));
@@ -275,8 +275,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             IAuthCredentials authCred, String authMgrInstName)
             throws EMissingCredential, EInvalidCredentials,
             EAuthMgrNotFound, EBaseException {
-        AuthManagerProxy proxy = (AuthManagerProxy)
-                mAuthMgrInsts.get(authMgrInstName);
+        AuthManagerProxy proxy = mAuthMgrInsts.get(authMgrInstName);
 
         if (proxy == null) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
@@ -316,7 +315,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     public String[] getConfigParams(String implName)
             throws EAuthMgrPluginNotFound, EBaseException {
         // is this a registered implname?
-        AuthMgrPlugin plugin = (AuthMgrPlugin) mAuthMgrPlugins.get(implName);
+        AuthMgrPlugin plugin = mAuthMgrPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_PLUGIN_NOT_FOUND", implName));
@@ -368,7 +367,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * @return the named authentication manager instance
      */
     public IAuthManager get(String name) {
-        AuthManagerProxy proxy = (AuthManagerProxy) mAuthMgrInsts.get(name);
+        AuthManagerProxy proxy = mAuthMgrInsts.get(name);
 
         if (proxy == null)
             return null;
@@ -403,7 +402,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * retrieve a single auth manager plugin by name
      */
     public AuthMgrPlugin getAuthManagerPluginImpl(String name) {
-        return (AuthMgrPlugin) mAuthMgrPlugins.get(name);
+        return mAuthMgrPlugins.get(name);
     }
 
     /**
@@ -412,7 +411,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /* getconfigparams above should be recoded to use this func */
     public IAuthManager getAuthManagerPlugin(String name) {
-        AuthMgrPlugin plugin = (AuthMgrPlugin) mAuthMgrPlugins.get(name);
+        AuthMgrPlugin plugin = mAuthMgrPlugins.get(name);
         String classpath = plugin.getClassPath();
         IAuthManager authMgrInst = null;
 
@@ -461,7 +460,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     public void shutdown() {
         for (Enumeration<String> e = mAuthMgrInsts.keys(); e.hasMoreElements();) {
 
-            IAuthManager mgr = (IAuthManager) get((String) e.nextElement());
+            IAuthManager mgr = get(e.nextElement());
 
             log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_SHUTDOWN", mgr.getName()));
 
@@ -499,7 +498,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * @return the named authentication manager
      */
     public IAuthManager getAuthManager(String name) {
-        return ((IAuthManager) get(name));
+        return get(name);
     }
 
     /**

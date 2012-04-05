@@ -108,7 +108,7 @@ public class TokenKeyRecoveryService implements IService {
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
 
         for (int i = 0; i < s.length(); i++) {
-            int c = (int) s.charAt(i);
+            int c = s.charAt(i);
 
             if (c == '+') {
                 out.write(' ');
@@ -290,7 +290,7 @@ public class TokenKeyRecoveryService implements IService {
         String cert = normalizeCertStr(cert_s);
         java.security.cert.X509Certificate x509cert = null;
         try {
-            x509cert = (java.security.cert.X509Certificate) Cert.mapCert(cert);
+            x509cert = Cert.mapCert(cert);
             if (x509cert == null) {
                 CMS.debug("cert mapping failed");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(5));

@@ -79,7 +79,7 @@ public class GeneralSubtrees {
         GeneralSubtree element;
 
         for (Enumeration<GeneralSubtree> e = trees.elements(); e.hasMoreElements();) {
-            element = (GeneralSubtree) e.nextElement();
+            element = e.nextElement();
             s = s + pp.indent(indent + 4) + element.toPrint(indent) + "\n";
         }
 
@@ -95,7 +95,7 @@ public class GeneralSubtrees {
         DerOutputStream seq = new DerOutputStream();
 
         for (int i = 0; i < trees.size(); i++) {
-            ((GeneralSubtree) trees.elementAt(i)).encode(seq);
+            trees.elementAt(i).encode(seq);
         }
         out.write(DerValue.tag_Sequence, seq);
     }

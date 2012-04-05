@@ -109,24 +109,21 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             ObjectIdentifier oid = new ObjectIdentifier(getConfig(CONFIG_OID));
 
-            ext = (Extension)
-                        getExtension(oid.toString(), info);
+            ext = getExtension(oid.toString(), info);
 
             if (ext == null) {
                 populate(null, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = (Extension)
-                        getExtension(oid.toString(), info);
+                ext = getExtension(oid.toString(), info);
                 if (ext == null) {
                     return;
                 }
                 boolean val = Boolean.valueOf(value).booleanValue();
                 ext.setCritical(val);
             } else if (name.equals(VAL_DATA)) {
-                ext = (Extension)
-                        getExtension(oid.toString(), info);
+                ext = getExtension(oid.toString(), info);
                 if (ext == null) {
                     return;
                 }
@@ -155,8 +152,7 @@ public class GenericExtDefault extends EnrollExtDefault {
 
         ObjectIdentifier oid = new ObjectIdentifier(getConfig(CONFIG_OID));
 
-        ext = (Extension)
-                    getExtension(oid.toString(), info);
+        ext = getExtension(oid.toString(), info);
 
         if (ext == null) {
             try {
@@ -171,8 +167,7 @@ public class GenericExtDefault extends EnrollExtDefault {
 
         if (name.equals(VAL_CRITICAL)) {
 
-            ext = (Extension)
-                    getExtension(oid.toString(), info);
+            ext = getExtension(oid.toString(), info);
 
             if (ext == null) {
                 return null;
@@ -184,8 +179,7 @@ public class GenericExtDefault extends EnrollExtDefault {
             }
         } else if (name.equals(VAL_DATA)) {
 
-            ext = (Extension)
-                    getExtension(oid.toString(), info);
+            ext = getExtension(oid.toString(), info);
 
             if (ext == null)
                 return "";
@@ -218,7 +212,7 @@ public class GenericExtDefault extends EnrollExtDefault {
             if ((data[i] & 0xff) < 16) {
                 b.append("0");
             }
-            b.append(Integer.toString((int) (data[i] & 0xff), 0x10));
+            b.append(Integer.toString((data[i] & 0xff), 0x10));
         }
         return b.toString();
     }

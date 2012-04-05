@@ -236,7 +236,7 @@ public class ACLAdminServlet extends AdminServlet {
         Enumeration<ACL> res = mAuthzMgr.getACLs();
 
         while (res.hasMoreElements()) {
-            ACL acl = (ACL) res.nextElement();
+            ACL acl = res.nextElement();
             String desc = acl.getDescription();
 
             if (desc == null)
@@ -296,7 +296,7 @@ public class ACLAdminServlet extends AdminServlet {
                     if (acis != "") {
                         acis += ";";
                     }
-                    ACLEntry aclEntry = (ACLEntry) aclEntryEnum.nextElement();
+                    ACLEntry aclEntry = aclEntryEnum.nextElement();
                     String aci = aclEntry.getACLEntryString();
 
                     acis += aci;
@@ -788,7 +788,7 @@ public class ACLAdminServlet extends AdminServlet {
 
             // it's possibl that it's being used...we have to assume that
             // the administrator knows what she is doing, for now
-            mEvaluators.remove((Object) id);
+            mEvaluators.remove(id);
 
             try {
                 IConfigStore destStore =

@@ -115,7 +115,7 @@ public final class BigInt {
             throw new NumberFormatException("BigInt.toInt, too big");
         int retval = 0, i = 0;
         for (; i < places.length; i++)
-            retval = (retval << 8) + ((int) places[i] & 0xff);
+            retval = (retval << 8) + (places[i] & 0xff);
         return retval;
     }
 

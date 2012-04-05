@@ -79,7 +79,7 @@ public class Group implements IGroup {
 
     public boolean isMember(String name) {
         for (int i = 0; i < mMembers.size(); i++) {
-            String id = (String) mMembers.elementAt(i);
+            String id = mMembers.elementAt(i);
 
             if (name.equals(id)) {
                 return true;

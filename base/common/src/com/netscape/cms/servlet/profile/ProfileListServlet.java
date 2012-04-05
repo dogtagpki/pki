@@ -130,7 +130,7 @@ public class ProfileListServlet extends ProfileServlet {
 
         if (e != null) {
             while (e.hasMoreElements()) {
-                String id = (String) e.nextElement();
+                String id = e.nextElement();
                 IProfile profile = null;
 
                 try {

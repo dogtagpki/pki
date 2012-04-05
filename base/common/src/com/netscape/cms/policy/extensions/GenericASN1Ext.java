@@ -434,7 +434,7 @@ public class GenericASN1Ext extends APolicyRule implements
         Enumeration<String> e = mConfig.getPropertyNames();
 
         while (e.hasMoreElements()) {
-            String n = (String) e.nextElement();
+            String n = e.nextElement();
 
             h.put(n, mConfig.getString(n));
         }

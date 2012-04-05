@@ -217,9 +217,7 @@ public class LdapEnhancedMap
 
         try {
             X509Certificate cert = (X509Certificate) obj;
-
-            subjectDN =
-                    (X500Name) ((X509Certificate) cert).getSubjectDN();
+            subjectDN = (X500Name) cert.getSubjectDN();
             CMS.debug(
                     "LdapEnhancedMap: cert subject dn:" +
                             subjectDN.toString());
@@ -248,13 +246,10 @@ public class LdapEnhancedMap
 
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
-
-                subjectDN = (X500Name)
-                        ((X509CRLImpl) crl).getIssuerDN();
+                subjectDN = (X500Name) crl.getIssuerDN();
 
                 CMS.debug(
                         "LdapEnhancedMap: crl issuer dn: " +
-
                         subjectDN.toString());
             } catch (ClassCastException ex) {
                 log(ILogger.LL_FAILURE,

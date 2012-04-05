@@ -358,13 +358,13 @@ class LdapRevocationListener implements IRequestListener {
                             "Trying to get a certificate from non certificate authority.");
                 } else {
                     ICertificateRepository certdb =
-                            (ICertificateRepository) ((ICertificateAuthority) auth).getCertificateRepository();
+                            ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
                         mProcessor.log(ILogger.LL_WARN, "Cert DB is null for " + auth);
                     } else {
                         try {
-                            certRecord = (ICertRecord) certdb.readCertificateRecord(serial);
+                            certRecord = certdb.readCertificateRecord(serial);
                         } catch (EBaseException e) {
                             mProcessor.log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD",
@@ -468,14 +468,13 @@ class LdapUnrevocationListener implements IRequestListener {
                     mProcessor.log(ILogger.LL_WARN,
                             "Trying to get a certificate from non certificate authority.");
                 } else {
-                    ICertificateRepository certdb = (ICertificateRepository)
-                            ((ICertificateAuthority) auth).getCertificateRepository();
+                    ICertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
                         mProcessor.log(ILogger.LL_WARN, "Cert DB is null for " + auth);
                     } else {
                         try {
-                            certRecord = (ICertRecord) certdb.readCertificateRecord(serial);
+                            certRecord = certdb.readCertificateRecord(serial);
                         } catch (EBaseException e) {
                             mProcessor
                                     .log(ILogger.LL_FAILURE,

@@ -174,13 +174,11 @@ public class PKCS10Processor extends PKIProcessor {
             PKCS10Attributes p10Attrs = p10.getAttributes();
 
             if (p10Attrs != null) {
-                PKCS10Attribute p10Attr = (PKCS10Attribute)
-                        (p10Attrs.getAttribute(CertificateExtensions.NAME));
+                PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
 
                 if (p10Attr != null && p10Attr.getAttributeId().equals(
                         PKCS9Attribute.EXTENSION_REQUEST_OID)) {
-                    Extensions exts0 = (Extensions)
-                            (p10Attr.getAttributeValue());
+                    Extensions exts0 = (Extensions) p10Attr.getAttributeValue();
                     DerOutputStream extOut = new DerOutputStream();
 
                     exts0.encode(extOut);

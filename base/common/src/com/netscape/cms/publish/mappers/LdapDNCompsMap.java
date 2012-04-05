@@ -185,9 +185,9 @@ public class LdapDNCompsMap
 
         mBaseDN = baseDN;
         if (dnComps != null)
-            mDnComps = (ObjectIdentifier[]) dnComps.clone();
+            mDnComps = dnComps.clone();
         if (filterComps != null)
-            mFilterComps = (ObjectIdentifier[]) filterComps.clone();
+            mFilterComps = filterComps.clone();
 
         // log debug info.
         for (int i = 0; i < mDnComps.length; i++) {
@@ -317,7 +317,7 @@ public class LdapDNCompsMap
         try {
             // get the base DN & filter.
             for (Enumeration<RDN> n = subjName.getRDNs(); n.hasMoreElements();) {
-                RDN rdn = (RDN) n.nextElement();
+                RDN rdn = n.nextElement();
                 // NOTE assumes one AVA per RDN.
                 AVA ava = rdn.getAssertion()[0];
                 ObjectIdentifier oid = ava.getOid();
@@ -378,11 +378,11 @@ public class LdapDNCompsMap
     }
 
     public ObjectIdentifier[] getDnComps() {
-        return (ObjectIdentifier[]) mDnComps.clone();
+        return mDnComps.clone();
     }
 
     public ObjectIdentifier[] getFilterComps() {
-        return (ObjectIdentifier[]) mFilterComps.clone();
+        return mFilterComps.clone();
     }
 
     /**

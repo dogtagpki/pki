@@ -361,8 +361,8 @@ public class HashEnrollServlet extends CMSServlet {
                         CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
             }
 
-            certBasedOldSubjectDN = (String) sslClientCert.getSubjectDN().toString();
-            certBasedOldSerialNum = (BigInteger) sslClientCert.getSerialNumber();
+            certBasedOldSubjectDN = sslClientCert.getSubjectDN().toString();
+            certBasedOldSerialNum = sslClientCert.getSerialNumber();
             try {
                 certInfo = (X509CertInfo)
                         ((X509CertImpl) sslClientCert).get(
@@ -442,11 +442,11 @@ public class HashEnrollServlet extends CMSServlet {
 
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                if ((CMS.isSigningCert(sslClientCert) ==
                         false) ||
-                        ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                        ((CMS.isSigningCert(sslClientCert) ==
                             true) &&
-                        (CMS.isEncryptionCert((X509CertImpl) sslClientCert) ==
+                        (CMS.isEncryptionCert(sslClientCert) ==
                             true))) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
@@ -477,8 +477,8 @@ public class HashEnrollServlet extends CMSServlet {
                                 + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                                 + "))(certStatus=VALID))";
                 ICertRecordList list =
-                        (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter,
-                                null, 10);
+                        mCa.getCertificateRepository().findCertRecordsInList(filter,
+                        null, 10);
                 int size = list.getSize();
                 Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
                 boolean gotEncCert = false;
@@ -547,11 +547,11 @@ public class HashEnrollServlet extends CMSServlet {
             } else if (certauthEnrollType.equals(CERT_AUTH_ENCRYPTION)) {
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                if ((CMS.isSigningCert(sslClientCert) ==
                         false) ||
-                        ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                        ((CMS.isSigningCert(sslClientCert) ==
                             true) &&
-                        (CMS.isEncryptionCert((X509CertImpl) sslClientCert) ==
+                        (CMS.isEncryptionCert(sslClientCert) ==
                             true))) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
@@ -810,8 +810,7 @@ public class HashEnrollServlet extends CMSServlet {
                     authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT);
 
             if (subjectname != null) {
-                CertificateSubjectName certSubject = (CertificateSubjectName)
-                        new CertificateSubjectName(new X500Name(subjectname));
+                CertificateSubjectName certSubject = new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
                 log(ILogger.LL_INFO,
@@ -1223,7 +1222,7 @@ public class HashEnrollServlet extends CMSServlet {
                     newvalue[4] = 0;
                     KeyUsageExtension newext =
                             new KeyUsageExtension(Boolean.valueOf(true),
-                                    (Object) newvalue);
+                                    newvalue);
 
                     exts.delete(KeyUsageExtension.NAME);
                     exts.set(KeyUsageExtension.NAME, newext);

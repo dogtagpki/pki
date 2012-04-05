@@ -125,8 +125,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * @return sesssion context
      */
     public static SessionContext getContext() {
-        SessionContext sc = (SessionContext) mContexts.get(
-                Thread.currentThread());
+        SessionContext sc = mContexts.get(Thread.currentThread());
 
         if (sc == null) {
             sc = createContext();
@@ -142,8 +141,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * @return sesssion context
      */
     public static SessionContext getExistingContext() {
-        SessionContext sc = (SessionContext)
-                mContexts.get(Thread.currentThread());
+        SessionContext sc = mContexts.get(Thread.currentThread());
 
         if (sc == null) {
             return null;
@@ -156,8 +154,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * Releases the current session context.
      */
     public static void releaseContext() {
-        SessionContext sc = (SessionContext) mContexts.get(
-                Thread.currentThread());
+        SessionContext sc = mContexts.get(Thread.currentThread());
 
         if (sc != null) {
             mContexts.remove(Thread.currentThread());

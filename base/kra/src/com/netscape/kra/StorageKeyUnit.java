@@ -942,8 +942,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         while (e.hasMoreElements()) {
             String next = e.nextElement();
 
-            j.addShare(Integer.parseInt(next) + 1,
-                    (byte[]) v.get(next));
+            j.addShare(Integer.parseInt(next) + 1, v.get(next));
         }
         try {
             byte secret[] = j.recoverSecret();

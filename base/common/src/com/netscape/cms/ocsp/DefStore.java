@@ -203,7 +203,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public long getReqCount(String id) {
-        Long c = (Long) mReqCounts.get(id);
+        Long c = mReqCounts.get(id);
 
         if (c == null)
             return 0;
@@ -234,8 +234,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         IDBSSession s = mDBService.createSession();
 
         try {
-            ICRLIssuingPointRecord cp = (ICRLIssuingPointRecord)
-                    readCRLIssuingPoint(caName);
+            ICRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
 
             if (cp == null)
                 return; // nothing to do
@@ -264,7 +263,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         getBaseDN();
 
                 while (recs != null && recs.hasMoreElements()) {
-                    ICertRecord rec = (ICertRecord) recs.nextElement();
+                    ICertRecord rec = recs.nextElement();
                     String cert_dn = "cn=" +
                             rec.getSerialNumber().toString() + "," + rep_dn;
 
@@ -424,8 +423,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             X509CRLImpl theCRL = null;
             ICRLIssuingPointRecord theRec = null;
             byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
-            CRLIPContainer matched = (CRLIPContainer)
-                    mCacheCRLIssuingPoints.get(new String(keyhsh));
+            CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
 
             if (matched == null) {
                 Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
@@ -513,8 +511,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         CMS.debug("DefStore: evaluating crl cache");
                         Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
                         if (cache != null) {
-                            RevokedCertificate rc = (RevokedCertificate)
-                                    cache.get(new BigInteger(serialNo.toString()));
+                            RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
                             if (rc == null) {
                                 if (isNotFoundGood()) {
                                     certStatus = new GoodInfo();
@@ -671,7 +668,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             String dn = "cn=" +
                     transformDN(name) + "," + getBaseDN();
 
-            s.add(dn, (ICRLIssuingPointRecord) rec);
+            s.add(dn, rec);
         } finally {
             if (s != null)
                 s.close();

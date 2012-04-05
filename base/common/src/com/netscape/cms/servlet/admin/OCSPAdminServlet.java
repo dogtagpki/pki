@@ -493,7 +493,7 @@ public class OCSPAdminServlet extends AdminServlet {
             Enumeration<String> enum1 = req.getParameterNames();
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_DEFAULT_ALGORITHM)) {

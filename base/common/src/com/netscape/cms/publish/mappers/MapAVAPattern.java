@@ -522,8 +522,7 @@ class MapAVAPattern {
         if (TYPE_EXT.equals(mType)) {
             if (extensions != null) {
                 for (int i = 0; i < extensions.size(); i++) {
-                    Extension ext = (Extension)
-                            extensions.elementAt(i);
+                    Extension ext = extensions.elementAt(i);
                     String extName = OIDMap.getName(ext.getExtensionId());
                     int index = extName.lastIndexOf(".");
 

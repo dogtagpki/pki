@@ -150,8 +150,7 @@ public class IssuerConstraints extends APolicyRule
                 }
 
                 for (int i = 0; i < certInfo.length; i++) {
-                    String oldIssuer = (String)
-                            certInfo[i].get(X509CertInfo.ISSUER).toString();
+                    String oldIssuer = certInfo[i].get(X509CertInfo.ISSUER).toString();
 
                     if (oldIssuer == null) {
                         setError(req,

@@ -94,7 +94,7 @@ public class CMSFileLoader {
         // Change end
         String absPath = file.getAbsolutePath();
         long modified = file.lastModified();
-        CMSFile cmsFile = (CMSFile) mLoadedFiles.get(absPath);
+        CMSFile cmsFile = mLoadedFiles.get(absPath);
         long lastModified = (cmsFile == null ? 0 : cmsFile.getLastModified());
 
         // new file.

@@ -109,7 +109,7 @@ public class JobsAdminServlet extends AdminServlet {
         Object impl = null;
 
         JobPlugin jp =
-                (JobPlugin) mJobsSched.getPlugins().get(implName);
+                mJobsSched.getPlugins().get(implName);
 
         if (jp != null)
             impl = getClassByNameAsExtendedPluginInfo(jp.getClassPath());
@@ -288,7 +288,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
         // is the job plugin id unique?
-        if (mJobsSched.getPlugins().containsKey((Object) id)) {
+        if (mJobsSched.getPlugins().containsKey(id)) {
             sendResponse(ERROR,
                     new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_PLUGIN_ID", id))
                             .toString(),
@@ -384,7 +384,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         // is the job instance id unique?
-        if (mJobsSched.getInstances().containsKey((Object) id)) {
+        if (mJobsSched.getInstances().containsKey(id)) {
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
                     null, resp);
@@ -405,7 +405,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // check if implementation exists.
         JobPlugin plugin =
-                (JobPlugin) mJobsSched.getPlugins().get(implname);
+                mJobsSched.getPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(ERROR,
@@ -541,7 +541,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         for (Enumeration<String> e = mJobsSched.getInstances().keys(); e.hasMoreElements();) {
             String name = e.nextElement();
-            IJob value = mJobsSched.getInstances().get((Object) name);
+            IJob value = mJobsSched.getInstances().get(name);
 
             //				params.add(name, value.getImplName());
             params.put(name, value.getImplName() + VISIBLE +
@@ -591,7 +591,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         // then delete this job plugin
-        mJobsSched.getPlugins().remove((Object) id);
+        mJobsSched.getPlugins().remove(id);
 
         IConfigStore destStore =
                 mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
@@ -723,7 +723,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IJob jobInst = (IJob) mJobsSched.getInstances().get(id);
+        IJob jobInst = mJobsSched.getInstances().get(id);
         IConfigStore config = jobInst.getConfigStore();
         String[] configParams = jobInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
@@ -735,7 +735,7 @@ public class JobsAdminServlet extends AdminServlet {
             for (int i = 0; i < configParams.length; i++) {
                 String key = configParams[i];
 
-                String val = (String) config.get(key);
+                String val = config.get(key);
 
                 if (val != null && !val.equals("")) {
                     params.put(key, val);
@@ -774,7 +774,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         // Does the job instance exist?
-        if (!mJobsSched.getInstances().containsKey((Object) id)) {
+        if (!mJobsSched.getInstances().containsKey(id)) {
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
                     null, resp);
@@ -793,7 +793,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // get plugin for implementation
         JobPlugin plugin =
-                (JobPlugin) mJobsSched.getPlugins().get(implname);
+                mJobsSched.getPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(ERROR,
@@ -806,7 +806,7 @@ public class JobsAdminServlet extends AdminServlet {
         // save old instance substore params in case new one fails.
 
         IJob oldinst =
-                (IJob) mJobsSched.getInstances().get((Object) id);
+                mJobsSched.getInstances().get(id);
         IConfigStore oldConfig = oldinst.getConfigStore();
 
         String[] oldConfigParms = oldinst.getConfigParams();
@@ -814,7 +814,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // implName is always required so always include it it.
         saveParams.put(IJobsScheduler.PROP_PLUGIN,
-                (String) oldConfig.get(IJobsScheduler.PROP_PLUGIN));
+                oldConfig.get(IJobsScheduler.PROP_PLUGIN));
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.length; i++) {
                 String key = oldConfigParms[i];

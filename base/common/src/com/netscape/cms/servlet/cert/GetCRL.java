@@ -168,7 +168,7 @@ public class GetCRL extends CMSServlet {
             crlIP = ca.getCRLIssuingPoint(crlId);
 
         try {
-            crlRecord = (ICRLIssuingPointRecord) ca.getCRLRepository().readCRLIssuingPointRecord(crlId);
+            crlRecord = ca.getCRLRepository().readCRLIssuingPointRecord(crlId);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId));

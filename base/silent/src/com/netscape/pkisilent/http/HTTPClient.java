@@ -921,7 +921,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         int startPos = 0;
         byte[] contentData = new byte[totalBytes];
         for (int i = 0; i < bufferList.size(); i++) {
-            ByteBuffer byteBuffer = (ByteBuffer) bufferList.get(i);
+            ByteBuffer byteBuffer = bufferList.get(i);
             byteBuffer.flip();
             byteBuffer.get(contentData, startPos, byteBuffer.limit());
             startPos += byteBuffer.limit();

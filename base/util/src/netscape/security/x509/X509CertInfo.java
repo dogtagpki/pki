@@ -356,7 +356,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                     new netscape.security.util.PrettyPrintFormat(" ", 20);
             for (int i = 0; i < extensions.size(); i++) {
                 sb.append("  Extension[" + i + "] = ");
-                Extension ext = (Extension) extensions.elementAt(i);
+                Extension ext = extensions.elementAt(i);
                 try {
                     if (OIDMap.getClass(ext.getExtensionId()) == null) {
                         sb.append(ext.toString());

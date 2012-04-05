@@ -45,7 +45,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
 
-import netscape.security.util.BigInt;
 import netscape.security.util.DerEncoder;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -707,7 +706,7 @@ public class X509CertImpl extends X509Certificate
             SerialNumber ser = (SerialNumber) info.get(
                                   CertificateSerialNumber.NAME + DOT +
                                           CertificateSerialNumber.NUMBER);
-            return ((BigInt) ser.getNumber()).toBigInteger();
+            return ser.getNumber().toBigInteger();
         } catch (Exception e) {
             return null;
         }
@@ -915,7 +914,7 @@ public class X509CertImpl extends X509Certificate
             for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
                 ex = e.nextElement();
                 if (ex.isCritical())
-                    extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
+                    extSet.add(ex.getExtensionId().toString());
             }
             return extSet;
         } catch (Exception e) {
@@ -944,7 +943,7 @@ public class X509CertImpl extends X509Certificate
             for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
                 ex = e.nextElement();
                 if (!ex.isCritical())
-                    extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
+                    extSet.add(ex.getExtensionId().toString());
             }
             return extSet;
         } catch (Exception e) {

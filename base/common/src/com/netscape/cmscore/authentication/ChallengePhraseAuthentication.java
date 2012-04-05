@@ -43,7 +43,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.util.Utils;
 
@@ -149,7 +148,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                 SubsystemRegistry.getInstance().get("ca");
 
         if (mCA != null) {
-            mCertDB = (CertificateRepository) mCA.getCertificateRepository();
+            mCertDB = mCA.getCertificateRepository();
         }
 
         AuthToken authToken = new AuthToken(this);

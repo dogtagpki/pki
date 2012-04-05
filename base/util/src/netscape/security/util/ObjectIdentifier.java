@@ -84,7 +84,7 @@ final public class ObjectIdentifier implements Serializable {
      */
     public ObjectIdentifier(int values[]) {
         try {
-            components = (int[]) values.clone();
+            components = values.clone();
             componentLen = values.length;
         } catch (Throwable t) {
             System.out.println("X509.ObjectIdentifier(), no cloning!");

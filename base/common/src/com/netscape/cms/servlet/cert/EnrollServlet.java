@@ -403,11 +403,11 @@ public class EnrollServlet extends CMSServlet {
 
     private boolean checkClientCertSigningOnly(X509Certificate sslClientCert)
             throws EBaseException {
-        if ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+        if ((CMS.isSigningCert(sslClientCert) ==
                 false) ||
-                ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                ((CMS.isSigningCert(sslClientCert) ==
                     true) &&
-                (CMS.isEncryptionCert((X509CertImpl) sslClientCert) ==
+                (CMS.isEncryptionCert(sslClientCert) ==
                     true))) {
 
             // either it's not a signing cert, or it's a dual cert
@@ -470,7 +470,7 @@ public class EnrollServlet extends CMSServlet {
                         + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                         + "))(certStatus=VALID))";
         ICertRecordList list =
-                (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
+                mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
         Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
 
@@ -884,10 +884,8 @@ public class EnrollServlet extends CMSServlet {
                             CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
                 }
 
-                certBasedOldSubjectDN = (String)
-                        sslClientCert.getSubjectDN().toString();
-                certBasedOldSerialNum = (BigInteger)
-                        sslClientCert.getSerialNumber();
+                certBasedOldSubjectDN = sslClientCert.getSubjectDN().toString();
+                certBasedOldSerialNum = sslClientCert.getSerialNumber();
 
                 CMS.debug("EnrollServlet: certBasedOldSubjectDN " + certBasedOldSubjectDN);
                 CMS.debug("EnrollServlet: certBasedOldSerialNum " + certBasedOldSerialNum);
@@ -1299,7 +1297,7 @@ public class EnrollServlet extends CMSServlet {
                         (ICertificateAuthority) CMS.getSubsystem("ca");
                 if (certInfoArray != null && caSub != null) {
                     for (int ix = 0; ix < certInfoArray.length; ix++) {
-                        X509CertInfo ci = (X509CertInfo) certInfoArray[ix];
+                        X509CertInfo ci = certInfoArray[ix];
                         String defaultSig = caSub.getDefaultAlgorithm();
                         AlgorithmId algid = AlgorithmId.get(defaultSig);
                         ci.set(X509CertInfo.ALGORITHM_ID,

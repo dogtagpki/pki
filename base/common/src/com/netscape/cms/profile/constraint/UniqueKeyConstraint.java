@@ -126,7 +126,6 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             String pub_s = escapeBinaryData(pub);
             String filter = "(" + ICertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pub_s + ")";
             list =
-                    (ICertRecordList)
                     mCA.getCertificateRepository().findCertRecordsInList(filter, null, 10);
             size = list.getSize();
 

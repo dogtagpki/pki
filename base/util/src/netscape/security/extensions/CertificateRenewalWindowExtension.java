@@ -70,7 +70,7 @@ public class CertificateRenewalWindowExtension extends Extension
             throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
-        this.extensionValue = (byte[]) ((byte[]) value).clone();
+        this.extensionValue = ((byte[]) value).clone();
         decodeThis();
     }
 

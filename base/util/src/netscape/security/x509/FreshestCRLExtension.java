@@ -105,7 +105,7 @@ public class FreshestCRLExtension extends Extension
         try {
             this.extensionId = PKIXExtensions.FreshestCRL_Id;
             this.critical = critical.booleanValue();
-            this.extensionValue = (byte[]) ((byte[]) value).clone();
+            this.extensionValue = ((byte[]) value).clone();
 
             // decode the value
             try {
@@ -363,7 +363,7 @@ public class FreshestCRLExtension extends Extension
             int size = list.size();
             Vector<Reason> result = new Vector<Reason>();
             for (int i = 0; i < size; i++) {
-                Reason r = (Reason) list.elementAt(i);
+                Reason r = list.elementAt(i);
                 byte b = r.getBitMask();
                 if ((first & b) != 0) {
                     result.addElement(r);

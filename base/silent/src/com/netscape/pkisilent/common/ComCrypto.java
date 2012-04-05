@@ -44,7 +44,6 @@ import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs11.PK11Token;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -371,7 +370,7 @@ public class ComCrypto {
 
             keys = store.getPrivateKeys();
             for (i = 0; i < keys.length; i++) {
-                PrivateKey key = (PrivateKey) keys[i];
+                PrivateKey key = keys[i];
 
                 store.deletePrivateKey(key);
             }
@@ -414,7 +413,7 @@ public class ComCrypto {
             }
 
             manager = CryptoManager.getInstance();
-            token = (PK11Token) manager.getInternalKeyStorageToken();
+            token = manager.getInternalKeyStorageToken();
             pass1 = new Password(tokenpwd.toCharArray());
             if (token.isLoggedIn() && debug) {
                 System.out.println("Already Logged in ");

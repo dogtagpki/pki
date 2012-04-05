@@ -380,7 +380,7 @@ public class DoRevokeTPS extends CMSServlet {
             boolean alreadyRevokedCertFound = false;
             boolean badCertsRequested = false;
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) e.nextElement();
+                ICertRecord rec = e.nextElement();
 
                 if (rec == null) {
                     badCertsRequested = true;
@@ -460,8 +460,8 @@ public class DoRevokeTPS extends CMSServlet {
             RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
 
             for (int i = 0; i < count; i++) {
-                oldCerts[i] = (X509CertImpl) oldCertsV.elementAt(i);
-                revCertImpls[i] = (RevokedCertImpl) revCertImplsV.elementAt(i);
+                oldCerts[i] = oldCertsV.elementAt(i);
+                revCertImpls[i] = revCertImplsV.elementAt(i);
             }
 
             IRequest revReq =
@@ -525,7 +525,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 //cmsReq.setErrorDescription(err);
                                 for (int j = 0; j < count; j++) {
                                     if (oldCerts[j] instanceof X509CertImpl) {
-                                        X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                                        X509CertImpl cert = oldCerts[j];
 
                                         if (oldCerts[j] != null) {
                                             mLogger.log(ILogger.EV_AUDIT,
@@ -579,7 +579,7 @@ public class DoRevokeTPS extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                            X509CertImpl cert = oldCerts[j];
 
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                     AuditFormat.LEVEL,
@@ -634,8 +634,7 @@ public class DoRevokeTPS extends CMSServlet {
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
-                        ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                                otherCRLs.nextElement();
+                        ICRLIssuingPoint crl = otherCRLs.nextElement();
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
@@ -725,7 +724,7 @@ public class DoRevokeTPS extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                            X509CertImpl cert = oldCerts[j];
 
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                     AuditFormat.LEVEL,

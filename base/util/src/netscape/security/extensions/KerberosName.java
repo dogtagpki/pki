@@ -86,7 +86,7 @@ public class KerberosName {
         DerOutputStream name_strings = new DerOutputStream();
         DerOutputStream name_string = new DerOutputStream();
         for (int i = 0; i < m_name_strings.size(); i++) {
-            name_string.putGeneralString((String) m_name_strings.elementAt(i));
+            name_string.putGeneralString(m_name_strings.elementAt(i));
         }
         name_strings.write(DerValue.tag_SequenceOf, name_string);
         tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
@@ -109,10 +109,10 @@ public class KerberosName {
         String strings = null;
         for (int i = 0; i < m_name_strings.size(); i++) {
             if (strings == null) {
-                strings = (String) m_name_strings.elementAt(i);
+                strings = m_name_strings.elementAt(i);
             } else {
                 strings += ",";
-                strings += (String) m_name_strings.elementAt(i);
+                strings += m_name_strings.elementAt(i);
             }
         }
         return "Realm: " + m_realm + " Name Type: " + m_name_type + " Name String(s):" + strings;

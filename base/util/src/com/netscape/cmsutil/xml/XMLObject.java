@@ -77,7 +77,7 @@ public class XMLObject {
     public Node createRoot(String name) {
         Element root = mDoc.createElement(name);
         mDoc.appendChild(root);
-        return (Node) root;
+        return root;
     }
 
     public Node getRoot() {
@@ -98,7 +98,7 @@ public class XMLObject {
     public Node createContainer(Node containerParent, String containerName) {
         Element node = mDoc.createElement(containerName);
         containerParent.appendChild(node);
-        return (Node) node;
+        return node;
     }
 
     public void addItemToContainer(Node container, String tagname, String value) {

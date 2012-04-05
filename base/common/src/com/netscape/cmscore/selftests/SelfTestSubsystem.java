@@ -271,8 +271,7 @@ public class SelfTestSubsystem
         int i = 0;
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             mList[i] = instance.getSelfTestName();
             if (mList[i] != null) {
@@ -314,8 +313,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 instance.setSelfTestCriticalMode(isCritical);
@@ -376,8 +374,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 mOnDemandOrder.remove(instance);
@@ -421,8 +418,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return true;
@@ -465,8 +461,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 if (instance.isSelfTestCritical()) {
@@ -505,8 +500,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             String instanceFullName = null;
             String instanceName = instance.getSelfTestName();
@@ -524,8 +518,7 @@ public class SelfTestSubsystem
             }
 
             if (mSelfTestInstances.containsKey(instanceName)) {
-                ISelfTest test = (ISelfTest)
-                        mSelfTestInstances.get(instanceName);
+                ISelfTest test = mSelfTestInstances.get(instanceName);
 
                 try {
                     if (CMS.debugOn()) {
@@ -596,8 +589,7 @@ public class SelfTestSubsystem
         int i = 0;
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             mList[i] = instance.getSelfTestName();
             if (mList[i] != null) {
@@ -639,8 +631,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 instance.setSelfTestCriticalMode(isCritical);
@@ -701,8 +692,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 mStartupOrder.remove(instance);
@@ -747,8 +737,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return true;
@@ -791,8 +780,7 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+            SelfTestOrderedInstance instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 if (instance.isSelfTestCritical()) {
@@ -840,8 +828,7 @@ public class SelfTestSubsystem
             Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
 
             while (instances.hasMoreElements()) {
-                SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                        instances.nextElement();
+                SelfTestOrderedInstance instance = instances.nextElement();
 
                 String instanceFullName = null;
                 String instanceName = instance.getSelfTestName();
@@ -867,8 +854,7 @@ public class SelfTestSubsystem
                 }
 
                 if (mSelfTestInstances.containsKey(instanceName)) {
-                    ISelfTest test = (ISelfTest)
-                            mSelfTestInstances.get(instanceName);
+                    ISelfTest test = mSelfTestInstances.get(instanceName);
 
                     try {
                         if (CMS.debugOn()) {
@@ -974,7 +960,7 @@ public class SelfTestSubsystem
         Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
-            ISelfTest instance = (ISelfTest) instances.nextElement();
+            ISelfTest instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return instance;
@@ -1505,7 +1491,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             // the instance property name should be unique
-            instanceName = (String) instances.nextElement();
+            instanceName = instances.nextElement();
             if (instanceName != null) {
                 instanceName = instanceName.trim();
                 instanceFullName = getFullName(mPrefix,
@@ -1834,7 +1820,7 @@ public class SelfTestSubsystem
         Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
-            ISelfTest instance = (ISelfTest) instances.nextElement();
+            ISelfTest instance = instances.nextElement();
 
             instance.startupSelfTest();
         }
@@ -1881,7 +1867,7 @@ public class SelfTestSubsystem
         ListIterator<ISelfTest> instances = list.listIterator();
 
         while (instances.hasNext()) {
-            ISelfTest instance = (ISelfTest) instances.next();
+            ISelfTest instance = instances.next();
 
             instance.shutdownSelfTest();
         }

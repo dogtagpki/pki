@@ -461,7 +461,7 @@ public class RollingLogFile extends LogFile {
                     // First, remove any old log files and figure out when the
                     // next one expires
                     try {
-                        wakeupTime = expire((long) (mExpirationTime / 1000));
+                        wakeupTime = expire(mExpirationTime / 1000);
                     } catch (SecurityException e) {
                         ConsoleError.send(new
                                 SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));

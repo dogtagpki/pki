@@ -161,7 +161,7 @@ public class ARequestNotifier implements IRequestNotifier {
      * @return listener
      */
     public IRequestListener getListener(String name) {
-        return (IRequestListener) mListeners.get(name);
+        return mListeners.get(name);
     }
 
     /**
@@ -205,7 +205,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
         CMS.debug("getRequest  mRequests=" + mRequests.size() + "  mSearchForRequests=" + mSearchForRequests);
         if (mSearchForRequests && mRequests.size() == 1) {
-            id = (String) mRequests.elementAt(0);
+            id = mRequests.elementAt(0);
             if (mCA != null && mRequestQueue == null)
                 mRequestQueue = mCA.getRequestQueue();
             if (id != null && mRequestQueue != null) {
@@ -258,7 +258,7 @@ public class ARequestNotifier implements IRequestNotifier {
             }
         }
         if (mRequests.size() > 0) {
-            id = (String) mRequests.elementAt(0);
+            id = mRequests.elementAt(0);
             if (id != null) {
                 CMS.debug("getRequest  getting request: " + id);
                 if (mCA != null && mRequestQueue == null)
@@ -332,7 +332,7 @@ public class ARequestNotifier implements IRequestNotifier {
             Enumeration<IRequestListener> listeners = mListeners.elements();
             if (listeners != null && r != null) {
                 while (listeners.hasMoreElements()) {
-                    IRequestListener l = (IRequestListener) listeners.nextElement();
+                    IRequestListener l = listeners.nextElement();
                     CMS.debug("RunListeners: IRequestListener = " + l.getClass().getName());
                     l.accept(r);
                 }
@@ -428,7 +428,7 @@ public class ARequestNotifier implements IRequestNotifier {
                           " requests by adding request " + r.getRequestId().toString());
                 if (morePublishingThreads()) {
                     try {
-                        Thread notifierThread = new Thread(new RunListeners((IRequestNotifier) this));
+                        Thread notifierThread = new Thread(new RunListeners(this));
                         if (notifierThread != null) {
                             mNotifierThreads.addElement(notifierThread);
                             CMS.debug("Number of publishing threads: " + mNotifierThreads.size());
@@ -462,7 +462,7 @@ public class ARequestNotifier implements IRequestNotifier {
             if (morePublishingThreads()) {
                 mSearchForRequests = true;
                 try {
-                    Thread notifierThread = new Thread(new RunListeners((IRequestNotifier) this));
+                    Thread notifierThread = new Thread(new RunListeners(this));
                     if (notifierThread != null) {
                         mNotifierThreads.addElement(notifierThread);
                         CMS.debug("Number of publishing threads: " + mNotifierThreads.size());
@@ -520,10 +520,10 @@ class RunListeners implements Runnable {
                   " " + ((mRequest != null) ? " SingleRequest" : " noSingleRequest"));
         do {
             if (mRequestNotifier != null)
-                mRequest = (IRequest) mRequestNotifier.getRequest();
+                mRequest = mRequestNotifier.getRequest();
             if (mListeners != null && mRequest != null) {
                 while (mListeners.hasMoreElements()) {
-                    IRequestListener l = (IRequestListener) mListeners.nextElement();
+                    IRequestListener l = mListeners.nextElement();
                     CMS.debug("RunListeners: IRequestListener = " + l.getClass().getName());
                     l.accept(mRequest);
                 }

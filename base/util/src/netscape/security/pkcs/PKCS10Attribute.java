@@ -105,8 +105,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
                 //DerValue dv = inAttrValue.data.getDerValue();
                 // hack. toDerInputStream only gives one extension.
                 DerInputStream fi = new DerInputStream(inAttrValue.toByteArray());
-                attributeValue = (CertAttrSet) new
-                            Extensions(fi);
+                attributeValue = new Extensions(fi);
                 //CertificateExtensions(fi);
                 return;
             } catch (Exception e) {
@@ -119,7 +118,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
             @SuppressWarnings("unchecked")
             Class<CertAttrSet> extClass = (Class<CertAttrSet>) OIDMap.getClass(attributeId);
             if (extClass != null) {
-                Constructor<CertAttrSet> cons = (Constructor<CertAttrSet>) extClass.getConstructor(params);
+                Constructor<CertAttrSet> cons = extClass.getConstructor(params);
                 Object value = Array.newInstance(byte.class, val.length);
                 for (int i = 0; i < val.length; i++) {
                     Array.setByte(value, i, val[i]);

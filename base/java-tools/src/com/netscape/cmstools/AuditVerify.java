@@ -229,12 +229,12 @@ public class AuditVerify {
 
             int sigStartLine = 1;
             int sigStopLine = 1;
-            String sigStartFile = (String) logFiles.elementAt(0);
+            String sigStartFile = logFiles.elementAt(0);
             String sigStopFile = null;
             int signedLines = 1;
 
             for (int curfile = 0; curfile < logFiles.size(); ++curfile) {
-                String curfileName = (String) logFiles.elementAt(curfile);
+                String curfileName = logFiles.elementAt(curfile);
                 BufferedReader br = new BufferedReader(new FileReader(curfileName));
 
                 if (verbose) {

@@ -1321,16 +1321,16 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         int maxLine = -1, level = -1, source = -1;
         Vector<LogEntry> entries = null;
 
-        if ((tmp = (String) req.get(Constants.PR_LOG_ENTRY)) != null) {
+        if ((tmp = req.get(Constants.PR_LOG_ENTRY)) != null) {
             maxLine = Integer.parseInt(tmp);
         }
-        if ((tmp = (String) req.get(Constants.PR_LOG_LEVEL)) != null) {
+        if ((tmp = req.get(Constants.PR_LOG_LEVEL)) != null) {
             level = Integer.parseInt(tmp);
         }
-        if ((tmp = (String) req.get(Constants.PR_LOG_SOURCE)) != null) {
+        if ((tmp = req.get(Constants.PR_LOG_SOURCE)) != null) {
             source = Integer.parseInt(tmp);
         }
-        tmp = (String) req.get(Constants.PR_LOG_NAME);
+        tmp = req.get(Constants.PR_LOG_NAME);
         if (!(tmp.equals(Constants.PR_CURRENT_LOG))) {
             fName = tmp;
         } else {
@@ -1341,7 +1341,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             entries = readEntry(maxLine, level, source, fName);
             for (int i = 0; i < entries.size(); i++) {
                 params.put(Integer.toString(i) +
-                        ((LogEntry) entries.elementAt(i)).getEntry(), "");
+                        entries.elementAt(i).getEntry(), "");
             }
         } catch (Exception e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,

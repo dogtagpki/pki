@@ -270,9 +270,7 @@ public class Monitor extends CMSServlet {
     }
 
     Date nextDate(Date d, int seconds) {
-        Date date = new Date((d.getTime()) + ((long) (seconds * 1000)));
-
-        return date;
+        return new Date(d.getTime() + seconds * 1000);
     }
 
     String getIntervalInfo(IArgBlock arg, Date startDate, Date endDate) {

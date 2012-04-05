@@ -129,8 +129,7 @@ public class LdapCertCompsMap
             X509Certificate cert = (X509Certificate) obj;
             String result = null;
             // form dn and filter for search.
-            X500Name subjectDN =
-                    (X500Name) ((X509Certificate) cert).getSubjectDN();
+            X500Name subjectDN = (X500Name) cert.getSubjectDN();
 
             CMS.debug("LdapCertCompsMap: " + subjectDN.toString());
 
@@ -146,8 +145,7 @@ public class LdapCertCompsMap
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 String result = null;
-                X500Name issuerDN =
-                        (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+                X500Name issuerDN = (X500Name) crl.getIssuerDN();
 
                 CMS.debug("LdapCertCompsMap: " + issuerDN.toString());
 

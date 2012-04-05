@@ -204,7 +204,7 @@ public class PKCS9Attributes {
      * DerValue.tag_SetOf.
      */
     public byte[] getDerEncoding() throws IOException {
-        return (byte[]) derEncoding.clone();
+        return derEncoding.clone();
 
     }
 

@@ -131,7 +131,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
                 mAllowedAlgs = new String[itemCount];
                 for (int i = 0; i < itemCount; i++) {
-                    mAllowedAlgs[i] = (String) algs.elementAt(i);
+                    mAllowedAlgs[i] = algs.elementAt(i);
                 }
 
             }
@@ -239,7 +239,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
         if (mAllowedAlgs.length != goodSize) {
             mAllowedAlgs = new String[goodSize];
             for (i = 0; i < goodSize; i++) {
-                mAllowedAlgs[i] = (String) goodAlgs.elementAt(i);
+                mAllowedAlgs[i] = goodAlgs.elementAt(i);
             }
         }
     }

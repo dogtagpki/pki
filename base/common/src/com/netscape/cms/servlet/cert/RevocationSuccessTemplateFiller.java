@@ -76,8 +76,7 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
         fixed.set(ICMSTemplateFiller.SCHEME, scheme);
 
         // this authority
-        fixed.set(ICMSTemplateFiller.AUTHORITY,
-                (String) authority.getOfficialName());
+        fixed.set(ICMSTemplateFiller.AUTHORITY, authority.getOfficialName());
 
         // XXX CA chain.
 

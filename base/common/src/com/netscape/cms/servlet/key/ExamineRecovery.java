@@ -231,7 +231,7 @@ public class ExamineRecovery extends CMSServlet {
 
             IKeyRepository mKeyDB =
                     ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new
+            IKeyRecord rec = mKeyDB.readKeyRecord(new
                     BigInteger(keyID));
             KeyRecordParser.fillRecordIntoArg(rec, header);
 

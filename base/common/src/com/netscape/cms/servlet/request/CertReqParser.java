@@ -148,7 +148,7 @@ public class CertReqParser extends ReqParser {
                     if (certType != null) {
                         arg.addStringValue(IRequest.CERT_TYPE, certType);
                     }
-                    String presenceServerExt = (String) http_params.get("PresenceServerExtension");
+                    String presenceServerExt = http_params.get("PresenceServerExtension");
 
                     if (presenceServerExt != null) {
                         arg.addStringValue("PresenceServerExtension", presenceServerExt);
@@ -616,8 +616,7 @@ public class CertReqParser extends ReqParser {
 
     public String getRequestorDN(IRequest request) {
         try {
-            X509CertInfo info = (X509CertInfo)
-                    request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+            X509CertInfo info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
             // retrieve the subject name
             CertificateSubjectName sn = (CertificateSubjectName)
                     info.get(X509CertInfo.SUBJECT);
@@ -688,7 +687,7 @@ public class CertReqParser extends ReqParser {
             prefix = "header.";
 
         while (enum1.hasMoreElements()) {
-            String name = (String) enum1.nextElement();
+            String name = enum1.nextElement();
 
             if (mDetails) {
                 // show all http parameters stored in request.
@@ -708,7 +707,7 @@ public class CertReqParser extends ReqParser {
                         String parami =
                                 IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
                                 prefix + parami + ".name=\"" +
                                 CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
@@ -748,7 +747,7 @@ public class CertReqParser extends ReqParser {
                         String parami =
                                 IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         String v =
                                 expandValue(prefix + parami + ".value",
                                         auth_token.getInString(n));
@@ -833,7 +832,7 @@ public class CertReqParser extends ReqParser {
 
                             if (crlExtensions != null) {
                                 for (int k = 0; k < crlExtensions.size(); k++) {
-                                    Extension ext = (Extension) crlExtensions.elementAt(k);
+                                    Extension ext = crlExtensions.elementAt(k);
 
                                     if (ext instanceof CRLReasonExtension) {
                                         rarg.addStringValue("reason",
@@ -874,7 +873,7 @@ public class CertReqParser extends ReqParser {
                 //X509CertImpl oldCert[] =
                 //	(X509CertImpl[])req.get(IRequest.OLD_CERTS);
                 Certificate oldCert[] =
-                        (Certificate[]) req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                        req.getExtDataInCertArray(IRequest.OLD_CERTS);
 
                 if (oldCert != null && oldCert.length > 0) {
                     if (oldCert[0] instanceof X509CertImpl) {
@@ -906,7 +905,7 @@ public class CertReqParser extends ReqParser {
                     CRLExtensions crlExtensions = revokedCert[0].getExtensions();
 
                     for (int k = 0; k < crlExtensions.size(); k++) {
-                        Extension ext = (Extension) crlExtensions.elementAt(k);
+                        Extension ext = crlExtensions.elementAt(k);
 
                         if (ext instanceof CRLReasonExtension) {
                             arg.addStringValue("reason",

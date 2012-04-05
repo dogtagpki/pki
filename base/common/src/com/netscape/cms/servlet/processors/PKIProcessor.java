@@ -115,8 +115,7 @@ public class PKIProcessor implements IPKIProcessor {
                     authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT);
 
             if (subjectname != null) {
-                CertificateSubjectName certSubject = (CertificateSubjectName)
-                        new CertificateSubjectName(new X500Name(subjectname));
+                CertificateSubjectName certSubject = new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
                 log(ILogger.LL_INFO,

@@ -154,7 +154,7 @@ public class ACL  {
         Enumeration<ACLEntry> e = entries();
 
         for (; e.hasMoreElements();) {
-            ACLEntry entry = (ACLEntry) e.nextElement();
+            ACLEntry entry = e.nextElement();
 
             entries += entry.toString();
             if (e.hasMoreElements())
@@ -179,7 +179,7 @@ public class ACL  {
      * @return true if it's one of the "rights"; false otherwise
      */
     public boolean checkRight(String permission) {
-        return (rights.contains((Object) permission));
+        return (rights.contains(permission));
     }
 
     /**

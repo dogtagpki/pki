@@ -111,13 +111,13 @@ public class MetaAttributeDef {
         MetaAttributeDef newDef = new MetaAttributeDef(name, valueClass, oid);
         MetaAttributeDef oldDef;
 
-        if ((oldDef = (MetaAttributeDef) mNameToAttrDef.get(name)) != null &&
+        if ((oldDef = mNameToAttrDef.get(name)) != null &&
                 !oldDef.equals(newDef)) {
             throw new IllegalArgumentException(
                     "Attribute \'" + name + "\' is already defined");
         }
         if (oid != null &&
-                (oldDef = (MetaAttributeDef) mOidToAttrDef.get(oid)) != null &&
+                (oldDef = mOidToAttrDef.get(oid)) != null &&
                 !oldDef.equals(newDef)) {
             throw new IllegalArgumentException(
                     "OID \'" + oid + "\' is already in use");
@@ -162,7 +162,7 @@ public class MetaAttributeDef {
      * @return attribute definition or null if not found
      */
     public static MetaAttributeDef forName(String name) {
-        return (MetaAttributeDef) mNameToAttrDef.get(name);
+        return mNameToAttrDef.get(name);
     }
 
     /**
@@ -173,7 +173,7 @@ public class MetaAttributeDef {
      * @return attribute definition or null if not found
      */
     public static MetaAttributeDef forOID(ObjectIdentifier oid) {
-        return (MetaAttributeDef) mOidToAttrDef.get(oid);
+        return mOidToAttrDef.get(oid);
     }
 
     /**

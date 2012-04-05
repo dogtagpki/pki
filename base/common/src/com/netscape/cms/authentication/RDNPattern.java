@@ -227,6 +227,6 @@ class RDNPattern {
     }
 
     public String[] getLdapAttrs() {
-        return (String[]) mLdapAttrs.clone();
+        return mLdapAttrs.clone();
     }
 }

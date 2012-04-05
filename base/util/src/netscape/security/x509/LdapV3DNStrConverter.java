@@ -198,7 +198,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
         names = new RDN[rdnVector.size()];
         for (i = 0, j = rdnVector.size() - 1; i < rdnVector.size(); i++, j--)
-            names[j] = (RDN) rdnVector.elementAt(i);
+            names[j] = rdnVector.elementAt(i);
         return new X500Name(names);
     }
 
@@ -242,7 +242,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
         assertion = new AVA[avaVector.size()];
         for (int i = 0; i < avaVector.size(); i++)
-            assertion[i] = (AVA) avaVector.elementAt(i);
+            assertion[i] = avaVector.elementAt(i);
         return new RDN(assertion);
     }
 
@@ -376,7 +376,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
                                         "expecting escaped char.");
                             if (hexDigits.indexOf((char) c) == -1) {
                                 in.unread(c);
-                                in.unread((int) '\\');
+                                in.unread('\\');
                                 break;
                             }
                         } while (true);

@@ -107,8 +107,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // do not archive keys for renewal requests
         if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
-            PKIArchiveOptions options = (PKIArchiveOptions)
-                    toPKIArchiveOptions(optionsData);
+            PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
 
             if (options != null) {
                 CMS.debug("CAEnrollProfile: execute found " +

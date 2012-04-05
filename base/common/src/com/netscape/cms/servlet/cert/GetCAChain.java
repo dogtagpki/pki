@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -343,8 +342,7 @@ public class GetCAChain extends CMSServlet {
                         throw new IOException("Internal Error");
                     }
 
-                    ICertPrettyPrint certDetails =
-                            CMS.getCertPrettyPrint((X509CertImpl) certs[i]);
+                    ICertPrettyPrint certDetails = CMS.getCertPrettyPrint(certs[i]);
 
                     IArgBlock rarg = CMS.createArgBlock();
 

@@ -134,12 +134,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
-                    String inputName = (String) inputNames.nextElement();
+                    String inputName = inputNames.nextElement();
                     if (request.getParameter(inputName) != null) {
                         // all subject name parameters start with sn_, no other input parameters do
                         if (inputName.matches("^sn_.*")) {
@@ -165,12 +165,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
-                    String inputName = (String) inputNames.nextElement();
+                    String inputName = inputNames.nextElement();
                     String inputValue = "";
                     CMS.debug("ProfileSubmitServlet: setInputsIntoContext() getting input name= " + inputName);
                     try {
@@ -198,7 +198,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (authIds != null) {
             CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authNames not null");
             while (authIds.hasMoreElements()) {
-                String authName = (String) authIds.nextElement();
+                String authName = authIds.nextElement();
 
                 CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authName:" +
                         authName);
@@ -307,7 +307,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (authNames != null) {
             while (authNames.hasMoreElements()) {
-                String authName = (String) authNames.nextElement();
+                String authName = authNames.nextElement();
 
                 credentials.set(authName, request.getParameter(authName));
             }
@@ -333,13 +333,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 if (inputNames != null) {
                     while (inputNames.hasMoreElements()) {
-                        String inputName = (String) inputNames.nextElement();
+                        String inputName = inputNames.nextElement();
 
                         if (request.getParameter(inputName) != null) {
                             // special characters in subject names parameters must be escaped
@@ -367,12 +367,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
-                    String inputName = (String) inputNames.nextElement();
+                    String inputName = inputNames.nextElement();
                     String inputValue = "";
                     CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() getting input name= " + inputName);
                     try {
@@ -398,7 +398,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
-                String outputId = (String) outputIds.nextElement();
+                String outputId = outputIds.nextElement();
                 IProfileOutput profileOutput = profile.getProfileOutput(outputId);
 
                 Enumeration<String> outputNames = profileOutput.getValueNames();
@@ -406,7 +406,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 if (outputNames != null) {
                     while (outputNames.hasMoreElements()) {
                         ArgSet outputset = new ArgSet();
-                        String outputName = (String) outputNames.nextElement();
+                        String outputName = outputNames.nextElement();
                         IDescriptor outputDesc =
                                 profileOutput.getValueDescriptor(locale, outputName);
 
@@ -560,7 +560,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if ((renewal != null) && (renewal.equalsIgnoreCase("true"))) {
             CMS.debug("ProfileSubmitServlet: isRenewal true");
             isRenewal = true;
-            request.setAttribute("reqType", (Object) "renewal");
+            request.setAttribute("reqType", "renewal");
         } else {
             CMS.debug("ProfileSubmitServlet: isRenewal false");
         }
@@ -715,7 +715,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     outputTemplate(request, response, args);
                     return;
                 }
-                ICertRecord rec = (ICertRecord) certDB.readCertificateRecord(certSerial);
+                ICertRecord rec = certDB.readCertificateRecord(certSerial);
                 if (rec == null) {
                     CMS.debug("ProfileSubmitServlet: renewal cert record not found for serial number "
                             + certSerial.toString());
@@ -1486,7 +1486,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         reqs[i].getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
                 if (certInfo != null) {
                     String subject = "";
-                    subject = (String) certInfo.get(X509CertInfo.SUBJECT).toString();
+                    subject = certInfo.get(X509CertInfo.SUBJECT).toString();
                     xmlObj.addItemToContainer(subnode, "SubjectDN", subject);
                 } else {
                     CMS.debug("ProfileSubmitServlet xmlOutput: no certInfo found in request");

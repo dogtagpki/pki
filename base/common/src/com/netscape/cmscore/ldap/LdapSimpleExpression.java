@@ -122,9 +122,9 @@ public class LdapSimpleExpression implements ILdapExpression {
 
         try {
             // Try exact case first.
-            givenVal = (String) sc.get(mVar);
+            givenVal = sc.get(mVar);
         } catch (Exception e) {
-            givenVal = (String) null;
+            givenVal = null;
         }
 
         // It is kind of a problem here if all letters are in
@@ -132,17 +132,17 @@ public class LdapSimpleExpression implements ILdapExpression {
         // of directory attributes.
         if (givenVal == null) {
             try {
-                givenVal = (String) sc.get(mVar.toLowerCase());
+                givenVal = sc.get(mVar.toLowerCase());
             } catch (Exception e) {
-                givenVal = (String) null;
+                givenVal = null;
             }
         }
 
         if (givenVal == null) {
             try {
-                givenVal = (String) sc.get(mVar.toUpperCase());
+                givenVal = sc.get(mVar.toUpperCase());
             } catch (Exception e) {
-                givenVal = (String) null;
+                givenVal = null;
             }
         }
 
@@ -170,7 +170,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     private boolean matchVector(Vector<Object> value)
             throws ELdapException {
         boolean result = false;
-        Enumeration<Object> e = (Enumeration<Object>) value.elements();
+        Enumeration<Object> e = value.elements();
 
         for (; e.hasMoreElements();) {
             result = matchValue(e.nextElement());

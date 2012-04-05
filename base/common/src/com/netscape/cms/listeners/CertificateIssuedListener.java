@@ -354,11 +354,10 @@ public class CertificateIssuedListener implements IRequestListener {
                 }
 
                 // build some token data
-                mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-                        mConfig.getName());
+                mContentParams.put(IEmailFormProcessor.TOKEN_ID, mConfig.getName());
                 mReqId = r.getRequestId();
                 mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                        (Object) mReqId.toString());
+                        mReqId.toString());
                 IEmailFormProcessor et = CMS.getEmailFormProcessor();
                 String c = et.getEmailContent(template.toString(), mContentParams);
 
@@ -402,12 +401,12 @@ public class CertificateIssuedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
                 issuedCert[0].getSubjectDN().toString());
 
-        Date date = (Date) issuedCert[0].getNotAfter();
+        Date date = issuedCert[0].getNotAfter();
 
         mContentParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
                 mDateFormat.format(date));
 
-        date = (Date) issuedCert[0].getNotBefore();
+        date = issuedCert[0].getNotBefore();
         mContentParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
                 mDateFormat.format(date));
 

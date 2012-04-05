@@ -150,7 +150,7 @@ public class ListCerts extends CMSServlet {
             Enumeration<String> filters = mAllowedClientFilters.elements();
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
-                String filter = (String) filters.nextElement();
+                String filter = filters.nextElement();
                 com.netscape.certsrv.apps.CMS.debug("Comparing filter="
                         + filter + " queryCertFilter=" + queryCertFilter);
                 if (filter.equals(queryCertFilter)) {
@@ -389,7 +389,7 @@ public class ListCerts extends CMSServlet {
         } else
             pSize = maxCount;
 
-        ICertRecordList list = (ICertRecordList) mCertDB.findCertRecordsInList(
+        ICertRecordList list = mCertDB.findCertRecordsInList(
                 filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
                 pSize);
         // retrive maxCount + 1 entries
@@ -402,7 +402,7 @@ public class ListCerts extends CMSServlet {
         if (!serialToVal.equals(MINUS_ONE)) {
             // if user specify a range, we need to
             // calculate the totalRecordCount
-            tolist = (ICertRecordList) mCertDB.findCertRecordsInList(
+            tolist = mCertDB.findCertRecordsInList(
                         filter,
                         (String[]) null, serialTo,
                         "serialno", maxCount);
@@ -438,7 +438,7 @@ public class ListCerts extends CMSServlet {
              * last item to be displayed, we need to skip it
              */
             while ((count < ((mReverse && !mHardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) e.nextElement();
+                ICertRecord rec = e.nextElement();
 
                 if (rec == null) {
                     com.netscape.certsrv.apps.CMS.debug("record " + count + " is null");
@@ -505,7 +505,7 @@ public class ListCerts extends CMSServlet {
         ICertRecord nextRec = null;
 
         if (e.hasMoreElements()) {
-            nextRec = (ICertRecord) e.nextElement();
+            nextRec = e.nextElement();
         }
 
         header.addStringValue("op", req.getParameter("op"));
@@ -657,7 +657,7 @@ public class ListCerts extends CMSServlet {
                     int reason = 0;
 
                     while (enum1.hasMoreElements()) {
-                        Extension ext = (Extension) enum1.nextElement();
+                        Extension ext = enum1.nextElement();
 
                         if (ext instanceof CRLReasonExtension) {
                             reason = ((CRLReasonExtension) ext).getReason().toInt();

@@ -398,7 +398,7 @@ public class CMSEngine implements ICMSEngine {
         initSubsystems(mDynSubsystems, true);
         initSubsystems(mFinalSubsystems, false);
 
-        CMS.debug("Java version=" + (String) System.getProperty("java.version"));
+        CMS.debug("Java version=" + System.getProperty("java.version"));
         java.security.Provider ps[] = java.security.Security.getProviders();
 
         if (ps == null || ps.length <= 0) {
@@ -487,7 +487,7 @@ public class CMSEngine implements ICMSEngine {
                 StringTokenizer atok = new StringTokenizer(aclStr, ";");
 
                 while (atok.hasMoreTokens()) {
-                    String acs = (String) atok.nextToken();
+                    String acs = atok.nextToken();
 
                     // construct ACL entry
                     ACLEntry entry = ACLEntry.parseACLEntry(acl, acs);
@@ -856,7 +856,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public ISubsystem getSubsystem(String name) {
-        return (ISubsystem) mSSReg.get(name);
+        return mSSReg.get(name);
     }
 
     /**
@@ -1547,7 +1547,7 @@ public class CMSEngine implements ICMSEngine {
             HttpServlet thisServlet = (HttpServlet) CommandQueue.mCommandQueue.get(thisRequest);
 
             if (thisServlet != null) {
-                CommandQueue.mCommandQueue.remove((Object) thisRequest);
+                CommandQueue.mCommandQueue.remove(thisRequest);
                 thisServlet.destroy();
             }
         }
@@ -1782,7 +1782,7 @@ public class CMSEngine implements ICMSEngine {
                     SubsystemRegistry.getInstance().get("ca");
 
             if (ca != null) {
-                certDB = (ICertificateRepository) ca.getCertificateRepository();
+                certDB = ca.getCertificateRepository();
             }
         } catch (Exception e) {
             CMS.debug("CMSEngine: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));

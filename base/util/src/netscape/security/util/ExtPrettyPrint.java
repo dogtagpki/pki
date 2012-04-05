@@ -349,8 +349,7 @@ public class ExtPrettyPrint {
             SubjectInfoAccessExtension aia = (SubjectInfoAccessExtension) mExt;
 
             for (int i = 0; i < aia.numberOfAccessDescription(); i++) {
-                AccessDescription ad = (AccessDescription)
-                        aia.getAccessDescription(i);
+                AccessDescription ad = aia.getAccessDescription(i);
                 ObjectIdentifier method = ad.getMethod();
 
                 if (method.equals(SubjectInfoAccessExtension.METHOD_OCSP)) {
@@ -391,8 +390,7 @@ public class ExtPrettyPrint {
             AuthInfoAccessExtension aia = (AuthInfoAccessExtension) mExt;
 
             for (int i = 0; i < aia.numberOfAccessDescription(); i++) {
-                AccessDescription ad = (AccessDescription)
-                        aia.getAccessDescription(i);
+                AccessDescription ad = aia.getAccessDescription(i);
                 ObjectIdentifier method = ad.getMethod();
 
                 if (method.equals(AuthInfoAccessExtension.METHOD_OCSP)) {
@@ -508,7 +506,7 @@ public class ExtPrettyPrint {
 
             if (e != null) {
                 while (e.hasMoreElements()) {
-                    ObjectIdentifier oid = (ObjectIdentifier) e.nextElement();
+                    ObjectIdentifier oid = e.nextElement();
 
                     if (oid.equals(ExtendedKeyUsageExtension.OID_OCSP_SIGNING)) {
                         sb.append(pp.indent(mIndentSize + 8) + "OCSPSigning" + "\n");
@@ -721,7 +719,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             CRLReasonExtension ext = (CRLReasonExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -749,7 +747,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             InhibitAnyPolicyExtension ext = (InhibitAnyPolicyExtension) mExt;
-            if (((Extension) mExt).isCritical())
+            if (mExt.isCritical())
                 sb.append(mResource.getString(
                         PrettyPrintResources.TOKEN_YES) + "\n");
             else
@@ -778,7 +776,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             BasicConstraintsExtension ext = (BasicConstraintsExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -826,7 +824,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             CRLNumberExtension ext = (CRLNumberExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -858,7 +856,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             DeltaCRLIndicatorExtension ext = (DeltaCRLIndicatorExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -890,7 +888,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             IssuerAlternativeNameExtension ext = (IssuerAlternativeNameExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -933,7 +931,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             SubjectAlternativeNameExtension ext = (SubjectAlternativeNameExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -984,7 +982,7 @@ public class ExtPrettyPrint {
                 sb.append(pp.indent(mIndentSize + 4) +
                         mResource.getString(PrettyPrintResources.TOKEN_SCOPE_OF_USE) + "\n");
                 for (int i = 0; i < entries.size(); i++) {
-                    CertificateScopeEntry se = (CertificateScopeEntry) entries.elementAt(i);
+                    CertificateScopeEntry se = entries.elementAt(i);
                     GeneralName gn = se.getGeneralName();
 
                     if (gn != null) {
@@ -1026,7 +1024,7 @@ public class ExtPrettyPrint {
                     mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(
                         PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
@@ -1125,7 +1123,7 @@ public class ExtPrettyPrint {
                     mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(
                         PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
@@ -1236,7 +1234,7 @@ public class ExtPrettyPrint {
             sb.append(mResource.getString(PrettyPrintResources.TOKEN_ISSUING_DIST_POINT) + "- " +
                     mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1320,7 +1318,7 @@ public class ExtPrettyPrint {
                     PrettyPrintResources.TOKEN_CRITICAL));
             InvalidityDateExtension ext = (InvalidityDateExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1349,7 +1347,7 @@ public class ExtPrettyPrint {
                     PrettyPrintResources.TOKEN_CRITICAL));
             CertificateIssuerExtension ext = (CertificateIssuerExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1395,7 +1393,7 @@ public class ExtPrettyPrint {
                     PrettyPrintResources.TOKEN_CRITICAL));
             HoldInstructionExtension ext = (HoldInstructionExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1424,7 +1422,7 @@ public class ExtPrettyPrint {
                             "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(
                     PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1467,7 +1465,7 @@ public class ExtPrettyPrint {
                     "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(
                     PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1488,7 +1486,7 @@ public class ExtPrettyPrint {
                             mResource.getString(
                                     PrettyPrintResources.TOKEN_MAP) + i + ":" + "\n");
                     CertificatePolicyMap m =
-                            (CertificatePolicyMap) maps.nextElement();
+                            maps.nextElement();
 
                     sb.append(pp.indent(mIndentSize + 12) +
                             mResource.getString(
@@ -1519,7 +1517,7 @@ public class ExtPrettyPrint {
                     "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
@@ -1538,7 +1536,7 @@ public class ExtPrettyPrint {
             } else {
                 sb.append("\n");
                 for (int j = 0; attrs.hasMoreElements(); j++) {
-                    Attribute attr = (Attribute) attrs.nextElement();
+                    Attribute attr = attrs.nextElement();
 
                     sb.append(pp.indent(mIndentSize + 8) +
                             mResource.getString(
@@ -1557,7 +1555,7 @@ public class ExtPrettyPrint {
                                 PrettyPrintResources.TOKEN_NONE) + "\n");
                     } else {
                         for (int k = 0; values.hasMoreElements(); k++) {
-                            String v = (String) values.nextElement();
+                            String v = values.nextElement();
 
                             if (k != 0)
                                 sb.append(",");

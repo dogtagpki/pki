@@ -198,7 +198,7 @@ public class CRLExtensions extends Vector<Extension> {
             name = alias.substring(index + 1);
         } else
             name = alias;
-        Extension ext = (Extension) map.get(name);
+        Extension ext = map.get(name);
         if (ext == null)
             throw new X509ExtensionException("No extension found with name: "
                                              + alias);

@@ -579,7 +579,7 @@ class RequestAttrsMapper
                 @SuppressWarnings("unchecked")
                 Enumeration<byte[]> values = attr.getByteValues();
 
-                value = (byte[]) values.nextElement();
+                value = values.nextElement();
 
                 ht = decodeHashtable(value);
             }

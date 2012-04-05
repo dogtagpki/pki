@@ -44,7 +44,7 @@ public class PlainPasswordFile implements IPasswordStore {
     }
 
     public String getPassword(String tag) {
-        return (String) mPwdStore.getProperty(tag);
+        return mPwdStore.getProperty(tag);
     }
 
     // return an array of String-based tag

@@ -1551,13 +1551,13 @@ public class ArgParser {
     }
 
     Record lastMatchRecord() {
-        return (Record) matchList.lastElement();
+        return matchList.lastElement();
     }
 
     private Record getRecord(String arg, ObjectHolder ndescHolder) {
         NameDesc ndesc;
         for (int i = 0; i < matchList.size(); i++) {
-            Record rec = (Record) matchList.get(i);
+            Record rec = matchList.get(i);
             for (ndesc = rec.nameList; ndesc != null; ndesc = ndesc.next) {
                 if (rec.convertCode != 'v' && ndesc.oneWord) {
                     if (arg.startsWith(ndesc.name)) {
@@ -1581,7 +1581,7 @@ public class ArgParser {
 
     public void checkRequiredArgs() {
         for (int i = 1; i < matchList.size(); i++) {
-            Record rec = (Record) matchList.get(i);
+            Record rec = matchList.get(i);
             StringHolder myString = (StringHolder) rec.resHolder;
             if (((myString.value == null) || (myString.value.equals(""))) && (rec.required)) {
                 printErrorAndExit("Required parameter " + rec.nameList.name + " is not specified.");
@@ -1702,7 +1702,7 @@ public class ArgParser {
         }
         String[] result = new String[vec.size() + args.length];
         for (i = 0; i < vec.size(); i++) {
-            result[i] = (String) vec.get(i);
+            result[i] = vec.get(i);
         }
         for (k = 0; k < args.length; k++) {
             result[i++] = args[k];
@@ -1834,7 +1834,7 @@ public class ArgParser {
         if (unmatched.size() == 0) {
             return null;
         } else {
-            return (String[]) unmatched.toArray(new String[0]);
+            return unmatched.toArray(new String[0]);
         }
     }
 
@@ -2010,7 +2010,7 @@ public class ArgParser {
         s += "Options include:\n\n";
         for (int i = 0; i < matchList.size(); i++) {
             String optionInfo = "";
-            rec = (Record) matchList.get(i);
+            rec = matchList.get(i);
             if (rec.convertCode == 'h' && !helpOptionsEnabled) {
                 continue;
             }

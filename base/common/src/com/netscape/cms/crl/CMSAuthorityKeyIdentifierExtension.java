@@ -95,7 +95,7 @@ public class CMSAuthorityKeyIdentifierExtension
 
                     if (caCertExtensions != null) {
                         for (int i = 0; i < caCertExtensions.size(); i++) {
-                            Extension caCertExt = (Extension) caCertExtensions.elementAt(i);
+                            Extension caCertExt = caCertExtensions.elementAt(i);
 
                             if (caCertExt instanceof SubjectKeyIdentifierExtension) {
                                 SubjectKeyIdentifierExtension id =

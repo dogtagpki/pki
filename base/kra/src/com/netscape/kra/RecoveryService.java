@@ -412,7 +412,7 @@ public class RecoveryService implements IService {
                             keyRecord.getAlgorithm(),
                             iv,
                             pri,
-                            (PublicKey) pubkey);
+                            pubkey);
 
             if (privKey == null) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));

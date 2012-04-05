@@ -231,7 +231,7 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
 
                                 if (crlExtensions != null) {
                                     for (int k = 0; k < crlExtensions.size(); k++) {
-                                        Extension ext = (Extension) crlExtensions.elementAt(k);
+                                        Extension ext = crlExtensions.elementAt(k);
                                         ExtPrettyPrint extpp = new ExtPrettyPrint(ext, 20);
 
                                         sb.append(extpp.toString());

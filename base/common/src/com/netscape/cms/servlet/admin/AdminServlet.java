@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -261,7 +260,7 @@ public class AdminServlet extends HttpServlet {
         StringTokenizer tokenizer = new StringTokenizer(info, "#");
 
         while (tokenizer.hasMoreTokens()) {
-            String acl = (String) tokenizer.nextToken();
+            String acl = tokenizer.nextToken();
 
             mAuthz.authzMgrAccessInit(mAclMethod, acl);
         }
@@ -362,7 +361,7 @@ public class AdminServlet extends HttpServlet {
                     IAuthCredentials authCreds =
                             getAuthCreds(authMgr, cert);
 
-                    token = (AuthToken) authMgr.authenticate(authCreds);
+                    token = authMgr.authenticate(authCreds);
                 } else {
                     String authToken = req.getHeader(HDR_AUTHORIZATION);
                     String b64s = authToken.substring(
@@ -826,7 +825,7 @@ public class AdminServlet extends HttpServlet {
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
 
         for (int i = 0; i < s.length(); i++) {
-            int c = (int) s.charAt(i);
+            int c = s.charAt(i);
 
             if (c == '+') {
                 out.write(' ');

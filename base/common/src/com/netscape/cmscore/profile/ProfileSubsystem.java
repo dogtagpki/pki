@@ -91,7 +91,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
         StringTokenizer st = new StringTokenizer(ids, ",");
 
         while (st.hasMoreTokens()) {
-            String id = (String) st.nextToken();
+            String id = st.nextToken();
             IConfigStore subStore = config.getSubStore(id);
             String classid = subStore.getString(PROP_CLASS_ID);
             IPluginInfo info = registry.getPluginInfo("profile", classid);
@@ -107,7 +107,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
         Enumeration<String> ee = getProfileIds();
 
         while (ee.hasMoreElements()) {
-            String id = (String) ee.nextElement();
+            String id = ee.nextElement();
 
             CMS.debug("Registered Confirmation - " + id);
         }
@@ -156,7 +156,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
         String list = "";
 
         while (tokenizer.hasMoreTokens()) {
-            String element = (String) tokenizer.nextToken();
+            String element = tokenizer.nextToken();
 
             if (!element.equals(id)) {
                 list = list + element + ",";
@@ -235,7 +235,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
     }
 
     public boolean isProfileEnable(String id) {
-        IProfile profile = (IProfile) mProfiles.get(id);
+        IProfile profile = mProfiles.get(id);
         String enable = null;
 
         try {
@@ -266,7 +266,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      */
     public void enableProfile(String id, String enableBy)
             throws EProfileException {
-        IProfile profile = (IProfile) mProfiles.get(id);
+        IProfile profile = mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "true");
         profile.getConfigStore().putString(PROP_ENABLE_BY, enableBy);
@@ -281,7 +281,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      */
     public void disableProfile(String id)
             throws EProfileException {
-        IProfile profile = (IProfile) mProfiles.get(id);
+        IProfile profile = mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "false");
         try {

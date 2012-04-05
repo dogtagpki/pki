@@ -205,7 +205,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                     String[] values = me.getValue();
                     String newname = null;
                     if (name != null) {
-                        newname = (String) mMap.get(name);
+                        newname = mMap.get(name);
                     }
 
                     // No mapping specified, just use existing name/value
@@ -217,7 +217,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                         if (o == null) {
                             n.put(newname, values);
                         } else {
-                            String newvalues[] = (String[]) mValueMap.get(newname);
+                            String newvalues[] = mValueMap.get(newname);
                             n.put(newname, newvalues);
                         }
                     }

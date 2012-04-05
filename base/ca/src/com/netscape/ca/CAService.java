@@ -689,7 +689,7 @@ public class CAService implements ICAService, IService {
                     Enumeration<Extension> e = exts.getAttributes();
 
                     while (e.hasMoreElements()) {
-                        netscape.security.x509.Extension ext = (netscape.security.x509.Extension) e.nextElement();
+                        netscape.security.x509.Extension ext = e.nextElement();
 
                         if (ext.getExtensionId().toString().equals(PKIXExtensions.BasicConstraints_Id.toString())) {
                             bc_ext = (BasicConstraintsExtension) ext;
@@ -1004,7 +1004,7 @@ public class CAService implements ICAService, IService {
             Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
             while (eIPs.hasMoreElements()) {
-                ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                ICRLIssuingPoint ip = eIPs.nextElement();
 
                 if (ip != null) {
                     boolean b = true;

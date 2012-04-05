@@ -124,8 +124,7 @@ public class LdapCrlIssuerCompsMap
 
         try {
             String result = null;
-            X500Name issuerDN =
-                    (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+            X500Name issuerDN = (X500Name) crl.getIssuerDN();
 
             CMS.debug("LdapCrlIssuerCompsMap: " + issuerDN.toString());
 

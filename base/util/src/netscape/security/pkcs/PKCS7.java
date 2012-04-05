@@ -191,7 +191,7 @@ public class PKCS7 {
 
             for (int i = 0; i < len; i++) {
                 try {
-                    X509Certificate cert = (X509Certificate) new
+                    X509Certificate cert = new
                                            X509CertImpl(certificateVals[i]);
                     certificates[i] = cert;
                 } catch (CertificateException e) {
@@ -412,7 +412,7 @@ public class PKCS7 {
         for (int i = 0; i < certificates.length; i++) {
             X509Certificate cert = certificates[i];
             X500Name thisName = (X500Name) cert.getIssuerDN();
-            BigInteger tmpSerial = (BigInteger) cert.getSerialNumber();
+            BigInteger tmpSerial = cert.getSerialNumber();
             BigInt thisSerial = new BigInt(tmpSerial);
             if (serial.equals(thisSerial) && name.equals(thisName)) {
                 return cert;

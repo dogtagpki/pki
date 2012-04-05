@@ -334,7 +334,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public byte[] getByteArray(String name, byte defval[])
             throws EBaseException {
-        String str = (String) get(name);
+        String str = get(name);
 
         if (str == null || str.length() == 0) {
             CMS.traceHashKey(mDebugType, getFullName(name),
@@ -379,7 +379,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @exception EBaseException failed to retrieve
      */
     public boolean getBoolean(String name) throws EBaseException {
-        String value = (String) get(name);
+        String value = get(name);
 
         if (value == null) {
             CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
@@ -445,7 +445,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @exception EBaseException failed to retrieve value
      */
     public int getInteger(String name) throws EBaseException {
-        String value = (String) get(name);
+        String value = get(name);
 
         if (value == null) {
             CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
@@ -505,7 +505,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @exception EBaseException failed to retrieve value
      */
     public BigInteger getBigInteger(String name) throws EBaseException {
-        String value = (String) get(name);
+        String value = get(name);
 
         if (value == null) {
             CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");

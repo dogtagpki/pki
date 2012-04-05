@@ -155,7 +155,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         }
 
-        importCert((Object) cert);
+        importCert(cert);
     }
 
     /**
@@ -284,8 +284,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected boolean arePair(X509Certificate cert1, X509Certificate cert2) {
         // 1. does cert1's issuer match cert2's subject?
         // 2. does cert2's issuer match cert1's subject?
-        if ((cert1.getIssuerDN().equals((Object) cert2.getSubjectDN()))
-                && (cert2.getIssuerDN().equals((Object) cert1.getSubjectDN())))
+        if (cert1.getIssuerDN().equals(cert2.getSubjectDN())
+                && cert2.getIssuerDN().equals(cert1.getSubjectDN()))
             return true;
         else
             return false;

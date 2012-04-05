@@ -48,7 +48,7 @@ public class AttrSetCollection extends Hashtable<String, IAttrSet> {
      * @return attribute set
      */
     public IAttrSet getAttrSet(String name) {
-        return (IAttrSet) get(name);
+        return get(name);
     }
 
     /**

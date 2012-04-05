@@ -273,7 +273,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
      * @return array of parameters for this authentication.
      */
     public String[] getParms() {
-        return (String[]) mParms.clone();
+        return mParms.clone();
     }
 
     /**

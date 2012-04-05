@@ -452,7 +452,7 @@ public class NetkeyKeygenService implements IService {
                 CMS.debug("NetkeyKeygenService: got key wrapper");
 
                 CMS.debug("NetkeyKeygenService: key transport key is on slot: " + sk.getOwningToken().getName());
-                symWrap.initWrap((SymmetricKey) sk, algParam);
+                symWrap.initWrap(sk, algParam);
                 byte wrapped[] = symWrap.wrap((PrivateKey) privKey);
                 /*
                   CMS.debug("NetkeyKeygenService: wrap called");

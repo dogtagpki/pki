@@ -113,7 +113,7 @@ public class AgentApprovals
     public Vector<String> toStringVector() {
         Vector<String> retval = new Vector<String>(mVector.size());
         for (int i = 0; i < mVector.size(); i++) {
-            AgentApproval a = (AgentApproval) mVector.elementAt(i);
+            AgentApproval a = mVector.elementAt(i);
             retval.add(a.getDate().getTime() + ";" + a.getUserName());
         }
 

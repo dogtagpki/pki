@@ -435,7 +435,7 @@ public abstract class ARequestQueue
             throw new EBaseException("Missing agent information");
 
         aas.addApproval(agentName);
-        r.setExtData(AgentApprovals.class.getName(), (Vector<?>) aas.toStringVector());
+        r.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
 
         PolicyResult pr = mPolicy.apply(r);
 
@@ -842,7 +842,7 @@ class Request
     public void copyContents(IRequest req) {
         Enumeration<String> e = req.getExtDataKeys();
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
             if (!key.equals(IRequest.ISSUED_CERTS) &&
                     !key.equals(IRequest.ERRORS) &&
                     !key.equals(IRequest.REMOTE_REQID)) {
@@ -1236,7 +1236,7 @@ class Request
             return false;
         }
         try {
-            stringArray = (String[]) stringVector.toArray(new String[0]);
+            stringArray = stringVector.toArray(new String[0]);
         } catch (ArrayStoreException e) {
             return false;
         }
@@ -1291,8 +1291,8 @@ class Request
         Enumeration<String> keys = hash.keys();
         while (keys.hasMoreElements()) {
             try {
-                String hashKey = (String) keys.nextElement();
-                authToken.set(hashKey, (String) hash.get(hashKey));
+                String hashKey = keys.nextElement();
+                authToken.set(hashKey, hash.get(hashKey));
             } catch (ClassCastException e) {
                 return null;
             }
@@ -1546,7 +1546,7 @@ class RequestList
     }
 
     public RequestId nextRequestId() {
-        return (RequestId) mEnumeration.nextElement();
+        return mEnumeration.nextElement();
     }
 
     public Object nextRequest() {

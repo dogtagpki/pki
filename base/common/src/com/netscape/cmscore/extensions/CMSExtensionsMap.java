@@ -65,7 +65,7 @@ public class CMSExtensionsMap implements ISubsystem {
         Enumeration<String> sstores = mConfig.getSubStoreNames();
 
         while (sstores.hasMoreElements()) {
-            String name = (String) sstores.nextElement();
+            String name = sstores.nextElement();
             IConfigStore c = mConfig.getSubStore(name);
 
             String className = c.getString(PROP_CLASS);
@@ -145,7 +145,7 @@ public class CMSExtensionsMap implements ISubsystem {
      * @return the extension class.
      */
     public ICMSExtension getByName(String name) {
-        return (ICMSExtension) mName2Ext.get(name);
+        return mName2Ext.get(name);
     }
 
     /**
@@ -155,6 +155,6 @@ public class CMSExtensionsMap implements ISubsystem {
      * @return the extension class.
      */
     public ICMSExtension getByOID(ObjectIdentifier oid) {
-        return (ICMSExtension) mOID2Ext.get(oid.toString());
+        return mOID2Ext.get(oid.toString());
     }
 }

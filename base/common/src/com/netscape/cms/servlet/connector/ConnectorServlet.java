@@ -131,8 +131,8 @@ public class ConnectorServlet extends CMSServlet {
             throw new IOException(
                     "CMS server is not ready to serve.");
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
+        HttpServletRequest req = request;
+        HttpServletResponse resp = response;
 
         CMSRequest cmsRequest = newCMSRequest();
 
@@ -215,7 +215,7 @@ public class ConnectorServlet extends CMSServlet {
         try {
             token = authenticate(request);
             raUserId = token.getInString("userid");
-            RA_Id = (String) peerCert.getSubjectDN().toString();
+            RA_Id = peerCert.getSubjectDN().toString();
         } catch (EInvalidCredentials e) {
             // already logged.
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);

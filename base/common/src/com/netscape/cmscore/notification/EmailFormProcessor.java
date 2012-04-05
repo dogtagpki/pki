@@ -155,7 +155,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
 
             for (Enumeration<String> e = mTok2vals.keys(); e.hasMoreElements();) {
                 // get key
-                tok = (String) e.nextElement();
+                tok = e.nextElement();
 
                 // compare key with $token
                 if (t.startsWith(tok)) {

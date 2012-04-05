@@ -140,9 +140,9 @@ public final class MD5 extends MessageDigestSpi implements Cloneable {
         d = state[3];
 
         for (int i = 0; i < 16; i++) {
-            x[i] = (int) buf[i * 4 + offset] & 0xff;
+            x[i] = buf[i * 4 + offset] & 0xff;
             for (int j = 1; j < 4; j++) {
-                x[i] += ((int) buf[i * 4 + j + offset] & 0xff) << (j * 8);
+                x[i] += (buf[i * 4 + j + offset] & 0xff) << (j * 8);
             }
         }
 
@@ -365,10 +365,10 @@ public final class MD5 extends MessageDigestSpi implements Cloneable {
         MD5 that = null;
         try {
             that = (MD5) super.clone();
-            that.state = (int[]) this.state.clone();
-            that.transformBuffer = (int[]) this.transformBuffer.clone();
-            that.buffer = (byte[]) this.buffer.clone();
-            that.digestBits = (byte[]) this.digestBits.clone();
+            that.state = this.state.clone();
+            that.transformBuffer = this.transformBuffer.clone();
+            that.buffer = this.buffer.clone();
+            that.digestBits = this.digestBits.clone();
             that.count = this.count;
             return that;
         } catch (CloneNotSupportedException e) {

@@ -1052,7 +1052,7 @@ public class WizardPanelBase implements IWizardPanel {
             for (int i = 0; i < len; i++) {
                 Vector<String> v_clone = parser.getValuesFromContainer(nodeList.item(i),
                         "Clone");
-                String clone = (String) v_clone.elementAt(0);
+                String clone = v_clone.elementAt(0);
                 if (clone.equalsIgnoreCase("true"))
                     continue;
                 Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i),

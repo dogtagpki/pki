@@ -602,7 +602,7 @@ public class DoUnrevoke extends CMSServlet {
 
         BigInteger[] biNumbers = new BigInteger[biList.size()];
         for (int i = 0; i < biList.size(); i++) {
-            biNumbers[i] = (BigInteger) biList.elementAt(i);
+            biNumbers[i] = biList.elementAt(i);
         }
 
         return biNumbers;

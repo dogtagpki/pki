@@ -357,7 +357,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<ISubsystem> e = CMS.getSubsystems();
 
         while (e.hasMoreElements()) {
-            ISubsystem sys = (ISubsystem) e.nextElement();
+            ISubsystem sys = e.nextElement();
 
             //get subsystem type
             if ((sys instanceof IKeyRecoveryAuthority) &&
@@ -387,7 +387,7 @@ public final class CMSAdminServlet extends AdminServlet {
         boolean isKRAInstalled = false;
 
         while (e.hasMoreElements()) {
-            ISubsystem sys = (ISubsystem) e.nextElement();
+            ISubsystem sys = e.nextElement();
 
             //get subsystem type
             if (sys instanceof IKeyRecoveryAuthority)
@@ -538,7 +538,7 @@ public final class CMSAdminServlet extends AdminServlet {
             boolean isKRAInstalled = false;
 
             while (e.hasMoreElements()) {
-                ISubsystem sys = (ISubsystem) e.nextElement();
+                ISubsystem sys = e.nextElement();
 
                 //get subsystem type
                 if (sys instanceof IKeyRecoveryAuthority)
@@ -563,7 +563,7 @@ public final class CMSAdminServlet extends AdminServlet {
             boolean isCACert = true;
 
             while (enum1.hasMoreElements()) {
-                String name = (String) enum1.nextElement();
+                String name = enum1.nextElement();
                 String val = req.getParameter(name);
 
                 if (name.equals(Constants.PR_CIPHER_PREF)) {
@@ -781,7 +781,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String type = "";
-            ISubsystem sys = (ISubsystem) e.nextElement();
+            ISubsystem sys = e.nextElement();
 
             //get subsystem type
             if (sys instanceof IKeyRecoveryAuthority)
@@ -846,7 +846,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
 
             if (key.equals(Constants.OP_TYPE))
                 continue;
@@ -874,7 +874,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> e = req.getParameterNames();
         String newKeyName = null, selectedToken = null;
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.PR_KEY_LIST)) {
                 newKeyName = req.getParameter(name);
@@ -908,7 +908,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.PR_TOKEN_LIST)) {
                 String selectedToken = req.getParameter(name);
@@ -957,7 +957,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -1022,7 +1022,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String pwd = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_TOKEN_NAME)) {
@@ -1051,7 +1051,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String value = "";
 
         while (enum1.hasMoreElements()) {
-            key = (String) enum1.nextElement();
+            key = enum1.nextElement();
             value = req.getParameter(key);
             if (key.equals(Constants.PR_TOKEN_NAME)) {
                 break;
@@ -1105,7 +1105,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String keyCurveName = "";
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_TOKEN_NAME)) {
@@ -1472,7 +1472,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String newtokenname = null;
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (!key.equals("pathname")) {
@@ -1489,7 +1489,7 @@ public final class CMSAdminServlet extends AdminServlet {
             ICertificateAuthority ca = (ICertificateAuthority)
                     CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository repository =
-                    (ICertificateRepository) ca.getCertificateRepository();
+                    ca.getCertificateRepository();
             ISigningUnit signingUnit = ca.getSigningUnit();
             String oldtokenname = null;
             //this is the old nick name
@@ -1891,7 +1891,7 @@ public final class CMSAdminServlet extends AdminServlet {
             Enumeration<String> enum1 = req.getParameterNames();
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_PKCS10))
@@ -2309,7 +2309,7 @@ public final class CMSAdminServlet extends AdminServlet {
             NameValuePairs results = new NameValuePairs();
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 // really should be PR_CERT_CONTENT
@@ -2539,7 +2539,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String otherNickname = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_PKCS10)) {
@@ -2639,7 +2639,7 @@ public final class CMSAdminServlet extends AdminServlet {
         NameValuePairs pairs = new NameValuePairs();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.OP_TYPE))
@@ -2682,7 +2682,7 @@ public final class CMSAdminServlet extends AdminServlet {
         NameValuePairs pairs = new NameValuePairs();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.OP_TYPE))
@@ -2796,7 +2796,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String date = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.OP_TYPE))
@@ -2825,7 +2825,7 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_SUBJECT_NAME)) {
@@ -2854,7 +2854,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String curveName = null;
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_KEY_CURVENAME)) {
@@ -2885,7 +2885,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String certExt = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(ConfigConstants.PR_CERTIFICATE_EXTENSION)) {
@@ -2911,7 +2911,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String nickname = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.RS_ID)) {
@@ -2938,7 +2938,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String nickname = "";
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_NICKNAME)) {
@@ -3025,7 +3025,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String trust = "";
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.RS_ID)) {
@@ -3129,7 +3129,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String logMessage = null;
 
             while (enum1.hasMoreElements()) {
-                String key = (String) enum1.nextElement();
+                String key = enum1.nextElement();
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_RUN_SELFTESTS_ON_DEMAND)) {
@@ -3222,8 +3222,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         throw new EMissingSelfTestException();
                     }
 
-                    ISelfTest test = (ISelfTest)
-                            mSelfTestSubsystem.getSelfTest(instanceName);
+                    ISelfTest test = mSelfTestSubsystem.getSelfTest(instanceName);
 
                     if (test == null) {
                         // self test plugin instance property name is not present

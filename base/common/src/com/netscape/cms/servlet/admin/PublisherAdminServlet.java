@@ -345,7 +345,7 @@ public class PublisherAdminServlet extends AdminServlet {
         StringBuffer publish = new StringBuffer();
 
         for (; publishers.hasMoreElements();) {
-            String name = (String) publishers.nextElement();
+            String name = publishers.nextElement();
 
             publish.append(",");
             publish.append(name);
@@ -379,14 +379,14 @@ public class PublisherAdminServlet extends AdminServlet {
             impl = getExtendedPluginInfo(p_processor);
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_MAPPER)) {
             IPublisherProcessor p_processor = mProcessor;
-            Plugin plugin = (Plugin) p_processor.getMapperPlugins().get(implName
+            Plugin plugin = p_processor.getMapperPlugins().get(implName
                     );
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
 
         } else if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHER)) {
             IPublisherProcessor p_processor = mProcessor;
-            Plugin plugin = (Plugin) p_processor.getPublisherPlugins().get(implName);
+            Plugin plugin = p_processor.getPublisherPlugins().get(implName);
 
             impl = getClassByNameAsExtendedPluginInfo(plugin.getClassPath());
         }
@@ -1018,7 +1018,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // is the manager id unique?
-        if (mProcessor.getMapperPlugins().containsKey((Object) id)) {
+        if (mProcessor.getMapperPlugins().containsKey(id)) {
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
                             .toString(),
@@ -1119,7 +1119,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        if (mProcessor.getMapperInsts().containsKey((Object) id)) {
+        if (mProcessor.getMapperInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -1136,8 +1136,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // check if implementation exists.
         MapperPlugin plugin =
-                (MapperPlugin) mProcessor.getMapperPlugins().get(
-                        implname);
+                mProcessor.getMapperPlugins().get(
+                implname);
 
         if (plugin == null) {
             sendResponse(
@@ -1156,7 +1156,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String val = req.getParameter(kv.substring(0, index));
 
@@ -1248,8 +1248,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String name = e.nextElement();
-            MapperPlugin value = (MapperPlugin)
-                    mProcessor.getMapperPlugins().get(name);
+            MapperPlugin value = mProcessor.getMapperPlugins().get(name);
             // get Description
             String c = value.getClassPath();
             String desc = "unknown";
@@ -1372,7 +1371,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // first check if any instances from this mapper
         // DON'T remove mapper if any instance
         for (Enumeration<String> e = mProcessor.getMapperInsts().keys(); e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             ILdapMapper mapper = mProcessor.getMapperInstance(name);
 
             if (id.equals(getMapperPluginName(mapper))) {
@@ -1382,7 +1381,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // then delete this mapper
-        mProcessor.getMapperPlugins().remove((Object) id);
+        mProcessor.getMapperPlugins().remove(id);
 
         IConfigStore destStore =
                 mConfig.getSubStore(
@@ -1459,8 +1458,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapMapper mapperInst = (ILdapMapper)
-                mProcessor.getMapperInstance(id);
+        ILdapMapper mapperInst = mProcessor.getMapperInstance(id);
         Vector<String> configParams = mapperInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -1496,7 +1494,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // Does the manager instance exist?
-        if (!mProcessor.getMapperInsts().containsKey((Object) id)) {
+        if (!mProcessor.getMapperInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -1511,7 +1509,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
         // get plugin for implementation
         MapperPlugin plugin =
-                (MapperPlugin) mProcessor.getMapperPlugins().get(implname);
+                mProcessor.getMapperPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(
@@ -1525,7 +1523,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // save old instance substore params in case new one fails.
 
         ILdapMapper oldinst =
-                (ILdapMapper) mProcessor.getMapperInstance(id);
+                mProcessor.getMapperInstance(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
 
@@ -1659,7 +1657,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // is the rule id unique?
-        if (mProcessor.getRulePlugins().containsKey((Object) id)) {
+        if (mProcessor.getRulePlugins().containsKey(id)) {
             sendResponse(
                     ERROR,
                     new ELdapException(CMS.getUserMessage("CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(getLocale(req)),
@@ -1750,7 +1748,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        if (mProcessor.getRuleInsts().containsKey((Object) id)) {
+        if (mProcessor.getRuleInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -1767,8 +1765,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // check if implementation exists.
         RulePlugin plugin =
-                (RulePlugin) mProcessor.getRulePlugins().get(
-                        implname);
+                mProcessor.getRulePlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(
@@ -1884,8 +1881,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String name = e.nextElement();
-            RulePlugin value = (RulePlugin)
-                    mProcessor.getRulePlugins().get(name);
+            RulePlugin value = mProcessor.getRulePlugins().get(name);
             // get Description
             String c = value.getClassPath();
             String desc = "unknown";
@@ -1911,8 +1907,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapRule value = (ILdapRule)
-                    mProcessor.getRuleInsts().get((Object) name);
+            ILdapRule value = mProcessor.getRuleInsts().get(name);
             String enabled = value.enabled() ? "enabled" : "disabled";
 
             params.put(name, value.getInstanceName() + ";visible;" + enabled);
@@ -1966,7 +1961,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // then delete this rule
-        mProcessor.getRulePlugins().remove((Object) id);
+        mProcessor.getRulePlugins().remove(id);
 
         IConfigStore destStore =
                 mConfig.getSubStore(
@@ -2058,7 +2053,7 @@ public class PublisherAdminServlet extends AdminServlet {
         params.put(Constants.PR_RULE_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.put(kv.substring(0, index),
@@ -2090,8 +2085,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapRule ruleInst = (ILdapRule)
-                mProcessor.getRuleInsts().get(id);
+        ILdapRule ruleInst = mProcessor.getRuleInsts().get(id);
         Vector<String> configParams = ruleInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -2100,7 +2094,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.put(kv.substring(0, index),
@@ -2126,7 +2120,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // Does the manager instance exist?
-        if (!mProcessor.getRuleInsts().containsKey((Object) id)) {
+        if (!mProcessor.getRuleInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -2142,7 +2136,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // get plugin for implementation
         RulePlugin plugin =
-                (RulePlugin) mProcessor.getRulePlugins().get(implname);
+                mProcessor.getRulePlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(ERROR,
@@ -2155,7 +2149,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // save old instance substore params in case new one fails.
 
         ILdapRule oldinst =
-                (ILdapRule) mProcessor.getRuleInsts().get((Object) id);
+                mProcessor.getRuleInsts().get(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
 
@@ -2293,7 +2287,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // is the manager id unique?
-        if (mProcessor.getPublisherPlugins().containsKey((Object) id)) {
+        if (mProcessor.getPublisherPlugins().containsKey(id)) {
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
                             .toString(),
@@ -2386,7 +2380,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        if (mProcessor.getPublisherInsts().containsKey((Object) id)) {
+        if (mProcessor.getPublisherInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -2403,8 +2397,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // check if implementation exists.
         PublisherPlugin plugin =
-                (PublisherPlugin) mProcessor.getPublisherPlugins().get(
-                        implname);
+                mProcessor.getPublisherPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(
@@ -2530,8 +2523,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String name = e.nextElement();
-            PublisherPlugin value = (PublisherPlugin)
-                    mProcessor.getPublisherPlugins().get(name);
+            PublisherPlugin value = mProcessor.getPublisherPlugins().get(name);
             // get Description
             String c = value.getClassPath();
             String desc = "unknown";
@@ -2617,7 +2609,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // then delete this publisher
-        mProcessor.getPublisherPlugins().remove((Object) id);
+        mProcessor.getPublisherPlugins().remove(id);
 
         IConfigStore destStore =
                 mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
@@ -2719,7 +2711,7 @@ public class PublisherAdminServlet extends AdminServlet {
         params.put(Constants.PR_PUBLISHER_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 if (index == -1) {
@@ -2757,8 +2749,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapPublisher publisherInst = (ILdapPublisher)
-                mProcessor.getPublisherInstance(id);
+        ILdapPublisher publisherInst = mProcessor.getPublisherInstance(id);
         Vector<String> configParams = publisherInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -2767,7 +2758,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.put(kv.substring(0, index),
@@ -2804,7 +2795,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         // Does the manager instance exist?
-        if (!mProcessor.getPublisherInsts().containsKey((Object) id)) {
+        if (!mProcessor.getPublisherInsts().containsKey(id)) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_INST_ID", id),
                     null, resp);
             return;
@@ -2820,7 +2811,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // get plugin for implementation
         PublisherPlugin plugin =
-                (PublisherPlugin) mProcessor.getPublisherPlugins().get(implname);
+                mProcessor.getPublisherPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(
@@ -2842,7 +2833,7 @@ public class PublisherAdminServlet extends AdminServlet {
         saveParams.put("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
-                String kv = (String) oldConfigParms.elementAt(i);
+                String kv = oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
                 if (index > -1) {
                     if (kv.substring(0, index).equalsIgnoreCase("caObjectClass")) {
@@ -2885,7 +2876,7 @@ public class PublisherAdminServlet extends AdminServlet {
         substore.put("pluginName", implname);
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String key = kv.substring(0, index);
                 String val = req.getParameter(key);
@@ -2995,7 +2986,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 extras.add(list1[i].trim());
         }
 
-        return (String[]) extras.toArray(new String[extras.size()]);
+        return extras.toArray(new String[extras.size()]);
     }
 
     // convenience function - takes list1, list2.  Concatenates the two
@@ -3018,7 +3009,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 sum.add(list2[i].trim());
         }
 
-        return (String[]) sum.toArray(new String[sum.size()]);
+        return sum.toArray(new String[sum.size()]);
     }
 
     // convenience funtion. Takes a string array and delimiter

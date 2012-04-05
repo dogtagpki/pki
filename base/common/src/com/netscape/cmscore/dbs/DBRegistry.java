@@ -265,7 +265,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         String result = "";
 
         for (int i = 0; i < v.size(); i++) {
-            result += (String) v.elementAt(i);
+            result += v.elementAt(i);
         }
         return result;
     }
@@ -316,8 +316,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         // if value contains no '*', then it is equality
         if (value.indexOf('*') == -1) {
             if (type.equals("objectclass")) {
-                String ldapNames[] = (String[])
-                        mOCclassNames.get(value);
+                String ldapNames[] = mOCclassNames.get(value);
 
                 if (ldapNames == null)
                     throw new EDBException(
@@ -342,8 +341,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      */
     public void mapObject(IDBObj parent, String name, Object obj,
             LDAPAttributeSet attrs) throws EBaseException {
-        IDBAttrMapper mapper = (IDBAttrMapper) mAttrufNames.get(
-                name.toLowerCase());
+        IDBAttrMapper mapper = mAttrufNames.get(name.toLowerCase());
 
         if (mapper == null) {
             return; // no mapper found, just skip this attribute
@@ -373,15 +371,14 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             }
 
             if (isAttributeRegistered(attrs[i])) {
-                mapper = (IDBAttrMapper)
-                        mAttrufNames.get(attrs[i].toLowerCase());
+                mapper = mAttrufNames.get(attrs[i].toLowerCase());
                 if (mapper == null) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
                 Enumeration<String> e = mapper.getSupportedLDAPAttributeNames();
 
                 while (e.hasMoreElements()) {
-                    String s = (String) e.nextElement();
+                    String s = e.nextElement();
 
                     if (!v.contains(s)) {
                         v.addElement(s);
@@ -392,7 +389,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 // check if a dynamic mapper can handle the attribute
                 for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
                     IDBDynAttrMapper dynAttrMapper =
-                            (IDBDynAttrMapper) dynMapperIter.next();
+                            dynMapperIter.next();
                     if (dynAttrMapper.supportsLDAPAttributeName(attrs[i])) {
                         matchingDynAttrMapper = dynAttrMapper;
                         break;
@@ -432,13 +429,13 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 
         // add object class to attribute set
         String className = ((Object) obj).getClass().getName();
-        String vals[] = (String[]) mOCclassNames.get(className);
+        String vals[] = mOCclassNames.get(className);
 
         attrs.add(new LDAPAttribute("objectclass", vals));
 
         // give every attribute a chance to put stuff in attr set
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (obj.get(name) != null) {
                 mapObject(obj, name, obj.get(name), attrs);
@@ -471,7 +468,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 
         v.copyInto(s);
         String sorted = sortAndConcate(s).toLowerCase();
-        NameAndObject no = (NameAndObject) mOCldapNames.get(sorted);
+        NameAndObject no = mOCldapNames.get(sorted);
 
         if (no == null) {
             throw new EDBException(
@@ -484,10 +481,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             Enumeration<String> ee = obj.getSerializableAttrNames();
 
             while (ee.hasMoreElements()) {
-                String oname = (String) ee.nextElement();
-                IDBAttrMapper mapper = (IDBAttrMapper)
-                        mAttrufNames.get(
-                                oname.toLowerCase());
+                String oname = ee.nextElement();
+                IDBAttrMapper mapper = mAttrufNames.get(oname.toLowerCase());
 
                 if (mapper == null) {
                     throw new EDBException(
@@ -520,7 +515,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         // sort it first
         for (int i = 0; i < s.length; i++) {
             for (int j = 0; j < v.size(); j++) {
-                String t = (String) v.elementAt(j);
+                String t = v.elementAt(j);
 
                 if (s[i].compareTo(t) < 0) {
                     v.insertElementAt(s[i], j);
@@ -535,7 +530,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         String result = "";
 
         for (int i = 0; i < v.size(); i++) {
-            result += ((String) v.elementAt(i) + "+");
+            result += v.elementAt(i) + "+";
         }
         return result;
     }

@@ -200,7 +200,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
                 header.addStringValue("publicKeyData",
                         publicKeyData);
             }
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(seq);
+            IKeyRecord rec = mKeyDB.readKeyRecord(seq);
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
 

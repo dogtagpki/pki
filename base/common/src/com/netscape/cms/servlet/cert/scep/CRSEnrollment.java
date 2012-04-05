@@ -211,7 +211,7 @@ public class CRSEnrollment extends HttpServlet {
         @SuppressWarnings("unchecked")
         Enumeration<String> names = req.getParameterNames();
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             httpReqHash.put(name, req.getParameter(name));
         }
         return httpReqHash;
@@ -421,7 +421,7 @@ public class CRSEnrollment extends HttpServlet {
 
         if (authNames != null) {
             while (authNames.hasMoreElements()) {
-                String authName = (String) authNames.nextElement();
+                String authName = authNames.nextElement();
 
                 credentials.set(authName, request.getParameter(authName));
             }
@@ -468,7 +468,7 @@ public class CRSEnrollment extends HttpServlet {
             byte[] bytes = null;
 
             int i = 0;
-            String message = (String) httpReq.getParameter(URL_MESSAGE);
+            String message = httpReq.getParameter(URL_MESSAGE);
             CMS.debug("handleGetCACert message=" + message);
             if (message != null) {
                 try {
@@ -541,7 +541,7 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             while (e.hasMoreElements()) {
-                PKCS10Attribute p10a = (PKCS10Attribute) e.nextElement();
+                PKCS10Attribute p10a = e.nextElement();
                 CertAttrSet attr = p10a.getAttributeValue();
 
                 if (attr.getName().equals(ChallengePassword.NAME)) {
@@ -679,7 +679,7 @@ public class CRSEnrollment extends HttpServlet {
             responseData = responseData +
                     "<MessageType>" + mt + "</MessageType>";
 
-            PKCS10 p10 = (PKCS10) req.getP10();
+            PKCS10 p10 = req.getP10();
             X500Name p10subject = p10.getSubjectName();
             responseData = responseData +
                     "<SubjectName>" + p10subject.toString() + "</SubjectName>";
@@ -689,7 +689,7 @@ public class CRSEnrollment extends HttpServlet {
             Enumeration<PKCS10Attribute> e = p10atts.getElements();
 
             while (e.hasMoreElements()) {
-                PKCS10Attribute p10a = (PKCS10Attribute) e.nextElement();
+                PKCS10Attribute p10a = e.nextElement();
                 CertAttrSet attr = p10a.getAttributeValue();
 
                 if (attr.getName().equals(ChallengePassword.NAME)) {
@@ -1066,7 +1066,7 @@ public class CRSEnrollment extends HttpServlet {
             return result;
         }
 
-        ILdapConnFactory connFactory = ((IPublisherProcessor) ldapPub).getLdapConnModule().getLdapConnFactory();
+        ILdapConnFactory connFactory = ldapPub.getLdapConnModule().getLdapConnFactory();
         if (connFactory == null) {
             return result;
         }
@@ -1190,7 +1190,7 @@ public class CRSEnrollment extends HttpServlet {
 
             X500NameAttrMap xnap = X500NameAttrMap.getDefault();
             while (rdne.hasMoreElements()) {
-                RDN rdn = (RDN) rdne.nextElement();
+                RDN rdn = rdne.nextElement();
                 int i = 0;
                 AVA[] oldavas = rdn.getAssertion();
                 for (i = 0; i < rdn.getAssertionLength(); i++) {
@@ -1229,13 +1229,12 @@ public class CRSEnrollment extends HttpServlet {
             Enumeration<PKCS10Attribute> e = p10atts.getElements();
 
             while (e.hasMoreElements()) {
-                PKCS10Attribute p10a = (PKCS10Attribute) e.nextElement();
+                PKCS10Attribute p10a = e.nextElement();
                 CertAttrSet attr = p10a.getAttributeValue();
 
                 if (attr.getName().equals(ChallengePassword.NAME)) {
                     if (attr.get(ChallengePassword.PASSWORD) != null) {
-                        req.put(AUTH_PASSWORD,
-                                    (String) attr.get(ChallengePassword.PASSWORD));
+                        req.put(AUTH_PASSWORD, attr.get(ChallengePassword.PASSWORD));
                         req.put(ChallengePassword.NAME,
                                 hashPassword(
                                     (String) attr.get(ChallengePassword.PASSWORD)));
@@ -1270,7 +1269,7 @@ public class CRSEnrollment extends HttpServlet {
                             Enumeration<GeneralNameInterface> gne = v.elements();
 
                             while (gne.hasMoreElements()) {
-                                GeneralNameInterface gni = (GeneralNameInterface) gne.nextElement();
+                                GeneralNameInterface gni = gne.nextElement();
                                 if (gni instanceof GeneralName) {
                                     GeneralName genName = (GeneralName) gni;
 
@@ -1361,12 +1360,12 @@ public class CRSEnrollment extends HttpServlet {
         itemCount = 0;
         Enumeration<String> en = ht.keys();
         while (en.hasMoreElements()) {
-            String key = (String) en.nextElement();
+            String key = en.nextElement();
             if (key.equals(SANE_DNSNAME)) {
-                gn[itemCount++] = new DNSName((String) ht.get(key));
+                gn[itemCount++] = new DNSName(ht.get(key));
             }
             if (key.equals(SANE_IPADDRESS)) {
-                gn[itemCount++] = new IPAddressName((String) ht.get(key));
+                gn[itemCount++] = new IPAddressName(ht.get(key));
             }
         }
 
@@ -1711,7 +1710,7 @@ public class CRSEnrollment extends HttpServlet {
 
         MessageDigest md;
         String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
-        PKCS10 p10 = (PKCS10) req.getP10();
+        PKCS10 p10 = req.getP10();
 
         for (int i = 0; i < hashes.length; i++) {
             try {

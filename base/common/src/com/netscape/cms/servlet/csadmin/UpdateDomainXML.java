@@ -429,7 +429,7 @@ public class UpdateDomainXML extends CMSServlet {
                     int len = nodeList.getLength();
 
                     for (int i = 0; i < len; i++) {
-                        Node nn = (Node) nodeList.item(i);
+                        Node nn = nodeList.item(i);
                         Vector<String> v_name = parser.getValuesFromContainer(nn, "SubsystemName");
                         Vector<String> v_host = parser.getValuesFromContainer(nn, "Host");
                         Vector<String> v_adminport = parser.getValuesFromContainer(nn, "SecureAdminPort");

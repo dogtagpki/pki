@@ -514,7 +514,7 @@ public class FlatFileAuth
         AuthToken authToken = new AuthToken(this);
 
         for (int i = 0; i < authAttrs.length; i++) {
-            String ffvalue = (String) user.get(authAttrs[i]);
+            String ffvalue = user.get(authAttrs[i]);
             String uservalue = (String) authCred.get(authAttrs[i]);
 
             // print("checking authentication token (" + authAttrs[i] + ": " + uservalue + " against ff value: " + ffvalue);
@@ -589,7 +589,7 @@ public class FlatFileAuth
         // if a dn was specified in the password file for this user,
         // replace the requested dn with the one in the pwfile
         if (user != null) {
-            String dn = (String) user.get("dn");
+            String dn = user.get("dn");
 
             if (dn != null && authToken != null) {
                 authToken.set(AuthToken.TOKEN_CERT_SUBJECT, dn);

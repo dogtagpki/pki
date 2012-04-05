@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -419,7 +418,7 @@ public class CheckRequest extends CMSServlet {
                                     StringBuffer res = new StringBuffer();
 
                                     while (tokenizer.hasMoreTokens()) {
-                                        String elem = (String) tokenizer.nextToken();
+                                        String elem = tokenizer.nextToken();
 
                                         res.append(elem);
                                     }
@@ -528,7 +527,7 @@ public class CheckRequest extends CMSServlet {
                                             digestAlg = DigestAlgorithm.SHA1;
                                             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                                            rb.encode((OutputStream) ostream);
+                                            rb.encode(ostream);
                                             digest = SHADigest.digest(ostream.toByteArray());
                                         } catch (NoSuchAlgorithmException ex) {
                                             //log("digest fail");
@@ -575,7 +574,7 @@ public class CheckRequest extends CMSServlet {
                                         ByteArrayOutputStream ostream = new
                                                 ByteArrayOutputStream();
 
-                                        fullResponse.encode((OutputStream) ostream);
+                                        fullResponse.encode(ostream);
                                         byte[] fr = ostream.toByteArray();
 
                                         header.addStringValue(FULL_RESPONSE, CMS.BtoA(fr));

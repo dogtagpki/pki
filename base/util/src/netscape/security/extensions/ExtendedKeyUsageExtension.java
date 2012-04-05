@@ -89,7 +89,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
             throws IOException {
         extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         critical = crit.booleanValue();
-        extensionValue = (byte[]) ((byte[]) byteVal).clone();
+        extensionValue = ((byte[]) byteVal).clone();
         decodeThis();
     }
 
@@ -209,7 +209,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
 
             try {
                 while (oidList.hasMoreElements()) {
-                    temp.putOID((ObjectIdentifier) oidList.nextElement());
+                    temp.putOID(oidList.nextElement());
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();

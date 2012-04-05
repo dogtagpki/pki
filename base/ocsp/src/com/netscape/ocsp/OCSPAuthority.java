@@ -142,7 +142,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 Enumeration<String> ids = storeConfig.getSubStoreNames();
 
                 while (ids.hasMoreElements()) {
-                    String id = (String) ids.nextElement();
+                    String id = ids.nextElement();
                     String className = mConfig.getString(PROP_STORE + "." + id + ".class", null);
                     IOCSPStore store = (IOCSPStore) Class.forName(className).newInstance();
 

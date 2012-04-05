@@ -74,7 +74,7 @@ public class CronItem {
             StringTokenizer st = new StringTokenizer(sItem, DELIM);
 
             while (st.hasMoreTokens()) {
-                String tok = (String) st.nextToken();
+                String tok = st.nextToken();
                 // elements could be ranges (separated by '-')
                 int r = tok.indexOf(RANGE);
 

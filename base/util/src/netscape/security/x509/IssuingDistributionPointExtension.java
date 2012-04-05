@@ -131,7 +131,7 @@ public class IssuingDistributionPointExtension extends Extension
 
         this.extensionId = PKIXExtensions.IssuingDistributionPoint_Id;
         this.critical = critical.booleanValue();
-        this.extensionValue = (byte[]) ((byte[]) value).clone();
+        this.extensionValue = ((byte[]) value).clone();
 
         byte[] extValue = this.extensionValue;
         issuingDistributionPoint = new IssuingDistributionPoint();

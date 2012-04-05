@@ -333,10 +333,10 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 StringBuffer ss = new StringBuffer();
                 while (v.hasMoreElements()) {
                     if (ss.length() == 0)
-                        ss.append((String) (v.nextElement()));
+                        ss.append(v.nextElement());
                     else {
                         ss.append(",");
-                        ss.append((String) (v.nextElement()));
+                        ss.append(v.nextElement());
                     }
                 }
 

@@ -99,8 +99,8 @@ public class CertUserDBAuthentication implements IAuthManager {
             mRevocationCheckingEnabled = mRevocationChecking.getBoolean("enabled", false);
             if (mRevocationCheckingEnabled) {
                 int size = mRevocationChecking.getInteger("bufferSize", 0);
-                long interval = (long) mRevocationChecking.getInteger("validityInterval", 28800);
-                long unknownStateInterval = (long) mRevocationChecking.getInteger("unknownStateInterval", 1800);
+                long interval = mRevocationChecking.getInteger("validityInterval", 28800);
+                long unknownStateInterval = mRevocationChecking.getInteger("unknownStateInterval", 1800);
 
                 if (size > 0)
                     CMS.setListOfVerifiedCerts(size, interval, unknownStateInterval);

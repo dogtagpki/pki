@@ -1762,9 +1762,8 @@ public class DRMTool {
                     + "the target storage certificate . . ."
                     + NEWLINE, true);
 
-            mWrapPublicKey = (PublicKey)
-                             (PK11PubKey.fromSPKI(
-                                     getPublicKey().getEncoded()));
+            mWrapPublicKey = PK11PubKey.fromSPKI(
+                     getPublicKey().getEncoded());
 
             if (mWrapPublicKey == null) {
                 log("ERROR:  Failed extracting "

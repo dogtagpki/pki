@@ -100,7 +100,7 @@ public class StatsSubsystem implements IStatsSubsystem {
         long startTime = CMS.getCurrentDate().getTime();
         StatsEvent currentST = null;
         for (int i = 0; i < milestones.size(); i++) {
-            StatsMilestone se = (StatsMilestone) milestones.elementAt(i);
+            StatsMilestone se = milestones.elementAt(i);
             if (currentST == null) {
                 currentST = mAllTrans.getSubEvent(se.getId());
             } else {

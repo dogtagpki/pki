@@ -323,7 +323,7 @@ public class DBSubsystem implements IDBSubsystem {
         CMS.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
-        mDBConfig.putString((String) h.get(PROP_MAX_NAME), serial);
+        mDBConfig.putString(h.get(PROP_MAX_NAME), serial);
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
 
@@ -344,7 +344,7 @@ public class DBSubsystem implements IDBSubsystem {
         CMS.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
-        mDBConfig.putString((String) h.get(PROP_MIN_NAME), serial);
+        mDBConfig.putString(h.get(PROP_MIN_NAME), serial);
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
 
@@ -364,10 +364,10 @@ public class DBSubsystem implements IDBSubsystem {
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             CMS.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
-            mDBConfig.remove((String) h.get(PROP_NEXT_MAX_NAME));
+            mDBConfig.remove(h.get(PROP_NEXT_MAX_NAME));
         } else {
             CMS.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
-            mDBConfig.putString((String) h.get(PROP_NEXT_MAX_NAME), serial);
+            mDBConfig.putString(h.get(PROP_NEXT_MAX_NAME), serial);
         }
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
@@ -391,10 +391,10 @@ public class DBSubsystem implements IDBSubsystem {
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             CMS.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
-            mDBConfig.remove((String) h.get(PROP_NEXT_MIN_NAME));
+            mDBConfig.remove(h.get(PROP_NEXT_MIN_NAME));
         } else {
             CMS.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
-            mDBConfig.putString((String) h.get(PROP_NEXT_MIN_NAME), serial);
+            mDBConfig.putString(h.get(PROP_NEXT_MIN_NAME), serial);
         }
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
@@ -420,15 +420,15 @@ public class DBSubsystem implements IDBSubsystem {
         try {
             Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
-            String dn = (String) h.get(PROP_BASEDN) + "," + mBaseDN;
-            String rangeDN = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
+            String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
+            String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
 
             LDAPEntry entry = conn.read(dn);
             LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
             nextRange = (String) attr.getStringValues().nextElement();
 
             BigInteger nextRangeNo = new BigInteger(nextRange);
-            BigInteger incrementNo = new BigInteger((String) h.get(PROP_INCREMENT));
+            BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT));
             // To make sure attrNextRange always increments, first delete the current value and then
             // increment.  Two operations in the same transaction
             LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, nextRangeNo.add(incrementNo).toString());
@@ -486,7 +486,7 @@ public class DBSubsystem implements IDBSubsystem {
             }
             Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
-            String rangedn = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
+            String rangedn = h.get(PROP_RANGE_DN) + "," + mBaseDN;
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     CMS.getEESSLHost() + ")(SecurePort=" + CMS.getEESSLPort() +
                     ")(beginRange=" + nextRangeStart + "))";

@@ -199,7 +199,7 @@ public class AgentCertAuthentication implements IAuthManager,
         Certificates certs = new Certificates(ci);
 
         try {
-            user = (IUser) mCULocator.locateUser(certs);
+            user = mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {

@@ -155,7 +155,7 @@ public class ACL implements IACL, java.io.Serializable {
         Enumeration<ACLEntry> e = entries();
 
         for (; e.hasMoreElements();) {
-            ACLEntry entry = (ACLEntry) e.nextElement();
+            ACLEntry entry = e.nextElement();
 
             entries += entry.toString();
             if (e.hasMoreElements())
@@ -180,7 +180,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return true if it's one of the "rights"; false otherwise
      */
     public boolean checkRight(String permission) {
-        return (mRights.contains((Object) permission));
+        return mRights.contains(permission);
     }
 
     /**

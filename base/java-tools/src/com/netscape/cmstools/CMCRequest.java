@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -259,7 +258,7 @@ public class CMCRequest {
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                pkidata.encode((OutputStream) ostream);
+                pkidata.encode(ostream);
                 digest = SHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
             }
@@ -444,7 +443,7 @@ public class CMCRequest {
         StringTokenizer tokenizer = new StringTokenizer(bodyPartIDs, " ");
         SEQUENCE bodyList = new SEQUENCE();
         while (tokenizer.hasMoreTokens()) {
-            String s = (String) tokenizer.nextToken();
+            String s = tokenizer.nextToken();
             bodyList.addElement(new INTEGER(s));
         }
         LraPopWitness lra = new LraPopWitness(new INTEGER(0), bodyList);
@@ -602,7 +601,7 @@ public class CMCRequest {
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                revRequestControl.encode((OutputStream) ostream);
+                revRequestControl.encode(ostream);
                 rdigest = rSHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
             }
@@ -942,7 +941,7 @@ public class CMCRequest {
         StringTokenizer tokenizer = new StringTokenizer(ifilename, " ");
         String[] ifiles = new String[num];
         for (int i = 0; i < num; i++) {
-            String ss = (String) tokenizer.nextToken();
+            String ss = tokenizer.nextToken();
             ifiles[i] = ss;
             if (ss == null) {
                 System.out.println("Missing input file for the request.");

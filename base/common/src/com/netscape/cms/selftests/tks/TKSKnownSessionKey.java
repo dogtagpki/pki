@@ -102,7 +102,7 @@ public class TKSKnownSessionKey
         mUseSoftToken = getConfigString("useSoftToken");
 
         String defKeySetMacKey = null;
-        tks = (ISubsystem) CMS.getSubsystem(mTksSubId);
+        tks = CMS.getSubsystem(mTksSubId);
         if (tks != null) {
             tksConfig = tks.getConfigStore();
             if (tksConfig != null) {

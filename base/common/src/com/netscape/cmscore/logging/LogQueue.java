@@ -64,7 +64,7 @@ public class LogQueue implements ILogQueue {
         if (mListeners == null)
             return;
         for (int i = 0; i < mListeners.size(); i++) {
-            ((ILogEventListener) mListeners.elementAt(i)).shutdown();
+            mListeners.elementAt(i).shutdown();
         }
         mListeners = null;
     }
@@ -99,7 +99,7 @@ public class LogQueue implements ILogQueue {
             return;
         for (int i = 0; i < mListeners.size(); i++) {
             try {
-                ((ILogEventListener) mListeners.elementAt(i)).log(event);
+                mListeners.elementAt(i).log(event);
             } catch (ELogException e) {
                 // Raidzilla Bug #57592:  Don't display potentially
                 //                        incorrect log message.
@@ -107,7 +107,7 @@ public class LogQueue implements ILogQueue {
                 //          event.getEventType(), e.toString())));
 
                 // Don't do this again.
-                removeLogEventListener((ILogEventListener) mListeners.elementAt(i));
+                removeLogEventListener(mListeners.elementAt(i));
             }
         }
     }
@@ -117,7 +117,7 @@ public class LogQueue implements ILogQueue {
      */
     public void flush() {
         for (int i = 0; i < mListeners.size(); i++) {
-            ((ILogEventListener) mListeners.elementAt(i)).flush();
+            mListeners.elementAt(i).flush();
         }
     }
 }

@@ -112,7 +112,7 @@ public class PublisherProcessor implements
         Enumeration<String> mImpls = c.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
-            String id = (String) mImpls.nextElement();
+            String id = mImpls.nextElement();
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             PublisherPlugin plugin = new PublisherPlugin(id, pluginPath);
 
@@ -126,11 +126,11 @@ public class PublisherProcessor implements
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
-            String insName = (String) instances.nextElement();
+            String insName = instances.nextElement();
             String implName = c.getString(insName + "." +
                     PROP_PLUGIN);
             PublisherPlugin plugin =
-                    (PublisherPlugin) mPublisherPlugins.get(implName);
+                    mPublisherPlugins.get(implName);
 
             if (plugin == null) {
                 log(ILogger.LL_FAILURE,
@@ -195,7 +195,7 @@ public class PublisherProcessor implements
         c = mapperConfig.getSubStore(PROP_IMPL);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
-            String id = (String) mImpls.nextElement();
+            String id = mImpls.nextElement();
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             MapperPlugin plugin = new MapperPlugin(id, pluginPath);
 
@@ -208,11 +208,11 @@ public class PublisherProcessor implements
         c = mapperConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
-            String insName = (String) instances.nextElement();
+            String insName = instances.nextElement();
             String implName = c.getString(insName + "." +
                     PROP_PLUGIN);
             MapperPlugin plugin =
-                    (MapperPlugin) mMapperPlugins.get(implName);
+                    mMapperPlugins.get(implName);
 
             if (plugin == null) {
                 log(ILogger.LL_FAILURE,
@@ -276,7 +276,7 @@ public class PublisherProcessor implements
         c = ruleConfig.getSubStore(PROP_IMPL);
         mImpls = c.getSubStoreNames();
         while (mImpls.hasMoreElements()) {
-            String id = (String) mImpls.nextElement();
+            String id = mImpls.nextElement();
             String pluginPath = c.getString(id + "." + PROP_CLASS);
             RulePlugin plugin = new RulePlugin(id, pluginPath);
 
@@ -289,11 +289,11 @@ public class PublisherProcessor implements
         c = ruleConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
-            String insName = (String) instances.nextElement();
+            String insName = instances.nextElement();
             String implName = c.getString(insName + "." +
                     PROP_PLUGIN);
             RulePlugin plugin =
-                    (RulePlugin) mRulePlugins.get(implName);
+                    mRulePlugins.get(implName);
 
             if (plugin == null) {
                 log(ILogger.LL_FAILURE,
@@ -479,7 +479,7 @@ public class PublisherProcessor implements
         Enumeration<String> e = mRuleInsts.keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name == null) {
                 if (Debug.ON)
@@ -522,7 +522,7 @@ public class PublisherProcessor implements
         Enumeration<String> e = mRuleInsts.keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name == null) {
                 if (Debug.ON)
@@ -653,8 +653,7 @@ public class PublisherProcessor implements
     }
 
     public boolean isMapperInstanceEnable(String insName) {
-        MapperProxy proxy = (MapperProxy)
-                mMapperInsts.get(insName);
+        MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null) {
             return false;
@@ -663,7 +662,7 @@ public class PublisherProcessor implements
     }
 
     public ILdapMapper getActiveMapperInstance(String insName) {
-        MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
+        MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null)
             return null;
@@ -674,7 +673,7 @@ public class PublisherProcessor implements
     }
 
     public ILdapMapper getMapperInstance(String insName) {
-        MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
+        MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null)
             return null;
@@ -682,8 +681,7 @@ public class PublisherProcessor implements
     }
 
     public boolean isPublisherInstanceEnable(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-                mPublisherInsts.get(insName);
+        PublisherProxy proxy = mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return false;
@@ -692,8 +690,7 @@ public class PublisherProcessor implements
     }
 
     public ILdapPublisher getActivePublisherInstance(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-                mPublisherInsts.get(insName);
+        PublisherProxy proxy = mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return null;
@@ -705,8 +702,7 @@ public class PublisherProcessor implements
     }
 
     public ILdapPublisher getPublisherInstance(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-                mPublisherInsts.get(insName);
+        PublisherProxy proxy = mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return null;
@@ -809,8 +805,8 @@ public class PublisherProcessor implements
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
         try {
-            ICertificateRepository certdb = (ICertificateRepository) ca.getCertificateRepository();
-            ICertRecord certRec = (ICertRecord) certdb.readCertificateRecord(serialNo);
+            ICertificateRepository certdb = ca.getCertificateRepository();
+            ICertRecord certRec = certdb.readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
             if (metaInfo == null) {
@@ -1206,7 +1202,7 @@ public class PublisherProcessor implements
                         dn = ((X500Name) crl.getIssuerDN()).toLdapDNString();
                     } else {
 
-                        result = ((ILdapMapper) mapper).map(conn, crl);
+                        result = mapper.map(conn, crl);
                         dn = result;
                         if (!mCreateOwnDNEntry) {
                             if (dn == null) {
@@ -1382,7 +1378,7 @@ public class PublisherProcessor implements
 
         // use ca cert publishing map and rule
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
-        X509Certificate caCert = (X509Certificate) ca.getCACert();
+        X509Certificate caCert = ca.getCACert();
 
         LDAPConnection conn = null;
 
@@ -1394,7 +1390,7 @@ public class PublisherProcessor implements
                     conn = mLdapConnModule.getConn();
                 }
                 try {
-                    dirdn = mapper.map(conn, r, (Object) caCert);
+                    dirdn = mapper.map(conn, r, caCert);
                     CMS.debug("PublisherProcessor: dirdn=" + dirdn);
 
                 } catch (Throwable e1) {

@@ -99,9 +99,9 @@ public final class DSAPublicKey extends X509Key
                 if (algParams == null) {
                     return null;
                 }
-                paramSpec = (DSAParameterSpec) algParams.getParameterSpec
+                paramSpec = algParams.getParameterSpec
                         (DSAParameterSpec.class);
-                return (DSAParams) paramSpec;
+                return paramSpec;
             }
         } catch (InvalidParameterSpecException e) {
             return null;

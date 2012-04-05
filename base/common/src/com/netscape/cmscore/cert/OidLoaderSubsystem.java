@@ -149,7 +149,7 @@ public class OidLoaderSubsystem implements ISubsystem {
         // load dynamic extensions
 
         while (names.hasMoreElements()) {
-            String substorename = (String) names.nextElement();
+            String substorename = names.nextElement();
             IConfigStore substore = mConfig.getSubStore(substorename);
 
             try {

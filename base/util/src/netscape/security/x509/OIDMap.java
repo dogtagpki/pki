@@ -245,7 +245,7 @@ public class OIDMap {
      *         is registered for this oid.
      */
     public static String getName(ObjectIdentifier oid) {
-        return (String) oid2Name.get(oid);
+        return oid2Name.get(oid);
     }
 
     /**
@@ -256,7 +256,7 @@ public class OIDMap {
      *         is registered for this name.
      */
     public static ObjectIdentifier getOID(String name) {
-        return (ObjectIdentifier) name2OID.get(name);
+        return name2OID.get(name);
     }
 
     /**
@@ -266,7 +266,7 @@ public class OIDMap {
      * @exception CertificateException if class cannot be instantiated.
      */
     public static Class<?> getClass(String name) throws CertificateException {
-        String className = (String) name2Class.get(name);
+        String className = name2Class.get(name);
         if (className == null)
             return null;
         try {
@@ -289,7 +289,7 @@ public class OIDMap {
         String name = getName(oid);
         if (name == null)
             return null;
-        String className = (String) name2Class.get(name);
+        String className = name2Class.get(name);
         if (className == null)
             return null;
         try {

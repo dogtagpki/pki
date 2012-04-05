@@ -305,7 +305,7 @@ public class CertPrettyPrint {
                     PrettyPrintResources.TOKEN_EXTENSIONS) + "\n");
             if (extensions != null)
                 for (int i = 0; i < extensions.size(); i++) {
-                    Extension ext = (Extension) extensions.elementAt(i);
+                    Extension ext = extensions.elementAt(i);
                     ExtPrettyPrint extpp = new ExtPrettyPrint(ext, 16);
 
                     sb.append(extpp.toString());

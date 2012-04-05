@@ -316,8 +316,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                 NameValuePairs pairs = new NameValuePairs();
 
                 if (maps.hasMoreElements()) {
-                    CertificatePolicyMap map =
-                            (CertificatePolicyMap) maps.nextElement();
+                    CertificatePolicyMap map = maps.nextElement();
 
                     CertificatePolicyId i1 = map.getIssuerIdentifier();
                     CertificatePolicyId s1 = map.getSubjectIdentifier();

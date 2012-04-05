@@ -209,7 +209,7 @@ public class RevocationServlet extends CMSServlet {
 
         if (mNonces != null) {
             long n = mRandom.nextLong();
-            long m = mNonces.addNonce(n, (X509Certificate) old_cert);
+            long m = mNonces.addNonce(n, old_cert);
             if ((n + m) != 0) {
                 header.addStringValue("nonce", Long.toString(m));
             }

@@ -332,7 +332,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             }
 
             if (mAuthority instanceof ICertificateAuthority) {
-                ICertRecordList list = (ICertRecordList) mCertDB.findCertRecordsInList(
+                ICertRecordList list = mCertDB.findCertRecordsInList(
                         revokeAll, null, totalRecordCount);
                 Enumeration<ICertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
@@ -399,7 +399,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         for (int j = 0; j < serialNumbers.size(); j++) {
                             if (certs[i].getSerialNumber().toString().equals(
-                                    (String) serialNumbers.elementAt(j))) {
+                                    serialNumbers.elementAt(j))) {
                                 addToList = true;
                                 break;
                             }
@@ -451,8 +451,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
 
             for (int i = 0; i < count; i++) {
-                oldCerts[i] = (X509CertImpl) oldCertsV.elementAt(i);
-                revCertImpls[i] = (RevokedCertImpl) revCertImplsV.elementAt(i);
+                oldCerts[i] = oldCertsV.elementAt(i);
+                revCertImpls[i] = revCertImplsV.elementAt(i);
             }
 
             IRequest revReq =
@@ -566,8 +566,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
-                        ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                                otherCRLs.nextElement();
+                        ICRLIssuingPoint crl = otherCRLs.nextElement();
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))

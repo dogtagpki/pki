@@ -227,7 +227,7 @@ public class DoRevoke extends CMSServlet {
                     certChain[0] = cert2;
                     IUser user = null;
                     try {
-                        user = (IUser) mUL.locateUser(new Certificates(certChain));
+                        user = mUL.locateUser(new Certificates(certChain));
                     } catch (Exception e) {
                         CMS.debug("DoRevoke:  Failed to map certificate '" +
                                    cert2.getSubjectDN().getName() + "' to user.");
@@ -565,7 +565,7 @@ public class DoRevoke extends CMSServlet {
 
                         for (int j = 0; j < serialNumbers.size(); j++) {
                             //xxxxx serial number in decimal?
-                            if (certs[i].getSerialNumber().toString().equals((String) serialNumbers.elementAt(j)) &&
+                            if (certs[i].getSerialNumber().toString().equals(serialNumbers.elementAt(j)) &&
                                     eeSubjectDN != null && eeSubjectDN.equals(certs[i].getSubjectDN().toString())) {
                                 addToList = true;
                                 break;
@@ -658,8 +658,8 @@ public class DoRevoke extends CMSServlet {
             RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
 
             for (int i = 0; i < count; i++) {
-                oldCerts[i] = (X509CertImpl) oldCertsV.elementAt(i);
-                revCertImpls[i] = (RevokedCertImpl) revCertImplsV.elementAt(i);
+                oldCerts[i] = oldCertsV.elementAt(i);
+                revCertImpls[i] = revCertImplsV.elementAt(i);
             }
 
             IRequest revReq =
@@ -722,7 +722,7 @@ public class DoRevoke extends CMSServlet {
                                 //cmsReq.setErrorDescription(err);
                                 for (int j = 0; j < count; j++) {
                                     if (oldCerts[j] instanceof X509CertImpl) {
-                                        X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                                        X509CertImpl cert = oldCerts[j];
 
                                         if (oldCerts[j] != null) {
                                             mLogger.log(ILogger.EV_AUDIT,
@@ -776,7 +776,7 @@ public class DoRevoke extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                            X509CertImpl cert = oldCerts[j];
 
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                     AuditFormat.LEVEL,
@@ -837,8 +837,7 @@ public class DoRevoke extends CMSServlet {
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
-                        ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                                otherCRLs.nextElement();
+                        ICRLIssuingPoint crl = otherCRLs.nextElement();
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
@@ -944,7 +943,7 @@ public class DoRevoke extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = (X509CertImpl) oldCerts[j];
+                            X509CertImpl cert = oldCerts[j];
 
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                     AuditFormat.LEVEL,

@@ -101,7 +101,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
 
         for (int i = 0; i < s.length(); i++) {
-            int c = (int) s.charAt(i);
+            int c = s.charAt(i);
 
             if (c == '+') {
                 out.write(' ');

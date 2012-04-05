@@ -608,7 +608,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     public Hashtable<String, Object> getRecoveryParams(String recoveryID)
             throws EBaseException {
-        return (Hashtable<String, Object>) mRecoveryParams.get(recoveryID);
+        return mRecoveryParams.get(recoveryID);
     }
 
     public void createPk12(String recoveryID, byte[] pk12)
@@ -658,7 +658,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
         @SuppressWarnings("unchecked")
         Vector<Credential> dc = (Vector<Credential>) h.get(PARAM_CREDS);
-        Object lock = (Object) h.get(PARAM_LOCK);
+        Object lock = h.get(PARAM_LOCK);
 
         synchronized (lock) {
             while (dc.size() < getNoOfRequiredAgents()) {
@@ -712,7 +712,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
         @SuppressWarnings("unchecked")
         Vector<Credential> dc = (Vector<Credential>) h.get(PARAM_CREDS);
-        Object lock = (Object) h.get(PARAM_LOCK);
+        Object lock = h.get(PARAM_LOCK);
 
         synchronized (lock) {
             verifyCredential(dc, uid, pwd);
@@ -1500,7 +1500,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     public Hashtable<String, Object> getVolatileRequest(RequestId id) {
-        return (Hashtable<String, Object>) mVolatileRequests.get(id.toString());
+        return mVolatileRequests.get(id.toString());
     }
 
     public void destroyVolatileRequest(RequestId id) {

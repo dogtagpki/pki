@@ -70,7 +70,7 @@ public class Pattern {
         Enumeration<String> keys = attrSetCollection.keys();
 
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            String key = keys.nextElement();
             Pattern p = new Pattern(temp);
 
             temp = p.substitute(key,

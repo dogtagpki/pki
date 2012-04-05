@@ -268,7 +268,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      */
     public X500Name(RDN[] rdns)
             throws IOException {
-        names = (RDN[]) rdns.clone();
+        names = rdns.clone();
     }
 
     /**
@@ -281,7 +281,7 @@ public class X500Name implements Principal, GeneralNameInterface {
         int size = rdnVector.size();
         names = new RDN[size];
         for (int i = 0; i < size; i++) {
-            names[i] = (RDN) rdnVector.elementAt(i);
+            names[i] = rdnVector.elementAt(i);
         }
     }
 
@@ -525,7 +525,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      * @return array of RDN in this X500name.
      */
     public RDN[] getNames() {
-        return (RDN[]) names.clone();
+        return names.clone();
     }
 
     /**

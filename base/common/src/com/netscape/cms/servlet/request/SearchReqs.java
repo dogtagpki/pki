@@ -99,7 +99,7 @@ public class SearchReqs extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
 
         if (mAuthority instanceof ISubsystem) {
-            ISubsystem sub = (ISubsystem) mAuthority;
+            ISubsystem sub = mAuthority;
             IConfigStore authConfig = sub.getConfigStore();
 
             if (authConfig != null) {
@@ -293,7 +293,7 @@ public class SearchReqs extends CMSServlet {
             int count = 0;
 
             while (list != null && list.hasMoreElements()) {
-                IRequest request = (IRequest) list.nextRequestObject();
+                IRequest request = list.nextRequestObject();
 
                 if (request != null) {
                     count++;

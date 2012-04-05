@@ -160,7 +160,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                 StringTokenizer st = new StringTokenizer(value, "\r\n");
 
                 while (st.hasMoreTokens()) {
-                    String gname = (String) st.nextToken();
+                    String gname = st.nextToken();
 
                     GeneralNameInterface n = parseGeneralName(gname);
                     if (n != null) {

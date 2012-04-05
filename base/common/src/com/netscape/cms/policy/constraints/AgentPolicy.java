@@ -68,7 +68,7 @@ public class AgentPolicy extends APolicyRule
             throws EPolicyException {
 
         // Create subordinate object
-        String className = (String) config.get("class");
+        String className = config.get("class");
 
         System.err.println("Creating agent policy with class " + className);
         if (className != null) {

@@ -177,7 +177,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
 
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(seq);
+            IKeyRecord rec = mKeyDB.readKeyRecord(seq);
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
         } catch (EBaseException e) {

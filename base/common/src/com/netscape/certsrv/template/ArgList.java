@@ -63,6 +63,6 @@ public class ArgList implements IArgValue {
      * @return argument
      */
     public IArgValue get(int pos) {
-        return (IArgValue) mList.elementAt(pos);
+        return mList.elementAt(pos);
     }
 }

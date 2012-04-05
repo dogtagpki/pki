@@ -457,7 +457,7 @@ class AVAPattern {
             Enumeration<String> ldapValues = ldapAttr.getStringValues();
 
             for (int i = 0; ldapValues.hasMoreElements(); i++) {
-                String val = (String) ldapValues.nextElement();
+                String val = ldapValues.nextElement();
 
                 if (i == mElement) {
                     value = val;

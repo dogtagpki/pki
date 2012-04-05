@@ -224,7 +224,7 @@ public class RSAKeyConstraints extends APolicyRule
                         StringBuffer sb = new StringBuffer();
 
                         for (Enumeration<BigInt> e = mExponents.elements(); e.hasMoreElements();) {
-                            BigInt bi = (BigInt) e.nextElement();
+                            BigInt bi = e.nextElement();
 
                             sb.append(bi.toBigInteger().toString());
                             sb.append(" ");

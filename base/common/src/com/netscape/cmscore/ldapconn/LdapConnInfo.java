@@ -53,7 +53,7 @@ public class LdapConnInfo implements ILdapConnInfo {
     public void init(IConfigStore config) throws EBaseException, ELdapException {
         mHost = config.getString(PROP_HOST);
         mPort = config.getInteger(PROP_PORT);
-        String version = (String) config.get(PROP_PROTOCOL);
+        String version = config.get(PROP_PROTOCOL);
 
         if (version != null && version.equals("")) {
             // provide a default when this field is blank from the

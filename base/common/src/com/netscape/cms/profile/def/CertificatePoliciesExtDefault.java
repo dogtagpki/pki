@@ -247,7 +247,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         StringTokenizer st = new StringTokenizer(value, "\r\n");
         Hashtable<String, String> table = new Hashtable<String, String>();
         while (st.hasMoreTokens()) {
-            String token = (String) st.nextToken();
+            String token = st.nextToken();
             int index = token.indexOf(":");
             if (index <= 0)
                 throw new EPropertyException(CMS.getUserMessage(
@@ -287,15 +287,15 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
                 Hashtable<String, String> h = buildRecords(value);
 
-                String numStr = (String) h.get(CONFIG_POLICY_NUM);
+                String numStr = h.get(CONFIG_POLICY_NUM);
                 int size = Integer.parseInt(numStr);
 
                 Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
                 for (int i = 0; i < size; i++) {
-                    String enable = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ENABLE);
+                    String enable = h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ENABLE);
                     CertificatePolicyInfo cinfo = null;
                     if (enable != null && enable.equals("true")) {
-                        String policyId = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ID);
+                        String policyId = h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ID);
 
                         if (policyId == null || policyId.length() == 0)
                             throw new EPropertyException(CMS.getUserMessage(
@@ -303,40 +303,39 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                         CertificatePolicyId cpolicyId = getPolicyId(policyId);
 
                         String qualifersNum =
-                                (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_QUALIFIERS_NUM);
+                                h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_QUALIFIERS_NUM);
                         PolicyQualifiers policyQualifiers = new PolicyQualifiers();
                         int num = 0;
                         if (qualifersNum != null && qualifersNum.length() > 0)
                             num = Integer.parseInt(qualifersNum);
                         for (int j = 0; j < num; j++) {
                             String cpsuriEnable =
-                                    (String) h.get(CONFIG_PREFIX
-                                            + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_ENABLE);
+                                    h.get(CONFIG_PREFIX
+                                    + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_ENABLE);
                             String usernoticeEnable =
-                                    (String) h
-                                            .get(CONFIG_PREFIX
-                                                    + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
-                                                    + CONFIG_USERNOTICE_ENABLE);
+                                    h.get(CONFIG_PREFIX
+                                            + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                                            + CONFIG_USERNOTICE_ENABLE);
                             if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
                                 String cpsuri =
-                                        (String) h.get(CONFIG_PREFIX
-                                                + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_VALUE);
+                                        h.get(CONFIG_PREFIX
+                                        + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_VALUE);
                                 netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
                             } else if (usernoticeEnable != null && enable.equals("true")) {
                                 String org =
-                                        (String) h.get(CONFIG_PREFIX
-                                                + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
-                                                + CONFIG_USERNOTICE_ORG);
+                                        h.get(CONFIG_PREFIX
+                                        + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                                        + CONFIG_USERNOTICE_ORG);
                                 String noticenumbers =
-                                        (String) h.get(CONFIG_PREFIX
-                                                + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
-                                                + CONFIG_USERNOTICE_NUMBERS);
+                                        h.get(CONFIG_PREFIX
+                                        + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                                        + CONFIG_USERNOTICE_NUMBERS);
                                 String explicitText =
-                                        (String) h.get(CONFIG_PREFIX
-                                                + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
-                                                + CONFIG_USERNOTICE_TEXT);
+                                        h.get(CONFIG_PREFIX
+                                        + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                                        + CONFIG_USERNOTICE_TEXT);
                                 netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
                                         noticenumbers, explicitText);
                                 if (qualifierInfo != null)
@@ -345,11 +344,9 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                         }
 
                         if (policyQualifiers.size() <= 0) {
-                            cinfo =
-                                    new CertificatePolicyInfo(cpolicyId);
+                            cinfo = new CertificatePolicyInfo(cpolicyId);
                         } else {
-                            cinfo =
-                                    new CertificatePolicyInfo(cpolicyId, policyQualifiers);
+                            cinfo = new CertificatePolicyInfo(cpolicyId, policyQualifiers);
                         }
                         if (cinfo != null)
                             certificatePolicies.addElement(cinfo);
@@ -762,7 +759,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             nums = new int[numsVector.size()];
             try {
                 for (int i = 0; i < numsVector.size(); i++) {
-                    Integer ii = new Integer((String) numsVector.elementAt(i));
+                    Integer ii = new Integer(numsVector.elementAt(i));
                     nums[i] = ii.intValue();
                 }
             } catch (Exception e) {

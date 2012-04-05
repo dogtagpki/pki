@@ -60,7 +60,7 @@ public class MetaInfo implements IAttrSet {
         Enumeration<String> enum1 = content.keys();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
 
             sb.append("  " + key + " : " + content.get(key) + "\n");
         }

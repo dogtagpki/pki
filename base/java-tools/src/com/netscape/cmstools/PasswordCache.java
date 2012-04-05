@@ -696,7 +696,7 @@ class PWsdrCache {
         StringTokenizer st = new StringTokenizer(cache, "\n");
 
         while (st.hasMoreTokens()) {
-            String line = (String) st.nextToken();
+            String line = st.nextToken();
             // break into tag:password format for each line
             int colonIdx = line.indexOf(":");
 
@@ -752,7 +752,7 @@ class PWsdrCache {
             // this is created and destroyed at each use
             pwTable = string2Hashtable(cache);
             debug("in getEntry, pw cache parsed");
-            pw = (String) pwTable.get(tag);
+            pw = pwTable.get(tag);
         }
 
         if (pw != null) {
@@ -848,7 +848,7 @@ class PWsdrCache {
             StringTokenizer st = new StringTokenizer(dcrypts, "\n");
 
             while (st.hasMoreTokens()) {
-                String line = (String) st.nextToken();
+                String line = st.nextToken();
                 // break into tag:password format for each line
                 int colonIdx = line.indexOf(":");
 

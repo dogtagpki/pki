@@ -30,7 +30,7 @@ public abstract class NASPacket extends Packet {
         ByteArrayOutputStream attrsOS = new ByteArrayOutputStream();
 
         for (int i = 0; i < _attrs.size(); i++) {
-            Attribute attr = (Attribute) getAttributeAt(i);
+            Attribute attr = getAttributeAt(i);
 
             attrsOS.write(attr.getData());
         }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.jobs;
 
-import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -286,7 +285,7 @@ public class UnpublishExpiredJob extends AJobBase
                 try {
                     if ((mPublisherProcessor != null) &&
                             mPublisherProcessor.enabled()) {
-                        mPublisherProcessor.unpublishCert((X509Certificate) cert, req);
+                        mPublisherProcessor.unpublishCert(cert, req);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                     STATUS_SUCCESS);
@@ -309,7 +308,7 @@ public class UnpublishExpiredJob extends AJobBase
                 try {
                     if ((mPublisherProcessor != null) &&
                             mPublisherProcessor.enabled()) {
-                        mPublisherProcessor.unpublishCert((X509Certificate) cert, null);
+                        mPublisherProcessor.unpublishCert(cert, null);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                     STATUS_SUCCESS);
