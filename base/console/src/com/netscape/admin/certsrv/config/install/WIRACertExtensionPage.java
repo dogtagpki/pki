@@ -54,11 +54,11 @@ class WIRACertExtensionPage extends WICertExtensionPage {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isRACloningDone())
             return false;
-        if (!wizardInfo.isRAInstalled() || 
+        if (!wizardInfo.isRAInstalled() ||
           wizardInfo.isRALocalCertDone() || wizardInfo.isRACertRequestDone() ||
           wizardInfo.isRACertInstalledDone())
             return false;
- 
+
         if (!mModified) {
             mAKICheckBox.setSelected(true);
             mExtendedKeyCheckBox.setSelected(true);

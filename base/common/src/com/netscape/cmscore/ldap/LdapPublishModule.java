@@ -153,7 +153,7 @@ public class LdapPublishModule implements ILdapPublishModule {
      * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
-     * 
+     *
      * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
@@ -607,7 +607,7 @@ class HandleRenewal implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        // Note we do not remove old certs from directory during renewal 
+        // Note we do not remove old certs from directory during renewal
         X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0) {

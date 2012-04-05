@@ -140,9 +140,9 @@ class WICloneMasterPage extends WizardBasePanel implements IWizardPanel {
 		Debug.println("WICloneMasterPage: in concludePanel");
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         wizardInfo.setCLAHost(mHost);
-        wizardInfo.setCLAPort(mPort);   
-        wizardInfo.setCLAPortEE(mPortEE);   
-        wizardInfo.setCLATimeout(mTimeout);   
+        wizardInfo.setCLAPort(mPort);
+        wizardInfo.setCLAPortEE(mPortEE);
+        wizardInfo.setCLATimeout(mTimeout);
         ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
         CMSConfigCert configCertCgi = new CMSConfigCert();
         configCertCgi.initialize(wizardInfo);
@@ -202,7 +202,7 @@ class WICloneMasterPage extends WizardBasePanel implements IWizardPanel {
                 data.put(ConfigConstants.CLA_TIMEOUT,
 						 wizardInfo.getCLATimeout());
 				data.put(ConfigConstants.CLONE_CA, ConfigConstants.TRUE);
-            } else { 
+            } else {
 			Debug.println("WICloneMasterPage: Cloning page yes NOT selected");
 				// admin will have to manually add if not through wizard
             }
@@ -214,7 +214,7 @@ class WICloneMasterPage extends WizardBasePanel implements IWizardPanel {
         CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CONFIGDB");
         boolean ready = configCertCgi.configCert(data);
         dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -354,7 +354,7 @@ class WICloneMasterPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         add(mTimeunitLbl, gbc);
         */
-        
+
         JLabel label = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;

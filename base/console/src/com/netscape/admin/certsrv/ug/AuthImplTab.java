@@ -56,7 +56,7 @@ public class AuthImplTab extends CMSBaseUGTab {
     protected AuthImplDataModel mDataModel;     //table model
     protected AuthRegisterDialog mEditor=null;  //keep single copy
     protected JButton mRefresh, mAdd, mDelete, mHelp;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "authentication-certsrv-authplugin-help";
 
     /*==========================================================
@@ -111,9 +111,9 @@ public class AuthImplTab extends CMSBaseUGTab {
     public void mouseClicked(MouseEvent e) {
         setButtons();
     }
-    
+
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================

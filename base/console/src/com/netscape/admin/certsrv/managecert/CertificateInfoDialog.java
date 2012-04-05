@@ -46,7 +46,7 @@ public class CertificateInfoDialog extends JDialog
     private String mCertName;
     private String mCertDate;
     private JButton mActionBtn;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-managecert-wizard-trustcert-help";
 
     JLabel changeLbl = null;
@@ -61,7 +61,7 @@ public class CertificateInfoDialog extends JDialog
         getRootPane().setDoubleBuffered(true);
         setDisplay();
     }
- 
+
     public void showDialog(String name, String content, String trust) {
         mCertNameField.setText(name);
         mTextArea.setText(content);
@@ -69,13 +69,13 @@ public class CertificateInfoDialog extends JDialog
         String statusStr = "";
         if (trust.equals("Trust")) {
             //mTrust.setText(" Trust ");
-            actionStr = mResource.getString(PREFIX+"_BUTTON_UNTRUST_LABEL"); 
+            actionStr = mResource.getString(PREFIX+"_BUTTON_UNTRUST_LABEL");
             statusStr = mResource.getString(PREFIX+"_LABEL_TRUSTSTATUS_LABEL");
 			mActionBtn.setText(actionStr);
 			mStatusLbl.setText(statusStr);
         } else if (trust.equals("Untrust")){
             //mTrust.setText(trust);
-            actionStr = mResource.getString(PREFIX+"_BUTTON_TRUST_LABEL"); 
+            actionStr = mResource.getString(PREFIX+"_BUTTON_TRUST_LABEL");
             statusStr = mResource.getString(PREFIX+"_LABEL_UNTRUSTSTATUS_LABEL");
 			mActionBtn.setText(actionStr);
 			mStatusLbl.setText(statusStr);
@@ -89,7 +89,7 @@ public class CertificateInfoDialog extends JDialog
 		}
         this.show();
     }
- 
+
     public void showDialog(String name, String content, String trust,
       String date, AdminConnection conn) {
         mConn = conn;
@@ -117,9 +117,9 @@ public class CertificateInfoDialog extends JDialog
             NameValuePairs nvps = new NameValuePairs();
             String value = mCertName+";"+mCertDate;
             nvps.put("certName0", value);
-            
+
             try {
-                mConn.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_TRUST, 
+                mConn.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_TRUST,
                   trust, nvps);
                 String actionStr = "";
                 String statusStr = "";
@@ -194,9 +194,9 @@ public class CertificateInfoDialog extends JDialog
     }
 
     private JPanel makeActionPane() {
-        mClose = CMSAdminUtil.makeJButton(mResource, PREFIX, "CLOSE", 
+        mClose = CMSAdminUtil.makeJButton(mResource, PREFIX, "CLOSE",
           null, this);
-     
+
         mHelp = CMSAdminUtil.makeJButton(mResource, PREFIX, "HELP", null, this);
         Dimension d = mClose.getMinimumSize();
         if (d.width < CMSAdminUtil.DEFAULT_BUTTON_SIZE) {

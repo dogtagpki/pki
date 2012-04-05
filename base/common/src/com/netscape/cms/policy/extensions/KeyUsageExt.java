@@ -47,12 +47,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Policy to add Key Usage Extension.
  * Adds the key usage extension based on what's requested.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -96,11 +96,11 @@ public class KeyUsageExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=KeyUsageExt ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -120,9 +120,9 @@ public class KeyUsageExt extends APolicyRule
             CertificateChain caChain = certAuthority.getCACertChain();
             X509Certificate caCert = null;
 
-            // Note that in RA the chain could be null if CA was not up when 
-            // RA was started. In that case just set the length to -1 and let 
-            // CA reject if it does not allow any subordinate CA certs. 
+            // Note that in RA the chain could be null if CA was not up when
+            // RA was started. In that case just set the length to -1 and let
+            // CA reject if it does not allow any subordinate CA certs.
             if (caChain != null) {
                 caCert = caChain.getFirstCertificate();
                 mCAPathLen = caCert.getBasicConstraints();
@@ -147,14 +147,14 @@ public class KeyUsageExt extends APolicyRule
      * or RA could have set the extension.)
      * If not set, set from http input parameters or use default if
      * no http input parameters are set.
-     * 
+     *
      * Note: this allows any bits requested - does not check if user
      * authenticated is allowed to have a Key Usage Extension with
      * those bits. Unless the CA's certificate path length is 0, then
      * we do not allow CA sign or CRL sign bits in any request.
-     * 
+     *
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -191,7 +191,7 @@ public class KeyUsageExt extends APolicyRule
                     // extension isn't there.
                     ext = null;
                 }
-                // check if CA does not allow subordinate CA certs. 
+                // check if CA does not allow subordinate CA certs.
                 // otherwise accept existing key usage extension.
                 if (ext != null) {
                     if (mCAPathLen == 0) {
@@ -239,7 +239,7 @@ public class KeyUsageExt extends APolicyRule
             bits[KeyUsageExtension.DECIPHER_ONLY_BIT] = getBit("decipher_only",
                         mDecipherOnly, req);
 
-            // don't allow no bits set or the extension does not 
+            // don't allow no bits set or the extension does not
             // encode/decode properlly.
             boolean bitset = false;
 
@@ -278,7 +278,7 @@ public class KeyUsageExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -344,7 +344,7 @@ public class KeyUsageExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

@@ -35,7 +35,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the interval for which the certificate is valid.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.12
@@ -113,7 +113,7 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * The default constructor for this class for the specified interval.
-     * 
+     *
      * @param notBefore the date and time before which the certificate
      *            is not valid.
      * @param notAfter the date and time after which the certificate is
@@ -126,7 +126,7 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the CertificateValidity from.
      * @exception IOException on decoding errors.
      */
@@ -147,7 +147,7 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * Decode the CertificateValidity period from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */
@@ -168,7 +168,7 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * Encode the CertificateValidity period in DER form to the stream.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -264,7 +264,7 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * Verify that the current time is within the validity period.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired.
      * @exception CertificateNotYetValidException if the certificate is not
      *                yet valid.
@@ -277,15 +277,15 @@ public class CertificateValidity implements CertAttrSet, Serializable {
 
     /**
      * Verify that the passed time is within the validity period.
-     * 
+     *
      * @param now the Date against which to compare the validity
      *            period.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired
      *                with respect to the <code>Date</code> supplied.
      * @exception CertificateNotYetValidException if the certificate is not
      *                yet valid with respect to the <code>Date</code> supplied.
-     * 
+     *
      */
     public void valid(Date now)
             throws CertificateNotYetValidException, CertificateExpiredException {

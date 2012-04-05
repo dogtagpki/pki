@@ -24,12 +24,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the UserNotice Qualifier.
- * 
+ *
  * UserNotice ::= SEQUENCE {
  * noticeRef NoticeReference OPTIONAL,
  * explicitText DisplayText OPTIONAL
  * }
- * 
+ *
  * @author Thomas Kwan
  */
 public class UserNotice extends Qualifier {
@@ -76,7 +76,7 @@ public class UserNotice extends Qualifier {
 
     /**
      * Write the UserNotice to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

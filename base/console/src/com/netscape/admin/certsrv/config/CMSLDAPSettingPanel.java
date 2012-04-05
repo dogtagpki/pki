@@ -33,7 +33,7 @@ import java.awt.event.*;
 public class CMSLDAPSettingPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "LDAPSETTING";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-database-settings-help";
     private JTextField mHostNameText;
     private JTextField mPortText;
@@ -306,7 +306,7 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         nvps.put(Constants.PR_LDAP_MAX_CONNS, maxConns);
         nvps.put(Constants.PR_LDAP_MIN_CONNS, minConns);
 /*
-        nvps.add(Constants.PR_LDAP_VERSION, 
+        nvps.add(Constants.PR_LDAP_VERSION,
           (String)mVersionBox.getSelectedItem());
 */
 

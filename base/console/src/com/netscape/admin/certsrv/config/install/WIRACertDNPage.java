@@ -21,7 +21,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
 
 /**
- * Subject DN page for RA signing certificate 
+ * Subject DN page for RA signing certificate
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -81,6 +81,6 @@ class WIRACertDNPage extends WICertDNPage {
         str = mCText.getText().trim();
         wizardInfo.setRACComp(str);
     }
-    
+
 }
 

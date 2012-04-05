@@ -39,45 +39,45 @@ import com.netscape.certsrv.authentication.ECompSyntaxErr;
  * class for parsing a DN pattern used to construct a certificate
  * subject name from ldap attributes and dn.
  * <p>
- * 
+ *
  * dnpattern is a string representing a subject name pattern to formulate from the directory attributes and entry dn. If
  * empty or not set, the ldap entry DN will be used as the certificate subject name.
  * <p>
- * 
+ *
  * The syntax is
- * 
+ *
  * <pre>
  * 	dnPattern := rdnPattern *[ "," rdnPattern ]
  * 	rdnPattern := avaPattern *[ "+" avaPattern ]
- * 		avaPattern := name "=" value | 
- * 			      name "=" "$attr" "." attrName [ "." attrNumber ] | 
- * 			      name "=" "$dn" "." attrName [ "." attrNumber ] | 
+ * 		avaPattern := name "=" value |
+ * 			      name "=" "$attr" "." attrName [ "." attrNumber ] |
+ * 			      name "=" "$dn" "." attrName [ "." attrNumber ] |
  * 			 	  "$dn" "." "$rdn" "." number
  * </pre>
- * 
+ *
  * <pre>
  * Example1: <i>E=$attr.mail.1, CN=$attr.cn, OU=$dn.ou.2, O=$dn.o, C=US </i>
  * Ldap entry: dn:  UID=jjames, OU=IS, OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     E=jjames@acme.org, CN=Jesse James, OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     E = the first 'mail' ldap attribute value in user's entry. <br>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
- *     C = the string "US" 
+ *     C = the string "US"
  * <p>
  * Example2: <i>E=$attr.mail.1, CN=$attr.cn, OU=$dn.ou.2, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     E=jjames@acme.org, CN=Jesse James, OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     E = the first 'mail' ldap attribute value in user's entry. <br>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN. note multiple AVAs
@@ -86,40 +86,40 @@ import com.netscape.certsrv.authentication.ECompSyntaxErr;
  *     C = the string "US"
  * <p>
  * </pre>
- * 
+ *
  * <pre>
  * Example3: <i>CN=$attr.cn, $rdn.2, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     CN=Jesse James, OU=IS+OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     followed by the second RDN in the user's entry DN. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
- *     C = the string "US" 
+ *     C = the string "US"
  * <p>
  * Example4: <i>CN=$attr.cn, OU=$dn.ou.2+OU=$dn.ou.1, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     CN=Jesse James, OU=people+OU=IS, O=acme.org, C=US
- * <p>	
+ * <p>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
- *     OU = the second 'ou' value in the user's entry DN followed by the 
+ *     OU = the second 'ou' value in the user's entry DN followed by the
  * 		first 'ou' value in the user's entry. note multiple AVAs
  * 	    in a RDN in this example. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
  *     C = the string "US"
  * <p>
  * </pre>
- * 
+ *
  * If an attribute or subject DN component does not exist the attribute is skipped.
- * 
+ *
  * @version $Revision$, $Date$
  */
 class AVAPattern {
@@ -184,7 +184,7 @@ class AVAPattern {
         if (c == -1)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "All blank"));
 
-        // $rdn "." number syntax. 
+        // $rdn "." number syntax.
 
         if (c == '$') {
             //System.out.println("$rdn syntax");
@@ -228,9 +228,9 @@ class AVAPattern {
             return;
         }
 
-        // name "=" ... syntax. 
+        // name "=" ... syntax.
 
-        // read name 
+        // read name
         //System.out.println("reading name");
 
         StringBuffer attrBuf = new StringBuffer();
@@ -250,10 +250,10 @@ class AVAPattern {
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                     "Missing \"=\" in ava pattern"));
 
-        // read value 
+        // read value
         //System.out.println("reading value");
 
-        // skip spaces 
+        // skip spaces
         //System.out.println("skip spaces for value");
         try {
             while ((c = in.read()) == ' ' || c == '\t') {//System.out.println("spaces2 read "+(char)c);
@@ -267,7 +267,7 @@ class AVAPattern {
                     "no value after = in ava pattern"));
 
         if (c == '$') {
-            // check for $dn or $attr 
+            // check for $dn or $attr
             try {
                 c = in.read();
                 //System.out.println("check $dn or $attr read "+(char)c);
@@ -306,7 +306,7 @@ class AVAPattern {
                             "unknown keyword. expecting $dn or $attr."));
             }
 
-            // get attr name of dn pattern from above. 
+            // get attr name of dn pattern from above.
             String attrName = attrBuf.toString().trim();
 
             //System.out.println("----- attrName "+attrName);
@@ -333,7 +333,7 @@ class AVAPattern {
                     valueBuf.append((char) c);
                 }
                 if (c == '+' || c == ',') // either ',' or '+'
-                    in.unread(c); // pushback last , or + 
+                    in.unread(c); // pushback last , or +
             } catch (IOException e) {
                 throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
             }
@@ -375,7 +375,7 @@ class AVAPattern {
             // value is constant. treat as regular ava.
             mType = TYPE_CONSTANT;
             //System.out.println("----- mType constant");
-            // parse ava value. 
+            // parse ava value.
             StringBuffer valueBuf = new StringBuffer();
 
             valueBuf.append((char) c);

@@ -34,7 +34,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a invalidity date extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSInvalidityDateExtension

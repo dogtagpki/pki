@@ -34,11 +34,11 @@ import netscape.security.x509.OIDMap;
 
 /**
  * RFC3280:
- * 
+ *
  * id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::= { id-ce 54 }
- * 
+ *
  * InhibitAnyPolicy ::= SkipCerts
- * 
+ *
  * SkipCerts ::= INTEGER (0..MAX)
  */
 public class InhibitAnyPolicyExtension

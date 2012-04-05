@@ -26,7 +26,7 @@ import com.netscape.certsrv.common.*;
 
 /**
  * Generate the KRA transport certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert

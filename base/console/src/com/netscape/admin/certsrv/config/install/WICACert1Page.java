@@ -37,18 +37,18 @@ class WICACert1Page extends WizardBasePanel implements IWizardPanel {
     private JComboBox mKeyLengthBox;
     //private JComboBox mTokenBox;
     //private JPasswordField mPasswordText;
- 
+
     private static final String PANELNAME = "CACERT1WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WICACert1Page() {
         super(PANELNAME);
         init();
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean isLastPage() {
@@ -83,7 +83,7 @@ class WICACert1Page extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(desc, gbc);
-     
+
 /*
         JTextArea desc1 = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
@@ -117,7 +117,7 @@ class WICACert1Page extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,0, 
+        gbc.insets = new Insets(COMPONENT_SPACE,0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(dummy, gbc);
@@ -161,15 +161,15 @@ class WICACert1Page extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(keyTypeLbl, gbc);
-        
+
         mKeyTypeBox = makeJComboBox("KEYTYPE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         panel.add(mKeyTypeBox, gbc);

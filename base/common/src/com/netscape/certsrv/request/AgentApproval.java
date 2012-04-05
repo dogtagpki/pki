@@ -23,7 +23,7 @@ import java.util.Date;
 /**
  * The AgentApproval class contains the record of a
  * single agent approval.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AgentApproval
@@ -36,7 +36,7 @@ public class AgentApproval
 
     /**
      * Returns the approving agent's user name.
-     * 
+     *
      * @return an identifier for the agent
      */
     public String getUserName() {
@@ -45,7 +45,7 @@ public class AgentApproval
 
     /**
      * Returns the date of the approval
-     * 
+     *
      * @return date and time of the approval
      */
     public Date getDate() {
@@ -54,7 +54,7 @@ public class AgentApproval
 
     /**
      * AgentApproval class constructor
-     * 
+     *
      * @param userName user name of the approving agent
      */
     AgentApproval(String userName) {

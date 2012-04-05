@@ -30,16 +30,16 @@ import com.netscape.certsrv.base.ISubsystem;
  * which makes sense because a processor may be based on some rule
  * such as evaluate all policies before returning the final result or
  * return as soon as one of the policies return a failure and so on.
- * 
+ *
  * By making both processor and policy rules implement a common
  * interface, one can write rules that are processors as well.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -60,14 +60,14 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns the policy substore id.
-     * 
+     *
      * @return storeID The policy store id used by this processor.
      */
     String getPolicySubstoreId();
 
     /**
      * Returns information on Policy impls.
-     * 
+     *
      * @return An enumeration of strings describing the information
      *         about policy implementations. Currently only the
      *         the implementation id is expected.
@@ -76,7 +76,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns the rule implementations registered with this processor.
-     * 
+     *
      * @return An Enumeration of uninitialized IPolicyRule
      *         objects.
      */
@@ -84,7 +84,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns an implementation identified by a given id.
-     * 
+     *
      * @param id The implementation id.
      * @return The uninitialized instance of the policy rule.
      */
@@ -92,7 +92,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns configuration for an implmentation.
-     * 
+     *
      * @param id The implementation id.
      * @return A vector of name/value pairs in the form of
      *         name=value.
@@ -101,8 +101,8 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Deletes a policy implementation identified by an impl id.
-     * 
-     * 
+     *
+     *
      * @param id The impl id of the policy to be deleted.
      *            There shouldn't be any active instance for this
      *            implementation.
@@ -113,7 +113,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Adds a policy implementation identified by an impl id.
-     * 
+     *
      * @param id The impl id of the policy to be added.
      *            The id should be unique.
      * @param classPath The fully qualified path for the implementation.
@@ -124,7 +124,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns information on Policy instances.
-     * 
+     *
      * @return An Enumeration of Strings describing the information
      *         about policy rule instances.
      */
@@ -132,14 +132,14 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns policy instances registered with this processor.
-     * 
+     *
      * @return An Enumeration of policy instances.
      */
     Enumeration<IPolicyRule> getPolicyInstances();
 
     /**
      * Returns instance configuration for a given instance id.
-     * 
+     *
      * @param id The rule id.
      * @return A vector of name/value pairs in the form of
      *         name=value.
@@ -148,7 +148,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Returns instance configuration for a given instance id.
-     * 
+     *
      * @param id The rule id.
      * @return the policy instance identified by the id.
      */
@@ -156,7 +156,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Deletes a policy instance identified by an instance id.
-     * 
+     *
      * @param id The instance id of the policy to be deleted.
      * @exception EBaseException is thrown if an error occurs in deletion.
      */
@@ -165,7 +165,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Adds a policy instance
-     * 
+     *
      * @param id The impl id of the policy to be added.
      *            The id should be unique.
      * @param ht a Hashtable of config params.
@@ -176,7 +176,7 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Modifies a policy instance
-     * 
+     *
      * @param id The impl id of the policy to be modified.
      *            The policy instance with this id should be present.
      * @param ht a Hashtable of config params.
@@ -187,9 +187,9 @@ public interface IPolicyProcessor extends ISubsystem,
 
     /**
      * Modifies policy ordering.
-     * 
+     *
      * @param policyOrderStr The comma separated list of instance ids.
-     * 
+     *
      */
     void changePolicyInstanceOrdering(String policyOrderStr)
             throws EBaseException;

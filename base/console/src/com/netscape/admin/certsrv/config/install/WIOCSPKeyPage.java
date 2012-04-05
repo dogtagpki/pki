@@ -39,7 +39,7 @@ import com.netscape.management.client.util.*;
  */
 class WIOCSPKeyPage extends WIKeyPage implements IWizardPanel {
     private static final String PANELNAME = "INSTALLOCSPKEYWIZARD";
-    private static final String OCSPHELPINDEX = 
+    private static final String OCSPHELPINDEX =
       "install-ocspkey-configuration-wizard-help";
 
     WIOCSPKeyPage(JDialog parent) {

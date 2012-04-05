@@ -73,7 +73,7 @@ public class HttpConnection implements IHttpConnection {
             CMS.debug("HttpConnection: connecting to " + dest.getHost() + ":" + dest.getPort());
             String host = dest.getHost();
             // we could have a list of host names in the host parameters
-            // the format is, for example, 
+            // the format is, for example,
             // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
             if (host != null && host.indexOf(' ') != -1) {
                 // try to do client-side failover
@@ -116,7 +116,7 @@ public class HttpConnection implements IHttpConnection {
     // Insert end
     /**
      * sends a request to remote RA/CA, returning the result.
-     * 
+     *
      * @throws EBaseException if request could not be encoded
      */
     public IPKIMessage send(IPKIMessage tomsg)
@@ -222,8 +222,8 @@ public class HttpConnection implements IHttpConnection {
             }
         }
 
-        // decode reply. 
-        // if reply is bad, error is thrown and request will be resent 
+        // decode reply.
+        // if reply is bad, error is thrown and request will be resent
         String pcontent = p.getContent();
 
         if (Debug.ON) {

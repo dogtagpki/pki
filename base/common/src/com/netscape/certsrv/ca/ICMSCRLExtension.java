@@ -25,14 +25,14 @@ import com.netscape.certsrv.common.NameValuePairs;
 /**
  * An interface representing a CRL extension plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICMSCRLExtension {
 
     /**
      * Returns CRL extension OID string.
-     * 
+     *
      * @return OID of CRL extension
      */
     public String getCRLExtOID();
@@ -40,7 +40,7 @@ public interface ICMSCRLExtension {
     /**
      * Sets extension criticality and returns extension
      * with new criticality.
-     * 
+     *
      * @param ext CRL extension that will change criticality
      * @param critical new criticality to be assigned to CRL extension
      * @return extension with new criticality
@@ -51,7 +51,7 @@ public interface ICMSCRLExtension {
     /**
      * Builds new CRL extension based on configuration data,
      * issuing point information, and criticality.
-     * 
+     *
      * @param config configuration store
      * @param crlIssuingPoint CRL issuing point
      * @param critical criticality to be assigned to CRL extension
@@ -63,7 +63,7 @@ public interface ICMSCRLExtension {
 
     /**
      * Reads configuration data and converts them to name value pairs.
-     * 
+     *
      * @param config configuration store
      * @param nvp name value pairs obtained from configuration data
      */

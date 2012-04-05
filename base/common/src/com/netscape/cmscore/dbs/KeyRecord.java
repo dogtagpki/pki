@@ -34,7 +34,7 @@ import com.netscape.certsrv.dbs.keydb.KeyState;
  * archived key. Namely, whether a key is inactive because
  * of compromise.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -88,7 +88,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
 
     /*
      *  Constructs key record.
-     * 
+     *
      * @param key key to be archived
      */
     public KeyRecord(BigInteger serialNo, byte publicData[],
@@ -213,7 +213,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      * Retrieves serial number of the key record. Each key record
      * is uniquely identified by serial number.
      * <P>
-     * 
+     *
      * @return serial number of this key record
      */
     public BigInteger getSerialNumber() throws EBaseException {
@@ -231,7 +231,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      * Retrieves the key state. This gives key life cycle
      * information.
      * <P>
-     * 
+     *
      * @return key state
      */
     public KeyState getState() throws EBaseException {
@@ -256,7 +256,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     /**
      * Retrieves key.
      * <P>
-     * 
+     *
      * @return archived key
      */
     public byte[] getPrivateKeyData() throws EBaseException {
@@ -273,7 +273,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     /**
      * Retrieves the key size.
      * <P>
-     * 
+     *
      * @return key size
      */
     public Integer getKeySize() throws EBaseException {

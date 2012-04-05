@@ -32,7 +32,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * CertID          ::=     SEQUENCE {
  *     hashAlgorithm       AlgorithmIdentifier,
@@ -40,7 +40,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
  *     issuerKeyHash       OCTET STRING, -- Hash of Issuers public key
  *     serialNumber        CertificateSerialNumber }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 

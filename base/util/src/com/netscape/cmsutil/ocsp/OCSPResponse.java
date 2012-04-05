@@ -30,13 +30,13 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * OCSPResponse ::= SEQUENCE {
  *    responseStatus         OCSPResponseStatus,
  *    responseBytes          [0] EXPLICIT ResponseBytes OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class OCSPResponse implements ASN1Value {

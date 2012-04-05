@@ -45,7 +45,7 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INTROINSTALLWIZARD";
     private static final String HELPINDEX =
       "install-general-intro-wizard-help";
-    
+
     WIIntroPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -74,7 +74,7 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
         mSubsystemButton.setVisible(false);
         mMigrationButton.setVisible(false);
         String stages = wizardInfo.getStages();
- 
+
         if (stages != null && !stages.equals("")) {
             StringTokenizer tokenizer = new StringTokenizer(stages, ":");
             mLabel.setVisible(true);
@@ -89,7 +89,7 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
                 }
             }
         }
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -104,13 +104,13 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
         String rawData = ConfigConstants.TASKID+"="+TaskId.TASK_GET_DEFAULT_INFO;
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+ OpDef.OP_READ;
         boolean ready = send(rawData, wizardInfo);
-        if (ready) { 
+        if (ready) {
             rawData = ConfigConstants.TASKID+"="+TaskId.TASK_TOKEN_INFO;
             rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_READ;
             rawData = rawData+"&"+ConfigConstants.PR_CMS_SEED+"="+
               (new Long(WizardBasePanel.mSeed).toString());
 
-            ready = send(rawData, wizardInfo);        
+            ready = send(rawData, wizardInfo);
         }
 
         endProgressStatus();

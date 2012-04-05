@@ -28,7 +28,7 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
 
 /**
  * A class represents a user.
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */

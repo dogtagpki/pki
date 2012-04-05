@@ -43,7 +43,7 @@ import netscape.security.x509.X509CertImpl;
  * type, where to the type of data signed is plain Data.
  * For signedData, <tt>crls</tt>, <tt>attributes</tt> and
  * PKCS#6 Extended Certificates are not supported.
- * 
+ *
  * @version 1.33 97/12/10
  * @author Benjamin Renaud
  */
@@ -61,7 +61,7 @@ public class PKCS7 {
     /**
      * Unmarshals a PKCS7 block from its encoded form, parsing the
      * encoded bytes from the InputStream.
-     * 
+     *
      * @param in an input stream holding at least one PKCS7 block.
      * @exception ParsingException on parsing errors.
      * @exception IOException on other errors.
@@ -93,7 +93,7 @@ public class PKCS7 {
     /**
      * Unmarshals a PKCS7 block from its encoded form, parsing the
      * encoded bytes from the DerInputStream.
-     * 
+     *
      * @param derin a DerInputStream holding at least one PKCS7 block.
      * @exception ParsingException on parsing errors.
      */
@@ -104,7 +104,7 @@ public class PKCS7 {
     /**
      * Unmarshals a PKCS7 block from its encoded form, parsing the
      * encoded bytes.
-     * 
+     *
      * @param bytes the encoded bytes.
      * @exception ParsingException on parsing errors.
      */
@@ -133,7 +133,7 @@ public class PKCS7 {
 
     /**
      * Construct an initialized PKCS7 block.
-     * 
+     *
      * @param digestAlgorithmIds the message digest algorithm identifiers.
      * @param contentInfo the content information.
      * @param certificates an array of X.509 certificates.
@@ -224,7 +224,7 @@ public class PKCS7 {
 
     /**
      * Encodes the signed data to an output stream.
-     * 
+     *
      * @param out the output stream to write the encoded data to.
      * @exception IOException on encoding errors.
      */
@@ -254,7 +254,7 @@ public class PKCS7 {
 
     /**
      * Encodes the signed data to a DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the encoded data to.
      * @exception IOException on encoding errors.
      */
@@ -313,10 +313,10 @@ public class PKCS7 {
 
     /**
      * This verifies a given SignerInfo.
-     * 
+     *
      * @param info the signer information.
      * @param bytes the DER encoded content information.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unrecognized algorithms.
      * @exception SignatureException on signature handling errors.
      */
@@ -327,9 +327,9 @@ public class PKCS7 {
 
     /**
      * Returns all signerInfos which self-verify.
-     * 
+     *
      * @param bytes the DER encoded content information.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unrecognized algorithms.
      * @exception SignatureException on signature handling errors.
      */
@@ -355,7 +355,7 @@ public class PKCS7 {
 
     /**
      * Returns all signerInfos which self-verify.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unrecognized algorithms.
      * @exception SignatureException on signature handling errors.
      */
@@ -403,7 +403,7 @@ public class PKCS7 {
      * Returns the X.509 certificate listed in this PKCS7 block
      * which has a matching serial number and Issuer name, or
      * null if one is not found.
-     * 
+     *
      * @param serial the serial number of the certificate to retrieve.
      * @param name the Distinguished Name of the Issuer.
      */

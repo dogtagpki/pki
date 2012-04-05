@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for CA subsystem.
  * <P>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class CAResources extends ListResourceBundle {

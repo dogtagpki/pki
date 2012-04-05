@@ -65,7 +65,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
@@ -251,7 +251,7 @@ public class PluginRegistry implements IPluginRegistry {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {

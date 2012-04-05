@@ -41,7 +41,7 @@ public class MapperPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "MAPPERSELECTIONDIALOG";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "configuration-ca-add-mapperrule-dbox-help";
     private static final String RAHELPINDEX =
       "configuration-ra-add-mapperrule-dbox-help";
@@ -51,9 +51,9 @@ public class MapperPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public MapperPluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope = ScopeDef.SC_MAPPER_IMPLS;

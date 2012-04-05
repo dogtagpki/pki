@@ -977,7 +977,7 @@ public class DatabasePanel extends WizardPanelBase {
 
         String remove = HttpInput.getID(request, "removeData");
         if (isPanelDone() && (remove == null || remove.equals(""))) {
-            /* if user submits the same data, they just want to skip 
+            /* if user submits the same data, they just want to skip
                to the next panel, no database population is required. */
             if (hostname1.equals(hostname2) &&
                     portStr1.equals(portStr2) &&
@@ -1055,7 +1055,7 @@ public class DatabasePanel extends WizardPanelBase {
                             (secure.equals("on") ? "true" : "false"));
             importLDIFS("preop.internaldb.post_ldif", conn);
 
-            /* For vlvtask, we need to check if the task has 
+            /* For vlvtask, we need to check if the task has
                been completed or not.  Presence of nsTaskExitCode means task is complete
              */
             String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
@@ -1369,7 +1369,7 @@ public class DatabasePanel extends WizardPanelBase {
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead 
+                /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead
                  * until the DS code is fixed */
                 CMS.debug("DatabasePanel enableReplication: " + replicadn + " has already been used");
 

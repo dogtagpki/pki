@@ -27,7 +27,7 @@ import java.awt.event.*;
 
 /**
  * KRA recovery management tab
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -186,7 +186,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
     }
 
     public void actionPerformed(ActionEvent e) {
-   
+
         if (e.getActionCommand().equals("autoButton")) {
             String text = mEnableAuto.getText();
             if (text.equals(mEnableLabel)) {
@@ -211,7 +211,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
             refresh();
         } else if (e.getSource().equals(mHelp)) {
             helpCallback();
-        } 
+        }
     }
 
     public void mouseClicked(MouseEvent e) {

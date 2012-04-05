@@ -62,27 +62,27 @@ import com.netscape.cmsutil.util.Utils;
  * A class represents an administration servlet that
  * is responsible to serve administrative
  * operation such as configuration parameter updates.
- * 
+ *
  * Since each administration servlet needs to perform
  * authentication information parsing and response
  * formulation, it makes sense to encapsulate the
  * commonalities into this class.
- * 
+ *
  * By extending this serlvet, the subclass does not
  * need to re-implement the request parsing code
  * (i.e. authentication information parsing).
- * 
+ *
  * If a subsystem needs to expose configuration
  * parameters management, it should create an
  * administration servlet (i.e. CAAdminServlet)
  * and register it to RemoteAdmin subsystem.
- * 
+ *
  * <code>
  * public class CAAdminServlet extends AdminServlet {
  *   ...
  * }
  * </code>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AdminServlet extends HttpServlet {
@@ -214,7 +214,7 @@ public class AdminServlet extends HttpServlet {
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
-            // all sensitive parameters should be prefixed with 
+            // all sensitive parameters should be prefixed with
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
@@ -280,13 +280,13 @@ public class AdminServlet extends HttpServlet {
      * Authenticates to the identity scope with the given
      * userid and password via identity manager.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only
      * webserver env can pick up the SSL violation; CMS authMgr can pick up cert mis-match, so this event is used)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication succeeded
      * </ul>
-     * 
+     *
      * @exception IOException an input/output error has occurred
      */
     protected void authenticate(HttpServletRequest req) throws
@@ -611,14 +611,14 @@ public class AdminServlet extends HttpServlet {
     /**
      * Authorize must occur after Authenticate
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization has failed
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization is successful
      * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CMS that's when one
      * accesses a role port)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @return the authorization token
      */
@@ -773,7 +773,7 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Sends response.
-     * 
+     *
      * @param returnCode return code
      * @param errorMsg localized error message
      * @param params result parameters
@@ -1007,11 +1007,11 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * FileConfigStore functionality
-     * 
+     *
      * The original config file is moved to <filename>.<date>.
      * Commits the current properties to the configuration file.
      * <P>
-     * 
+     *
      * @param createBackup true if a backup file should be created
      */
     protected void commit(boolean createBackup) throws EBaseException {
@@ -1027,11 +1027,11 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended admin servlets
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -1051,12 +1051,12 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -1088,13 +1088,13 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Parameters
-     * 
+     *
      * This method is inherited by all extended admin servlets and
      * is called to extract parameters from the HttpServletRequest
      * and return a string of name;;value pairs separated by a '+'
      * if more than one name;;value pair exists.
      * <P>
-     * 
+     *
      * @param req HTTP servlet request
      * @return a delimited string of one or more delimited name/value pairs
      */
@@ -1213,11 +1213,11 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Groups
-     * 
+     *
      * This method is called to extract all "groups" associated
      * with the "auditSubjectID()".
      * <P>
-     * 
+     *
      * @param SubjectID string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
      *         with the "auditSubjectID()"

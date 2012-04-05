@@ -21,7 +21,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Exception for Ldap Publishing Rule not found.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ERuleNotFound extends ELdapException {
@@ -33,7 +33,7 @@ public class ERuleNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing required rule, which links a publisher and mapper.
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public ERuleNotFound(String errorString) {

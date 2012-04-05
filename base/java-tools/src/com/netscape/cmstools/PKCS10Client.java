@@ -59,7 +59,7 @@ import com.netscape.cmsutil.util.Utils;
  * approved, a certificate is created for the request, and certificate attributes, such as extensions, are populated
  * according to certificate profiles.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PKCS10Client {

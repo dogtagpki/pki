@@ -24,21 +24,21 @@ import com.netscape.certsrv.base.IAttrSet;
  * An interface represents authentication credentials:
  * e.g. uid/pwd, uid/pin, certificate, etc.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAuthCredentials extends IAttrSet {
 
     /**
      * Set argblock.
-     * 
+     *
      * @param blk argblock
      */
     public void setArgBlock(IArgBlock blk);
 
     /**
      * Returns argblock.
-     * 
+     *
      * @return Argblock.
      */
     public IArgBlock getArgBlock();

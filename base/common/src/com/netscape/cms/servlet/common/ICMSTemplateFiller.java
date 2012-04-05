@@ -23,11 +23,11 @@ import com.netscape.certsrv.authority.IAuthority;
 
 /**
  * This interface represents a template filler.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICMSTemplateFiller {
-    // common template variables. 
+    // common template variables.
     public final static String ERROR = "errorDetails";
     public final static String ERROR_DESCR = "errorDescription";
     public final static String EXCEPTION = "unexpectedError";

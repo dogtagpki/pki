@@ -59,14 +59,14 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
     protected String mPanelName, mDir;
     protected JTextArea mFileName;
     protected JTextArea mDesc;
-    
+
     protected JTextField mHostText, mPortText;
     protected JLabel mHostLbl, mPortLbl;
     protected JLabel mSSLText;
     protected JCheckBox mSSL; // ssl or not
     protected String mHost, mPort;
     protected JLabel mSendNowText;
-    protected JCheckBox mSendNowBox;    
+    protected JCheckBox mSendNowBox;
 	protected Color mActiveColor;
     public static final int MAX_PORT = 65535;
     public static final int MIN_PORT = 1;
@@ -105,7 +105,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 			mReq = wizardInfo.getCertRequest();
 		}
 		if (mReqFormat.equals(ConfigConstants.PR_REQUEST_PKCS10)){
-				
+
 			// Break the long single line:header,64 byte lines,trailer
 			// Assuming this is the only format we generate.
 			String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
@@ -136,7 +136,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 			mReq = str;
 		}
 
-		if (mReq == null) 
+		if (mReq == null)
 			return false;
         mText.setText(mReq);
 
@@ -158,7 +158,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 		String port = wizardInfo.getCMEEPort();
 		if (port != null && !port.equals(""))
 			mPortText.setText(port);
-		
+
 		String portType = wizardInfo.getCMEEType();
 		if (portType != null && portType.equals("http"))
 			mSSL.setSelected(false);
@@ -177,7 +177,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 		}
 		mDesc.setText(desc);
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -220,7 +220,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 		if (mHost != null && !mHost.equals(""))
 			wizardInfo.setCMHost(mHost);
 		if (mPort != null && !mPort.equals(""))
-			wizardInfo.setCMEEPort(mPort);   
+			wizardInfo.setCMEEPort(mPort);
 		if (mSSL.isSelected())
 			wizardInfo.setCMEEType("https");
 		else
@@ -280,10 +280,10 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
             wizardInfo.setX509RequestError(reqError);
 
         // rejected request should not be saved as requestSuccStage!!
-		if ( (reqID != null) && !reqID.equals("") && 
+		if ( (reqID != null) && !reqID.equals("") &&
 			 (wizardInfo.getRequestError() == null) &&
-			 (reqStatus.equals(Constants.PR_REQUEST_SUCCESS) 
-               || reqStatus.equals(Constants.PR_REQUEST_PENDING) 
+			 (reqStatus.equals(Constants.PR_REQUEST_SUCCESS)
+               || reqStatus.equals(Constants.PR_REQUEST_PENDING)
 				|| reqStatus.equals(Constants.PR_REQUEST_SVC_PENDING)) ) {
             data  = new Hashtable();
 

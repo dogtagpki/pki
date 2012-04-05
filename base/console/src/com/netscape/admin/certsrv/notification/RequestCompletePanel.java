@@ -32,9 +32,9 @@ import java.awt.event.*;
  * @version $Revision$, $Date$
  */
 public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
-    private static final String RA_HELPINDEX = 
+    private static final String RA_HELPINDEX =
       "notification-ra-certissued-help";
-    private static final String CA_HELPINDEX = 
+    private static final String CA_HELPINDEX =
       "notification-ca-certissued-help";
     private JTextField mEmailFormText;
     private JTextField mEmailSubjectText;
@@ -75,7 +75,7 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         mCenterPanel.setLayout(gb);
-        
+
         //add the enable checkbox
         mEnable = makeJCheckBox("ENABLE");
         mEnable.setSelected(true);
@@ -84,13 +84,13 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnable, gbc);
 		mCenterPanel.add(mEnable);
-        
+
         //add the setting panel
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -104,7 +104,7 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
         GridBagLayout gb1 = new GridBagLayout();
         emailInfo.setLayout(gb1);
 		emailInfo.setBorder(makeTitledBorder("EMAILINFO"));
-        
+
         // add sender email label and text field
         CMSAdminUtil.resetGBC(gbc);
         mSenderEmailLabel = makeJLabel("SENDER");

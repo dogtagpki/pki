@@ -21,7 +21,7 @@ import java.util.ListResourceBundle;
 
 /**
  * A class represents a resource bundle for the remote admin.
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */

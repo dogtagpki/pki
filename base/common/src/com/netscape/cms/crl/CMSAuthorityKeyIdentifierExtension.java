@@ -44,7 +44,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents an authority key identifier extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSAuthorityKeyIdentifierExtension

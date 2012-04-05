@@ -35,7 +35,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates an OCSP No Check extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class OCSPNoCheckExtDefault extends EnrollExtDefault {

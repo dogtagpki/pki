@@ -56,7 +56,7 @@ import com.netscape.cmscore.util.Debug;
  * This class defines low-level LDAP usr/grp management
  * usr/grp information is located remotely on another
  * LDAP server.
- * 
+ *
  * @author thomask
  * @author cfu
  * @version $Revision$, $Date$
@@ -417,7 +417,7 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * builds a User instance. Sets only uid for user entry retrieved
      * from LDAP server. for listing efficiency only.
-     * 
+     *
      * @return the User entity.
      */
     protected IUser lbuildUser(LDAPEntry entry) throws EUsrGrpException {
@@ -474,7 +474,7 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * builds a User instance. Set all attributes retrieved from
      * LDAP server and set them on User.
-     * 
+     *
      * @return the User entity.
      */
     protected IUser buildUser(LDAPEntry entry) throws EUsrGrpException {
@@ -1071,7 +1071,7 @@ public final class UGSubsystem implements IUGSubsystem {
              * attrCertStr.addValue(getCertificateString(certs[i]));
              * }
              * attrs.add(attrCertStr);
-             * 
+             *
              * if (user.getCertOp() == OpDef.ADD) {
              * attrs.add(LDAPModification.ADD, attrCertBin);
              * } else if (user.getCertOp() == OpDef.DELETE) {
@@ -1407,7 +1407,7 @@ public final class UGSubsystem implements IUGSubsystem {
             }
             Debug.trace("authorization exception: " + errMsg);
             // too chatty in system log
-            // log(ILogger.LL_FAILURE, errMsg); 
+            // log(ILogger.LL_FAILURE, errMsg);
         } catch (ELdapException e) {
             String errMsg =
                     "isMemberOfLdapGroup: Could not get connection to internaldb. Error " + e;

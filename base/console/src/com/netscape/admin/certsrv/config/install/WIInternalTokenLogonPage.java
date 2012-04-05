@@ -54,7 +54,7 @@ class WIInternalTokenLogonPage extends WITokenLogonPage implements IWizardPanel 
 
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-        String pwd = 
+        String pwd =
           (String)wizardInfo.get("TOKEN:"+Constants.PR_INTERNAL_TOKEN_NAME);
         if (pwd != null)
             return false;

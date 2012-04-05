@@ -58,7 +58,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
             result = is.readObject();
         } catch (ClassNotFoundException e) {
-            // XXX hack: change this 
+            // XXX hack: change this
             if (Debug.ON)
                 Debug.trace("class not found ex " + e + e.getMessage());
             throw new IOException("Class Not Found " + e.getMessage());

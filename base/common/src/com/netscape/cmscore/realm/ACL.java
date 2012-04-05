@@ -29,7 +29,7 @@ import java.util.Vector;
  * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple <code>ACLEntry</code>
  * , a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be granted
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ACL  {
@@ -54,7 +54,7 @@ public class ACL  {
      * Class constructor.
      * Constructs an access control list associated
      * with a resource name
-     * 
+     *
      * @param name resource name
      * @param rights applicable rights defined for this resource
      * @param resourceACLs the entire ACL specification. For example:
@@ -78,7 +78,7 @@ public class ACL  {
     /**
      * Sets the name of the resource governed by this
      * access control.
-     * 
+     *
      * @param name name of the resource
      */
     public void setName(String name) {
@@ -88,7 +88,7 @@ public class ACL  {
     /**
      * Retrieves the name of the resource governed by
      * this access control.
-     * 
+     *
      * @return name of the resource
      */
     public String getName() {
@@ -97,7 +97,7 @@ public class ACL  {
 
     /**
      * Retrieves the exact string of the resourceACLs
-     * 
+     *
      * @return resource's acl
      */
     public String getResourceACLs() {
@@ -107,7 +107,7 @@ public class ACL  {
     /**
      * Sets the description of the resource governed by this
      * access control.
-     * 
+     *
      * @param description Description of the protected resource
      */
     public void setDescription(String description) {
@@ -117,7 +117,7 @@ public class ACL  {
     /**
      * Retrieves the description of the resource governed by
      * this access control.
-     * 
+     *
      * @return Description of the protected resource
      */
     public String getDescription() {
@@ -126,7 +126,7 @@ public class ACL  {
 
     /**
      * Adds an ACL entry to this list.
-     * 
+     *
      * @param entry the <code>ACLEntry</code> to be added to this resource
      */
     public void addEntry(ACLEntry entry) {
@@ -135,7 +135,7 @@ public class ACL  {
 
     /**
      * Returns ACL entries.
-     * 
+     *
      * @return enumeration for the <code>ACLEntry</code> vector
      */
     public Enumeration<ACLEntry> entries() {
@@ -144,7 +144,7 @@ public class ACL  {
 
     /**
      * Returns the string reprsentation.
-     * 
+     *
      * @return the string representation of the ACL entries in the
      *         following format:
      *         <resource name>[<ACLEntry1>,<ACLEntry 2>,...<ACLEntry N>]
@@ -165,7 +165,7 @@ public class ACL  {
 
     /**
      * Adds an rights entry to this list.
-     * 
+     *
      * @param right The right to be added for this ACL
      */
     public void addRight(String right) {
@@ -174,7 +174,7 @@ public class ACL  {
 
     /**
      * Tells if the permission is one of the defined "rights"
-     * 
+     *
      * @param permission permission to be checked
      * @return true if it's one of the "rights"; false otherwise
      */
@@ -184,7 +184,7 @@ public class ACL  {
 
     /**
      * Returns rights entries.
-     * 
+     *
      * @return enumeration of rights defined for this ACL
      */
     public Enumeration<String> rights() {

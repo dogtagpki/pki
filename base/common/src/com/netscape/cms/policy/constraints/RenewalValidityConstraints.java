@@ -42,19 +42,19 @@ import com.netscape.cmsutil.util.Utils;
  * currently active certificate can be renewed and sets new validity
  * period for the renewed certificate starting from the the ending
  * period in the old certificate.
- * 
+ *
  * The main parameters are:
- * 
+ *
  * The renewal leadtime in days: - i.e how many days before the
  * expiry of the current certificate can one request the renewal.
  * min and max validity duration.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -112,13 +112,13 @@ public class RenewalValidityConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.minValidity=30 ra.Policy.rule.<ruleName>.maxValidity=180
      * ra.Policy.rule.<ruleName>.renewalInterval=15 ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -177,7 +177,7 @@ public class RenewalValidityConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -253,7 +253,7 @@ public class RenewalValidityConstraints extends APolicyRule
                 Date renewedNotAfter = new Date(notAfter.getTime() +
                         mMaxValidity);
 
-                // If the new notAfter is within renewal interval days from 
+                // If the new notAfter is within renewal interval days from
                 // today or already expired, set the notBefore to today.
                 if (renewedNotAfter.before(now) ||
                         (renewedNotAfter.getTime() - now.getTime()) <=
@@ -278,7 +278,7 @@ public class RenewalValidityConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -295,7 +295,7 @@ public class RenewalValidityConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

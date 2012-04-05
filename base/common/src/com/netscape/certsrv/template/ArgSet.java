@@ -27,7 +27,7 @@ import java.util.Hashtable;
  * <p>
  * Each argument in the set is tagged with a name (key).
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ArgSet implements IArgValue {
@@ -35,7 +35,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Returns a list of argument names.
-     * 
+     *
      * @return list of argument names
      */
     public Enumeration<String> getNames() {
@@ -44,7 +44,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Sets string argument into the set with the given name.
-     * 
+     *
      * @param name argument name
      * @param arg argument in string
      */
@@ -54,7 +54,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Sets argument into the set with the given name.
-     * 
+     *
      * @param name argument name
      * @param arg argument value
      */
@@ -64,7 +64,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Retrieves argument from the set.
-     * 
+     *
      * @param name argument name
      * @return argument value
      */

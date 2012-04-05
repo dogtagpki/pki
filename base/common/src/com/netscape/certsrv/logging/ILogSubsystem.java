@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * instances. Each log instance can be individually configured and is
  * associated with its own configuration entries in the configuration file.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILogSubsystem extends ISubsystem {
@@ -45,7 +45,7 @@ public interface ILogSubsystem extends ISubsystem {
     /**
      * Retrieve plugin name (implementation name) of the log event
      * listener. If no plug name found, an empty string is returned
-     * 
+     *
      * @param log the log event listener
      * @return the log event listener's plugin name
      */
@@ -53,7 +53,7 @@ public interface ILogSubsystem extends ISubsystem {
 
     /**
      * Retrieve the log event listener by instance name
-     * 
+     *
      * @param insName the log instance name in String
      * @return the log instance in ILogEventListener
      */
@@ -61,7 +61,7 @@ public interface ILogSubsystem extends ISubsystem {
 
     /**
      * get the list of log plugins that are available
-     * 
+     *
      * @return log plugins in a Hashtable. Each entry in the
      *         Hashtable contains the name/value pair of pluginName/LogPlugin
      * @see LogPlugin
@@ -70,7 +70,7 @@ public interface ILogSubsystem extends ISubsystem {
 
     /**
      * get the list of log instances that are available
-     * 
+     *
      * @return log instances in a Hashtable. Each entry in the
      *         Hashtable contains the name/value pair of instName/ILogEventListener
      * @see LogPlugin
@@ -82,7 +82,7 @@ public interface ILogSubsystem extends ISubsystem {
      * plugin. It is used by
      * administration servlet to handle log configuration when a new
      * log instance is added.
-     * 
+     *
      * @param implName The implementation name for which the
      *            configuration parameters are to be configured
      * @return a Vector of default configuration paramter names
@@ -97,7 +97,7 @@ public interface ILogSubsystem extends ISubsystem {
      * Get the default configuration parameter names associated with a
      * log instance. It is used by administration servlet to handle
      * log instance configuration.
-     * 
+     *
      * @param insName The instance name for which the configuration
      *            parameters are to be configured
      * @return a Vector of default configuration paramter names

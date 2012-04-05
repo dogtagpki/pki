@@ -21,14 +21,14 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * Processor handles object read from the session.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IElementProcessor {
 
     /**
      * Handles object
-     * 
+     *
      * @param o object to be processed
      * @exception EBaseException failed to process object
      */

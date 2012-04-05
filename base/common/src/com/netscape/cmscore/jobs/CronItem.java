@@ -31,7 +31,7 @@ import com.netscape.certsrv.logging.ILogger;
  * an "item"...which includes both numbers and '-' separated ranges.
  * <p>
  * for each of the 5 cron fields, it's represented as a CronItem
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -55,7 +55,7 @@ public class CronItem {
 
     /**
      * parses and sets a string cron item
-     * 
+     *
      * @param sItem the string representing an item of a cron string.
      *            item can be potentially comma separated with ranges specified
      *            with '-'s
@@ -149,7 +149,7 @@ public class CronItem {
     /**
      * get the vector stuffed with elements where each element is
      * represented as CronRange
-     * 
+     *
      * @return a vector of CronRanges
      */
     public Vector<CronRange> getElements() {

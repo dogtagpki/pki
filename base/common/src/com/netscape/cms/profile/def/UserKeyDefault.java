@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a user supplied key
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UserKeyDefault extends EnrollDefault {

@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Configure the CA to no longer respond to OCSP requests for a CA
- * 
+ *
  * @version $Revision: 1274 $ $Date: 2010-09-07 22:14:41 -0700 (Tue, 07 Sep 2010) $
  */
 public class RemoveCAServlet extends CMSServlet {
@@ -70,7 +70,7 @@ public class RemoveCAServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "addCA.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -95,7 +95,7 @@ public class RemoveCAServlet extends CMSServlet {
      * LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE are used when a remove CA request to the OCSP
      * Responder is processed successfully or not.
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

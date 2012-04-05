@@ -26,7 +26,7 @@ import java.nio.charset.CoderResult;
 /**
  * Converts characters in ASN.1 UniversalString character set to UniversalString
  * bytes.
- * 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */

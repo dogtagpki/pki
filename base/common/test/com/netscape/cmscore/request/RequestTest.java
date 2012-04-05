@@ -592,7 +592,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     /**
      * CMSMemoryStub
-     * 
+     *
      * This class is used to help test methods that rely on setting and then
      * getting a value out. It assumes BtoA is always called first, stores
      * the value passed in, and then returns that value for BtoA.

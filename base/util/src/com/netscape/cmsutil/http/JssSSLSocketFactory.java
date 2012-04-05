@@ -33,7 +33,7 @@ import com.netscape.cmsutil.net.ISocketFactory;
 
 /**
  * Uses NSS ssl socket.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class JssSSLSocketFactory implements ISocketFactory {

@@ -66,16 +66,16 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
 
     public void actionPerformed(ActionEvent e) {
     }
-	
+
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
         if (wizardInfo.isCloning() && !wizardInfo.isConnectDBDone()) {
             setBorder(makeTitledBorder(PANELNAME));
             mRMBindAsText.setText(wizardInfo.getDBBindDN());
-            return true; 
+            return true;
         }
-      
+
         return false;
     }
 
@@ -88,7 +88,7 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         if (rmhostname.equals("")) {
             setErrorMessage("EMPTYHOST");
             return false;
-        } 
+        }
 
         if (rmport.equals("")) {
             setErrorMessage("EMPTYPORT");
@@ -129,10 +129,10 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         rawData = rawData+"&"+ConfigConstants.PR_DB_NAME+"="+mRMBaseDNText.getText();
    	    wizardInfo.setInternalDBPasswd(mRMPasswordText.getText().trim());
    	    wizardInfo.setDBBindDN(mRMBindAsText.getText().trim());
- 
+
         startProgressStatus();
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CONNECTDB");
-        
+
         boolean ready = send(rawData, wizardInfo);
 
         if (ready) {
@@ -141,7 +141,7 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
             ready = send(rawData, wizardInfo);
         }
         //dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -195,13 +195,13 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         add(mRMHostText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel portNumber = makeJLabel("REMOTEPORT");        
+        JLabel portNumber = makeJLabel("REMOTEPORT");
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(portNumber, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mRMPortText = makeJTextField(10);
         gbc.anchor = gbc.WEST;
@@ -210,7 +210,7 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mRMPortText, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel mRMBindAsLabel = makeJLabel("REMOTEADMIN");
         //gbc.anchor = gbc.NORTHWEST;
@@ -236,7 +236,7 @@ class WIExistingDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mRMPasswordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mRMPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.WEST;

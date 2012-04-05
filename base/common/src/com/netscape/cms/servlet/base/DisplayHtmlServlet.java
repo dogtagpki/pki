@@ -33,7 +33,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * This is the servlet that displays the html page for the corresponding input id.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayHtmlServlet extends CMSServlet {

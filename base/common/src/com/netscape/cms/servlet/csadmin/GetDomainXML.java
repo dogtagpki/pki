@@ -61,7 +61,7 @@ public class GetDomainXML extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -76,7 +76,7 @@ public class GetDomainXML extends CMSServlet {
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -115,14 +115,14 @@ public class GetDomainXML extends CMSServlet {
                     connFactory.init(ldapConfig);
                     conn = connFactory.getConn();
 
-                    // get the security domain name 
+                    // get the security domain name
                     String secdomain = (String) conn.read(dn).getAttribute("name").getStringValues().nextElement();
 
                     XMLObject xmlObj = new XMLObject();
                     Node domainInfo = xmlObj.createRoot("DomainInfo");
                     xmlObj.addItemToContainer(domainInfo, "Name", secdomain);
 
-                    // this should return CAList, KRAList etc. 
+                    // this should return CAList, KRAList etc.
                     LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
                             attrs, true, cons);
 

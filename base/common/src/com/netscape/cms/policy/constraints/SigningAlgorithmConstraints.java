@@ -44,12 +44,12 @@ import com.netscape.cms.policy.APolicyRule;
  * SigningAlgorithmConstraints enforces that only a supported
  * signing algorithm be requested.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -93,11 +93,11 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=SigningAlgorithmConstraints
      * ra.Policy.rule.<ruleName>.algorithms=SHA-1WithRSA, SHA-1WithDSA ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -183,7 +183,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 ((ICertAuthority) mAuthority).getCASigningAlgorithms();
 
         if (allowedByKey != null) {
-            // don't show algorithms that don't match CA's key in UI.	
+            // don't show algorithms that don't match CA's key in UI.
             mDefaultAllowedAlgs = new String[allowedByKey.length];
             for (int i = 0; i < allowedByKey.length; i++)
                 mDefaultAllowedAlgs[i] = allowedByKey[i];
@@ -200,7 +200,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Winnows out of mAllowedAlgorithms those algorithms that aren't allowed
      * for some reason.
-     * 
+     *
      * @param allowed An array of allowed algorithms. Only algorithms in this
      *            list will survive the winnowing process.
      * @param reason A string describing the problem with an algorithm
@@ -247,7 +247,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -321,7 +321,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -340,7 +340,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

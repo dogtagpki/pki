@@ -23,7 +23,7 @@ import com.netscape.admin.certsrv.*;
 
 /**
  * Constructs a SSL3 cipher suites.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config

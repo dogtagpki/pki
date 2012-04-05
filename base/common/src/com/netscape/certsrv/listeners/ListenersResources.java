@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for the
  * listeners package.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ListenersResources extends ListResourceBundle {
@@ -30,7 +30,7 @@ public class ListenersResources extends ListResourceBundle {
     /**
      * get the content of the resource.
      * <P>
-     * 
+     *
      * @return the content of this resource is a value pairs array of keys and values.
      */
     public Object[][] getContents() {

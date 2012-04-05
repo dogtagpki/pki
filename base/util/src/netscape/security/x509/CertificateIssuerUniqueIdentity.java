@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 /**
  * This class defines the subject/issuer unique identity attribute
  * for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -52,7 +52,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Default constructor for the certificate attribute.
-     * 
+     *
      * @param key the UniqueIdentity
      */
     public CertificateIssuerUniqueIdentity(UniqueIdentity id) {
@@ -61,7 +61,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the UniqueIdentity from.
      * @exception IOException on decoding errors.
      */
@@ -72,7 +72,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the UniqueIdentity from.
      * @exception IOException on decoding errors.
      */
@@ -84,7 +84,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER value.
-     * 
+     *
      * @param in the DerValue to read the UniqueIdentity from.
      * @exception IOException on decoding errors.
      */
@@ -104,7 +104,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Decode the identity in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */
@@ -115,7 +115,7 @@ public class CertificateIssuerUniqueIdentity implements CertAttrSet {
 
     /**
      * Encode the identity in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */

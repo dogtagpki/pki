@@ -44,7 +44,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 /**
  * This class implements the output plugin that outputs
  * PKCS7 for the issued certificate.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PKCS7Output extends EnrollOutput implements IProfileOutput {

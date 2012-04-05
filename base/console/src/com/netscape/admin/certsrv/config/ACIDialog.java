@@ -110,7 +110,7 @@ public class ACIDialog extends JDialog
                 CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
                   msg ,CMSAdminUtil.ERROR_MESSAGE);
                 return;
-            } 
+            }
         } else if (evt.getSource().equals(mHelp)) {
             CMSAdminUtil.help(mHelpToken);
         }
@@ -168,7 +168,7 @@ public class ACIDialog extends JDialog
                 mAllowBtn.setSelected(true);
             } else if (aci.startsWith("deny")) {
                 mDenyBtn.setSelected(true);
-            } 
+            }
             int startIndex = aci.indexOf("(");
             int endIndex = aci.indexOf(")");
             if ((startIndex > 0) && (endIndex > 0)) {
@@ -197,7 +197,7 @@ public class ACIDialog extends JDialog
         String result = "";
         if (!mAllowBtn.isSelected() && !mDenyBtn.isSelected())
             return "";
-        if (mAllowBtn.isSelected()) 
+        if (mAllowBtn.isSelected())
             result = result+"allow"+" (";
         else if (mDenyBtn.isSelected())
             result = result+"deny"+" (";
@@ -259,7 +259,7 @@ public class ACIDialog extends JDialog
                 }
             }
         }
- 
+
         return false;
     }
 
@@ -356,7 +356,7 @@ public class ACIDialog extends JDialog
 
     private JPanel makeListPane() {
         JPanel listPanel = new JPanel();
-       
+
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagLayout gb = new GridBagLayout();
         listPanel.setLayout(gb);
@@ -439,7 +439,7 @@ public class ACIDialog extends JDialog
         gb.setConstraints(opsLabel, gbc);
         mainPanel.add(opsLabel);
         opsLabel.addMouseListener(this);
-        opsLabel.setName("rights"); 
+        opsLabel.setName("rights");
 
         mList = CMSAdminUtil.makeJList(mDataModel, 3);
         mScrollPane = new JScrollPane(mList,
@@ -474,7 +474,7 @@ public class ACIDialog extends JDialog
 */
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel attrLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX, 
+        JLabel attrLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "SYNTAX", null);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;

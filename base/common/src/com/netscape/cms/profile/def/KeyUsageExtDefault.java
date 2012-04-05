@@ -37,7 +37,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a Key Usage extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyUsageExtDefault extends EnrollExtDefault {

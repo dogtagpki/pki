@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.EBaseException;
  * exception for all the KRA specific exceptions. It is
  * associated with <CODE>KRAResources</CODE>.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EKRAException extends EBaseException {
@@ -42,7 +42,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
-     * 
+     *
      * @param msgFormat constant from KRAResources.
      */
     public EKRAException(String msgFormat) {
@@ -52,7 +52,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
-     * 
+     *
      * @param msgFormat constant from KRAResources.
      * @param param additional parameters to the message.
      */
@@ -63,7 +63,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
-     * 
+     *
      * @param msgFormat constant from KRAResources.
      * @param e embedded exception.
      */
@@ -74,7 +74,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
-     * 
+     *
      * @param msgFormat constant from KRAResources.
      * @param params additional parameters to the message.
      */
@@ -85,7 +85,7 @@ public class EKRAException extends EBaseException {
     /**
      * Returns the bundle file name.
      * <P>
-     * 
+     *
      * @return name of bundle class associated with this exception.
      */
     protected String getBundleName() {

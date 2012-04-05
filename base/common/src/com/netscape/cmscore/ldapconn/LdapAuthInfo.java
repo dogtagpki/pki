@@ -108,7 +108,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     /**
      * initialize this class from the config store, and verify the password.
-     * 
+     *
      * @param host The host that the directory server is running on.
      *            This will be used to verify the password by attempting to connect.
      *            If it is <code>null</code>, the password will not be verified.
@@ -258,7 +258,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     /**
      * get authentication type.
-     * 
+     *
      * @return one of: <br>
      *         LdapAuthInfo.LDAP_AUTHTYPE_BASICAUTH or
      *         LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH
@@ -269,7 +269,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     /**
      * get params for authentication
-     * 
+     *
      * @return array of parameters for this authentication.
      */
     public String[] getParms() {

@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.ldap.IRequestMod;
 abstract class RequestAttr {
 
     /**
-     * 
+     *
      */
 
     abstract void set(ARequestRecord r, Object o);

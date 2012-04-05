@@ -39,7 +39,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 /**
  * This interface represents the cryptographics subsystem
  * that provides all the security related functions.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICryptoSubsystem extends ISubsystem {
@@ -49,7 +49,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves a list of nicknames of certificates that are
      * in the installed tokens.
-     * 
+     *
      * @return a list of comma-separated nicknames
      * @exception EBaseException failed to retrieve nicknames
      */
@@ -57,7 +57,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves certificate in pretty-print format by the nickname.
-     * 
+     *
      * @param nickname nickname of certificate
      * @param date not after of the returned certificate must be date
      * @param locale user locale
@@ -78,7 +78,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves the certificate in the pretty print format.
-     * 
+     *
      * @param b64E certificate in mime-64 encoded format
      * @param locale end user locale
      * @return certificate in pretty-print format
@@ -89,7 +89,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Imports certificate into the server.
-     * 
+     *
      * @param b64E certificate in mime-64 encoded format
      * @param nickname nickname for the importing certificate
      * @param certType certificate type
@@ -100,7 +100,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Imports certificate into the server.
-     * 
+     *
      * @param signedCert certificate
      * @param nickname nickname for the importing certificate
      * @param certType certificate type
@@ -111,7 +111,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates a key pair based on the given parameters.
-     * 
+     *
      * @param properties key parameters
      * @return key pair
      * @exception EBaseException failed to generate key pair
@@ -120,7 +120,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves the key pair based on the given nickname.
-     * 
+     *
      * @param nickname nickname of the public key
      * @exception EBaseException failed to retrieve key pair
      */
@@ -128,7 +128,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates a key pair based on the given parameters.
-     * 
+     *
      * @param tokenName name of token where key is generated
      * @param alg key algorithm
      * @param keySize key size
@@ -140,7 +140,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates a key pair based on the given parameters.
-     * 
+     *
      * @param tokenName name of token where key is generated
      * @param alg key algorithm
      * @param keySize key size
@@ -153,7 +153,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates an ECC key pair based on the given parameters.
-     * 
+     *
      * @param properties key parameters
      * @return key pair
      * @exception EBaseException failed to generate key pair
@@ -162,7 +162,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates an ECC key pair based on the given parameters.
-     * 
+     *
      * @param token token name
      * @param curveName curve name
      * @param certType type of cert(sslserver etc..)
@@ -174,7 +174,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves the signature algorithm of the certificate named
      * by the given nickname.
-     * 
+     *
      * @param nickname nickname of the certificate
      * @return signature algorithm
      * @exception EBaseException failed to retrieve signature
@@ -183,7 +183,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Checks if the given dn is a valid distinguished name.
-     * 
+     *
      * @param dn distinguished name
      * @exception EBaseException failed to check
      */
@@ -193,7 +193,7 @@ public interface ICryptoSubsystem extends ISubsystem {
      * Retrieves CA's signing algorithm id. If it is DSA algorithm,
      * algorithm is constructed by reading the parameters
      * ca.dsaP, ca.dsaQ, ca.dsaG.
-     * 
+     *
      * @param algname DSA or RSA
      * @param store configuration store.
      * @return algorithm id
@@ -204,7 +204,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves subject name of the certificate that is identified by
      * the given nickname.
-     * 
+     *
      * @param tokenname name of token where the nickname is valid
      * @param nickname nickname of the certificate
      * @return subject name
@@ -216,7 +216,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves extensions of the certificate that is identified by
      * the given nickname.
-     * 
+     *
      * @param tokenname name of token where the nickname is valid
      * @param nickname nickname of the certificate
      * @return certificate extensions
@@ -228,7 +228,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Deletes certificate of the given nickname.
-     * 
+     *
      * @param nickname nickname of the certificate
      * @param pathname path where a copy of the deleted certificate is stored
      * @exception EBaseException failed to delete certificate
@@ -238,7 +238,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Delete certificate of the given nickname.
-     * 
+     *
      * @param nickname nickname of the certificate
      * @param notAfterTime The notAfter of the certificate. It
      *            is possible to ge t multiple certificates under
@@ -254,7 +254,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves the subject DN of the certificate identified by
      * the nickname.
-     * 
+     *
      * @param nickname nickname of the certificate
      * @return subject distinguished name
      * @exception EBaseException failed to retrieve subject DN
@@ -263,7 +263,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Trusts a certificate for all available purposes.
-     * 
+     *
      * @param nickname nickname of the certificate
      * @param date certificate's not before
      * @param trust "Trust" or other
@@ -275,7 +275,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Checks if the given base-64 encoded string contains an extension
      * or a sequence of extensions.
-     * 
+     *
      * @param ext extension or sequence of extension encoded in base-64
      * @exception EBaseException failed to check encoding
      */
@@ -283,7 +283,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Gets all certificates on all tokens for Certificate Database Management.
-     * 
+     *
      * @return all certificates
      * @exception EBaseException failed to retrieve certificates
      */
@@ -293,7 +293,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Gets all CA certificates on all tokens.
-     * 
+     *
      * @return all CA certificates
      * @exception EBaseException failed to retrieve certificates
      */
@@ -312,7 +312,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves PQG parameters based on key size.
-     * 
+     *
      * @param keysize key size
      * @return pqg parameters
      */
@@ -320,7 +320,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves PQG parameters based on key size.
-     * 
+     *
      * @param keysize key size
      * @param store configuration store
      * @return pqg parameters
@@ -331,7 +331,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves extensions of the certificate that is identified by
      * the given nickname.
-     * 
+     *
      * @param tokenname token name
      * @param nickname nickname
      * @return certificate extensions
@@ -344,7 +344,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Checks if the given token is logged in.
-     * 
+     *
      * @param name token name
      * @return true if token is logged in
      * @exception EBaseException failed to login
@@ -353,7 +353,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Logs into token.
-     * 
+     *
      * @param tokenName name of the token
      * @param pwd token password
      * @exception EBaseException failed to login
@@ -363,7 +363,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Generates certificate request from the given key pair.
-     * 
+     *
      * @param subjectName subject name to use in the request
      * @param kp key pair that contains public key material
      * @return certificate request in base-64 encoded format
@@ -374,28 +374,28 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Checks if fortezza is enabled.
-     * 
+     *
      * @return "true" if fortezza is enabled
      */
     public String isCipherFortezza() throws EBaseException;
 
     /**
      * Retrieves the SSL cipher version.
-     * 
+     *
      * @return cipher version (i.e. "cipherdomestic")
      */
     public String getCipherVersion() throws EBaseException;
 
     /**
      * Retrieves the cipher preferences.
-     * 
+     *
      * @return cipher preferences (i.e. "rc4export,rc2export,...")
      */
     public String getCipherPreferences() throws EBaseException;
 
     /**
      * Sets the current SSL cipher preferences.
-     * 
+     *
      * @param cipherPrefs cipher preferences (i.e. "rc4export,rc2export,...")
      * @exception EBaseException failed to set cipher preferences
      */
@@ -404,7 +404,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves a list of currently registered token names.
-     * 
+     *
      * @return list of token names
      * @exception EBaseException failed to retrieve token list
      */
@@ -413,7 +413,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Retrieves all certificates. The result list will not
      * contain the token tag.
-     * 
+     *
      * @param name token name
      * @return list of certificates without token tag
      * @exception EBaseException failed to retrieve
@@ -422,7 +422,7 @@ public interface ICryptoSubsystem extends ISubsystem {
 
     /**
      * Retrieves the token name of the internal (software) token.
-     * 
+     *
      * @return the token name
      * @exception EBaseException failed to retrieve token name
      */
@@ -431,7 +431,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Checks to see if the certificate of the given nickname is a
      * CA certificate.
-     * 
+     *
      * @param fullNickname nickname of the certificate to check
      * @return true if it is a CA certificate
      * @exception EBaseException failed to check
@@ -444,7 +444,7 @@ public interface ICryptoSubsystem extends ISubsystem {
      * The default token is set using the modutil command.
      * Note that the system entropy generator (usually /dev/random)
      * will block until sufficient entropy is collected.
-     * 
+     *
      * @param bits number of bits of entropy
      * @exception org.mozilla.jss.util.NotImplementedException If the Crypto device does not support
      *                adding entropy
@@ -460,7 +460,7 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Signs the certificate template into the given data and returns
      * a signed certificate.
-     * 
+     *
      * @param data data that contains certificate template
      * @param certType certificate type
      * @param priKey CA signing key

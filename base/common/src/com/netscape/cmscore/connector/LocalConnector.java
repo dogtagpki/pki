@@ -71,11 +71,11 @@ public class LocalConnector implements IConnector {
 
         CMS.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());
-        //  mSource.log(ILogger.LL_DEBUG, 
+        //  mSource.log(ILogger.LL_DEBUG,
         //     "setting connector dest " + mDest.getId() +
         //    " source id to " + r.getRequestId());
 
-        // XXX set context to the real identity later. 
+        // XXX set context to the real identity later.
         destreq.setSourceId(
                 mSource.getX500Name().toString() + ":" + r.getRequestId().toString());
         //destreq.copyContents(r);  // copy meta attributes in request.
@@ -98,7 +98,7 @@ public class LocalConnector implements IConnector {
         }
 
         // Locally cache the source request so that we
-        // can update it when the dest request is 
+        // can update it when the dest request is
         // processed (when LocalConnListener is being called).
         mSourceReqs.put(r.getRequestId().toString(), r);
         try {
@@ -140,9 +140,9 @@ public class LocalConnector implements IConnector {
                     "dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
             IRequestQueue sourceQ = mSource.getRequestQueue();
-            // accept requests that only belong to us. 
+            // accept requests that only belong to us.
             // XXX review death scenarios here. - If system dies anywhere
-            // here need to check all requests at next server startup. 
+            // here need to check all requests at next server startup.
             String sourceNameAndId = destreq.getSourceId();
             String sourceName = mSource.getX500Name().toString();
 
@@ -174,7 +174,7 @@ public class LocalConnector implements IConnector {
             // performance enhancement, approved request will
             // not be immediately available in the database. So
             // retrieving the request from the queue within
-            // the serviceRequest() function will have 
+            // the serviceRequest() function will have
             // diffculities.
             // You may wonder what happen if the system crashes
             // during the request servicing. Yes, the request
@@ -182,7 +182,7 @@ public class LocalConnector implements IConnector {
             // resubmit their requests again.
             // Note that the pending requests, on the other hand,
             // are persistent before the servicing.
-            // Please see stateEngine() function in 
+            // Please see stateEngine() function in
             // ARequestQueue.java for details.
             r = mSourceReqs.get(rId);
             if (r != null) {

@@ -35,7 +35,7 @@ import com.netscape.certsrv.common.*;
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
- * 
+ *
  * @see com.netscape.admin.certsrv.ug.UserTab
  */
 public class UserEditor extends JDialog
@@ -66,9 +66,9 @@ public class UserEditor extends JDialog
     private JPasswordField mPasswordConfirm;
     private JLabel mUserLabel, mMembership, mGroupLbl, dummy1;
     private JComboBox mGroupBox;
-    private static final String ADDHELPINDEX = 
+    private static final String ADDHELPINDEX =
       "usersgroups-certsrv-add-user-dbox-help";
-    private static final String EDITHELPINDEX = 
+    private static final String EDITHELPINDEX =
       "usersgroups-certsrv-edit-user-dbox-help";
 
     /*==========================================================
@@ -90,7 +90,7 @@ public class UserEditor extends JDialog
         setLocationRelativeTo(parent);
         getRootPane().setDoubleBuffered(true);
         setDisplay();
-        
+
         if(!mIsNewUser) {
             mUserNameField.setVisible(false);
             mUserLabel.setVisible(true);
@@ -134,7 +134,7 @@ public class UserEditor extends JDialog
 
         mDataModel.clear();
         //mViewCert.setEnabled(false);
-        
+
         if(!mIsNewUser) {
             mUserLabel.setText(user);
         } else {
@@ -142,7 +142,7 @@ public class UserEditor extends JDialog
             mUserLabel.setText("");
             mStateField.setText("1");
         }
-        
+
         //retrieve the cert record from the server
         try {
             if (mIsNewUser == false)
@@ -184,7 +184,7 @@ public class UserEditor extends JDialog
 
         mUserAdded = false;
         if (evt.getSource().equals(mOK)) {
-            
+
             //check password field
             String pwd = mPasswordField.getText().trim();
             if (!pwd.equals("")) {
@@ -194,15 +194,15 @@ public class UserEditor extends JDialog
                     return;
                 }
             }
-            
+
             if (mIsNewUser) {
-                
+
                 //check text fields
                 if (mUserNameField.getText().trim().equals("")) {
                     CMSAdminUtil.showMessageDialog(mParentFrame, mResource, PREFIX,
                         "NOUSERNAME", CMSAdminUtil.ERROR_MESSAGE);
                     return;
-                }    
+                }
 
                 try {
                     addUser();
@@ -310,15 +310,15 @@ public class UserEditor extends JDialog
     public void insertUpdate(DocumentEvent e) {
         updateView();
     }
-    
+
     public void removeUpdate(DocumentEvent e){
         updateView();
     }
-    
+
     public void changedUpdate(DocumentEvent e){
         updateView();
     }
-    
+
     /*==========================================================
      * private methods
      *==========================================================*/
@@ -332,7 +332,7 @@ public class UserEditor extends JDialog
                 mOK.setEnabled(false);
                 return;
             }
-        }       
+        }
         if (mFullNameField.getText().trim().equals("")) {
             mOK.setEnabled(false);
             return;
@@ -391,7 +391,7 @@ public class UserEditor extends JDialog
     }
 
     private JPanel makeContentPane() {
-        
+
         Insets insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
                             CMSAdminUtil.COMPONENT_SPACE,0);
 
@@ -481,7 +481,7 @@ public class UserEditor extends JDialog
         mList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
         mList.addMouseListener(this);
         mScrollPane.setBackground(Color.white);
-        
+
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
         //setLabelCellRenderer(mTable,0);
 
@@ -560,7 +560,7 @@ public class UserEditor extends JDialog
         }
 
     }
-    
+
     //add new group information
     private void addUser() throws EAdminException {
 

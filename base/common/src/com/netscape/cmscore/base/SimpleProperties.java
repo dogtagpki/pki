@@ -38,13 +38,13 @@ import java.util.Hashtable;
  * <p>
  * A property list can contain another property list as its "defaults"; this second property list is searched if the
  * property key is not found in the original property list.
- * 
+ *
  * Because <code>Properties</code> inherits from <code>Hashtable</code>, the <code>put</code> and <code>putAll</code>
  * methods can be applied to a <code>Properties</code> object. Their use is strongly discouraged as they allow the
  * caller to insert entries whose keys or values are not <code>Strings</code>. The <code>setProperty</code> method
  * should be used instead. If the <code>store</code> or <code>save</code> method is called on a "compromised"
  * <code>Properties</code> object that contains a non- <code>String</code> key or value, the call will fail.
- * 
+ *
  */
 public class SimpleProperties extends Hashtable<String, String> {
 
@@ -56,7 +56,7 @@ public class SimpleProperties extends Hashtable<String, String> {
     /**
      * A property list that contains default values for any keys not
      * found in this property list.
-     * 
+     *
      * @serial
      */
     protected SimpleProperties defaults;
@@ -70,7 +70,7 @@ public class SimpleProperties extends Hashtable<String, String> {
 
     /**
      * Creates an empty property list with the specified defaults.
-     * 
+     *
      * @param defaults the defaults.
      */
     public SimpleProperties(SimpleProperties defaults) {
@@ -81,7 +81,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * Calls the hashtable method <code>put</code>. Provided for
      * parallelism with the getProperties method. Enforces use of
      * strings for property keys and values.
-     * 
+     *
      * @since JDK1.2
      */
     public synchronized Object setProperty(String key, String value) {
@@ -123,43 +123,43 @@ public class SimpleProperties extends Hashtable<String, String> {
      * As an example, each of the following four lines specifies the key <code>"Truth"</code> and the associated element
      * value <code>"Beauty"</code>:
      * <p>
-     * 
+     *
      * <pre>
      * Truth = Beauty
      * Truth:Beauty
      * Truth			:Beauty
      * </pre>
-     * 
+     *
      * As another example, the following three lines specify a single property:
      * <p>
-     * 
+     *
      * <pre>
      * fruits				apple, banana, pear, \
      *                                  cantaloupe, watermelon, \
      *                                  kiwi, mango
      * </pre>
-     * 
+     *
      * The key is <code>"fruits"</code> and the associated element is:
      * <p>
-     * 
+     *
      * <pre>
      * &quot;apple, banana, pear, cantaloupe, watermelon,kiwi, mango&quot;
      * </pre>
-     * 
+     *
      * Note that a space appears before each <code>\</code> so that a space will appear after each comma in the final
      * result; the <code>\</code>, line terminator, and leading whitespace on the continuation line are merely discarded
      * and are <i>not</i> replaced by one or more other characters.
      * <p>
      * As a third example, the line:
      * <p>
-     * 
+     *
      * <pre>
      * cheeses
      * </pre>
-     * 
+     *
      * specifies that the key is <code>"cheeses"</code> and the associated element is the empty string.
      * <p>
-     * 
+     *
      * @param in the input stream.
      * @exception IOException if an error occurred when reading from the
      *                input stream.
@@ -262,12 +262,12 @@ public class SimpleProperties extends Hashtable<String, String> {
     /**
      * Calls the <code>store(OutputStream out, String header)</code> method
      * and suppresses IOExceptions that were thrown.
-     * 
+     *
      * @deprecated This method does not throw an IOException if an I/O error
      *             occurs while saving the property list. As of JDK 1.2, the preferred
      *             way to save a properties list is via the <code>store(OutputStream out,
      * String header)</code> method.
-     * 
+     *
      * @param out an output stream.
      * @param header a description of the property list.
      * @exception ClassCastException if this <code>Properties</code> object
@@ -308,7 +308,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * <p>
      * After the entries have been written, the output stream is flushed. The output stream remains open after this
      * method returns.
-     * 
+     *
      * @param out an output stream.
      * @param header a description of the property list.
      * @exception ClassCastException if this <code>Properties</code> object
@@ -343,7 +343,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns <code>null</code> if the property is not
      * found.
-     * 
+     *
      * @param key the property key.
      * @return the value in this property list with the specified key value.
      * @see java.util.Properties#defaults
@@ -360,10 +360,10 @@ public class SimpleProperties extends Hashtable<String, String> {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns the
      * default value argument if the property is not found.
-     * 
+     *
      * @param key the hashtable key.
      * @param defaultValue a default value.
-     * 
+     *
      * @return the value in this property list with the specified key value.
      * @see java.util.Properties#defaults
      */
@@ -376,7 +376,7 @@ public class SimpleProperties extends Hashtable<String, String> {
     /**
      * Returns an enumeration of all the keys in this property list, including
      * the keys in the default property list.
-     * 
+     *
      * @return an enumeration of all the keys in this property list, including
      *         the keys in the default property list.
      * @see java.util.Enumeration
@@ -392,7 +392,7 @@ public class SimpleProperties extends Hashtable<String, String> {
     /**
      * Prints this property list out to the specified output stream.
      * This method is useful for debugging.
-     * 
+     *
      * @param out an output stream.
      */
     public void list(PrintStream out) {
@@ -414,7 +414,7 @@ public class SimpleProperties extends Hashtable<String, String> {
     /**
      * Prints this property list out to the specified output stream.
      * This method is useful for debugging.
-     * 
+     *
      * @param out an output stream.
      * @since JDK1.1
      */
@@ -442,7 +442,7 @@ public class SimpleProperties extends Hashtable<String, String> {
 
     /**
      * Enumerates all key/value pairs in the specified hastable.
-     * 
+     *
      * @param h the hashtable
      */
     private synchronized void enumerate(Hashtable<String, String> h) {

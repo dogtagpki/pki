@@ -20,14 +20,14 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.security.*;
 
 /**
- * Constructs panel containing a SSL3 cipher suites 
+ * Constructs panel containing a SSL3 cipher suites
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  */
 
-public class CMSSSL3CipherPreference extends CMSCipherPreferencePane 
+public class CMSSSL3CipherPreference extends CMSCipherPreferencePane
   implements ICipherConstants {
 
     public CMSSSL3CipherPreference(boolean isDomestic, boolean hasFortezza) {

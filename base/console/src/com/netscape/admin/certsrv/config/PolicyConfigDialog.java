@@ -46,7 +46,7 @@ public class PolicyConfigDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public PolicyConfigDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -61,4 +61,4 @@ public class PolicyConfigDialog extends CMSBaseConfigDialog
 		init(nvp,parent,conn,dest);
     }
 
-}    
+}

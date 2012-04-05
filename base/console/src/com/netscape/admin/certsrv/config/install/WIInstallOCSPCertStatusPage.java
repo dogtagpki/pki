@@ -53,7 +53,7 @@ class WIInstallOCSPCertStatusPage extends WIInstallCertStatusPage {
           !wizardInfo.isOCSPInstalled() || wizardInfo.isOCSPCertChainImportDone())
             return false;
 
-		if (wizardInfo.hasEntireOCSPChain()) 
+		if (wizardInfo.hasEntireOCSPChain())
 			return false;
 
         wizardInfo.setCertType(Constants.PR_OCSP_SIGNING_CERT);

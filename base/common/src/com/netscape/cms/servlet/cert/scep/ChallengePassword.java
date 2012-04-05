@@ -42,7 +42,7 @@ public class ChallengePassword implements CertAttrSet {
 
     /**
      * Get the password marshalled in this object
-     * 
+     *
      * @return the challenge password
      */
     public String toString() {
@@ -51,7 +51,7 @@ public class ChallengePassword implements CertAttrSet {
 
     /**
      * Create a ChallengePassword object
-     * 
+     *
      * @param stuff (must be of type byte[]) a DER-encoded by array following
      *            The ASN.1 template for ChallenegePassword specified in the SCEP
      *            documentation
@@ -103,7 +103,7 @@ public class ChallengePassword implements CertAttrSet {
 
     /**
      * Get an attribute of this object.
-     * 
+     *
      * @param name the name of the attribute of this object to get. The only
      *            supported attribute is "password"
      */

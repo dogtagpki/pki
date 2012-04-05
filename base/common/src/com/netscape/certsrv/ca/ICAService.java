@@ -29,7 +29,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * An interface representing a CA request services.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICAService {
@@ -37,7 +37,7 @@ public interface ICAService {
     /**
      * Marks certificate record as revoked by adding revocation information.
      * Updates CRL cache.
-     * 
+     *
      * @param crlentry revocation information obtained from revocation request
      * @exception EBaseException failed to mark certificate record as revoked
      */
@@ -47,7 +47,7 @@ public interface ICAService {
     /**
      * Marks certificate record as revoked by adding revocation information.
      * Updates CRL cache.
-     * 
+     *
      * @param crlentry revocation information obtained from revocation request
      * @param requestId revocation request id
      * @exception EBaseException failed to mark certificate record as revoked
@@ -58,7 +58,7 @@ public interface ICAService {
     /**
      * Issues certificate base on enrollment information,
      * creates certificate record, and stores all necessary data.
-     * 
+     *
      * @param certi information obtain from revocation request
      * @exception EBaseException failed to issue certificate or create certificate record
      */
@@ -70,7 +70,7 @@ public interface ICAService {
 
     /**
      * Services profile request.
-     * 
+     *
      * @param request profile enrollment request information
      * @exception EBaseException failed to service profile enrollment request
      */
@@ -79,7 +79,7 @@ public interface ICAService {
 
     /**
      * Returns KRA-CA connector.
-     * 
+     *
      * @return KRA-CA connector
      */
     public IConnector getKRAConnector();

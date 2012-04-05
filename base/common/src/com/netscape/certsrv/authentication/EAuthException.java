@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * This class represents authentication exceptions.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EAuthException extends EBaseException {
@@ -39,7 +39,7 @@ public class EAuthException extends EBaseException {
     /**
      * Constructs an authentication exception
      * <P>
-     * 
+     *
      * @param msgFormat exception details
      */
     public EAuthException(String msgFormat) {
@@ -49,7 +49,7 @@ public class EAuthException extends EBaseException {
     /**
      * Constructs an authentication exception with a parameter.
      * <p>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -60,7 +60,7 @@ public class EAuthException extends EBaseException {
     /**
      * Constructs a auth exception with a exception parameter.
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param exception system exception
      */
@@ -71,7 +71,7 @@ public class EAuthException extends EBaseException {
     /**
      * Constructs a auth exception with a list of parameters.
      * <P>
-     * 
+     *
      * @param msgFormat the message format.
      * @param params list of message format parameters
      */
@@ -81,7 +81,7 @@ public class EAuthException extends EBaseException {
 
     /**
      * Returns the resource bundle name
-     * 
+     *
      * @return resource bundle name.
      */
     protected String getBundleName() {

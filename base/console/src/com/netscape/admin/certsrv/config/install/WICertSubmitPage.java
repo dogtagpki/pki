@@ -42,7 +42,7 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
     protected String mHelpIndex;
     private String mPanelName;
     protected InstallWizardInfo mWizardInfo;
-    
+
     WICertSubmitPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -57,13 +57,13 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
         setBorder(makeTitledBorder(mPanelName));
         mWizardInfo = (InstallWizardInfo)info;
         if (!mWizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT)) {
-            if (mWizardInfo.isCACertRequestDone() && 
+            if (mWizardInfo.isCACertRequestDone() &&
               !mWizardInfo.isCACertInstalledDone()) {
                 mSubordinateButton.setSelected(true);
                 mSelfButton.setSelected(false);
             }
         }
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -88,7 +88,7 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
           mPanelName+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mLabel, gbc);
@@ -96,7 +96,7 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
         mSelfButton = makeJRadioButton("SELF", true);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mSelfButton, gbc);
@@ -104,7 +104,7 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
         mSubordinateButton = makeJRadioButton("SUB", false);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0,COMPONENT_SPACE, 
+        gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mSubordinateButton, gbc);
@@ -129,7 +129,7 @@ class WICertSubmitPage extends WizardBasePanel implements IWizardPanel {
     public void actionPerformed(ActionEvent e) {
         if (!mWizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT)) {
             if (e.getSource().equals(mSelfButton)) {
-                if (mWizardInfo.isCACertRequestDone() && 
+                if (mWizardInfo.isCACertRequestDone() &&
                   !mWizardInfo.isCACertInstalledDone()) {
                     String errorMsg = mResource.getString(mPanelName+"_LABEL_INCOMPLETE_LABEL");
                     JOptionPane.showMessageDialog(mParent, errorMsg, "Warning",

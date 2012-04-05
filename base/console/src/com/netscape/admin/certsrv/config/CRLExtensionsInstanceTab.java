@@ -43,7 +43,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "CRLEXTSRULE";
-    
+
     private final static String CAHELPINDEX = "configuration-ca-crlinstances-help";
 
 	/*==========================================================
@@ -56,7 +56,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new RuleRuleDataModel();
         mScope = ScopeDef.SC_CRLEXTS_RULES;
         RULE_NAME = CRLExtensionsRuleDataModel.RULE_NAME;
-        RULE_STAT = CRLExtensionsRuleDataModel.RULE_STAT;  
+        RULE_STAT = CRLExtensionsRuleDataModel.RULE_STAT;
         mHelpToken = CAHELPINDEX;
     }
 
@@ -67,7 +67,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new RuleRuleDataModel();
         mScope = ScopeDef.SC_CRLEXTS_RULES;
         RULE_NAME = CRLExtensionsRuleDataModel.RULE_NAME;
-        RULE_STAT = CRLExtensionsRuleDataModel.RULE_STAT;  
+        RULE_STAT = CRLExtensionsRuleDataModel.RULE_STAT;
         mHelpToken = CAHELPINDEX;
         mId = id;
     }
@@ -77,7 +77,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
             NameValuePairs nvp,
             JFrame parent,
             AdminConnection conn,
-            String dest) 
+            String dest)
     {
         if (mId != null && mId.length() > 0)
             return new CRLExtensionsConfigDialog(nvp, parent, conn, dest, mId);
@@ -89,7 +89,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
             JFrame parent,
             AdminConnection conn,
             String dest,
-            CMSPluginInstanceTab pluginType) 
+            CMSPluginInstanceTab pluginType)
     {
         return new CRLExtensionsPluginSelectionDialog(parent, conn, dest, pluginType);
     }

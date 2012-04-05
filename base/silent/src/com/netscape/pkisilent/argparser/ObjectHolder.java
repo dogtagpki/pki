@@ -45,7 +45,7 @@ public class ObjectHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>ObjectHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param o Initial Object reference.
      */
     public ObjectHolder(Object o) {

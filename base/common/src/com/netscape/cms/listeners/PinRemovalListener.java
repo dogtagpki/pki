@@ -37,7 +37,7 @@ import com.netscape.certsrv.request.RequestId;
 
 /**
  * This represnets a listener that removes pin from LDAP directory.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PinRemovalListener implements IRequestListener {

@@ -29,7 +29,7 @@ import java.util.ResourceBundle;
  * messages taking arguments and using java.util.ResourceBundle
  * and java.text.MessageFormat mechanism.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
@@ -40,7 +40,7 @@ public class MessageFormatter {
 
     /**
      * Retrieves the localized string.
-     * 
+     *
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string
@@ -55,7 +55,7 @@ public class MessageFormatter {
 
     /**
      * Retrieves the localized string.
-     * 
+     *
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string
@@ -74,7 +74,7 @@ public class MessageFormatter {
 
     /**
      * Retrieves the localized string.
-     * 
+     *
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string

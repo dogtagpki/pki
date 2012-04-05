@@ -200,7 +200,7 @@ public class CMSEngine implements ICMSEngine {
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
 
-    // static subsystems - must be singletons 
+    // static subsystems - must be singletons
     private static SubsystemInfo[] mStaticSubsystems = {
             new SubsystemInfo(
                     Debug.ID, Debug.getInstance()),
@@ -218,16 +218,16 @@ public class CMSEngine implements ICMSEngine {
                     OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()),
             new SubsystemInfo(
                     X500NameSubsystem.ID, X500NameSubsystem.getInstance()),
-            // skip TP subsystem; 
+            // skip TP subsystem;
             // problem in needing dbsubsystem in constructor. and it's not used.
             new SubsystemInfo(
                     RequestSubsystem.ID, RequestSubsystem.getInstance()),
         };
 
-    // dynamic subsystems are loaded at init time, not neccessarily singletons. 
+    // dynamic subsystems are loaded at init time, not neccessarily singletons.
     private static SubsystemInfo[] mDynSubsystems = null;
 
-    // final static subsystems - must be singletons. 
+    // final static subsystems - must be singletons.
     private static SubsystemInfo[] mFinalSubsystems = {
             new SubsystemInfo(
                     AuthSubsystem.ID, AuthSubsystem.getInstance()),
@@ -328,7 +328,7 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * initialize all static, dynamic and final static subsystems.
-     * 
+     *
      * @param owner null
      * @param config main config store.
      * @exception EBaseException if any error occur in subsystems during
@@ -414,9 +414,9 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * Parse ACL resource attributes
-     * 
+     *
      * @param resACLs same format as the resourceACLs attribute:
-     * 
+     *
      *            <PRE>
      *     <resource name>:<permission1,permission2,...permissionn>:
      *     <allow|deny> (<subset of the permission set>) <evaluator expression>
@@ -878,7 +878,7 @@ public class CMSEngine implements ICMSEngine {
             throws EBaseException {
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
 
-        // count number of dyn loaded subsystems. 
+        // count number of dyn loaded subsystems.
         Enumeration<String> ssnames = ssconfig.getSubStoreNames();
         int nsubsystems = 0;
 
@@ -973,7 +973,7 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * Starts up all subsystems. subsystems must be initialized.
-     * 
+     *
      * @exception EBaseException if any subsystem fails to startup.
      */
     public void startup() throws EBaseException {
@@ -982,7 +982,7 @@ public class CMSEngine implements ICMSEngine {
             startupSubsystems(mDynSubsystems);
         startupSubsystems(mFinalSubsystems);
 
-        // global admin servlet. (anywhere else more fit for this ?) 
+        // global admin servlet. (anywhere else more fit for this ?)
 
         mStartupTime = System.currentTimeMillis();
 
@@ -1103,7 +1103,7 @@ public class CMSEngine implements ICMSEngine {
                     while (in1.ready()) {
                         line = in1.readLine();
                         if (line != null)
-                            out1.println(lineParsing(line, newName)); 
+                            out1.println(lineParsing(line, newName));
                     }
 
                     out1.close();
@@ -1601,7 +1601,7 @@ public class CMSEngine implements ICMSEngine {
 
                 t1.setDaemon(true);
                 t1.start();
-                
+
                 // wait for command queue to emptied before proceeding to shutting down subsystems
                 Date time = new Date();
                 long startTime = time.getTime();
@@ -1764,7 +1764,7 @@ public class CMSEngine implements ICMSEngine {
             /**
              * if (!version.equals("pre4.2"))
              * return;
-             * 
+             *
              * Upgrade.perform(c);
              **/
         }

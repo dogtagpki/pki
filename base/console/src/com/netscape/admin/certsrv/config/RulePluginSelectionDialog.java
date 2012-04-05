@@ -41,7 +41,7 @@ public class RulePluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "RULESELECTIONDIALOG";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "configuration-ca-add-rulerule-dbox-help";
     private static final String RAHELPINDEX =
       "configuration-ra-add-rulerule-dbox-help";
@@ -51,9 +51,9 @@ public class RulePluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public RulePluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope = ScopeDef.SC_RULE_IMPLS;

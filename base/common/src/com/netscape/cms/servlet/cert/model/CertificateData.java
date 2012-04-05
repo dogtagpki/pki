@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * @author alee
- * 
+ *
  */
 @XmlRootElement(name = "CertificateData")
 @XmlAccessorType(XmlAccessType.FIELD)

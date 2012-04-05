@@ -33,25 +33,25 @@ import java.awt.event.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public class CMSBasePanel extends JPanel 
+public class CMSBasePanel extends JPanel
     implements  ActionListener, DocumentListener,
                 ItemListener, ListSelectionListener
 {
     /*==========================================================
      * variables
      *==========================================================*/
-    public static Insets DEFAULT_CENTER_INSETS = new Insets(0,0,0,0);      
+    public static Insets DEFAULT_CENTER_INSETS = new Insets(0,0,0,0);
     public static Insets EMPTY_INSETS = new Insets(0,0,0,0);
     public static final int COMPONENT_SPACE = SuiLookAndFeel.COMPONENT_SPACE;
-    public static final int SEPARATED_COMPONENT_SPACE = 
+    public static final int SEPARATED_COMPONENT_SPACE =
                                     SuiLookAndFeel.SEPARATED_COMPONENT_SPACE;
-    public static final int DIFFERENT_COMPONENT_SPACE = 
+    public static final int DIFFERENT_COMPONENT_SPACE =
                                     SuiLookAndFeel.DIFFERENT_COMPONENT_SPACE;
-    
+
     protected static final int WARNING_MESSAGE = JOptionPane.WARNING_MESSAGE;
     protected static final int ERROR_MESSAGE = JOptionPane.ERROR_MESSAGE;
     protected static final int INFORMATION_MESSAGE = JOptionPane.INFORMATION_MESSAGE;
-    
+
     protected String mPanelName;            // panel name (UPPERCASE IDENTIFIER)
     protected ResourceBundle mResource;     // resource boundle
     public static int mNonWaitCursor = -1;
@@ -71,23 +71,23 @@ public class CMSBasePanel extends JPanel
         mPanelName = panelName;
         mResource = rb;
     }
-  
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
 	/**
 	 * Set Panel name
 	 * @param name panel name
 	 */
     public void setPanelName(String name) {
-        mPanelName = name;  
+        mPanelName = name;
     }
-    
+
     /*==========================================================
 	 * EVNET HANDLER METHODS
-     *==========================================================*/     
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
     }
@@ -95,10 +95,10 @@ public class CMSBasePanel extends JPanel
     //== DocumentListener ==
     public void insertUpdate(DocumentEvent e) {
     }
-    
+
     public void removeUpdate(DocumentEvent e){
     }
-    
+
     public void changedUpdate(DocumentEvent e){
     }
 
@@ -109,48 +109,48 @@ public class CMSBasePanel extends JPanel
     //== ListSelectionListener ==
     public void valueChanged(ListSelectionEvent e){
     }
-     
+
     /*==========================================================
 	 * protected methods
      *==========================================================*/
-     
+
     //create string using formated resource string
     //the string format
     protected String getLocalizedString(String keyword, Object param) {
         return CMSAdminUtil.getLocalizedString(mResource, keyword, param);
     }
-    
+
     protected String getLocalizedString(String keyword, Object [] params) {
         return CMSAdminUtil.getLocalizedString(mResource, keyword, params);
-    }    
-    
-    
+    }
+
+
     //=== DIALOG MESSAGE =====================
-    
+
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mResource, mPanelName, keyword, messageType);
     }
-    
+
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
-    
+
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mResource, mPanelName, keyword, messageType);
-    }    
-    
+    }
+
     protected int showConfirmDialog(String keyword, String[] params, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mResource, mPanelName, keyword, params, messageType);
-    }    
-    
+    }
+
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
-    
+
     protected int showConfirmDialog(String keyword, String[] params) {
         return showConfirmDialog(keyword, params, WARNING_MESSAGE);
     }
-    
+
     /**
      * Display Error Message dialog
      *
@@ -159,7 +159,7 @@ public class CMSBasePanel extends JPanel
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mResource, message, ERROR_MESSAGE);
     }
-    
+
     //=== TITLED BORDER ======================
     protected Border makeTitledBorder(String keyword) {
         String label;
@@ -181,7 +181,7 @@ public class CMSBasePanel extends JPanel
         */
         return new CompoundBorder(border, margin);
     }
-    
+
     //=== LABEL CREATION ====================
     protected JLabel makeJLabel(Icon i, String s, int a) {
         JLabel label = new JLabel();
@@ -201,7 +201,7 @@ public class CMSBasePanel extends JPanel
     protected JLabel makeJLabel(String keyword) {
         return makeJLabel(keyword, (Icon) null, -1);
     }
-    
+
     protected JLabel makeJLabel(String keyword, Icon i, int a) {
         return CMSAdminUtil.makeJLabel(mResource, mPanelName, keyword, i, a);
     }
@@ -210,7 +210,7 @@ public class CMSBasePanel extends JPanel
     protected JTextField makeJTextField(Document d, String s, int len) {
         return CMSAdminUtil.makeJTextField(d, s,len, this);
     }
-    
+
     protected JTextField makeJTextField() {
         return makeJTextField(null, null, -1);
     }
@@ -271,15 +271,15 @@ public class CMSBasePanel extends JPanel
     protected JButton makeJButton(String keyword) {
         return makeJButton(keyword, (Icon)null);
     }
-    
+
     protected JButton makeJButton(String keyword, ActionListener listener) {
         return makeJButton(keyword, (Icon)null, listener);
     }
-    
+
     protected JButton makeJButton(String keyword, Icon i) {
         return makeJButton(keyword, i, this);
-    }    
-    
+    }
+
     protected JButton makeJButton(String keyword, Icon i, ActionListener listener) {
         return CMSAdminUtil.makeJButton(mResource, mPanelName, keyword, i, listener);
     }
@@ -312,7 +312,7 @@ public class CMSBasePanel extends JPanel
     protected JCheckBox makeJCheckBox(String keyword) {
         return makeJCheckBox(keyword, (Icon)null, false);
     }
-    
+
     protected JCheckBox makeJCheckBox(String keyword, boolean b) {
         return makeJCheckBox(keyword, (Icon)null, b);
     }
@@ -356,9 +356,9 @@ public class CMSBasePanel extends JPanel
                 ++ii;
             } catch (MissingResourceException e) {
                 val = null;
-            }   
+            }
         } while (val != null);
-        
+
         if (value != null)
             jcb.setSelectedItem(value);
         return jcb;
@@ -366,11 +366,11 @@ public class CMSBasePanel extends JPanel
 
 
     //==== LIST CREATION ============================
-    
+
     protected JList makeJList(DefaultListModel listModel, int visibleCount) {
         return CMSAdminUtil.makeJList(listModel, visibleCount);
     }
-    
+
     //===== RADIO BUTTON CREATION =======================
     protected JRadioButton makeJRadioButton(Icon i, String s, boolean b) {
         JRadioButton rb = new JRadioButton();
@@ -407,7 +407,7 @@ public class CMSBasePanel extends JPanel
     protected JRadioButton makeJRadioButton(String keyword, Icon i, boolean b) {
         return CMSAdminUtil.makeJRadioButton(mResource, mPanelName, keyword, i, b, this);
     }
-    
+
     /**
 	 * Create a panel with horizontally arranged, equally sized buttons
 	 * The buttons are aligned to the right in the panel (if it is
@@ -420,7 +420,7 @@ public class CMSBasePanel extends JPanel
     public static JPanel makeJButtonPanel( JButton[] buttons ) {
         return CMSAdminUtil.makeJButtonPanel(buttons);
 	}
-	
+
 	public static JPanel makeJButtonPanel( JButton[] buttons, boolean isHelp) {
         return CMSAdminUtil.makeJButtonPanel(buttons, isHelp);
 	}
@@ -428,7 +428,7 @@ public class CMSBasePanel extends JPanel
 	public static JPanel makeJButtonPanel( JButton[] buttons, boolean isHelp, boolean isConfig) {
         return CMSAdminUtil.makeJButtonPanel(buttons, isHelp, isConfig);
 	}
-	
+
     protected void startProgressStatus() {
         if (mNonWaitCursor == -1) {
             mCursor = mParent.getCursor();
@@ -455,6 +455,6 @@ public class CMSBasePanel extends JPanel
 	 * private methods
      *==========================================================*/
     private void setToolTip(String compKeyword, JComponent w) {
-        CMSAdminUtil.setToolTip(mResource, mPanelName, compKeyword, w);  
+        CMSAdminUtil.setToolTip(mResource, mPanelName, compKeyword, w);
     }
 }

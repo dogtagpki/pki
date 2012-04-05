@@ -24,19 +24,19 @@ import java.util.StringTokenizer;
 
 /**
  * Represent an ISO Object Identifier.
- * 
+ *
  * <P>
  * Object Identifiers are arbitrary length hierarchical identifiers. The individual components are numbers, and they
  * define paths from the root of an ISO-managed identifier space. You will sometimes see a string name used instead of
  * (or in addition to) the numerical id. These are synonyms for the numerical IDs, but are not widely used since most
  * sites do not know all the requisite strings, while all sites can parse the numeric forms.
- * 
+ *
  * <P>
  * So for example, JavaSoft has the sole authority to assign the meaning to identifiers below the 1.3.6.1.4.42.2.17 node
  * in the hierarchy, and other organizations can easily acquire the ability to assign such unique identifiers.
- * 
+ *
  * @version 1.23
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -95,11 +95,11 @@ final public class ObjectIdentifier implements Serializable {
      * Constructs an object ID from an ASN.1 encoded input stream.
      * The encoding of the ID in the stream uses "DER", a BER/1 subset.
      * In this case, that means a triple { typeId, length, data }.
-     * 
+     *
      * <P>
      * <STRONG>NOTE:</STRONG> When an exception is thrown, the input stream has not been returned to its "initial"
      * state.
-     * 
+     *
      * @param in DER-encoded data holding an object ID
      * @exception IOException indicates a decoding error
      */
@@ -275,7 +275,7 @@ final public class ObjectIdentifier implements Serializable {
     /**
      * Compares this identifier with another, for sorting purposes.
      * An identifier does not precede itself.
-     * 
+     *
      * @param other identifer that may precede this one.
      * @return true iff <em>other</em> precedes this one
      *         in a particular sorting order.
@@ -308,7 +308,7 @@ final public class ObjectIdentifier implements Serializable {
 
     /**
      * Compares this identifier with another, for equality.
-     * 
+     *
      * @return true iff the names are identical.
      */
     public boolean equals(ObjectIdentifier other) {
@@ -372,7 +372,7 @@ final public class ObjectIdentifier implements Serializable {
      * should help reduces in-memory Object Identifier object.
      * This function also provide additional checking on the OID.
      * A valid OID should start with 0, 1, or 2.
-     * 
+     *
      * Notes:
      * This function never returns null. IOException is raised
      * in error conditions.

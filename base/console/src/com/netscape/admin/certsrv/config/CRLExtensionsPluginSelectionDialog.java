@@ -40,7 +40,7 @@ public class CRLExtensionsPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "CRLEXTSELECTIONDIALOG";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "configuration-ca-add-crlextensionrule-dbox-help";
 
     /*==========================================================
@@ -48,9 +48,9 @@ public class CRLExtensionsPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public CRLExtensionsPluginSelectionDialog(
             JFrame parent,
-            AdminConnection conn, 
+            AdminConnection conn,
             String dest,
-            CMSPluginInstanceTab pluginType) 
+            CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
 //        mScope = ScopeDef.SC_RULE_IMPLS;

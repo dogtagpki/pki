@@ -57,16 +57,16 @@ import com.netscape.certsrv.request.IRequest;
  * attribute formulated from the certificate
  * subject name, extension or request attributes.
  * <p>
- * 
+ *
  * The syntax is
- * 
+ *
  * <pre>
- *     avaPattern := constant-value | 
- *                   "$subj" "." attrName [ "." attrNumber ] | 
- *                   "$req" "." [ prefix .] attrName [ "." attrNumber ] | 
+ *     avaPattern := constant-value |
+ *                   "$subj" "." attrName [ "." attrNumber ] |
+ *                   "$req" "." [ prefix .] attrName [ "." attrNumber ] |
  *                   "$ext" "." extName [ "." nameType ] [ "." attrNumber ]
  * </pre>
- * 
+ *
  * <pre>
  * Example: <i>$ext.SubjectAlternativeName.RFC822Name.1</i>
  * cert subjectAltName is rfc822Name: jjames@mcom.com
@@ -77,9 +77,9 @@ import com.netscape.certsrv.request.IRequest;
  *     The first rfc822name value in the subjAltName extension.  <br>
  * <p>
  * </pre>
- * 
+ *
  * If a request attribute or subject DN component does not exist, the attribute is skipped.
- * 
+ *
  * @version $Revision$, $Date$
  */
 class AVAPattern {
@@ -117,12 +117,12 @@ class AVAPattern {
     /* value type */
     protected String mType = null;
 
-    /* value - could be name of a request  attribute or 
+    /* value - could be name of a request  attribute or
      * cert subject attribute or extension name.
      */
     protected String mValue = null;
 
-    /* value type - general name type of an 
+    /* value type - general name type of an
      *              extension attribute if any.
      */
     protected String mGNType = null;
@@ -174,7 +174,7 @@ class AVAPattern {
         }
 
         if (c == '$') {
-            // check for $subj $ext or $req 
+            // check for $subj $ext or $req
             try {
                 c = in.read();
             } catch (IOException e) {
@@ -252,7 +252,7 @@ class AVAPattern {
                 }
 
                 if (c == '+' || c == ',') { // either ',' or '+'
-                    in.unread(c); // pushback last , or + 
+                    in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
                 throw new ELdapException(
@@ -350,7 +350,7 @@ class AVAPattern {
             // value is constant. treat as regular ava.
             mType = TYPE_CONSTANT;
 
-            // parse ava value. 
+            // parse ava value.
             StringBuffer valueBuf = new StringBuffer();
 
             valueBuf.append((char) c);
@@ -362,7 +362,7 @@ class AVAPattern {
                 }
 
                 if (c == '+' || c == ',') { // either ',' or '+'
-                    in.unread(c); // pushback last , or + 
+                    in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
                 throw new ELdapException(
@@ -371,9 +371,9 @@ class AVAPattern {
 
             mValue = valueBuf.toString().trim();
 
-            /*  try { 
+            /*  try {
              *      AVA ava = mLdapDNStrConverter.parseAVA(
-             *                    valueBuf.toString()); 
+             *                    valueBuf.toString());
              *      mValue = ava.toLdapDNString();
              *      //System.out.println("----- mValue "+mValue);
              *  } catch (IOException e) {

@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Show the list of CA's that the OCSP responder can service
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ListCAServlet extends CMSServlet {
@@ -71,7 +71,7 @@ public class ListCAServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "listCAs.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -87,7 +87,7 @@ public class ListCAServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

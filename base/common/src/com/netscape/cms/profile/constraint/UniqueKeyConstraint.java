@@ -46,13 +46,13 @@ import com.netscape.cms.profile.def.NoDefault;
  * The config param "allowSameKeyRenewal" enables the
  * situation where if the publickey is not unique, and if
  * the subject DN is the same, that is a "renewal".
- * 
+ *
  * Another "feature" that is quoted out of this code is the
  * "revokeDupKeyCert" option, which enables the revocation
  * of certs that bear the same publickey as the enrolling
  * request. Since this can potentially be abused, it is taken
  * out and preserved in comments to allow future refinement.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UniqueKeyConstraint extends EnrollConstraint {
@@ -166,7 +166,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             				BigInteger serialNum = cert.getSerialNumber();
             				ICAService service = (ICAService) mCA.getCAService();
 
-            				RevokedCertImpl crlEntry = 
+					RevokedCertImpl crlEntry =
             					formCRLEntry(serialNum, RevocationReason.KEY_COMPROMISE);
             				service.revokeCert(crlEntry);
             				CMS.debug("UniqueKeyConstraint: certificate with duplicate publickey revoked successfully");
@@ -234,28 +234,28 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
     /**
      * make a CRL entry from a serial number and revocation reason.
-     * 
+     *
      * @return a RevokedCertImpl that can be entered in a CRL.
-     * 
+     *
      *         protected RevokedCertImpl formCRLEntry(
      *         BigInteger serialNo, RevocationReason reason)
      *         throws EBaseException {
      *         CRLReasonExtension reasonExt = new CRLReasonExtension(reason);
      *         CRLExtensions crlentryexts = new CRLExtensions();
-     * 
+     *
      *         try {
      *         crlentryexts.set(CRLReasonExtension.NAME, reasonExt);
      *         } catch (IOException e) {
      *         CMS.debug("CMSGW_ERR_CRL_REASON "+e.toString());
-     * 
+     *
      *         // throw new ECMSGWException(
      *         // CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
-     * 
+     *
      *         }
      *         RevokedCertImpl crlentry =
      *         new RevokedCertImpl(serialNo, CMS.getCurrentDate(),
      *         crlentryexts);
-     * 
+     *
      *         return crlentry;
      *         }
      */

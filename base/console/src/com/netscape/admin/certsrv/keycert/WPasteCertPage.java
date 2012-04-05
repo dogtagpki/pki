@@ -27,8 +27,8 @@ import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * This page is to install the certificate in the internal token. The user can 
- * import the cert from the file or paste the Base 64 encoded blob in the 
+ * This page is to install the certificate in the internal token. The user can
+ * import the cert from the file or paste the Base 64 encoded blob in the
  * text area.
  *
  * @author Christine Ho
@@ -48,7 +48,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "PASTECERTWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-pastecert-help";
-    
+
     WPasteCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -71,7 +71,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE))
             return false;
         setBorder(makeTitledBorder(PANELNAME));
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -114,7 +114,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
             NameValuePairs response = connection.process(
               DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_CERTINFO, wizardInfo.getInstallCertType(), nvps);
-            
+
             for (String name : response.keySet()) {
                 String str = response.get(name);
                 wizardInfo.addEntry(name, str);
@@ -198,7 +198,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         mBase64Text = new JTextArea(null, null, 0, 0);
         Font f = new Font("Monospaced", Font.PLAIN, 12);
         if (f != null) mBase64Text.setFont(f);
-        JScrollPane scrollPane = new JScrollPane(mBase64Text, 
+        JScrollPane scrollPane = new JScrollPane(mBase64Text,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(50, 20));
@@ -206,7 +206,7 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 0, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         gbc.fill = gbc.BOTH;
         gbc.gridwidth = gbc.REMAINDER;

@@ -22,14 +22,14 @@ import com.netscape.certsrv.ldap.ELdapException;
 /**
  * Interface for a publisher that has the capability of publishing
  * cross certs
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IXcertPublisherProcessor extends IPublisherProcessor {
 
     /**
      * Publish crossCertificatePair.
-     * 
+     *
      * @param pair Byte array representing cert pair.
      * @exception EldapException publish failed due to Ldap error.
      */

@@ -40,18 +40,18 @@ import com.netscape.cmsutil.util.Utils;
 
 @SuppressWarnings("deprecation")
 public class GeneratePKIArchiveOptions {
-    
+
     public static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("GeneratePKIArchiveOptions", options);
         System.exit(1);
     }
-    
+
     private static void log(String string) {
         // TODO Auto-generated method stub
         System.out.println(string);
     }
-    
+
     // read in byte array
     // we must do this somewhere?
     public static byte[] read(String fname) throws IOException {
@@ -79,7 +79,7 @@ public class GeneratePKIArchiveOptions {
 
         return result;
     }
-    
+
     public static void write(byte[] aInput, String outFile) throws IOException {
         OutputStream output = null;
         try {
@@ -93,7 +93,7 @@ public class GeneratePKIArchiveOptions {
             }
         }
     }
-    
+
     private static void write_file(String data, String outFile) throws IOException {
         FileWriter fstream = new FileWriter(outFile);
         BufferedWriter out = new BufferedWriter(fstream);
@@ -122,28 +122,28 @@ public class GeneratePKIArchiveOptions {
         options.addOption("t", true, "File with transport cert");
         options.addOption("o", true, "Output file");
         options.addOption("k", true, "Key file");
-        
+
         try {
             CommandLineParser parser = new PosixParser();
             CommandLine cmd = parser.parse(options, args);
-            
+
             if (cmd.hasOption("p")) {
                 passphrase = cmd.getOptionValue("p");
                 passphraseMode = true;
             }
-            
+
             if (cmd.hasOption("o")) {
                 out_file = cmd.getOptionValue("o");
             }
-            
+
             if (cmd.hasOption("k")) {
                 key_file = cmd.getOptionValue("k");
             }
-            
+
             if (cmd.hasOption("t")) {
                 transport_file = cmd.getOptionValue("t");
             }
-            
+
             if (cmd.hasOption("w")) {
                 token_pwd = cmd.getOptionValue("w");
             } else {
@@ -174,7 +174,7 @@ public class GeneratePKIArchiveOptions {
         try {
             CryptoManager.initialize(db_dir);
         } catch (AlreadyInitializedException e) {
-            // it is ok if it is already initialized 
+            // it is ok if it is already initialized
         } catch (Exception e) {
             log("INITIALIZATION ERROR: " + e.toString());
             System.exit(1);
@@ -196,7 +196,7 @@ public class GeneratePKIArchiveOptions {
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());
         }
-        
+
         // Data to be archived
         SymmetricKey vek = null;
         if (!passphraseMode) {
@@ -206,15 +206,15 @@ public class GeneratePKIArchiveOptions {
         }
 
         byte[] encoded = null;
-        
+
         if (passphraseMode) {
-            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase, 
+            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
                     KeyGenAlgorithm.DES3, ivps);
         } else {
-            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null, 
+            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
         }
-        
+
         // write encoded to file
         write_file(Utils.base64encode(encoded), out_file);
 

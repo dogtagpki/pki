@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.RequestStatus;
 /**
  * This class implements a Certificate Manager enrollment
  * profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CAEnrollProfile extends EnrollProfile {
@@ -181,7 +181,7 @@ public class CAEnrollProfile extends EnrollProfile {
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
         X509CertImpl theCert = null;
 
-        // #615460 - added audit log (transaction) 
+        // #615460 - added audit log (transaction)
         SessionContext sc = SessionContext.getExistingContext();
         sc.put("profileId", getId());
         String setId = request.getExtDataInString("profileSetId");

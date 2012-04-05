@@ -55,12 +55,12 @@ import com.netscape.cms.policy.APolicyRule;
  * to tell whether the simple string should be stored in an X.500 Name,
  * a URL, or an RDN.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -475,7 +475,7 @@ public class CRLDistributionPointsExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {

@@ -41,7 +41,7 @@ import java.lang.reflect.*;
 
 public class Main
 {
-	public static void main(String args[]) 
+	public static void main(String args[])
 	{
 		try {
 			// initialize CryptoManager in CMS 4.5 and later
@@ -51,15 +51,15 @@ public class Main
 			// The following call to "java.security.Security.insertProviderAt()"
 			// is no longer commented out in CMS 4.5 and later
 			java.security.Security.insertProviderAt(
-				new netscape.security.provider.CMS(), 0); 
-			java.security.Provider ps[] = 
+				new netscape.security.provider.CMS(), 0);
+			java.security.Provider ps[] =
 				java.security.Security.getProviders();
-			if (ps == null || ps.length <= 0) { 
-				System.err.println("Java Security Provider NONE"); 
-			} else { 
-				for (int x = 0; x < ps.length; x++) { 
-					System.err.println("Java Security Provider " + x + " class=" + ps[x]); 
-				} 
+			if (ps == null || ps.length <= 0) {
+				System.err.println("Java Security Provider NONE");
+			} else {
+				for (int x = 0; x < ps.length; x++) {
+					System.err.println("Java Security Provider " + x + " class=" + ps[x]);
+				}
 			}
 
 			// Parse the File
@@ -82,14 +82,14 @@ public class Main
 class CMS71LdifParser
 {
 	// constants
-	private static final String DN = 
+	private static final String DN =
 		"dn:";
 	// Directory Servers in CMS 4.7 and later use "requestAttributes"
-	private static final String REQUEST_ATTRIBUTES = 
+	private static final String REQUEST_ATTRIBUTES =
 		"requestAttributes::";
-	private static final String BEGIN = 
+	private static final String BEGIN =
 		"--- BEGIN ATTRIBUTES ---";
-	private static final String END = 
+	private static final String END =
 		"--- END ATTRIBUTES ---";
 
 	// variables
@@ -109,16 +109,16 @@ class CMS71LdifParser
 	}
 
 	public void parse() throws Exception
-	{ 
+	{
 		if (mErrorFilename != null) {
 		    mErrorPrintWriter = new PrintWriter(new FileOutputStream(mErrorFilename));
 		}
 		BufferedReader reader = new BufferedReader(
-			new FileReader(mFilename)); 
-		String line = null; 
-		String dn = null; 
+			new FileReader(mFilename));
+		String line = null;
+		String dn = null;
 		Vector requestAttributes = null;
-		while ((line = reader.readLine()) != null) { 
+		while ((line = reader.readLine()) != null) {
 			if (line.startsWith(DN)) {
 				dn = line;
 			}
@@ -141,33 +141,33 @@ class CMS71LdifParser
 			} else {
 				requestAttributes.setElementAt(
 					(String)
-					requestAttributes.lastElement() + 
-					"\n" + 
+					requestAttributes.lastElement() +
+					"\n" +
 					line,
 					requestAttributes.size() - 1);
 			}
-		} 
+		}
 	}
 
-	private byte[] encode(Object value) throws Exception 
-	{ 
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+	private byte[] encode(Object value) throws Exception
+	{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(bos);
 
-		os.writeObject(value); 
-		os.close(); 
-		return bos.toByteArray(); 
+		os.writeObject(value);
+		os.close();
+		return bos.toByteArray();
 	}
 
 	public void parseAttributes(String dn, Vector attrs) throws Exception
-	{ 
+	{
 		Hashtable hashtable = new Hashtable();
 		for (int i = 0; i < attrs.size(); i++) {
 			String attr = (String)attrs.elementAt(i);
 			buildHashtable(dn, hashtable, attr);
 		}
 
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(bos);
 		Enumeration e = hashtable.keys();
 		while (e.hasMoreElements()) {
@@ -176,8 +176,8 @@ class CMS71LdifParser
 
 			try {
 			  byte data[] = null;
-			  data = encode(value); 
-			  os.writeObject(key); 
+			  data = encode(value);
+			  os.writeObject(key);
 			  os.writeObject(data);
 			} catch (Exception ex) {
 			  if (mErrorPrintWriter != null) {
@@ -188,12 +188,12 @@ class CMS71LdifParser
 			  }
 			}
 		} // while
-		os.writeObject(null); 
+		os.writeObject(null);
 		os.close();
 
 		// print the BASE64 encoding of the Hashtable
 		BASE64Encoder encoder = new BASE64Encoder();
-		String attrsStr = encoder.encodeBuffer(bos.toByteArray());		
+		String attrsStr = encoder.encodeBuffer(bos.toByteArray());
 		// trim the last "\n"
 		StringBuffer buffer = null;
 		attrsStr = attrsStr.trim();
@@ -207,14 +207,14 @@ class CMS71LdifParser
 			}
 		}
 
-		System.out.println(REQUEST_ATTRIBUTES + " " + buffer); 
+		System.out.println(REQUEST_ATTRIBUTES + " " + buffer);
 	}
 
-	public void buildHashtable(String dn, Hashtable table, String attr) 
+	public void buildHashtable(String dn, Hashtable table, String attr)
 		throws Exception
-	{ 
+	{
 		// attribute format  [name]:[type]=[value]
-	
+
 		int colon = attr.indexOf(':');
 		if (colon == -1) {
 			if (mErrorPrintWriter != null) {
@@ -319,7 +319,7 @@ class CMS71LdifParser
 			com.netscape.certsrv.authentication.AuthToken obj =
 				(com.netscape.certsrv.authentication.AuthToken)table.get(name);
 			if (obj == null) {
-				com.netscape.certsrv.authentication.IAuthManager mgr = 
+				com.netscape.certsrv.authentication.IAuthManager mgr =
 					new DummyAuthManager();
 				obj = new com.netscape.certsrv.authentication.AuthToken(mgr);
 				table.put(name, obj);
@@ -329,14 +329,14 @@ class CMS71LdifParser
 			String valuevalue = value.substring(value.indexOf('=')+1);
 			if (valuetype.equals("java.lang.String")) {
                 // Processes 'java.math.BigInteger[]':
-                // 
+                //
                 //     Bugzilla Bug #225031 (a.k.a - Raidzilla Bug #58356)
-                // 
+                //
                 // Processes 'java.lang.String[]':
-                // 
+                //
                 //     Bugzilla Bug #224763 (a.k.a - Raidzilla Bug #57949)
                 //     Bugzilla Bug #252240
-                // 
+                //
 				obj.set(valuekey, valuevalue);
 			} else if (valuetype.equals("java.util.Date")) {
 				obj.set(valuekey, new Date(Long.parseLong(valuevalue)));
@@ -365,19 +365,19 @@ class CMS71LdifParser
 			table.put(name, decoder.decodeBuffer(value));
 		} else if (type.startsWith("netscape.security.x509.CertificateAlgorithmId")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateAlgorithmId obj = 
+			netscape.security.x509.CertificateAlgorithmId obj =
 				new netscape.security.x509.CertificateAlgorithmId(new ByteArrayInputStream(decoder.decodeBuffer(value)));
 			table.put(name, obj);
 		} else if (type.equals("netscape.security.x509.CertificateChain")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateChain obj = 
+			netscape.security.x509.CertificateChain obj =
 				new netscape.security.x509.CertificateChain();
 			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
 			obj.decode(bis);
 			table.put(name, obj);
 		} else if (type.equals("netscape.security.x509.CertificateExtensions")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateExtensions obj = 
+			netscape.security.x509.CertificateExtensions obj =
 				new netscape.security.x509.CertificateExtensions();
 			obj.decodeEx(new ByteArrayInputStream(decoder.decodeBuffer(value)));
 			// CMS 6.2:  revised method of decoding objects of type
@@ -385,28 +385,28 @@ class CMS71LdifParser
 			table.put(name, obj);
 		} else if (type.equals("netscape.security.x509.CertificateSubjectName")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateSubjectName obj = 
+			netscape.security.x509.CertificateSubjectName obj =
 				new netscape.security.x509.CertificateSubjectName(new DerInputStream(decoder.decodeBuffer(value)));
 			// CMS 6.2:  revised method of decoding objects of type
 			//           "netscape.security.x509.CertificateSubjectName"
 			table.put(name, obj);
 		} else if (type.startsWith("netscape.security.x509.CertificateValidity")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateValidity obj = 
+			netscape.security.x509.CertificateValidity obj =
 				new netscape.security.x509.CertificateValidity();
 			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
 			obj.decode(bis);
 			table.put(name, obj);
 		} else if (type.equals("netscape.security.x509.CertificateX509Key")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.CertificateX509Key obj = 
+			netscape.security.x509.CertificateX509Key obj =
 				new netscape.security.x509.CertificateX509Key(
 					new ByteArrayInputStream(decoder.decodeBuffer(value)));
 			table.put(name, obj);
 		} else if (type.startsWith("com.netscape.certsrv.cert.CertInfo")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.extensions.CertInfo objs[] = (netscape.security.extensions.CertInfo[])table.get(name);	
+			netscape.security.extensions.CertInfo objs[] = (netscape.security.extensions.CertInfo[])table.get(name);
 			BASE64Decoder decoder = new BASE64Decoder();
 			if (objs == null) {
 				objs = new netscape.security.extensions.CertInfo[size];
@@ -428,7 +428,7 @@ class CMS71LdifParser
 		} else if (type.startsWith("Integer[")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			Integer objs[] = (Integer[])table.get(name);	
+			Integer objs[] = (Integer[])table.get(name);
 			if (objs == null) {
 			   objs = new Integer[size];
 			   table.put(name, objs);
@@ -459,7 +459,7 @@ class CMS71LdifParser
 				obj.set(valuekey, com.netscape.certsrv.dbs.keydb.KeyState.toKeyState(valuevalue));
 			} else if (valuetype.equals("[B")) {
 				// byte array
-				
+
 				BASE64Decoder decoder = new BASE64Decoder();
 				obj.set(valuekey, decoder.decodeBuffer(valuevalue));
 			} else {
@@ -473,15 +473,15 @@ class CMS71LdifParser
 		} else if (type.startsWith("com.netscape.certsrv.kra.ProofOfArchival")
                ||  type.startsWith("com.netscape.cmscore.kra.ProofOfArchival"))         {
 			BASE64Decoder decoder = new BASE64Decoder();
-			
+
 			ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(value));
-			com.netscape.cmscore.kra.ProofOfArchival obj = 
+			com.netscape.cmscore.kra.ProofOfArchival obj =
 				buildPOA(decoder.decodeBuffer(value));
 			table.put(name, obj);
 		} else if (type.startsWith("netscape.security.x509.RevokedCertImpl")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.RevokedCertImpl objs[] = (netscape.security.x509.RevokedCertImpl[])table.get(name);	
+			netscape.security.x509.RevokedCertImpl objs[] = (netscape.security.x509.RevokedCertImpl[])table.get(name);
 			BASE64Decoder decoder = new BASE64Decoder();
 			if (objs == null) {
 				objs = new netscape.security.x509.RevokedCertImpl[size];
@@ -511,7 +511,7 @@ class CMS71LdifParser
 		} else if (type.startsWith("netscape.security.x509.X509CertImpl[")) {
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.X509CertImpl objs[] = (netscape.security.x509.X509CertImpl[])table.get(name);	
+			netscape.security.x509.X509CertImpl objs[] = (netscape.security.x509.X509CertImpl[])table.get(name);
 			BASE64Decoder decoder = new BASE64Decoder();
 			if (objs == null) {
 				objs = new netscape.security.x509.X509CertImpl[size];
@@ -520,7 +520,7 @@ class CMS71LdifParser
 			objs[index] = new netscape.security.x509.X509CertImpl(decoder.decodeBuffer(value));
 		} else if (type.equals("netscape.security.x509.X509CertImpl")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.X509CertImpl obj = 
+			netscape.security.x509.X509CertImpl obj =
 				new netscape.security.x509.X509CertImpl(
 					decoder.decodeBuffer(value));
 			table.put(name, obj);
@@ -534,7 +534,7 @@ class CMS71LdifParser
 			//           "netscape.security.x509.X509CertInfo["
 			int size = Integer.parseInt(type.substring(type.indexOf('[')+ 1, type.indexOf(',')));
 			int index = Integer.parseInt(type.substring(type.indexOf(',')+1, type.indexOf(']')));
-			netscape.security.x509.X509CertInfo objs[] = (netscape.security.x509.X509CertInfo[])table.get(name);	
+			netscape.security.x509.X509CertInfo objs[] = (netscape.security.x509.X509CertInfo[])table.get(name);
 			BASE64Decoder decoder = new BASE64Decoder();
 			if (objs == null) {
 				objs = new netscape.security.x509.X509CertInfo[size];
@@ -544,7 +544,7 @@ class CMS71LdifParser
 				objs[index].decode(new ByteArrayInputStream(decoder.decodeBuffer(value)));
 		} else if (type.equals("netscape.security.x509.X509CertInfo")) {
 			BASE64Decoder decoder = new BASE64Decoder();
-			netscape.security.x509.X509CertInfo obj = 
+			netscape.security.x509.X509CertInfo obj =
 				new netscape.security.x509.X509CertInfo(
 					decoder.decodeBuffer(value));
 			table.put(name, obj);
@@ -563,26 +563,26 @@ class CMS71LdifParser
 
 	public com.netscape.cmscore.kra.ProofOfArchival buildPOA(byte data[])
 		throws Exception
-	{ 
-		DerInputStream dis = new DerInputStream(data); 
+	{
+		DerInputStream dis = new DerInputStream(data);
 		DerValue seq[] = dis.getSequence(0);
 
 		BigInteger mSerialNo = seq[0].getInteger().toBigInteger();
 
 		// subject
 		DerValue subject = seq[1];
-		netscape.security.x509.X500Name mSubject = 
+		netscape.security.x509.X500Name mSubject =
 			new netscape.security.x509.X500Name(subject.toByteArray());
 
 		// issuer
 		DerValue issuer = seq[2];
-		netscape.security.x509.X500Name mIssuer = 
+		netscape.security.x509.X500Name mIssuer =
 			new netscape.security.x509.X500Name(issuer.toByteArray());
 
 		// date of archival
 		DerInputStream dateOfArchival = new DerInputStream(seq[3].toByteArray());
 		Date mDateOfArchival = dateOfArchival.getUTCTime();
-		com.netscape.cmscore.kra.ProofOfArchival obj = 
+		com.netscape.cmscore.kra.ProofOfArchival obj =
 				new com.netscape.cmscore.kra.ProofOfArchival(mSerialNo,
 				mSubject.toString(), mIssuer.toString(), mDateOfArchival);
 		return obj;
@@ -648,7 +648,7 @@ class DummyAuthManager implements com.netscape.certsrv.authentication.IAuthManag
 	 * @return The configuration store of this authentication manager.
 	 */
 	public IConfigStore getConfigStore()
-	{	
+	{
 		return null;
 	}
 }

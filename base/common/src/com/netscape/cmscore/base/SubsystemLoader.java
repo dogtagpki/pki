@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * A class represents a subsystem loader.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

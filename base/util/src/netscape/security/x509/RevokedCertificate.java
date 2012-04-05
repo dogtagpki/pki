@@ -25,9 +25,9 @@ import java.util.Date;
 /**
  * <p>
  * Abstract class for a revoked certificate in a CRL (Certificate Revocation List).
- * 
+ *
  * The ASN.1 definition for <em>revokedCertificates</em> is:
- * 
+ *
  * <pre>
  *  revokedCertificates    SEQUENCE OF SEQUENCE  {
  *      userCertificate    CertificateSerialNumber,
@@ -49,9 +49,9 @@ import java.util.Date;
  *                    -- the extnId object identifier value
  *  }
  * </pre>
- * 
+ *
  * @see X509CRL
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.4 97/12/10
  */
@@ -62,7 +62,7 @@ public abstract class RevokedCertificate extends X509CRLEntry {
     /**
      * Gets the serial number for this RevokedCertificate,
      * the <em>userCertificate</em>.
-     * 
+     *
      * @return the serial number.
      */
     public abstract BigInteger getSerialNumber();
@@ -70,7 +70,7 @@ public abstract class RevokedCertificate extends X509CRLEntry {
     /**
      * Gets the revocation date for this RevokedCertificate,
      * the <em>revocationDate</em>.
-     * 
+     *
      * @return the revocation date.
      */
     public abstract Date getRevocationDate();
@@ -78,14 +78,14 @@ public abstract class RevokedCertificate extends X509CRLEntry {
     /**
      * Returns true if this revoked certificate entry has
      * extensions.
-     * 
+     *
      * @return true if this entry has extensions, false otherwise.
      */
     public abstract boolean hasExtensions();
 
     /**
      * Returns a string representation of this revoked certificate.
-     * 
+     *
      * @return a string representation of this revoked certificate.
      */
     public abstract String toString();

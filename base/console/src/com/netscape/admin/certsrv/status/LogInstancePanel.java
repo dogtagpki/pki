@@ -63,7 +63,7 @@ public class LogInstancePanel extends CMSLogPanel {
 			mHelpToken = SYSTEMHELPINDEX;
 		else if (name.equals("error"))
 			mHelpToken = ERRORHELPINDEX;
-		else 
+		else
 			mHelpToken = HELPINDEX;
     }
 

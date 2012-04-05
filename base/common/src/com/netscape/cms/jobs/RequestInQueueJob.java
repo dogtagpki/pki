@@ -44,7 +44,7 @@ import com.netscape.certsrv.request.RequestStatus;
  * <UL>
  * $InstanceID $SummaryTotalNum $ExecutionTime
  * </UL>
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  * @see com.netscape.cms.jobs.AJobBase
@@ -104,7 +104,7 @@ public class RequestInQueueJob extends AJobBase
 
     /**
      * initialize from the configuration file
-     * 
+     *
      * @param id String name of this instance
      * @param implName string name of this implementation
      * @param config configuration store for this instance
@@ -208,7 +208,7 @@ public class RequestInQueueJob extends AJobBase
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {

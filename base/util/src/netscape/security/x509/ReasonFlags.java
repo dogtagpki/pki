@@ -28,10 +28,10 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRL Reason Flags.
- * 
+ *
  * <p>
  * This extension, if present, defines the identifies the reason for the certificate revocation.
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.3
  * @see Extension
@@ -57,7 +57,7 @@ public class ReasonFlags {
 
     /**
      * Check if bit is set.
-     * 
+     *
      * @param position the position in the bit string to check.
      */
     private boolean isSet(int position) {
@@ -79,7 +79,7 @@ public class ReasonFlags {
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     * 
+     *
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(byte[] reasons) {
@@ -88,7 +88,7 @@ public class ReasonFlags {
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     * 
+     *
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(boolean[] reasons) {
@@ -97,7 +97,7 @@ public class ReasonFlags {
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     * 
+     *
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(BitArray reasons) {
@@ -106,7 +106,7 @@ public class ReasonFlags {
 
     /**
      * Create the object from the passed DER encoded value.
-     * 
+     *
      * @param in the DerInputStream to read the ReasonFlags from.
      * @exception IOException on decoding errors.
      */
@@ -117,7 +117,7 @@ public class ReasonFlags {
 
     /**
      * Create the object from the passed DER encoded value.
-     * 
+     *
      * @param derVal the DerValue decoded from the stream.
      * @exception IOException on decoding errors.
      */
@@ -254,7 +254,7 @@ public class ReasonFlags {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

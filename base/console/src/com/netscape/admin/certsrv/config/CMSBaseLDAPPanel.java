@@ -44,7 +44,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     private JCheckBox mEnablePublishing;
     private JCheckBox mEnableQueue;
     private Color mActiveColor;
-    private JLabel mHostLabel, mPortLabel, mBindAsLabel, mVersionLabel; 
+    private JLabel mHostLabel, mPortLabel, mBindAsLabel, mVersionLabel;
     protected JLabel mPasswordLabel;
     protected AdminConnection mAdmin;
     protected CMSBaseResourceModel mModel;
@@ -70,7 +70,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         this(panelName, parent, true);
         mPanelName = panelName;
     }
-    
+
     public CMSBaseLDAPPanel(String panelName, CMSTabPanel parent, boolean flag) {
         super(panelName, parent);
         mServletName = getServletName(panelName);
@@ -87,7 +87,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         mCenterPanel.setLayout(gb);
-        
+
         mEnablePublishing = makeJCheckBox("ENABLEPUBLISHING");
         mEnablePublishing.setSelected(true);
         CMSAdminUtil.resetGBC(gbc);
@@ -95,7 +95,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
@@ -111,7 +111,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
@@ -127,7 +127,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
@@ -135,7 +135,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mEnable.addItemListener(this);
         if (mLDAPPublishing)
             mCenterPanel.add(mEnable);
-        
+
         //add the destination panel
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -150,7 +150,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         serverInfo.setLayout(gb1);
         if (mLDAPPublishing)
             serverInfo.setBorder(makeTitledBorder("DESTINATION"));
-        
+
         // add host name label and text field
         CMSAdminUtil.resetGBC(gbc);
         mHostLabel = makeJLabel("HOST");
@@ -213,7 +213,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.addEntryField(serverInfo, mVersionLabel, mVersionBox,
           dummy, gbc);
-        
+
         // add cert nickname
         CMSAdminUtil.resetGBC(gbc);
         mCertLabel = makeJLabel("CERTLIST");
@@ -268,9 +268,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     }
 
     protected String getServletName(String panelName) {
-        if (panelName.equals("LDAPSETTING")) 
+        if (panelName.equals("LDAPSETTING"))
             return DestDef.DEST_SERVER_ADMIN;
-        else if (panelName.equals("CALDAPSETTING")) 
+        else if (panelName.equals("CALDAPSETTING"))
             return DestDef.DEST_CA_PUBLISHER_ADMIN;
         return DestDef.DEST_RA_PUBLISHER_ADMIN;
     }
@@ -331,7 +331,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                 for (int index=0; tokenizer.hasMoreTokens(); index++) {
                     String str = (String)tokenizer.nextToken();
                     if (str.startsWith(SERVER_CERT_NICKNAME))
-                        serverCertIndex = index; 
+                        serverCertIndex = index;
                     mCertBox.addItem(str);
                 }
             } else if (name.equals(Constants.PR_LDAP_CLIENT_CERT)) {
@@ -341,7 +341,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
             }
         }
 
-        if (version.equals("")) 
+        if (version.equals(""))
             mVersionBox.setSelectedIndex(1);
         else
             mVersionBox.setSelectedItem(version);
@@ -462,7 +462,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     private void repaintComp(JComponent component) {
         component.invalidate();
         component.validate();
-        component.repaint(1);    
+        component.repaint(1);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -570,7 +570,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                     showMessageDialog("EMPTYPASSWD");
                     return false;
                 }
-           
+
                 nvps.put(Constants.PR_DIRECTORY_MANAGER_PWD, passwd);
             } else {
                 nvps.put(Constants.PR_LDAP_CLIENT_CERT,
@@ -632,7 +632,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 				}
 			}
 			*/
-				
+
         }
 
         mModel.progressStart();
@@ -649,7 +649,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 				    UtilConsoleGlobals.getActivatedFrame(),
 					CMSAdminUtil.wrapText(report,80),
 					"Configuration Successful",
-					JOptionPane.INFORMATION_MESSAGE, 
+					JOptionPane.INFORMATION_MESSAGE,
 					CMSAdminUtil.getImage(CMSAdminResources.IMAGE_INFO_ICON));
 				clearDirtyFlag();
 			} else {
@@ -657,7 +657,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 				    UtilConsoleGlobals.getActivatedFrame(),
 					CMSAdminUtil.wrapText(report,80),
 					"Configuration Error", JOptionPane.YES_NO_OPTION,
-					JOptionPane.ERROR_MESSAGE, 
+					JOptionPane.ERROR_MESSAGE,
 					CMSAdminUtil.getImage(CMSAdminResources.IMAGE_ERROR_ICON));
 				if (i == JOptionPane.YES_OPTION) {
 					mAdmin.modify(mServletName, ScopeDef.SC_LDAP,

@@ -43,7 +43,7 @@ import com.netscape.cms.profile.def.ValidityDefault;
  * This class implements the validity constraint.
  * It checks if the validity in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ValidityConstraint extends EnrollConstraint {
@@ -154,11 +154,11 @@ public class ValidityConstraint extends EnrollConstraint {
                         Integer.toString(days)));
         }
 
-        // 613828 
-        // The validity field shall specify a notBefore value 
-        // that does not precede the current time and a notAfter 
-        // value that does not precede the value specified in 
-        // notBefore (test can be automated; try entering violating 
+        // 613828
+        // The validity field shall specify a notBefore value
+        // that does not precede the current time and a notAfter
+        // value that does not precede the value specified in
+        // notBefore (test can be automated; try entering violating
         // time values and check result).
         String notBeforeCheckStr = getConfig(CONFIG_CHECK_NOT_BEFORE);
         boolean notBeforeCheck;

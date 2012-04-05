@@ -70,7 +70,7 @@ class WIReplAgreementPage extends WizardBasePanel implements IWizardPanel {
             enableAgreement(mEnable.isSelected());
         }
     }
-	
+
     private void enableAgreement(boolean e) {
         Color c;
         if (e) {
@@ -108,13 +108,13 @@ class WIReplAgreementPage extends WizardBasePanel implements IWizardPanel {
             setBorder(makeTitledBorder(PANELNAME));
             mAgreementText1.setText("masterToconsumer");
             mAgreementText2.setText("consumerTomaster");
-            return true; 
+            return true;
         }
         return false;
     }
 
     public boolean validatePanel() {
-        if (!mEnable.isSelected()) 
+        if (!mEnable.isSelected())
             return true;
         String passwd1 = mManagerPwd1.getText().trim();
         String passwdAgain1 = mManagerPwdAgain1.getText().trim();
@@ -124,7 +124,7 @@ class WIReplAgreementPage extends WizardBasePanel implements IWizardPanel {
             setErrorMessage("EMPTYPASSWORD");
             return false;
         }
-        
+
         if (!passwdAgain1.equals(passwd1)) {
             setErrorMessage("NOTSAMEPASSWORD");
             return false;
@@ -138,12 +138,12 @@ class WIReplAgreementPage extends WizardBasePanel implements IWizardPanel {
         String passwd2 = mManagerPwd2.getText().trim();
         String passwdAgain2 = mManagerPwdAgain2.getText().trim();
         String name2 = mAgreementText2.getText().trim();
-  
+
         if (passwd2.equals("") || passwdAgain2.equals("")) {
             setErrorMessage("EMPTYPASSWORD");
             return false;
         }
-        
+
         if (!passwdAgain2.equals(passwd2)) {
             setErrorMessage("NOTSAMEPASSWORD");
             return false;
@@ -177,7 +177,7 @@ class WIReplAgreementPage extends WizardBasePanel implements IWizardPanel {
 
             startProgressStatus();
 /*
-            CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, 
+            CMSMessageBox dlg = new CMSMessageBox(mAdminFrame,
               "CGITASK", "CREATEREPLICATIONAGREEMENT");
 */
             ready = send(rawData, wizardInfo);

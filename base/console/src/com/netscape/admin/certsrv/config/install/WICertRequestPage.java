@@ -38,7 +38,7 @@ class WICertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
     private static final String PANELNAME = "CERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WICertRequestPage() {
         super(PANELNAME);
         init();
@@ -49,7 +49,7 @@ class WICertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

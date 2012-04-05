@@ -40,7 +40,7 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
     private static final String ADMINRULE = "adminAuth";
     private static final String AGENTRULE = "agentAuth";
 
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "authentication-certsrv-authrules-help";
 
 	private static final String DEST = DestDef.DEST_AUTH_ADMIN;

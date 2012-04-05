@@ -39,12 +39,12 @@ import javax.swing.event.*;
  */
 
 /* replace "implements ActionListener" with
- *"implements IPluginConfigPanel" when the 
+ *"implements IPluginConfigPanel" when the
  * com.netscape.management.admserv.config.* package is available
 
 public class CMStoAdminEncryptionPane extends EncryptionPane implements IPluginConfigPanel{
 */
-public class CMStoAdminEncryptionPane extends EncryptionPane 
+public class CMStoAdminEncryptionPane extends EncryptionPane
     implements ActionListener
 {
     protected boolean mEncryptionPaneDirty = false;

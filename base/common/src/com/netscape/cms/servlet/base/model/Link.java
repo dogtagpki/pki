@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author alee
- * 
+ *
  */
 @XmlRootElement(name = "Link")
 public class Link {

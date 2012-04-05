@@ -37,9 +37,9 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * This input populates 2 main fields to the enrollment "page":
  * 1/ token cuid, 2/ publickey
  * <p>
- * 
+ *
  * This input usually is used by an enrollment profile for certificate requests coming from TPS.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class nsHKeyCertReqInput extends EnrollInput implements IProfileInput {

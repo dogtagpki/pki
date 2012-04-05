@@ -38,7 +38,7 @@ public class CMSSelfTestsPanel extends CMSBaseTab
     private static final String PROP_TITLE = "On-Demand Self Tests Results";
     private static String PANEL_NAME = "SELFTESTS";
     private AdminConnection mAdmin;
-    private JButton mOnDemand;   
+    private JButton mOnDemand;
     private CMSBaseResourceModel mModel;
     private CMSTabPanel mParent;
     private static final String HELPINDEX =
@@ -145,12 +145,12 @@ public class CMSSelfTestsPanel extends CMSBaseTab
 
         NameValuePairs nvps = new NameValuePairs();
         NameValuePairs nvps1;
-  
+
         nvps.put(Constants.PR_RUN_SELFTESTS_ON_DEMAND, Constants.TRUE);
-  
+
         if( evt.getSource().equals( mOnDemand ) ) {
             Debug.println( "Run self tests on-demand . . ." );
-  
+
             mModel.progressStart();
             try {
                 nvps1 = mAdmin.process( DestDef.DEST_SERVER_ADMIN,

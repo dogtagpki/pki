@@ -48,12 +48,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Authority Public Key Extension Policy
  * Adds the subject public key id extension to certificates.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -76,7 +76,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     protected boolean mCritical = DEF_CRITICAL;
     protected String mAltKeyIdType = DEF_ALT_KEYID_TYPE;
 
-    // the extension to add to certs. 
+    // the extension to add to certs.
     protected AuthorityKeyIdentifierExtension mTheExtension = null;
 
     // instance params for console
@@ -105,13 +105,13 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * (what communicator expects if the CA does not have a subject key
      * identifier extension) or (2) No extension set (3) Empty sequence
      * in Authority Key Identifier extension.
-     * 
+     *
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate= ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -181,7 +181,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         } else {
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(PROP_ALT_KEYID_TYPE + "=" + mAltKeyIdType);
     }
@@ -190,7 +190,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * Adds Authority Key Identifier Extension to a certificate.
      * If the extension is already there, accept it if it's from the agent,
      * else replace it.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -216,7 +216,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
 
         try {
-            // if authority key id extension already exists, leave it if 
+            // if authority key id extension already exists, leave it if
             // from agent. else replace it.
             AuthorityKeyIdentifierExtension authorityKeyIdExt = null;
             CertificateExtensions extensions = (CertificateExtensions)
@@ -228,7 +228,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                             extensions.get(AuthorityKeyIdentifierExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
             if (authorityKeyIdExt != null) {
                 if (agentApproved(req)) {
@@ -245,8 +245,8 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                 }
             }
 
-            // if no authority key identifier should be set b/c CA does not 
-            // have a subject key identifier, return here. 
+            // if no authority key identifier should be set b/c CA does not
+            // have a subject key identifier, return here.
             if (mTheExtension == null)
                 return PolicyResult.ACCEPTED;
 
@@ -281,7 +281,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * Form the Key Identifier in the Authority Key Identifier extension.
      * from the CA's cert.
      * <p>
-     * 
+     *
      * @param caCertImpl Certificate Info
      * @return A Key Identifier.
      * @throws com.netscape.certsrv.base.EBaseException on error
@@ -335,7 +335,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     /**
      * Get the Key Identifier in a subject key identifier extension from a
      * CertInfo.
-     * 
+     *
      * @param certInfo the CertInfo structure.
      * @return Key Identifier in a Subject Key Identifier extension if any.
      */
@@ -375,7 +375,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             keyId = (KeyIdentifier) subjKeyIdExt.get(
                         SubjectKeyIdentifierExtension.KEY_ID);
         } catch (IOException e) {
-            // no key identifier in subject key id extension. 
+            // no key identifier in subject key id extension.
             String msg = NAME + ": " +
                     "Bad Subject Key Identifier Extension found. Error: " + e;
 
@@ -387,7 +387,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -396,7 +396,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

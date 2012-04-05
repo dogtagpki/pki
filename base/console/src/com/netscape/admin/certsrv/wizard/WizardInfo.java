@@ -47,24 +47,24 @@ public class WizardInfo extends Properties {
     public Object getEntry(String name) {
         return get(name);
     }
-    
+
     /**
      * access method to NEXT-DONE function buttons
      */
     public JButton getNextDoneButton() {
-        return mBNext_Done;   
+        return mBNext_Done;
     }
-    
+
     /**
      * access method to CANCEL function buttons
      */
     public JButton getCancelButton() {
         return mBCancel;
     }
-    
+
     /**
      * access method to BACK function buttons
-     */    
+     */
     public JButton getBackButton() {
         return mBBack;
     }
@@ -72,14 +72,14 @@ public class WizardInfo extends Properties {
     /*==========================================================
 	 * package methods
      *==========================================================*/
-     
+
     /**
      * set function buttons. Called by the WizardWidget to set the
      * button reference.
      */
     void setButtons(JButton next, JButton cancel, JButton back ) {
         mBNext_Done = next;
-        mBCancel = cancel; 
+        mBCancel = cancel;
         mBBack = back;
     }
 }

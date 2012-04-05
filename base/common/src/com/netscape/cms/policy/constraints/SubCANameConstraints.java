@@ -44,12 +44,12 @@ import com.netscape.cms.policy.APolicyRule;
  * This simple policy checks the subordinate CA CSR to see
  * if it is the same as the local CA.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -77,11 +77,11 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints
      * ra.Policy.rule.<ruleName>.algorithms=RSA,DSA ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -121,7 +121,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -154,7 +154,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
                 if (certSubjectName.equalsIgnoreCase(mIssuerNameStr)) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_SUBJECT_NAME_EXIST_1", mIssuerNameStr));
-                    setError(req, 
+                    setError(req,
                             CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST", NAME + ":" + "Same As Issuer Name "
                                     + mIssuerNameStr), "");
                     result = PolicyResult.REJECTED;
@@ -173,7 +173,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -184,7 +184,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

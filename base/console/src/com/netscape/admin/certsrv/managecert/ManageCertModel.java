@@ -37,8 +37,8 @@ public class ManageCertModel extends CMSTableModel
      *==========================================================*/
     public static final String COL1 = "CERTNAME";
     public static final String COL2 = "EXPIRED";
-    public static final String COL3 = "TRUST";  
-     
+    public static final String COL3 = "TRUST";
+
     private static String[] mColumns = {COL1, COL2, COL3};
 
     /*==========================================================

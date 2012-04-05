@@ -49,10 +49,10 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * A class represents the database session. Operations
  * can be performed with a session.
- * 
+ *
  * Transaction and Caching support can be integrated
  * into session.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -64,7 +64,7 @@ public class DBSSession implements IDBSSession {
 
     /**
      * Constructs a database session.
-     * 
+     *
      * @param system the database subsytem
      * @param c the ldap connection
      */
@@ -95,12 +95,12 @@ public class DBSSession implements IDBSSession {
 
     /**
      * Adds object to backend database. For example,
-     * 
+     *
      * <PRE>
      * session.add(&quot;cn=123459,o=certificate repository,o=airius.com&quot;,
      *             certRec);
      * </PRE>
-     * 
+     *
      * @param name the name of the ldap entry
      * @param obj the DBobj that can be mapped to ldap attrubute set
      */
@@ -128,7 +128,7 @@ public class DBSSession implements IDBSSession {
     /**
      * Reads an object from the database.
      * all attributes will be returned
-     * 
+     *
      * @param name the name of the ldap entry
      */
     public IDBObj read(String name) throws EBaseException {
@@ -138,7 +138,7 @@ public class DBSSession implements IDBSSession {
     /**
      * Reads an object from the database, and only populates
      * the selected attributes.
-     * 
+     *
      * @param name the name of the ldap entry
      * @param attrs the attributes to be selected
      */
@@ -375,7 +375,7 @@ public class DBSSession implements IDBSSession {
 
             Integer version = (Integer) (mConn.getOption(LDAPv2.PROTOCOL_VERSION));
 
-            // Only version 3 protocol supports persistent search. 
+            // Only version 3 protocol supports persistent search.
             if (version.intValue() == 2) {
                 mConn.setOption(LDAPv2.PROTOCOL_VERSION, Integer.valueOf(3));
             }

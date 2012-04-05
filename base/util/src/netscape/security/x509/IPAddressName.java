@@ -26,13 +26,13 @@ import netscape.security.util.DerValue;
 /**
  * This class implements the IPAddressName as required by the GeneralNames
  * ASN.1 object.
- * 
+ *
  * @see GeneralName
  * @see GeneralNameInterface
  * @see GeneralNames
- * 
+ *
  * @version 1.2
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
@@ -45,7 +45,7 @@ public class IPAddressName implements GeneralNameInterface {
 
     /**
      * Create the IPAddressName object from the passed encoded Der value.
-     * 
+     *
      * @param derValue the encoded DER IPAddressName.
      * @exception IOException on error.
      */
@@ -55,7 +55,7 @@ public class IPAddressName implements GeneralNameInterface {
 
     /**
      * Create the IPAddressName object with the specified name.
-     * 
+     *
      * @param name the IPAddressName.
      */
     public IPAddressName(byte[] address) {
@@ -72,7 +72,7 @@ public class IPAddressName implements GeneralNameInterface {
      * ip address and a string representing the netmask, with encoding
      * having ip address encoding followed by the netmask encoding.
      * This form is needed for name constraints extension.
-     * 
+     *
      * @param s the ip address in the format: n.n.n.n or x:x:x:x:x:x:x:x (RFC 1884)
      * @param netmask the netmask address in the format: n.n.n.n or x:x:x:x:x:x:x:x (RFC 1884)
      */
@@ -101,7 +101,7 @@ public class IPAddressName implements GeneralNameInterface {
     /**
      * Create the IPAddressName object with a string representing the
      * ip address.
-     * 
+     *
      * @param s the ip address in the format: n.n.n.n or x:x:x:x:x:x:x:x
      */
     public IPAddressName(String s) {
@@ -125,7 +125,7 @@ public class IPAddressName implements GeneralNameInterface {
 
     /**
      * Encode the IPAddress name into the DerOutputStream.
-     * 
+     *
      * @param out the DER stream to encode the IPAddressName to.
      * @exception IOException on encoding errors.
      */

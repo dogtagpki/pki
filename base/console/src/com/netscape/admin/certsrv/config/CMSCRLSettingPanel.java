@@ -36,10 +36,10 @@ import java.util.Vector;
  * @version $Revision$, $Date$
  */
 public class CMSCRLSettingPanel extends CMSBaseTab {
-    
+
     /*==========================================================
      * variables
-     *==========================================================*/    
+     *==========================================================*/
     private static String PANEL_NAME = "CRLSETTING";
 
     private JCheckBox mEnableCRL;
@@ -107,7 +107,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gb.setConstraints(schemaPanel, gbc);
-        mCenterPanel.add(schemaPanel);        
+        mCenterPanel.add(schemaPanel);
 
         GridBagLayout gb4 = new GridBagLayout();
         schemaPanel.setLayout(gb4);
@@ -190,8 +190,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(freqPanel, gbc);
-        mCenterPanel.add(freqPanel);        
-        
+        mCenterPanel.add(freqPanel);
+
         //add components
         GridBagLayout gb2 = new GridBagLayout();
         freqPanel.setLayout(gb2);
@@ -218,7 +218,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         freqPanel.add(mDaily, gbc);
-        
+
         mDailyAt = makeJTextField(30);
         gbc.anchor = gbc.WEST;
         gbc.gridx++;

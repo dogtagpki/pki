@@ -53,7 +53,7 @@ import com.netscape.cmsutil.util.Utils;
  * internal database and further compares the challenge phrase with
  * that from the EE input.
  * <P>
- * 
+ *
  * @author cfu chrisho
  * @version $Revision$, $Date$
  */
@@ -81,7 +81,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private String mRequestor = null;
     private MessageDigest mSHADigest = null;
 
-    // request attributes hacks 
+    // request attributes hacks
     public static final String CHALLENGE_PHRASE = CRED_CHALLENGE;
     public static final String SUBJECTNAME = "subjectName";
     public static final String SERIALNUMBER = "serialNumber";
@@ -94,7 +94,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      * initializes the ChallengePhraseAuthentication auth manager
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
-     * 
+     *
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
@@ -132,11 +132,11 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      * authenticates revocation of a certification by a challenge phrase
      * <p>
      * called by other subsystems or their servlets to authenticate a revocation request
-     * 
+     *
      * @param authCred - authentication credential that contains
      *            a Certificate to revoke
      * @return the authentication token that contains the request id
-     * 
+     *
      * @exception EMissingCredential If a required credential for this
      *                authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
@@ -155,10 +155,10 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         AuthToken authToken = new AuthToken(this);
 
         /*
-         X509Certificate[] x509Certs = 
+         X509Certificate[] x509Certs =
          (X509Certificate[]) authCred.get(CRED_CERT);
          if (x509Certs == null) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          " missing cert credential.");
          throw new EMissingCredential(CRED_CERT_SERIAL);
          }
@@ -201,7 +201,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
         /* maybe later
          if (mCertDB.isCertificateRevoked(cert) != null) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          "Certificate has already been revoked.");
          // throw something else...cfu
          throw new EInvalidCredentials();
@@ -336,7 +336,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      * the servlets that handle agent operations to authenticate its
      * users. It calls this method to know which are the
      * required credentials from the user (e.g. Javascript form data)
-     * 
+     *
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -349,7 +349,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      * the Certificate Server Console to display the table for
      * configuration purposes. ChallengePhraseAuthentication is currently not
      * exposed in this case, so this method is not to be used.
-     * 
+     *
      * @return configuration parameter names in Hashtable of Vectors
      *         where each hashtable entry's key is the substore name, value is a
      *         Vector of parameter names. If no substore, the parameter name
@@ -368,7 +368,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     /**
      * gets the configuretion substore used by this authentication
      * manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {

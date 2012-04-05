@@ -69,7 +69,7 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public void actionPerformed(ActionEvent e) {
-	if (e.getSource().equals(mSchema)) { 
+	if (e.getSource().equals(mSchema)) {
             if (mSchema.isSelected()) {
                 mRMDBNameAsText.setEnabled(true);
                 mRMDBNameAsText.setBackground(mActiveColor);
@@ -77,11 +77,11 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
                 mRMDBNameAsText.setEnabled(false);
                 mRMDBNameAsText.setBackground(getBackground());
             }
-        } else { 
-            super.actionPerformed(e); 
+        } else {
+            super.actionPerformed(e);
         }
     }
-	
+
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
@@ -91,9 +91,9 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
             setBorder(makeTitledBorder(PANELNAME));
             mRMBaseText.setText("o="+wizardInfo.getDBName()+", o=netscapeCertificateServer");
             mRMBindAsText.setText(wizardInfo.getDBBindDN());
-            return true; 
+            return true;
         }
-      
+
         return false;
     }
 
@@ -126,10 +126,10 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
         wizardInfo.setInternalDBPasswd(mRMPasswordText.getText().trim());
         wizardInfo.setDBBindDN(mRMBindAsText.getText().trim());
         wizardInfo.setDBName(mRMBaseText.getText().trim());
- 
+
         startProgressStatus();
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATEDB");
-        
+
         boolean ready = send(rawData, wizardInfo);
 
         if (ready) {
@@ -138,7 +138,7 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
             ready = send(rawData, wizardInfo);
         }
         //dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -194,13 +194,13 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
         mActiveColor = mRMHostText.getBackground();
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel portNumber = makeJLabel("REMOTEPORT");        
+        JLabel portNumber = makeJLabel("REMOTEPORT");
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(portNumber, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mRMPortText = makeJTextField(10);
         gbc.anchor = gbc.WEST;
@@ -209,7 +209,7 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mRMPortText, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mRMBaseLabel = makeJLabel("REMOTEDN");
         gbc.anchor = gbc.NORTHEAST;
@@ -252,7 +252,7 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mRMPasswordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mRMPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.WEST;

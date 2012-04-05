@@ -47,7 +47,7 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
     protected final static int WEEK = 604800;
     protected final static int DAY = 86400;
     protected final static int HOUR = 3600;
-    
+
     WILoggingPage() {
         super(PANELNAME);
         init();
@@ -58,8 +58,8 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        
-        return true; 
+
+        return true;
     }
 
     public boolean validatePanel() {

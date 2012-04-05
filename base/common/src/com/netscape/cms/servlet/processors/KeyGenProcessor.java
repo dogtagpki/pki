@@ -39,7 +39,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * KeyGenProcess parses Certificate request matching the
  * KEYGEN tag format used by Netscape Communicator 4.x
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyGenProcessor extends PKIProcessor {

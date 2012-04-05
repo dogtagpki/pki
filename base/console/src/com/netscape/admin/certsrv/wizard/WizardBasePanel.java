@@ -44,7 +44,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
     protected String mTitle;
     protected String mErrorString;
     protected String mNextString =
-      mResource.getString("GENERALWIZARD_LABEL_NEXT_LABEL"); 
+      mResource.getString("GENERALWIZARD_LABEL_NEXT_LABEL");
     protected String mPanelName;
     public static long mSeed;
 
@@ -73,7 +73,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 
 /*
         GridBagConstraints gbc = new GridBagConstraints();
-      
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.SOUTHWEST;
         gbc.weightx = 1.0;
@@ -143,7 +143,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
         wizardInfo.remove("NMC_ERRINFO");
         wizardInfo.remove("NMC_STATUS");
     }
-    
+
     public String getErrorMessage(WizardInfo wizardInfo) {
         String value = (String)wizardInfo.get("NMC_ERRINFO");
         if (value != null || value.trim().length() == 0)
@@ -151,11 +151,11 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
         value = (String)wizardInfo.get("NMC_WARNINFO");
         if (value != null || value.trim().length() == 0)
             return value;
-      
+
         return null;
     }
 
-    public boolean send(String host, int port, String servlet, String rawData, 
+    public boolean send(String host, int port, String servlet, String rawData,
       WizardInfo wizardInfo) {
         try {
             Socket socket = new Socket(host, port);
@@ -203,7 +203,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
             } else {
                 return false;
             }
-        } catch (Exception e) { 
+        } catch (Exception e) {
         }
 
         return false;
@@ -247,7 +247,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
                 if (numTokens == 2) {
                     String name = tokenizer1.nextToken().trim();
                     String value = tokenizer1.nextToken().trim();
-                    wizardInfo.put(name, value);                        
+                    wizardInfo.put(name, value);
                 }
             }
             bstream.close();
@@ -283,7 +283,7 @@ public class WizardBasePanel extends CMSBasePanel implements MouseMotionListener
 		// Keep tracking coordinate values
 		long x = e.getX();
 		long y = e.getY();
-		
+
 		long top = mSeed >> 62;
 		mSeed = ((mSeed << 2) ^ top ^ (x<<8) ^ (y)) % Long.MAX_VALUE;
 	}

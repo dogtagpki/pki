@@ -29,7 +29,7 @@ import com.netscape.certsrv.common.*;
 
 /**
  * This class lists out all the CA certificates from the internal token.
- * 
+ *
  * @author chrisho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.managecert
@@ -46,7 +46,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
     private ManageCertModel mDataModel;
     private JButton mClose, mDelete, mEdit, mHelp;
     private AdminConnection mConn;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-managecert-wizard-certlists-help";
 
     public ManageCertDialog(JFrame parent) {
@@ -90,7 +90,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
 
         CMSAdminUtil.bubbleSort(vals);
 
-        for (i=0; i<vals.length; i++) { 
+        for (i=0; i<vals.length; i++) {
             String entry = vals[i];
             String value = response.get(entry);
             addRows(entry, value);
@@ -152,7 +152,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
 
     public JPanel makeActionPane() {
         JPanel panel = new JPanel();
-        
+
         mClose = new JButton();
         mClose.setText(mResource.getString(
           "MANAGECERTDIALOG_BUTTON_CLOSE_LABEL"));
@@ -180,7 +180,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
 
     public JPanel makeContentPane() {
         JPanel content = new JPanel();
-        content.setBorder(CMSAdminUtil.makeTitledBorder(mResource, 
+        content.setBorder(CMSAdminUtil.makeTitledBorder(mResource,
           "MANAGECERTDIALOG", "CERT"));
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -208,7 +208,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         gbc.weighty = 1.0;
         gbc.fill = gbc.BOTH;
         gbc.gridheight = gbc.REMAINDER;
-        gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE, 
+        gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
         gb.setConstraints(scrollPane, gbc);

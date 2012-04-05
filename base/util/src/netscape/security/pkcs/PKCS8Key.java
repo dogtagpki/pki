@@ -39,7 +39,7 @@ import netscape.security.x509.AlgorithmId;
 
 /**
  * Holds a PKCS#8 key, for example a private key
- * 
+ *
  * @version 1.30, 97/12/10
  * @author Dave Brownell
  * @author Benjamin Renaud
@@ -74,12 +74,12 @@ public class PKCS8Key implements PrivateKey {
      * the runtime environment is configured with a specific class for
      * this kind of key, a subclass is returned. Otherwise, a generic
      * PKCS8Key object is returned.
-     * 
+     *
      * <P>
      * This mechanism gurantees that keys (and algorithms) may be freely manipulated and transferred, without risk of
      * losing information. Also, when a key (or algorithm) needs some special handling, that specific need can be
      * accomodated.
-     * 
+     *
      * @param in the DER-encoded SubjectPublicKeyInfo value
      * @exception IOException on data format errors
      */
@@ -117,11 +117,11 @@ public class PKCS8Key implements PrivateKey {
      * keys encapsulate two unsigned integers (modulus and exponent) as
      * DER values within the <code>key</code> bits; Diffie-Hellman and
      * DSS/DSA keys encapsulate a single unsigned integer.
-     * 
+     *
      * <P>
      * This function is called when creating PKCS#8 SubjectPublicKeyInfo values using the PKCS8Key member functions,
      * such as <code>parse</code> and <code>decode</code>.
-     * 
+     *
      * @exception IOException if a parsing error occurs.
      * @exception InvalidKeyException if the key encoding is invalid.
      */
@@ -248,7 +248,7 @@ public class PKCS8Key implements PrivateKey {
 
     /**
      * Returns the DER-encoded form of the key as a byte array.
-     * 
+     *
      * @exception InvalidKeyException if an encoding error occurs.
      */
     public byte[] encode() throws InvalidKeyException {
@@ -286,14 +286,14 @@ public class PKCS8Key implements PrivateKey {
      * PKCS#8 format: a sequence consisting of a version, an algorithm
      * ID and a bit string which holds the key. (That bit string is
      * often used to encapsulate another DER encoded sequence.)
-     * 
+     *
      * <P>
      * Subclasses should not normally redefine this method; they should instead provide a <code>parseKeyBits</code>
      * method to parse any fields inside the <code>key</code> member.
-     * 
+     *
      * @param in an input stream with a DER-encoded PKCS#8
      *            SubjectPublicKeyInfo value
-     * 
+     *
      * @exception InvalidKeyException if a parsing error occurs.
      */
     public void decode(InputStream in) throws InvalidKeyException {
@@ -381,7 +381,7 @@ public class PKCS8Key implements PrivateKey {
      * to compare is not of type <code>Key</code>.
      * Otherwise, the encoding of this key object is compared with the
      * encoding of the given key object.
-     * 
+     *
      * @param object the object with which to compare
      * @return <code>true</code> if this key has the same encoding as the
      *         object argument; <code>false</code> otherwise.

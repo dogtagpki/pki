@@ -49,7 +49,7 @@ public class CMSUIFramework {
 	/*==========================================================
      * constructors
      *==========================================================*/
-    public CMSUIFramework(ConsoleInfo info, CMSServerInfo serverInfo) 
+    public CMSUIFramework(ConsoleInfo info, CMSServerInfo serverInfo)
         throws EAdminException
     {
         mConsoleInfo = info;
@@ -70,22 +70,22 @@ public class CMSUIFramework {
     public void setSubSystemLocator(ISubSystemLocator locator) {
         mSubSystemLocator = locator;
     }
-    
+
     public IPage getPage(String type, String name) throws EAdminException {
         return mPageFeeder.getPage(type, name);
     }
-    
+
     public Framework getFramework() {
-        return mFramework;    
+        return mFramework;
     }
-    
+
     public boolean isNTEnv() throws EAdminException {
         Debug.println("CMSUIFramework - isNTEnv()");
         NameValuePairs response;
         AdminConnection conn = mServerInfo.getAdmin();
         response = conn.search(DestDef.DEST_SERVER_ADMIN,
           ScopeDef.SC_PLATFORM, new NameValuePairs());
-        if (response == null) 
+        if (response == null)
             throw new EAdminException("PROTOCOL_ERROR",false);
         if (response.get(Constants.PR_NT).equals(Constants.TRUE))
             return true;
@@ -99,12 +99,12 @@ public class CMSUIFramework {
         //initialize the kernel UI
         CMSKernelUILoader kernelUI = new CMSKernelUILoader(this);
         kernelUI.register();
-        
+
         //load subsystem information. if no locator specified use default
         if (mSubSystemLocator == null)
             mSubSystemLocator = new DefaultSubSystemLocator();
         SubSystemInfo[] subsystems = mSubSystemLocator.getInstalledSubSystem();
-        
+
         //delegate UI loading to each subsystem loader
         UILoaderRegistry registry = new UILoaderRegistry(this);
         Vector subsystemList = new Vector();
@@ -114,14 +114,14 @@ public class CMSUIFramework {
                 ISubSystemUILoader loader = registry.getUILoader(subsystems[i].mType);
                 loader.register();
             } catch (Exception e) {
-                Debug.println("Error loading subsystem UI - "+e.toString());  
+                Debug.println("Error loading subsystem UI - "+e.toString());
             }
         }
-       
+
        //set subsystem setting
        mServerInfo.setInstalledSubsystems(subsystemList);
     }
-    
+
 }
 
 //=====================================================================
@@ -134,7 +134,7 @@ class UILoaderRegistry {
     private final String PREFIX = "UILOADERREGISTRY_";
     private Hashtable mContent = new Hashtable();
     private ResourceBundle mResource;       // resource boundle
-    
+
     public UILoaderRegistry(CMSUIFramework uiFramework) {
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mContent.put(Constants.PR_CA_INSTANCE,new CMSCAUILoader(uiFramework));
@@ -143,7 +143,7 @@ class UILoaderRegistry {
         mContent.put(Constants.PR_OCSP_INSTANCE,new CMSOCSPUILoader(uiFramework));
         //mContent.put("ccm",new CMSCCMUILoader(uiFramework));
     }
-    
+
     public ISubSystemUILoader getUILoader(String type) throws EAdminException {
         if (!mContent.containsKey(type)) {
             Debug.println("Error Loading Subsystem UI Loader");
@@ -159,7 +159,7 @@ class UILoaderRegistry {
  * Info container for the sub system
  */
 class SubSystemInfo {
-    String mType;    
+    String mType;
     String mNickName;
 }
 
@@ -173,7 +173,7 @@ interface ISubSystemLocator {
 //XXX DUMMY that just returned with all components
 //XXX installed on the srever side
 class DefaultSubSystemLocator implements ISubSystemLocator {
-    
+
     public SubSystemInfo[] getInstalledSubSystem() throws EAdminException {
         SubSystemInfo[] subsystems = new SubSystemInfo[4];
         for (int i=0; i< subsystems.length; i++)
@@ -185,7 +185,7 @@ class DefaultSubSystemLocator implements ISubSystemLocator {
         //subsystems[3].mType="ccm";
         if (true)
             return subsystems;
-        //this should never be called    
+        //this should never be called
         throw new EAdminException("DefaultSubSystemLocator - error loading",true);
     }
 }
@@ -196,11 +196,11 @@ class DefaultSubSystemLocator implements ISubSystemLocator {
  */
 class HTTPSSubSystemLocator implements ISubSystemLocator {
     private AdminConnection mConnection;
-    
+
     public HTTPSSubSystemLocator(AdminConnection conn) {
         mConnection = conn;
     }
-    
+
     public SubSystemInfo[] getInstalledSubSystem() throws EAdminException {
         NameValuePairs input = getSubSystem();
         Debug.println("getInstalledSubSystem() - "+input.toString());
@@ -216,7 +216,7 @@ class HTTPSSubSystemLocator implements ISubSystemLocator {
         }
         return subsystems;
     }
-    
+
     private NameValuePairs getSubSystem() throws EAdminException {
         Debug.println("CMSUIFramework - getSubSystem() - started");
         NameValuePairs response;
@@ -224,12 +224,12 @@ class HTTPSSubSystemLocator implements ISubSystemLocator {
                                ScopeDef.SC_SUBSYSTEM,
                                new NameValuePairs());
         if (response == null) {
-            throw new EAdminException("PROTOCOL_ERROR",false);        
+            throw new EAdminException("PROTOCOL_ERROR",false);
         }
         Debug.println("CMSUIFramework - getSubSystem() - completed");
         return response;
     }
-   
+
 }
 
 /*

@@ -32,20 +32,20 @@ public class KeyRequestInfo {
 
     @XmlElement
     protected String requestType;
-    
+
     @XmlElement
     protected String requestStatus;
-    
+
     @XmlElement
     protected String requestURL;
-    
+
     @XmlElement
     protected String keyURL;
-    
+
     public KeyRequestInfo(){
         // required to be here for JAXB (defaults)
     }
-    
+
     /**
      * @return the requestType
      */

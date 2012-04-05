@@ -86,11 +86,11 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for creating CMC full request
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
- * 
+ *
  */
 public class CMCRequest {
 
@@ -142,7 +142,7 @@ public class CMCRequest {
     /**
      * getCMCBlob create and return the enrollent request.
      * <P>
-     * 
+     *
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param nickname the nickname of the certificate inside the token.
      * @param rValue CRMF/PKCS10 request.

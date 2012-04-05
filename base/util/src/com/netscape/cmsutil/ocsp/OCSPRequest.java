@@ -30,13 +30,13 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * OCSPRequest     ::=     SEQUENCE {
  *  tbsRequest                  TBSRequest,
  *  optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 

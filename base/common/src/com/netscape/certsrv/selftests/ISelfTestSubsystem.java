@@ -34,7 +34,7 @@ import com.netscape.certsrv.logging.ILogEventListener;
 /**
  * This class defines the interface of a container for self tests.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ISelfTestSubsystem
@@ -76,7 +76,7 @@ public interface ISelfTestSubsystem
      * List the instance names of all the self tests enabled to run on demand
      * (in execution order); may return null.
      * <P>
-     * 
+     *
      * @return list of self test instance names run on demand
      */
     public String[] listSelfTestsEnabledOnDemand();
@@ -84,7 +84,7 @@ public interface ISelfTestSubsystem
     /**
      * Enable the specified self test to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -98,7 +98,7 @@ public interface ISelfTestSubsystem
     /**
      * Disable the specified self test from being able to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -108,7 +108,7 @@ public interface ISelfTestSubsystem
     /**
      * Determine if the specified self test is enabled to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if the specified self test is enabled on demand
      * @exception EMissingSelfTestException subsystem has missing name
@@ -120,7 +120,7 @@ public interface ISelfTestSubsystem
      * Determine if failure of the specified self test is fatal when
      * it is executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal when
      *         it is executed on demand
@@ -132,7 +132,7 @@ public interface ISelfTestSubsystem
     /**
      * Execute all self tests specified to be run on demand.
      * <P>
-     * 
+     *
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
@@ -147,7 +147,7 @@ public interface ISelfTestSubsystem
      * List the instance names of all the self tests enabled to run
      * at server startup (in execution order); may return null.
      * <P>
-     * 
+     *
      * @return list of self test instance names run at server startup
      */
     public String[] listSelfTestsEnabledAtStartup();
@@ -155,7 +155,7 @@ public interface ISelfTestSubsystem
     /**
      * Enable the specified self test at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -169,7 +169,7 @@ public interface ISelfTestSubsystem
     /**
      * Disable the specified self test at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -180,7 +180,7 @@ public interface ISelfTestSubsystem
      * Determine if the specified self test is executed automatically
      * at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if the specified self test is executed at server startup
      * @exception EMissingSelfTestException subsystem has missing name
@@ -192,7 +192,7 @@ public interface ISelfTestSubsystem
      * Determine if failure of the specified self test is fatal to
      * server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal to
      *         server startup
@@ -204,7 +204,7 @@ public interface ISelfTestSubsystem
     /**
      * Execute all self tests specified to be run at server startup.
      * <P>
-     * 
+     *
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
@@ -219,7 +219,7 @@ public interface ISelfTestSubsystem
      * Retrieve an individual self test from the instances list
      * given its instance name.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return individual self test
      */
@@ -233,7 +233,7 @@ public interface ISelfTestSubsystem
      * Returns the ILogEventListener of this subsystem.
      * This method may return null.
      * <P>
-     * 
+     *
      * @return ILogEventListener of this subsystem
      */
     public ILogEventListener getSelfTestLogger();
@@ -241,7 +241,7 @@ public interface ISelfTestSubsystem
     /**
      * This method represents the log interface for the self test subsystem.
      * <P>
-     * 
+     *
      * @param logger log event listener
      * @param msg self test log message
      */
@@ -252,7 +252,7 @@ public interface ISelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -273,7 +273,7 @@ public interface ISelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -285,7 +285,7 @@ public interface ISelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -306,7 +306,7 @@ public interface ISelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */

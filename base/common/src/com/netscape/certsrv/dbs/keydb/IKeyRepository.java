@@ -31,7 +31,7 @@ import com.netscape.certsrv.dbs.repository.IRepository;
  * An interface represents a Key repository. This is the
  * container of archived keys.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IKeyRepository extends IRepository {
@@ -39,7 +39,7 @@ public interface IKeyRepository extends IRepository {
     /**
      * Archives a key to the repository.
      * <P>
-     * 
+     *
      * @param record key record
      * @exception EBaseException failed to archive key
      */
@@ -48,7 +48,7 @@ public interface IKeyRepository extends IRepository {
     /**
      * Reads an archived key by serial number.
      * <P>
-     * 
+     *
      * @param serialNo serial number
      * @return key record
      * @exception EBaseException failed to recover key
@@ -59,7 +59,7 @@ public interface IKeyRepository extends IRepository {
     /**
      * Reads an archived key by b64 encoded cert.
      * <P>
-     * 
+     *
      * @param cert b64 encoded cert
      * @return key record
      * @exception EBaseException failed to recover key
@@ -70,7 +70,7 @@ public interface IKeyRepository extends IRepository {
     /**
      * Reads an archived key by owner name.
      * <P>
-     * 
+     *
      * @param ownerName owner name
      * @return key record
      * @exception EBaseException failed to recover key
@@ -80,7 +80,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Reads archived key using public key.
-     * 
+     *
      * @param publicKey public key that is corresponding
      *            to the private key
      * @return key record
@@ -91,7 +91,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Searches for private keys.
-     * 
+     *
      * @param filter LDAP filter for the search
      * @param maxSize maximium number of entries to be returned
      * @return a list of private key records
@@ -102,7 +102,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Searches for private keys.
-     * 
+     *
      * @param filter LDAP filter for the search
      * @param maxSize maximium number of entries to be returned
      * @param timeLimt timeout value
@@ -114,7 +114,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Deletes a key record.
-     * 
+     *
      * @param serialno key identifier
      * @exception EBaseException failed to delete key record
      */
@@ -123,7 +123,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Modifies key record in this repository.
-     * 
+     *
      * @param serialNo key identifier
      * @param mods modification of key records
      * @exception EBaseException failed to modify key record
@@ -134,7 +134,7 @@ public interface IKeyRepository extends IRepository {
     /**
      * Searchs for a list of key records.
      * Here is a list of supported filter attributes:
-     * 
+     *
      * <pre>
      *   keySerialNumber
      *   keyState
@@ -148,7 +148,7 @@ public interface IKeyRepository extends IRepository {
      *   keyModifyTime
      *   keyMetaInfo
      * </pre>
-     * 
+     *
      * @param filter search filter
      * @param attrs list of attributes to be returned
      * @param pageSize virtual list page size
@@ -160,7 +160,7 @@ public interface IKeyRepository extends IRepository {
 
     /**
      * Searchs for a list of key records.
-     * 
+     *
      * @param filter search filter
      * @param attrs list of attributes to be returned
      * @param sortKey name of attribute that the list should be sorted by

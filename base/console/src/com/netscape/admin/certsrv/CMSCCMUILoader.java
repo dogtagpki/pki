@@ -53,21 +53,21 @@ public class CMSCCMUILoader implements ISubSystemUILoader {
     public void register() {
        //register subsystem UI
         try {
-            
+
             //task tab
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
-            
+
             //config tab
             CMSResourcePage page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
             populateConfigContent(model);
-            
+
             /*acl tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"ACCESSCONTROLLIST");
             model = (CMSBaseResourceModel) page.getModel();
             populateACLContent(model);
             */
-            
+
         }catch(Exception e) {
             Debug.println("CMSCCMUILoader: register() config - "+e.toString());
         }
@@ -80,7 +80,7 @@ public class CMSCCMUILoader implements ISubSystemUILoader {
     protected void populateConfigContent(CMSBaseResourceModel model) {
         CMSResourceObject node;
         CMSTabPanel tabPane;
-        
+
         //ccm node
         node = new CMSResourceObject("CCMCONFIG");
         tabPane = new CMSTabPanel(model, node);
@@ -89,7 +89,7 @@ public class CMSCCMUILoader implements ISubSystemUILoader {
         node.setCustomPanel(tabPane);
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_FOLDER));
         node.setAllowsChildren(true);
-        
+
         model.addSubSystemNode(node);
     }
 
@@ -101,7 +101,7 @@ public class CMSCCMUILoader implements ISubSystemUILoader {
         node.setCustomPanel(new CMSBlankPanel(model));
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_DOCUMENT));
         node.setAllowsChildren(false);
-        list.add(node);        
+        list.add(node);
     }
     */
 }

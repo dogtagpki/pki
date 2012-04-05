@@ -29,7 +29,7 @@ import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
 /**
- * This panel asks for the information of the current internal database. 
+ * This panel asks for the information of the current internal database.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -78,7 +78,7 @@ class WITokenLogonPage extends WizardBasePanel implements IWizardPanel {
             }
             index++;
         }
- 
+
         if (inits.equals(Constants.FALSE)) {
             mDesc.setText(mResource.getString(mPanelName+"_TEXT_INIT_LABEL"));
             enableFields(mPasswordAgainLabel, mPasswordAgainText, true, mActiveColor);
@@ -92,7 +92,7 @@ class WITokenLogonPage extends WizardBasePanel implements IWizardPanel {
         mTokenText.setBackground(getBackground());
         CMSAdminUtil.repaintComp(mTokenText);
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -204,7 +204,7 @@ class WITokenLogonPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(passwordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -222,7 +222,7 @@ class WITokenLogonPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mPasswordAgainLabel, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mPasswordAgainText = makeJPasswordField(30);
         gbc.anchor = gbc.NORTHWEST;

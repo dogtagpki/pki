@@ -39,7 +39,7 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents ann attribute mapper that maps
  * a Java object into LDAP attribute,
  * and vice versa.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

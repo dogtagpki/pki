@@ -29,7 +29,7 @@ public class EAuthzAccessDenied extends EAuthzException {
 
     /**
      * Constructs a exception for access denied by Authz manager
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EAuthzAccessDenied(String errorString) {

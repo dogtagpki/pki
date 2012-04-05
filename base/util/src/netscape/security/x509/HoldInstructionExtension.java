@@ -32,11 +32,11 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * Represent the CRL Hold Instruction Code Extension.
- * 
+ *
  * <p>
  * The hold instruction code is a non-critical CRL entry extension that provides a registered instruction identifier
  * which indicates the action to be taken after encountering a certificate that has been placed on hold.
- * 
+ *
  * @see Extension
  * @see CertAttrSet
  */
@@ -121,7 +121,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param code the value to be set for the extension.
      */
     public HoldInstructionExtension(int code)
@@ -137,7 +137,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param oidStr the value to be set for the extension.
      */
     public HoldInstructionExtension(String oidStr)
@@ -154,7 +154,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param oid the value to be set for the extension.
      */
     public HoldInstructionExtension(ObjectIdentifier oid)
@@ -170,7 +170,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param code the value to be set for the extension.
      */
@@ -187,7 +187,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param oidStr the value to be set for the extension.
      */
@@ -205,7 +205,7 @@ public class HoldInstructionExtension extends Extension
     /**
      * Create a HoldInstructionExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param oid the value to be set for the extension.
      */
@@ -221,7 +221,7 @@ public class HoldInstructionExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -309,7 +309,7 @@ public class HoldInstructionExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -319,7 +319,7 @@ public class HoldInstructionExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

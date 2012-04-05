@@ -28,13 +28,13 @@ import java.util.Map;
  * Maps a ASN.1 character string type to a charset encoder and decoder.
  * The converter is used to convert a DerValue of a ASN.1 character string type
  * from bytes to unicode characters and vice versa.
- * 
+ *
  * <p>
  * A global default ASN1CharStrConvMap is created when the class is initialized. The global default map is extensible.
- * 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
- * 
+ *
  */
 
 public class ASN1CharStrConvMap {
@@ -48,10 +48,10 @@ public class ASN1CharStrConvMap {
 
     /**
      * Get an encoder for the specified DER tag.
-     * 
+     *
      * @param tag A DER tag of a ASN.1 character string type,
      *            for example DerValue.tag_PrintableString.
-     * 
+     *
      * @return An encoder for the DER tag.
      */
     public CharsetEncoder getEncoder(byte tag) {
@@ -63,10 +63,10 @@ public class ASN1CharStrConvMap {
 
     /**
      * Get a decoder for the given DER tag.
-     * 
+     *
      * @param tag A DER tag of a ASN.1 character string type,
      *            for example DerValue.tag_PrintableString.
-     * 
+     *
      * @return A decoder for the DER tag.
      */
     public CharsetDecoder getDecoder(byte tag) {
@@ -78,7 +78,7 @@ public class ASN1CharStrConvMap {
 
     /**
      * Add a tag-charset entry in the map.
-     * 
+     *
      * @param tag A DER tag of a ASN.1 character string type,
      *            ex. DerValue.tag_IA5String
      * @param charset A charset for the tag.
@@ -101,7 +101,7 @@ public class ASN1CharStrConvMap {
 
     /**
      * Get an iterator of all tags in the map.
-     * 
+     *
      * @return An Iterator of DER tags in the map as Bytes.
      */
     public Iterator<Byte> getTags() {
@@ -112,7 +112,7 @@ public class ASN1CharStrConvMap {
 
     /**
      * Get the global ASN1CharStrConvMap.
-     * 
+     *
      * @return The global default ASN1CharStrConvMap.
      */
     static public ASN1CharStrConvMap getDefault() {
@@ -121,7 +121,7 @@ public class ASN1CharStrConvMap {
 
     /**
      * Set the global default ASN1CharStrConvMap.
-     * 
+     *
      * @param newDefault The new default ASN1CharStrConvMap.
      */
     static public void setDefault(ASN1CharStrConvMap newDefault) {

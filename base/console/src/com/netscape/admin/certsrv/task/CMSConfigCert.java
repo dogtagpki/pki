@@ -49,14 +49,14 @@ public class CMSConfigCert extends CGITask {
      * variables
      *==========================================================*/
     private static final String PREFIX = "CMSCONFIGCERT";
-    
+
     public static final String CONFIG_CERT_CGI = "Tasks/Operation/config-cert";
-    
+
 	//private boolean mSuccess = false; // status of last executed CGI
 	//private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
 	private String mCgiTask = null; // CGI task to call
     private InstallWizardInfo mWizardInfo;
-	
+
 	/*==========================================================
      * constructors
      *==========================================================*/
@@ -70,15 +70,15 @@ public class CMSConfigCert extends CGITask {
     public void initialize(InstallWizardInfo info) {
         _consoleInfo = info.getAdminConsoleInfo();
 
-        // the results coming back from the daemon will be added to the 
+        // the results coming back from the daemon will be added to the
         // wizard information.
         mWizardInfo = info;
 
 		setForceBasicAuth(true);
     }
-    
+
     /**
-     * Collect the data in name value pairs format and then send them to the 
+     * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
 	public boolean configCert(Hashtable data) {
@@ -90,15 +90,15 @@ public class CMSConfigCert extends CGITask {
         if (_consoleInfo.get("AdminUserPassword") == null)
             _consoleInfo.put("AdminUserPassword",
                              _consoleInfo.getAuthenticationPassword());
-        Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword")); 
+        Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword"));
         data.put("AdminUserPassword", _consoleInfo.getAuthenticationPassword());
         _consoleInfo.put("arguments", data);
 
-		// Send Random value for RNG entropy          
+		// Send Random value for RNG entropy
         data.put(ConfigConstants.PR_CMS_SEED, new Long(WizardBasePanel.mSeed).toString());
-          
+
 	    boolean status = false; // return value
-	    
+
         Cursor cursor = mActiveFrame.getCursor();
         int type = cursor.getType();
         cursor = new Cursor(Cursor.WAIT_CURSOR);
@@ -132,7 +132,7 @@ public class CMSConfigCert extends CGITask {
 
 		return mSuccess;
 	}
-   
+
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
@@ -142,7 +142,7 @@ public class CMSConfigCert extends CGITask {
 		if (mCgiResponse != null)
 			mCgiResponse.clear();
 */
-			
+
         try {
 			BufferedReader rspStream =
 				new BufferedReader(new InputStreamReader(response, "UTF8"));
@@ -164,13 +164,13 @@ public class CMSConfigCert extends CGITask {
 		} catch (Exception e) {
 			Debug.println("ConfigCert.Exception : " + e.toString());
 		}
-		
+
 		Debug.println("ConfigCert.replyHandler: finished, mSuccess=" +
 					  mSuccess);
 
         finish();
     }
-    
+
     /**
 	 * return the value for the given keyword in the reply
 	 */

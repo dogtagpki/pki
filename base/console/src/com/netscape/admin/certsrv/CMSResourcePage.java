@@ -36,11 +36,11 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
      * variables
      *==========================================================*/
     protected IMenuInfo mMenuInfo;          // menu information delegation
-    
+
 	/*==========================================================
      * constructors
      *==========================================================*/
-     
+
     /**
      * Return ResourcePage using the data model specified.
      */
@@ -55,7 +55,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-    
+
 	/**
 	 * Need to overwrite this one to clone
 	 * DSResourcePage instead of ResourcePage
@@ -76,7 +76,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
     public JTree getTree() {
         return (JTree)_tree;
     }
-    
+
     /**
      * Implements TreeSelectionListener.  Called when an object is selected
 	 * in the resource tree.  Informs IResourceModelListeners of this event.
@@ -89,12 +89,12 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
 				setCustomPanel(_model.getCustomPanel(this, selection[0]));
 		}
 		_model.actionObjectSelected(this, selection, getPreviousSelection());
-		
+
 		//the selected node not necessary the original selection
 		//in case of not allow to change
 		_previousSelection = getSelection();
 	}
-    
+
     /**
      * Called internally when page is unselected
      */
@@ -102,7 +102,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
         super.pageUnselected(framework);
         //check if the data is not saved
 	}
-	
+
 	/**
 	 *	Initializes page.  Called after construction or after clonePage().
 	 *  The reference to IFramework allows this page to set menu items, status
@@ -111,11 +111,11 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
 	 */
 	public void initialize(IFramework framework) {
 	    //Debug.println("CMSResourcePage - initialize() "+mMenuInfo);
-	    super.initialize(framework);    
+	    super.initialize(framework);
 	    if (mMenuInfo != null)
 	        addMenuItems(mMenuInfo , _menuInfoAction);
 	}
-	
+
 	/**
      * Set and replace the existing menuInfo delegation object
      */
@@ -123,7 +123,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
         //Debug.println("CMSResourcePage - setMenuInfo() "+menuInfo);
         mMenuInfo = menuInfo;
     }
-    
+
     /**
      * Retrieve IMenuInfo object
      */
@@ -133,7 +133,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
         }
         return mMenuInfo;
     }
-	
+
 	/**
 	 * Start the zipping status bar
 	 */
@@ -148,7 +148,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
     public void progressStop() {
         //XXX COMEBACK AFTER UPGRADE
         _statusItemProgress.stop();
-    }	
-	
+    }
+
 }
 

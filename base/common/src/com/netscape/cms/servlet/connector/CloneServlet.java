@@ -60,7 +60,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * Clone servlet - part of the Clone Authority (CLA)
  * processes Revoked certs from its dependant clone CAs
  * service request and return status.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CloneServlet extends CMSServlet {
@@ -123,7 +123,7 @@ public class CloneServlet extends CMSServlet {
         IPKIMessage msg = null;
         IPKIMessage replymsg = null;
 
-        // NOTE must read all bufer before redoing handshake for 
+        // NOTE must read all bufer before redoing handshake for
         // ssl client auth for client auth to work.
 
         // get request method
@@ -152,8 +152,8 @@ public class CloneServlet extends CMSServlet {
 
         // force client auth handshake, validate clone CA (CCA)
         // and get CCA's Id.
-        // NOTE must do this after all contents are read for ssl 
-        // redohandshake to work 
+        // NOTE must do this after all contents are read for ssl
+        // redohandshake to work
 
         X509Certificate peerCert;
 
@@ -231,7 +231,7 @@ public class CloneServlet extends CMSServlet {
             // decode request.
             CMS.debug("Cloneservlet: before decoding request, encodedreq= " + encodedreq);
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
-            // process request 
+            // process request
             CMS.debug("Cloneservlet: decoded request");
             replymsg = processRequest(CCA_Id, CCAUserId, msg, token);
         } catch (IOException e) {
@@ -247,7 +247,7 @@ public class CloneServlet extends CMSServlet {
             return;
         }
 
-        // encode reply 
+        // encode reply
         String encodedrep = mReqEncoder.encode(replymsg);
 
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -269,9 +269,9 @@ public class CloneServlet extends CMSServlet {
             X509Certificate peerCert)
             throws EBaseException {
         try {
-            // XXX using agent authentication now since we're only 
-            // verifying that the cert belongs to a user in the db. 
-            // XXX change this to ACL in the future. 
+            // XXX using agent authentication now since we're only
+            // verifying that the cert belongs to a user in the db.
+            // XXX change this to ACL in the future.
 
             // build JAVA X509Certificate from peerCert.
             X509CertImpl cert = new X509CertImpl(peerCert.getEncoded());
@@ -417,10 +417,10 @@ public class CloneServlet extends CMSServlet {
                 // Get the certificate(s) from the request
                 X509CertImpl issuedCerts[] =
                 (X509CertImpl[])thisreq.get(IRequest.ISSUED_CERTS);
-                // return potentially more than one certificates. 
+                // return potentially more than one certificates.
                 if (issuedCerts != null) {
                 for (int i = 0; i < issuedCerts.length; i++) {
-                mLogger.log(ILogger.EV_AUDIT, 
+                mLogger.log(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.FORMAT,
@@ -436,7 +436,7 @@ public class CloneServlet extends CMSServlet {
                 );
                 }
                 } else {
-                mLogger.log(ILogger.EV_AUDIT, 
+                mLogger.log(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,
@@ -458,7 +458,7 @@ public class CloneServlet extends CMSServlet {
                 AuditFormat.LEVEL,
                 AuditFormat.RENEWALFORMAT,
                 new Object[] {
-                thisreq.getRequestId(), 
+                thisreq.getRequestId(),
                 initiative ,
                 authMgr ,
                 "completed",
@@ -468,7 +468,7 @@ public class CloneServlet extends CMSServlet {
                 renewed_cert.getSerialNumber().toString(16)}
                 );
                 } else {
-                mLogger.log(ILogger.EV_AUDIT, 
+                mLogger.log(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,
@@ -492,7 +492,7 @@ public class CloneServlet extends CMSServlet {
                 Extension ext = (Extension) enum.nextElement();
                 if (ext instanceof CRLReasonExtension) {
                 reason = ((CRLReasonExtension)ext).getReason().toInt
-                ();							
+                ();
                 break;
                 }
                 }
@@ -502,7 +502,7 @@ public class CloneServlet extends CMSServlet {
                 Integer result = (Integer)thisreq.get(IRequest.RESULT);
                 if (result.equals(IRequest.RES_ERROR)) {
                 EBaseException ex = (EBaseException)thisreq.get(IRequest.ERROR);
-                EBaseException[] svcErrors = 
+                EBaseException[] svcErrors =
                 (EBaseException[])thisreq.get(IRequest.SVCERRORS);
                 if (svcErrors != null && svcErrors.length > 0) {
                 for (int i = 0; i < svcErrors.length; i++) {
@@ -515,7 +515,7 @@ public class CloneServlet extends CMSServlet {
                 AuditFormat.LEVEL,
                 AuditFormat.DOREVOKEFORMAT,
                 new Object[] {
-                thisreq.getRequestId(), 
+                thisreq.getRequestId(),
                 initiative ,
                 "completed with error: " +
                 err.toString() ,
@@ -536,7 +536,7 @@ public class CloneServlet extends CMSServlet {
                 AuditFormat.LEVEL,
                 AuditFormat.DOREVOKEFORMAT,
                 new Object[] {
-                thisreq.getRequestId(), 
+                thisreq.getRequestId(),
                 initiative ,
                 "completed" ,
                 oldCerts[j].getSubjectDN() ,
@@ -547,7 +547,7 @@ public class CloneServlet extends CMSServlet {
                 }
                 }
                 } else {
-                mLogger.log(ILogger.EV_AUDIT, 
+                mLogger.log(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,

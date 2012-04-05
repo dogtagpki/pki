@@ -42,7 +42,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * Hash uid/pwd directory based authentication manager
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
@@ -210,7 +210,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     /**
      * Authenticates a user based on uid, pwd in the directory.
-     * 
+     *
      * @param authCreds The authentication credentials.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
@@ -238,7 +238,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     /**
      * Returns array of required credentials for this authentication manager.
-     * 
+     *
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -247,7 +247,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     /**
      * Gets the configuration substore used by this authentication manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -279,7 +279,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {

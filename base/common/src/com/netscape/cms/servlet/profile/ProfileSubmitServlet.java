@@ -73,7 +73,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet submits end-user request into the profile framework.
- * 
+ *
  * @author Christina Fu (renewal support)
  * @version $Revision$, $Date$
  */
@@ -117,9 +117,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
      * be set up to always issue certificates against a certain profile
      * by setting the 'profileId' configuration in the servletConfig
      * If not, the user must specify the profileID when submitting the request
-     * 
+     *
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -154,7 +154,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     }
 
-    /* 
+    /*
      * fill input info from "request" to context.
      * This is expected to be used by renewal where the request
      * is retrieved from request record
@@ -356,7 +356,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
     }
 
-    /* 
+    /*
      * fill input info from orig request to the renew request.
      * This is expected to be used by renewal where the request
      * is retrieved from request record
@@ -439,17 +439,17 @@ public class ProfileSubmitServlet extends ProfileServlet {
     /**
      * Process the HTTP request
      * <P>
-     * 
+     *
      * (Certificate Request Processed - either an automated "EE" profile based cert acceptance, or an automated "EE"
      * profile based cert rejection)
      * <P>
-     * 
+     *
      * <ul>
      * <li>http.param profileId ID of profile to use to process request
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -488,7 +488,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             while (paramNames.hasMoreElements()) {
                 String paramName = paramNames.nextElement();
                 // added this facility so that password can be hidden,
-                // all sensitive parameters should be prefixed with 
+                // all sensitive parameters should be prefixed with
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
@@ -548,7 +548,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
          * Framework.  The authentication and authorization are taken from
          * the renewal profile, while the input (with requests)  and grace
          * period constraint are taken from the original cert's request record.
-         * 
+         *
          * Things to note:
          * * the renew request will contain the original profile instead
          *   of the new
@@ -614,7 +614,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             String serial = request.getParameter("serial_num");
             BigInteger certSerial = null;
             // if serial number is sent with request, then the authentication
-            // method is not ssl client auth.  In this case, an alternative 
+            // method is not ssl client auth.  In this case, an alternative
             // authentication method is used (default: ldap based)
             if (serial != null) {
                 CMS.debug("ProfileSubmitServlet: renewal: found serial_num");
@@ -1199,7 +1199,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // no profile set found
                 CMS.debug("ProfileSubmitServlet: no profile policy set found");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), 
+                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"),
                             reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
@@ -1246,10 +1246,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 return;
             } catch (Throwable e) {
                 CMS.debug("ProfileSubmitServlet: populate " + e.toString());
-                //  throw new IOException("Profile " + profileId + 
+                //  throw new IOException("Profile " + profileId +
                 //          " cannot populate");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), 
+                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"),
                             reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
@@ -1332,7 +1332,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                 "CMS_PROFILE_DEFERRED",
                                 e.toString());
                 } catch (ERejectException e) {
-                    // return error to the user 
+                    // return error to the user
                     reqs[k].setRequestStatus(RequestStatus.REJECTED);
                     CMS.debug("ProfileSubmitServlet: submit " + e.toString());
                     errorCode = "3";
@@ -1415,7 +1415,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
 
             ///////////////////////////////////////////////
-            // output output list 
+            // output output list
             ///////////////////////////////////////////////
             if (xmlOutput) {
                 xmlOutput(response, profile, locale, reqs);
@@ -1538,11 +1538,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1568,11 +1568,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param request request containing an X509CertImpl
      * @return cert string containing the certificate
      */

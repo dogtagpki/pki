@@ -37,7 +37,7 @@ import com.netscape.cmscore.cert.CertUtils;
  * a public key data into LDAP attribute and
  * vice versa.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

@@ -33,49 +33,49 @@ import com.netscape.certsrv.request.IRequest;
  * class for parsing a DN pattern used to construct a ldap dn from
  * request attributes and cert subject name.
  * <p>
- * 
+ *
  * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and
  * request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
  * <p>
- * 
+ *
  * The syntax is
- * 
+ *
  * <pre>
  * 	dnPattern := rdnPattern *[ "," rdnPattern ]
  * 	rdnPattern := avaPattern *[ "+" avaPattern ]
- * 		avaPattern := name "=" value | 
- * 			      name "=" "$subj" "." attrName [ "." attrNumber ] | 
- * 			      name "=" "$req" "." attrName [ "." attrNumber ] | 
+ * 		avaPattern := name "=" value |
+ * 			      name "=" "$subj" "." attrName [ "." attrNumber ] |
+ * 			      name "=" "$req" "." attrName [ "." attrNumber ] |
  * 			 	  "$rdn" "." number
  * </pre>
- * 
+ *
  * <pre>
  * Example1: <i>cn=Certificate Manager,ou=people,o=mcom.com</i>
  * cert subject name: dn:  CN=Certificate Manager, OU=people, O=mcom.com
- * request attributes: uid: cmanager 
+ * request attributes: uid: cmanager
  * <p>
  * The dn formulated will be : <br>
  *     CN=Certificate Manager, OU=people, O=mcom.com
  * <p>
  * note: Subordinate ca enrollment will use ca mapper. Use predicate
  * to distinguish the ca itself and the subordinates.
- * 
+ *
  * Example2: <i>UID=$req.HTTP_PARAMS.uid, OU=$subj.ou, O=people, , O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, O=people, , O=mcom.com
- * request attributes: uid: cmanager 
+ * request attributes: uid: cmanager
  * <p>
  * The dn formulated will be : <br>
  *     UID=jjames, OU=IS, OU=people, O=mcom.com
- * <p>	
+ * <p>
  *     UID = the 'uid' attribute value in the request. <br>
  *     OU = the 'ou' value in the cert subject name.  <br>
  *     O = the string people, mcom.com. <br>
  * <p>
  * </pre>
- * 
+ *
  * If an request attribute or subject DN component does not exist, the attribute is skipped.There is potential risk that
  * a wrong dn will be mapped into.
- * 
+ *
  * @version $Revision$, $Date$
  */
 class MapRDNPattern {
@@ -96,7 +96,7 @@ class MapRDNPattern {
 
     /**
      * Construct a DN pattern by parsing a pattern string.
-     * 
+     *
      * @param pattenr the DN pattern
      * @exception ELdapException If parsing error occurs.
      */
@@ -146,7 +146,7 @@ class MapRDNPattern {
 
         if (lastChar != -1) {
             try {
-                in.unread(lastChar); // pushback last , 
+                in.unread(lastChar); // pushback last ,
             } catch (IOException e) {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
@@ -183,7 +183,7 @@ class MapRDNPattern {
 
     /**
      * Form a Ldap v3 DN string from a request and a cert subject name.
-     * 
+     *
      * @param req the request for (un)publish
      * @param subject the subjectDN of the certificate
      * @return Ldap v3 DN string to use for base ldap search.

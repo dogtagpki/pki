@@ -22,7 +22,7 @@ import java.security.PublicKey;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Jack Pan-Chen
  * @author Andrew Wnuk
  * @version $Revision$, $Date$

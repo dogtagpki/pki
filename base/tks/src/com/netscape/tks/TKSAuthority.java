@@ -37,7 +37,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     /**
      * Retrieves the request queue for the Authority.
      * <P>
-     * 
+     *
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue() {
@@ -83,7 +83,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     /**
      * Initializes this subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this RA
@@ -101,7 +101,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
 
     /**
      * Notifies this subsystem if owner is in running mode.
-     * 
+     *
      * @exception EBaseException failed to start up
      */
     public void startup() throws EBaseException {
@@ -127,7 +127,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -140,7 +140,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
 
     /**
      * Sets subsystem identifier.
-     * 
+     *
      * @param id subsystem id
      * @exception EBaseException failed to set id
      */
@@ -150,7 +150,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
 
     /**
      * Retrieves logger from escrow authority.
-     * 
+     *
      * @return logger
      */
     public ILogger getLogger() {

@@ -22,7 +22,7 @@ import java.security.MessageDigest;
 /**
  * This class implements the HMAC algorithm specified in RFC 2104 using
  * any MessageDigest.
- * 
+ *
  * @author mikep
  * @version $Revision$, $Date$
  * @see java.security.MessageDigest
@@ -49,7 +49,7 @@ public class HMACDigest implements Cloneable {
 
     /**
      * Creates an HMACDigest
-     * 
+     *
      * @param md The MessageDigest to be used for the HMAC calculation. It
      *            must be clonable.
      */
@@ -60,7 +60,7 @@ public class HMACDigest implements Cloneable {
     /**
      * Creates an HMACDigest and initializes the HMAC function
      * with the given key.
-     * 
+     *
      * @param md The MessageDigest to be used for the HMAC calculation. It
      *            must be clonable.
      * @param key The key value to be used in the HMAC calculation
@@ -79,18 +79,18 @@ public class HMACDigest implements Cloneable {
 
     /**
      * Initialize the HMAC function
-     * 
+     *
      * The HMAC transform looks like:
-     * 
+     *
      * hash(key XOR opad, hash(key XOR ipad, text))
-     * 
+     *
      * where key is an n byte key
      * ipad is the byte 0x36 repeated 64 times
      * opad is the byte 0x5c repeated 64 times
      * and text is the data being protected
-     * 
+     *
      * This routine must be called after every reset.
-     * 
+     *
      * @param key The password used to protect the hash value
      */
     public void init(byte[] key) {
@@ -131,7 +131,7 @@ public class HMACDigest implements Cloneable {
 
     /**
      * Updates the digest using the specified array of bytes.
-     * 
+     *
      * @param input the array of bytes.
      */
     public void update(byte[] input) {
@@ -141,7 +141,7 @@ public class HMACDigest implements Cloneable {
     /**
      * Completes the HMAC computation with the outer pad
      * The digest is reset after this call is made.
-     * 
+     *
      * @return the array of bytes for the resulting hash value.
      */
     public byte[] digest() {
@@ -173,7 +173,7 @@ public class HMACDigest implements Cloneable {
 
     /**
      * Clone the HMACDigest
-     * 
+     *
      * @return a clone if the implementation is cloneable.
      * @exception CloneNotSupportedException if this is called on a
      *                MessageDigest implementation that does not support <code>Cloneable</code>.

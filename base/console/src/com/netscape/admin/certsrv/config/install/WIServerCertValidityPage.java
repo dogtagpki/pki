@@ -37,7 +37,7 @@ import com.netscape.admin.certsrv.config.*;
 class WIServerCertValidityPage extends WICertValidityPage {
     private static final String PANELNAME = "INSTALLSERVERCERTVALIDWIZARD";
     private static final String HELPINDEX = "install-sslcert-validity-wizard-help";
-   
+
     WIServerCertValidityPage(JDialog parent) {
         super(PANELNAME);
         mHelpIndex = HELPINDEX;

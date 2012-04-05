@@ -34,21 +34,21 @@ import com.netscape.cmsutil.util.Utils;
  * and that the contents contain a blob encoded in an ASCII BASE 64
  * format. Note that the data file may contain an optional "-----BEGIN" header
  * and/or an optional "-----END" trailer.
- * 
+ *
  * <P>
  * The program may be invoked as follows:
- * 
+ *
  * <PRE>
- * 
+ *
  *      AtoB &lt;input filename&gt; &lt;output filename&gt;
- * 
+ *
  *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded blob
- * 
+ *
  *             &lt;output filename&gt;  contains a BINARY
  *                                BASE 64 encoded blob
  * </PRE>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AtoB {

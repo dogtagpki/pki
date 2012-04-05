@@ -131,7 +131,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
         if (e.getSource().equals(mRefresh)) {
             Debug.println("AccessLogPanel: Refresh Log");
             refresh();
-        }else if (e.getSource().equals(mView)) { 
+        }else if (e.getSource().equals(mView)) {
             if (mDataModel.getRowCount() == 0) {
                 refresh();
             } else {
@@ -142,7 +142,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
         } else if (e.getSource().equals(mLevel) || e.getSource().equals(mSource)
                   || e.getSource().equals(mFile)) {
             Debug.println("AccessLogPanel: Changed Log Level or Source or File");
-            refresh(); 
+            refresh();
         }
     }
 
@@ -153,19 +153,19 @@ public abstract class CMSLogPanel extends CMSBasePanel
     //==== MOUSELISTENER ======================
     public void mouseClicked(MouseEvent e) {
         //Debug.println("CertRepositoryPanel: mouseClicked() -"+e.toString());
-        
+
         //we track the double click action on the table entry - View op
         if(e.getClickCount() == 2) {
             //Debug.println("View Detail");
             viewDetail();
         }
     }
-    
+
     public void mousePressed(MouseEvent e) { }
     public void mouseReleased(MouseEvent e) { }
     public void mouseEntered(MouseEvent e) { }
     public void mouseExited(MouseEvent e) { }
-    
+
     /**
      * refresh the table data
      */
@@ -189,7 +189,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
     /*==========================================================
 	 * protected methods
      *==========================================================*/
-    
+
     /**
      * View the log entry in a dialog box
      * (no assumption of validity)
@@ -197,7 +197,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
     protected void viewDetail() {
         //check item selected
         if (mTable.getSelectedRow()>= 0) {
-            if (mViewer == null) 
+            if (mViewer == null)
                 mViewer = new LogEntryViewDialog(mModel.getFrame());
             mViewer.showDialog(
                 (String)mDataModel.getValueAt(mTable.getSelectedRow(),0),
@@ -258,7 +258,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		col.setMinWidth(400);
 		col.setResizable( true );
 	}
-	
+
     /**
      * create filter criteria panel
      */
@@ -285,7 +285,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		CMSAdminUtil.addEntryField(panel, label1, mSource, label2, mLevel, gbc);
                 mLevel.addActionListener(this);
                 mSource.addActionListener(this);
-                
+
 
 		//file
 		CMSAdminUtil.resetGBC(gbc);

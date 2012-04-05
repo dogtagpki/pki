@@ -51,7 +51,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * Process OCSP messages, According to RFC 2560
  * See http://www.ietf.org/rfc/rfc2560.txt
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class OCSPServlet extends CMSServlet {
@@ -74,7 +74,7 @@ public class OCSPServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -94,7 +94,7 @@ public class OCSPServlet extends CMSServlet {
      * This method is invoked when the OCSP service receives a OCSP
      * request. Based on RFC 2560, the request should have the OCSP
      * request in the HTTP body as binary blob.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {

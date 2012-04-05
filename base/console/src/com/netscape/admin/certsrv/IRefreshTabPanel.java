@@ -27,12 +27,12 @@ package com.netscape.admin.certsrv;
  * @see com.netscape.admin.certsrv.CMSBaseResourceModel
  */
 public interface IRefreshTabPanel {
-    
+
     /**
-     * Get Selected Tab from Tab panel 
+     * Get Selected Tab from Tab panel
      */
     public CMSBasePanel getSelectedTab();
-    
-    
+
+
 }
 

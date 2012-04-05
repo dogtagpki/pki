@@ -21,7 +21,7 @@ package com.netscape.certsrv.template;
  * This interface presents a generic argument value.
  * Argument value can be in string, in a list, or
  * in a set.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IArgValue {

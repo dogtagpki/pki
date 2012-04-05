@@ -78,7 +78,7 @@ class WOperationSelectionPage extends WizardBasePanel implements IWizardPanel {
         startProgressStatus();
         if (mRequestBtn.isSelected())
             info.addEntry(wizardInfo.OPTYPE, wizardInfo.REQUESTTYPE);
-        else 
+        else
             info.addEntry(wizardInfo.OPTYPE, wizardInfo.INSTALLTYPE);
         endProgressStatus();
         return true;

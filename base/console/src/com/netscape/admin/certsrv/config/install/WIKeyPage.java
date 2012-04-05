@@ -55,7 +55,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     protected InstallWizardInfo mWizardInfo;
     protected String mHelpIndex;
     protected boolean mIsCAKey;
-    
+
     WIKeyPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -85,13 +85,13 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         int i=0;
         mTokenInitialized = new String[count];
         while (tokenizer.hasMoreElements()) {
-            mTokenInitialized[i] = (String)tokenizer.nextToken(); 
+            mTokenInitialized[i] = (String)tokenizer.nextToken();
             i++;
         }
 
         String loginList = mWizardInfo.getTokensLogin();
-        tokenizer = new StringTokenizer(loginList, ":");  
-        i=0; 
+        tokenizer = new StringTokenizer(loginList, ":");
+        i=0;
         mTokenLogin = new String[count];
         while (tokenizer.hasMoreElements()) {
             mTokenLogin[i] = (String)tokenizer.nextToken();
@@ -111,7 +111,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         }
 
         enableKeyLengthFields();
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -155,7 +155,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
         if (index > 0)
             return validateHardwareToken(index);
-        else 
+        else
             return validateInternalToken(index);
     }
 
@@ -252,7 +252,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
         startProgressStatus();
 //        CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "INITTOKEN");
-        
+
         boolean ready = send(rawData, mWizardInfo);
 
         if (ready) {
@@ -307,14 +307,14 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel2, gbc);
-        
+
         JTextArea selectTokenLbl = createTextArea(mResource.getString(
           mPanelName+"_LABEL_SELECTTOKEN_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
@@ -322,7 +322,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,0);
         panel.add(selectTokenLbl, gbc);
- 
+
         JLabel tokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.CENTER;
@@ -501,7 +501,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.NONE;
         //gbc.gridheight = gbc.REMAINDER;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE, 0);
         panel1.add(mKeyLengthText, gbc);
         mActiveColor = mKeyLengthText.getBackground();
@@ -537,7 +537,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             // the prefix "TOKEN:" and the value is the token password.
             mWizardInfo.put("TOKEN:"+name, mPassword.getText().trim());
         }
-       
+
         mTokenBox.removeItemListener(this);
     }
 
@@ -578,13 +578,13 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             enableFields(keyLengthCustomText, mKeyLengthText, true, mActiveColor);
             enableFields(unit1Lbl, null, true, mActiveColor);
         } else {
-            enableFields(keyLengthCustomText, mKeyLengthText, false, 
+            enableFields(keyLengthCustomText, mKeyLengthText, false,
               getBackground());
             enableFields(unit1Lbl, null, false, getBackground());
         }
     }
 
-    protected void enableFields(JComponent comp1, JTextComponent comp2, boolean enable, 
+    protected void enableFields(JComponent comp1, JTextComponent comp2, boolean enable,
       Color color) {
         if (comp1 != null) {
             comp1.setEnabled(enable);

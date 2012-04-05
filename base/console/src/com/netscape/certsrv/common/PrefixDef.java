@@ -34,8 +34,8 @@ public interface PrefixDef {
     public final static String PX_SYS = "SYS_";
     public final static String PX_DEF = "DEF_";
     public final static String PX_PP = "CERT_PP";
-    
+
     //log content
     public final static String PX_LOG = "log";
-    
+
 }

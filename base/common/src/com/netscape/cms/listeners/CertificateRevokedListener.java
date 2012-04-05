@@ -70,7 +70,7 @@ import com.netscape.certsrv.request.RequestId;
  * <LI>$RequestId
  * <LI>$InstanceID
  * </UL>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CertificateRevokedListener implements IRequestListener {

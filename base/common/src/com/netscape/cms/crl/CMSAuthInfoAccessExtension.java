@@ -38,7 +38,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a Authority Information Access CRL extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSAuthInfoAccessExtension

@@ -31,7 +31,7 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents the search results. A search
  * results object contain a enumeration of
  * Java objects that are just read from the database.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

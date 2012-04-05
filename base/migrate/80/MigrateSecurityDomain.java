@@ -179,7 +179,7 @@ public class MigrateSecurityDomain {
                 }
             }
 
-            // create system entries 
+            // create system entries
             String tlist[] = { "CA", "OCSP", "KRA", "RA", "TKS", "TPS" };
             Document doc = parser.getDocument();
             for (int j = 0; j < 6; j++) {

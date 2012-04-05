@@ -29,7 +29,7 @@ public class EAuthzInternalError extends EAuthzException {
 
     /**
      * Constructs an authorization internal error exception
-     * 
+     *
      * @param errorString error with a detailed message.
      */
     public EAuthzInternalError(String errorString) {

@@ -25,7 +25,7 @@ import netscape.security.util.ObjectIdentifier;
 /**
  * A class representing a meta attribute defintion.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class MetaAttributeDef {
@@ -43,7 +43,7 @@ public class MetaAttributeDef {
     /**
      * Constructs a MetaAttribute defintion
      * <P>
-     * 
+     *
      * @param name attribute name
      * @param valueClass attribute value class
      * @param oid attribute object identifier
@@ -58,7 +58,7 @@ public class MetaAttributeDef {
     /**
      * Gets an attribute OID.
      * <P>
-     * 
+     *
      * @return returns attribute OID or null if not defined.
      */
     public ObjectIdentifier getOID() {
@@ -68,7 +68,7 @@ public class MetaAttributeDef {
     /**
      * Gets an Java class for the attribute values
      * <P>
-     * 
+     *
      * @return returns Java class for the attribute values
      */
     public Class<?> getValueClass() {
@@ -78,7 +78,7 @@ public class MetaAttributeDef {
     /**
      * Gets attribute name
      * <P>
-     * 
+     *
      * @return returns attribute name
      */
     public String getName() {
@@ -90,7 +90,7 @@ public class MetaAttributeDef {
      * Attribute is defined by name, Java class for attribute values and
      * optional object identifier
      * <P>
-     * 
+     *
      * @param name attribute name
      * @param valueClass attribute value class
      * @param oid attribute object identifier
@@ -132,7 +132,7 @@ public class MetaAttributeDef {
     /**
      * Compares this attribute definition with another, for equality.
      * <P>
-     * 
+     *
      * @return true iff names, valueClasses and object identifiers
      *         are identical.
      */
@@ -157,7 +157,7 @@ public class MetaAttributeDef {
     /**
      * Retrieves attribute definition by name
      * <P>
-     * 
+     *
      * @param name attribute name
      * @return attribute definition or null if not found
      */
@@ -168,7 +168,7 @@ public class MetaAttributeDef {
     /**
      * Retrieves attribute definition by object identifier
      * <P>
-     * 
+     *
      * @param oid attribute object identifier
      * @return attribute definition or null if not found
      */
@@ -179,7 +179,7 @@ public class MetaAttributeDef {
     /**
      * Returns enumeration of the registered attribute names
      * <P>
-     * 
+     *
      * @return returns enumeration of the registered attribute names
      */
     public static Enumeration<String> getAttributeNames() {
@@ -189,7 +189,7 @@ public class MetaAttributeDef {
     /**
      * Returns enumeration of the registered attribute object identifiers
      * <P>
-     * 
+     *
      * @return returns enumeration of the attribute object identifiers
      */
     public static Enumeration<ObjectIdentifier> getAttributeNameOids() {

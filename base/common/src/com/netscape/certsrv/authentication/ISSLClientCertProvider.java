@@ -24,17 +24,17 @@ import java.security.cert.X509Certificate;
  * SSL client certificate in a SSL session. Normally, this
  * object is a servlet.
  * <p>
- * 
+ *
  * This interface is used to avoid the internal imeplemtnation to have servlet (protocol handler) dependency.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ISSLClientCertProvider {
 
     /**
      * Retrieves the SSL client certificate chain.
-     * 
+     *
      * @return certificate chain
      */
     public X509Certificate[] getClientCertificateChain();

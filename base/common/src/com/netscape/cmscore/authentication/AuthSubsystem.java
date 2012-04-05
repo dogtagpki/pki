@@ -42,7 +42,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * Default authentication subsystem
  * <P>
- * 
+ *
  * @author cfu
  * @author lhsiao
  * @version $Revision$, $Date$
@@ -74,7 +74,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * Initializes the authentication subsystem from the config store.
      * Load Authentication manager plugins, create and initialize
      * initialize authentication manager instances.
-     * 
+     *
      * @param owner The owner of this module.
      * @param config The configuration store.
      */
@@ -84,7 +84,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             mLogger = CMS.getLogger();
             mConfig = config;
 
-            // hardcode admin and agent plugins required for the server to be 
+            // hardcode admin and agent plugins required for the server to be
             // functional.
 
             AuthMgrPlugin newPlugin = null;
@@ -259,7 +259,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Authenticate to the named authentication manager instance
      * <p>
-     * 
+     *
      * @param authCred authentication credentials subject to the
      *            requirements of each authentication manager
      * @param authMgrName name of the authentication manager instance
@@ -309,7 +309,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Gets configuration parameters for the given
      * authentication manager plugin.
-     * 
+     *
      * @param implName Name of the authentication plugin.
      * @return Hashtable of required parameters.
      */
@@ -345,7 +345,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Add an authentication manager instance.
-     * 
+     *
      * @param name name of the authentication manager instance
      * @param authMgr the authentication manager instance to be added
      */
@@ -363,7 +363,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Gets the authentication manager instance of the specified name.
-     * 
+     *
      * @param name name of the authentication manager instance
      * @return the named authentication manager instance
      */
@@ -427,7 +427,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Retrieves id (name) of this subsystem.
-     * 
+     *
      * @return name of the authentication subsystem
      */
     public String getId() {
@@ -438,7 +438,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      * Sets id string to this subsystem.
      * <p>
      * Use with caution. Should not do it when sharing with others
-     * 
+     *
      * @param id name to be applied to an authentication sybsystem
      */
     public void setId(String id) throws EBaseException {
@@ -485,7 +485,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -494,7 +494,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * gets the named authentication manager
-     * 
+     *
      * @param name of the authentication manager
      * @return the named authentication manager
      */

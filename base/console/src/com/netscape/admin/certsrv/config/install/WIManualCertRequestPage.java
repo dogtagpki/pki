@@ -38,7 +38,7 @@ import com.netscape.management.client.util.*;
 class WIManualCertRequestPage extends WBaseManualCertRequestPage implements IWizardPanel {
 //    private static final String PANELNAME = "INSTALLMANUALCERTREQUESTWIZARD";
     String mHelpIndex;
-    
+
     WIManualCertRequestPage(String panelName) {
         super(panelName);
         init();
@@ -49,7 +49,7 @@ class WIManualCertRequestPage extends WBaseManualCertRequestPage implements IWiz
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return super.initializePanel(info); 
+        return super.initializePanel(info);
     }
 
     public boolean validatePanel() {
@@ -64,7 +64,7 @@ class WIManualCertRequestPage extends WBaseManualCertRequestPage implements IWiz
         if (mHost != null && !mHost.equals(""))
             wizardInfo.setCMHost(mHost);
         if (mPort != null && !mPort.equals(""))
-            wizardInfo.setCMEEPort(mPort);   
+            wizardInfo.setCMEEPort(mPort);
         if (mSSL.isSelected())
             wizardInfo.setCMEEType("https");
         else
@@ -96,7 +96,7 @@ class WIManualCertRequestPage extends WBaseManualCertRequestPage implements IWiz
         }
 
         startProgressStatus();
-        boolean ready = send(mHost, Integer.parseInt(mPort), 
+        boolean ready = send(mHost, Integer.parseInt(mPort),
           "/ca/ee/ca/profileSubmit", rawData, wizardInfo);
         endProgressStatus();
 
@@ -145,7 +145,7 @@ class WIManualCertRequestPage extends WBaseManualCertRequestPage implements IWiz
 
             if (!ready) {
                 String str = getErrorMessage();
-                if (str.equals("")) { 
+                if (str.equals("")) {
                     String errorMsg = mResource.getString(
                       mPanelName+"_ERRORMSG");
                     setErrorMessage(errorMsg);

@@ -74,7 +74,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
                 int col = mTable.getEditingColumn();
                 int row = mTable.getEditingRow();
                 if ((col>-1)&&(row>-1)) {
-                    String str = ((JTextComponent)component).getText(); 
+                    String str = ((JTextComponent)component).getText();
                     mTable.setValueAt(str, row, col);
                 }
             }
@@ -86,11 +86,11 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
                 CMSAdminUtil.showMessageDialog(mParentFrame, mResource,
                   PREFIX, "EMPTYFIELD", CMSAdminUtil.ERROR_MESSAGE);
                 return;
-            } else { 
+            } else {
                 NameValuePairs nvps = new NameValuePairs();
                 nvps.put(Constants.PR_RECOVERY_AGENT, val);
                 nvps.put(Constants.PR_AUTO_RECOVERY_ON, Constants.TRUE);
-                  
+
                 try {
                     mAdmin.modify(DestDef.DEST_KRA_ADMIN,
                       ScopeDef.SC_AUTO_RECOVERY, Constants.RS_ID_CONFIG, nvps);
@@ -98,7 +98,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
                     CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
                       ex.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
                 }
-            } 
+            }
             mEnable.setText(mDisableLabel);
             mEnable.setToolTipText(mDisableTip);
             mEnable.repaint();
@@ -108,7 +108,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
             cleanup();
             this.dispose();
         }
-      
+
     }
 
     //Set the first column's cellrender as label cell
@@ -151,7 +151,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         GridBagLayout gbm = new GridBagLayout();
         getContentPane().setLayout(gbm);
         GridBagConstraints gbc = new GridBagConstraints();
-     
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel heading = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "HEADING", null);
@@ -214,7 +214,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
     }
 
     private void createTable() {
-  
+
         NameValuePairs nvps = new NameValuePairs();
         nvps.put(Constants.PR_RECOVERY_M, "");
 
@@ -227,7 +227,7 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         } catch (EAdminException e) {
             //showErrorDialog(e.toString());
         }
-        
+
         mDataModel = new AutoRecoveryModel();
         Vector[] data = new Vector[numUsers];
         for (int i=0; i<data.length; i++) {

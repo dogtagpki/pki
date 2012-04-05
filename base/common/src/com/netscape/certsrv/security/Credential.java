@@ -21,7 +21,7 @@ package com.netscape.certsrv.security;
  * A class represents a credential. A credential contains
  * information that identifies a user. In this case,
  * identifier and password are used.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Credential implements java.io.Serializable {
@@ -35,7 +35,7 @@ public class Credential implements java.io.Serializable {
 
     /**
      * Constructs credential object.
-     * 
+     *
      * @param id user id
      * @param password user password
      */
@@ -46,7 +46,7 @@ public class Credential implements java.io.Serializable {
 
     /**
      * Retrieves identifier.
-     * 
+     *
      * @return user id
      */
     public String getIdentifier() {
@@ -55,7 +55,7 @@ public class Credential implements java.io.Serializable {
 
     /**
      * Retrieves password.
-     * 
+     *
      * @return user password
      */
     public String getPassword() {

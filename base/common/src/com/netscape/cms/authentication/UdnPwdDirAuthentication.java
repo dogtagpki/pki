@@ -35,7 +35,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * udn/pwd directory based authentication manager
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UdnPwdDirAuthentication extends DirBasedAuthentication {
@@ -81,7 +81,7 @@ public class UdnPwdDirAuthentication extends DirBasedAuthentication {
     /**
      * Initializes the UdnPwdDirAuthentication auth manager.
      * <p>
-     * 
+     *
      * @param name - The name for this authentication manager instance.
      * @param implName - The name of the authentication manager plugin.
      * @param config - The configuration store for this instance.
@@ -94,7 +94,7 @@ public class UdnPwdDirAuthentication extends DirBasedAuthentication {
 
     /**
      * Authenticates a user based on udn, pwd in the directory.
-     * 
+     *
      * @param authCreds The authentication credentials.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the udn and password are not valid
@@ -170,7 +170,7 @@ public class UdnPwdDirAuthentication extends DirBasedAuthentication {
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -179,7 +179,7 @@ public class UdnPwdDirAuthentication extends DirBasedAuthentication {
 
     /**
      * Returns array of required credentials for this authentication manager.
-     * 
+     *
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {

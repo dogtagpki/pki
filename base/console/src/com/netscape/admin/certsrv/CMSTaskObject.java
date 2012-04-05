@@ -50,7 +50,7 @@ public class CMSTaskObject extends TaskObject
 		mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
 	}
 
-	public CMSTaskObject(CMSServerInfo serverInfo, String name, 
+	public CMSTaskObject(CMSServerInfo serverInfo, String name,
 			ConsoleInfo info) {
 		super(name, info);
 		mServerInfo = serverInfo;
@@ -67,5 +67,5 @@ public class CMSTaskObject extends TaskObject
 	public CMSServerInfo getServerInfo() {
 		return mServerInfo;
 	}
-	
+
 }

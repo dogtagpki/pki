@@ -36,7 +36,7 @@ import com.netscape.cmscore.dbs.RepositoryRecord;
  * TODO: what does this class provide beyond the Repository
  * base class??
  * <p>
- * 
+ *
  * @author thayes
  * @version $Revision$ $Date$
  */
@@ -49,7 +49,7 @@ class RequestRepository
     /**
      * Create a request repository that uses the LDAP database
      * <p>
-     * 
+     *
      * @param name
      *            the name of the repository. This String is used to
      *            construct the DN for the repository's LDAP entry.
@@ -88,7 +88,7 @@ class RequestRepository
      * value can be used by the request queue to create the
      * name for the request records themselves.
      * <p>
-     * 
+     *
      * @return
      *         the LDAP base DN.
      */

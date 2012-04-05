@@ -31,13 +31,13 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * ResponseBytes ::=       SEQUENCE {
  *     responseType   OBJECT IDENTIFIER,
  *     response       OCTET STRING }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ResponseBytes implements ASN1Value {

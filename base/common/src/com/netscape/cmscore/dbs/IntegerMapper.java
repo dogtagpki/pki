@@ -31,7 +31,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * A class represents ann attribute mapper that maps
  * a Java Integer object into LDAP attribute,
  * and vice versa.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

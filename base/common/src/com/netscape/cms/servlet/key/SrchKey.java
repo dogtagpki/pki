@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Retrieve archived keys matching search criteria
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SrchKey extends CMSServlet {
@@ -92,7 +92,7 @@ public class SrchKey extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "srchKey.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -144,7 +144,7 @@ public class SrchKey extends CMSServlet {
      * <li>http.param querySentinel ID of first request to show
      * <li>http.param timeLimit number of seconds to limit ldap search to
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

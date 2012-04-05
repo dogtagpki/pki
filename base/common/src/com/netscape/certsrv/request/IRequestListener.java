@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.ISubsystem;
 
 /**
  * An interface that defines abilities of request listener,
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestListener {
@@ -31,7 +31,7 @@ public interface IRequestListener {
     /**
      * Initializes request listener for the specific subsystem
      * and configuration store.
-     * 
+     *
      * @param sub subsystem
      * @param config configuration store
      */
@@ -39,14 +39,14 @@ public interface IRequestListener {
 
     /**
      * Accepts request.
-     * 
+     *
      * @param request request
      */
     public void accept(IRequest request);
 
     /**
      * Sets attribute.
-     * 
+     *
      * @param name attribute name
      * @param val attribute value
      */

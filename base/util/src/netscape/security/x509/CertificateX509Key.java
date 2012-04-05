@@ -32,7 +32,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the X509Key attribute for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.5
@@ -59,7 +59,7 @@ public class CertificateX509Key implements CertAttrSet, Serializable {
 
     /**
      * Default constructor for the certificate attribute.
-     * 
+     *
      * @param key the X509Key
      */
     public CertificateX509Key(X509Key key) {
@@ -68,7 +68,7 @@ public class CertificateX509Key implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the X509Key from.
      * @exception IOException on decoding errors.
      */
@@ -79,7 +79,7 @@ public class CertificateX509Key implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the X509Key from.
      * @exception IOException on decoding errors.
      */
@@ -99,7 +99,7 @@ public class CertificateX509Key implements CertAttrSet, Serializable {
 
     /**
      * Decode the key in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from
      * @exception IOException on decoding or validity errors.
      */
@@ -120,7 +120,7 @@ public class CertificateX509Key implements CertAttrSet, Serializable {
 
     /**
      * Encode the key in DER form to the stream.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on errors.
      */

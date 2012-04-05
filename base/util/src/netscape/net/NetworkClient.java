@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
 
 /**
  * This is the base class for network clients.
- * 
+ *
  * @version 1.21, 08/07/97
  * @author Jonathan Payne
  */

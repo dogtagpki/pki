@@ -27,9 +27,9 @@ import org.mozilla.jss.pkcs11.PK11Module;
  * Tool used to determine which external hardware tokens are visible to the
  * Certificate System subsystem. This can be used to diagnose whether problems
  * using tokens are related to the Certificate System being unable to detect it.
- * 
+ *
  * <p>
- * 
+ *
  * @version $Revision$ Date: $
  */
 public class TokenInfo {

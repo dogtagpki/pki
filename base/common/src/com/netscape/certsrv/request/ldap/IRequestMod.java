@@ -25,13 +25,13 @@ import com.netscape.certsrv.request.RequestStatus;
 /**
  * This interface defines how to update request record.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestMod {
     /**
      * Modifies request status.
-     * 
+     *
      * @param r request
      * @param s request status
      */
@@ -39,7 +39,7 @@ public interface IRequestMod {
 
     /**
      * Modifies request creation time.
-     * 
+     *
      * @param r request
      * @param d date
      */
@@ -47,7 +47,7 @@ public interface IRequestMod {
 
     /**
      * Modifies request modification time.
-     * 
+     *
      * @param r request
      * @param d date
      */

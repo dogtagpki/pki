@@ -48,7 +48,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a CRL Distribution points extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CRLDistributionPointsExtDefault extends EnrollExtDefault {

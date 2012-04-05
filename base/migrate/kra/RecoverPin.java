@@ -43,7 +43,7 @@ import java.util.*;
 import com.netscape.cmscore.shares.*;
 
 public class RecoverPin {
-    
+
     public static String getPassword(Hashtable shares) throws Exception
     {
         System.out.println("Share size '" + shares.size() + "'");
@@ -86,7 +86,7 @@ System.out.println("Add share " + (int)(Integer.parseInt(next) + 1));
 
           BASE64Decoder decoder = new BASE64Decoder();
           byte share[] = decoder.decodeBuffer(encrypted);
-          System.out.println("Got encrypted share length '" + 
+          System.out.println("Got encrypted share length '" +
                   share.length + "'");
 
           System.out.println("Please input password for " + uid + ":");
@@ -127,7 +127,7 @@ System.out.println("Add share " + (int)(Integer.parseInt(next) + 1));
         String password = args[2];
         String path_kra_mn = args[3];
 
-        CryptoManager.InitializationValues vals = 
+        CryptoManager.InitializationValues vals =
                  new CryptoManager.InitializationValues(alias,
                  prefix, prefix, "secmod.db");
 

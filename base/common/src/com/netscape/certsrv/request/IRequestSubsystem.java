@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
  * This interface defines storage of request objects
  * in the local database.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestSubsystem {
@@ -34,7 +34,7 @@ public interface IRequestSubsystem {
      * (Currently unimplemented. Just use getRequestQueue to create
      * an in-memory queue.)
      * <p>
-     * 
+     *
      * @param name The name of the queue object. This name can be used
      *            in getRequestQueue to retrieve the queue later.
      * @exception EBaseException failed to create request queue
@@ -50,7 +50,7 @@ public interface IRequestSubsystem {
      * <p>
      * WARNING: retrieving the same queue twice with result in multi-thread race conditions.
      * <p>
-     * 
+     *
      * @param name
      *            the name of the request queue. (Ex: "ca" "ra")
      * @param p
@@ -78,7 +78,7 @@ public interface IRequestSubsystem {
      * <p>
      * WARNING: retrieving the same queue twice with result in multi-thread race conditions.
      * <p>
-     * 
+     *
      * @param name
      *            the name of the request queue. (Ex: "ca" "ra")
      * @param p

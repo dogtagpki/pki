@@ -46,7 +46,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a subject directory attributes extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SubjectDirAttributesExtDefault extends EnrollExtDefault {

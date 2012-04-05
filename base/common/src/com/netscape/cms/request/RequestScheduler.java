@@ -27,7 +27,7 @@ import com.netscape.certsrv.request.IRequestScheduler;
  * the threads based on the request processing order.
  * The request that enters the request queue first should
  * be processed first.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RequestScheduler implements IRequestScheduler {
@@ -35,7 +35,7 @@ public class RequestScheduler implements IRequestScheduler {
 
     /**
      * Request entered the request queue processing.
-     * 
+     *
      * @param r request
      */
     public synchronized void requestIn(IRequest r) {
@@ -49,7 +49,7 @@ public class RequestScheduler implements IRequestScheduler {
 
     /**
      * Request exited the request queue processing.
-     * 
+     *
      * @param r request
      */
     public synchronized void requestOut(IRequest r) {

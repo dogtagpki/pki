@@ -46,7 +46,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * A class for ldap acls based authorization manager
  * The ldap server used for acls is the cms internal ldap db.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DirAclAuthz extends AAclAuthz
@@ -203,7 +203,7 @@ public class DirAclAuthz extends AAclAuthz
      * Example:
      * <p>
      * For example, if UsrGrpAdminServlet needs to authorize the caller it would do be done in the following fashion:
-     * 
+     *
      * <PRE>
      * try {
      *     authzTok = mAuthz.authorize(&quot;DirAclAuthz&quot;, authToken, RES_GROUP, &quot;read&quot;);
@@ -211,7 +211,7 @@ public class DirAclAuthz extends AAclAuthz
      *     log(ILogger.LL_FAILURE, &quot;authorize call: &quot; + e.toString());
      * }
      * </PRE>
-     * 
+     *
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
@@ -230,7 +230,7 @@ public class DirAclAuthz extends AAclAuthz
             authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
             CMS.debug("DirAclAuthz: authorization passed");
         } catch (EACLsException e) {
-            // audit here later 
+            // audit here later
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
             String params[] = { resource, operation };
 
@@ -256,7 +256,7 @@ public class DirAclAuthz extends AAclAuthz
      * Currently, it is possible that when the memory is updated successfully, and the ldap isn't, the memory upates
      * lingers. The result is that the changes will only be done on ldap at the next update, or when the system shuts
      * down, another flush will be attempted.
-     * 
+     *
      * @param id is the resource id
      * @param rights The allowable rights for this resource
      * @param strACLs has the same format as a resourceACLs entry acis
@@ -352,7 +352,7 @@ public class DirAclAuthz extends AAclAuthz
 
     /**
      * Logs a message for this class in the system log file.
-     * 
+     *
      * @param level The log level.
      * @param msg The message to log.
      * @see com.netscape.certsrv.logging.ILogger

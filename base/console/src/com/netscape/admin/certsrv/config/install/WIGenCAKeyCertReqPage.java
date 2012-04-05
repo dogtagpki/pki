@@ -55,7 +55,7 @@ class WIGenCAKeyCertReqPage extends WIGenKeyCertReqPage {
         if (wizardInfo.isCACertLocalCA() || !wizardInfo.isCAInstalled() ||
           wizardInfo.isMigrationEnable() || wizardInfo.isSelfSignedCACertDone()
           || (wizardInfo.isCACertRequestDone() &&
-			  !wizardInfo.isCACertRequestBack()) || 
+			  !wizardInfo.isCACertRequestBack()) ||
 		  wizardInfo.isCACertInstalledDone())
             return false;
 

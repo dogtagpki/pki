@@ -38,7 +38,7 @@ class WICACertValidityPage extends WICertValidityPage {
     private static final String PANELNAME = "INSTALLCACERTVALIDWIZARD";
     private static final String CAHELPINDEX = "install-cacert-validity-wizard-help";
     private static final String CAKRAHELPINDEX = "install-cakracert-validity-wizard-help";
-   
+
     WICACertValidityPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;

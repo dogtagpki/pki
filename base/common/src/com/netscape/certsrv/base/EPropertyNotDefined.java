@@ -22,7 +22,7 @@ package com.netscape.certsrv.base;
  * property is not defined (empty string) the configuration store.
  * It extends EBaseException and uses the same resource bundle.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.base.EBaseException
  */
@@ -37,7 +37,7 @@ public class EPropertyNotDefined extends EBaseException {
      * Constructs an instance of this exception given the name of the
      * property that's not found.
      * <p>
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EPropertyNotDefined(String errorString) {

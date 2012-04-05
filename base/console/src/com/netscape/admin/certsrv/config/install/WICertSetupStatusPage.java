@@ -80,7 +80,7 @@ class WICertSetupStatusPage extends WizardBasePanel implements IWizardPanel {
                 desc.setText(mResource.getString(
                    "INSTALLCONFIGSTATUSWIZARD_OCSPTEXT_DESC_LABEL"));
         } else if (wizardInfo.isRAInstalled()) {
-            if (wizardInfo.isKRAInstalled()) 
+            if (wizardInfo.isKRAInstalled())
                 desc.setText(mResource.getString(
                    "INSTALLCONFIGSTATUSWIZARD_RAKRATEXT_DESC_LABEL"));
             else
@@ -98,7 +98,7 @@ class WICertSetupStatusPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdmin admin = (CMSAdmin)wizardInfo.get("CMSAdmin");
         IPage viewInstance = (IPage)wizardInfo.get("viewInstance");
-        if (viewInstance != null) 
+        if (viewInstance != null)
             admin.updateMenu(viewInstance);
         return true;
     }

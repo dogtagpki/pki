@@ -49,11 +49,11 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
     private String mbeginRequestNumber;
     private JTextField mbeginRequestNumberText;
     private JLabel mbeginRequestNumberLabel;
-    
+
     private String mEndRequestNumber = null;
     private JTextField mEndRequestNumberText;
     private JLabel mEndRequestNumberLabel;
-   
+
     private static final String DEFAULT_SERIAL_NUMBER = "1";
     private static final String PANELNAME = "KRAREQUESTNUMBERWIZARD";
     private static final String HELPINDEX =
@@ -84,11 +84,11 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
           !wizardInfo.isKRAInstalled() || wizardInfo.isKRACertInstalledDone()||
           wizardInfo.isNumberPageDone())
             return false;
-        
+
 		if (wizardInfo.isCloning())
 			mDesc.setText(mResource.getString(PANELNAME+"_TEXT_HEADING_LABEL")
 					 + mResource.getString(PANELNAME+"_TEXT_MORE_LABEL"));
-		else 
+		else
 			mDesc.setText(mResource.getString(PANELNAME+"_TEXT_HEADING_LABEL"));
 
 
@@ -107,7 +107,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
 
         if ((serial = wizardInfo.getEndRequestNumber()) != null)
         	mEndRequestNumberText.setText(serial);
-        return true; 
+        return true;
     }
 
     private String hexToDecimal(String hex, boolean isHex)
@@ -188,7 +188,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
             else
               mEndRequestNumber = "";
         }
-        
+
         if (num != null && endNum != null && num.compareTo(endNum) > 0) {
             setErrorMessage("Ending number must be greater than starting number.");
             return false;
@@ -206,13 +206,13 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-		if (mSerialNumber != null && !mSerialNumber.equals("")) 
+		if (mSerialNumber != null && !mSerialNumber.equals(""))
 			wizardInfo.setCASerialNumber(mSerialNumber);
 		else {
 			wizardInfo.setCASerialNumber(DEFAULT_SERIAL_NUMBER);
 			mSerialNumber = DEFAULT_SERIAL_NUMBER;
 		}
-		if (mbeginRequestNumber != null && !mbeginRequestNumber.equals("")) 
+		if (mbeginRequestNumber != null && !mbeginRequestNumber.equals(""))
 			wizardInfo.setRequestNumber(mbeginRequestNumber);
 		else {
 			wizardInfo.setRequestNumber(DEFAULT_SERIAL_NUMBER);
@@ -221,16 +221,16 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
 
         String rawData = ConfigConstants.TASKID+"="+TaskId.TASK_SET_KRA_NUMBER;
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
-		if (mSerialNumber != null && !mSerialNumber.equals("")) 
+		if (mSerialNumber != null && !mSerialNumber.equals(""))
             rawData = rawData+"&"+ConfigConstants.PR_CA_SERIAL_NUMBER+"="+
               mSerialNumber;
-		if (mEndSerialNumber != null && !mEndSerialNumber.equals("")) 
+		if (mEndSerialNumber != null && !mEndSerialNumber.equals(""))
             rawData = rawData+"&"+ConfigConstants.PR_CA_ENDSERIAL_NUMBER+"="+
               mEndSerialNumber;
-		if (mbeginRequestNumber != null && !mbeginRequestNumber.equals("")) 
+		if (mbeginRequestNumber != null && !mbeginRequestNumber.equals(""))
             rawData = rawData+"&"+ConfigConstants.PR_REQUEST_NUMBER+"="+
               mbeginRequestNumber;
-		if (mEndRequestNumber != null && !mEndSerialNumber.equals("")) 
+		if (mEndRequestNumber != null && !mEndSerialNumber.equals(""))
             rawData = rawData+"&"+ConfigConstants.PR_ENDREQUEST_NUMBER+"="+
               mEndRequestNumber;
         if (wizardInfo.getInternalDBPasswd() != null)
@@ -294,7 +294,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         add(mSerialNumberText, gbc);
 
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mEndSerialNumberLabel = makeJLabel("ENDSERIALNUMBER");
         gbc.anchor = gbc.EAST;
@@ -311,7 +311,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mEndSerialNumberText, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mbeginRequestNumberLabel = makeJLabel("REQUESTNUMBER");
         gbc.anchor = gbc.EAST;
@@ -319,7 +319,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mbeginRequestNumberLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mbeginRequestNumberText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -328,7 +328,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mbeginRequestNumberText, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mEndRequestNumberLabel = makeJLabel("ENDREQUESTNUMBER");
         gbc.anchor = gbc.EAST;
@@ -336,7 +336,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mEndRequestNumberLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mEndRequestNumberText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -345,7 +345,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mEndRequestNumberText, gbc);
-        
+
         /*
         CMSAdminUtil.resetGBC(gbc);
         mSerialNumberLabel = makeJLabel("PWD");
@@ -354,7 +354,7 @@ class WIKRANumberPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mSerialNumberLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mSerialNumberText = makeJSerialNumberField(30);
         gbc.anchor = gbc.NORTHWEST;

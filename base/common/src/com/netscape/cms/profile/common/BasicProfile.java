@@ -50,7 +50,7 @@ import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This class implements a basic profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class BasicProfile implements IProfile {
@@ -206,7 +206,7 @@ public abstract class BasicProfile implements IProfile {
         // policy.p1.constraint.params.x1=x1
         // policy.p1.constraint.params.x2=x2
 
-        // handle profile authentication plugins 
+        // handle profile authentication plugins
         try {
             mAuthInstanceId = config.getString("auth." + PROP_INSTANCE_ID, null);
             mAuthzAcl = config.getString("authz.acl", "");
@@ -742,7 +742,7 @@ public abstract class BasicProfile implements IProfile {
             throws EProfileException {
 
         // String setId ex: policyset.set1
-        // String id    Id of policy : examples: p1,p2,p3 
+        // String id    Id of policy : examples: p1,p2,p3
         // String defaultClassId : id of the default plugin ex: validityDefaultImpl
         // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
         // boolean createConfig : true : being called from the console. false: being called from server startup code
@@ -847,7 +847,7 @@ public abstract class BasicProfile implements IProfile {
                 // noDefaultImpl, genericExtDefaultImpl
 
                 if ((curDefaultClassId.equals(defaultClassId) &&
-                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && 
+                        !curDefaultClassId.equals(PROP_NO_DEFAULT) &&
                         !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT))) {
 
                     matches++;
@@ -1110,11 +1110,11 @@ public abstract class BasicProfile implements IProfile {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended "BasicProfile"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -1134,12 +1134,12 @@ public abstract class BasicProfile implements IProfile {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is inherited by all extended "BasicProfile"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {

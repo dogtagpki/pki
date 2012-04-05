@@ -36,14 +36,14 @@ class WISMTPPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "SMTPWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WISMTPPage() {
         super(PANELNAME);
         init();
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean isLastPage() {

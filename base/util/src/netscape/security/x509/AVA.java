@@ -37,17 +37,17 @@ import netscape.security.util.ObjectIdentifier;
  * some attribute ID, has some particular value. Values are as a rule ASN.1
  * printable strings. A conventional set of type IDs is recognized when
  * parsing (and generating) RFC 1779 syntax strings.
- * 
+ *
  * <P>
  * AVAs are components of X.500 relative names. Think of them as being individual fields of a database record. The
  * attribute ID is how you identify the field, and the value is part of a particular record.
- * 
+ *
  * @see X500Name
  * @see RDN
  * @see LdapDNStrConverter
- * 
+ *
  * @version 1.14
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -61,7 +61,7 @@ public final class AVA implements DerEncoder {
     /**
      * Constructs an AVA from a Ldap DN string with one AVA component
      * using the global default LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param avaString a Ldap DN string with one AVA component.
      */
@@ -87,7 +87,7 @@ public final class AVA implements DerEncoder {
     /**
      * Constructs an AVA from a Ldap DN string containing one AVA
      * component using the specified LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param avaString a Ldap DN string containing one AVA.
      * @param ldapDNStrConverter a LdapDNStrConverter
@@ -102,7 +102,7 @@ public final class AVA implements DerEncoder {
 
     /**
      * Constructs an AVA from an OID and DerValue.
-     * 
+     *
      * @param type an ObjectIdentifier
      * @param val a DerValue
      */
@@ -119,11 +119,11 @@ public final class AVA implements DerEncoder {
      * Parses an RFC 1779 style AVA string: CN=fee fie foe fum
      * or perhaps with quotes. Not all defined AVA tags are supported;
      * of current note are X.400 related ones (PRMD, ADMD, etc).
-     * 
+     *
      * This terminates at unescaped AVA separators ("+") or RDN
      * separators (",", ";"), or DN terminators (">"), and removes
      * cosmetic whitespace at the end of values.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param in the input stream.
      */
@@ -149,7 +149,7 @@ public final class AVA implements DerEncoder {
 
     /**
      * Constructs an AVA from a Der Input Stream.
-     * 
+     *
      * @param in the Der Input Stream.
      */
     public AVA(DerInputStream in) throws IOException {
@@ -181,7 +181,7 @@ public final class AVA implements DerEncoder {
 
     /**
      * Returns true if another AVA has the same OID and DerValue.
-     * 
+     *
      * @param other the other AVA.
      * @return ture iff other AVA has same oid and value.
      */
@@ -192,7 +192,7 @@ public final class AVA implements DerEncoder {
     /**
      * Compares the AVA with an Object, returns true if the object is
      * an AVA and has the same OID and value.
-     * 
+     *
      * @param other the other object.
      * @return true iff other object is an AVA and has same oid and value.
      */
@@ -206,7 +206,7 @@ public final class AVA implements DerEncoder {
     /**
      * Encodes the AVA to a Der output stream.
      * AVAs are encoded as a SEQUENCE of two elements.
-     * 
+     *
      * @param out The Der output stream.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -216,10 +216,10 @@ public final class AVA implements DerEncoder {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the output stream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
@@ -235,7 +235,7 @@ public final class AVA implements DerEncoder {
     /**
      * Returns a Ldap DN string with one AVA component using
      * the global default LdapDNStrConverter.
-     * 
+     *
      * @return a Ldap DN string
      * @exception IOException if an error occurs during conversion.
      * @see LdapDNStrConverter
@@ -249,7 +249,7 @@ public final class AVA implements DerEncoder {
     /**
      * Returns a Ldap DN string with one AVA component using the specified
      * LdapDNStrConverter.
-     * 
+     *
      * @return a Ldap DN string
      * @param ldapDNStrConverter a Ldap DN String Converter
      * @exception IOException if an error occurs during the conversion.
@@ -263,14 +263,14 @@ public final class AVA implements DerEncoder {
     /**
      * Returns a Ldap DN string with the AVA component using the global
      * default LdapDNStrConverter, or null if an error occurs in conversion.
-     * 
+     *
      * @return a Ldap DN string containing the AVA, or null if an
      *         error occurs in the conversion.
      */
     public String toString() {
         String s;
         try {
-            // NOTE that a LdapDNString is returned here to match the 
+            // NOTE that a LdapDNString is returned here to match the
             // original source from sun. Could also return the raw value
             // (before Ldap escaping) here.
             s = toLdapDNString();
@@ -282,7 +282,7 @@ public final class AVA implements DerEncoder {
 
     /**
      * Returns the OID in the AVA.
-     * 
+     *
      * @return the ObjectIdentifier in this AVA.
      */
     public ObjectIdentifier getOid() {
@@ -291,7 +291,7 @@ public final class AVA implements DerEncoder {
 
     /**
      * Returns the value in this AVA as a DerValue
-     * 
+     *
      * @return attribute value in this AVA.
      */
     public DerValue getValue() {

@@ -40,9 +40,9 @@ import netscape.security.x509.AlgIdDSA;
  * This class generates DSA key parameters and public/private key
  * pairs according to the DSS standard NIST FIPS 186. It uses the
  * updated version of SHA, SHA-1 as described in FIPS 180-1.
- * 
+ *
  * @author Benjamin Renaud
- * 
+ *
  * @version 1.23, 97/12/10
  */
 
@@ -60,7 +60,7 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
            from the DSA specification, FIPS 186, and the FIPS 186
            Change No 1, which updates the test vector using SHA-1
            instead of SHA (for both the G function and the message
-           hash.  
+           hash.
            */
 
         precomputedParams = new Hashtable<Integer, AlgIdDSA>();
@@ -206,7 +206,7 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
 
     /**
      * Initializes the DSA object using a DSA parameter object.
-     * 
+     *
      * @param params a fully initialized DSA parameter object.
      */
     public void initialize(DSAParams params, SecureRandom random)
@@ -217,11 +217,11 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
 
     /**
      * Initializes the DSA object using a parameter object.
-     * 
+     *
      * @param params the parameter set to be used to generate
      *            the keys.
      * @param random the source of randomness for this generator.
-     * 
+     *
      * @exception InvalidAlgorithmParameterException if the given parameters
      *                are inappropriate for this key pair generator
      */
@@ -238,11 +238,11 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
     /**
      * Generates a pair of keys usable by any JavaSecurity compliant
      * DSA implementation.
-     * 
+     *
      * @param rnd the source of random bits from which the random key
      *            generation parameters are drawn. In particular, this includes
      *            the XSEED parameter.
-     * 
+     *
      * @exception InvalidParameterException if the modulus is not
      *                between 512 and 1024.
      */
@@ -339,13 +339,13 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
      * Given a seed, generate the private key component of the key
      * pair. In the terminology used in the DSA specification
      * (FIPS-186) seed is the XSEED quantity.
-     * 
+     *
      * @param seed the seed to use to generate the private key.
      */
     BigInteger generateX(int[] seed, BigInteger q) {
 
-        /* Test vector 
-        int[] tseed = { 0xbd029bbe, 0x7f51960b, 0xcf9edb2b, 
+        /* Test vector
+        int[] tseed = { 0xbd029bbe, 0x7f51960b, 0xcf9edb2b,
         		 0x61f06f0f, 0xeb5a38b6 };
         seed = tseed;
         */
@@ -368,9 +368,9 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
 
     /**
      * Generate the public key component y of the key pair.
-     * 
+     *
      * @param x the private key component.
-     * 
+     *
      * @param p the base parameter.
      */
     BigInteger generateY(BigInteger x, BigInteger p, BigInteger g) {

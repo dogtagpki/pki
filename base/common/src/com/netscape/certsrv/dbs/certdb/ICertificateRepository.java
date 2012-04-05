@@ -37,7 +37,7 @@ import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollec
  * An interface represents a CMS certificate repository.
  * It stores all the issued certificate.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICertificateRepository extends IRepository {
@@ -47,7 +47,7 @@ public interface ICertificateRepository extends IRepository {
      * record contains four parts: certificate, meta-attributes,
      * issue information and reovcation information.
      * <P>
-     * 
+     *
      * @param record X.509 certificate
      * @exception EBaseException failed to add new certificate to
      *                the repository
@@ -57,7 +57,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Reads the certificate identified by the given serial no.
-     * 
+     *
      * @param serialNo serial number of certificate
      * @return certificate
      * @exception EBaseException failed to retrieve certificate
@@ -67,7 +67,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Reads certificate from repository.
-     * 
+     *
      * @param serialNo serial number of certificate
      * @return certificate record
      * @exception EBaseException failed to retrieve certificate
@@ -77,7 +77,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Sets certificate status update internal
-     * 
+     *
      * @param requestRepo request repository
      * @param interval update interval
      * @param listenToCloneModifications enable listening to clone modifications
@@ -88,14 +88,14 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Updates certificate status now. This is a blocking method.
-     * 
+     *
      * @exception EBaseException failed to update
      */
     public void updateCertStatus() throws EBaseException;
 
     /**
      * Modifies certificate record.
-     * 
+     *
      * @param serialNo serial number of record
      * @param mods modifications
      * @exception EBaseException failed to modify
@@ -105,7 +105,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Checks if the certificate exists in this repository.
-     * 
+     *
      * @param serialNo serial number of certificate
      * @return true if it exists
      * @exception EBaseException failed to check
@@ -115,7 +115,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Deletes certificate from this repository.
-     * 
+     *
      * @param serialNo serial number of certificate
      * @exception EBaseException failed to delete
      */
@@ -124,7 +124,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Marks certificate as revoked.
-     * 
+     *
      * @param id serial number
      * @param info revocation information
      * @exception EBaseException failed to mark
@@ -134,7 +134,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Updates certificate status.
-     * 
+     *
      * @param id serial number
      * @param status certificate status
      * @exception EBaseException failed to update status
@@ -144,7 +144,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Marks certificate as renewable.
-     * 
+     *
      * @param record certificate record to modify
      * @exception EBaseException failed to update
      */
@@ -153,7 +153,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Marks certificate as not renewable.
-     * 
+     *
      * @param record certificate record to modify
      * @exception EBaseException failed to update
      */
@@ -162,7 +162,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Marks certificate as renewed.
-     * 
+     *
      * @param serialNo certificate record to modify
      * @exception EBaseException failed to update
      */
@@ -171,7 +171,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Marks certificate as renewed and notified.
-     * 
+     *
      * @param serialNo certificate record to modify
      * @exception EBaseException failed to update
      */
@@ -183,7 +183,7 @@ public interface ICertificateRepository extends IRepository {
      * the filter.
      * Here is a list of filter
      * attribute can be used:
-     * 
+     *
      * <pre>
      *   certRecordId
      *   certMetaInfo
@@ -194,14 +194,14 @@ public interface ICertificateRepository extends IRepository {
      *   x509Cert.notAfter
      *   x509Cert.subject
      * </pre>
-     * 
+     *
      * The filter should follow RFC1558 LDAP filter syntax.
      * For example,
-     * 
+     *
      * <pre>
      *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
      * </pre>
-     * 
+     *
      * @param filter search filter
      * @param maxSize max size to return
      * @return a list of certificates
@@ -213,7 +213,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Finds a list of certificate records that satisifies
      * the filter.
-     * 
+     *
      * @param filter search filter
      * @param maxSize max size to return
      * @param timeLimit timeout value
@@ -226,7 +226,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Finds a list of certificate records that satisifies
      * the filter.
-     * 
+     *
      * @param filter search filter
      * @param attrs selected attribute
      * @param pageSize page size
@@ -239,7 +239,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Finds a list of certificate records that satisifies
      * the filter.
-     * 
+     *
      * @param filter search filter
      * @param attrs selected attribute
      * @param sortKey key to use for sorting the returned elements
@@ -254,7 +254,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Finds a list of certificate records that satisifies
      * the filter.
-     * 
+     *
      * @param filter search filter
      * @param attrs selected attribute
      * @param jumpTo jump to index
@@ -274,7 +274,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Finds a list of certificate records that satisifies
      * the filter.
-     * 
+     *
      * @param filter search filter
      * @param attrs selected attribute
      * @param jumpTo jump to index
@@ -294,7 +294,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Gets all valid and unexpired certificates pertaining
      * to a subject DN.
-     * 
+     *
      * @param subjectDN The distinguished name of the subject.
      * @param validityType The type of certificatese to retrieve.
      * @return An array of certificates.
@@ -305,7 +305,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves all the revoked certificates that have not expired.
-     * 
+     *
      * @param asOfDate as of date
      * @return a list of revoked certificates
      * @exception EBaseException failed to retrieve
@@ -316,7 +316,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Retrieves all revoked certificates including ones that have expired
      * or that are not yet valid.
-     * 
+     *
      * @return a list of revoked certificates
      * @exception EBaseException failed to search
      */
@@ -325,7 +325,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves all revoked but not expired certificates.
-     * 
+     *
      * @return a list of revoked certificates
      * @exception EBaseException failed to search
      */
@@ -334,7 +334,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Finds all certificates given a filter.
-     * 
+     *
      * @param filter search filter
      * @return a list of certificates
      * @exception EBaseException failed to search
@@ -344,7 +344,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Finds all certificate records given a filter.
-     * 
+     *
      * @param filter search filter
      * @return a list of certificates
      * @exception EBaseException failed to search
@@ -355,7 +355,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Gets Revoked certs orderes by noAfter date, jumps to records
      * where notAfter date is greater than current.
-     * 
+     *
      * @param date reference date
      * @param pageSize page size
      * @return a list of certificate records
@@ -367,7 +367,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Gets Invalid certs orderes by noAfter date, jumps to records
      * where notAfter date is greater than current.
-     * 
+     *
      * @param date reference date
      * @param pageSize page size
      * @return a list of certificate records
@@ -379,7 +379,7 @@ public interface ICertificateRepository extends IRepository {
     /**
      * Gets valid certs orderes by noAfter date, jumps to records
      * where notAfter date is greater than current.
-     * 
+     *
      * @param date reference date
      * @param pageSize page size
      * @return a list of certificate records
@@ -390,7 +390,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Creates certificate record.
-     * 
+     *
      * @param id serial number
      * @param cert certificate
      * @param meta meta information
@@ -401,7 +401,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Finds certificate records.
-     * 
+     *
      * @param filter search filter
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve cert records
@@ -411,7 +411,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves renewable certificates.
-     * 
+     *
      * @param renewalTime renewal time
      * @return certificates
      * @exception EBaseException failed to retrieve
@@ -421,7 +421,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Unmark a revoked certificates.
-     * 
+     *
      * @param id serial number
      * @param info revocation information
      * @param revokedOn revocation date
@@ -434,7 +434,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves valid and not published certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -445,7 +445,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves expired and published certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -456,7 +456,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves revoked and published certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -467,7 +467,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves valid certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -478,7 +478,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves expired certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -489,7 +489,7 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves revoked certificates.
-     * 
+     *
      * @param from starting serial number
      * @param to ending serial number
      * @return a list of certificates
@@ -500,14 +500,14 @@ public interface ICertificateRepository extends IRepository {
 
     /**
      * Retrieves modified certificate records.
-     * 
+     *
      * @param entry LDAPEntry with modified data
      */
     public void getModifications(LDAPEntry entry);
 
     /**
      * Removes certificate records with this repository.
-     * 
+     *
      * @param beginS BigInteger with radix 16
      * @param endS BigInteger with radix 16
      */

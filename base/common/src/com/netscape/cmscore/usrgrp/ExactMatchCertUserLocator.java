@@ -34,7 +34,7 @@ import com.netscape.certsrv.usrgrp.IUser;
  * the incoming certificate(s) with the certificate(s)
  * in the scope. It matches the "description" field which contains a
  * stringied certificate.
- * 
+ *
  * @author thomask
  * @author cfu
  * @version $Revision$, $Date$

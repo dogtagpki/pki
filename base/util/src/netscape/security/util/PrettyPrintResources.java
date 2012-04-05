@@ -24,7 +24,7 @@ import netscape.security.x509.KeyUsageExtension;
 
 /**
  * Resource Boundle for the Pretty Print
- * 
+ *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */

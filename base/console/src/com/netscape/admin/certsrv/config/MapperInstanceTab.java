@@ -42,7 +42,7 @@ public class MapperInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "MAPPERRULE";
-    
+
     private final static String RAHELPINDEX = "configuration-ra-mapperinstances-help";
     private final static String CAHELPINDEX = "configuration-ca-mapperinstances-help";
     private final static String KRAHELPINDEX = "configuration-kra-mapperinstances-help";
@@ -58,9 +58,9 @@ public class MapperInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new MapperRuleDataModel();
 		mScope = ScopeDef.SC_MAPPER_RULES;
 		RULE_NAME = MapperRuleDataModel.RULE_NAME;
-	  	RULE_STAT = MapperRuleDataModel.RULE_STAT;  
+		RULE_STAT = MapperRuleDataModel.RULE_STAT;
 
-        if (mDestination.equals(DestDef.DEST_RA_MAPPER_ADMIN)) 
+        if (mDestination.equals(DestDef.DEST_RA_MAPPER_ADMIN))
             mHelpToken = RAHELPINDEX;
         else
             mHelpToken = CAHELPINDEX;
@@ -72,7 +72,7 @@ public class MapperInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new MapperConfigDialog(nvp,
@@ -86,7 +86,7 @@ public class MapperInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new MapperPluginSelectionDialog(parent,conn,dest,pluginType);
 	}

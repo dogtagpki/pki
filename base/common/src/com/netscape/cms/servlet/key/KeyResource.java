@@ -12,7 +12,7 @@ import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 
 @Path("/key")
 public interface KeyResource {
-   
+
     /**
      * Used to retrieve a key
      * @param data
@@ -23,7 +23,7 @@ public interface KeyResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyData retrieveKey(RecoveryRequestData data);
-    
+
     // retrieval - used to test integration with a browser
     @POST
     @Path("retrieve")

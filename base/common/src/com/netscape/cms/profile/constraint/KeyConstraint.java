@@ -46,7 +46,7 @@ import com.netscape.cms.profile.def.UserKeyDefault;
 /**
  * This constraint is to check the key type and
  * key length.
- * 
+ *
  * @version $Revision$, $Date$
  */
 @SuppressWarnings("serial")
@@ -454,7 +454,7 @@ public class KeyConstraint extends EnrollConstraint {
 
                 CMS.debug("algId: " + algid);
 
-                //Get raw string representation of alg parameters, will give 
+                //Get raw string representation of alg parameters, will give
                 //us the curve OID.
 
                 String params = null;
@@ -582,7 +582,7 @@ public class KeyConstraint extends EnrollConstraint {
             if (keyType.equals(""))
                 return;
         }
-        // All the params we need for validation have been collected, 
+        // All the params we need for validation have been collected,
         // we don't know which order they will show up
         if (keyType.length() > 0 && keyParams.length() > 0) {
             String[] params = keyParams.split(",");

@@ -48,7 +48,7 @@ public class AttrCellRenderer extends JLabel implements ListCellRenderer {
             setHorizontalAlignment(((JLabel)value).getHorizontalAlignment());
         } else {
             if (value instanceof String) {
-                setText((String) value);    
+                setText((String) value);
             } else {
                 setText(value.toString());
             }

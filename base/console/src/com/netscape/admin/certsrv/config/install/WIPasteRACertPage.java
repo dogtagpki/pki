@@ -48,7 +48,7 @@ class WIPasteRACertPage extends WIPasteCertPage {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isRACloningDone())
             return false;
-        if (wizardInfo.isRACertLocalCA() || !wizardInfo.isInstallCertNow() 
+        if (wizardInfo.isRACertLocalCA() || !wizardInfo.isInstallCertNow()
           || !wizardInfo.isRAInstalled() || wizardInfo.isRACertInstalledDone())
             return false;
 

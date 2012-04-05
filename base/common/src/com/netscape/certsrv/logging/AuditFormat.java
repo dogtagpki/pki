@@ -21,7 +21,7 @@ package com.netscape.certsrv.logging;
  * Define audit log message format. Note that the name of this
  * class "AuditFormat" is legacy and has nothing to do with the signed
  * audit log events format
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuditFormat {

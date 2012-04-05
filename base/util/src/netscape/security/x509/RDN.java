@@ -30,26 +30,26 @@ import netscape.security.util.ObjectIdentifier;
  * RDNs are a set of {attribute = value} assertions. Some of those
  * attributes are "distinguished" (unique w/in context). Order is
  * never relevant.
- * 
+ *
  * Some X.500 names include only a single distinguished attribute
  * per RDN. This style is currently common.
- * 
+ *
  * Note that DER-encoded RDNs sort AVAs by assertion OID ... so that
  * when we parse this data we don't have to worry about canonicalizing
  * it, but we'll need to sort them when we expose the RDN class more.
- * 
+ *
  * @see X500Name
  * @see AVA
  * @see LdapDNStrConverter
  */
 
 public class RDN {
-    // public constructors 
+    // public constructors
 
     /**
      * Constructs a RDN from a Ldap DN String with one RDN component
      * using the global default LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param rdnString a Ldap DN string with one RDN component, e.g. as
      *            defined in RFC1779.
@@ -76,7 +76,7 @@ public class RDN {
      * using the specified Ldap DN Str converter.
      * For example, RFC1779StrConverter can be passed to parse a Ldap
      * DN string in RFC1779 format.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param rdnString Ldap DN string.
      * @param ldapDNStrConverter a LdapDNStrConverter.
@@ -89,7 +89,7 @@ public class RDN {
 
     /**
      * Constructs a RDN from a DerValue.
-     * 
+     *
      * @param set Der value of a set of AVAs.
      */
     public RDN(DerValue set) throws IOException {
@@ -129,7 +129,7 @@ public class RDN {
 
     /**
      * Constructs a RDN from a Der Input Stream.
-     * 
+     *
      * @param in a Der Input Stream.
      */
     public RDN(DerInputStream in) throws IOException {
@@ -143,7 +143,7 @@ public class RDN {
 
     /**
      * Constructs a RDN from an array of AVA.
-     * 
+     *
      * @param avas a AVA Array.
      */
     public RDN(AVA avas[]) {
@@ -163,7 +163,7 @@ public class RDN {
 
     /**
      * returns an array of AVA in the RDN.
-     * 
+     *
      * @return array of AVA in this RDN.
      */
     public AVA[] getAssertion() {
@@ -172,7 +172,7 @@ public class RDN {
 
     /**
      * returns the number of AVAs in the RDN.
-     * 
+     *
      * @return number of AVAs in this RDN.
      */
     public int getAssertionLength() {
@@ -204,7 +204,7 @@ public class RDN {
     /**
      * Checks if this RDN is the same as another by comparing the AVAs
      * in the RDNs.
-     * 
+     *
      * @param other the other RDN.
      * @return true iff the other RDN is the same.
      */
@@ -234,7 +234,7 @@ public class RDN {
 
     /**
      * Encodes this RDN to a Der output stream.
-     * 
+     *
      * @param out the Der Output Stream.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -248,7 +248,7 @@ public class RDN {
 
     /**
      * returns an enumeration of AVAs that make up this RDN.
-     * 
+     *
      * @return an enumeration of AVAs that make up this RDN.
      */
     public Enumeration<AVA> getAVAs() {
@@ -258,7 +258,7 @@ public class RDN {
     /**
      * Returns a Ldap DN string with one RDN component using the
      * global default LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @return the Ldap DN String of this RDN.
      * @exception IOException if an error occurs during the conversion.
@@ -271,7 +271,7 @@ public class RDN {
     /**
      * Returns a Ldap DN String with this RDN component using the specified
      * LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param ldapDNStrConverter a LdapDNStrConverter.
      * @return a Ldap DN String.
@@ -285,7 +285,7 @@ public class RDN {
     /**
      * Returns a Ldap DN string with this RDN component using the global
      * default LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
      * @return the Ldap DN String with this RDN component, null if an error
      *         occurs in the conversion.

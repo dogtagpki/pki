@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.IArgBlock;
 
 /**
  * default unexpected error template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
@@ -36,7 +36,7 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
@@ -49,8 +49,8 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
 
         // When an exception occurs the exit is non-local which probably
         // will leave the requestStatus value set to something other
-        // than CMSRequest.EXCEPTION, so force the requestStatus to 
-        // EXCEPTION since it must be that if we're here. 
+        // than CMSRequest.EXCEPTION, so force the requestStatus to
+        // EXCEPTION since it must be that if we're here.
         Integer sts = CMSRequest.EXCEPTION;
         if (cmsReq != null)
             cmsReq.setStatus(sts);

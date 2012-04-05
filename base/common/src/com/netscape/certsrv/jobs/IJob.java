@@ -24,14 +24,14 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * An interface to be implemented from for a job to be scheduled by
  * the Jobs Scheduler.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IJob {
 
     /**
      * Initialize from the configuration file.
-     * 
+     *
      * @param id String name of this instance
      * @param implName string name of this implementation
      * @param config configuration store for this instance
@@ -42,7 +42,7 @@ public interface IJob {
 
     /**
      * tells if the job is enabled
-     * 
+     *
      * @return a boolean value indicating whether the job is enabled
      *         or not
      */
@@ -50,21 +50,21 @@ public interface IJob {
 
     /**
      * set instance id.
-     * 
+     *
      * @param id String id of the instance
      */
     public void setId(String id);
 
     /**
      * get instance id.
-     * 
+     *
      * @return a String identifier
      */
     public String getId();
 
     /**
      * get cron string associated with this job
-     * 
+     *
      * @return a JobCron object that represents the schedule of this job
      */
     public IJobCron getJobCron();
@@ -73,21 +73,21 @@ public interface IJob {
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams();
 
     /**
      * gets the plugin name of this job.
-     * 
+     *
      * @return a String that is the name of this implementation
      */
     public String getImplName();
 
     /**
      * Gets the configuration substore used by this job
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore();

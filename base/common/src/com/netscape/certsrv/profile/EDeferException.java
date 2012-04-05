@@ -24,7 +24,7 @@ package com.netscape.certsrv.profile;
  * <p>
  * A deferred request will not be processed immediately. Manual approval is required for processing the request again.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EDeferException extends EProfileException {
@@ -36,7 +36,7 @@ public class EDeferException extends EProfileException {
 
     /**
      * Creates a defer exception.
-     * 
+     *
      * @param msg localized message that will be
      *            displayed to end user. This message
      *            should indicate the reason why a request

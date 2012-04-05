@@ -42,10 +42,10 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * populates parameters to the enrollment page for
  * key generation.
  * <p>
- * 
+ *
  * This input normally is used with user-based or non certificate request profile.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyGenInput extends EnrollInput implements IProfileInput {

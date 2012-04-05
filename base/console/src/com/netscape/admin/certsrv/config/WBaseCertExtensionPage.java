@@ -48,7 +48,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
     protected static final String DEFAULT_CERT_LEN = "100";
     protected String mPanelName;
     protected boolean mModified=false;
-    
+
     public WBaseCertExtensionPage(String panelName) {
         super(panelName);
     }
@@ -73,7 +73,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
                 setErrorMessage("INVALID");
                 return false;
             }
- 
+
         }
 
         if (mMIMECheckBox.isSelected()) {
@@ -100,7 +100,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
 
             enableExtendedKey(extendedKey);
 
-            if (derExt) 
+            if (derExt)
                 enableMIMEExt(derExt, mActiveColor);
             else
                 enableMIMEExt(derExt, getBackground());
@@ -111,15 +111,15 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
 			// If signed by self, no request will be generated
 			// check if a signing cert installed, make cmc note invisible
 			String type = wizardInfo.getCertType();
-			if ((type.equals(Constants.PR_KRA_TRANSPORT_CERT) && 
+			if ((type.equals(Constants.PR_KRA_TRANSPORT_CERT) &&
 				 wizardInfo.isKRACertLocalCA()) ||
-				(type.equals(Constants.PR_SERVER_CERT) && 
+				(type.equals(Constants.PR_SERVER_CERT) &&
 				 wizardInfo.isSSLCertLocalCA()) ||
 				type.equals(Constants.PR_OCSP_SIGNING_CERT) ||
 				(type.equals(Constants.PR_CA_SIGNING_CERT) &&
 				 wizardInfo.isCACertLocalCA()) ||
 				(type.equals(Constants.PR_SERVER_CERT)  ||
-				 type.equals(Constants.PR_KRA_TRANSPORT_CERT)) && ( 
+				 type.equals(Constants.PR_KRA_TRANSPORT_CERT)) && (
 			     (wizardInfo.isCAInstalled() &&
 				 wizardInfo.isCACertInstalledDone()) ||
 				 (wizardInfo.isRAInstalled() &&
@@ -220,7 +220,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         JPanel panel = new JPanel();
         GridBagLayout gb1 = new GridBagLayout();
         panel.setLayout(gb1);
- 
+
         mCertPathBox = makeJCheckBox("CERTPATHLENGTH");
         CMSAdminUtil.resetGBC(gbc);
         gbc.insets = new Insets(0, 0, 0, COMPONENT_SPACE);
@@ -289,7 +289,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         gbc.fill = gbc.NONE;
         gbc.weightx = 1.0;
         add(mSSLMail, gbc);
-     
+
         mObjectSigning = makeJCheckBox("OBJECTSIGNING");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -315,7 +315,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         gbc.fill = gbc.NONE;
         gbc.weightx = 1.0;
         add(mOCSPSigning, gbc);
-     
+
         mAIACheckBox = makeJCheckBox("AIA");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -380,7 +380,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
           COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         add(mMIMECheckBox, gbc);
-     
+
         mMIMEText = new JTextArea("", 40, 70);
         JScrollPane scrollPane = new JScrollPane(mMIMEText,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -400,7 +400,7 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
           COMPONENT_SPACE);
         add(scrollPane, gbc);
         mActiveColor = mMIMEText.getBackground();
-     
+
         mPaste = makeJButton("PASTE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;
@@ -421,17 +421,17 @@ public class WBaseCertExtensionPage extends WizardBasePanel {
         if (source.equals(mPaste)) {
             mMIMEText.paste();
         } else if (source.equals(mBasicCheckBox)) {
-            if (mBasicCheckBox.isSelected()) 
+            if (mBasicCheckBox.isSelected())
                 enableBasicConstraints(true, mActiveColor);
             else
                 enableBasicConstraints(false, getBackground());
         } else if (source.equals(mExtendedKeyCheckBox)) {
-            if (mExtendedKeyCheckBox.isSelected()) 
+            if (mExtendedKeyCheckBox.isSelected())
                 enableExtendedKey(true);
             else
                 enableExtendedKey(false);
         } else if (source.equals(mMIMECheckBox)) {
-            if (mMIMECheckBox.isSelected()) 
+            if (mMIMECheckBox.isSelected())
                 enableMIMEExt(true, mActiveColor);
             else
                 enableMIMEExt(false, getBackground());

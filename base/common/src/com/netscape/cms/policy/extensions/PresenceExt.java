@@ -31,12 +31,12 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Checks extension presence.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -148,7 +148,7 @@ public class PresenceExt extends APolicyRule {
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

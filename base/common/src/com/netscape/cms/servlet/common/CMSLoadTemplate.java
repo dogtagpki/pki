@@ -19,7 +19,7 @@ package com.netscape.cms.servlet.common;
 
 /**
  * handy class containing cms templates to load & fill.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSLoadTemplate {

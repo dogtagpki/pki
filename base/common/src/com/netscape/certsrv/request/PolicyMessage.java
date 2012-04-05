@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
  * A (localizable) message recorded by a policy module that describes
  * the reason for rejecting a request.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PolicyMessage
@@ -37,7 +37,7 @@ public class PolicyMessage
     /**
      * Class constructor that registers policy message.
      * <p>
-     * 
+     *
      * @param message message string
      */
     public PolicyMessage(String message) {

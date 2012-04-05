@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * A class represents a Identity exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EUsrGrpException extends EBaseException {
@@ -38,7 +38,7 @@ public class EUsrGrpException extends EBaseException {
 
     /**
      * Constructs a usr/grp management exception
-     * 
+     *
      * @param msgFormat exception details in message string format
      *            <P>
      */
@@ -48,7 +48,7 @@ public class EUsrGrpException extends EBaseException {
 
     /**
      * Constructs a Identity exception.
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      *            <P>
@@ -59,7 +59,7 @@ public class EUsrGrpException extends EBaseException {
 
     /**
      * Constructs a Identity exception.
-     * 
+     *
      * @param e system exception
      *            <P>
      */
@@ -69,7 +69,7 @@ public class EUsrGrpException extends EBaseException {
 
     /**
      * Constructs a Identity exception.
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param params list of message format parameters
      *            <P>

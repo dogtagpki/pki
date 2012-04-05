@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
  * input that collects certificate requestor's
  * information such as name, email and phone.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SubmitterInfoInput extends EnrollInput implements IProfileInput {

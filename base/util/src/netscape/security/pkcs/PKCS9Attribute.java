@@ -34,7 +34,7 @@ import netscape.security.x509.CertificateExtensions;
  * Class supporting any PKCS9 attribute except
  * ExtendedCertificateAttribute. Supports DER decoding and access to
  * attribute values, but not DER encoding or setting of values.
- * 
+ *
  * @version 1.2 97/12/10
  * @author Douglas Hoover
  */
@@ -51,7 +51,7 @@ public class PKCS9Attribute implements DerEncoder {
      * Array of attribute OIDs defined in PKCS9, by number.
      */
     static final ObjectIdentifier[] PKCS9_OIDS =
-            //new ObjectIdentifier[10]; 
+            //new ObjectIdentifier[10];
             // There are some Obsolete(?) attribute identifiers.
             // This is mainly for extensionRequest (14) in pkcs10.
             // We just add the other 4 as by products.
@@ -174,118 +174,118 @@ public class PKCS9Attribute implements DerEncoder {
     /**
      * Class types required for values for a given PKCS9
      * attribute type.
-     * 
+     *
      * <P>
      * The following table shows the correspondence between attribute types and value component classes.
-     * 
+     *
      * <P>
      * <TABLE BORDER CELLPADDING=8 ALIGN=CENTER>
-     * 
+     *
      * <TR>
      * <TH>OID</TH>
      * <TH>Attribute Type Name</TH>
      * <TH>Kind</TH>
      * <TH>Value Class</TH>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.1</TD>
      * <TD>EmailAddress</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.2</TD>
      * <TD>UnstructuredName</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.3</TD>
      * <TD>ContentType</TD>
      * <TD>Single-valued</TD>
      * <TD><code>ObjectIdentifier</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.4</TD>
      * <TD>MessageDigest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>byte[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.5</TD>
      * <TD>SigningTime</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Date</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.6</TD>
      * <TD>Countersignature</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>SignerInfo</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.7</TD>
      * <TD>ChallengePassword</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.8</TD>
      * <TD>UnstructuredAddress</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.9</TD>
      * <TD>ExtendedCertificateAttributes</TD>
      * <TD>Multiple-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.10</TD>
      * <TD>IssuerAndSerialNumber</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.11</TD>
      * <TD>PasswordCheck</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.12</TD>
      * <TD>PublicKey</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.13</TD>
      * <TD>SigningDescription</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.14</TD>
      * <TD>ExtensionRequest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Sequence</code></TD>
      * </TR>
-     * 
+     *
      * </TABLE>
      */
     private static final Class<?>[] VALUE_CLASSES = new Class[15];
@@ -348,118 +348,118 @@ public class PKCS9Attribute implements DerEncoder {
      * value. If the attribute is
      * multiple-valued, provide an array containing all the values.
      * Arrays of length zero are accepted, though probably useless.
-     * 
+     *
      * <P>
      * The following table gives the class that <code>value</code> must have for a given attribute.
-     * 
+     *
      * <P>
      * <TABLE BORDER CELLPADDING=8 ALIGN=CENTER>
-     * 
+     *
      * <TR>
      * <TH>OID</TH>
      * <TH>Attribute Type Name</TH>
      * <TH>Kind</TH>
      * <TH>Value Class</TH>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.1</TD>
      * <TD>EmailAddress</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.2</TD>
      * <TD>UnstructuredName</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.3</TD>
      * <TD>ContentType</TD>
      * <TD>Single-valued</TD>
      * <TD><code>ObjectIdentifier</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.4</TD>
      * <TD>MessageDigest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>byte[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.5</TD>
      * <TD>SigningTime</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Date</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.6</TD>
      * <TD>Countersignature</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>SignerInfo[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.7</TD>
      * <TD>ChallengePassword</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.8</TD>
      * <TD>UnstructuredAddress</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.9</TD>
      * <TD>ExtendedCertificateAttributes</TD>
      * <TD>Multiple-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.10</TD>
      * <TD>IssuerAndSerialNumber</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.11</TD>
      * <TD>PasswordCheck</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.12</TD>
      * <TD>PublicKey</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.13</TD>
      * <TD>SigningDescription</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.14</TD>
      * <TD>ExtensionRequest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Sequence</code></TD>
      * </TR>
-     * 
+     *
      * </TABLE>
      */
     public PKCS9Attribute(ObjectIdentifier oid, Object value)
@@ -474,121 +474,121 @@ public class PKCS9Attribute implements DerEncoder {
      * value. If the attribute is
      * multiple-valued, provide an array containing all the values.
      * Arrays of length zero are accepted, though probably useless.
-     * 
+     *
      * <P>
      * The following table gives the class that <code>value</code> must have for a given attribute. Reasonable variants
      * of these attributes are accepted; in particular, case does not matter.
-     * 
+     *
      * <P>
      * <TABLE BORDER CELLPADDING=8 ALIGN=CENTER>
-     * 
+     *
      * <TR>
      * <TH>OID</TH>
      * <TH>Attribute Type Name</TH>
      * <TH>Kind</TH>
      * <TH>Value Class</TH>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.1</TD>
      * <TD>EmailAddress</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.2</TD>
      * <TD>UnstructuredName</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.3</TD>
      * <TD>ContentType</TD>
      * <TD>Single-valued</TD>
      * <TD><code>ObjectIdentifier</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.4</TD>
      * <TD>MessageDigest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>byte[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.5</TD>
      * <TD>SigningTime</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Date</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.6</TD>
      * <TD>Countersignature</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>SignerInfo[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.7</TD>
      * <TD>ChallengePassword</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.8</TD>
      * <TD>UnstructuredAddress</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.9</TD>
      * <TD>ExtendedCertificateAttributes</TD>
      * <TD>Multiple-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.10</TD>
      * <TD>IssuerAndSerialNumber</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.11</TD>
      * <TD>PasswordCheck</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.12</TD>
      * <TD>PublicKey</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.13</TD>
      * <TD>SigningDescription</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.14</TD>
      * <TD>ExtensionRequest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Sequence</code></TD>
      * </TR>
-     * 
+     *
      * </TABLE>
-     * 
+     *
      * @exception IllegalArgumentException
      *                if the <code>name</code> is not recognized of the <code>value</code> has the wrong type.
      */
@@ -628,7 +628,7 @@ public class PKCS9Attribute implements DerEncoder {
     /**
      * Construct a PKCS9Attribute from its encoding on an input
      * stream.
-     * 
+     *
      * @exception IOException on parsing error.
      */
     public PKCS9Attribute(DerValue derVal) throws IOException {
@@ -638,7 +638,7 @@ public class PKCS9Attribute implements DerEncoder {
 
     /**
      * Decode a PKCS9 attribute.
-     * 
+     *
      * @param val
      *            the DerValue representing the DER encoding of the attribute.
      */
@@ -752,7 +752,7 @@ public class PKCS9Attribute implements DerEncoder {
 
     /**
      * Write the DER encoding of this attribute to an output stream.
-     * 
+     *
      * <P>
      * N.B.: This method always encodes values of ChallengePassword and UnstructuredAddress attributes as ASN.1
      * <code>PrintableString</code>s, without checking whether they should be encoded as <code>T61String</code>s.
@@ -876,120 +876,120 @@ public class PKCS9Attribute implements DerEncoder {
      * single-valued, return just the one value. If the attribute is
      * multiple-valued, return an array containing all the values.
      * It is possible for this array to be of length 0.
-     * 
+     *
      * <P>
      * The following table gives the class of the value returned, depending on the type of this attribute.
-     * 
+     *
      * <P>
      * <TABLE BORDER CELLPADDING=8 ALIGN=CENTER>
-     * 
+     *
      * <TR>
      * <TH>OID</TH>
      * <TH>Attribute Type Name</TH>
      * <TH>Kind</TH>
      * <TH>Value Class</TH>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.1</TD>
      * <TD>EmailAddress</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.2</TD>
      * <TD>UnstructuredName</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.3</TD>
      * <TD>ContentType</TD>
      * <TD>Single-valued</TD>
      * <TD><code>ObjectIdentifier</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.4</TD>
      * <TD>MessageDigest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>byte[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.5</TD>
      * <TD>SigningTime</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Date</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.6</TD>
      * <TD>Countersignature</TD>
      * <TD>Multiple-valued</TD>
      * <TD><code>SignerInfo[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.7</TD>
      * <TD>ChallengePassword</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.8</TD>
      * <TD>UnstructuredAddress</TD>
      * <TD>Single-valued</TD>
      * <TD><code>String[]</code></TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.9</TD>
      * <TD>ExtendedCertificateAttributes</TD>
      * <TD>Multiple-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.10</TD>
      * <TD>IssuerAndSerialNumber</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.11</TD>
      * <TD>PasswordCheck</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.12</TD>
      * <TD>PublicKey</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.13</TD>
      * <TD>SigningDescription</TD>
      * <TD>Single-valued</TD>
      * <TD>(not supported)</TD>
      * </TR>
-     * 
+     *
      * <TR>
      * <TD>1.2.840.113549.1.9.14</TD>
      * <TD>ExtensionRequest</TD>
      * <TD>Single-valued</TD>
      * <TD><code>Sequence</code></TD>
      * </TR>
-     * 
+     *
      * </TABLE>
-     * 
+     *
      */
     public Object getValue() {
         return value;
@@ -1073,7 +1073,7 @@ public class PKCS9Attribute implements DerEncoder {
     /**
      * Beginning the search at <code>start</code>, find the first
      * index <code>i</code> such that <code>a[i] = obj</code>.
-     * 
+     *
      * @return the index, if found, and -1 otherwise.
      */
     static int indexOf(Object obj, Object[] a, int start) {

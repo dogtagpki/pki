@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
  * An email resolver that first checks the request email, if none,
  * then follows by checking the subjectDN of the certificate
  * <p>
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -53,7 +53,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
     /**
      * returns an email address by using the resolver keys. The
      * return value can possibly be null
-     * 
+     *
      * @param keys list of keys used for resolving the email address
      */
     public String getEmail(IEmailResolverKeys keys)
@@ -137,7 +137,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
 
     /**
      * Returns array of required keys for this email resolver
-     * 
+     *
      * @return Array of required keys.
      */
 

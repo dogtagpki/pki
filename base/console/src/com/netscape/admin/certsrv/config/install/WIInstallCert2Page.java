@@ -37,7 +37,7 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INSTALLCERT2WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WIInstallCert2Page() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -97,14 +97,14 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
         gbc.weightx = 1.0;
         gbc.fill = gbc.BOTH;
         add(subjectScrollPane, gbc);
- 
+
         JTextArea issueText = new JTextArea(null, null, 0, 0);
         JScrollPane issueScrollPane = new JScrollPane(issueText,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         //issueScrollPane.setPreferredSize(new Dimension(50, 30));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weighty = 1.0;

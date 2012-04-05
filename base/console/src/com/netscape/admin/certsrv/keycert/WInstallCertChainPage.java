@@ -26,7 +26,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * This page allows the user to do such selections as the installation of 
+ * This page allows the user to do such selections as the installation of
  * certificates, server certificate chain, or trusted CA.
  *
  * @author Christine Ho
@@ -40,7 +40,7 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INSTALLCERTCHAINWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-installcerttype-help";
-    
+
     WInstallCertChainPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -109,11 +109,11 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(opLbl, gbc);
- 
+
         mCertBox = makeJComboBox("CERTCHAINTYPE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
-        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weighty = 1.0;
         add(mCertBox, gbc);
@@ -134,7 +134,7 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
         String str = (String)(mCertBox.getSelectedItem());
         if (str.startsWith("Trusted")) {
             wizardInfo.addEntry(wizardInfo.INSTALLCERTTYPE, Constants.PR_TRUSTED_CA_CERT);
-        } else if (str.startsWith("Untrusted")) {  
+        } else if (str.startsWith("Untrusted")) {
             wizardInfo.addEntry(wizardInfo.INSTALLCERTTYPE, Constants.PR_SERVER_CERT_CHAIN);
         }
     }

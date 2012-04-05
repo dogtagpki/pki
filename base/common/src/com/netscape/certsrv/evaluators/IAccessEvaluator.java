@@ -26,7 +26,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
  * generally used for access control expression evaluation, however, it
  * can be used for other evaluation-related operations.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAccessEvaluator {
@@ -39,14 +39,14 @@ public interface IAccessEvaluator {
     /**
      * Gets the type of the evaluator. Type is defined by each
      * evaluator plugin. Each evaluator plugin should have a unique type.
-     * 
+     *
      * @return type of the evaluator
      */
     public String getType();
 
     /**
      * Gets the description of the evaluator
-     * 
+     *
      * @return a text description for this evaluator
      */
     public String getDescription();
@@ -54,7 +54,7 @@ public interface IAccessEvaluator {
     /**
      * Evaluates if the given value satisfies the access
      * control in current context.
-     * 
+     *
      * @param type Type of the evaluator, eg, user, group etc
      * @param op Operator of the evaluator, eg, =, !=
      * @param value Part of the expression that can be used to
@@ -68,7 +68,7 @@ public interface IAccessEvaluator {
     /**
      * Evaluates if the given value satisfies the access
      * control in authToken obtained from Authentication.
-     * 
+     *
      * @param authToken Authentication token
      * @param type Type of the evaluator, eg, user, group etc
      * @param op Operator of the evaluator, eg, =, !=
@@ -82,7 +82,7 @@ public interface IAccessEvaluator {
 
     /**
      * Get the supported operators for this evaluator
-     * 
+     *
      * @return Supported operators in string array
      */
     public String[] getSupportedOperators();

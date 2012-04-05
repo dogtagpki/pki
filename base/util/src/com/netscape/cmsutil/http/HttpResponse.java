@@ -74,7 +74,7 @@ public class HttpResponse extends HttpMessage {
         if (mStatusCode == null) {
             throw new HttpProtocolException("status code not set in response");
         }
-        // write status-line 
+        // write status-line
         mLine = Http.HttpVers + " " + mStatusCode + " ";
         if (mReasonPhrase != null)
             mLine += mReasonPhrase;

@@ -29,7 +29,7 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * A set of attributes of class PKCS9Attribute.
- * 
+ *
  * @version 1.2 97/12/10
  * @author Douglas Hoover
  */
@@ -57,16 +57,16 @@ public class PKCS9Attributes {
      * with OIDs on the given
      * list. If the array is null, accept all attributes supported by
      * class PKCS9Attribute.
-     * 
+     *
      * @param permittedAttributes
      *            Array of attribute OIDs that will be accepted.
      * @param buf
      *            the contents of the DER encoding of the attribute set.
-     * 
+     *
      * @exception IOException
      *                on i/o error, encoding syntax error, unacceptable or
      *                unsupported attribute, or duplicate attribute.
-     * 
+     *
      * @see PKCS9Attribute
      */
     public PKCS9Attributes(ObjectIdentifier[] permittedAttributes,
@@ -90,11 +90,11 @@ public class PKCS9Attributes {
      * Construct a set of PKCS9 Attributes from its contents of its
      * DER encoding on a DerInputStream. Accept all attributes
      * supported by class PKCS9Attribute.
-     * 
+     *
      * @exception IOException
      *                on i/o error, encoding syntax error, or unsupported or
      *                duplicate attribute.
-     * 
+     *
      * @see PKCS9Attribute
      */
     public PKCS9Attributes(DerInputStream in) throws IOException {
@@ -109,11 +109,11 @@ public class PKCS9Attributes {
      * PCK9 attributes.
      * DER encoding on a DerInputStream. All attributes in <code>attribs</code> must be
      * supported by class PKCS9Attribute.
-     * 
+     *
      * @exception IOException
      *                on i/o error, encoding syntax error, or unsupported or
      *                duplicate attribute.
-     * 
+     *
      * @see PKCS9Attribute
      */
     public PKCS9Attributes(PKCS9Attribute[] attribs)
@@ -136,10 +136,10 @@ public class PKCS9Attributes {
     /**
      * Decode this set of PKCS9 attribute set from the contents of its
      * DER encoding.
-     * 
+     *
      * @param buf
      *            the contents of the DER encoding of the attribute set.
-     * 
+     *
      * @exception IOException
      *                on i/o error, encoding syntax error, unacceptable or
      *                unsupported attribute, or duplicate attribute.
@@ -179,10 +179,10 @@ public class PKCS9Attributes {
     /**
      * Put the DER encoding of this PKCS9 attribute set on an
      * DerOutputStream, tagged with the given implicit tag.
-     * 
+     *
      * @param tag the implicit tag to use in the DER encoding.
      * @param out the output stream on which to put the DER encoding.
-     * 
+     *
      * @exception IOException on output error.
      */
     public void encode(byte tag, OutputStream out) throws IOException {
@@ -282,7 +282,7 @@ public class PKCS9Attributes {
             if (value == null)
                 continue;
 
-            // we have a value; print it 
+            // we have a value; print it
             if (first)
                 first = false;
             else

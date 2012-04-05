@@ -29,7 +29,7 @@ public class EAuthMgrNotFound extends EAuthException {
 
     /**
      * Constructs a exception for a missing authentication manager
-     * 
+     *
      * @param errorString error string for missing authentication manager
      */
     public EAuthMgrNotFound(String errorString) {

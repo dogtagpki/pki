@@ -40,7 +40,7 @@ import java.lang.reflect.*;
 
 public class Main
 {
-	public static void main(String args[]) 
+	public static void main(String args[])
 	{
 		try {
 			// initialize CryptoManager in CMS 4.5 and later
@@ -50,15 +50,15 @@ public class Main
 			// The following call to "java.security.Security.insertProviderAt()"
 			// is no longer commented out in CMS 4.5 and later
 			java.security.Security.insertProviderAt(
-				new netscape.security.provider.CMS(), 0); 
-			java.security.Provider ps[] = 
+				new netscape.security.provider.CMS(), 0);
+			java.security.Provider ps[] =
 				java.security.Security.getProviders();
-			if (ps == null || ps.length <= 0) { 
-				System.err.println("Java Security Provider NONE"); 
-			} else { 
-				for (int x = 0; x < ps.length; x++) { 
-					System.err.println("Java Security Provider " + x + " class=" + ps[x]); 
-				} 
+			if (ps == null || ps.length <= 0) {
+				System.err.println("Java Security Provider NONE");
+			} else {
+				for (int x = 0; x < ps.length; x++) {
+					System.err.println("Java Security Provider " + x + " class=" + ps[x]);
+				}
 			}
 
 			// Parse the File
@@ -81,14 +81,14 @@ public class Main
 class CS80LdifParser
 {
 	// constants
-	private static final String DN = 
+	private static final String DN =
 		"dn:";
 	// Directory Servers in CS 8.0 and later use "extdata-"
 	private static final String extAttrPrefix =
 		"extdata-";
-	private static final String BEGIN = 
+	private static final String BEGIN =
 		"--- BEGIN ATTRIBUTES ---";
-	private static final String END = 
+	private static final String END =
 		"--- END ATTRIBUTES ---";
 
 	// variables
@@ -108,16 +108,16 @@ class CS80LdifParser
 	}
 
 	public void parse() throws Exception
-	{ 
+	{
 		if (mErrorFilename != null) {
 		    mErrorPrintWriter = new PrintWriter(new FileOutputStream(mErrorFilename));
 		}
 		BufferedReader reader = new BufferedReader(
-			new FileReader(mFilename)); 
-		String line = null; 
-		String dn = null; 
+			new FileReader(mFilename));
+		String line = null;
+		String dn = null;
 		Vector requestAttributes = null;
-		while ((line = reader.readLine()) != null) { 
+		while ((line = reader.readLine()) != null) {
 			if (line.startsWith(DN)) {
 				dn = line;
 			}
@@ -154,12 +154,12 @@ class CS80LdifParser
 				if (line.trim().length() == 0) continue;
 				requestAttributes.setElementAt(
 					(String)
-					requestAttributes.lastElement() + 
-					"\n" + 
+					requestAttributes.lastElement() +
+					"\n" +
 					line,
 					requestAttributes.size() - 1);
 			}
-		} 
+		}
 	}
 
 	public String getKey( String dn, String attr )
@@ -188,10 +188,10 @@ class CS80LdifParser
 		}
 
 		return key;
-	} 
+	}
 
 	public void parseAttributes(String dn, Vector attrs) throws Exception
-	{ 
+	{
 		for( int i = 0; i < attrs.size(); i++ ) {
 			String attr = ( String ) attrs.elementAt( i );
 			try {
@@ -317,7 +317,7 @@ class CS80LdifParser
 		// character sequence contained in the string buffer does not exceed
 		// the capacity, it is not necessary to allocate a new internal buffer
 		// array. If the internal buffer overflows, it is automatically made
-		// larger. 
+		// larger.
 		//
 		// Start out with an output buffer at least as big as the input buffer.
 		output = new StringBuffer( input.length );
@@ -341,11 +341,11 @@ class CS80LdifParser
 		return( output.toString() );
 	}
 
-	public void translateAttributes( String dn, String attr ) 
+	public void translateAttributes( String dn, String attr )
 		throws Exception
 	{
 		// attribute format  [key]:[type]=[data]
-	
+
 		int colon = attr.indexOf( ':' );
 		if( colon == -1 ) {
 			if( mErrorPrintWriter != null ) {
@@ -436,14 +436,14 @@ class CS80LdifParser
 								subKey + ": " + formatData( subKeyData ) );
 		} else if( type.startsWith( "com.netscape.certsrv.authentication.AuthToken" ) ) {
             // Processes 'java.math.BigInteger[]':
-            // 
+            //
             //     Bugzilla Bug #225031 (a.k.a - Raidzilla Bug #58356)
-            // 
+            //
             // Processes 'java.lang.String[]':
-            // 
+            //
             //     Bugzilla Bug #224763 (a.k.a - Raidzilla Bug #57949)
             //     Bugzilla Bug #252240
-            // 
+            //
 
 			// Bugzilla Bug #737217 - adding proper "ext-data" array format
 			int secondColon = data.indexOf(':');
@@ -526,7 +526,7 @@ class CS80LdifParser
 			//                        since KRA requests only need to refer
 			//                        to the actual "keyRecord" referenced
 			//                        by the "keySerialNumber" data,
-			//                        all other "KeyRecord" request data is 
+			//                        all other "KeyRecord" request data is
 			//                        ignored, since it is already stored
 			//                        in the actual "keyRecord".
 			if( data.startsWith( "keySerialNumber" ) ) {

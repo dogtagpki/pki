@@ -19,14 +19,14 @@ package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.security.*;
 /**
- * Constructs panel containing a SSL2 cipher suites 
+ * Constructs panel containing a SSL2 cipher suites
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  */
 
-public class CMSSSL2CipherPreference extends CMSCipherPreferencePane 
+public class CMSSSL2CipherPreference extends CMSCipherPreferencePane
   implements ICipherConstants {
 
     public CMSSSL2CipherPreference(boolean isDomestic) {

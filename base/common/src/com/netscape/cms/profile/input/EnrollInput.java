@@ -42,7 +42,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
  * This class implements the base enrollment input.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollInput implements IProfileInput {
@@ -72,7 +72,7 @@ public abstract class EnrollInput implements IProfileInput {
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
@@ -82,7 +82,7 @@ public abstract class EnrollInput implements IProfileInput {
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return localized input name
      */
@@ -90,7 +90,7 @@ public abstract class EnrollInput implements IProfileInput {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return localized input description
      */
@@ -99,7 +99,7 @@ public abstract class EnrollInput implements IProfileInput {
     /**
      * Retrieves the descriptor of the given value
      * property by name.
-     * 
+     *
      * @param locale user locale
      * @param name property name
      * @return descriptor of the property
@@ -242,11 +242,11 @@ public abstract class EnrollInput implements IProfileInput {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -266,12 +266,12 @@ public abstract class EnrollInput implements IProfileInput {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {

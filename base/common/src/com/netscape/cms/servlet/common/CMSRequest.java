@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This represents a user request.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSRequest {
@@ -58,7 +58,7 @@ public class CMSRequest {
     // http headers & other info.
     private HttpServletRequest mHttpReq = null;
 
-    // http response. 
+    // http response.
     private HttpServletResponse mHttpResp = null;
 
     // http servlet config.
@@ -67,7 +67,7 @@ public class CMSRequest {
     // http servlet context.
     private ServletContext mServletContext = null;
 
-    // permanent request in request queue. 
+    // permanent request in request queue.
     private IRequest mRequest = null;
 
     // whether request processed successfully
@@ -90,7 +90,7 @@ public class CMSRequest {
     public CMSRequest() {
     }
 
-    // set methods use by servlets. 
+    // set methods use by servlets.
 
     /**
      * set the HTTP parameters
@@ -132,7 +132,7 @@ public class CMSRequest {
         mServletConfig = servletConfig;
     }
 
-    /* 
+    /*
      * set the servlet context. the servletcontext has detail
      * about the currently running request
      */
@@ -142,7 +142,7 @@ public class CMSRequest {
 
     /**
      * Set request status.
-     * 
+     *
      * @param status request status. Allowed values are
      *            UNAUTHORIZED, SUCCESS, REJECTED, PENDING, ERROR, SVC_PENDING
      * @throws IllegalArgumentException if status is not one of the above values
@@ -235,7 +235,7 @@ public class CMSRequest {
         return reason;
     }
 
-    // handy routines for IRequest. 
+    // handy routines for IRequest.
 
     public void setExtData(String type, String value) {
         if (mRequest != null) {
@@ -251,7 +251,7 @@ public class CMSRequest {
         }
     }
 
-    // policy errors; set on rejection or possibly deferral. 
+    // policy errors; set on rejection or possibly deferral.
     public Vector<String> getPolicyMessages() {
         if (mRequest != null) {
             return mRequest.getExtDataInStringVector(IRequest.ERRORS);
@@ -277,11 +277,11 @@ public class CMSRequest {
             mStatus = CMSRequest.SUCCESS;
             return;
         }
-        // unexpected resulting request status. 
+        // unexpected resulting request status.
         if (status == RequestStatus.REJECTED) {
             mStatus = CMSRequest.REJECTED;
             return;
-        } // pending or service pending. 
+        } // pending or service pending.
         else if (status == RequestStatus.PENDING) {
             mStatus = CMSRequest.PENDING;
             return;

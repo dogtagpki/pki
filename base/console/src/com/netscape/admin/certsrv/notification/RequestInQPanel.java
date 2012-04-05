@@ -32,9 +32,9 @@ import java.awt.event.*;
  * @version $Revision$, $Date$
  */
 public class RequestInQPanel extends CMSBaseTab implements ItemListener {
-    private static final String RA_HELPINDEX = 
+    private static final String RA_HELPINDEX =
       "notification-ra-reqinq-help";
-    private static final String CA_HELPINDEX = 
+    private static final String CA_HELPINDEX =
       "notification-ca-reqinq-help";
     private JTextField mEmailFormText;
     private JTextField mEmailSubjectText;
@@ -76,7 +76,7 @@ public class RequestInQPanel extends CMSBaseTab implements ItemListener {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         mCenterPanel.setLayout(gb);
-        
+
         //add the enable checkbox
         mEnable = makeJCheckBox("ENABLE");
         mEnable.setSelected(true);
@@ -85,13 +85,13 @@ public class RequestInQPanel extends CMSBaseTab implements ItemListener {
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnable, gbc);
 		mCenterPanel.add(mEnable);
-        
+
         //add the setting panel
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -113,7 +113,7 @@ public class RequestInQPanel extends CMSBaseTab implements ItemListener {
 		mActiveColor = mSenderEmailText.getBackground();
         CMSAdminUtil.addEntryField(emailInfo,
 			mSenderEmailLabel, mSenderEmailText, gbc);
-        
+
         // add email subject label and text field
         CMSAdminUtil.resetGBC(gbc);
         mEmailSubjectLabel = makeJLabel("SUBJECT");

@@ -50,12 +50,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Basic Constraints policy.
  * Adds the Basic constraints extension.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -95,10 +95,10 @@ public class BasicConstraintsExt extends APolicyRule
      * Initializes this policy rule.
      * <p>
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=BasicConstraintsExtImpl ca.Policy.rule.<ruleName>.pathLen=<n>, -1 for
      * undefined. ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -127,21 +127,21 @@ public class BasicConstraintsExt extends APolicyRule
 
             mCAPathLen = caCert.getBasicConstraints();
         }
-        // set default to one less than the CA's pathlen or 0 if CA's 
-        // pathlen is 0. 
+        // set default to one less than the CA's pathlen or 0 if CA's
+        // pathlen is 0.
         // If it's unlimited default the max pathlen also to unlimited.
         if (mCAPathLen < 0)
             mDefaultMaxPathLen = -1;
         else if (mCAPathLen > 0)
             mDefaultMaxPathLen = mCAPathLen - 1;
-        else // (mCAPathLen == 0)  
+        else // (mCAPathLen == 0)
         {
             log(ILogger.LL_WARN,
                     CMS.getLogMessage("POLICY_PATHLEN_ZERO"));
             //return;
         }
 
-        // get configured max path len, use defaults if not configured. 
+        // get configured max path len, use defaults if not configured.
         boolean pathLenConfigured = true;
 
         try {
@@ -173,9 +173,9 @@ public class BasicConstraintsExt extends APolicyRule
 
         // check if configured path len is valid.
         if (pathLenConfigured) {
-            // if CA's pathlen is unlimited, any max pathlen is ok. 
-            // else maxPathlen must be at most one less than the CA's 
-            // pathlen or 0 if CA's pathlen is 0. 
+            // if CA's pathlen is unlimited, any max pathlen is ok.
+            // else maxPathlen must be at most one less than the CA's
+            // pathlen or 0 if CA's pathlen is 0.
 
             if (mCAPathLen > 0 &&
                     (mMaxPathLen >= mCAPathLen || mMaxPathLen < 0)) {
@@ -205,7 +205,7 @@ public class BasicConstraintsExt extends APolicyRule
      * Checks if the basic contraints extension in certInfo is valid and
      * add the basic constraints extension for CA certs if none exists.
      * Non-CA certs do not get a basic constraints extension.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -263,7 +263,7 @@ public class BasicConstraintsExt extends APolicyRule
             // no extensions or basic constraints extension.
         }
 
-        // for non-CA certs, pkix says it SHOULD NOT have the extension 
+        // for non-CA certs, pkix says it SHOULD NOT have the extension
         // so remove it.
         if (!isCA) {
             if (extensions == null) {
@@ -275,7 +275,7 @@ public class BasicConstraintsExt extends APolicyRule
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                 } catch (CertificateException e) {
                 } catch (IOException e) {
-                    // not possible 
+                    // not possible
                 }
             }
             if (basicExt != null) {
@@ -309,11 +309,11 @@ public class BasicConstraintsExt extends APolicyRule
         }
 
         // For CA certs, check if existing extension is valid, and adjust.
-        // Extension must be marked critial and pathlen must be < CA's pathlen. 
+        // Extension must be marked critial and pathlen must be < CA's pathlen.
         // if CA's pathlen is 0 all ca certs are rejected.
 
         if (mCAPathLen == 0) {
-            // reject all subordinate CA cert requests because CA's 
+            // reject all subordinate CA cert requests because CA's
             // path length is 0.
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("POLICY_NO_SUB_CA_CERTS_ALLOWED_1", NAME));
@@ -399,7 +399,7 @@ public class BasicConstraintsExt extends APolicyRule
             } catch (CertificateException e) {
                 // not possible
             } catch (IOException e) {
-                // not possible 
+                // not possible
             }
         }
 
@@ -460,7 +460,7 @@ public class BasicConstraintsExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -476,7 +476,7 @@ public class BasicConstraintsExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

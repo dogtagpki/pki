@@ -26,7 +26,7 @@ import java.nio.charset.CodingErrorAction;
 
 /**
  * Converts bytes in ASN.1 IA5String character set to IA5String characters.
- * 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */

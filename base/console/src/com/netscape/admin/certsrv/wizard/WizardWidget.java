@@ -165,7 +165,7 @@ public class WizardWidget extends JDialog implements ActionListener
             if (!validateWizardPanel()) {
                 return;
             }
- 
+
             if (concludeWizardPanel())  {
 
                 if (mNextScreen.empty() || mBNext_Done.getText().equals("Done")) {
@@ -261,7 +261,7 @@ public class WizardWidget extends JDialog implements ActionListener
             data.put(ConfigConstants.PR_CERT_INSTANCE_NAME,
               consoleInfo.get(ConfigConstants.PR_CERT_INSTANCE_NAME));
             data.put(ConfigConstants.PR_SERVER_ROOT,
-              consoleInfo.get(ConfigConstants.PR_SERVER_ROOT)); 
+              consoleInfo.get(ConfigConstants.PR_SERVER_ROOT));
             boolean ready = configCertCgi.configCert(data);
             data.clear();
             data = null;
@@ -296,10 +296,10 @@ public class WizardWidget extends JDialog implements ActionListener
 
 	//JButton[] buttons = {mBBack, mBNext_Done, mBCancel, mBHelp };
 	JButton[] buttons = {mBBack, mBNext_Done, mBCancel};
-		
+
 		//pass the buttons reference to wizardinfo
 		mInfo.setButtons(mBNext_Done, mBCancel, mBBack);
-		
+
 		return CMSAdminUtil.makeJButtonPanel( buttons, true);
     }
 

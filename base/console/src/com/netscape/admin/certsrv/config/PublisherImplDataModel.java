@@ -40,7 +40,7 @@ public class PublisherImplDataModel extends CMSContentTableModel
     public static final String IMPL_NAME = "NAME";
     public static final String IMPL_CLASS = "CLASS";
     public static final String IMPL_DESC = "DESC";
-     
+
     private static String[] mColumns = {PUBLISHER_IMPL, CLASSNAME};
 
     /*==========================================================

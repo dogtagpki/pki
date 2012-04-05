@@ -43,11 +43,11 @@ import org.mozilla.jss.asn1.Tag;
  *      distributionPoint       [0]     DistributionPointName OPTIONAL,
  *      reasons                 [1]     ReasonFlags OPTIONAL,
  *      cRLIssuer               [2]     GeneralNames OPTIONAL }
- * 
+ *
  * DistributionPointName ::= CHOICE {
  *      fullName                [0]     GeneralNames,
  *      nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
- * 
+ *
  * ReasonFlags ::= BIT STRING {
  *      unused                  (0),
  *      keyCompromise           (1),
@@ -92,7 +92,7 @@ public class CRLDistributionPoint implements ASN1Value {
      * If it is set to a non-null value, <code>relativeName</code> will be
      * set to <code>null</code>, because at most one of these two attributes
      * can be specified at a time.
-     * 
+     *
      * @exception GeneralNamesException If an error occurs encoding the
      *                name.
      */
@@ -156,7 +156,7 @@ public class CRLDistributionPoint implements ASN1Value {
     /**
      * Sets the CRLIssuer for the CRL at this distribution point.
      * May be set to <code>null</code>.
-     * 
+     *
      * @exception GeneralNamesException If an error occurs encoding the name.
      */
     public void setCRLIssuer(GeneralNames CRLIssuer)
@@ -235,7 +235,7 @@ public class CRLDistributionPoint implements ASN1Value {
             seq.encode(implicitTag, ostream);
 
         } catch (InvalidBERException e) {
-            // this shouldn't happen unless there is a bug in one of 
+            // this shouldn't happen unless there is a bug in one of
             // the Sun encoding classes
             throw new IOException(e.toString());
         }

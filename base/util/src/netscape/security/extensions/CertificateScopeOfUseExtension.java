@@ -34,13 +34,13 @@ import netscape.security.x509.OIDMap;
 /**
  * This represents the CertificateScopeOfUse extension
  * as defined in draft-thayes-cert-scope-00
- * 
+ *
  * CertificateScopeEntry ::= SEQUENCE {
  * name GeneralName, -- pattern, as for NameConstraints
  * portNumber INTEGER OPTIONAL
  * }
  * CertificateScopeOfUse ::= SEQUENCE OF CertificateScopeEntry
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -166,7 +166,7 @@ public class CertificateScopeOfUseExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

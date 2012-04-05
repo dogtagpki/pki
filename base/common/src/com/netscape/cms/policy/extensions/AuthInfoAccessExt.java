@@ -47,9 +47,9 @@ import com.netscape.cms.policy.APolicyRule;
  * Authority Information Access extension policy.
  * If this policy is enabled, it adds an authority
  * information access extension to the certificate.
- * 
+ *
  * The following listed sample configuration parameters:
- * 
+ *
  * ca.Policy.impl.AuthInfoAccess.class=com.netscape.certsrv.policy.AuthInfoAccessExt
  * ca.Policy.rule.aia.ad0_location=uriName:http://ocsp1.netscape.com
  * ca.Policy.rule.aia.ad0_method=ocsp
@@ -66,16 +66,16 @@ import com.netscape.cms.policy.APolicyRule;
  * ca.Policy.rule.aia.enable=true
  * ca.Policy.rule.aia.implName=AuthInfoAccess
  * ca.Policy.rule.aia.predicate=
- * 
+ *
  * Currently, this policy only supports the following location:
  * uriName:[URI], dirName:[DN]
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -134,12 +134,12 @@ public class AuthInfoAccessExt extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt ca.Policy.rule.<ruleName>.enable=true
      * ca.Policy.rule.<ruleName>.predicate=
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -214,7 +214,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
      * If this policy is enabled, add the authority information
      * access extension to the certificate.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -305,7 +305,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -367,7 +367,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

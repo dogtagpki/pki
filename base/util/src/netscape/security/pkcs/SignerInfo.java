@@ -38,7 +38,7 @@ import netscape.security.x509.X500Name;
 
 /**
  * A SignerInfo, as defined in PKCS#7's signedData type.
- * 
+ *
  * @author Benjamin Renaud
  * @version 1.27 97/12/10
  */
@@ -110,7 +110,7 @@ public class SignerInfo implements DerEncoder {
             authenticatedAttributes = new PKCS9Attributes(derin);
         }
 
-        // digestEncryptionAlgorithmId - little RSA naming scheme - 
+        // digestEncryptionAlgorithmId - little RSA naming scheme -
         // signature == encryption...
         tmp = derin.getDerValue();
 
@@ -141,10 +141,10 @@ public class SignerInfo implements DerEncoder {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the output stream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
@@ -229,11 +229,11 @@ public class SignerInfo implements DerEncoder {
                         return null;
                 }
 
-                // message digest attribute matched 
+                // message digest attribute matched
                 // digest of original data
 
-                // the data actually signed is the DER encoding of 
-                // the authenticated attributes (tagged with 
+                // the data actually signed is the DER encoding of
+                // the authenticated attributes (tagged with
                 // the "SET OF" tag, not 0xA0).
                 dataSigned = authenticatedAttributes.getDerEncoding();
             }

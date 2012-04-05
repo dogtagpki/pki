@@ -45,7 +45,7 @@ public class IntHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>IntHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param i Initial integer value.
      */
     public IntHolder(int i) {

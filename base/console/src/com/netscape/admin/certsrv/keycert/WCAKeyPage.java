@@ -37,7 +37,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
     private static final String PANELNAME = "CAKEYWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WCAKeyPage() {
         super(PANELNAME);
         init();
@@ -49,7 +49,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
         //  (wizardInfo.isNewKey()))
             return false;
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -61,7 +61,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         AdminConnection connection = wizardInfo.getAdminConnection();
         NameValuePairs nvps = new NameValuePairs();
-        
+
         nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
         nvps.add(Constants.PR_KEY_LENGTH, (String)mKeyLengthBox.getSelectedItem());
         nvps.add(Constants.PR_KEY_TYPE, (String)mKeyTypeBox.getSelectedItem());
@@ -69,7 +69,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
         try {
             NameValuePairs response = connection.process(
               DestDef.DEST_SERVER_ADMIN,
-              ScopeDef.SC_CA_SIGNINGCERT, 
+              ScopeDef.SC_CA_SIGNINGCERT,
               Constants.PR_CERT_REQUEST, nvps);
         } catch (EAdminException e) {
             showErrorDialog(e.toString());
@@ -94,7 +94,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
 
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        wizardInfo.addEntry(Constants.PR_KEY_LENGTH, 
+        wizardInfo.addEntry(Constants.PR_KEY_LENGTH,
           (String)mKeyLengthBox.getSelectedItem());
         wizardInfo.addEntry(Constants.PR_KEY_TYPE,
           (String)mKeyTypeBox.getSelectedItem());

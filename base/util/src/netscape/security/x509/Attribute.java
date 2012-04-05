@@ -32,27 +32,27 @@ import netscape.security.util.ObjectIdentifier;
  * An attribute, as identified by some attribute ID, has some particular values.
  * Values are as a rule ASN.1 printable strings. A conventional set of type IDs
  * is recognized when parsing. The following shows the syntax:
- * 
+ *
  * <pre>
- * 
+ *
  *    Attribute	::= SEQUENCE {
  * type		AttributeType,
  * 	value		SET OF AttributeValue
  *              	-- at least one value is required --}
- * 
+ *
  *    AttributeType	::= OBJECT IDENTIFIER
- * 
+ *
  *    AttributeValue	::= ANY
- * 
+ *
  * </pre>
- * 
+ *
  * Refer to draft-ietf-pkix-ipki-part1-11 for the support attributes listed on
  * page 96 of the internet draft. The are listed here for easy reference: name,
  * common name, surname, given name, initials, generation qualifier, dn qualifier,
  * country name, locality name, state or province name, organization name, organization
  * unit name, title, pkcs9 email. Not all the attributes are supported. Please check
  * the X500NameAttrMap for defined attributes.
- * 
+ *
  * @author Christine Ho
  */
 
@@ -71,7 +71,7 @@ public final class Attribute implements Serializable, DerEncoder {
 
     /**
      * Construct an attribute from attribute type and attribute value
-     * 
+     *
      * @param oid the object identifier of the attribute type
      * @param value the value string
      */
@@ -89,7 +89,7 @@ public final class Attribute implements Serializable, DerEncoder {
 
     /**
      * Construct an attribute from attribute type and attribute values
-     * 
+     *
      * @param oid the object identifier of the attribute type
      * @param values String value vector
      */
@@ -112,7 +112,7 @@ public final class Attribute implements Serializable, DerEncoder {
 
     /**
      * Construct an attribute from attribute type and attribute values
-     * 
+     *
      * @param oid attribute type string CN,OU,O,C,L,TITLE,ST,STREET,UID,MAIL,E,DC
      * @param values String value vector
      */
@@ -148,7 +148,7 @@ public final class Attribute implements Serializable, DerEncoder {
     /**
      * Construct an attribute from a der encoded object. This der
      * der encoded value should represent the attribute object.
-     * 
+     *
      * @param value the attribute object in der encode form.
      */
     public Attribute(DerValue val)
@@ -168,7 +168,7 @@ public final class Attribute implements Serializable, DerEncoder {
 
     /**
      * Returns the OID in the Attribute.
-     * 
+     *
      * @return the ObjectIdentifier in this Attribute.
      */
     public ObjectIdentifier getOid() {
@@ -177,7 +177,7 @@ public final class Attribute implements Serializable, DerEncoder {
 
     /**
      * Returns enumeration of values in this attribute.
-     * 
+     *
      * @return Enumeration of values of this Attribute.
      */
     public Enumeration<String> getValues() {
@@ -189,7 +189,7 @@ public final class Attribute implements Serializable, DerEncoder {
     /**
      * Encodes the Attribute to a Der output stream.
      * Attribute are encoded as a SEQUENCE of two elements.
-     * 
+     *
      * @param out The Der output stream.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -199,10 +199,10 @@ public final class Attribute implements Serializable, DerEncoder {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the output stream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {

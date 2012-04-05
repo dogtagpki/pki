@@ -29,15 +29,15 @@ import netscape.security.util.DerValue;
 
 /**
  * This represents the Issuer Alternative Name Extension.
- * 
+ *
  * This extension, if present, allows the issuer to specify multiple
  * alternative names.
- * 
+ *
  * <p>
  * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating
  * whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding
  * of the extension value).
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -78,7 +78,7 @@ public class IssuerAlternativeNameExtension
 
     /**
      * Create a IssuerAlternativeNameExtension with the passed GeneralNames.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
@@ -93,7 +93,7 @@ public class IssuerAlternativeNameExtension
 
     /**
      * Create a IssuerAlternativeNameExtension with the passed GeneralNames.
-     * 
+     *
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
      */
@@ -116,7 +116,7 @@ public class IssuerAlternativeNameExtension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -154,7 +154,7 @@ public class IssuerAlternativeNameExtension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -164,7 +164,7 @@ public class IssuerAlternativeNameExtension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding error.
      */

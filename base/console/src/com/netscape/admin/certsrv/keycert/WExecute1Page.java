@@ -37,7 +37,7 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
     private static final String HELPINDEX =
       "configuration-keycert-wizard-certrequest-help";
     private JTextArea desc;
-    
+
     WExecute1Page(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -58,8 +58,8 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
-//          !wizardInfo.isNewKey() && 
-            wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA) && 
+//          !wizardInfo.isNewKey() &&
+            wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA) &&
 		    !(wizardInfo.isSSLCertLocalCA())) {
 
             String title = "";
@@ -78,7 +78,7 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
             else if (certType.equals(Constants.PR_OTHER_CERT))
                 title = mResource.getString("EXECUTE1WIZARD_BORDER_OTHER_LABEL");
             setBorder(new TitledBorder(title));
-          
+
             String str = "";
             if (wizardInfo.isNewKey()) {
                 str = mResource.getString("EXECUTE1WIZARD_TEXT_NEWKEY_LABEL");
@@ -88,8 +88,8 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
             desc.setText(str);
             return true;
         }
-            
-        return false; 
+
+        return false;
     }
 
     public boolean validatePanel() {

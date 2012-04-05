@@ -89,7 +89,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
      * Form a General Name from a General Name choice and value.
      * The General Name choice must be one of the General Name Choice Strings
      * defined in this class.
-     * 
+     *
      * @param generalNameChoice General Name choice. Must be one of the General
      *            Name choices defined in this class.
      * @param value String value of the general name to form.
@@ -192,7 +192,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
     /**
      * Checks if given string is a valid General Name choice and returns
      * the actual string that can be passed into form_GeneralName().
-     * 
+     *
      * @param generalNameChoice a General Name choice string.
      * @return one of General Name choices defined in this class that can be
      *         passed into form_GeneralName().
@@ -209,7 +209,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             theGeneralNameChoice = GENNAME_CHOICE_DNSNAME;
 
         /* X400Address not supported.
-         else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) 
+         else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS))
          theGeneralNameChoice = GENNAME_CHOICE_X400ADDRESS;
          */
         else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME))

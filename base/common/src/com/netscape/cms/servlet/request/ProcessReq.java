@@ -52,7 +52,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Display Generic Request detail to the user.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProcessReq extends CMSServlet {
@@ -94,7 +94,7 @@ public class ProcessReq extends CMSServlet {
      * <LI><B>CertReqParser.DETAIL_PARSER</B> - Show certificate detail
      * <LI><B>KeyReqParser.PARSER</B> - Show key archival detail
      * </UL>
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -113,7 +113,7 @@ public class ProcessReq extends CMSServlet {
                 mParser = KeyReqParser.PARSER;
         }
 
-        // override success and error templates to null - 
+        // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
@@ -127,7 +127,7 @@ public class ProcessReq extends CMSServlet {
      * <li>http.param seqNum
      * <li>http.param doAssign reassign request. Value can be reassignToMe reassignToNobody
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -261,7 +261,7 @@ public class ProcessReq extends CMSServlet {
                 }
             }
 
-            // add authority names to know what privileges can be requested.	
+            // add authority names to know what privileges can be requested.
             if (CMS.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
             if (CMS.getSubsystem("ca") != null)
@@ -272,8 +272,8 @@ public class ProcessReq extends CMSServlet {
             // DONT NEED TO DO THIS FOR DRM
             if (mAuthority instanceof ICertAuthority) {
                 // Check/set signing algorithms dynamically.
-                // In RA mSigningAlgorithms could be null at startup if CA is not 
-                // up and set later when CA comes back up. 
+                // In RA mSigningAlgorithms could be null at startup if CA is not
+                // up and set later when CA comes back up.
                 // Once it's set assumed that it won't change.
                 String[] allAlgorithms = mSigningAlgorithms;
 

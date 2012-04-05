@@ -61,9 +61,9 @@ import com.netscape.cmsutil.util.Utils;
  * Uses a pattern for formulating subject names.
  * The pattern is read from configuration file.
  * Syntax of the pattern is described in the init() method.
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class DirBasedAuthentication
@@ -78,7 +78,7 @@ public abstract class DirBasedAuthentication
     protected static final String PROP_LDAPSTRINGATTRS = "ldapStringAttributes";
     protected static final String PROP_LDAPBYTEATTRS = "ldapByteAttributes";
 
-    // members 
+    // members
 
     /* name of this authentication manager instance */
     protected String mName = null;
@@ -104,11 +104,11 @@ public abstract class DirBasedAuthentication
     /* the subject DN pattern */
     protected DNPattern mPattern = null;
 
-    /* the list of LDAP attributes with string values to retrieve to 
+    /* the list of LDAP attributes with string values to retrieve to
      * save in the auth token including ones from the dn pattern. */
     protected String[] mLdapStringAttrs = null;
 
-    /* the list of LDAP attributes with byte[] values to retrive to save 
+    /* the list of LDAP attributes with byte[] values to retrive to save
      * in authtoken. */
     protected String[] mLdapByteAttrs = null;
 
@@ -160,14 +160,14 @@ public abstract class DirBasedAuthentication
 
     /**
      * Initializes the UidPwdDirBasedAuthentication auth manager.
-     * 
+     *
      * Takes the following configuration parameters: <br>
-     * 
+     *
      * <pre>
      * 	ldap.basedn             - the ldap base dn.
      * 	ldap.ldapconn.host      - the ldap host.
-     * 	ldap.ldapconn.port      - the ldap port 
-     * 	ldap.ldapconn.secureConn - whether port should be secure 
+     * 	ldap.ldapconn.port      - the ldap port
+     * 	ldap.ldapconn.secureConn - whether port should be secure
      * 	ldap.minConns           - minimum connections
      * 	ldap.maxConns           - max connections
      * 	dnpattern               - dn pattern.
@@ -177,33 +177,33 @@ public abstract class DirBasedAuthentication
      * attributes and entry dn. If empty or not set, the ldap entry DN will be used as the certificate subject name.
      * <p>
      * The syntax is
-     * 
+     *
      * <pre>
      *     dnpattern = SubjectNameComp *[ "," SubjectNameComp ]
-     * 
-     *     SubjectNameComponent = DnComp | EntryComp | ConstantComp  
+     *
+     *     SubjectNameComponent = DnComp | EntryComp | ConstantComp
      *     DnComp = CertAttr "=" "$dn" "." DnAttr "." Num
      *     EntryComp = CertAttr "=" "$attr" "." EntryAttr "." Num
      *     ConstantComp = CertAttr "=" Constant
      *     DnAttr    =  an attribute in the Ldap entry dn
-     *     EntryAttr =  an attribute in the Ldap entry 
+     *     EntryAttr =  an attribute in the Ldap entry
      *     CertAttr  =  a Component in the Certificate Subject Name
-     *                  (multiple AVA in one RDN not supported) 
+     *                  (multiple AVA in one RDN not supported)
      *     Num       =  the nth value of tha attribute  in the dn or entry.
      *     Constant  =  Constant String, with any accepted ldap string value.
-     * 
+     *
      * </pre>
      * <p>
      * <b>Example:</b>
-     * 
+     *
      * <pre>
-     * dnpattern: 
+     * dnpattern:
      *     E=$attr.mail.1, CN=$attr.cn, OU=$attr.ou.2, O=$dn.o, C=US
      * <br>
-     * Ldap entry dn: 
+     * Ldap entry dn:
      *     UID=joesmith, OU=people, O=Acme.com
      * <br>
-     * Ldap attributes: 
+     * Ldap attributes:
      *     cn: Joe Smith
      *     sn: Smith
      *     mail: joesmith@acme.com
@@ -214,17 +214,17 @@ public abstract class DirBasedAuthentication
      * </pre>
      * <p>
      * The subject name formulated in the cert will be : <br>
-     * 
+     *
      * <pre>
      *   E=joesmith@acme.com, CN=Joe Smith, OU=Human Resources, O=Acme.com, C=US
-     *   
-     *      E = the first 'mail' ldap attribute value in user's entry - joesmithe@acme.com 
-     *      CN = the (first) 'cn' ldap attribute value in the user's entry - Joe Smith 
+     *
+     *      E = the first 'mail' ldap attribute value in user's entry - joesmithe@acme.com
+     *      CN = the (first) 'cn' ldap attribute value in the user's entry - Joe Smith
      *      OU = the second 'ou' value in the ldap entry - IS
-     *      O = the (first) 'o' value in the user's entry DN - "Acme.com" 
+     *      O = the (first) 'o' value in the user's entry DN - "Acme.com"
      *      C = the constant string "US"
      * </pre>
-     * 
+     *
      * @param name The name for this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config - The configuration store for this instance.
@@ -326,7 +326,7 @@ public abstract class DirBasedAuthentication
      * Authenticates user through LDAP by a set of credentials.
      * Resulting AuthToken a TOKEN_CERTINFO field of a X509CertInfo
      * <p>
-     * 
+     *
      * @param authCred Authentication credentials, CRED_UID and CRED_PWD.
      * @return A AuthToken with a TOKEN_SUBJECT of X500name type.
      * @exception com.netscape.certsrv.authentication.EMissingCredential
@@ -374,14 +374,14 @@ public abstract class DirBasedAuthentication
             } catch (IOException e) {
             }
 
-            // set validity if any 
+            // set validity if any
             try {
                 CertificateValidity validity = (CertificateValidity)
                         certInfo.get(X509CertInfo.VALIDITY);
 
                 if (validity != null) {
-                    // the gets throws IOException but only if attribute 
-                    // not recognized. In these cases they are always. 
+                    // the gets throws IOException but only if attribute
+                    // not recognized. In these cases they are always.
                     authToken.set(AuthToken.TOKEN_CERT_NOTBEFORE,
                             (Date) validity.get(CertificateValidity.NOT_BEFORE));
                     authToken.set(AuthToken.TOKEN_CERT_NOTAFTER,
@@ -414,7 +414,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * get the list of required credentials.
-     * 
+     *
      * @return list of required credentials as strings.
      */
     public abstract String[] getRequiredCreds();
@@ -423,7 +423,7 @@ public abstract class DirBasedAuthentication
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public abstract String[] getConfigParams();
@@ -445,7 +445,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * Gets the configuration substore used by this authentication manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -454,7 +454,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * Authenticates a user through directory based a set of credentials.
-     * 
+     *
      * @param authCreds The authentication credentials.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
@@ -466,7 +466,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * Formulate the cert info.
-     * 
+     *
      * @param conn A LDAP Connection authenticated to user to use.
      * @param userdn The user's dn.
      * @param certinfo A certinfo object to fill.
@@ -482,7 +482,7 @@ public abstract class DirBasedAuthentication
         // get ldap attributes to retrieve.
         String[] attrs = getLdapAttrs();
 
-        // retrieve the attributes. 
+        // retrieve the attributes.
         try {
             if (conn != null) {
                 LDAPEntry entry = null;
@@ -496,7 +496,7 @@ public abstract class DirBasedAuthentication
                 }
                 entry = results.next();
 
-                // formulate the subject dn 
+                // formulate the subject dn
                 try {
                     dn = formSubjectName(entry);
                 } catch (EBaseException e) {
@@ -510,7 +510,7 @@ public abstract class DirBasedAuthentication
             }
 
             // add anything else in cert info such as validity, extensions
-            // (nothing now) 
+            // (nothing now)
 
             // pack the dn into X500name and set subject name.
             if (dn.length() == 0) {
@@ -610,7 +610,7 @@ public abstract class DirBasedAuthentication
     /**
      * Return a list of LDAP attributes with String values to retrieve.
      * Subclasses can override to return any set of attributes.
-     * 
+     *
      * @return Array of LDAP attributes to retrieve from the directory.
      */
     protected String[] getLdapAttrs() {
@@ -620,7 +620,7 @@ public abstract class DirBasedAuthentication
     /**
      * Return a list of LDAP attributes with byte[] values to retrieve.
      * Subclasses can override to return any set of attributes.
-     * 
+     *
      * @return Array of LDAP attributes to retrieve from the directory.
      */
     protected String[] getLdapByteAttrs() {
@@ -629,7 +629,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * Formulate the subject name
-     * 
+     *
      * @param entry The LDAP entry
      * @return The subject name string.
      * @exception EBaseException If an internal error occurs.
@@ -654,7 +654,7 @@ public abstract class DirBasedAuthentication
 
     /**
      * Logs a message for this class in the system log file.
-     * 
+     *
      * @param level The log level.
      * @param msg The message to log.
      * @see com.netscape.certsrv.logging.ILogger

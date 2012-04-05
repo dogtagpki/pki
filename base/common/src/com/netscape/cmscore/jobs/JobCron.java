@@ -38,7 +38,7 @@ import com.netscape.certsrv.logging.ILogger;
  * e.g. jobsScheduler.job.rnJob1.cron=30 11,23 * * 1-5 In this example, the job "rnJob1" will be executed from Monday
  * through Friday, at 11:30am and 11:30pm.
  * <p>
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -173,7 +173,7 @@ public class JobCron implements IJobCron {
 
     /**
      * retrieves the cron item
-     * 
+     *
      * @param item name of the item. must be one of the <b>CRON_*</b>
      *            strings defined in this class
      * @return an instance of the CronItem class which represents the
@@ -199,7 +199,7 @@ public class JobCron implements IJobCron {
 
     /**
      * Does the element fit any element in the item
-     * 
+     *
      * @param element the element of "now" in cron format
      * @param item the item consists of a vector of elements
      * @return boolean (true/false) on whether the element is one of
@@ -229,7 +229,7 @@ public class JobCron implements IJobCron {
     /**
      * convert the day of the week representation from Calendar to
      * cron
-     * 
+     *
      * @param time the Calendar value represents a moment of time
      * @return an integer value that represents a cron Day-Of-Week
      *         element
@@ -277,7 +277,7 @@ public class JobCron implements IJobCron {
 
     /**
      * convert the month of year representation from Calendar to cron
-     * 
+     *
      * @param time the Calendar value represents a moment of time
      * @return an integer value that represents a cron Month-Of-Year
      *         element

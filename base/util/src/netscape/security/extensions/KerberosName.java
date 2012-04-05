@@ -31,17 +31,17 @@ import netscape.security.util.ObjectIdentifier;
 /**
  * This represents a KerberosName as defined in
  * RFC 1510.
- * 
+ *
  * KerberosName ::= SEQUENCE {
  * realm [0] Realm,
  * principalName [1] CertPrincipalName -- defined above
  * }
- * 
+ *
  * CertPrincipalName ::= SEQUENCE {
  * name-type[0] INTEGER,
  * name-string[1] SEQUENCE OF UTF8String
  * }
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -63,7 +63,7 @@ public class KerberosName {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

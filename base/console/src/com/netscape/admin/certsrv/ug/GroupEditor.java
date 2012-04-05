@@ -58,10 +58,10 @@ public class GroupEditor extends JDialog
     private JButton mOK, mCancel, mHelp, mAddUser, mDelete;
     private JTextField mGroupNameField, mGroupDescField;
     private JLabel mGroupNameLabel;
-    
-    private static final String ADDHELPINDEX = 
+
+    private static final String ADDHELPINDEX =
       "usersgroups-certsrv-add-group-dbox-help";
-    private static final String EDITHELPINDEX = 
+    private static final String EDITHELPINDEX =
       "usersgroups-certsrv-edit-group-dbox-help";
     private String mHelpToken;
 
@@ -149,7 +149,7 @@ public class GroupEditor extends JDialog
                         "NOGROUPNAME", CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
-                
+
                 try {
                     mGroupName = mGroupNameField.getText().trim();
                     addGroup();
@@ -190,13 +190,13 @@ public class GroupEditor extends JDialog
 
         if (evt.getSource().equals(mAddUser)) {
             //bring up the list for selection
-           
+
             //create vector here
             Vector currentUser = new Vector();
             for (int i=0; i<mDataModel.getSize(); i++) {
                 currentUser.addElement((String)mDataModel.getElementAt(i));
             }
-            
+
             NameValuePairs response;
             try {
                 response = mConnection.search(DestDef.DEST_USER_ADMIN,
@@ -220,18 +220,18 @@ public class GroupEditor extends JDialog
 
             if (mUserDialog==null)
                 mUserDialog = new UserListDialog(mParentFrame, mConnection);
-            
+
             mUserDialog.showDialog(currentUser);
 
             //get selection
             if (!mUserDialog.isOK())
                 return;
-                
+
             //create user NVP data object and add user entry
             Vector selectedUser = mUserDialog.getSelectedUser();
             //Debug.println("Selected User = "+selectedUser.toString());
 
-            
+
             for(int i=0; i<selectedUser.size(); i++) {
                 String name = ((String) selectedUser.elementAt(i)).trim();
                 if (!isDuplicate(name))
@@ -356,7 +356,7 @@ public class GroupEditor extends JDialog
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         top.add(label1, gbc);
-        
+
         gbc.anchor = gbc.WEST;
         gbc.fill = gbc.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -365,7 +365,7 @@ public class GroupEditor extends JDialog
                                  0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
         top.add( mGroupNameLabel, gbc );
         top.add( mGroupNameField, gbc );
-        
+
         JLabel dummy = new JLabel();
         dummy.setVisible(false);
         gbc.gridwidth = gbc.REMAINDER;
@@ -388,7 +388,7 @@ public class GroupEditor extends JDialog
                                 CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                                 CMSAdminUtil.COMPONENT_SPACE,0);
         top.add(label3, gbc );
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
         gbc.gridwidth = gbc.REMAINDER;
@@ -407,8 +407,8 @@ public class GroupEditor extends JDialog
         resizeButtons();
 
         //group membership table
-        
-        
+
+
         mList = makeJList(mDataModel,9);
         mList.addListSelectionListener(this);
         mScrollPane = new JScrollPane(mList,
@@ -506,7 +506,7 @@ public class GroupEditor extends JDialog
             String user_str = tokenizer.nextToken().trim();
             mDataModel.addElement(user_str);
         }
-      
+
     }
 
     //add new group information

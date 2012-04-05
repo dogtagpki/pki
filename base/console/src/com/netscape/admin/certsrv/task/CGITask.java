@@ -41,8 +41,8 @@ public class CGITask extends CMSTaskObject
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "CGITASK"; 
-    
+    private static final String PREFIX = "CGITASK";
+
 	protected boolean mFinished = false;
 	protected String mCmd = null;
 	protected String mAdminURL = null;
@@ -264,7 +264,7 @@ public class CGITask extends CMSTaskObject
             {
                 int code = Integer.parseInt(sValue);
                 mSuccess = (code == 0);
-                Debug.println("Parse input: code=" + code + " mSuccess=" + 
+                Debug.println("Parse input: code=" + code + " mSuccess=" +
                   mSuccess);
             } else if (sName.equalsIgnoreCase("NMC_ERRINFO")) {
                 mErrorMsg = sValue;
@@ -308,7 +308,7 @@ public class CGITask extends CMSTaskObject
 			return "bin/" + s;
 		return null;
 	}
-	
+
 	/**
 	 *	pass the username to the admin server
 	 */
@@ -325,7 +325,7 @@ public class CGITask extends CMSTaskObject
 		Debug.println( "password = " +
 					   (String)_consoleInfo.get( "AdminUserPassword" ) );
 		return (String)_consoleInfo.get( "AdminUserPassword" );
-	}	
+	}
 
 /*
     protected void showDialog( JFrame frame, String msg, String item,

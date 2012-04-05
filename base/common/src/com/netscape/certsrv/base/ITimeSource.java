@@ -26,14 +26,14 @@ import java.util.Date;
  * current time based on the system time. It is
  * possible to register a time source that returns
  * the current time from a NTP server.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ITimeSource {
 
     /**
      * Retrieves current time and date.
-     * 
+     *
      * @return current time and date
      */
     public Date getCurrentDate();

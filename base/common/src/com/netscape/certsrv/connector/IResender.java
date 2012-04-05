@@ -24,14 +24,14 @@ import com.netscape.certsrv.request.IRequest;
  * Default interval is 5 minutes. The need to resend a message could arise
  * due to an error or the fact that the message could not be serviced
  * immediately.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IResender extends Runnable {
 
     /**
      * Adds the request to the resend queue.
-     * 
+     *
      * @param r Request to be placed on the resend queue.
      */
     public void addRequest(IRequest r);

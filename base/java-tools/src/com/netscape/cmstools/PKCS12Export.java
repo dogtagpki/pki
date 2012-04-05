@@ -54,11 +54,11 @@ import org.mozilla.jss.util.Password;
 
 /**
  * Tool for creating PKCS12 file
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
- * 
+ *
  */
 public class PKCS12Export {
 

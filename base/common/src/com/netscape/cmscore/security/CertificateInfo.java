@@ -62,7 +62,7 @@ import com.netscape.certsrv.security.KeyCertData;
 /**
  * This base class provides methods to import CA signing cert or get certificate
  * request.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -103,7 +103,7 @@ public abstract class CertificateInfo {
          String period = (String)mProperties.get(Constants.PR_VALIDITY_PERIOD);
          Date notBeforeDate = CMS.getCurrentDate();
          Date notAfterDate = new Date(notBeforeDate.getYear(),
-         notBeforeDate.getMonth(), 
+         notBeforeDate.getMonth(),
          notBeforeDate.getDate()+Integer.parseInt(period));
          return new CertificateValidity(notBeforeDate, notAfterDate);
          */

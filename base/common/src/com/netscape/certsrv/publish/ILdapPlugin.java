@@ -23,14 +23,14 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Interface for any Ldap plugin.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapPlugin {
 
     /**
      * Initialize from config store.
-     * 
+     *
      * @param config the configuration store to initialize from.
      * @exception ELdapException initialization failed due to Ldap error.
      * @exception EBaseException initialization failed.

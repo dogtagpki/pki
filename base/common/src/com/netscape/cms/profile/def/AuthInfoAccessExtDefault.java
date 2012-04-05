@@ -42,7 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class implements an enrollment default policy
  * that populates Authuority Info Access extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthInfoAccessExtDefault extends EnrollExtDefault {

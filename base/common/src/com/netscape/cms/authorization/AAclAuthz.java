@@ -45,19 +45,19 @@ import com.netscape.cmsutil.util.Utils;
  * actions.
  * <P>
  * Here is a sample resourceACLS for a resource
- * 
+ *
  * <PRE>
  *   certServer.UsrGrpAdminServlet:
  *       execute:
  *           deny (execute) user="tempAdmin";
  *           allow (execute) group="Administrators";
  * </PRE>
- * 
+ *
  * To perform permission checking, code call authz mgr authorize() method to verify access. See AuthzMgr for calling
  * example.
  * <P>
  * default "evaluators" are used to evaluate the "group=.." or "user=.." rules. See evaluator for more info
- * 
+ *
  * @version $Revision$, $Date$
  * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
@@ -122,7 +122,7 @@ public abstract class AAclAuthz {
                             type + "." + PROP_CLASS));
             }
 
-            // instantiate evaluator 
+            // instantiate evaluator
             try {
                 evaluator =
                         (IAccessEvaluator) Class.forName(evalClassPath).newInstance();
@@ -152,7 +152,7 @@ public abstract class AAclAuthz {
      * <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl
      * <P>
      * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
-     * 
+     *
      * @param resACLs same format as the resourceACLs attribute
      * @throws EBaseException parsing error from <code>parseACL</code>
      */
@@ -200,7 +200,7 @@ public abstract class AAclAuthz {
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -244,7 +244,7 @@ public abstract class AAclAuthz {
      * <p>
      * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks,
      * will the eventual access be granted.
-     * 
+     *
      * @param name resource name
      * @param perm permission requested
      * @exception EACLsException access permission denied
@@ -301,7 +301,7 @@ public abstract class AAclAuthz {
      * negative ("deny") aclEntries are treated differently than positive ("allow") statements. If a negative aclEntries
      * fails the acl check, the permission check will return "false" right away; while in the case of a positive
      * aclEntry, if the the aclEntry fails the acl check, the next aclEntry will be evaluated.
-     * 
+     *
      * @param name resource name
      * @param perm permission requested
      * @return true if access allowed
@@ -463,7 +463,7 @@ public abstract class AAclAuthz {
      * <p>
      * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks,
      * will the eventual access be granted.
-     * 
+     *
      * @param authToken authentication token gotten from authentication
      * @param name resource name
      * @param perm permission requested
@@ -768,7 +768,7 @@ public abstract class AAclAuthz {
 
     /**
      * gets an enumeration of resources
-     * 
+     *
      * @return an enumeration of resources contained in the ACL table
      */
     public Enumeration<ACL> aclResElements() {
@@ -777,7 +777,7 @@ public abstract class AAclAuthz {
 
     /**
      * gets an enumeration of access evaluators
-     * 
+     *
      * @return an enumeraton of access evaluators
      */
     public Enumeration<IAccessEvaluator> aclEvaluatorElements() {
@@ -786,7 +786,7 @@ public abstract class AAclAuthz {
 
     /**
      * gets the access evaluators
-     * 
+     *
      * @return handle to the access evaluators table
      */
     public Hashtable<String, IAccessEvaluator> getAccessEvaluators() {
@@ -795,7 +795,7 @@ public abstract class AAclAuthz {
 
     /**
      * is this resource name unique
-     * 
+     *
      * @return true if unique; false otherwise
      */
     public boolean isTypeUnique(String type) {
@@ -828,7 +828,7 @@ public abstract class AAclAuthz {
      * an abstract class that enforces implementation of the
      * authorize() method that will authorize an operation on a
      * particular resource
-     * 
+     *
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name

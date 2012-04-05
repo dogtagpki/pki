@@ -35,7 +35,7 @@ import com.netscape.cmscore.util.Debug;
  * services. This service registration allows us to support
  * new request easier.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -70,7 +70,7 @@ public class KRAService implements IService {
     /**
      * Processes a KRA request. This method is invoked by
      * request subsystem.
-     * 
+     *
      * @param r request from request subsystem
      * @exception EBaseException failed to serve
      */

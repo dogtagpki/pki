@@ -29,30 +29,30 @@ import netscape.security.util.DerValue;
 
 /**
  * This class represents the Subject Directory Attributes Extension.
- * 
+ *
  * <p>
  * The subject directory attributes extension is not recommended as an essential part of this profile, but it may be
  * used in local environments. This extension MUST be non-critical.
- * 
+ *
  * <pre>
  * The ASN.1 syntax for this extension is:
- * 
+ *
  *    SubjectDirectoryAttributes ::= SEQUENCE (1..MAX) OF Attribute
- * 
+ *
  *    Attribute	::= SEQUENCE {
  * type		AttributeType,
  * 	value		SET OF AttributeValue
  *              	-- at least one value is required --}
- * 
+ *
  *    AttributeType	::= OBJECT IDENTIFIER
- * 
+ *
  *    AttributeValue	::= ANY
- * 
+ *
  * </pre>
- * 
+ *
  * @author Christine Ho
  * @version 1.7
- * 
+ *
  * @see CertAttrSet
  * @see Extension
  */
@@ -118,7 +118,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param derVal Der encoded value of this extension
      */
     public SubjectDirAttributesExtension(DerValue derVal) throws IOException {
@@ -130,7 +130,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param list Attribute object list
      */
     public SubjectDirAttributesExtension(Attribute[] list) throws IOException {
@@ -151,7 +151,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Constructor from parsing extension
-     * 
+     *
      * @param list Attribute object list
      */
     public SubjectDirAttributesExtension(Boolean crit, Object value)
@@ -172,7 +172,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Constructor for this object.
-     * 
+     *
      * @param list Attribute object list
      * @param critical The criticality
      */
@@ -210,7 +210,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -221,7 +221,7 @@ public class SubjectDirAttributesExtension extends Extension
 
     /**
      * Encode this extension value to the output stream.
-     * 
+     *
      * @param out the DerOutputStream to encode the extension to.
      */
     public void encode(OutputStream out) throws IOException {

@@ -33,7 +33,7 @@ class WIDisplayKRACertPage extends WIDisplayCertPage {
     private static final String KRAHELPINDEX = "install-kracert-display-wizard-help";
     private static final String CAKRAHELPINDEX = "install-cakra-kracert-display-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakra-kracert-display-wizard-help";
-    
+
     WIDisplayKRACertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -70,7 +70,7 @@ class WIDisplayKRACertPage extends WIDisplayCertPage {
               ConfigConstants.TRUE);
             return true;
         }
-    
+
         return false;
     }
 }

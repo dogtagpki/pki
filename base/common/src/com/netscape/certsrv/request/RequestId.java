@@ -24,7 +24,7 @@ import java.math.BigInteger;
  * request within a request queue. This identifier may be used to
  * retrieve the request object itself from the request queue.
  * <p>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class RequestId {
@@ -34,7 +34,7 @@ public class RequestId {
     /**
      * Creates a new RequestId from its string representation.
      * <p>
-     * 
+     *
      * @param id
      *            a string containing the decimal or hex value for the identifier.
      */
@@ -86,7 +86,7 @@ public class RequestId {
      * Converts the RequestId into its string representation. The string
      * form can be stored in a database (such as the LDAP directory)
      * <p>
-     * 
+     *
      * @return
      *         a string containing the decimal (base 10) value for the identifier.
      */

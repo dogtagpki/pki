@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
- 
+
 import com.netscape.admin.certsrv.security.*;
 import java.awt.event.*;
 import java.awt.*;

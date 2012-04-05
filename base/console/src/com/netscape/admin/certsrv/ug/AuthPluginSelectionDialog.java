@@ -61,7 +61,7 @@ public class AuthPluginSelectionDialog extends PluginSelectionDialog
      * constructors
      *==========================================================*/
     public AuthPluginSelectionDialog(JFrame parent,
-					AdminConnection conn, 
+					AdminConnection conn,
 					String dest,
 					CMSPluginInstanceTab pluginType) {
 
@@ -69,7 +69,7 @@ public class AuthPluginSelectionDialog extends PluginSelectionDialog
 		mScope = ScopeDef.SC_AUTH_IMPLS;
 		mInstanceScope = ScopeDef.SC_AUTH_MGR_INSTANCE;
 		mImageName = CMSAdminResources.IMAGE_RULE_PLUGIN;
-		
+
     	mHelpToken = "authentication-certsrv-add-authrule-dbox-help";
 		setDisplay();
 /****

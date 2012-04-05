@@ -578,7 +578,7 @@ public class AdminPanel extends WizardPanelBase {
             }
             // this request is from IE. The VBScript has problem of generating
             // certificate request if the subject name has E and UID components.
-            // For now, we always hardcoded the subject DN to be cn=NAME in 
+            // For now, we always hardcoded the subject DN to be cn=NAME in
             // the IE browser.
         } else if (cert_request_type.equals("pkcs10")) {
             try {

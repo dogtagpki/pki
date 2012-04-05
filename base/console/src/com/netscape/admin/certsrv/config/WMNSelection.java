@@ -78,7 +78,7 @@ class WMNSelection extends WizardBasePanel
         if ((mMField.getText().trim().equals("")) ||
             (mNField.getText().trim().equals("")) ) {
             setErrorMessage("CANNOTBEBLANK");
-            return false;    
+            return false;
         }
 
         String str = mMField.getText().trim();

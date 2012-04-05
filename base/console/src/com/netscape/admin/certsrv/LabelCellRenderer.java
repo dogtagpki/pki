@@ -42,7 +42,7 @@ public class LabelCellRenderer
     public final static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);
     public final static Color WHITECOLOR = Color.white;
     public final static Color BLACKCOLOR = Color.black;
-    
+
     /*==========================================================
      * constructors
      *==========================================================*/
@@ -77,9 +77,9 @@ public class LabelCellRenderer
 						   int row, int column) {
 
         if(value == null) {
-            value = table.getModel().getValueAt(row, column);                
+            value = table.getModel().getValueAt(row, column);
         }
-        this.value.setValue(value);       
+        this.value.setValue(value);
         component.setBackground(isSelected ? HIGHLIGHTCOLOR : WHITECOLOR);
         component.setForeground(isSelected ? WHITECOLOR : BLACKCOLOR);
         return component;
@@ -108,7 +108,7 @@ public class LabelCellRenderer
 	            ((JLabel)component).setToolTipText(((JLabel)x).getToolTipText());
 	        }
         }
-        
+
     }
 
 }

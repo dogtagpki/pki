@@ -45,12 +45,12 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
      * variables
      *==========================================================*/
     private static String PREFIX = "CMSTASKMODEL_NODE_";
-    
+
     private static final String PREFERENCES_TASK_TAB = "TaskTab";
     private static final String PREFERENCES_TASK_LIST = "TaskList";
-    
+
     static public String MENU_KEYCERT = CMSAdminResources.MENU_KEYCERT;
-    static public String MENU_KEYCERT_MANAGEMENT = 
+    static public String MENU_KEYCERT_MANAGEMENT =
                             CMSAdminResources.MENU_KEYCERT_MANAGEMENT;
     static public String MENU_PKCS11 = CMSAdminResources.MENU_PKCS11;
     static public String REF_TASKMODEL = "CMSTASKMODEL";
@@ -63,7 +63,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 	/*==========================================================
      * constructors
      *==========================================================*/
-     
+
     public CMSTaskModel(ConsoleInfo ci, CMSServerInfo serverInfo) {
 		mServerInfo = serverInfo;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
@@ -74,14 +74,14 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-    
+
     /**
      * getServerInfo()
      */
     public CMSServerInfo getServerInfo() {
         return mServerInfo;
     }
-     
+
     /**
      * Returns supported menu categories
      */
@@ -106,8 +106,8 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
         return null;
     }
 
-    public void actionObjectSelected(IPage viewInstance, 
-                                ITaskObject selection, 
+    public void actionObjectSelected(IPage viewInstance,
+                                ITaskObject selection,
                                 ITaskObject previousSelection) {
         super.actionObjectSelected(viewInstance, selection, previousSelection);
         mSelection = selection;
@@ -140,7 +140,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
             desc = " ";
         return new MenuItemText( keyword, name, desc);
     }
-    
+
     private void init() {
 		TaskObject root = new TaskObject( "root", mConsoleInfo );
 		root.setAllowsChildren(true);
@@ -244,8 +244,8 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 		} catch ( LDAPException e ) {
 			Debug.println( "CMSTaskModel.findTasks: " + e.toString() );
 		}
-	}    
-    
+	}
+
     //get task orders
     private String findTaskOrder( String base ) {
 		String order = null;
@@ -283,6 +283,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 						   ex );
 		}
 		return order;
-	}    
+	}
 
 }

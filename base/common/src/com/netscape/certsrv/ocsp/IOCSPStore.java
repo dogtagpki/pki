@@ -31,7 +31,7 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
  * would merely create a new class that extends this class (e. g. -
  * "public interface ICorporateLDAPStore extends IOCSPStore").
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IOCSPStore extends ISubsystem {
@@ -39,7 +39,7 @@ public interface IOCSPStore extends ISubsystem {
      * This method validates the information associated with the specified
      * OCSP request and returns an OCSP response.
      * <P>
-     * 
+     *
      * @param req an OCSP request
      * @return OCSPResponse the OCSP response associated with the specified
      *         OCSP request
@@ -53,7 +53,7 @@ public interface IOCSPStore extends ISubsystem {
      * This method retrieves the configuration parameters associated with this
      * OCSP store.
      * <P>
-     * 
+     *
      * @return NameValuePairs all configuration items
      */
     public NameValuePairs getConfigParameters();
@@ -62,7 +62,7 @@ public interface IOCSPStore extends ISubsystem {
      * This method stores the configuration parameters specified by the
      * passed-in Name Value pairs object.
      * <P>
-     * 
+     *
      * @param pairs a name-value pair object
      * @exception EBaseException an illegal name-value pair
      */

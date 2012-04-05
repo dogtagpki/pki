@@ -21,7 +21,7 @@ import java.security.acl.Permission;
 
 /**
  * This class implements the principal interface for the set of all permissions.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class AllPermissionsImpl extends PermissionImpl {
@@ -33,7 +33,7 @@ public class AllPermissionsImpl extends PermissionImpl {
     /**
      * This function returns true if the permission passed matches the permission represented in
      * this interface.
-     * 
+     *
      * @param another The Permission object to compare with.
      * @return true always
      */

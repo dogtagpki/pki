@@ -27,7 +27,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 
 /**
  * An interface contains constants for certificate record.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICertRecord extends IDBObj {
@@ -99,77 +99,77 @@ public interface ICertRecord extends IDBObj {
 
     /**
      * Retrieves serial number from stored certificate.
-     * 
+     *
      * @return certificate serial number
      */
     public BigInteger getCertificateSerialNumber();
 
     /**
      * Retrieves serial number from certificate record.
-     * 
+     *
      * @return certificate serial number
      */
     public BigInteger getSerialNumber();
 
     /**
      * Retrieves certificate from certificate record.
-     * 
+     *
      * @return certificate
      */
     public X509CertImpl getCertificate();
 
     /**
      * Retrieves name of who issued this certificate.
-     * 
+     *
      * @return name of who issued this certificate
      */
     public String getIssuedBy();
 
     /**
      * Retrieves name of who revoked this certificate.
-     * 
+     *
      * @return name of who revoked this certificate
      */
     public String getRevokedBy();
 
     /**
      * Retrieves date when this certificate was revoked.
-     * 
+     *
      * @return date when this certificate was revoked
      */
     public Date getRevokedOn();
 
     /**
      * Retrieves meta info.
-     * 
+     *
      * @return meta info
      */
     public MetaInfo getMetaInfo();
 
     /**
      * Retrieves certificate status.
-     * 
+     *
      * @return certificate status
      */
     public String getStatus();
 
     /**
      * Retrieves time of creation of this certificate record.
-     * 
+     *
      * @return time of creation of this certificate record
      */
     public Date getCreateTime();
 
     /**
      * Retrieves time of modification of this certificate record.
-     * 
+     *
      * @return time of modification of this certificate record
      */
     public Date getModifyTime();
 
     /**
      * Retrieves revocation info.
-     * 
+     *
      * @return revocation info
      */
     public IRevocationInfo getRevocationInfo();

@@ -81,14 +81,14 @@ public class GroupTab extends CMSBaseUGTab {
 
             Debug.println("Edit Groups "+mTable.getSelectedRow());
             String groupName = (String) mDataModel.getObjectValueAt(mTable.getSelectedRow());
-            
+
             if (mEditor==null){
-                mEditor = new GroupEditor(mModel.getFrame(), mConnection);  
-            }    
+                mEditor = new GroupEditor(mModel.getFrame(), mConnection);
+            }
 
             mEditor.showDialog(groupName, false);
             refresh();
-            
+
         }
         if (e.getSource().equals(mAdd)) {
             Debug.println("Show Editor");
@@ -114,7 +114,7 @@ public class GroupTab extends CMSBaseUGTab {
     //==== MOUSELISTENER ======================
     public void mouseClicked(MouseEvent e) {
         setButtons();
-        
+
         /*
 
         //NEED TO DISABLE THIS DUE TO BUG THAT WILL RE-DISPLAY
@@ -152,9 +152,9 @@ public class GroupTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
-    }  
-    
+        setButtons();
+    }
+
     /*==========================================================
 	 * protected methods
      *==========================================================*/
@@ -301,7 +301,7 @@ public class GroupTab extends CMSBaseUGTab {
         mEdit.setEnabled(true);
 
     }
-    
+
     private void updateGroup() {
         //send request and parse data
 
@@ -325,7 +325,7 @@ public class GroupTab extends CMSBaseUGTab {
         for (String entry : response.keySet()) {
             store.addElement(entry.trim());
         }
-        
+
         String[] vals = new String[store.size()];
         store.copyInto(vals);
 
@@ -335,10 +335,10 @@ public class GroupTab extends CMSBaseUGTab {
             String value = response.get(vals[y]);
             mDataModel.processData(vals[y],value);
         }
-        
+
         if (mDataModel.getRowCount() >0)
             mTable.setRowSelectionInterval(0,0);
-            
+
         mModel.progressStop();
     }
 

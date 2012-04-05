@@ -30,7 +30,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * A class represents a group acls evaluator.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GroupAccessEvaluator implements IAccessEvaluator {
@@ -60,7 +60,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
-     * 
+     *
      * @return type for this acl evaluator: "group" or "at_group"
      */
     public String getType() {
@@ -69,7 +69,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
-     * 
+     *
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -87,7 +87,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     /**
      * evaluates uid in AuthToken to see if it has membership in
      * group value
-     * 
+     *
      * @param authToken authentication token
      * @param type must be "at_group"
      * @param op must be "="
@@ -145,7 +145,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     /**
      * evaluates uid in SessionContext to see if it has membership in
      * group value
-     * 
+     *
      * @param type must be "group"
      * @param op must be "="
      * @param value the group name

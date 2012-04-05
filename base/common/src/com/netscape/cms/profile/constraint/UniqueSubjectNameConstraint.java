@@ -55,7 +55,7 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  * It checks if the subject name in the certificate is
  * unique in the internal database, ie, no two certificates
  * have the same subject name.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UniqueSubjectNameConstraint extends EnrollConstraint {
@@ -143,7 +143,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
     /**
      * Validates the request. The request is not modified
      * during the validation.
-     * 
+     *
      * Rules are as follows:
      * If the subject name is not unique, then the request will be rejected unless:
      * 1. the certificate is expired or expired_revoked

@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.IConfigStore;
 /**
  * Class for obtaining ldap authentication info from the configuration store.
  * Two types of authentication is basic and SSL client authentication.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILdapAuthInfo {
@@ -43,10 +43,10 @@ public interface ILdapAuthInfo {
 
     /**
      * Initialize this class from the config store.
-     * 
+     *
      * @param config The config store from which to initialize.
      * @exception EBaseException Due to failure of the initialization process.
-     * 
+     *
      */
     public void init(IConfigStore config) throws EBaseException;
 
@@ -54,10 +54,10 @@ public interface ILdapAuthInfo {
      * Initialize this class from the config store.
      * Based on host, port, and secure boolean info.
      * which allows an actual attempt on the server to verify credentials.
-     * 
+     *
      * @param config The config store from which to initialize.
      * @exception EBaseException Due to failure of the initialization process.
-     * 
+     *
      */
     public void init(IConfigStore config, String host, int port, boolean secure)
             throws EBaseException;
@@ -69,7 +69,7 @@ public interface ILdapAuthInfo {
 
     /**
      * Get authentication type.
-     * 
+     *
      * @return one of: <br>
      *         LdapAuthInfo.LDAP_AUTHTYPE_BASICAUTH or
      *         LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH
@@ -78,14 +78,14 @@ public interface ILdapAuthInfo {
 
     /**
      * Get params for authentication.
-     * 
+     *
      * @return array of parameters for this authentication as an array of Strings.
      */
     public String[] getParms();
 
     /**
      * Add password to private password data structure.
-     * 
+     *
      * @param prompt Password prompt.
      * @param pw Password itself.
      */
@@ -93,7 +93,7 @@ public interface ILdapAuthInfo {
 
     /**
      * Remove password from private password data structure.
-     * 
+     *
      * @param prompt Identify password to remove with prompt.
      */
     public void removePassword(String prompt);

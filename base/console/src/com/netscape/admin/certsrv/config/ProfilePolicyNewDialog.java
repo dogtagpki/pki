@@ -53,7 +53,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public ProfilePolicyNewDialog(String defSetId, NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -461,10 +461,10 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
 		// create policy
                 String policyId = policySetStr + ":" + policyIDStr;
 		String name = instanceName + ";" + policyId + ";" + mDefaultId + ";" + mConstraintId;
-                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.add(mDest,
                   ScopeDef.SC_PROFILE_POLICIES, name, nvp);
-		
+
 /*
                 nvp.add("impl", mImplName.getText());
                 nvp.add("name", mNameField.getText());
@@ -485,7 +485,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
 	        }
 
 
-                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.add(mDest,
                   ScopeDef.SC_PROFILE_DEFAULT_POLICY, name, nvp);
 
@@ -506,7 +506,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
             nvp.put(name1, val);
 	        }
                 instanceName = mPluginName.getText();
-                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+                //mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.add(mDest,
                   ScopeDef.SC_PROFILE_CONSTRAINT_POLICY, name, nvp);
 
@@ -523,7 +523,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
             this.dispose();
         }
 
-    } 
+    }
 
     public void showDialog(NameValuePairs data, String name) {
 
@@ -539,29 +539,29 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
         mConstraintId = conId;
 
         // retrieve profile information
-        NameValuePairs response = null; 
-        NameValuePairs request = new NameValuePairs(); 
+        NameValuePairs response = null;
+        NameValuePairs request = new NameValuePairs();
         try {
 		name = profileId + ";" + defId;
           response = mAdminConnection.read(DestDef.DEST_REGISTRY_ADMIN,
                              ScopeDef.SC_PROFILE_DEFAULT_POLICY,
                              defId, request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-          mModel.progressStop(); 
-        } 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+          mModel.progressStop();
+        }
         mModel.progressStop();
 
-        Vector defcolNames = new Vector(); 
-        defcolNames.addElement("Parameter"); 
-        defcolNames.addElement("Value"); 
-        Vector defdata = new Vector(); 
+        Vector defcolNames = new Vector();
+        defcolNames.addElement("Parameter");
+        defcolNames.addElement("Value");
+        Vector defdata = new Vector();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
            String value = response.get(entry);
                   Debug.println("entry= "+entry);
-                  Debug.println("value= "+value); 
+                  Debug.println("value= "+value);
 
            Object obj = getComponent(value);
            Vector row = new Vector();
@@ -591,22 +591,22 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
                              ScopeDef.SC_PROFILE_CONSTRAINT_POLICY,
                              conId,
                              request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-          mModel.progressStop(); 
-        } 
-        mModel.progressStop(); 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+          mModel.progressStop();
+        }
+        mModel.progressStop();
 
-        Vector colNames = new Vector(); 
-        colNames.addElement("Parameter"); 
-        colNames.addElement("Value"); 
-        Vector d = new Vector(); 
+        Vector colNames = new Vector();
+        colNames.addElement("Parameter");
+        colNames.addElement("Value");
+        Vector d = new Vector();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
            String value = response.get(entry);
                   Debug.println("entry= "+entry);
-                  Debug.println("value= "+value); 
+                  Debug.println("value= "+value);
 
            Object obj = getComponent(value);
            Vector row = new Vector();
@@ -619,7 +619,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
          ProfilePolicyEditDataModel model = new ProfilePolicyEditDataModel();
          model.setInfo(d, colNames);
          mConstraintTable.setModel(model);
-       
+
         String desc = mDescField.getText();
         if (desc == null || desc.equals("")) {
           if (mDefSetId != null) {
@@ -648,11 +648,11 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
     }
 
     private Object getComponent(String value) {
-       int start_pos = value.indexOf(';'); 
-       int end_pos = value.lastIndexOf(';'); 
+       int start_pos = value.indexOf(';');
+       int end_pos = value.lastIndexOf(';');
        int end1_pos = value.lastIndexOf(';',end_pos-1);
-       String syntax = null; 
-       String syntaxVal = null; 
+       String syntax = null;
+       String syntaxVal = null;
        String v = null;
 
         syntax = value.substring(0,start_pos);
@@ -711,4 +711,4 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
         public void focusLost(FocusEvent f) {
           Debug.println("focusLost");
         }
-}    
+}

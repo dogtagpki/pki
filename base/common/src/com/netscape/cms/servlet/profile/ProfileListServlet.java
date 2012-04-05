@@ -39,7 +39,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * List all enabled profiles.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileListServlet extends ProfileServlet {
@@ -60,7 +60,7 @@ public class ProfileListServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -70,7 +70,7 @@ public class ProfileListServlet extends ProfileServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

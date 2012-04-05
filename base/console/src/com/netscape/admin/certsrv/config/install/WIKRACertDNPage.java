@@ -21,7 +21,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
 
 /**
- * Subject DN page for KRA transport certificate 
+ * Subject DN page for KRA transport certificate
  *
  * @author Christine Ho
  * @version $Revision$, $Date$

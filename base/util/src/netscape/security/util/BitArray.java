@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * A packed array of booleans.
- * 
+ *
  * @author Joshua Bloch
  * @author Douglas Hoover
  * @version 1.2 97/12/10
@@ -78,7 +78,7 @@ public class BitArray {
         int unusedBits = repLength * BITS_PER_UNIT - length;
         byte bitMask = (byte) (0xFF << unusedBits);
 
-        /* 
+        /*
          normalize the representation:
           1. discard extra bytes
           2. zero out extra bits in the last byte
@@ -191,7 +191,7 @@ public class BitArray {
 
     /**
      * Returns a hash code value for this bit array.
-     * 
+     *
      * @return a hash code value for this bit array.
      */
     public int hashCode() {

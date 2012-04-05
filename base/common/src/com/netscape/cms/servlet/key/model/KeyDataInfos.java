@@ -28,10 +28,10 @@ import com.netscape.cms.servlet.base.model.Link;
 
 @XmlRootElement(name = "SecurityDataInfos")
 public class KeyDataInfos {
-    
+
     protected Collection<KeyDataInfo> keyInfos;
     protected List<Link> links;
-    
+
     /**
      * @return the keyInfos
      */
@@ -58,7 +58,7 @@ public class KeyDataInfos {
     public void setLinks(List<Link> links) {
         this.links = links;
     }
-    
+
     @XmlTransient
     public String getNext() {
         if (links == null) {

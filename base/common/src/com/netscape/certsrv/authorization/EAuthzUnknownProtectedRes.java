@@ -29,7 +29,7 @@ public class EAuthzUnknownProtectedRes extends EAuthzException {
 
     /**
      * Constructs a exception for a protected resource unknown to the authorization manager
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EAuthzUnknownProtectedRes(String errorString) {

@@ -29,14 +29,14 @@ import com.netscape.certsrv.base.EBaseException;
  * An interface represents the transport key pair.
  * This key pair is used to protected EE's private
  * key in transit.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ITransportKeyUnit extends IEncryptionUnit {
 
     /**
      * Retrieves public key.
-     * 
+     *
      * @return certificate
      */
     public org.mozilla.jss.crypto.X509Certificate getCertificate();

@@ -32,7 +32,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * A class for basic acls authorization manager
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class BasicAclAuthz extends AAclAuthz
@@ -112,7 +112,7 @@ public class BasicAclAuthz extends AAclAuthz
      * Example:
      * <p>
      * For example, if UsrGrpAdminServlet needs to authorize the caller it would do be done in the following fashion:
-     * 
+     *
      * <PRE>
      * try {
      *     authzTok = mAuthz.authorize(&quot;DirACLBasedAuthz&quot;, authToken, RES_GROUP, &quot;read&quot;);
@@ -120,7 +120,7 @@ public class BasicAclAuthz extends AAclAuthz
      *     log(ILogger.LL_FAILURE, &quot;authorize call: &quot; + e.toString());
      * }
      * </PRE>
-     * 
+     *
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
@@ -143,7 +143,7 @@ public class BasicAclAuthz extends AAclAuthz
             authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS,
                     AuthzToken.AUTHZ_STATUS_SUCCESS);
         } catch (EACLsException e) {
-            // audit here later 
+            // audit here later
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
             String params[] = { resource, operation };
 
@@ -165,7 +165,7 @@ public class BasicAclAuthz extends AAclAuthz
 
     /**
      * This currently does not flush to permanent storage
-     * 
+     *
      * @param id is the resource id
      * @param strACLs
      */
@@ -203,7 +203,7 @@ public class BasicAclAuthz extends AAclAuthz
 
     /**
      * Logs a message for this class in the system log file.
-     * 
+     *
      * @param level The log level.
      * @param msg The message to log.
      * @see com.netscape.certsrv.logging.ILogger

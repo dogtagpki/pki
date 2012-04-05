@@ -22,7 +22,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * Define audit log message format
- * 
+ *
  * @author mzhao
  * @version $Revision$, $Date$
  */

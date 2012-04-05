@@ -33,7 +33,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet returns port information.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PortsServlet extends CMSServlet {
@@ -49,7 +49,7 @@ public class PortsServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        // override these to output directly ourselves. 
+        // override these to output directly ourselves.
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
     }

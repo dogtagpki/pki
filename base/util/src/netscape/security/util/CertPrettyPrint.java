@@ -40,7 +40,7 @@ import org.mozilla.jss.pkcs7.SignedData;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
@@ -82,7 +82,7 @@ public class CertPrettyPrint {
     /**
      * This method return string representation of the certificate
      * in predefined format using specified client local. I18N Support.
-     * 
+     *
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */

@@ -36,7 +36,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 /**
  * This class implements the pretty print certificate output
  * that displays the issued certificate in a pretty print format.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CertOutput extends EnrollOutput implements IProfileOutput {

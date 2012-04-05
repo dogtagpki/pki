@@ -30,7 +30,7 @@ import com.netscape.certsrv.security.KeyCertData;
 
 /**
  * KRA transport certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -86,7 +86,7 @@ public class KRATransportCert extends CertificateInfo {
      return sAlg;
      }
      String alg = (String)mProperties.get(Constants.PR_KEY_TYPE);
-     
+
      if (alg.equals("RSA"))
      return SignatureAlgorithm.RSASignatureWithMD5Digest;
      else

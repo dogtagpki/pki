@@ -222,7 +222,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Sets a predicate expression for rule matching.
      * <P>
-     * 
+     *
      * @param exp The predicate expression for the rule.
      */
     public void setPredicate(ILdapExpression exp) {
@@ -232,7 +232,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Returns the predicate expression for the rule.
      * <P>
-     * 
+     *
      * @return The predicate expression for the rule.
      */
     public ILdapExpression getPredicate() {

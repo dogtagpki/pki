@@ -47,11 +47,11 @@ public class CMSCertRequest extends CGITask {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "CGITASK"; 
+    private static final String PREFIX = "CGITASK";
 	private String mCgiTask = null; // CGI task to call
     private CertSetupWizardInfo mWizardInfo;
 	private String mPolicyMsg = null;
-	
+
 	/*==========================================================
      * constructors
      *==========================================================*/
@@ -66,18 +66,18 @@ public class CMSCertRequest extends CGITask {
         Debug.println("CMSRequestCert: initialize()");
         _consoleInfo = info.getAdminConsoleInfo();
 
-        // the results coming back from the daemon will be added to the 
+        // the results coming back from the daemon will be added to the
         // wizard information.
         mWizardInfo = info;
     }
-    
+
     /**
-     * Collect the data in name value pairs format and then send them to the 
+     * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
 	public boolean requestCert(Hashtable data) {
 	    boolean status = false; // return value
-	    
+
 		try {
 			status = run(data);
 		} catch (Exception e) {
@@ -89,7 +89,7 @@ public class CMSCertRequest extends CGITask {
 
 		return mSuccess;
 	}
-   
+
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
@@ -134,13 +134,13 @@ public class CMSCertRequest extends CGITask {
 		} catch (Exception e) {
 			Debug.println("RequestCert.Exception : " + e.toString());
 		}
-		
+
 		Debug.println("RequestCert.replyHandler: finished, mSuccess=" +
 					  mSuccess);
 
         finish();
     }
-    
+
        private void parse2(String s)
        {
                int iIndex;
@@ -202,7 +202,7 @@ public class CMSCertRequest extends CGITask {
 						  + sValue + " index=" + iIndex);
 			if (sValue != null && !sValue.equals("")) {
 				mWizardInfo.setRequestStatus(sValue);
-				if (sValue.equals("2") || sValue.equals("3") 
+				if (sValue.equals("2") || sValue.equals("3")
 					|| sValue.equals("4"))
 					// success, pending, svcPending
 					mSuccess = true;
@@ -286,7 +286,7 @@ public class CMSCertRequest extends CGITask {
 					mPolicyMsg = mPolicyMsg + "\n    " + sValue;
 			}
 		}
-			
+
 		Debug.println("Parse finished");
     }
 
@@ -307,7 +307,7 @@ public class CMSCertRequest extends CGITask {
 		try {
 			mSuccess = false;
 			mFinished = false;
-			
+
 			ByteArrayInputStream data = null;
 			if (args != null && !args.isEmpty())
 				data = encode(args);
@@ -369,11 +369,11 @@ public class CMSCertRequest extends CGITask {
 						   (detail.indexOf("Connection timed out") > -1) ) {
 					// java.net.NoRouteToHostException: Connection timed out
 					// double insurance
-					mErrorMsg = 
+					mErrorMsg =
 						mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE");
 				} else {
                     // need to determine case by case
-					mErrorMsg = 
+					mErrorMsg =
 						mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE")+ " java.net.SocketException: " + detail;
 				}
 
@@ -404,7 +404,7 @@ public class CMSCertRequest extends CGITask {
 			} else {
                 // need to determine case by case
                 mErrorMsg =
-                    mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE") 
+                    mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE")
 + " Exception: " + detail;
             }
 			Debug.println( "Command " + fullCmd  + " failed: " + e );

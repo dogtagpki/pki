@@ -73,7 +73,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Revoke a Certificate
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DoRevoke extends CMSServlet {
@@ -109,7 +109,7 @@ public class DoRevoke extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template
      * file "revocationResult.template" to render the result
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -144,18 +144,18 @@ public class DoRevoke extends CMSServlet {
 
     /**
      * Serves HTTP request. The http parameters used by this request are as follows:
-     * 
+     *
      * <pre>
      * serialNumber Serial number of certificate to revoke (in HEX)
      * revocationReason Revocation reason (Described below)
      * totalRecordCount [number]
      * verifiedRecordCount [number]
      * invalidityDate [number of seconds in Jan 1,1970]
-     * 
+     *
      * </pre>
-     * 
+     *
      * revocationReason can be one of these values:
-     * 
+     *
      * <pre>
      * 0 = Unspecified   (default)
      * 1 = Key compromised
@@ -375,21 +375,21 @@ public class DoRevoke extends CMSServlet {
     /**
      * Process cert status change request
      * <P>
-     * 
+     *
      * (Certificate Request - either an "agent" cert status change request, or an "EE" cert status change request)
      * <P>
-     * 
+     *
      * (Certificate Request Processed - either an "agent" cert status change request, or an "EE" cert status change
      * request)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. -
      * "revocation") is made (before approval process)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is
      * changed (revoked, expired, on-hold, off-hold)
      * </ul>
-     * 
+     *
      * @param argSet CMS template parameters
      * @param header argument block
      * @param reason revocation reason (0 - Unspecified, 1 - Key compromised,
@@ -535,7 +535,7 @@ public class DoRevoke extends CMSServlet {
                 Vector<String> serialNumbers = new Vector<String>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; 
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1;
                             i = revokeAll.indexOf('=', i)) {
                         if (i > -1) {
                             i++;
@@ -564,7 +564,7 @@ public class DoRevoke extends CMSServlet {
                         boolean addToList = false;
 
                         for (int j = 0; j < serialNumbers.size(); j++) {
-                            //xxxxx serial number in decimal? 
+                            //xxxxx serial number in decimal?
                             if (certs[i].getSerialNumber().toString().equals((String) serialNumbers.elementAt(j)) &&
                                     eeSubjectDN != null && eeSubjectDN.equals(certs[i].getSubjectDN().toString())) {
                                 addToList = true;
@@ -707,7 +707,7 @@ public class DoRevoke extends CMSServlet {
             // the request is complete
             if ((stat == RequestStatus.COMPLETE)
                     || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
-                // audit log the error 
+                // audit log the error
                 Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
 
                 if (result.equals(IRequest.RES_ERROR)) {
@@ -832,7 +832,7 @@ public class DoRevoke extends CMSServlet {
                 }
 
                 if (mAuthority instanceof ICertificateAuthority) {
-                    // let known update and publish status of all crls. 
+                    // let known update and publish status of all crls.
                     Enumeration<ICRLIssuingPoint> otherCRLs =
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
@@ -906,7 +906,7 @@ public class DoRevoke extends CMSServlet {
                     header.addIntegerValue("certsUpdated", certsUpdated);
                     header.addIntegerValue("certsToUpdate", certsToUpdate);
 
-                    // add crl publishing status. 
+                    // add crl publishing status.
                     String publError =
                             revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
@@ -1110,11 +1110,11 @@ public class DoRevoke extends CMSServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1140,11 +1140,11 @@ public class DoRevoke extends CMSServlet {
 
     /**
      * Signed Audit Log Serial Number
-     * 
+     *
      * This method is called to obtain the serial number of the certificate
      * whose status is to be changed for a signed audit log message.
      * <P>
-     * 
+     *
      * @param eeSerialNumber a string containing the un-normalized serialNumber
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1164,7 +1164,7 @@ public class DoRevoke extends CMSServlet {
 
             BigInteger value = BigInteger.ONE.negate();
 
-            //try int 
+            //try int
             try {
                 value = new BigInteger(serialNumber, 10);
             } catch (NumberFormatException e) {
@@ -1193,11 +1193,11 @@ public class DoRevoke extends CMSServlet {
 
     /**
      * Signed Audit Log Request Type
-     * 
+     *
      * This method is called to obtain the "Request Type" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param reason an integer denoting the revocation reason
      * @return string containing REVOKE or ON_HOLD
      */

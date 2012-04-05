@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.IConfigStore;
 /**
  * Class for reading ldap connection information from the config store.
  * Ldap connection info: host name, port number,whether of not it is a secure connection.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILdapConnInfo {
@@ -40,7 +40,7 @@ public interface ILdapConnInfo {
 
     /**
      * Initializes an instance from a config store.
-     * 
+     *
      * @param config Configuration store.
      * @exception ELdapException Ldap related error found.
      * @exception EBaseException Other errors and errors with params included in the config store.
@@ -49,14 +49,14 @@ public interface ILdapConnInfo {
 
     /**
      * Return the name of the Host.
-     * 
+     *
      */
 
     public String getHost();
 
     /**
      * Return the port number of the host.
-     * 
+     *
      */
     public int getPort();
 

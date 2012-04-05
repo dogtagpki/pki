@@ -30,11 +30,11 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * UnknownInfo ::= NULL -- this can be replaced with an enumeration
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class UnknownInfo implements CertStatus {

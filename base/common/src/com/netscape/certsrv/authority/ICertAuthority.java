@@ -30,7 +30,7 @@ import com.netscape.certsrv.request.IRequestListener;
  * Authority that handles certificates needed by the cert registration
  * servlets.
  * <P>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ICertAuthority extends IAuthority {
@@ -38,7 +38,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Retrieves the certificate repository for this authority.
      * <P>
-     * 
+     *
      * @return the certificate repository.
      */
     public ICertificateRepository getCertificateRepository();
@@ -46,7 +46,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Returns CA's certificate chain.
      * <P>
-     * 
+     *
      * @return the Certificate Chain for the CA.
      */
     public CertificateChain getCACertChain();
@@ -54,7 +54,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Returns CA's certificate implementaion.
      * <P>
-     * 
+     *
      * @return CA's certificate.
      */
     public X509CertImpl getCACert();
@@ -94,7 +94,7 @@ public interface ICertAuthority extends IAuthority {
      * Returns the logging interface for this authority.
      * Using this interface both System and Audit events can be
      * logged.
-     * 
+     *
      */
     public ILogger getLogger();
 

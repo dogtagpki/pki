@@ -22,21 +22,21 @@ package com.netscape.certsrv.base;
  * subsystems. Each subsystem is responsible for a set of
  * speciailized functions.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ISubsystem {
 
     /**
      * Retrieves the name of this subsystem.
-     * 
+     *
      * @return subsystem identifier
      */
     public String getId();
 
     /**
      * Sets specific to this subsystem.
-     * 
+     *
      * @param id subsystem identifier
      * @exception EBaseException failed to set id
      */
@@ -46,7 +46,7 @@ public interface ISubsystem {
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
@@ -56,7 +56,7 @@ public interface ISubsystem {
 
     /**
      * Notifies this subsystem if owner is in running mode.
-     * 
+     *
      * @exception EBaseException failed to start up
      */
     public void startup() throws EBaseException;
@@ -71,7 +71,7 @@ public interface ISubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore();

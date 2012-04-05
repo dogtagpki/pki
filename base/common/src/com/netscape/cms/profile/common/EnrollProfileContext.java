@@ -22,7 +22,7 @@ import com.netscape.certsrv.profile.IProfileContext;
 /**
  * This class implements an enrollment profile context
  * that carries information for request creation.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EnrollProfileContext extends ProfileContext

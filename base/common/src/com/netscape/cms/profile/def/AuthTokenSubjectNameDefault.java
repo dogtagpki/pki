@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy that
  * populates subject name based on the attribute values
  * in the authentication token (AuthToken) object.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthTokenSubjectNameDefault extends EnrollDefault {

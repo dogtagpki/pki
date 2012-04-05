@@ -33,7 +33,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 /**
  * A class represents a CRL issuing point record.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

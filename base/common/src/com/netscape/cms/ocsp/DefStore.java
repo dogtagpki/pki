@@ -76,13 +76,13 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 /**
  * This is the default OCSP store that stores revocation information
  * as certificate record (CMS internal data structure).
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     // refreshInSec is useful in the master-clone situation.
-    // clone does not know that the CRL has been updated in 
+    // clone does not know that the CRL has been updated in
     // the master (by default no refresh)
     private static final String PROP_USE_CACHE = "useCache";
 

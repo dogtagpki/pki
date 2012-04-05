@@ -39,10 +39,10 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
      * variables
      *==========================================================*/
     public static final String RULE_NAME = "RULENAME";
-    public static final String RULE_STAT = "STATUS";  
+    public static final String RULE_STAT = "STATUS";
 	public static final String RULE_IMPL = "IMPL";
 	public static final String RULE_TYPE = "TYPE";
-     
+
     protected static String[] mColumns = null;
     protected Vector mRules;
 
@@ -61,22 +61,22 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
      *==========================================================*/
 
 	protected abstract String[] getColumns();
-	
+
     /**
      * clean up the table including the datat objects
      */
     public void removeAllRows() {
         super.removeAllRows();
         mRules.removeAllElements();
-    }    
-    
-    
-    public Vector getRules() {
-        return (Vector) mRules.clone();    
     }
-    
+
+
+    public Vector getRules() {
+        return (Vector) mRules.clone();
+    }
+
     public boolean isCellEditable(int row, int col) {
         return false;
     }
-    
+
 }

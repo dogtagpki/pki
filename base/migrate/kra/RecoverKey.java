@@ -43,7 +43,7 @@ import java.util.*;
 import com.netscape.cmscore.shares.*;
 
 public class RecoverKey {
-    
+
     public static void main(String args[]) throws Exception
     {
        if (args.length != 6) {
@@ -58,7 +58,7 @@ public class RecoverKey {
         String nickname = args[4];
         String db_path = args[5];
 
-        CryptoManager.InitializationValues vals = 
+        CryptoManager.InitializationValues vals =
                  new CryptoManager.InitializationValues(alias,
                  prefix, prefix, "secmod.db");
 

@@ -32,10 +32,10 @@ package com.netscape.certsrv.selftests;
  * This class implements a missing self test exception.
  * EMissingSelfTestExceptions are derived from ESelfTestExceptions
  * in order to allow users to easily do self tests without try-catch clauses.
- * 
+ *
  * EMissingSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EMissingSelfTestException
@@ -72,7 +72,7 @@ public class EMissingSelfTestException
     /**
      * Constructs a "missing" self test exception where the name is null
      * <P>
-     * 
+     *
      */
     public EMissingSelfTestException() {
         super("The self test plugin property name is null.");
@@ -82,7 +82,7 @@ public class EMissingSelfTestException
      * Constructs a "missing" self test exception where the name is always
      * missing from a name/value pair.
      * <P>
-     * 
+     *
      * @param instanceName missing "instanceName" exception details
      */
     public EMissingSelfTestException(String instanceName) {
@@ -104,7 +104,7 @@ public class EMissingSelfTestException
      * Constructs a "missing" self test exception where the value is always
      * missing from a name/value pair; (the value passed in is always null).
      * <P>
-     * 
+     *
      * @param instanceName missing "instanceName" exception details
      * @param instanceValue missing "instanceValue" exception details
      *            (always null)
@@ -134,7 +134,7 @@ public class EMissingSelfTestException
      * missing from a substore.parameter/value pair; (the value passed in may
      * be null).
      * <P>
-     * 
+     *
      * @param instanceStore missing "instanceStore" exception details
      * @param instanceParameter missing "instanceParameter" exception details
      * @param instanceValue missing "instanceValue" exception details
@@ -172,7 +172,7 @@ public class EMissingSelfTestException
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     * 
+     *
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -182,7 +182,7 @@ public class EMissingSelfTestException
     /**
      * Returns the store associated with this self test.
      * <P>
-     * 
+     *
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -192,7 +192,7 @@ public class EMissingSelfTestException
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     * 
+     *
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -202,7 +202,7 @@ public class EMissingSelfTestException
     /**
      * Returns the value associated with this self test.
      * <P>
-     * 
+     *
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {

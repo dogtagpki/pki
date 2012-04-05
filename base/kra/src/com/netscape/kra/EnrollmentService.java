@@ -87,7 +87,7 @@ import com.netscape.cmsutil.util.Utils;
  * Upon processing, the incoming user key is unwrapped with the transport key of KRA, and then wrapped with the storage
  * key. The encrypted key is stored in the internal database for long term storage.
  * <P>
- * 
+ *
  * @author thomask (original)
  * @author cfu (non-RSA keys; private keys secure handling);
  * @version $Revision$, $Date$
@@ -100,7 +100,7 @@ public class EnrollmentService implements IService {
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
 
-    // private 
+    // private
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
@@ -119,7 +119,7 @@ public class EnrollmentService implements IService {
     /**
      * Constructs request processor.
      * <P>
-     * 
+     *
      * @param kra key recovery authority
      */
     public EnrollmentService(IKeyRecoveryAuthority kra) {
@@ -144,7 +144,7 @@ public class EnrollmentService implements IService {
     /**
      * Services an enrollment/archival request.
      * <P>
-     * 
+     *
      * @param request enrollment request
      * @return serving successful or not
      * @exception EBaseException failed to serve
@@ -650,7 +650,7 @@ public class EnrollmentService implements IService {
 
     /**
      * Retrieves PKIArchiveOptions from CRMF request.
-     * 
+     *
      * @param crmfBlob CRMF request
      * @return PKIArchiveOptions
      * @exception EBaseException failed to extrace option
@@ -732,7 +732,7 @@ public class EnrollmentService implements IService {
 
     /**
      * Retrieves public key from request.
-     * 
+     *
      * @param request CRMF request
      * @return JSS public key
      * @exception EBaseException failed to retrieve public key
@@ -791,7 +791,7 @@ public class EnrollmentService implements IService {
 
     /**
      * Retrieves key's owner name from request.
-     * 
+     *
      * @param request CRMF request
      * @return owner name (subject name)
      * @exception EBaseException failed to retrieve public key
@@ -834,11 +834,11 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log Public Key
-     * 
+     *
      * This method is called to obtain the public key from the passed in
      * "KeyRecord" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param rec a Key Record
      * @return key string containing the certificate's public key
      */
@@ -886,11 +886,11 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
 
@@ -923,11 +923,11 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
@@ -959,10 +959,10 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {

@@ -35,7 +35,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * ResponseData ::= SEQUENCE {
  *    version              [0] EXPLICIT Version DEFAULT v1,
@@ -44,7 +44,7 @@ import org.mozilla.jss.pkix.cert.Extension;
  *    responses                SEQUENCE OF SingleResponse,
  *    responseExtensions   [1] EXPLICIT Extensions OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ResponseData implements ASN1Value {

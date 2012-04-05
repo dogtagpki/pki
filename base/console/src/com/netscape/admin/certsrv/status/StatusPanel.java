@@ -106,9 +106,9 @@ public class StatusPanel extends CMSBasePanel
     }
 
     public CMSBasePanel getSelectedTab() {
-        return this;    
+        return this;
     }
-    
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mRefresh)) {
@@ -174,7 +174,7 @@ public class StatusPanel extends CMSBasePanel
         JLabel label5 = makeJLabel("INSTALLDATE");
         mInstallDate = new JLabel();
         CMSAdminUtil.addEntryField(panel, label5, mInstallDate, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel label3 = makeJLabel("SERVERSTARTUP");
         mServerStart = new JLabel();
@@ -228,10 +228,10 @@ public class StatusPanel extends CMSBasePanel
             //display error dialog
             CMSAdminUtil.showErrorDialog(mModel.getFrame(), mResource,
                                          e.toString(), ERROR_MESSAGE);
-            mModel.progressStop();                             
+            mModel.progressStop();
             return;
         }
-        
+
         mModel.progressStop();
         Debug.println("StatusPanel: refresh() "+ response.toString());
 

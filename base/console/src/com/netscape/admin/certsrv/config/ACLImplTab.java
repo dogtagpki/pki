@@ -39,7 +39,7 @@ public class ACLImplTab extends CMSBaseUGTab {
     private AdminConnection mConnection;
     private JTable mTable;
     private JScrollPane mScrollPane;
-    protected ACLImplDataModel mDataModel; 
+    protected ACLImplDataModel mDataModel;
     protected EvaluatorRegisterDialog mEditor=null;
     protected JButton mRefresh, mAdd, mDelete, mHelp;
     private static final String HELPINDEX =

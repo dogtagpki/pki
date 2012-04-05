@@ -44,7 +44,7 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
 	/*==========================================================
      * constructors
      *==========================================================*/
-     
+
     public CMSCertSettingPanel(String panelName, CMSTabPanel parent) {
         super(panelName, parent);
         _model = parent.getResourceModel();
@@ -53,7 +53,7 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * Actual UI construction
      */
@@ -63,7 +63,7 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        
+
         JPanel mapPanel = new JPanel();
         GridBagLayout gb2 = new GridBagLayout();
         mapPanel.setLayout(gb2);
@@ -74,13 +74,13 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         gbc.weightx = 1.0;
         gb.setConstraints(mapPanel, gbc);
         mCenterPanel.add(mapPanel);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel mapperLabel = makeJLabel("MAPPER");
         _mapper = new JLabel("");
         mMapper = makeJButton("MAPPER");
         addEntryField(mapPanel, mapperLabel, _mapper, mMapper , gbc);
-        
+
         JPanel  certSetting = new JPanel();
         GridBagLayout gb1 = new GridBagLayout();
         certSetting.setLayout(gb1);
@@ -100,11 +100,11 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         mPublisher = makeJButton("PUBLISHER");
         addEntryField(certSetting, publisherLabel, _publisher, mPublisher, gbc);
     }
-    
+
     /*==========================================================
 	 * protected methods
      *==========================================================*/
-     
+
     protected int getIndex(String value, String[] source) {
         for (int i=0; i<source.length; i++) {
             if (value.equals(source[i]))
@@ -112,13 +112,13 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         }
         return -1;
     }
-    
+
     /**
      * Add 3 components in the same row to a panel, assumed to be using
      * GridBagLayout. Customized for the LDAP certificate mappings/publishing
      * UI.
      */
-    protected void addEntryField(JPanel panel, JComponent field1, 
+    protected void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -145,6 +145,6 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field3, gbc );
     }
-    
+
 }
 

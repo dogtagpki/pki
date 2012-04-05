@@ -29,22 +29,22 @@ import netscape.security.util.DerValue;
 
 /**
  * This represents the Subject Alternative Name Extension.
- * 
+ *
  * This extension, if present, allows the subject to specify multiple
  * alternative names.
- * 
+ *
  * <p>
  * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating
  * whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding
  * of the extension value).
  * <p>
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * SubjectAltName ::= GeneralNames
  * GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -85,7 +85,7 @@ public class SubjectAlternativeNameExtension extends Extension
 
     /**
      * Create a SubjectAlternativeNameExtension with the passed GeneralNames.
-     * 
+     *
      * @param names the GeneralNames for the subject.
      * @exception IOException on error.
      */
@@ -116,7 +116,7 @@ public class SubjectAlternativeNameExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -156,7 +156,7 @@ public class SubjectAlternativeNameExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -166,7 +166,7 @@ public class SubjectAlternativeNameExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

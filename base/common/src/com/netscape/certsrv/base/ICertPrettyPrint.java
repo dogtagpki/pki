@@ -23,14 +23,14 @@ import java.util.Locale;
  * This interface represents a certificate pretty print
  * handler. This handler converts certificate object into
  * a printable certificate string.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICertPrettyPrint {
 
     /**
      * Returns printable certificate string.
-     * 
+     *
      * @param clientLocale end user locale
      * @return printable certificate string
      */

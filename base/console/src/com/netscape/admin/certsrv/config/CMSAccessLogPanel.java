@@ -25,7 +25,7 @@ import java.awt.event.*;
 
 /**
  * Access Log Setting Tab to be displayed at the right hand side
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -46,7 +46,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
         mHelpToken = HELPINDEX;
         mIsNT = isNT;
     }
-    
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
@@ -88,7 +88,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
         } catch (EAdminException e) {
             showErrorDialog(e.toString());
             mModel.progressStop();
-        } 
+        }
         setValues();
         mModel.progressStop();
         clearDirtyFlag();
@@ -97,14 +97,14 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
 
     private void parseVals(NameValuePairs nvp) {
         if (nvp.get(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
-          Constants.TRUE)) 
+          Constants.TRUE))
             activateLog.setSelected(true);
         else
             activateLog.setSelected(false);
         mLevel = Integer.parseInt(nvp.get(Constants.PR_LOG_LEVEL));
         mlogBufSizTextData = nvp.get(Constants.PR_LOG_BUFFERSIZE);
         mlogMaxSizTextData = nvp.get(Constants.PR_LOG_MAXFILESIZE);
-        int val = 
+        int val =
           Integer.parseInt(nvp.get(Constants.PR_LOG_ROLLEROVER_INTERVAL));
         mFrequency = getRollOverIndex(val);
     }
@@ -148,7 +148,7 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
 
         NameValuePairs nvp = new NameValuePairs();
         mModel.progressStart();
-        if (activateLog.isSelected()) 
+        if (activateLog.isSelected())
             nvp.put(Constants.PR_LOG_ENABLED, Constants.TRUE);
         else
             nvp.put(Constants.PR_LOG_ENABLED, Constants.FALSE);
@@ -183,13 +183,13 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
             showErrorDialog(e.toString());
             mModel.progressStop();
             return false;
-        } 
+        }
 
         clearDirtyFlag();
         mModel.progressStop();
         return true;
     }
-	 
+
     /**
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
@@ -201,8 +201,8 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
 
 	/*==========================================================
 	 * EVENT HANDLER METHODS
-     *==========================================================*/     
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);

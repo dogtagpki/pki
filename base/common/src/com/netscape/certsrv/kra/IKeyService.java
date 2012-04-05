@@ -28,7 +28,7 @@ import com.netscape.certsrv.security.Credential;
 /**
  * An interface representing a recovery service.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IKeyService {
@@ -36,7 +36,7 @@ public interface IKeyService {
     /**
      * Retrieves number of agent required to perform
      * key recovery operation.
-     * 
+     *
      * @return number of required recovery agents
      * @exception EBaseException failed to retrieve value
      */
@@ -45,7 +45,7 @@ public interface IKeyService {
     /**
      * is async recovery request status APPROVED -
      * i.e. all required # of recovery agents approved
-     * 
+     *
      * @param reqID request id
      * @return true if # of recovery required agents approved; false otherwise
      */
@@ -54,7 +54,7 @@ public interface IKeyService {
 
     /**
      * get async recovery request initiating agent
-     * 
+     *
      * @param reqID request id
      * @return agentUID
      */
@@ -63,7 +63,7 @@ public interface IKeyService {
 
     /**
      * Initiate asynchronous key recovery
-     * 
+     *
      * @param kid key identifier
      * @param cert certificate embedded in PKCS12
      * @return requestId
@@ -74,7 +74,7 @@ public interface IKeyService {
 
     /**
      * add approving agent in asynchronous key recovery
-     * 
+     *
      * @param reqID request id
      * @param agentID agent id
      * @exception EBaseException failed to initiate async recovery
@@ -84,7 +84,7 @@ public interface IKeyService {
 
     /**
      * Performs administrator-initiated key recovery.
-     * 
+     *
      * @param kid key identifier
      * @param creds list of credentials (id and password)
      * @param pwd password to protect PKCS12
@@ -101,14 +101,14 @@ public interface IKeyService {
      * Async Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
      * made (this is when the DRM receives the request)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
      * request is processed (this is when the DRM processes the request)
      * </ul>
-     * 
+     *
      * @param reqID request id
      * @param password password of the PKCS12 package
      *            subsystem
@@ -122,14 +122,14 @@ public interface IKeyService {
 
     /**
      * Retrieves recovery identifier.
-     * 
+     *
      * @return recovery id
      */
     public String getRecoveryID();
 
     /**
      * Creates recovery parameters for the given recovery operation.
-     * 
+     *
      * @param recoveryID recovery id
      * @return recovery parameters
      * @exception EBaseException failed to create
@@ -139,7 +139,7 @@ public interface IKeyService {
 
     /**
      * Destroys recovery parameters for the given recovery operation.
-     * 
+     *
      * @param recoveryID recovery id
      * @exception EBaseException failed to destroy
      */
@@ -148,7 +148,7 @@ public interface IKeyService {
 
     /**
      * Retrieves recovery parameters for the given recovery operation.
-     * 
+     *
      * @param recoveryID recovery id
      * @return recovery parameters
      * @exception EBaseException failed to retrieve
@@ -158,7 +158,7 @@ public interface IKeyService {
 
     /**
      * Adds password in the distributed recovery operation.
-     * 
+     *
      * @param recoveryID recovery id
      * @param uid agent uid
      * @param pwd agent password
@@ -169,7 +169,7 @@ public interface IKeyService {
 
     /**
      * Retrieves credentials in the distributed recovery operation.
-     * 
+     *
      * @param recoveryID recovery id
      * @return agent's credentials
      * @exception EBaseException failed to retrieve

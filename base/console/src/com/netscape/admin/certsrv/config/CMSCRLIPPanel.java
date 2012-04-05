@@ -196,7 +196,7 @@ public class CMSCRLIPPanel  extends CMSBaseTab
                                          mNames);
             editor.showDialog(new NameValuePairs());
             String name = editor.getCRLName();
-            CMSResourceObject node = (CMSResourceObject)(mParent.getResourceObject()); 
+            CMSResourceObject node = (CMSResourceObject)(mParent.getResourceObject());
             CMSResourceObject crlsNode = node;
             node = new CMSResourceObject();
             node.setName(name);
@@ -238,11 +238,11 @@ public class CMSCRLIPPanel  extends CMSBaseTab
                     if (mNames.contains(name))
                         mNames.remove(name);
                     mDataModel.removeElementAt(index);
-                    if (mDataModel.size() > 0) 
+                    if (mDataModel.size() > 0)
                         mList.setSelectedIndex(0);
                 }
-                CMSResourceObject node = 
-                  (CMSResourceObject)(mParent.getResourceObject()); 
+                CMSResourceObject node =
+                  (CMSResourceObject)(mParent.getResourceObject());
                 Enumeration allchildren = node.children();
                 while (allchildren.hasMoreElements()) {
                     CMSResourceObject child = (CMSResourceObject)(allchildren.nextElement());
@@ -301,11 +301,11 @@ public class CMSCRLIPPanel  extends CMSBaseTab
 
                 String enable = nvps.get(name + "." + Constants.PR_ENABLED);
                 if (enable != null && enable.equalsIgnoreCase(Constants.TRUE)) {
-                    mDataModel.addElement(new JLabel(name, 
+                    mDataModel.addElement(new JLabel(name,
                                           CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),
                                           JLabel.LEFT));
                 } else {
-                    mDataModel.addElement(new JLabel(name, 
+                    mDataModel.addElement(new JLabel(name,
                                           CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE_DISABLE),
                                           JLabel.LEFT));
                 }

@@ -48,7 +48,7 @@ import com.netscape.cmscore.util.Debug;
  * Authentications by checking the uid and password against the
  * database.
  * <P>
- * 
+ *
  * @author lhsiao, cfu
  * @version $Revision$, $Date$
  */
@@ -81,7 +81,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
      * initializes the PasswdUserDBAuthentication auth manager
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
-     * 
+     *
      * @param name - Name assigned to this authentication manager instance.
      * @param implName - Name of the authentication plugin.
      * @param config - The configuration store used by the
@@ -110,7 +110,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
      * authenticates administratrators by LDAP uid/pwd
      * <p>
      * called by other subsystems or their servlets to authenticate administrators
-     * 
+     *
      * @param authCred Authentication credentials.
      *            "uid" and "pwd" are required.
      * @return the authentication token (authToken) that contains the following
@@ -127,7 +127,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
 
-        // make sure the required credentials are provided 
+        // make sure the required credentials are provided
         String uid = (String) authCred.get(CRED_UID);
         CMS.debug("Authentication: UID=" + uid);
         if (uid == null) {
@@ -219,7 +219,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
      * required by this authentication manager. Generally used by
      * servlets that use this authentication manager, to retrieve
      * required credentials from the user (e.g. Javascript form data)
-     * 
+     *
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -229,7 +229,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
     /**
      * Get the list of configuration parameter names
      * required by this authentication manager. In this case, an empty list.
-     * 
+     *
      * @return String array of configuration parameters.
      */
     public String[] getConfigParams() {
@@ -252,7 +252,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
     /**
      * gets the configuretion substore used by this authentication
      * manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -261,7 +261,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
 
     /**
      * Log a message.
-     * 
+     *
      * @param level The logging level.
      * @param msg The message to log.
      */

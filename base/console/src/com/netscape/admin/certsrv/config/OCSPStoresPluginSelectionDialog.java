@@ -40,7 +40,7 @@ public class OCSPStoresPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "OCSPSTORESELECTIONDIALOG";
-    private static final String OCSPHELPINDEX = 
+    private static final String OCSPHELPINDEX =
       "configuration-ocsp-add-crlextensionrule-dbox-help";
 
     /*==========================================================
@@ -48,9 +48,9 @@ public class OCSPStoresPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public OCSPStoresPluginSelectionDialog(
             JFrame parent,
-            AdminConnection conn, 
+            AdminConnection conn,
             String dest,
-            CMSPluginInstanceTab pluginType) 
+            CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
 //        mScope = ScopeDef.SC_RULE_IMPLS;

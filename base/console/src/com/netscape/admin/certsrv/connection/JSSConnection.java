@@ -48,7 +48,7 @@ import java.awt.*;
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
-public class JSSConnection implements IConnection, SSLCertificateApprovalCallback, 
+public class JSSConnection implements IConnection, SSLCertificateApprovalCallback,
   SSLClientCertificateSelectionCallback {
 
     /*==========================================================
@@ -92,7 +92,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 		UtilConsoleGlobals.initJSS();
 		cf = UtilConsoleGlobals.getX509CertificateFactory();
         try {
-            cryptoManager = CryptoManager.getInstance();    
+            cryptoManager = CryptoManager.getInstance();
         } catch (Exception e) {
         }
 
@@ -100,19 +100,19 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         // to get the ciphers
         SSLSocket.enableSSL2Default(false);
         SSLSocket.enableSSL3Default(true);
-        int TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA = 0xC005; 
-        int TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA = 0xC00A; 
+        int TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA = 0xC005;
+        int TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA = 0xC00A;
 
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
         for (int i = 0; ciphers != null && i < ciphers.length; i++) {
             // make sure SSLv2 ciphers are not enabled
             if ((ciphers[i] & 0xfff0) !=0xff00) {
-                Debug.println("JSSConnection Debug: non-SSL2 NSS Cipher Supported '0x" + 
-                Integer.toHexString(ciphers[i]) + "'"); 
+                Debug.println("JSSConnection Debug: non-SSL2 NSS Cipher Supported '0x" +
+                Integer.toHexString(ciphers[i]) + "'");
                 SSLSocket.setCipherPreferenceDefault(ciphers[i], true);
             } else {
-                Debug.println("JSSConnection Debug: SSL2 (turned off) NSS Cipher Supported '0x" + 
-                Integer.toHexString(ciphers[i]) + "'"); 
+                Debug.println("JSSConnection Debug: SSL2 (turned off) NSS Cipher Supported '0x" +
+                Integer.toHexString(ciphers[i]) + "'");
                 SSLSocket.setCipherPreferenceDefault(ciphers[i], false);
             }
 
@@ -192,12 +192,12 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 		    if (!(promptForTrustDialog.isAcceptedForOneSession())) {
 			    try {
 			        String nickname = serverCert.getNickname();
-			
-                    CryptoToken internalToken = 
+
+                    CryptoToken internalToken =
                       cryptoManager.getInternalKeyStorageToken();
 
                     if (!internalToken.passwordIsInitialized()) {
-                        InitPasswordDialog initPasswordDialog = 
+                        InitPasswordDialog initPasswordDialog =
                           new InitPasswordDialog(internalToken);
                         initPasswordDialog.setVisible(true);
                         if (initPasswordDialog.isCancel()) {
@@ -223,11 +223,11 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
                         mCertAccepted = false;
                         return false;
                     }
-			        InternalCertificate internalCert = 
-                      cryptoManager.importCertToPerm(serverCert, 
+			        InternalCertificate internalCert =
+                      cryptoManager.importCertToPerm(serverCert,
                       (nickname==null)?serverCert.getSubjectDN().toString():nickname);
 			        internalCert.setSSLTrust(
-                      org.mozilla.jss.crypto.InternalCertificate.TRUSTED_PEER | 
+                      org.mozilla.jss.crypto.InternalCertificate.TRUSTED_PEER |
                       org.mozilla.jss.crypto.InternalCertificate.VALID_PEER);
 			    } catch (Exception e) {
                     mServerCertImported = false;
@@ -236,7 +236,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
                         e.printStackTrace();
                     }
                     return false;
-                } 
+                }
 		    }
 	    }
 
@@ -258,7 +258,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     public boolean isClientAuth() {
         return mClientAuth;
     }
- 
+
     public boolean isCertAccepted() {
         return mCertAccepted;
     }
@@ -271,8 +271,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         return mServerCertImported;
     }
 
-    public String select(Vector nicknames) 
-    { 
+    public String select(Vector nicknames)
+    {
         selectCertDialog = null;
         mClientAuth = true;
         if (nicknames == null || nicknames.size() == 0) {
@@ -312,11 +312,11 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
                 abort = true;
                 throw new PasswordCallback.GiveUpException();
             }
-        
+
             return getPasswordDialog.getPassword();
         }
 
-        public Password getPasswordAgain(PasswordCallbackInfo info) 
+        public Password getPasswordAgain(PasswordCallbackInfo info)
           throws GiveUpException
         {
 
@@ -445,9 +445,9 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
      */
     public void setSoTimeout(int timeout) throws SocketException {
         //System.out.println("JSSConnection: setSoTimeout() - "+timeout);
-        s.setSoTimeout(timeout);    
+        s.setSoTimeout(timeout);
     }
-    
+
     /*==========================================================
 	 * private methods
      *==========================================================*/
@@ -465,12 +465,12 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 		readBody();
 	}
 
-    private int readLineFromStream(InputStream is, byte line[], 
+    private int readLineFromStream(InputStream is, byte line[],
                        int startpos, int len) throws IOException {
 	    //return is.readLine(line, startpos, len);
         int pos = startpos;
         int count = 0;
-        while (len > 0) 
+        while (len > 0)
         {
           int nRead = httpIn.read(line, pos, 1);
           if (nRead == -1)
@@ -581,7 +581,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         CryptoToken mToken;
         boolean tokenPasswdInit = true;
         boolean pwdSame = true;
-        
+
         public InitPasswordDialog(CryptoToken token) {
             super(null,"",true, OK|CANCEL);
             setMinimumSize(300, 150);
@@ -636,7 +636,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
                 mToken.initPassword(null, getPassword());
                 dispose();
             } catch (Exception e) {
-                tokenPasswdInit = false;     
+                tokenPasswdInit = false;
             }
         }
 
@@ -653,7 +653,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             pwd.grabFocus();
             super.setVisible(visible);
         }
-   
+
         public Password getPassword() {
             Password jssPwd = new Password(pwd.getText().toCharArray());
             return jssPwd;
@@ -663,7 +663,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 	class GetPasswordDialog extends AbstractDialog {
 
         MultilineLabel enterPwdLabel = new MultilineLabel();
-	    protected ResourceBundle mResource = 
+	    protected ResourceBundle mResource =
           ResourceBundle.getBundle(CMSAdminResources.class.getName());
         SingleBytePasswordField pwd;
         public GetPasswordDialog() {
@@ -694,7 +694,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             pwd.grabFocus();
             super.setVisible(visible);
         }
-	
+
 	    public void setPasswordInfo(PasswordCallbackInfo info, boolean getPwdAgain) {
             if (getPwdAgain)
                 enterPwdLabel.setText(mResource.getString(
@@ -756,6 +756,6 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             return certList.getSelectedItem().toString();
         }
 
-	} 
+	}
 
 }

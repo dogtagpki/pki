@@ -26,7 +26,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapCertMapper extends ILdapPlugin {
@@ -54,7 +54,7 @@ public interface ILdapCertMapper extends ILdapPlugin {
     /**
      * maps a certificate to a LDAP entry.
      * returns dn of the mapped LDAP entry.
-     * 
+     *
      * @param conn the LDAP connection
      * @param cert the certificate to map
      * @param checkForCert whether to check for the presence of the cert

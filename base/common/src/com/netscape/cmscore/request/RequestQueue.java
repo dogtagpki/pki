@@ -306,7 +306,7 @@ public class RequestQueue
     /**
      * Implements IRequestQueue.findRequestBySourceId
      * <p>
-     * 
+     *
      * @see com.netscape.certsrv.request.IRequestQueue#findRequestBySourceId
      */
     public RequestId findRequestBySourceId(String id) {
@@ -321,7 +321,7 @@ public class RequestQueue
     /**
      * Implements IRequestQueue.findRequestsBySourceId
      * <p>
-     * 
+     *
      * @see com.netscape.certsrv.request.IRequestQueue#findRequestsBySourceId
      */
     public IRequestList findRequestsBySourceId(String id) {
@@ -406,7 +406,7 @@ public class RequestQueue
         return new SearchEnumeration(this, results);
     }
 
-    /** 
+    /**
      */
     public IRequestList listRequestsByFilter(String f, int maxSize) {
         IDBSearchResults results = null;
@@ -476,7 +476,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f1);
         } catch (EBaseException e) {
-            //System.err.println("Error: "+e); 
+            //System.err.println("Error: "+e);
             //e.printStackTrace();
         } finally {
             // Close session - ignoring errors (UTIL)
@@ -595,7 +595,7 @@ public class RequestQueue
     }
 
     /*
-     * return request repository 
+     * return request repository
      */
     public IRepository getRequestRepository() {
         return (IRepository) mRepository;

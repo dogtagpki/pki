@@ -44,7 +44,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
     private JTextField mIntervalText;
     private Color mActiveColor;
     private CMSTabPanel mParent;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-ra-clm-help";
 
     public CMSRACLMPanel(CMSTabPanel parent) {
@@ -83,13 +83,13 @@ public class CMSRACLMPanel extends CMSBaseTab {
         gbc.weighty = 1.0;
         gb.setConstraints(adminPanel, gbc);
         mCenterPanel.add(adminPanel);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel validLbl = makeJLabel("VALID");
         mValidText = makeJTextField(4);
         mActiveColor = mValidText.getBackground();
         JLabel day1Lbl = makeJLabel("DAYS");
-        CMSAdminUtil.addEntryField(adminPanel, validLbl, mValidText, 
+        CMSAdminUtil.addEntryField(adminPanel, validLbl, mValidText,
           day1Lbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
@@ -129,7 +129,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
         JLabel intervalLbl = makeJLabel("INTERVAL");
         mIntervalText = makeJTextField(4);
         JLabel day2Lbl = makeJLabel("DAYS");
-        CMSAdminUtil.addEntryField(subPanel, intervalLbl, mIntervalText, 
+        CMSAdminUtil.addEntryField(subPanel, intervalLbl, mIntervalText,
           day2Lbl, gbc);
 
         refresh();
@@ -172,7 +172,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
                 mNotifyEnable.setSelected(notificationEnabled);
             } else if (name.equals(Constants.PR_RENEWAL_VALIDITY)) {
                 mValidText.setText(value);
-            } else if (name.equals(Constants.PR_RENEWAL_EMAIL)) {   
+            } else if (name.equals(Constants.PR_RENEWAL_EMAIL)) {
                 mEmailText.setText(value);
             } else if (name.equals(Constants.PR_RENEWAL_NUMNOTIFICATION)) {
                 mNotifiedText.setText(value);
@@ -217,7 +217,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
         mValidText.setEnabled(enable);
         mValidText.setEditable(enable);
         mValidText.setBackground(color);
-        mNotifyEnable.setEnabled(enable);        
+        mNotifyEnable.setEnabled(enable);
         mNotifyEnable.setBackground(color);
         //enableNotification(enable, color);
     }
@@ -239,9 +239,9 @@ public class CMSRACLMPanel extends CMSBaseTab {
 
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
-        if (e.getSource().equals(mRenewEnable) || 
+        if (e.getSource().equals(mRenewEnable) ||
             e.getSource().equals(mNotifyEnable)) {
-            enableRenewal(mRenewEnable.isSelected(), 
+            enableRenewal(mRenewEnable.isSelected(),
               mNotifyEnable.isSelected());
         }
     }
@@ -262,7 +262,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
                 return false;
             }
             nvps.put(Constants.PR_RENEWAL_VALIDITY, validStr);
-        
+
             if (mNotifyEnable.isSelected()) {
                 nvps.put(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED,
                         Constants.TRUE);

@@ -19,9 +19,9 @@ package netscape.security.x509;
 
 /**
  * CertException indicates one of a variety of certificate problems.
- * 
+ *
  * @version 1.18
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra

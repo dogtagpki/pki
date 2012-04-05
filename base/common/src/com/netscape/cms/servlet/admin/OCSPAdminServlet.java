@@ -43,7 +43,7 @@ import com.netscape.certsrv.ocsp.IOCSPStore;
  * Authority. This servlet is responsible to serve OCSP
  * administrative operations such as configuration parameter
  * updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class OCSPAdminServlet extends AdminServlet {
@@ -227,12 +227,12 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set default OCSP store
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when configuring OCSP profile (everything under
      * Online Certificate Status Manager)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -317,12 +317,12 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set OCSP store configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when configuring OCSP profile (everything under
      * Online Certificate Status Manager)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -467,12 +467,12 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set general OCSP configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when configuring OCSP profile (everything under
      * Online Certificate Status Manager)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred

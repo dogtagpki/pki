@@ -41,7 +41,7 @@ import com.netscape.cmscore.util.Debug;
  * <li>Add X500Name (string to oid) maps for attributes that are not supported by default.
  * <li>Specify an order for encoding Directory Strings other than the default.
  * </ul>
- * 
+ *
  * @author lhsiao
  * @version $Revision$
  */
@@ -84,12 +84,12 @@ public class X500NameSubsystem implements ISubsystem {
      * All paramters are optional.
      * <ul>
      * <li>Change encoding order of Directory Strings:
-     * 
+     *
      * <pre>
      * X500Name.directoryStringEncodingOrder=order seperated by commas
      * For example: Printable,BMPString,UniversalString.
      * </pre>
-     * 
+     *
      * Possible values are:
      * <ul>
      * <li>Printable
@@ -100,34 +100,34 @@ public class X500NameSubsystem implements ISubsystem {
      * </ul>
      * <p>
      * <li>Add X500Name attributes:
-     * 
+     *
      * <pre>
      * X500Name.attr.attribute-name.oid=n.n.n.n
      * X500Name.attr.attribute-name.class=value converter class
      * </pre>
-     * 
+     *
      * The value converter class converts a string to a ASN.1 value. It must implement
      * netscape.security.x509.AVAValueConverter interface. Converter classes provided in CMS are:
-     * 
+     *
      * <pre>
-     *     netscape.security.x509.PrintableConverter - 
-     * 		Converts to a Printable String value. String must have only 
-     * 		printable characters. 
-     *     netscape.security.x509.IA5StringConverter - 
+     *     netscape.security.x509.PrintableConverter -
+     * 		Converts to a Printable String value. String must have only
+     * 		printable characters.
+     *     netscape.security.x509.IA5StringConverter -
      * 		Converts to a IA5String value. String must have only IA5String
-     * 		characters. 
-     *     netscape.security.x509.DirStrConverter - 
-     * 		Converts to a Directory (v3) String. String is expected to 
+     * 		characters.
+     *     netscape.security.x509.DirStrConverter -
+     * 		Converts to a Directory (v3) String. String is expected to
      * 		be in Directory String format according to rfc2253.
-     *     netscape.security.x509.GenericValueConverter - 
+     *     netscape.security.x509.GenericValueConverter -
      * 		Converts string character by character in the following order
      * 		from smaller character sets to broadest character set.
      * 			Printable, IA5String, BMPString, Universal String.
      * </pre>
-     * 
+     *
      * </ul>
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
@@ -142,7 +142,7 @@ public class X500NameSubsystem implements ISubsystem {
         // get order for encoding directory strings if any.
         setDirStrEncodingOrder();
 
-        // load x500 name maps 
+        // load x500 name maps
         loadX500NameAttrMaps();
     }
 

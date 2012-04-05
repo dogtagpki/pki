@@ -43,7 +43,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 
 /**
  * Interface for publishing a CA certificate to
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCaCertPublisher
@@ -152,7 +152,7 @@ public class LdapCaCertPublisher
      * Adds the cert to the multi-valued certificate attribute as a
      * DER encoded binary blob. Does not check if cert already exists.
      * Converts the class to certificateAuthority.
-     * 
+     *
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.

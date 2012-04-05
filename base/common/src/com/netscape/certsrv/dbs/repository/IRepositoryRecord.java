@@ -25,7 +25,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * An interface represents a generic repository record.
  * It maintains unique serial number within repository.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRepositoryRecord extends IDBObj {
@@ -35,7 +35,7 @@ public interface IRepositoryRecord extends IDBObj {
 
     /**
      * Retrieves serial number.
-     * 
+     *
      * @return serial number
      */
     public BigInteger getSerialNumber();

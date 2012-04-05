@@ -49,7 +49,7 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
     protected String mHelpIndex;
     protected String mCertChain;
     protected String mCertFilePath;
-    
+
     WIInstallCertStatusPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -61,7 +61,7 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String str = mResource.getString(mPanelName+"_TEXT_DESC_LABEL");
         desc.setText(str);
-        return true; 
+        return true;
     }
 
     public boolean isLastPage() {
@@ -118,9 +118,9 @@ class WIInstallCertStatusPage extends WizardBasePanel implements IWizardPanel {
                     return true;
                 } else {
                     setErrorMessage(mResource.getString(mPanelName+"_ERROR1"));
-                    return false; 
+                    return false;
                 }
-            } else 
+            } else
                 setErrorMessage(str);
         }
         return ready;

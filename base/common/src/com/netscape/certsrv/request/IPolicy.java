@@ -28,7 +28,7 @@ package com.netscape.certsrv.request;
  * of agents allowed to perform further processing. If none
  * is set, a default value ("defaultAgentGroup") will be
  * set instead.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPolicy {
@@ -41,7 +41,7 @@ public interface IPolicy {
      * The policy can update fields in the request, to add additional values or to restrict the values to pre-determined
      * ranges.
      * <p>
-     * 
+     *
      * @param request
      *            the request to check
      * @return

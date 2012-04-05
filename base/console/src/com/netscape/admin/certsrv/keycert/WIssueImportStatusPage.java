@@ -36,7 +36,7 @@ class WIssueImportStatusPage extends WizardBasePanel implements IWizardPanel {
     private static final String HELPINDEX =
       "configuration-keycert-wizard-selfsignedstatus-help";
     private JTextArea desc;
-    
+
     WIssueImportStatusPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -61,8 +61,8 @@ class WIssueImportStatusPage extends WizardBasePanel implements IWizardPanel {
             str = mResource.getString(
               "ISSUEIMPORTSTATUSWIZARD_TEXT_DESC_LABEL");
             desc.setText(str);
-            return true; 
-        } 
+            return true;
+        }
         return false;
     }
 

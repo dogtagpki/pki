@@ -51,7 +51,7 @@ import com.netscape.certsrv.request.IRequest;
  * in the directory to publish the cert or crl.
  * The restriction of this mapper is that the ldap dn components must
  * be part of certificate subject name or request attributes or constant.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
@@ -77,7 +77,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * Constructor.
-     * 
+     *
      * @param dnPattern The base DN.
      */
     public LdapSimpleMap(String dnPattern) {
@@ -151,7 +151,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Maps a X500 subject name to LDAP entry.
      * Uses DN pattern to form a DN for a LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
@@ -164,7 +164,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Maps a X500 subject name to LDAP entry.
      * Uses DN pattern to form a DN for a LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param req the request to map.
      * @param obj the object to map.
@@ -201,7 +201,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? "" : 
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? "" :
                         req.getRequestId().toString())));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             ((req == null) ? "" : req.getRequestId().toString())));
@@ -237,7 +237,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * form a dn from component in the request and cert subject name
-     * 
+     *
      * @param req The request
      * @param obj The certificate or crl
      */

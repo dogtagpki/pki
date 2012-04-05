@@ -32,7 +32,7 @@ class WIDisplayRACertPage extends WIDisplayCertPage {
     private static final String PANELNAME = "INSTALLDISPLAYRACERTWIZARD";
     private static final String RAHELPINDEX = "install-racert-display-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakracert-display-wizard-help";
-    
+
     WIDisplayRACertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -66,7 +66,7 @@ class WIDisplayRACertPage extends WIDisplayCertPage {
               ConfigConstants.TRUE);
             return true;
         }
-    
+
         return false;
     }
 }

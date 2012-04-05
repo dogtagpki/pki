@@ -43,7 +43,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 
 /**
  * Manage Access Control List configuration
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ACLAdminServlet extends AdminServlet {
@@ -80,7 +80,7 @@ public class ACLAdminServlet extends AdminServlet {
      * <LI>"evaluatorTypes" ACL evaluators.
      * </ul>
      * </ul>
-     * 
+     *
      * @param config servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig config) throws ServletException {
@@ -97,7 +97,7 @@ public class ACLAdminServlet extends AdminServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param req the object holding the request information
      * @param resp the object holding the response information
      */
@@ -320,11 +320,11 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * modify acls information for a resource
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -484,11 +484,11 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * add access evaluators
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this ACL evaluator's
@@ -721,11 +721,11 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * remove access evaluators
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this ACL evaluator's
@@ -876,7 +876,7 @@ public class ACLAdminServlet extends AdminServlet {
      */
 
     /*
-     private void getACLs(HttpServletRequest req, 
+     private void getACLs(HttpServletRequest req,
      HttpServletResponse resp) throws ServletException, IOException,
      EBaseException {
      NameValuePairs params = new NameValuePairs();

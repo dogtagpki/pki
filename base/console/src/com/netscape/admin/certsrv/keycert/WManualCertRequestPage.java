@@ -50,7 +50,7 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
     private static final String PANELNAME = "MANUALCERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-displaycertrequest-help";
-    
+
     WManualCertRequestPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -70,7 +70,7 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-     
+
         if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
           wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))
             return false;
@@ -120,7 +120,7 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
 		if (port != null && !port.equals(""))
 			mPortText.setText(port);
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -135,7 +135,7 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
 		if (mHost != null && !mHost.equals(""))
 			wizardInfo.setCMHost(mHost);
 		if (mPort != null && !mPort.equals(""))
-			wizardInfo.setCMEEPort(mPort);   
+			wizardInfo.setCMEEPort(mPort);
 		if (mSSL.isSelected())
 			wizardInfo.setCMEEType("https");
 		else

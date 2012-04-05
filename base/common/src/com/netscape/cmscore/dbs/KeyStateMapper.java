@@ -31,7 +31,7 @@ import com.netscape.certsrv.dbs.keydb.KeyState;
 /**
  * A class represents a key state mapper.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

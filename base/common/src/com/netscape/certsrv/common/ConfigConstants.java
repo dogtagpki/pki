@@ -21,7 +21,7 @@ package com.netscape.certsrv.common;
  * This interface contains constants that are used
  * in the protocol between the configuration daemon
  * and UI configuration wizard.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ConfigConstants {

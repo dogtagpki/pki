@@ -28,7 +28,7 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 /**
  * A class represents a repository record.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

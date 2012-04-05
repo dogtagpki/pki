@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the version of the X509 Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.8
@@ -89,7 +89,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * The constructor for this class for the required version.
-     * 
+     *
      * @param version the version for the certificate.
      * @exception IOException if the version is not valid.
      */
@@ -106,7 +106,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the CertificateVersion from.
      * @exception IOException on decoding errors.
      */
@@ -119,7 +119,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the CertificateVersion from.
      * @exception IOException on decoding errors.
      */
@@ -132,7 +132,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DerValue.
-     * 
+     *
      * @param val the Der encoded value.
      * @exception IOException on decoding errors.
      */
@@ -151,7 +151,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Encode the CertificateVersion period in DER form to the stream.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -172,7 +172,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Decode the CertificateVersion period in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */

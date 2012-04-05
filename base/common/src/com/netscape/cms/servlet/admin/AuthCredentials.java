@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.IArgBlock;
 /**
  * Authentication Credentials as input to the authMgr
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
@@ -36,7 +36,7 @@ public class AuthCredentials implements IAuthCredentials {
      */
     private static final long serialVersionUID = -6938644716486895814L;
     private Hashtable<String, Object> authCreds = null;
-    // Inserted by bskim 
+    // Inserted by bskim
     private IArgBlock argblk = null;
 
     // Insert end
@@ -47,7 +47,7 @@ public class AuthCredentials implements IAuthCredentials {
 
     /**
      * sets a credential with credential name and the credential
-     * 
+     *
      * @param name credential name
      * @param cred credential
      * @exception com.netscape.certsrv.base.EBaseException NullPointerException
@@ -63,7 +63,7 @@ public class AuthCredentials implements IAuthCredentials {
     /**
      * returns the credential to which the specified name is mapped in this
      * credential set
-     * 
+     *
      * @param name credential name
      * @return the named authentication credential
      */
@@ -75,7 +75,7 @@ public class AuthCredentials implements IAuthCredentials {
      * removes the name and its corresponding credential from this
      * credential set. This method does nothing if the named
      * credential is not in the credential set.
-     * 
+     *
      * @param name credential name
      */
     public void delete(String name) {
@@ -86,7 +86,7 @@ public class AuthCredentials implements IAuthCredentials {
      * returns an enumeration of the credential names in this credential
      * set. Use the Enumeration methods on the returned object to
      * fetch the elements sequentially.
-     * 
+     *
      * @return an enumeration of the names in this credential set
      * @see java.util.Enumeration
      */

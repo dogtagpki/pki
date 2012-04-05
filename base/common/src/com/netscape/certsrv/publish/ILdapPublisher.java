@@ -25,7 +25,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Interface for publishing certificate or crl to database store.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapPublisher extends ILdapPlugin {
@@ -55,7 +55,7 @@ public interface ILdapPublisher extends ILdapPlugin {
 
     /**
      * Publish an object.
-     * 
+     *
      * @param conn a Ldap connection
      *            (null for non-LDAP publishing)
      * @param dn dn of the ldap entry to publish cert
@@ -70,7 +70,7 @@ public interface ILdapPublisher extends ILdapPlugin {
 
     /**
      * Unpublish an object.
-     * 
+     *
      * @param conn the Ldap connection
      *            (null for non-LDAP publishing)
      * @param dn dn of the ldap entry to unpublish cert

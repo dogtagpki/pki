@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.PasswordResources;
 /**
  * A class represents a password checker exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EPasswordCheckException extends EBaseException {
@@ -40,7 +40,7 @@ public class EPasswordCheckException extends EBaseException {
     /**
      * Constructs a password checker exception
      * <P>
-     * 
+     *
      * @param msgFormat exception details
      */
     public EPasswordCheckException(String msgFormat) {
@@ -50,7 +50,7 @@ public class EPasswordCheckException extends EBaseException {
     /**
      * Constructs a password checker exception.
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -61,7 +61,7 @@ public class EPasswordCheckException extends EBaseException {
     /**
      * Constructs a password checker exception.
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param exception system exception
      */
@@ -72,7 +72,7 @@ public class EPasswordCheckException extends EBaseException {
     /**
      * Constructs a password checker exception.
      * <P>
-     * 
+     *
      * @param msgFormat the message format.
      * @param params list of message format parameters
      */
@@ -82,7 +82,7 @@ public class EPasswordCheckException extends EBaseException {
 
     /**
      * Retrieves bundle name.
-     * 
+     *
      * @return resource bundle name.
      */
     protected String getBundleName() {

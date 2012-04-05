@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 /**
  * This class defines the strong authentication basic elements,
  * the X509 certificates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Certificates {
@@ -31,7 +31,7 @@ public class Certificates {
 
     /**
      * Constructs strong authenticator.
-     * 
+     *
      * @param certs a list of X509Certificates
      */
     public Certificates(X509Certificate certs[]) {
@@ -40,7 +40,7 @@ public class Certificates {
 
     /**
      * Retrieves certificates.
-     * 
+     *
      * @return a list of X509Certificates
      */
     public X509Certificate[] getCertificates() {

@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 
 /**
  * CMSFileLoader - file cache.
- * 
+ *
  * @version $Revision$, $Date$
  */
 
@@ -43,10 +43,10 @@ public class CMSFileLoader {
     // property to cache templates only
     public final String PROP_CACHE_TEMPLATES_ONLY = "cacheTemplatesOnly";
 
-    // hash of files to their content. 
+    // hash of files to their content.
     private Hashtable<String, CMSFile> mLoadedFiles = new Hashtable<String, CMSFile>();
 
-    // max number of files 
+    // max number of files
     private int mMaxSize = MAX_SIZE;
 
     // number of files to clear when max is reached.
@@ -84,14 +84,14 @@ public class CMSFileLoader {
     public byte[] get(File file, String enc) throws EBaseException, IOException {
         CMSFile cmsFile = getCMSFile(file, enc);
 
-        // Change end	    
+        // Change end
         return cmsFile.getContent();
     }
 
     // Changed by bskim
     //public CMSFile getCMSFile(File file) throws EBaseException, IOException {
     public CMSFile getCMSFile(File file, String enc) throws EBaseException, IOException {
-        // Change end	    
+        // Change end
         String absPath = file.getAbsolutePath();
         long modified = file.lastModified();
         CMSFile cmsFile = (CMSFile) mLoadedFiles.get(absPath);
@@ -100,7 +100,7 @@ public class CMSFileLoader {
         // new file.
         if (cmsFile == null || modified != lastModified) {
             // Changed by bskim
-            //cmsFile = updateFile(absPath, file); 
+            //cmsFile = updateFile(absPath, file);
             cmsFile = updateFile(absPath, file, enc);
             // Change end
         }
@@ -109,7 +109,7 @@ public class CMSFileLoader {
     }
 
     // Changed by bskim
-    //private CMSFile updateFile(String absPath, File file) 
+    //private CMSFile updateFile(String absPath, File file)
     private CMSFile updateFile(String absPath, File file, String enc)
             // Change end
             throws EBaseException, IOException {

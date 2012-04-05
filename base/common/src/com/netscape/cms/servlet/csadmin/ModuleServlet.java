@@ -39,7 +39,7 @@ public class ModuleServlet extends BaseServlet {
      * "preop.module=soft"
      * or
      * "preop.module=hard"
-     * 
+     *
      * <ul>
      * <li>http.param selection "soft" or "hard" for software token or hardware token
      * </ul>

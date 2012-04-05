@@ -51,7 +51,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * presented.
  * <P>
  * Here is the ASN1 definition of a proof of escrow:
- * 
+ *
  * <PRE>
  * ProofOfEscrow ::= SIGNED {
  *   SEQUENCE {
@@ -65,7 +65,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * }
  * </PRE>
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -105,7 +105,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Constructs a proof of escrow.
      * <P>
-     * 
+     *
      * @param serialNo serial number of proof
      * @param subject subject name
      * @param issuer issuer name
@@ -123,7 +123,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Constructs proof of escrow from input stream.
      * <P>
-     * 
+     *
      * @param in encoding source
      * @exception EBaseException failed to decode
      */
@@ -134,7 +134,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Sets an attribute value.
      * <P>
-     * 
+     *
      * @param name attribute name
      * @param obj attribute value
      * @exception EBaseException failed to set attribute
@@ -159,7 +159,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the value of an named attribute.
      * <P>
-     * 
+     *
      * @param name attribute name
      * @return attribute value
      * @exception EBaseException failed to get attribute
@@ -184,7 +184,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Deletes an attribute.
      * <P>
-     * 
+     *
      * @param name attribute name
      * @exception EBaseException failed to get attribute
      */
@@ -196,7 +196,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves a list of possible attribute names.
      * <P>
-     * 
+     *
      * @return a list of names
      */
     public Enumeration<String> getElements() {
@@ -205,7 +205,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
     /**
      * Retrieves serializable attribute names.
-     * 
+     *
      * @return a list of serializable attribute names
      */
     public Enumeration<String> getSerializableAttrNames() {
@@ -215,7 +215,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves version of this proof.
      * <P>
-     * 
+     *
      * @return version
      */
     public BigInteger getVersion() {
@@ -225,7 +225,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the serial number.
      * <P>
-     * 
+     *
      * @return serial number
      */
     public BigInteger getSerialNumber() {
@@ -235,7 +235,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the subject name.
      * <P>
-     * 
+     *
      * @return subject name
      */
     public String getSubjectName() {
@@ -245,7 +245,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the issuer name.
      * <P>
-     * 
+     *
      * @return issuer name
      */
     public String getIssuerName() {
@@ -255,7 +255,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Returns the beginning of the escrowed perioid.
      * <P>
-     * 
+     *
      * @return date of archival
      */
     public Date getDateOfArchival() {

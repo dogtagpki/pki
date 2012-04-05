@@ -56,7 +56,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
      * Overrides Thread.run(), calls batchPublish().
      */
     public void run() {
-        //int  priority = Thread.MIN_PRIORITY;      
+        //int  priority = Thread.MIN_PRIORITY;
         //Thread.currentThread().setPriority(priority);
         /*-------------------------------------------------
          ** Loop until queue is empty

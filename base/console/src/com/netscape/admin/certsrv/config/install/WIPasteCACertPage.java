@@ -49,8 +49,8 @@ class WIPasteCACertPage extends WIPasteCertPage {
         if (wizardInfo.isCloning() && wizardInfo.isCACloningDone())
             return false;
 
-        if (wizardInfo.isCACertLocalCA() || !wizardInfo.isInstallCertNow() 
-          || !wizardInfo.isCAInstalled() || wizardInfo.isMigrationEnable() 
+        if (wizardInfo.isCACertLocalCA() || !wizardInfo.isInstallCertNow()
+          || !wizardInfo.isCAInstalled() || wizardInfo.isMigrationEnable()
           || wizardInfo.isCACertInstalledDone())
             return false;
 

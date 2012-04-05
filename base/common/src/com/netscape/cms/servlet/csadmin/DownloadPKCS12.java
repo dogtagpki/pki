@@ -50,7 +50,7 @@ public class DownloadPKCS12 extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {

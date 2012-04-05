@@ -29,7 +29,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 /**
  * A class representing a request parser.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ReqParser implements IReqParser {

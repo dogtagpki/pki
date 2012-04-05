@@ -152,7 +152,7 @@ January 2038.
 
         JLabel dayLbl = makeJLabel("DAY");
         add(dayLbl, gbc);
- 
+
         JLabel hourLbl = makeJLabel("HOUR");
         add(hourLbl, gbc);
 
@@ -187,7 +187,7 @@ January 2038.
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(mBYear, gbc);
-        
+
         mBMonth = new JTextField(""+(nowDate.get(Calendar.MONTH)+1));
         mBMonth.setColumns(3);
         add(mBMonth, gbc);

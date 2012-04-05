@@ -42,9 +42,9 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * This input populates 2 main fields to the enrollment page:
  * 1/ Certificate Request Type, 2/ Certificate Request
  * <p>
- * 
+ *
  * This input usually is used by an enrollment profile for certificate requests.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CertReqInput extends EnrollInput implements IProfileInput {

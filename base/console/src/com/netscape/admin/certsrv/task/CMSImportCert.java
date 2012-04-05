@@ -47,15 +47,15 @@ public class CMSImportCert extends CGITask {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "CGITASK"; 
+    private static final String PREFIX = "CGITASK";
 	private String mCgiTask = null; // CGI task to call
     private InstallWizardInfo mWizardInfo;
 	private String mPolicyMsg = null;
-	
+
 	// To support Thawte's header and footer
-    public static final String BEGIN_PKCS7_HEADER = 
+    public static final String BEGIN_PKCS7_HEADER =
 		"-----BEGIN PKCS #7 SIGNED DATA-----";
-    public static final String END_PKCS7_HEADER = 
+    public static final String END_PKCS7_HEADER =
 		"-----END PKCS #7 SIGNED DATA-----";
     public static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String END_HEADER = "-----END CERTIFICATE-----";
@@ -74,13 +74,13 @@ public class CMSImportCert extends CGITask {
         Debug.println("CMSImportCert: initialize()");
         _consoleInfo = info.getAdminConsoleInfo();
 
-        // the results coming back from the daemon will be added to the 
+        // the results coming back from the daemon will be added to the
         // wizard information.
         mWizardInfo = info;
     }
-    
+
     /**
-     * Collect the data in name value pairs format and then send them to the 
+     * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
 	public boolean importCert(Hashtable data) {
@@ -97,7 +97,7 @@ public class CMSImportCert extends CGITask {
 
 		return mSuccess;
 	}
-   
+
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
@@ -130,13 +130,13 @@ public class CMSImportCert extends CGITask {
 		} catch (Exception e) {
 			Debug.println("ImportCert.Exception : " + e.toString());
 		}
-		
+
 		Debug.println("ImportCert.replyHandler: finished, mSuccess=" +
 					  mSuccess);
 
         finish();
     }
-    
+
     /**
 	 * return the value for the given keyword in the reply
 	 */
@@ -160,8 +160,8 @@ public class CMSImportCert extends CGITask {
 					sValue.equals(ConfigConstants.APPROVED_STRING) ||
 					sValue.equals(ConfigConstants.SVC_PENDING_STRING)) {
 					mWizardInfo.setImportError("Request " +
-						mWizardInfo.getRequestID() + 
-						" is " + sValue + 
+						mWizardInfo.getRequestID() +
+						" is " + sValue +
 						".\nYou can contact an authorized agent or local administrator for further assistance by referring to the request ID.");
 					mSuccess = true;
 				} else if (sValue.equals(ConfigConstants.CANCELED_STRING) ||
@@ -171,8 +171,8 @@ public class CMSImportCert extends CGITask {
 					if (stage != null)
 						mWizardInfo.put(stage, ConfigConstants.FALSE);
 					mWizardInfo.setImportError("Request " +
-						mWizardInfo.getRequestID() + 
-						" is " + sValue + 
+						mWizardInfo.getRequestID() +
+						" is " + sValue +
 						".\nYou can contact an authorized agent or local administrator for further assistance by referring to the request ID." + "\nYou will be able to regenerate a new request if you click back." );
 					mSuccess = true;
 				}
@@ -191,9 +191,9 @@ public class CMSImportCert extends CGITask {
 			    String result = normalizeCertStr(val);
 				Debug.println("After removing all the carriage returns:");
 				Debug.println(result);
-        		mWizardInfo.setPKCS10(result);	
+			mWizardInfo.setPKCS10(result);
 				mSuccess = true;
-				
+
 			}
 		}
 		else if ((iIndex=s.indexOf("unexpectedError = ")) != (-1))
@@ -261,7 +261,7 @@ public class CMSImportCert extends CGITask {
 					mPolicyMsg = mPolicyMsg + "\n    " + sValue;
 			}
 		}
-			
+
 		Debug.println("Parse finished");
     }
 
@@ -282,7 +282,7 @@ public class CMSImportCert extends CGITask {
 		try {
 			mSuccess = false;
 			mFinished = false;
-			
+
 			ByteArrayInputStream data = null;
 			if (args != null && !args.isEmpty())
 				data = encode(args);
@@ -344,11 +344,11 @@ public class CMSImportCert extends CGITask {
 						   (detail.indexOf("Connection timed out") > -1) ) {
 					// java.net.NoRouteToHostException: Connection timed out
 					// double insurance
-					mErrorMsg = 
+					mErrorMsg =
 						mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE");
 				} else {
                     // need to determine case by case
-					mErrorMsg = 
+					mErrorMsg =
 						mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE")+ " java.net.SocketException: " + detail;
 				}
 
@@ -379,7 +379,7 @@ public class CMSImportCert extends CGITask {
 			} else {
                 // need to determine case by case
                 mErrorMsg =
-                    mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE") 
+                    mResource.getString("CGITASK_DIALOG_CMSDOWN_MESSAGE")
 + " Exception: " + detail;
             }
 			Debug.println( "Command " + fullCmd  + " failed: " + e );
@@ -388,7 +388,7 @@ public class CMSImportCert extends CGITask {
 	}
 
 	String getStage(String reqType){
-        if (reqType.equals(Constants.PR_CA_SIGNING_CERT)){ 
+        if (reqType.equals(Constants.PR_CA_SIGNING_CERT)){
 			return ConfigConstants.STAGE_CA_REQ_SUCCESS;
 		}else if (reqType.equals(Constants.PR_SERVER_CERT)){
 			return ConfigConstants.STAGE_SSL_REQ_SUCCESS;

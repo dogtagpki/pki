@@ -30,11 +30,11 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRL Certificate Issuer Extension.
- * 
+ *
  * <p>
  * This CRL entry extension identifies the certificate issuer associated with an entry in an indirect CRL, i.e. a CRL
  * that has the indirectCRL indicator set in its issuing distribution point extension.
- * 
+ *
  * @see Extension
  * @see CertAttrSet
  */
@@ -81,7 +81,7 @@ public class CertificateIssuerExtension extends Extension
     /**
      * Create a CertificateIssuerExtension with the passed GeneralNames
      * and criticality.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
@@ -96,7 +96,7 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Create a CertificateIssuerExtension with the passed GeneralNames.
-     * 
+     *
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
      */
@@ -119,7 +119,7 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -157,7 +157,7 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -167,7 +167,7 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding error.
      */

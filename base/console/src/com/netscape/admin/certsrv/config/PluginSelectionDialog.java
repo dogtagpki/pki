@@ -60,9 +60,9 @@ public class PluginSelectionDialog extends JDialog
 	protected CMSBaseResourceModel mModel=null;
 
     public PluginSelectionDialog(
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest)
 	{
 		this(	prefix,
@@ -76,11 +76,11 @@ public class PluginSelectionDialog extends JDialog
      * constructors
      *==========================================================*/
     public PluginSelectionDialog(
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(parent,true);
         mParentFrame = parent;
@@ -341,18 +341,18 @@ public class PluginSelectionDialog extends JDialog
             vals[i++] = name.trim();
 			Debug.println("PluginSelectionDialog::update() - adding '" + vals[i - 1] + "'");
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
 			try {
-            mDataModel.addElement(new JLabel(vals[y], 
+            mDataModel.addElement(new JLabel(vals[y],
               CMSAdminUtil.getImage(mImageName), JLabel.LEFT));
 			}
 			catch (Exception ex) {
 				Debug.println("PluginSelectionDialog could not get image for '"+
 					mImageName+"'. Adding without image");
-            mDataModel.addElement(new JLabel(vals[y], 
+            mDataModel.addElement(new JLabel(vals[y],
               JLabel.LEFT));
 			}
         }
@@ -364,12 +364,12 @@ public class PluginSelectionDialog extends JDialog
     protected NameValuePairs getDefaultConfig() throws EAdminException {
         String id = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
         NameValuePairs response;
-        response = mConnection.read(mDestination, mScope, id, 
+        response = mConnection.read(mDestination, mScope, id,
           new NameValuePairs());
 
         Debug.println(response.toString());
 
         return response;
     }
-    
+
 }

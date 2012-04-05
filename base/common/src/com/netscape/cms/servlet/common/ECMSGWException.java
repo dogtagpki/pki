@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * A class represents a CMS gateway exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ECMSGWException extends EBaseException {

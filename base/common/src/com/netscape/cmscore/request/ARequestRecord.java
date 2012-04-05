@@ -27,7 +27,7 @@ import com.netscape.certsrv.request.RequestStatus;
  * The low level (attributes only) version of the database
  * record object. This exists so that RecordAttr methods can use
  * this type definition,
- * 
+ *
  * RequestRecord refers both to this class and to RecordAttr objects.
  */
 class ARequestRecord {

@@ -25,12 +25,12 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * Represent the PolicyQualifierInfo.
- * 
+ *
  * policyQualifierInfo ::= SEQUENCE {
  * policyQualifierId PolicyQualifierId
  * qualifier ANY DEFINED BY policyQualifierId
  * }
- * 
+ *
  * @author Thomas Kwan
  */
 public class PolicyQualifierInfo implements java.io.Serializable {
@@ -52,7 +52,7 @@ public class PolicyQualifierInfo implements java.io.Serializable {
 
     /**
      * Create a PolicyQualifierInfo
-     * 
+     *
      * @param id the ObjectIdentifier for the policy id.
      */
     public PolicyQualifierInfo(ObjectIdentifier id, Qualifier qualifier) {
@@ -62,7 +62,7 @@ public class PolicyQualifierInfo implements java.io.Serializable {
 
     /**
      * Create the object from its Der encoded value.
-     * 
+     *
      * @param val the DER encoded value for the same.
      */
     public PolicyQualifierInfo(DerValue val) throws IOException {
@@ -105,7 +105,7 @@ public class PolicyQualifierInfo implements java.io.Serializable {
 
     /**
      * Write the PolicyQualifier to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

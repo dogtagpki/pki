@@ -53,20 +53,20 @@ public class KeyRequestDAO {
     private IKeyRecoveryAuthority kra;
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
-    
+
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
             "(requesttype=recovery)", "(requeststate=canceled)",
             "(&(requeststate=canceled)(requesttype=enrollment))",
-            "(&(requeststate=canceled)(requesttype=recovery))", 
-            "(requeststate=rejected)", 
+            "(&(requeststate=canceled)(requesttype=recovery))",
+            "(requeststate=rejected)",
             "(&(requeststate=rejected)(requesttype=enrollment))",
             "(&(requeststate=rejected)(requesttype=recovery))",
             "(requeststate=complete)",
             "(&(requeststate=complete)(requesttype=enrollment))",
             "(&(requeststate=complete)(requesttype=recovery))"
     };
-    
+
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public KeyRequestDAO() {
@@ -75,12 +75,12 @@ public class KeyRequestDAO {
     }
 
     /**
-     * Finds list of requests matching the specified search filter.  
-     * 
-     * If the filter corresponds to a VLV search, then that search is executed and the pageSize 
+     * Finds list of requests matching the specified search filter.
+     *
+     * If the filter corresponds to a VLV search, then that search is executed and the pageSize
      * and start parameters are used.  Otherwise, the maxResults and maxTime parameters are
      * used in the regularly indexed search.
-     * 
+     *
      * @param filter - ldap search filter
      * @param start - start position for VLV search
      * @param pageSize - page size for VLV search
@@ -96,16 +96,16 @@ public class KeyRequestDAO {
         List <Link> links = new ArrayList<Link>();
         int totalSize = 0;
         int current = 0;
-        
+
         if (isVLVSearch(filter)) {
             IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
                                                                          pageSize +1 , "requestId");
             totalSize = vlvlist.getSize();
             current = vlvlist.getCurrentIndex();
-            
+
             int numRecords = (totalSize > (current + pageSize)) ? pageSize :
                 totalSize - current;
-            
+
             for (int i=0; i < numRecords; i++) {
                 IRequest request = vlvlist.getElementAt(i);
                 list.add(createKeyRequestInfo(request, uriInfo));
@@ -127,7 +127,7 @@ public class KeyRequestDAO {
                 }
             }
         }
-        
+
         // builder for vlv links
         MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
@@ -139,7 +139,7 @@ public class KeyRequestDAO {
         }
         builder.queryParam("start", "{start}");
         builder.queryParam("pageSize", "{pageSize}");
-        
+
         // next link
         if (totalSize > current + pageSize) {
             int next = current + pageSize + 1;
@@ -147,7 +147,7 @@ public class KeyRequestDAO {
             Link nextLink = new Link("next", nextUri.toString(), "application/xml");
             links.add(nextLink);
         }
-        
+
         // previous link
         if (current >0) {
             int previous = current - pageSize;
@@ -155,18 +155,18 @@ public class KeyRequestDAO {
             Link previousLink = new Link("previous", previousUri.toString(), "application/xml");
             links.add(previousLink);
         }
-        
+
         KeyRequestInfos ret = new KeyRequestInfos();
         ret.setRequests(list);
         ret.setLinks(links);
         return ret;
     }
-    
+
     /**
      * Gets info for a specific request
      * @param id
      * @return info for specific request
-     * @throws EBaseException 
+     * @throws EBaseException
      */
     public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo) throws EBaseException {
         IRequest request = queue.findRequest(id);
@@ -180,7 +180,7 @@ public class KeyRequestDAO {
      * Submits an archival request and processes it.
      * @param data
      * @return info for the request submitted.
-     * @throws EBaseException 
+     * @throws EBaseException
      */
     public KeyRequestInfo submitRequest(ArchivalRequestData data, UriInfo uriInfo) throws EBaseException {
         String clientId = data.getClientId();
@@ -209,9 +209,9 @@ public class KeyRequestDAO {
      * Submits a key recovery request.
      * @param data
      * @return info on the recovery request created
-     * @throws EBaseException 
+     * @throws EBaseException
      */
-    public KeyRequestInfo submitRequest(RecoveryRequestData data, UriInfo uriInfo) throws EBaseException { 
+    public KeyRequestInfo submitRequest(RecoveryRequestData data, UriInfo uriInfo) throws EBaseException {
 
         // set data using request.setExtData(field, data)
 
@@ -256,42 +256,42 @@ public class KeyRequestDAO {
         request.setRequestStatus(RequestStatus.APPROVED);
         queue.updateRequest(request);
     }
-    
+
     public void rejectRequest(RequestId id) throws EBaseException {
         IRequest request = queue.findRequest(id);
         request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);
     }
-    
+
     public void cancelRequest(RequestId id) throws EBaseException {
         IRequest request = queue.findRequest(id);
         request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
     }
-    
+
     public KeyRequestInfo createKeyRequestInfo(IRequest request, UriInfo uriInfo) {
         KeyRequestInfo ret = new KeyRequestInfo();
-        
+
         ret.setRequestType(request.getRequestType());
         ret.setRequestStatus(request.getRequestStatus().toString());
-        
+
         Path keyRequestPath = KeyRequestResource.class.getAnnotation(Path.class);
         RequestId rid = request.getRequestId();
 
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
         reqBuilder.path(keyRequestPath.value() + "/" + rid);
         ret.setRequestURL(reqBuilder.build().toString());
-        
+
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
         String kid = request.getExtDataInString("keyrecord");
 
         UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
         keyBuilder.path(keyPath.value() + "/" + kid);
         ret.setKeyURL(keyBuilder.build().toString());
-        
+
         return ret;
     }
-    
+
     private boolean isVLVSearch(String filter) {
         for (int i=0; i < vlvFilters.length; i++) {
             if (vlvFilters[i].equalsIgnoreCase(filter)) {

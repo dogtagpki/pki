@@ -47,7 +47,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public ProfileConfigDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -370,7 +370,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
                 nvp.put("auth", mAuthField.getText());
                 nvp.put("desc", mDescField.getText());
            //     nvp.add("config", mConfigField.getText());
-               // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+               // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.add(mDest,
                   ScopeDef.SC_PROFILE_RULES, instanceName, nvp);
 
@@ -392,5 +392,5 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
             CMSAdminUtil.help(mHelpToken);
         }
 
-    } 
-}    
+    }
+}

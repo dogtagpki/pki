@@ -39,7 +39,7 @@ import com.netscape.certsrv.common.*;
 public class ConnectorEditor extends JDialog implements ActionListener, MouseListener {
 
     private final static String PREFIX = "CONNECTOREDITOR";
-    private final static String HELPINDEX = 
+    private final static String HELPINDEX =
       "configuration-ra-connector-editor-help";
     private final static String HELPINDEX1 =
       "configuration-overview";
@@ -226,7 +226,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                 mHostText.setText(val);
             } else if (name.equals(Constants.PR_PORT)) {
                 mPortText.setText(val);
-            // Inserted by beomsuk            
+            // Inserted by beomsuk
             } else if (name.equals(Constants.PR_TIMEOUT)) {
                 if (val == null || val.equals(""))
                     mTimeoutText.setText("30");
@@ -472,13 +472,13 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         gbc.anchor = gbc.WEST;
         gbc.weightx = 1.0;
         gbc.fill = gbc.HORIZONTAL;
-        gbc.insets = new Insets(2*CMSAdminUtil.COMPONENT_SPACE, 
+        gbc.insets = new Insets(2*CMSAdminUtil.COMPONENT_SPACE,
           4*CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         gb.setConstraints(mHeading, gbc);
         mainPanel.add(mHeading);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mDataModel = new ListCertsModel();
         mCertTable = new JTable(mDataModel);
@@ -551,15 +551,15 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
     }
 
     public void actionPerformed(ActionEvent e) {
-        
+
         if (e.getSource().equals(mEnableBox)) {
             mEnable = mEnableBox.isSelected();
             enableConnector();
-        } else if (e.getSource().equals(mCancel)) 
+        } else if (e.getSource().equals(mCancel))
             this.dispose();
         else if (e.getSource().equals(mOK)) {
             NameValuePairs nvps = new NameValuePairs();
-            
+
             if (mEnable) {
                 nvps.put(Constants.PR_LOCAL, Constants.FALSE);
                 nvps.put(Constants.PR_HOST, mHostText.getText());
@@ -572,7 +572,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                         return;
                     }
                 } catch (NumberFormatException ex) {
-                    CMSAdminUtil.showMessageDialog(mParentFrame, mResource, PREFIX, 
+                    CMSAdminUtil.showMessageDialog(mParentFrame, mResource, PREFIX,
                       "NONINTEGER", CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
@@ -587,12 +587,12 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                         return;
                     }
                 } catch (NumberFormatException ex) {
-                    CMSAdminUtil.showMessageDialog(mParentFrame, mResource, PREFIX, 
+                    CMSAdminUtil.showMessageDialog(mParentFrame, mResource, PREFIX,
                       "TIMEOUTNONINTEGER", CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
                 nvps.put(Constants.PR_TIMEOUT, timeoutStr);
-                   
+
                 if (mName.equals("Data Recovery Manager Connector")) {
                     nvps.put(Constants.PR_URI, "/kra/agent/kra/connector");
                 } else if (mName.equals("Registration Manager Connector")) {
@@ -611,7 +611,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                   mName, nvps);
                 this.dispose();
             } catch (EAdminException ex) {
-                        CMSAdminUtil.showMessageDialog(mParentFrame, 
+                        CMSAdminUtil.showMessageDialog(mParentFrame,
 			"Error", ex.toString(), CMSAdminUtil.ERROR_MESSAGE);
             }
         } else if (e.getSource().equals(mHelp)) {
@@ -621,11 +621,11 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
     private NameValuePairs getCertsList(String scope) {
         try {
-            NameValuePairs nvps = 
+            NameValuePairs nvps =
               mAdmin.search(DestDef.DEST_SERVER_ADMIN, scope, new NameValuePairs());
             return nvps;
         } catch (EAdminException ex) {
-            CMSAdminUtil.showMessageDialog(mParentFrame, 
+            CMSAdminUtil.showMessageDialog(mParentFrame,
 	      "Error", ex.toString(), CMSAdminUtil.ERROR_MESSAGE);
             return null;
         }

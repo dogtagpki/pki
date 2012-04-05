@@ -145,7 +145,7 @@ public class CMSStart extends CGITask
                   UtilConsoleGlobals.getActivatedFrame(),
                   mResource, PREFIX, "SYSTEMERROR", CMSAdminUtil.ERROR_MESSAGE);
             else {
-                String errorMsg = 
+                String errorMsg =
                   mResource.getString("STARTRESULTDIALOG_FAILED_TEXT")+mErrorMsg;
                 Icon icon = CMSAdminUtil.getImage(CMSAdminResources.IMAGE_ERROR_ICON);
                 JOptionPane.showMessageDialog(UtilConsoleGlobals.getActivatedFrame(),

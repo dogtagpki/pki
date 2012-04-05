@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements the serial number input
  * for renewal
  * <p>
- * 
+ *
  * @author Christina Fu
  */
 public class SerialNumRenewInput extends EnrollInput implements IProfileInput {

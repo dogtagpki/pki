@@ -52,7 +52,7 @@ import com.netscape.cms.profile.input.SubmitterInfoInput;
  * <LI>$SenderEmail
  * <LI>$RecipientEmail
  * </UL>
- * 
+ *
  */
 public class RequestInQListener implements IRequestListener {
     protected static final String PROP_ENABLED = "enabled";
@@ -127,7 +127,7 @@ public class RequestInQListener implements IRequestListener {
 
     /**
      * carries out the operation when the listener is triggered.
-     * 
+     *
      * @param r IRequest structure holding the request information
      * @see com.netscape.certsrv.request.IRequest
      */
@@ -203,8 +203,8 @@ public class RequestInQListener implements IRequestListener {
         if (profileId == null) {
             val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
         } else {
-            // use the submitter info if available, otherwise, use the 
-            // subject name input email 
+            // use the submitter info if available, otherwise, use the
+            // subject name input email
             val = r.getExtDataInString(SubmitterInfoInput.EMAIL);
 
             if ((val == null) || (((String) val).compareTo("") == 0)) {
@@ -250,7 +250,7 @@ public class RequestInQListener implements IRequestListener {
 
     /**
      * sets the configurable parameters
-     * 
+     *
      * @param name a String represents the name of the configuration parameter to be set
      * @param val a String containing the value to be set for name
      */

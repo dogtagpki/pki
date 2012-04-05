@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * shows key information and presents a list of text boxes
  * so that recovery agents can type in their identifiers
  * and passwords.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ConfirmRecoverBySerial extends CMSServlet {
@@ -105,7 +105,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     public void process(CMSRequest cmsReq) throws EBaseException {
 
         // Note that we should try to handle all the exceptions
-        // instead of passing it up back to the servlet 
+        // instead of passing it up back to the servlet
         // framework.
 
         HttpServletRequest req = cmsReq.getHttpReq();

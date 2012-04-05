@@ -72,7 +72,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public InstallWizardInfo(ConsoleInfo consoleInfo) {
         super();
-        mConsoleInfo = consoleInfo;       
+        mConsoleInfo = consoleInfo;
     }
 
     public JFrame getAdminFrame() {
@@ -85,7 +85,7 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         else
             return false;
- 
+
     }
 
     public void setAdminFrame(JFrame frame) {
@@ -102,7 +102,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public String getCloneCertsList() {
         String s = (String)get(ConfigConstants.PR_CLONE_CERTIFICATES);
-        if (s == null || s.equals("")) 
+        if (s == null || s.equals(""))
             return " ";
         return s;
     }
@@ -120,7 +120,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isCACloningDone() {
         String str = (String)get(ConfigConstants.STAGE_CACLONING);
- 
+
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         else
@@ -133,9 +133,9 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isOCSPCloningDone() {
         String str = (String)get(ConfigConstants.STAGE_OCSPCLONING);
-        if (str != null && str.equals(ConfigConstants.TRUE)) 
+        if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
- 
+
         return false;
     }
 
@@ -145,27 +145,27 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isRACloningDone() {
         String str = (String)get(ConfigConstants.STAGE_RACLONING);
-        if (str != null && str.equals(ConfigConstants.TRUE)) 
+        if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
- 
+
         return false;
     }
- 
+
     public void setRACloningDone(String str) {
         put(ConfigConstants.STAGE_RACLONING, str);
     }
 
     public boolean isKRACloningDone() {
         String str = (String)get(ConfigConstants.STAGE_KRACLONING);
-        if (str != null && str.equals(ConfigConstants.TRUE)) 
+        if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
- 
+
         return false;
     }
 
     public boolean isTKSCloningDone() {
         String str = (String)get(ConfigConstants.STAGE_TKSCLONING);
-        if (str != null && str.equals(ConfigConstants.TRUE)) 
+        if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
 
         return false;
@@ -248,9 +248,9 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isAdministratorDone() {
         String str = (String)get(ConfigConstants.STAGE_SETUP_ADMINISTRATOR);
-        if (str == null || str.equals("") || str.equals(ConfigConstants.FALSE)) 
+        if (str == null || str.equals("") || str.equals(ConfigConstants.FALSE))
             return false;
- 
+
         return true;
     }
 
@@ -281,7 +281,7 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         return false;
     }
- 
+
     public boolean isRACertRequestBack() {
         String str = (String)get(ConfigConstants.RA_CERT_REQUEST_BACK);
         if (str != null && str.equals(ConfigConstants.TRUE))
@@ -295,35 +295,35 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         return false;
     }
- 
+
     public boolean isKRACertRequestBack() {
         String str = (String)get(ConfigConstants.KRA_CERT_REQUEST_BACK);
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         return false;
     }
- 
+
     public boolean isSSLCertRequestBack() {
         String str = (String)get(ConfigConstants.SSL_CERT_REQUEST_BACK);
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         return false;
     }
- 
+
     public boolean isSelfSignedCACertDone() {
         String str = (String)get(ConfigConstants.STAGE_CA_SELFSIGNED_CERT);
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         return false;
     }
-   
+
     public boolean isCACertRequestDone() {
         String str = (String)get(ConfigConstants.STAGE_CA_CERT_REQUEST);
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         return false;
     }
- 
+
     public boolean isCACertInstalledDone() {
         String str = (String)get(ConfigConstants.STAGE_CA_CERT_INSTALL);
         if (str != null && str.equals(ConfigConstants.TRUE))
@@ -375,7 +375,7 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         return false;
     }
-    
+
     public boolean isOCSPLocalCertDone() {
         String str = (String)get(ConfigConstants.STAGE_OCSP_LOCAL_CERT);
         if (str != null && str.equals(ConfigConstants.TRUE))
@@ -389,7 +389,7 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         return false;
     }
-    
+
     public boolean isOCSPCertInstalledDone() {
         String str = (String)get(ConfigConstants.STAGE_OCSP_CERT_INSTALL);
         if (str != null && str.equals(ConfigConstants.TRUE))
@@ -531,7 +531,7 @@ public class InstallWizardInfo extends WizardInfo {
         if (str != null && str.equals(ConfigConstants.TRUE))
             return true;
         return false;
-    } 
+    }
 
 	public String getSingleSignOnPassword() {
 		return mPassword;
@@ -629,7 +629,7 @@ public class InstallWizardInfo extends WizardInfo {
             val = "8001";
         return val;
     }
- 
+
     public void setEESecurePort(String port) {
         put(ConfigConstants.PR_EE_SECURE_PORT, port);
     }
@@ -651,7 +651,7 @@ public class InstallWizardInfo extends WizardInfo {
             return true;
         return false;
     }
- 
+
     public void setEEEnable(String enable) {
         put(ConfigConstants.PR_EE_PORT_ENABLE, enable);
     }
@@ -835,7 +835,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public String getKeyCurveName() {
         String val = (String)get(ConfigConstants.PR_KEY_CURVENAME);
-        if (val ==null) 
+        if (val ==null)
             val = "nistp521";
         return val;
     }
@@ -847,7 +847,7 @@ public class InstallWizardInfo extends WizardInfo {
     public String getKeyType() {
         String type = (String)get(ConfigConstants.PR_KEY_TYPE);
 		// work around the historical mistake,
-		// not touching files around the places. 
+		// not touching files around the places.
 		if ( type == null || type.equals("")) {
 			String certType = getCertType();
 			if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
@@ -1214,7 +1214,7 @@ public class InstallWizardInfo extends WizardInfo {
     public void setInstalledKRA(String val) {
         put(ConfigConstants.PR_KRA, val);
     }
-    
+
     public void setInstalledTKS(String val) {
         put(ConfigConstants.PR_TKS, val);
     }
@@ -1403,7 +1403,7 @@ public class InstallWizardInfo extends WizardInfo {
     public void setTotalAgents(String val) {
         put(ConfigConstants.PR_AGENT_N, val);
     }
-   
+
     public String getTotalAgents() {
         return (String)get(ConfigConstants.PR_AGENT_N);
     }
@@ -1603,7 +1603,7 @@ public class InstallWizardInfo extends WizardInfo {
     public String getEndRequestNumber() {
         return (String)get(ConfigConstants.PR_ENDREQUEST_NUMBER);
     }
-    
+
     public boolean isCloning() {
         String str = (String)get("cloning");
         if (str != null && str.equals(ConfigConstants.TRUE))
@@ -1692,21 +1692,21 @@ public class InstallWizardInfo extends WizardInfo {
             return false;
         return true;
     }
- 
+
    public boolean isRACertRequestSucc() {
         String str = (String)get(ConfigConstants.STAGE_RA_REQ_SUCCESS);
         if (str == null || str.equals("") || str.equals(ConfigConstants.FALSE))
             return false;
         return true;
     }
- 
+
    public boolean isKRACertRequestSucc() {
         String str = (String)get(ConfigConstants.STAGE_KRA_REQ_SUCCESS);
         if (str == null || str.equals("") || str.equals(ConfigConstants.FALSE))
             return false;
         return true;
     }
- 
+
    public boolean isSSLCertRequestSucc() {
         String str = (String)get(ConfigConstants.STAGE_SSL_REQ_SUCCESS);
         if (str == null || str.equals("") || str.equals(ConfigConstants.FALSE))

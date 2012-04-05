@@ -42,7 +42,7 @@ import com.netscape.cms.profile.def.UserExtensionDefault;
  * This class implements the basic constraints extension constraint.
  * It checks if the basic constraint in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class BasicConstraintsExtConstraint extends EnrollConstraint {

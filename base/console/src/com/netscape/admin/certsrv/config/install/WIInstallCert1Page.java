@@ -25,8 +25,8 @@ import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * This page is to install the certificate in the internal token. The user can 
- * import the cert from the file or paste the Base 64 encoded blob in the 
+ * This page is to install the certificate in the internal token. The user can
+ * import the cert from the file or paste the Base 64 encoded blob in the
  * text area.
  *
  * @author Christine Ho
@@ -42,7 +42,7 @@ class WIInstallCert1Page extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INSTALLCERT1WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WIInstallCert1Page() {
         super(PANELNAME);
         init();
@@ -53,7 +53,7 @@ class WIInstallCert1Page extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -124,7 +124,7 @@ class WIInstallCert1Page extends WizardBasePanel implements IWizardPanel {
         mBase64Text = new JTextArea(null, null, 0, 0);
         mBase64Text.setLineWrap(true);
         mBase64Text.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(mBase64Text, 
+        JScrollPane scrollPane = new JScrollPane(mBase64Text,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(50, 20));
@@ -132,7 +132,7 @@ class WIInstallCert1Page extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, 
+        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         gbc.fill = gbc.BOTH;
         gbc.gridwidth = gbc.REMAINDER;

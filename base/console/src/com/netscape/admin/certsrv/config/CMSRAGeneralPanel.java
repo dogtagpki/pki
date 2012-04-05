@@ -71,7 +71,7 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
         gbc.weighty = 1.0;
         gb.setConstraints(adminPanel, gbc);
         mCenterPanel.add(adminPanel);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mEEEnable = makeJCheckBox("EE");
         gbc.anchor = gbc.NORTHWEST;
@@ -93,7 +93,7 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
         gb1.setConstraints(mRAEnable, gbc);
         adminPanel.add(mRAEnable);
 */
-    
+
         refresh();
     }
 

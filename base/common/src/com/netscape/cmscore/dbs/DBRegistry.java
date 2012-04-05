@@ -41,14 +41,14 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents a registry where all the
  * schema (object classes and attribute) information
  * is stored.
- * 
+ *
  * Attribute mappers can be registered with this
  * registry.
- * 
+ *
  * Given the schema information stored, this registry
  * has knowledge to convert a Java object into a
  * LDAPAttributeSet or vice versa.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -181,7 +181,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      * Creates LDAP-based search filters with help of
      * registered mappers.
      * Parses filter from filter string specified in RFC1558.
-     * 
+     *
      * <pre>
      * <filter> ::= '(' <filtercomp> ')'
      * <filtercomp> ::= <and> | <or> | <not> | <item>

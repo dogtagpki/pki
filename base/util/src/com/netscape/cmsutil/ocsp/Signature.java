@@ -33,14 +33,14 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * Signature       ::=     SEQUENCE {
  *  signatureAlgorithm   AlgorithmIdentifier,
  *  signature            BIT STRING,
  *  certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 

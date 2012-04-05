@@ -26,13 +26,13 @@ import netscape.security.util.DerValue;
 /**
  * This class defines the EDIPartyName of the GeneralName choice.
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * EDIPartyName ::= SEQUENCE {
  *     nameAssigner  [0]  DirectoryString OPTIONAL,
  *     partyName     [1]  DirectoryString }
  * </pre>
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.2
  * @see GeneralName
@@ -54,7 +54,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the specified names.
-     * 
+     *
      * @param assignerName the name of the assigner
      * @param partyName the name of the EDI party.
      */
@@ -65,7 +65,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the specified name.
-     * 
+     *
      * @param partyName the name of the EDI party.
      */
     public EDIPartyName(String partyName) {
@@ -74,7 +74,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the passed encoded Der value.
-     * 
+     *
      * @param derValue the encoded DER EDIPartyName.
      * @exception IOException on error.
      */
@@ -116,7 +116,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Encode the EDI party name into the DerOutputStream.
-     * 
+     *
      * @param out the DER stream to encode the EDIPartyName to.
      * @exception IOException on encoding errors.
      */

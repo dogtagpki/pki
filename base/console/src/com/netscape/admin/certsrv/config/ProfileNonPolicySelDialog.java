@@ -74,9 +74,9 @@ public class ProfileNonPolicySelDialog extends JDialog
 
     public ProfileNonPolicySelDialog (
 			String profileId,
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest, String extraDest, String scope)
 	{
 		this(	profileId, prefix,
@@ -102,11 +102,11 @@ public class ProfileNonPolicySelDialog extends JDialog
      *==========================================================*/
     public ProfileNonPolicySelDialog(
 			String profileId,
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest, String extraDest, String scope,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(parent,true);
         mProfileId = profileId;
@@ -172,7 +172,7 @@ public class ProfileNonPolicySelDialog extends JDialog
                 scope = ScopeDef.SC_PROFILE_OUTPUT;
             }
 
-            ProfileNonPolicyNewDialog dialog = 
+            ProfileNonPolicyNewDialog dialog =
 				new ProfileNonPolicyNewDialog(
 					response,
                 	mParentFrame,
@@ -182,7 +182,7 @@ public class ProfileNonPolicySelDialog extends JDialog
 			dialog.setModel(mModel);
 
             String name = ((JLabel)mListModel.elementAt(mList.getSelectedIndex())).getText();
-            
+
             dialog.showDialog(response, mProfileId, getID(name));
 
             if(!dialog.isOK()) {
@@ -272,7 +272,7 @@ public class ProfileNonPolicySelDialog extends JDialog
         mListPanel.setLayout(gb);
         //content.setBorder(CMSAdminUtil.makeEtchedBorder());
 
-        JLabel label = CMSAdminUtil.makeJLabel(mResource, mPrefix, 
+        JLabel label = CMSAdminUtil.makeJLabel(mResource, mPrefix,
            "SELECT", null);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -359,9 +359,9 @@ public class ProfileNonPolicySelDialog extends JDialog
         //    vals[i++] = ((String)e.nextElement()).trim();
 			Debug.println("PluginSelectionDialog::update() - adding '"+vals[i-1]+"'");
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
 			try {
                 mListModel.addElement(new JLabel(vals[y], JLabel.LEFT));

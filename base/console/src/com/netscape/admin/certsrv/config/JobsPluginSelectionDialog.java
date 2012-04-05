@@ -41,7 +41,7 @@ public class JobsPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "JOBSSELECTIONDIALOG";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "jobsscheduler-certsrv-add-jobrule-dbox-help";
 
     /*==========================================================
@@ -49,9 +49,9 @@ public class JobsPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public JobsPluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope         = ScopeDef.SC_JOBS_IMPLS;

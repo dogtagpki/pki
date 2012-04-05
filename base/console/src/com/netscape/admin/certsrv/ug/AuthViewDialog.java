@@ -44,7 +44,7 @@ public class AuthViewDialog extends AuthBaseDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "AUTHVIEWDIALOG";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "authentication-certsrv-view-authrule-dbox-help";
 
     /*==========================================================

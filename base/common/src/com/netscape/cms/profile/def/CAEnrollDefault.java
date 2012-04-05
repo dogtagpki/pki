@@ -37,7 +37,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
  * This class implements an abstract CA specific
  * Enrollment default. This policy can only be
  * used with CA subsystem.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class CAEnrollDefault extends EnrollDefault {

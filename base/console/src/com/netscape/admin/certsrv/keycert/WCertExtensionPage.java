@@ -32,12 +32,12 @@ import com.netscape.admin.certsrv.config.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WCertExtensionPage extends WBaseCertExtensionPage implements 
+class WCertExtensionPage extends WBaseCertExtensionPage implements
   IWizardPanel {
     private static final String PANELNAME = "CERTEXTENSION1WIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-extension-help";
-    
+
     WCertExtensionPage(JDialog parent) {
         super(PANELNAME);
         mPanelName = PANELNAME;
@@ -68,7 +68,7 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
 			return false;
 
         String title = "";
- 
+
         if (!mModified) {
             String certType = wizardInfo.getCertType();
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
@@ -195,13 +195,13 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
         if (mMIMECheckBox.isSelected())
             nvps.put(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
 
-        wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps); 
+        wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);
 
         mModified = true;
         return true;
     }
 
-    private void addValidityPeriod(CertSetupWizardInfo wizardInfo, 
+    private void addValidityPeriod(CertSetupWizardInfo wizardInfo,
       NameValuePairs nvps) {
         nvps.put(Constants.PR_BEGIN_YEAR, wizardInfo.getBeginYear());
         nvps.put(Constants.PR_BEGIN_MONTH, wizardInfo.getBeginMonth());
@@ -229,7 +229,7 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
 
     private void addExtendedKey(NameValuePairs nvps) {
 
-        if (mSSLClient.isSelected()) 
+        if (mSSLClient.isSelected())
             nvps.put(Constants.PR_SSL_CLIENT_BIT, Constants.TRUE);
         if (mSSLServer.isSelected())
             nvps.put(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);

@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
- 
+
 package com.netscape.cms.servlet.request;
 
 import javax.ws.rs.WebApplicationException;
@@ -41,16 +41,16 @@ public class KeyRequestsResourceService extends CMSResourceService implements Ke
     public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
             RequestId start, int pageSize, int maxResults, int maxTime) {
         // auth and authz
-        
+
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientID);
         CMS.debug("listRequests: filter is " + filter);
-       
+
         // get start marker
         if (start == null) {
             start = new RequestId(KeyRequestsResource.DEFAULT_START);
         }
-        
+
         KeyRequestDAO reqDAO = new KeyRequestDAO();
         KeyRequestInfos requests;
         try {
@@ -66,31 +66,31 @@ public class KeyRequestsResourceService extends CMSResourceService implements Ke
     private String createSearchFilter(String requestState, String requestType, String clientID) {
         String filter = "";
         int matches = 0;
-        
+
         if ((requestState == null) && (requestType == null) && (clientID == null)) {
             filter = "(requeststate=*)";
             return filter;
         }
-        
+
         if (requestState != null) {
             filter += "(requeststate=" + LDAPUtil.escape(requestState) + ")";
             matches ++;
         }
-        
+
         if (requestType != null) {
             filter += "(requesttype=" + LDAPUtil.escape(requestType) + ")";
             matches ++;
         }
-        
+
         if (clientID != null) {
             filter += "(clientID=" + LDAPUtil.escape(clientID) + ")";
             matches ++;
         }
-        
+
         if (matches > 1) {
             filter = "(&" + filter + ")";
         }
-        
+
         return filter;
     }
 }

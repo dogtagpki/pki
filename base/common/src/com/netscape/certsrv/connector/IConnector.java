@@ -23,12 +23,12 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This interface represents a connector that forwards
  * CMS requests to a remote authority.
- * 
+ *
  * To register a connector, one can add the following
  * to the CMS.cfg:
- * 
+ *
  * <pre>
- * 
+ *
  *  Example for KRA type connector.
  * ca.connector.KRA.enable=true
  * ca.connector.KRA.host=thehost.netscape.com        #Remote host.
@@ -36,17 +36,17 @@ import com.netscape.certsrv.request.IRequest;
  * ca.connector.KRA.nickName="cert-kra"              #Nickname of connector for identity purposes.
  * ca.connector.KRA.uri="/kra/connector"             #Uri of the KRA server.
  * ca.connector.KRA.id="kra"
- * ca.connector.KRA.minHttpConns=1                   #Min connection pool connections. 
+ * ca.connector.KRA.minHttpConns=1                   #Min connection pool connections.
  * ca.connector.KRA.maxHttpConns=10                  #Max connection pool connections.
  * </pre>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IConnector {
 
     /**
      * Sends the request to a remote authority.
-     * 
+     *
      * @param req Request to be forwarded to remote authority.
      * @return true for success, otherwise false.
      * @exception EBaseException Failure to send request to remote authority.

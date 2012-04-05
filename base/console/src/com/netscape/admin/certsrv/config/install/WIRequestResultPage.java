@@ -46,7 +46,7 @@ public class WIRequestResultPage extends WizardBasePanel implements IWizardPanel
     protected String mHelpIndex = HELPINDEX;
     protected JTextArea mDesc;
     protected boolean print2RequestIDs = false;
-    
+
     protected String mRequestId;
 
     WIRequestResultPage(JDialog parent) {
@@ -77,7 +77,7 @@ public class WIRequestResultPage extends WizardBasePanel implements IWizardPanel
 		String status = wizardInfo.getX509RequestStatus();
         String str = wizardInfo.getX509RequestID();
 		String error = wizardInfo.getX509RequestError();
-        
+
         if (str != null && !str.equals("")) {
             if (status != null && status.equals(Constants.PR_REQUEST_REJECTED)) {
                 // rejected
@@ -92,10 +92,10 @@ public class WIRequestResultPage extends WizardBasePanel implements IWizardPanel
         } else if (error != null && !error.equals(""))
             mDesc.setText(error);
         else
-            mDesc.setText(mResource.getString(mPanelName+"_TEXT_DESC_LABEL") + 
+            mDesc.setText(mResource.getString(mPanelName+"_TEXT_DESC_LABEL") +
               mResource.getString(mPanelName+"_TEXT_NOID_LABEL"));
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

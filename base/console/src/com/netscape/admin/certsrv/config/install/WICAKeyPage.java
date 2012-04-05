@@ -82,10 +82,10 @@ class WICAKeyPage extends WIKeyPage implements IWizardPanel {
 
         int counts = mKeyTypeBox.getItemCount();
         if (counts == 1)
-            mKeyTypeBox.addItem("DSA");        
+            mKeyTypeBox.addItem("DSA");
 
         if (mWizardInfo.isCAInstalled() && mWizardInfo.isKRAInstalled()) {
-            if (mWizardInfo.isCACertLocalCA()) 
+            if (mWizardInfo.isCACertLocalCA())
                 mHelpIndex = CAKRALOCALHELPINDEX;
             else
                 mHelpIndex = CAKRAREMOTEHELPINDEX;
@@ -102,7 +102,7 @@ class WICAKeyPage extends WIKeyPage implements IWizardPanel {
     public void getUpdateInfo(WizardInfo info) {
         super.getUpdateInfo(info);
         mWizardInfo.setCATokenName(mWizardInfo.getTokenName());
- 
+
         if (mPassword.isEditable()) {
             String tokenname = mWizardInfo.getCATokenName();
 

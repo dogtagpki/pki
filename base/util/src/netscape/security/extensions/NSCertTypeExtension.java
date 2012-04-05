@@ -33,11 +33,11 @@ import netscape.security.x509.Extension;
 /**
  * NSCertTypeExtension
  * Represents Netscape Certificate Type Extension
- * 
+ *
  * <p>
  * This deprecated extension, if present, defines both the purpose (e.g., encipherment, signature, certificate signing)
  * and the application (e.g., SSL, S/Mime or Object Signing of the key contained in the certificate.
- * 
+ *
  * @author galperin
  * @version $Revision$, $Date$
  */
@@ -142,7 +142,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Check if bit is set.
-     * 
+     *
      * @param position the position in the bit string to check.
      */
     public boolean isSet(int position) {
@@ -201,7 +201,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
     /**
      * Create a NSCertTypeExtension with the passed bit settings.
      * The criticality is set to false.
-     * 
+     *
      * @param bitString the bits to be set for the extension.
      */
     public NSCertTypeExtension(boolean critical, byte[] bitString) throws IOException {
@@ -220,7 +220,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -331,7 +331,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -341,7 +341,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

@@ -45,7 +45,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
  * its own list of such information. See individual authenticaiton
  * manager for more details.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthToken implements IAuthToken {
@@ -94,13 +94,13 @@ public class AuthToken implements IAuthToken {
     /**
      * Constructs an instance of a authentication token.
      * The token by default contains the following attributes: <br>
-     * 
+     *
      * <pre>
      * 	"authMgrInstName" - The authentication manager instance name.
      * 	"authMgrImplName" - The authentication manager plugin name.
      * 	"authTime" - The - The time of authentication.
      * </pre>
-     * 
+     *
      * @param authMgr The authentication manager that created this Token.
      */
     public AuthToken(IAuthManager authMgr) {
@@ -126,7 +126,7 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Removes an attribute in the AuthToken
-     * 
+     *
      * @param attrName The name of the attribute to remove.
      */
     public void delete(String attrName) {
@@ -135,7 +135,7 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Enumerate all attribute names in the AuthToken.
-     * 
+     *
      * @return Enumeration of all attribute names in this AuthToken.
      */
     public Enumeration<String> getElements() {
@@ -411,7 +411,7 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Enumerate all attribute values in the AuthToken.
-     * 
+     *
      * @return Enumeration of all attribute names in this AuthToken.
      */
     public Enumeration<Object> getVals() {
@@ -421,7 +421,7 @@ public class AuthToken implements IAuthToken {
     /**
      * Gets the name of the authentication manager instance that created
      * this token.
-     * 
+     *
      * @return The name of the authentication manager instance that created
      *         this token.
      */
@@ -432,7 +432,7 @@ public class AuthToken implements IAuthToken {
     /**
      * Gets the plugin name of the authentication manager that created this
      * token.
-     * 
+     *
      * @return The plugin name of the authentication manager that created this
      *         token.
      */
@@ -442,7 +442,7 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Gets the time of authentication.
-     * 
+     *
      * @return The time of authentication
      */
     public Date getAuthTime() {

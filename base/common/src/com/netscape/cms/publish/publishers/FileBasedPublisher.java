@@ -50,7 +50,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * This publisher writes certificate and CRL into
  * a directory.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -257,7 +257,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 oldLink.delete();
             }
             File link = new File(linkName);
-            if (link.exists()) { // current link becomes an old link 
+            if (link.exists()) { // current link becomes an old link
                 link.renameTo(new File(linkName + ".old"));
             }
             File newLink = new File(linkName + ".new");
@@ -275,7 +275,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     /**
      * Publishs a object to the ldap directory.
-     * 
+     *
      * @param conn a Ldap connection
      *            (null if LDAP publishing is not enabled)
      * @param dn dn of the ldap entry to publish cert
@@ -391,7 +391,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     /**
      * Unpublishs a object to the ldap directory.
-     * 
+     *
      * @param conn the Ldap connection
      *            (null if LDAP publishing is not enabled)
      * @param dn dn of the ldap entry to unpublish cert

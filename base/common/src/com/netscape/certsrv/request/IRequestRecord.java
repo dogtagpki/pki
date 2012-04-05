@@ -27,7 +27,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  * It has a set of attributes that are mapped into LDAP
  * attributes for actual directory operations.
  * <p>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IRequestRecord
@@ -63,21 +63,21 @@ public interface IRequestRecord
 
     /**
      * Gets the request id.
-     * 
+     *
      * @return request id
      */
     public RequestId getRequestId();
 
     /**
      * Gets attribute names of the request.
-     * 
+     *
      * @return list of attribute names
      */
     public Enumeration<String> getAttrNames();
 
     /**
      * Gets the request attribute value by the name.
-     * 
+     *
      * @param name attribute name
      * @return attribute value
      */
@@ -85,7 +85,7 @@ public interface IRequestRecord
 
     /**
      * Sets new attribute for the request.
-     * 
+     *
      * @param name attribute name
      * @param o attribute value
      */
@@ -93,7 +93,7 @@ public interface IRequestRecord
 
     /**
      * Removes attribute from the request.
-     * 
+     *
      * @param name attribute name
      */
     public void delete(String name)
@@ -101,7 +101,7 @@ public interface IRequestRecord
 
     /**
      * Gets attribute list of the request.
-     * 
+     *
      * @return attribute list
      */
     public Enumeration<String> getElements();

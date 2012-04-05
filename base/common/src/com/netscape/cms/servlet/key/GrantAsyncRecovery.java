@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Approve an asynchronous key recovery request
- * 
+ *
  */
 public class GrantAsyncRecovery extends CMSServlet {
 
@@ -80,7 +80,7 @@ public class GrantAsyncRecovery extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * 'grantAsyncRecovery.template' to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -106,9 +106,9 @@ public class GrantAsyncRecovery extends CMSServlet {
      * <ul>
      * <li>http.param reqID request ID of the request to approve
      * <li>http.param agentID User ID of the agent approving the request
-     * 
+     *
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -183,12 +183,12 @@ public class GrantAsyncRecovery extends CMSServlet {
     /**
      * Update agent approval list
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used whenever DRM agents login as recovery agents
      * to approve key recovery requests
      * </ul>
-     * 
+     *
      * @param argSet CMS template parameters
      * @param header argument block
      * @param reqID string containing the recovery request ID

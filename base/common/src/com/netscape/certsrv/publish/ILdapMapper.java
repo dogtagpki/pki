@@ -26,7 +26,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapMapper extends ILdapPlugin {
@@ -54,7 +54,7 @@ public interface ILdapMapper extends ILdapPlugin {
     /**
      * maps a certificate to a LDAP entry.
      * returns dn of the mapped LDAP entry.
-     * 
+     *
      * @param conn the LDAP connection
      * @param obj the object to map
      * @return dn indicates whether a mapping was successful
@@ -67,7 +67,7 @@ public interface ILdapMapper extends ILdapPlugin {
     /**
      * maps a certificate to a LDAP entry.
      * returns dn of the mapped LDAP entry.
-     * 
+     *
      * @param conn the LDAP connection
      * @param r the request to map
      * @param obj the object to map

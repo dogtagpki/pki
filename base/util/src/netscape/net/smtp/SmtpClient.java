@@ -31,7 +31,7 @@ import netscape.net.TransferProtocolClient;
  * sender, calling startMessage to return a stream to which you write
  * the message (with RFC733 headers) and then you finally close the Smtp
  * Client.
- * 
+ *
  * @version 1.17, 12 Dec 1994
  * @author James Gosling
  */

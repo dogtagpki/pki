@@ -53,7 +53,7 @@ class WIGenRAKeyCertReqPage extends WIGenKeyCertReqPage {
             return false;
         if (wizardInfo.isRACertLocalCA() || !wizardInfo.isRAInstalled() ||
           (wizardInfo.isRACertRequestDone() &&
-			  !wizardInfo.isRACertRequestBack()) || 
+			  !wizardInfo.isRACertRequestBack()) ||
           wizardInfo.isRALocalCertDone() ||
           wizardInfo.isRACertInstalledDone())
             return false;

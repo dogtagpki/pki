@@ -33,7 +33,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * TBSRequest      ::=     SEQUENCE {
  *  version             [0] EXPLICIT Version DEFAULT v1,
@@ -41,7 +41,7 @@ import org.mozilla.jss.pkix.cert.Extension;
  *  requestList             SEQUENCE OF Request,
  *  requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 

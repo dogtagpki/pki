@@ -48,7 +48,7 @@ class WMNOldAgent extends WizardBasePanel
     private AutoRecoveryModel mDataModel;
     private JTable mTable;
     protected JScrollPane mScrollPane;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-kra-wizard-agentpwd-keyscheme-help";
 
     /*==========================================================
@@ -65,7 +65,7 @@ class WMNOldAgent extends WizardBasePanel
 
     /*==========================================================
      * public methods
-     *==========================================================*/    
+     *==========================================================*/
 
     public boolean initializePanel(WizardInfo info) {
         //let's set the values

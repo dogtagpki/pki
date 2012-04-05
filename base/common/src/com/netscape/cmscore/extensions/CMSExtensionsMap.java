@@ -54,7 +54,7 @@ public class CMSExtensionsMap implements ISubsystem {
 
     /**
      * Create extensions from configuration store.
-     * 
+     *
      * @param config the configuration store.
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -140,7 +140,7 @@ public class CMSExtensionsMap implements ISubsystem {
 
     /**
      * Get the extension class by name.
-     * 
+     *
      * @param name name of the extension
      * @return the extension class.
      */
@@ -150,7 +150,7 @@ public class CMSExtensionsMap implements ISubsystem {
 
     /**
      * Get the extension class by its OID.
-     * 
+     *
      * @param oid - the OID of the extension.
      * @return the extension class.
      */

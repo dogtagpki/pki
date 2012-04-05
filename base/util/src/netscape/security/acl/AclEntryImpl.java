@@ -28,7 +28,7 @@ import java.util.Vector;
  * This is a class that describes one entry that associates users
  * or groups with permissions in the ACL.
  * The entry may be used as a way of granting or denying permissions.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class AclEntryImpl implements AclEntry {
@@ -39,7 +39,7 @@ public class AclEntryImpl implements AclEntry {
     /**
      * Construct an ACL entry that associates a user with permissions
      * in the ACL.
-     * 
+     *
      * @param user The user that is associated with this entry.
      */
     public AclEntryImpl(Principal user) {
@@ -56,7 +56,7 @@ public class AclEntryImpl implements AclEntry {
      * Sets the principal in the entity. If a group or a
      * principal had already been set, a false value is
      * returned, otherwise a true value is returned.
-     * 
+     *
      * @param user The user that is associated with this entry.
      * @return true if the principal is set, false if there is
      *         one already.
@@ -87,7 +87,7 @@ public class AclEntryImpl implements AclEntry {
     /**
      * A principal or a group can be associated with multiple
      * permissions. This method adds a permission to the ACL entry.
-     * 
+     *
      * @param permission The permission to be associated with
      *            the principal or the group in the entry.
      * @return true if the permission was added, false if the
@@ -106,7 +106,7 @@ public class AclEntryImpl implements AclEntry {
     /**
      * The method disassociates the permission from the Principal
      * or the Group in this ACL entry.
-     * 
+     *
      * @param permission The permission to be disassociated with
      *            the principal or the group in the entry.
      * @return true if the permission is removed, false if the
@@ -119,7 +119,7 @@ public class AclEntryImpl implements AclEntry {
     /**
      * Checks if the passed permission is part of the allowed
      * permission set in this entry.
-     * 
+     *
      * @param permission The permission that has to be part of
      *            the permission set in the entry.
      * @return true if the permission passed is part of the

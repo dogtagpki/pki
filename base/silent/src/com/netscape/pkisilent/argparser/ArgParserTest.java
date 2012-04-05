@@ -23,7 +23,7 @@ package com.netscape.pkisilent.argparser;
  * copy, modify and redistribute is granted, provided that this copyright
  * notice is retained and the author is given credit whenever appropriate.
  *
- * This  software is distributed "as is", without any warranty, including 
+ * This  software is distributed "as is", without any warranty, including
  * any implied warranty of merchantability or fitness for a particular
  * use. The author assumes no responsibility for, and shall not be liable
  * for, any special, indirect, or consequential damages, or any damages
@@ -40,7 +40,7 @@ import java.util.Vector;
  * Testing class for the class ArgParser. Executing the <code>main</code> method of this class will perform a suite of
  * tests to help verify correct
  * operation of the parser class.
- * 
+ *
  * @author John E. Lloyd, Fall 2004
  * @see ArgParser
  */
@@ -218,7 +218,7 @@ public class ArgParserTest {
     // 	   ByteArrayOutputStream buf = new ByteArrayOutputStream(0x10000);
     // 	   PrintStream ps = new PrintStream(buf);
     // 	   parser.printSynopsis (ps, 80);
-    // 	   System.out.print (buf.toString());	   
+    // 	   System.out.print (buf.toString());
     // 	 }
 
     void checkAdd(String s, Object resHolder, String errmsg) {

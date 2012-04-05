@@ -24,21 +24,21 @@ package com.netscape.certsrv.request;
  * the threads based on the request processing order.
  * The request that enters the request queue first should
  * be processed first.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IRequestScheduler {
 
     /**
      * Request entered the request queue processing.
-     * 
+     *
      * @param r request
      */
     public void requestIn(IRequest r);
 
     /**
      * Request exited the request queue processing.
-     * 
+     *
      * @param r request
      */
     public void requestOut(IRequest r);

@@ -27,13 +27,13 @@ import netscape.security.x509.GeneralName;
 /**
  * This represents the CertificateScopeOfUse extension
  * as defined in draft-thayes-cert-scope-00
- * 
+ *
  * CertificateScopeEntry ::= SEQUENCE {
  * name GeneralName, -- pattern, as for NameConstraints
  * portNumber INTEGER OPTIONAL
  * }
  * CertificateScopeOfUse ::= SEQUENCE OF CertificateScopeEntry
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

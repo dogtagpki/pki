@@ -59,7 +59,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Update the configured LDAP server with specified objects
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UpdateDir extends CMSServlet {
@@ -128,7 +128,7 @@ public class UpdateDir extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

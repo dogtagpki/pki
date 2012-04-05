@@ -30,21 +30,21 @@ import com.netscape.cmsutil.util.Utils;
  * that the name of a data file is passed to the program via the command line,
  * and that the contents contain a blob encoded in a BINARY BASE 64
  * format.
- * 
+ *
  * <P>
  * The program may be invoked as follows:
- * 
+ *
  * <PRE>
- * 
+ *
  *      BtoA &lt;input filename&gt; &lt;output filename&gt;
- * 
+ *
  *      NOTE:  &lt;input filename&gt;   must contain a BINARY
  *                                BASE 64 encoded blob
- * 
+ *
  *             &lt;output filename&gt;  contains an ASCII
  *                                BASE 64 encoded blob
  * </PRE>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class BtoA {

@@ -32,11 +32,11 @@ import netscape.security.util.DerValue;
  * This class implements the parameter set used by the
  * Digital Signature Algorithm as specified in the FIPS 186
  * standard.
- * 
+ *
  * @author Jan Luehe
- * 
+ *
  * @version 1.8, 97/12/10
- * 
+ *
  * @since JDK1.2
  */
 

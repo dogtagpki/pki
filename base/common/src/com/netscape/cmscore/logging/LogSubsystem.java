@@ -35,7 +35,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * A class represents a log subsystem.
  * <P>
- * 
+ *
  * @author thomask
  * @author mzhao
  * @version $Revision$, $Date$
@@ -75,7 +75,7 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Initializes the log subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
@@ -178,7 +178,7 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {

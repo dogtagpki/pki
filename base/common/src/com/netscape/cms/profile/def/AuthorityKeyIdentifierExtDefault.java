@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates Authority Key Identifier extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {

@@ -37,7 +37,7 @@ import com.netscape.certsrv.request.RequestStatus;
 /**
  * This class implements a Registration Manager
  * enrollment profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RAEnrollProfile extends EnrollProfile {

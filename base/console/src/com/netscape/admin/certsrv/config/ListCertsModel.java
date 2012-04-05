@@ -37,9 +37,9 @@ public class ListCertsModel extends CMSTableModel
      *==========================================================*/
     public static final String COL1 = "CERTNICKNAMENAME";
     public static final String COL2 = "SERIALNUMBER";
-    public static final String COL3 = "ISSUERNAME";  
+    public static final String COL3 = "ISSUERNAME";
     public static final String COL4 = "TOKENNAME";
-     
+
     private static String[] mColumns = {COL1, COL2, COL3, COL4};
 
     /*==========================================================

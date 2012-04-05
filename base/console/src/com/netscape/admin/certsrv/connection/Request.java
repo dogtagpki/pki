@@ -22,7 +22,7 @@ import java.util.*;
 
 /**
  * A class represents a connection to certificate server.
- * 
+ *
  * @author thomask
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
@@ -30,10 +30,10 @@ import java.util.*;
 public class Request {
 
 	private String mPrefix = null;
-	
+
 	//internal structure is changed to vector to maintain
 	//the ordering
-	
+
 	private Vector mName = new Vector();
 	private Vector mValue = new Vector();
 
@@ -55,14 +55,14 @@ public class Request {
 	    try {
 		    return (String) mValue.elementAt(i);
 		} catch (ArrayIndexOutOfBoundsException e) {
-		    return "";    
+		    return "";
 		}
 	}
 
 	public Enumeration getElements() {
 		return mName.elements();
 	}
-	
+
 	public void removeAll() {
 	    mName.removeAllElements();
 	    mValue.removeAllElements();

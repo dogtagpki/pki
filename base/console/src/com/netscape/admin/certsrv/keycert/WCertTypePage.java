@@ -49,7 +49,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
     private static final String PANELNAME = "CERTTYPEWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-certtype-help";
-    
+
     WCertTypePage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -87,10 +87,10 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
             for (String name : response.keySet()) {
                 String type = response.get(name);
 
-                if (type.equals(Constants.PR_RA_INSTANCE)) 
+                if (type.equals(Constants.PR_RA_INSTANCE))
                     mRASigningCert = mResource.getString(
                       "CERTTYPEWIZARD_LABEL_RASIGNINGCERT_LABEL");
-                else if (type.equals(Constants.PR_CA_INSTANCE)) 
+                else if (type.equals(Constants.PR_CA_INSTANCE))
                     mCASigningCert = mResource.getString(
                       "CERTTYPEWIZARD_LABEL_CASIGNINGCERT_LABEL");
                 else if (type.equals(Constants.PR_KRA_INSTANCE))
@@ -175,7 +175,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
         CMSAdminUtil.repaintComp(mCALbl);
         CMSAdminUtil.repaintComp(mCertType);
         CMSAdminUtil.repaintComp(mCertTypeText);
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -202,23 +202,23 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
         else if (mRASigningCert != null && item.equals(mRASigningCert.trim()))
             wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_RA_SIGNING_CERT);
-        else if (mKRATransportCert != null && 
+        else if (mKRATransportCert != null &&
           item.equals(mKRATransportCert.trim()))
             wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_KRA_TRANSPORT_CERT);
         else if (mServerCert != null && item.equals(mServerCert.trim()))
-            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_SERVER_CERT);
         else if (mServerCertRadm != null && item.equals(mServerCertRadm.trim()))
-            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_SERVER_CERT_RADM);
         else if (mOCSPSigningCert != null && item.equals(mOCSPSigningCert.trim()))
-            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_OCSP_SIGNING_CERT);
-        else if (mOtherCert != null && item.equals(mOtherCert.trim())) 
-            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+        else if (mOtherCert != null && item.equals(mOtherCert.trim()))
+            wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
               Constants.PR_OTHER_CERT);
-        
+
         if (item.equals(mOtherCert.trim())) {
             try {
                 NameValuePairs response = null;
@@ -295,7 +295,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
         gbc.weightx = 1.0;
         gbc.gridwidth = gbc.REMAINDER;
         add(dummy, gbc);
-       
+
         mCertType = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_CERTTYPE_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
@@ -304,7 +304,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mCertType, gbc);
-       
+
 /*
         JLabel dummy1 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
@@ -321,7 +321,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mCertTypeText, gbc);
         mActiveColor = mCertTypeText.getBackground();
-  
+
         JLabel dummy2 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -463,21 +463,21 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 				mResource.getString("CERTTYPEWIZARD_TEXT_CATYPE_LABEL");
 			b1 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SELFSIGN_LABEL");
-			b2 = 
+			b2 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SUBORDINATE_LABEL");
 		} else if (type.equals("server")) {
 			label =
 				mResource.getString("CERTTYPEWIZARD_TEXT_SERVERTYPE_LABEL");
 			b1 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SERVER_SELFSIGN_LABEL");
-			b2 = 
+			b2 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SERVER_SUBORDINATE_LABEL");
 		} else if (type.equals("ocspsigning")) {
 			label =
 				mResource.getString("CERTTYPEWIZARD_TEXT_OCSPTYPE_LABEL");
 			b1 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SELFSIGNOCSP_LABEL");
-			b2 = 
+			b2 =
 				mResource.getString("CERTTYPEWIZARD_RADIOBUTTON_SUBORDINATEOCSP_LABEL");
 		}
 

@@ -33,14 +33,14 @@ import netscape.security.pkcs.PKCS10;
  * E.g., ((AttrSet)container.get("x")).get("y") is equivalent to
  * container.get("x.y");
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  **/
 public interface IArgBlock extends Serializable {
 
     /**
      * Checks if this argument block contains the given key.
-     * 
+     *
      * @param n key
      * @return true if key is present
      */
@@ -48,7 +48,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Adds string-based value into this argument block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -57,7 +57,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as string.
-     * 
+     *
      * @param n key
      * @return argument value as string
      * @exception EBaseException failed to retrieve value
@@ -66,7 +66,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as string.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as string
@@ -75,7 +75,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as integer.
-     * 
+     *
      * @param n key
      * @return argument value as int
      * @exception EBaseException failed to retrieve value
@@ -84,7 +84,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as integer.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as int
@@ -93,7 +93,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as big integer.
-     * 
+     *
      * @param n key
      * @return argument value as big integer
      * @exception EBaseException failed to retrieve value
@@ -102,7 +102,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as big integer.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as big integer
@@ -111,7 +111,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as object
-     * 
+     *
      * @param n key
      * @return argument value as object
      * @exception EBaseException failed to retrieve value
@@ -120,7 +120,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument value as object
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as object
@@ -129,7 +129,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     * 
+     *
      * @param name name of the input type
      * @return boolean type: <code>true</code> or <code>false</code>
      * @exception EBaseException failed to retrieve value
@@ -138,7 +138,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     * 
+     *
      * @param name name of the input type
      * @param def Default value to return.
      * @return boolean type: <code>true</code> or <code>false</code>
@@ -147,7 +147,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Gets KeyGenInfo
-     * 
+     *
      * @param name name of the input type
      * @param def default value to return
      * @exception EBaseException On error.
@@ -158,7 +158,7 @@ public interface IArgBlock extends Serializable {
     /**
      * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     * 
+     *
      * @param name name of the input type
      * @return pkcs10 request
      * @exception EBaseException failed to retrieve value
@@ -168,7 +168,7 @@ public interface IArgBlock extends Serializable {
     /**
      * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     * 
+     *
      * @param name name of the input type
      * @param def default PKCS10
      * @return pkcs10 request
@@ -178,7 +178,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param checkheader true if header must be present
      * @return PKCS10 object
@@ -188,7 +188,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param checkheader true if header must be present
      * @param def default PKCS10
@@ -199,7 +199,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param def default PKCS10
      * @return PKCS10 object
@@ -209,14 +209,14 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves a list of argument keys.
-     * 
+     *
      * @return a list of string-based keys
      */
     public Enumeration<String> elements();
 
     /**
      * Adds long-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -225,7 +225,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Adds integer-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -234,7 +234,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Adds boolean-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -243,7 +243,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Adds integer-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @param radix radix
@@ -253,7 +253,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Sets argument into this block.
-     * 
+     *
      * @param name key
      * @param obj value
      */
@@ -261,7 +261,7 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Retrieves argument.
-     * 
+     *
      * @param name key
      * @return object value
      */
@@ -269,14 +269,14 @@ public interface IArgBlock extends Serializable {
 
     /**
      * Deletes argument by the given key.
-     * 
+     *
      * @param name key
      */
     public void delete(String name);
 
     /**
      * Retrieves a list of argument keys.
-     * 
+     *
      * @return a list of string-based keys
      */
     public Enumeration<String> getElements();

@@ -69,7 +69,7 @@ public class UserTab extends CMSBaseUGTab {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * refresh the content of the tab
      * IRefreshTab menthod
@@ -142,7 +142,7 @@ public class UserTab extends CMSBaseUGTab {
     public void mouseClicked(MouseEvent e) {
         //Debug.println("CertRepositoryPanel: mouseClicked() -"+e.toString());
         setButtons();
-        
+
         //we track the double click action on the table entry - View op
         if(mTable.getSelectedRow() >= 0) {
             if(e.getClickCount() == 2) {
@@ -151,15 +151,15 @@ public class UserTab extends CMSBaseUGTab {
             }
         }
     }
-    
+
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
-    }    
+        setButtons();
+    }
 
     /*==========================================================
 	 * protected methods
      *==========================================================*/
-     
+
     /**
      * create the user action button panel
      */
@@ -264,11 +264,11 @@ public class UserTab extends CMSBaseUGTab {
         mCert.setEnabled(true);
 
     }
-    
+
 	//=============================================
 	// SEND REQUESTS TO THE SERVER SIDE
 	//=============================================
-	
+
 	private void updateUser() {
         //send request and parse data
 
@@ -348,10 +348,10 @@ public class UserTab extends CMSBaseUGTab {
             String str = e.toString();
 
             if (str.indexOf("The user") == 0) {
-                int i = 
-                  JOptionPane.showConfirmDialog(new JFrame(), str, 
+                int i =
+                  JOptionPane.showConfirmDialog(new JFrame(), str,
                   "Information", JOptionPane.YES_NO_OPTION,
-                  JOptionPane.INFORMATION_MESSAGE, 
+                  JOptionPane.INFORMATION_MESSAGE,
                   CMSAdminUtil.getImage(CMSAdminResources.IMAGE_INFO_ICON));
                 if (i == JOptionPane.YES_OPTION) {
                     Debug.println("User Deleted");

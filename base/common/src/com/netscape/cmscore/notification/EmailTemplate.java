@@ -30,8 +30,8 @@ import com.netscape.certsrv.notification.IEmailTemplate;
 /**
  * Files to be processed and returned to the requested parties. It
  * is a template with $tokens to be used by the form/template processor.
- * 
- * 
+ *
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -55,7 +55,7 @@ public class EmailTemplate implements IEmailTemplate {
 
     /**
      * Default Constructor
-     * 
+     *
      * @param templateFile File name of the template including the full path and
      *            file extension
      */

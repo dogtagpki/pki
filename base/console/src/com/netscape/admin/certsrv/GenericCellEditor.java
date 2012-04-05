@@ -42,7 +42,7 @@ public class GenericCellEditor implements TableCellEditor, Serializable {
     protected JComponent editorComponent;
     protected JTextField mTextField = new JTextField();
     protected JPasswordField mPasswordField = new JPasswordField();
-    
+
     protected EditorDelegate delegate = new EditorDelegate();
     protected int clickCounts = 2;
 
@@ -58,7 +58,7 @@ public class GenericCellEditor implements TableCellEditor, Serializable {
 
         Vector v = (Vector)(((CMSContentTableModel)model).getObjectValueAt(row));
         delegate.setValue(value, v);
-        
+
         return editorComponent;
     }
 

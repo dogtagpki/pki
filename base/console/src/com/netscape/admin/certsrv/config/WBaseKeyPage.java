@@ -32,13 +32,13 @@ import com.netscape.certsrv.common.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-public class WBaseKeyPage extends WizardBasePanel { 
+public class WBaseKeyPage extends WizardBasePanel {
     protected JComboBox mKeyTypeBox;
     protected JComboBox mKeyLengthBox;
     //protected JComboBox mTokenBox;
     //protected JPasswordField mPasswordText;
     protected JTextField mKeyLengthText;
-    
+
     public WBaseKeyPage(String panelName) {
         super(panelName);
     }
@@ -59,7 +59,7 @@ public class WBaseKeyPage extends WizardBasePanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(desc, gbc);
-     
+
 /*
         JTextArea desc1 = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
@@ -93,7 +93,7 @@ public class WBaseKeyPage extends WizardBasePanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,0, 
+        gbc.insets = new Insets(COMPONENT_SPACE,0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(dummy, gbc);
@@ -133,7 +133,7 @@ public class WBaseKeyPage extends WizardBasePanel {
 
 /*
         JLabel keyTypeLbl = makeJLabel("KEYTYPE");
-        mKeyTypeBox = makeJComboBox("KEYTYPE"); 
+        mKeyTypeBox = makeJComboBox("KEYTYPE");
         //JTextArea dummy2 = createTextArea(" ", 1, 10);
         //CMSAdminUtil.addComponents(this, keyTypeLbl, mKeyTypeBox, dummy2, gbc);
         CMSAdminUtil.addComponents(this, keyTypeLbl, mKeyTypeBox, gbc);
@@ -147,15 +147,15 @@ public class WBaseKeyPage extends WizardBasePanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(keyTypeLbl, gbc);
-        
+
         mKeyTypeBox = makeJComboBox("KEYTYPE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         panel.add(mKeyTypeBox, gbc);
@@ -190,7 +190,7 @@ public class WBaseKeyPage extends WizardBasePanel {
         JPanel panel1 = new JPanel();
         GridBagLayout gb2 = new GridBagLayout();
         panel1.setLayout(gb2);
-     
+
         JLabel keyLengthCustomLbl = makeJLabel("KEYLENGTH");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;

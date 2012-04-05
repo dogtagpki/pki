@@ -56,7 +56,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * Update the OCSP responder with a new CRL
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class AddCRLServlet extends CMSServlet {
@@ -86,7 +86,7 @@ public class AddCRLServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "addCRL.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -103,7 +103,7 @@ public class AddCRLServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <P>
-     * 
+     *
      * <ul>
      * <li>http.param crl certificate revocation list, base-64, DER encoded wrapped in -----BEGIN CERTIFICATE REVOCATION
      * LIST-----, -----END CERTIFICATE REVOCATION LIST----- strings
@@ -113,7 +113,7 @@ public class AddCRLServlet extends CMSServlet {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CRL_VALIDATION used when CRL is retrieved and validation process occurs
      * ("agent" or "EE")
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */

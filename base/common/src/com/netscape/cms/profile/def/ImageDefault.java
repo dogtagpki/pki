@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class implements an enrollment default policy
  * that shows an image in the approval page.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ImageDefault extends EnrollDefault {

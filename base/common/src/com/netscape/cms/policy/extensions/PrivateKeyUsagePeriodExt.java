@@ -44,12 +44,12 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * PrivateKeyUsagePeriod Identifier Extension policy.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -124,7 +124,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * ra.Policy.rule.<ruleName>.notAfter=180
      * ra.Policy.rule.<ruleName>.critical=false
      * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -151,7 +151,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
 
     /**
      * Adds a private key usage extension if none exists.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -222,7 +222,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
@@ -237,7 +237,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */

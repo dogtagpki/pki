@@ -38,7 +38,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a certificate issuer extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSCertificateIssuerExtension

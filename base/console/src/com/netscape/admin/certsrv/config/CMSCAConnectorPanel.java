@@ -162,7 +162,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
                   ScopeDef.SC_CONNECTOR, name, nvps);
                 NameValuePairs subsystems = mAdmin.search(DestDef.DEST_SERVER_ADMIN,
                   ScopeDef.SC_SUBSYSTEM, new NameValuePairs());
- 
+
                 boolean colocated = false;
                 if (name.equals("Data Recovery Manager Connector")) {
                     String val = values.get("id");
@@ -171,7 +171,7 @@ public class CMSCAConnectorPanel  extends CMSBaseTab
                 }
 
                 ConnectorEditor editor = new ConnectorEditor(mAdmin,
-                  mModel.getFrame(), name, DestDef.DEST_CA_ADMIN, 
+                  mModel.getFrame(), name, DestDef.DEST_CA_ADMIN,
                   mModel.getServerInfo().getServerId(), colocated);
                 editor.showDialog(values);
             } catch (EAdminException ex) {

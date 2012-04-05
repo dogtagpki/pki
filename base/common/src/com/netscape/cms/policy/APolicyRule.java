@@ -45,12 +45,12 @@ import com.netscape.certsrv.request.PolicyResult;
  * The abstract policy rule that concrete implementations will
  * extend.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -67,7 +67,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Initializes the policy rule.
      * <P>
-     * 
+     *
      * @param config The config store reference
      */
     public abstract void init(ISubsystem owner, IConfigStore config)
@@ -76,7 +76,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Gets the description for this policy rule.
      * <P>
-     * 
+     *
      * @return The Description for this rule.
      */
     public String getDescription() {
@@ -86,7 +86,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Sets a predicate expression for rule matching.
      * <P>
-     * 
+     *
      * @param exp The predicate expression for the rule.
      */
     public void setPredicate(IExpression exp) {
@@ -96,7 +96,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Returns the predicate expression for the rule.
      * <P>
-     * 
+     *
      * @return The predicate expression for the rule.
      */
     public IExpression getPredicate() {
@@ -106,7 +106,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Returns the name of the policy rule.
      * <P>
-     * 
+     *
      * @return The name of the policy class.
      */
     public String getName() {
@@ -116,7 +116,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Sets the instance name for a policy rule.
      * <P>
-     * 
+     *
      * @param instanceName The name of the rule instance.
      */
     public void setInstanceName(String instanceName) {
@@ -126,7 +126,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Returns the name of the policy rule instance.
      * <P>
-     * 
+     *
      * @return The name of the policy rule instance if set, else
      *         the name of the rule class.
      */
@@ -137,7 +137,7 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -145,14 +145,14 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public abstract Vector<String> getInstanceParams();
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public abstract Vector<String> getDefaultParams();
@@ -263,7 +263,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * Form a byte array of octet string key identifier from the sha-1 hash of
      * the Subject Public Key INFO. (including algorithm ID, etc.)
      * <p>
-     * 
+     *
      * @param certInfo cert info of the certificate.
      * @return A Key identifier with the sha-1 hash of subject public key.
      */
@@ -314,7 +314,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * Form a byte array of octet string key identifier from the sha-1 hash of
      * the Subject Public Key BIT STRING.
      * <p>
-     * 
+     *
      * @param certInfo cert info of the certificate.
      * @return A Key identifier with the sha-1 hash of subject public key.
      */

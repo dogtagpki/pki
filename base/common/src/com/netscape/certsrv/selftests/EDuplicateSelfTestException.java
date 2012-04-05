@@ -32,10 +32,10 @@ package com.netscape.certsrv.selftests;
  * This class implements a duplicate self test exception.
  * EDuplicateSelfTestExceptions are derived from ESelfTestExceptions
  * in order to allow users to easily do self tests without try-catch clauses.
- * 
+ *
  * EDuplicateSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EDuplicateSelfTestException
@@ -72,7 +72,7 @@ public class EDuplicateSelfTestException
     /**
      * Constructs a "duplicate" self test exception.
      * <P>
-     * 
+     *
      * @param instanceName duplicate "instanceName" exception details
      */
     public EDuplicateSelfTestException(String instanceName) {
@@ -94,7 +94,7 @@ public class EDuplicateSelfTestException
      * Constructs a "duplicate" self test exception where the value is always
      * a duplicate from a name/value pair
      * <P>
-     * 
+     *
      * @param instanceName duplicate "instanceName" exception details
      * @param instanceValue duplicate "instanceValue" exception details
      */
@@ -125,7 +125,7 @@ public class EDuplicateSelfTestException
      * duplicate from a substore.parameter/value pair; (the value passed in may
      * be null).
      * <P>
-     * 
+     *
      * @param instanceStore duplicate "instanceStore" exception details
      * @param instanceParameter duplicate "instanceParameter" exception details
      * @param instanceValue duplicate "instanceValue" exception details
@@ -163,7 +163,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     * 
+     *
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -173,7 +173,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the store associated with this self test.
      * <P>
-     * 
+     *
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -183,7 +183,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     * 
+     *
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -193,7 +193,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the value associated with this self test.
      * <P>
-     * 
+     *
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {

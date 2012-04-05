@@ -28,10 +28,10 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRLReason Extension of CRL entry.
- * 
+ *
  * <p>
  * This extension, if present, defines the identifies the reason for the certificate revocation.
- * 
+ *
  * @author galperin
  * @version $Revision$, $Date$
  * @see Extension
@@ -75,7 +75,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      * Default constructor
-     * 
+     *
      */
 
     public CRLReasonExtension() {
@@ -86,7 +86,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      * Create extension value for specific revocation reason
-     * 
+     *
      */
 
     public CRLReasonExtension(RevocationReason reason) {
@@ -104,7 +104,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      * Create the object from the passed DER encoded value.
-     * 
+     *
      * @param derVal the DerValue decoded from the stream.
      * @exception IOException on decoding errors.
      */
@@ -169,7 +169,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -188,7 +188,7 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

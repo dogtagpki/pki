@@ -55,7 +55,7 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 /**
  * This class implements a container for self tests.
  * <P>
- * 
+ *
  * @author mharmsen
  * @author thomask
  * @version $Revision$, $Date$
@@ -108,10 +108,10 @@ public class SelfTestSubsystem
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This helper method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -134,7 +134,7 @@ public class SelfTestSubsystem
      * substore name prepended in front of the plugin/parameter name). This
      * method may return null.
      * <P>
-     * 
+     *
      * @param instancePrefix full name of configuration store
      * @param instanceName instance name of self test
      * @return fullname of this self test plugin
@@ -171,7 +171,7 @@ public class SelfTestSubsystem
      * This helper method checks to see if an instance name/value
      * pair exists for the corresponding ordered list element.
      * <P>
-     * 
+     *
      * @param element owner of this subsystem
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name/value
@@ -250,7 +250,7 @@ public class SelfTestSubsystem
      * List the instance names of all the self tests enabled to run on demand
      * (in execution order); may return null.
      * <P>
-     * 
+     *
      * @return list of self test instance names run on demand
      */
     public String[] listSelfTestsEnabledOnDemand() {
@@ -287,7 +287,7 @@ public class SelfTestSubsystem
     /**
      * Enable the specified self test to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -349,7 +349,7 @@ public class SelfTestSubsystem
     /**
      * Disable the specified self test from being able to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -397,7 +397,7 @@ public class SelfTestSubsystem
     /**
      * Determine if the specified self test is enabled to be executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if the specified self test is enabled on demand
      * @exception EMissingSelfTestException subsystem has missing name
@@ -436,7 +436,7 @@ public class SelfTestSubsystem
      * Determine if failure of the specified self test is fatal when
      * it is executed on demand.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal when
      *         it is executed on demand
@@ -489,7 +489,7 @@ public class SelfTestSubsystem
     /**
      * Execute all self tests specified to be run on demand.
      * <P>
-     * 
+     *
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
@@ -575,7 +575,7 @@ public class SelfTestSubsystem
      * List the instance names of all the self tests enabled to run
      * at server startup (in execution order); may return null.
      * <P>
-     * 
+     *
      * @return list of self test instance names run at server startup
      */
     public String[] listSelfTestsEnabledAtStartup() {
@@ -612,7 +612,7 @@ public class SelfTestSubsystem
     /**
      * Enable the specified self test at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -674,7 +674,7 @@ public class SelfTestSubsystem
     /**
      * Disable the specified self test at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -723,7 +723,7 @@ public class SelfTestSubsystem
      * Determine if the specified self test is executed automatically
      * at server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if the specified self test is executed at server startup
      * @exception EMissingSelfTestException subsystem has missing name
@@ -762,7 +762,7 @@ public class SelfTestSubsystem
      * Determine if failure of the specified self test is fatal to
      * server startup.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal to
      *         server startup
@@ -815,11 +815,11 @@ public class SelfTestSubsystem
     /**
      * Execute all self tests specified to be run at server startup.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self tests are run at server startup
      * </ul>
-     * 
+     *
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
@@ -957,7 +957,7 @@ public class SelfTestSubsystem
      * Retrieve an individual self test from the instances list
      * given its instance name. This method may return null.
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @return individual self test
      */
@@ -992,7 +992,7 @@ public class SelfTestSubsystem
      * Returns the ILogEventListener of this subsystem.
      * This method may return null.
      * <P>
-     * 
+     *
      * @return ILogEventListener of this subsystem
      */
     public ILogEventListener getSelfTestLogger() {
@@ -1002,7 +1002,7 @@ public class SelfTestSubsystem
     /**
      * This method represents the log interface for the self test subsystem.
      * <P>
-     * 
+     *
      * @param logger log event listener
      * @param msg self test log message
      */
@@ -1041,7 +1041,7 @@ public class SelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -1094,7 +1094,7 @@ public class SelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -1141,7 +1141,7 @@ public class SelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
      *            a non-critical failure (false)
@@ -1194,7 +1194,7 @@ public class SelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     * 
+     *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
@@ -1244,7 +1244,7 @@ public class SelfTestSubsystem
      * This method retrieves the name of this subsystem. This method
      * may return null.
      * <P>
-     * 
+     *
      * @return identification of this subsystem
      */
     public String getId() {
@@ -1254,7 +1254,7 @@ public class SelfTestSubsystem
     /**
      * This method sets information specific to this subsystem.
      * <P>
-     * 
+     *
      * @param id identification of this subsystem
      * @exception EBaseException base CMS exception
      */
@@ -1278,7 +1278,7 @@ public class SelfTestSubsystem
     /**
      * This method initializes this subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException base CMS exception
@@ -1825,7 +1825,7 @@ public class SelfTestSubsystem
     /**
      * Notifies this subsystem if owner is in running mode.
      * <P>
-     * 
+     *
      * @exception EBaseException base CMS exception
      */
     public void startup()
@@ -1891,7 +1891,7 @@ public class SelfTestSubsystem
      * Returns the root configuration storage of this subsystem.
      * This method may return null.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {

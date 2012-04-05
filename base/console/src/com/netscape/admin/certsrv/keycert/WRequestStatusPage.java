@@ -37,9 +37,9 @@ class WRequestStatusPage extends WizardBasePanel implements IWizardPanel {
     private static final String HELPINDEX =
       "configuration-keycert-wizard-certrequeststatus-help";
     protected JTextArea mDesc;
-    
+
     protected String mRequestId;
-    
+
     WRequestStatusPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -78,15 +78,15 @@ class WRequestStatusPage extends WizardBasePanel implements IWizardPanel {
 					mDesc.setText(mResource.getString("REQUESTRESULTWIZARD_TEXT_REJECT_LABEL") + error + "\n\n"+ mResource.getString("REQUESTRESULTWIZARD_TEXT_ID_LABEL") + str + mResource.getString("REQUESTRESULTWIZARD_TEXT_REJECTEND_LABEL"));
 				} else {
 					// success
-					mDesc.setText(mResource.getString("REQUESTRESULTWIZARD_TEXT_DESC_LABEL") + 
-                    mResource.getString("REQUESTRESULTWIZARD_TEXT_ID_LABEL") + str + 
+					mDesc.setText(mResource.getString("REQUESTRESULTWIZARD_TEXT_DESC_LABEL") +
+                    mResource.getString("REQUESTRESULTWIZARD_TEXT_ID_LABEL") + str +
                     mResource.getString("REQUESTRESULTWIZARD_TEXT_END_LABEL"));
 				}
 			}
 			else if (error != null)
 				mDesc.setText(error);
 			else
-				mDesc.setText(mResource.getString("REQUESTRESULTWIZARD_TEXT_DESC_LABEL") + 
+				mDesc.setText(mResource.getString("REQUESTRESULTWIZARD_TEXT_DESC_LABEL") +
                 mResource.getString("REQUESTRESULTWIZARD_TEXT_NOID_LABEL"));
 		}
         return true;

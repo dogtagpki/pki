@@ -25,7 +25,7 @@ import java.util.Vector;
 
 /**
  * A log entry of LogFile
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LogEntry {
@@ -41,7 +41,7 @@ public class LogEntry {
 
     /**
      * Constructor for a LogEntry.
-     * 
+     *
      */
     public LogEntry(String entry) throws ParseException {
         mEntry = entry;
@@ -50,7 +50,7 @@ public class LogEntry {
 
     /**
      * parse a log entry
-     * 
+     *
      * return a vector of the segments of the entry
      */
 

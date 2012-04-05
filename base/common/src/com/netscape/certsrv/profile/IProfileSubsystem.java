@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * This represents the profile subsystem that manages
  * a list of profiles.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfileSubsystem extends ISubsystem {
@@ -32,7 +32,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Retrieves a profile by id.
-     * 
+     *
      * @return profile
      * @exception EProfileException failed to retrieve
      */
@@ -41,7 +41,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Checks if a profile is approved by an agent or not.
-     * 
+     *
      * @param id profile id
      * @return true if profile is approved
      */
@@ -49,7 +49,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Retrieves the approver of the given profile.
-     * 
+     *
      * @param id profile id
      * @return user id of the agent who has approved the profile
      */
@@ -57,7 +57,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Creates new profile.
-     * 
+     *
      * @param id profile id
      * @param classid implementation id
      * @param className class Name
@@ -70,7 +70,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Deletes profile.
-     * 
+     *
      * @param id profile id
      * @param configFile configuration file
      * @exception EProfileException failed to delete profile
@@ -80,7 +80,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Creates a new profile configuration file.
-     * 
+     *
      * @param id profile id
      * @param classId implementation id
      * @param configPath location to create the configuration file
@@ -91,7 +91,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Enables a profile.
-     * 
+     *
      * @param id profile id
      * @param enableBy agent's user id
      * @exception EProfileException failed to enable profile
@@ -101,7 +101,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Disables a profile.
-     * 
+     *
      * @param id profile id
      * @exception EProfileException failed to disable
      */
@@ -110,7 +110,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Retrieves the id of the implementation of the given profile.
-     * 
+     *
      * @param id profile id
      * @return implementation id managed by the registry
      */
@@ -119,14 +119,14 @@ public interface IProfileSubsystem extends ISubsystem {
     /**
      * Retrieves a list of profile ids. The return
      * list is of type String.
-     * 
+     *
      * @return a list of profile ids
      */
     public Enumeration<String> getProfileIds();
 
     /**
      * Checks if owner id should be enforced during profile approval.
-     * 
+     *
      * @return true if approval should be checked
      */
     public boolean checkOwner();

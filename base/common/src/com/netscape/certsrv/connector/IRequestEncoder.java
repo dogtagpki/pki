@@ -23,14 +23,14 @@ import java.io.IOException;
  * This represents a rquest encoder that serializes and
  * deserializes a request to a Remote Authority so that it can be sent through
  * the connector.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestEncoder {
 
     /**
      * Encodes a request object.
-     * 
+     *
      * @param r Object to serve as the source of the message.
      * @return String containing encoded message.
      * @exception IOException Failure of the encoding operation due to IO error.
@@ -40,7 +40,7 @@ public interface IRequestEncoder {
 
     /**
      * Dncodes a String into an object.
-     * 
+     *
      * @return Object which is the result of the decoded message.
      * @exception IOException Failure of the decoding operation due to IO error.
      */

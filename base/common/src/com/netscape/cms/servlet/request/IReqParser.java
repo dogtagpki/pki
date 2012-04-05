@@ -29,7 +29,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
  * converts Java request object into name value
  * pairs and vice versa.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IReqParser {

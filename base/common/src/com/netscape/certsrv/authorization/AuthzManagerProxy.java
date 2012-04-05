@@ -20,7 +20,7 @@ package com.netscape.certsrv.authorization;
 /**
  * A class represents an authorization manager. It contains an
  * authorization manager instance and its state (enable or not).
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthzManagerProxy {
@@ -29,7 +29,7 @@ public class AuthzManagerProxy {
 
     /**
      * Constructor
-     * 
+     *
      * @param enable true if the authzMgr is enabled; false otherwise
      * @param mgr authorization manager instance
      */
@@ -40,7 +40,7 @@ public class AuthzManagerProxy {
 
     /**
      * Returns the state of the authorization manager instance
-     * 
+     *
      * @return true if the state of the authorization manager instance is
      *         enabled; false otherwise.
      */
@@ -50,7 +50,7 @@ public class AuthzManagerProxy {
 
     /**
      * Returns an authorization manager instance.
-     * 
+     *
      * @return an authorization manager instance
      */
     public IAuthzManager getAuthzManager() {

@@ -34,18 +34,18 @@ import netscape.security.x509.GenericValueConverter;
  * Represents a single DER-encoded value. DER encoding rules are a subset
  * of the "Basic" Encoding Rules (BER), but they only support a single way
  * ("Definite" encoding) to encode any given value.
- * 
+ *
  * <P>
  * All DER-encoded data are triples <em>{type, length, data}</em>. This class represents such tagged values as they have
  * been read (or constructed), and provides structured access to the encoded data.
- * 
+ *
  * <P>
  * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
  * sufficient for parsing most X.509 certificates, and working with selected additional formats (such as PKCS #10
  * certificate requests, and some kinds of PKCS #7 data).
- * 
+ *
  * @version 1.43
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -215,7 +215,7 @@ public class DerValue {
 
     /**
      * Creates a DerValue from a tag and some DER-encoded data.
-     * 
+     *
      * @param tag the DER type tag
      * @param data the DER-encoded data
      */
@@ -229,7 +229,7 @@ public class DerValue {
 
     /**
      * Creates a DerValue from a tag and some DER-encoded data.
-     * 
+     *
      * @param tag the DER type tag
      * @param data the DER-encoded data
      * @param offset offset of the data
@@ -264,7 +264,7 @@ public class DerValue {
      * Get an ASN.1/DER encoded datum from a buffer. The
      * entire buffer must hold exactly one datum, including
      * its tag and length.
-     * 
+     *
      * @param buf buffer holding a single DER-encoded datum.
      */
     public DerValue(byte[] buf) throws IOException {
@@ -275,7 +275,7 @@ public class DerValue {
      * Get an ASN.1/DER encoded datum from part of a buffer.
      * That part of the buffer must hold exactly one datum, including
      * its tag and length.
-     * 
+     *
      * @param buf the buffer
      * @param offset start point of the single DER-encoded dataum
      * @param length how many bytes are in the encoded datum
@@ -287,7 +287,7 @@ public class DerValue {
     /**
      * Get an ASN1/DER encoded datum from an input stream. The
      * stream may have additional data following the encoded datum.
-     * 
+     *
      * @param in the input stream holding a single DER datum,
      *            which may be followed by additional data
      */
@@ -336,7 +336,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 BOOLEAN
-     * 
+     *
      * @return the boolean held in this DER value
      */
     public boolean getBoolean() throws IOException {
@@ -354,7 +354,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 OBJECT IDENTIFIER.
-     * 
+     *
      * @return the OID held in this DER value
      */
     public ObjectIdentifier getOID() throws IOException {
@@ -365,7 +365,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 OCTET STRING
-     * 
+     *
      * @return the octet string held in this DER value
      */
     public byte[] getOctetString() throws IOException {
@@ -382,7 +382,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 unsigned integer value of enumerated value.
-     * 
+     *
      * @return the (unsigned) integer held in this DER value
      */
     public int getEnumerated()
@@ -412,7 +412,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 unsigned INTEGER value.
-     * 
+     *
      * @return the (unsigned) integer held in this DER value
      */
     public BigInt getInteger() throws IOException {
@@ -424,7 +424,7 @@ public class DerValue {
     /**
      * Returns an ASN.1 unsigned INTEGER value, the parameter determining
      * if the tag is implicit.
-     * 
+     *
      * @param tagImplicit if true, ignores the tag value as it is
      *            assumed implicit.
      * @return the (unsigned) integer held in this DER value
@@ -441,7 +441,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 BIT STRING value. The bit string must be byte-aligned.
-     * 
+     *
      * @return the bit string held in this value
      */
     public byte[] getBitString() throws IOException {
@@ -454,7 +454,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 BIT STRING value that need not be byte-aligned.
-     * 
+     *
      * @return a BitArray representing the bit string held in this value
      */
     public BitArray getUnalignedBitString() throws IOException {
@@ -477,7 +477,7 @@ public class DerValue {
     /**
      * Returns an ASN.1 BIT STRING value, with the tag assumed implicit
      * based on the parameter. The bit string must be byte-aligned.
-     * 
+     *
      * @param tagImplicit if true, the tag is assumed implicit.
      * @return the bit string held in this value
      */
@@ -493,7 +493,7 @@ public class DerValue {
     /**
      * Returns an ASN.1 BIT STRING value, with the tag assumed implicit
      * based on the parameter. The bit string need not be byte-aligned.
-     * 
+     *
      * @param tagImplicit if true, the tag is assumed implicit.
      * @return the bit string held in this value
      */
@@ -509,7 +509,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 STRING value
-     * 
+     *
      * @return the printable string held in this value
      */
     public String getPrintableString()
@@ -546,7 +546,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 T61 (Teletype) STRING value
-     * 
+     *
      * @return the teletype string held in this value
      */
     public String getT61String() throws IOException {
@@ -559,7 +559,7 @@ public class DerValue {
 
     /**
      * Returns an ASN.1 IA5 (ASCII) STRING value
-     * 
+     *
      * @return the ASCII string held in this value
      */
     public String getIA5String() throws IOException {
@@ -600,7 +600,7 @@ public class DerValue {
     /**
      * Returns true iff the other object is a DER value which
      * is bitwise equal to this one.
-     * 
+     *
      * @param other the object being compared with this one
      */
     public boolean equals(Object other) {
@@ -614,7 +614,7 @@ public class DerValue {
      * Bitwise equality comparison. DER encoded values have a single
      * encoding, so that bitwise equality of the encoded values is an
      * efficient way to establish equivalence of the unencoded values.
-     * 
+     *
      * @param other the object being compared with this one
      */
     public boolean equals(DerValue other) {
@@ -631,7 +631,7 @@ public class DerValue {
 
     /**
      * Returns a printable representation of the value.
-     * 
+     *
      * @return printable representation of the value
      */
     public String toString() {
@@ -656,7 +656,7 @@ public class DerValue {
     /**
      * Returns a DER-encoded value, such that if it's passed to the
      * DerValue constructor, a value equivalent to "this" is returned.
-     * 
+     *
      * @return DER-encoded value, including tag and length.
      */
     public byte[] toByteArray() throws IOException {
@@ -688,7 +688,7 @@ public class DerValue {
 
     /**
      * Create the tag of the attribute.
-     * 
+     *
      * @param class the tag class type, one of UNIVERSAL, CONTEXT,
      *        APPLICATION or PRIVATE
      * @param form if true, the value is constructed, otherwise it
@@ -706,7 +706,7 @@ public class DerValue {
     /**
      * Set the tag of the attribute. Commonly used to reset the
      * tag value used for IMPLICIT encodings.
-     * 
+     *
      * @param tag the tag value
      */
     public void resetTag(byte tag) {

@@ -41,7 +41,7 @@ import netscape.security.x509.URIName;
 /**
  * This represents the authority information access extension
  * as defined in RFC2459.
- * 
+ *
  * id-pkix OBJECT IDENTIFIER ::= { iso(1) identified-organization(3) dod(6)
  * internet(1) security(5) mechanisms(5)
  * pkix(7) } }
@@ -55,11 +55,11 @@ import netscape.security.x509.URIName;
  * id-ad OBJECT IDENTIFIER ::= { id-pkix 48 }
  * id-ad-ocsp OBJECT IDENTIFIER ::= { id-ad 1 }
  * id-ad-caIssuers OBJECT IDENTIFIER ::= { id-ad 2 }
- * 
+ *
  * Need to make sure the following is added to CMS.cfg:
  * oidmap.auth_info_access.class=com.netscape.certsrv.cert.AuthInfoAccessExtension
  * oidmap.auth_info_access.oid=1.3.6.1.5.5.7.1.1
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -83,7 +83,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -201,7 +201,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

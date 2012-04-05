@@ -79,7 +79,7 @@ import com.netscape.cmscore.request.RequestSubsystem;
  * escrowed. It provides archive and recovery key pairs
  * functionalities.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -161,7 +161,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves subsystem identifier.
-     * 
+     *
      * @return subsystem id
      */
     public String getId() {
@@ -170,7 +170,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Sets subsystem identifier.
-     * 
+     *
      * @param id subsystem id
      * @exception EBaseException failed to set id
      */
@@ -255,7 +255,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * necessary components. This subsystem is started by
      * KRASubsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store for this subsystem
      * @exception EBaseException failed to start subsystem
@@ -428,7 +428,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Starts this service. When this method is called, all
      * service
-     * 
+     *
      * @exception EBaseException failed to startup this subsystem
      */
     public void startup() throws EBaseException {
@@ -471,7 +471,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves the configuration store of this subsystem.
      * <P>
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -480,7 +480,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Changes the auto recovery state.
-     * 
+     *
      * @param cs list of recovery agent credentials
      * @param on turn of auto recovery or not
      * @return operation success or not
@@ -501,7 +501,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves the current auto recovery state.
-     * 
+     *
      * @return enable or not
      */
     public boolean getAutoRecoveryState() {
@@ -512,7 +512,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Returns a list of users who are in auto
      * recovery mode.
-     * 
+     *
      * @return list of user IDs that are accepted in the
      *         auto recovery mode
      */
@@ -522,7 +522,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Adds auto recovery mode to the given user id.
-     * 
+     *
      * @param id new identifier to the auto recovery mode
      * @param creds list of credentials
      */
@@ -532,7 +532,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Removes auto recovery mode from the given user id.
-     * 
+     *
      * @param id id of user to be removed from auto
      *            recovery mode
      */
@@ -542,7 +542,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves logger from escrow authority.
-     * 
+     *
      * @return logger
      */
     public ILogger getLogger() {
@@ -552,7 +552,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves number of required agents for
      * recovery operation.
-     * 
+     *
      * @return number of required agents
      * @exception EBaseException failed to retrieve info
      */
@@ -572,7 +572,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Sets number of required agents for
      * recovery operation
-     * 
+     *
      * @return none
      * @exception EBaseException invalid setting
      */
@@ -727,14 +727,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * Archives key. This creates a key record in the key
      * repository.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive
      * request is made (this is when the DRM receives the request)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used whenever a user private key
      * archive request is processed (this is when the DRM processes the request)
      * </ul>
-     * 
+     *
      * @param rec key record to be archived
      * @return executed request
      * @exception EBaseException failed to archive key
@@ -975,14 +975,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
      * made (this is when the DRM receives the request)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
      * request is processed (this is when the DRM processes the request)
      * </ul>
-     * 
+     *
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
@@ -1114,14 +1114,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * Async Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
      * made (this is when the DRM receives the request)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
      * request is processed (this is when the DRM processes the request)
      * </ul>
-     * 
+     *
      * @param requestID request id
      * @param password password of the PKCS12 package
      *            subsystem
@@ -1208,7 +1208,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Constructs a recovery request and submits it
      * to the request subsystem for processing.
-     * 
+     *
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
@@ -1234,7 +1234,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Recovers key for end-entities.
-     * 
+     *
      * @param creds list of credentials
      * @param encryptionChain certificate chain
      * @param signingCert signing cert
@@ -1281,7 +1281,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * Retrieves the storage key unit. The storage key
      * is used to wrap the user key for long term
      * storage.
-     * 
+     *
      * @return storage key unit.
      */
     public IStorageKeyUnit getStorageKeyUnit() {
@@ -1290,7 +1290,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves the transport key unit.
-     * 
+     *
      * @return transport key unit
      */
     public ITransportKeyUnit getTransportKeyUnit() {
@@ -1300,7 +1300,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Returns the name of this subsystem. This name is
      * extracted from the transport certificate.
-     * 
+     *
      * @return KRA name
      */
     public X500Name getX500Name() {
@@ -1314,7 +1314,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Returns the nickname for the id cert of this
      * subsystem.
-     * 
+     *
      * @return nickname of the transport certificate
      */
     public String getNickname() {
@@ -1347,7 +1347,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves KRA request repository.
      * <P>
-     * 
+     *
      * @return request repository
      */
     public IRequestQueue getRequestQueue() {
@@ -1366,7 +1366,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves replica repository.
      * <P>
-     * 
+     *
      * @return replica repository
      */
     public IReplicaIDRepository getReplicaRepository() {
@@ -1376,7 +1376,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves the DN of this escrow authority.
      * <P>
-     * 
+     *
      * @return distinguished name
      */
     protected String getDN() {
@@ -1392,7 +1392,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Logs an event.
-     * 
+     *
      * @param level log level
      * @param msg message to log
      */
@@ -1403,7 +1403,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Registers a request listener.
-     * 
+     *
      * @param l request listener
      */
     public void registerRequestListener(IRequestListener l) {
@@ -1469,13 +1469,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 radn = new X500Name(raname);
             }
         } catch (IOException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-                ILogger.LL_FAILURE, 
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
+                ILogger.LL_FAILURE,
                 CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_NAME", raname, e.toString()));
         } catch (EBaseException e) {
             // ignore - set to null.
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-                ILogger.LL_FAILURE, 
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
+                ILogger.LL_FAILURE,
                 CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_SETUP", e.toString()));
         }
         return new X500Name[] { radn };
@@ -1513,10 +1513,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -1536,11 +1536,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
@@ -1572,11 +1572,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
@@ -1608,11 +1608,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Recovery ID
-     * 
+     *
      * This method is called to obtain the "RecoveryID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message RecoveryID
      */
     private String auditRecoveryID() {
@@ -1644,11 +1644,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Public Key
-     * 
+     *
      * This method is called to obtain the public key from the passed in
      * "X509Certificate" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param cert an X509Certificate
      * @return key string containing the certificate's public key
      */
@@ -1684,11 +1684,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Public Key
-     * 
+     *
      * This method is called to obtain the public key from the passed in
      * "KeyRecord" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param rec a Key Record
      * @return key string containing the certificate's public key
      */
@@ -1741,11 +1741,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Agents
-     * 
+     *
      * This method is called to extract agent uids from the passed in
      * "Credentials[]" and return a string of comma-separated agent uids.
      * <P>
-     * 
+     *
      * @param creds array of credentials
      * @return a comma-separated string of agent uids
      */

@@ -194,7 +194,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         if (!tokenname.equals("Internal Key Storage Token"))
             return;
 
-        // Path can be empty. If this case, we just want to 
+        // Path can be empty. If this case, we just want to
         // get to the next panel. Customer has HSM.
         String s = HttpInput.getString(request, "path");
         // if (s == null || s.equals("")) {
@@ -450,7 +450,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                         s1.append(",");
                     s1.append("ca.connector.KRA");
                 }
-                
+
                 s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
                 content =

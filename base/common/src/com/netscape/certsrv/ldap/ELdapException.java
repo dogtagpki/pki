@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
  * A class that represents a Ldap exception. Various
  * errors can occur when interacting with a Ldap directory server.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ELdapException extends EBaseException {
@@ -39,7 +39,7 @@ public class ELdapException extends EBaseException {
 
     /**
      * Constructs a Ldap exception.
-     * 
+     *
      * @param msgFormat Resource Key, if key not present, serves as the message.
      *            <P>
      */
@@ -49,7 +49,7 @@ public class ELdapException extends EBaseException {
 
     /**
      * Constructs a Ldap exception.
-     * 
+     *
      * @param msgFormat Resource Key, if key not present, serves as the message.
      *            Include a message string parameter for variable content.
      * @param param Message string parameter.
@@ -61,7 +61,7 @@ public class ELdapException extends EBaseException {
 
     /**
      * Constructs a Ldap exception.
-     * 
+     *
      * @param msgFormat Resource Key, if key not present, serves as the message.
      * @param e Common exception.
      *            <P>
@@ -72,7 +72,7 @@ public class ELdapException extends EBaseException {
 
     /**
      * Constructs a Ldap exception.
-     * 
+     *
      * @param msgFormat Resource Key, if key not present, serves as the message.
      * @param params Array of Message string parameters.
      *            <P>
@@ -83,7 +83,7 @@ public class ELdapException extends EBaseException {
 
     /**
      * Gets the resource bundle name
-     * 
+     *
      * @return Name of the Ldap Exception resource bundle name.
      *         <p>
      */

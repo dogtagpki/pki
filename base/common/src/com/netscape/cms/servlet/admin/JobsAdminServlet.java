@@ -44,7 +44,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * A class representing an administration servlet for the
  * Jobs Scheduler and it's scheduled jobs.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class JobsAdminServlet extends AdminServlet {
@@ -639,7 +639,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
-        // being used. 
+        // being used.
         mJobsSched.getInstances().remove(id);
 
         // remove the configuration.
@@ -791,7 +791,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        // get plugin for implementation 
+        // get plugin for implementation
         JobPlugin plugin =
                 (JobPlugin) mJobsSched.getPlugins().get(implname);
 
@@ -803,7 +803,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        // save old instance substore params in case new one fails. 
+        // save old instance substore params in case new one fails.
 
         IJob oldinst =
                 (IJob) mJobsSched.getInstances().get((Object) id);

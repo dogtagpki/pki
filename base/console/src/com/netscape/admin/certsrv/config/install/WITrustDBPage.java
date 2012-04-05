@@ -37,7 +37,7 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "TRUSTDBWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WITrustDBPage() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -88,7 +88,7 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(passwdLbl, gbc);
-        
+
         mPassword = makeJPasswordField(20);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -104,7 +104,7 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(dummy, gbc);
-        
+
         JLabel passwdAgainLbl = makeJLabel("PASSWDAGAIN");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;

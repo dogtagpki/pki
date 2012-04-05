@@ -26,7 +26,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * This page allows the user to do such selections as the installation of 
+ * This page allows the user to do such selections as the installation of
  * certificates, server certificate chain, or trusted CA.
  *
  * @author Christine Ho
@@ -45,7 +45,7 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INSTALLOPWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-installcerttype-help";
-    
+
     WInstallOpPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -138,12 +138,12 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
         }
 
         if (mCrossCert != null) {
-            mCertBox.addItem(mCrossCert); 
+            mCertBox.addItem(mCrossCert);
             mCerts.addElement(Constants.PR_CROSS_CERT);
         }
 
         if (mOtherCert != null) {
-            mCertBox.addItem(mOtherCert); 
+            mCertBox.addItem(mOtherCert);
             mCerts.addElement(Constants.PR_OTHER_CERT);
         }
 
@@ -154,7 +154,7 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
         }
 
         mCertBox.setSelectedIndex(0);
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -193,11 +193,11 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(opLbl, gbc);
- 
+
         mCertBox = makeJComboBox("CERTTYPE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
-        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weighty = 1.0;
         add(mCertBox, gbc);

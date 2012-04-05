@@ -40,7 +40,7 @@ import com.netscape.certsrv.request.IRequestListener;
  * Authority. This servlet is responsible to serve RA
  * administrative operations such as configuration parameter
  * updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RAAdminServlet extends AdminServlet {
@@ -571,10 +571,10 @@ public class RAAdminServlet extends AdminServlet {
          while (enum.hasMoreElements()) {
          String key = (String)enum.nextElement();
          if (key.equals(Constants.PR_EE_ENABLED)) {
-         if (eeConfig != null) 
+         if (eeConfig != null)
          eeConfig.putString("enabled",
          req.getParameter(Constants.PR_EE_ENABLED));
-         } 
+         }
          }
 
          */

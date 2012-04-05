@@ -34,10 +34,10 @@ import javax.swing.event.*;
  * @see     CustomComboBox
  */
 class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
-    
+
     /*==========================================================
      * constructors
-     *==========================================================*/    
+     *==========================================================*/
     public CustomComboBoxModel() {
         _cache = new Vector();
         _index = new Vector();
@@ -46,7 +46,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	/*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * set selected item
      * DO NOT USE!!!
@@ -86,7 +86,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
             return null;
         }
     }
-    
+
     /**
      * set default icon
      * @param icon new icon to be used
@@ -107,8 +107,8 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
         newItem.put(SELECTION_DATA, data);
         _cache.addElement(newItem);
         _index.addElement(title.toUpperCase());
-    }    
-    
+    }
+
     /**
      * Add new list entry into model
      * @param icon new icon associated
@@ -121,7 +121,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
         _cache.addElement(newItem);
         _index.addElement(title.toUpperCase());
     }
-    
+
     /**
      * Add new list entry into model.
      * Default icon used
@@ -134,14 +134,14 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
         _cache.addElement(newItem);
         _index.addElement(title.toUpperCase());
     }
-    
+
     /**
      * Remove all entries from the model
      */
     public void removeAll() {
         _cache.removeAllElements();
     }
-    
+
     /**
      * Remove specific entry from the model
      * @param key key string associated with the entry
@@ -153,15 +153,15 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
             _index.removeElementAt(x);
         }
     }
-    
+
     /*==========================================================
      * variables
      *==========================================================*/
-     
+
     public static final String SELECTION_TITLE = "title";
     public static final String SELECTION_ICON = "icon";
     public static final String SELECTION_DATA = "data";
-    
+
     private Object _currentValue;
     private Vector _cache;
     private Vector _index;

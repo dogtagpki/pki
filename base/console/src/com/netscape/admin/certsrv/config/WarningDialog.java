@@ -62,12 +62,12 @@ public class WarningDialog extends JDialog
         getRootPane().setDoubleBuffered(true);
         setDisplay();
     }
- 
+
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mClose)) {
             this.hide();
             this.dispose();
-        } 
+        }
     }
 
     private void setDisplay() {
@@ -110,9 +110,9 @@ public class WarningDialog extends JDialog
     }
 
     private JPanel makeActionPane() {
-        mClose = CMSAdminUtil.makeJButton(mResource, PREFIX, "CLOSE", 
+        mClose = CMSAdminUtil.makeJButton(mResource, PREFIX, "CLOSE",
           null, this);
-     
+
         Dimension d = mClose.getMinimumSize();
         if (d.width < CMSAdminUtil.DEFAULT_BUTTON_SIZE) {
             d.width = CMSAdminUtil.DEFAULT_BUTTON_SIZE;
@@ -150,7 +150,7 @@ public class WarningDialog extends JDialog
         desc.setBackground(getBackground());
         desc.setEditable(false);
         desc.setCaretColor(getBackground());
-        JScrollPane scrollPane = new JScrollPane(desc, 
+        JScrollPane scrollPane = new JScrollPane(desc,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         CMSAdminUtil.resetGBC(gbc);
@@ -164,7 +164,7 @@ public class WarningDialog extends JDialog
         gbc.gridwidth = gbc.REMAINDER;
         gbc.gridheight = gbc.REMAINDER;
         content.add(scrollPane, gbc);
-       
+
         return content;
     }
 }

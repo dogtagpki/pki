@@ -62,7 +62,7 @@ public class KeyCreateDialog extends JDialog
     /*==========================================================
      * constructors
      *==========================================================*/
- 
+
     public KeyCreateDialog(JFrame parent, AdminConnection conn) {
         super(parent,true);
 		KeyCreateDialog2(PREFIX, parent, conn);
@@ -128,7 +128,7 @@ public class KeyCreateDialog extends JDialog
         }
 
         if (evt.getSource().equals(mOK)) {
-            
+
             /* REPLACED BY PROACTIVE ENFORCEMENT
             if (mNameField.getText().trim().equals("")) {
                 CMSAdminUtil.showMessageDialog(mParentFrame, mResource, mPrefix,
@@ -162,15 +162,15 @@ public class KeyCreateDialog extends JDialog
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
-    
+
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
-    
+
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }
-    
+
     //==== MOUSELISTENER ======================
     public void mouseClicked(MouseEvent e) {
         setButtons();
@@ -180,13 +180,13 @@ public class KeyCreateDialog extends JDialog
     public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
-    
+
     /*==========================================================
 	 * protected methods
-     *==========================================================*/    
-     
+     *==========================================================*/
+
     protected void setDisplay() {
         getContentPane().setLayout(new BorderLayout());
         JPanel center = new JPanel();
@@ -219,19 +219,19 @@ public class KeyCreateDialog extends JDialog
 
     /*==========================================================
 	 * private methods
-     *==========================================================*/  
+     *==========================================================*/
 
     //set arrow buttons
     private void setButtons() {
-        if ( mNameField.getText().trim().equals(""))  { 
+        if ( mNameField.getText().trim().equals(""))  {
 				//||
              //(mClassField.getText().trim().equals("")) ) {
-            mOK.setEnabled(false);                
+            mOK.setEnabled(false);
         } else {
-            mOK.setEnabled(true);   
+            mOK.setEnabled(true);
         }
-    } 
-    
+    }
+
     private JPanel makeActionPane() {
         mOK = CMSAdminUtil.makeJButton(mResource, mPrefix, "OK", null, this);
         mOK.setEnabled(false);
@@ -259,7 +259,7 @@ public class KeyCreateDialog extends JDialog
         //JLabel label2 = CMSAdminUtil.makeJLabel(mResource, mPrefix, "CLASS", null);
         //mClassField = new JTextField();
         //mClassField.getDocument().addDocumentListener(this);
-        //mClassField.addMouseListener(this);        
+        //mClassField.addMouseListener(this);
         //CMSAdminUtil.addEntryField(content, label2, mClassField, gbc);
 
         //if (mType) {
@@ -268,10 +268,10 @@ public class KeyCreateDialog extends JDialog
         //  JLabel label3 = CMSAdminUtil.makeJLabel(mResource, mPrefix, "TYPE", null);
         //  mTypeField = new JTextField();
         //  mTypeField.getDocument().addDocumentListener(this);
-        //  mTypeField.addMouseListener(this);        
+        //  mTypeField.addMouseListener(this);
         //  CMSAdminUtil.addEntryField(content, label3, mTypeField, gbc);
         //}
- 
+
         return content;
     }
 

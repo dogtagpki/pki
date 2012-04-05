@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * Redirect a request to the Master. This servlet is used in
  * a clone when a requested service (such as CRL) is not available.
  * It redirects the user to the master.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CloneRedirect extends CMSServlet {
@@ -69,7 +69,7 @@ public class CloneRedirect extends CMSServlet {
 
     /**
      * Initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {

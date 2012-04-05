@@ -25,14 +25,14 @@ import com.netscape.certsrv.base.EBaseException;
  * PKI messages to a remote authority. The remote authority
  * will reply with a PKI message as well. An example would
  * be the communication between a CA and a KRA.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IHttpConnection {
 
     /**
      * Sends the PKI message to the remote authority.
-     * 
+     *
      * @param tomsg Message to forward to authority.
      * @exception EBaseException Failed to send message.
      */

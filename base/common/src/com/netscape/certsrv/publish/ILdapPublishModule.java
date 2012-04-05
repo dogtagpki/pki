@@ -22,7 +22,7 @@ import com.netscape.certsrv.request.IRequestListener;
 
 /**
  * Handles requests to perform Ldap publishing.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapPublishModule extends IRequestListener {
@@ -30,13 +30,13 @@ public interface ILdapPublishModule extends IRequestListener {
     /**
      * initialize ldap publishing module with config store
      */
-    //	public void init(ICertAuthority owner, IConfigStore config) 
+    //	public void init(ICertAuthority owner, IConfigStore config)
     //		throws EBaseException, ELdapException;
 
     /**
      * Accepts completed requests from an authority and
      * performs ldap publishing.
-     * 
+     *
      * @param request The publishing request.
      */
     public void accept(IRequest request);

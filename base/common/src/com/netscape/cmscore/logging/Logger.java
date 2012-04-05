@@ -29,7 +29,7 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents certificate server logger
  * implementation.
  * <P>
- * 
+ *
  * @author thomask
  * @author mzhao
  * @version $Revision$, $Date$
@@ -69,7 +69,7 @@ public class Logger implements ILogger {
 
     /**
      * Registers log factory.
-     * 
+     *
      * @param evtClass the event class name: ILogger.EV_SYSTEM or ILogger.EV_AUDIT
      * @param f the event factory name
      */
@@ -80,7 +80,7 @@ public class Logger implements ILogger {
     //************** default level ****************
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
@@ -91,7 +91,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -105,7 +105,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -117,7 +117,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -132,7 +132,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -145,7 +145,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -158,7 +158,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -178,7 +178,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -193,7 +193,7 @@ public class Logger implements ILogger {
     //*************** the real implementation *****************
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -210,7 +210,7 @@ public class Logger implements ILogger {
     //************** default level ****************
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
@@ -222,7 +222,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -237,7 +237,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -250,7 +250,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -266,7 +266,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -280,7 +280,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -294,7 +294,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -315,7 +315,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -331,7 +331,7 @@ public class Logger implements ILogger {
     //*************** the real implementation *****************
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -364,7 +364,7 @@ public class Logger implements ILogger {
     /**
      * Notifies logger to reuse the event. This framework
      * opens up possibility to reuse event.
-     * 
+     *
      * @param event a log event
      */
     public void release(ILogEvent event) {

@@ -64,7 +64,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
      * copy contents of request to make a simple name/value message.
      */
     public void fromRequest(IRequest r) {
-        // actually don't need to copy source id since 
+        // actually don't need to copy source id since
         reqType = r.getRequestType();
         reqId = r.getRequestId().toString();
         reqStatus = r.getRequestStatus().toString();
@@ -96,7 +96,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
      */
     @SuppressWarnings("unchecked")
     public void toRequest(IRequest r) {
-        // id, type and status 
+        // id, type and status
         // type had to have been set in instantiation.
         // id is checked but not reset.
         // request status cannot be set, but can be looked at.

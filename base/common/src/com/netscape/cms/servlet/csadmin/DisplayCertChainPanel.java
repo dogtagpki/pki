@@ -117,7 +117,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
             Context context) {
         CMS.debug("DisplayCertChainPanel: display");
 
-        // update session id 
+        // update session id
         String session_id = request.getParameter("session_id");
         if (session_id != null) {
             CMS.debug("DisplayCertChainPanel setting session id.");

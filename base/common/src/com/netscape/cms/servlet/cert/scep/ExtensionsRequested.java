@@ -94,7 +94,7 @@ public class ExtensionsRequested implements CertAttrSet {
 
     /**
      * construct - expects this in the inputstream (from the router):
-     * 
+     *
      * 211 30 31: SEQUENCE {
      * 213 06 10: OBJECT IDENTIFIER '2 16 840 1 113733 1 9 8'
      * 225 31 17: SET {
@@ -107,9 +107,9 @@ public class ExtensionsRequested implements CertAttrSet {
      * : }
      * : }
      * : }
-     * 
+     *
      * or this (from IRE client):
-     * 
+     *
      * 262 30 51: SEQUENCE {
      * 264 06 9: OBJECT IDENTIFIER extensionReq (1 2 840 113549 1 9 14)
      * 275 31 38: SET {

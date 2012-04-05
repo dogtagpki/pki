@@ -32,7 +32,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements the basic enrollment output.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollOutput implements IProfileOutput {
@@ -58,7 +58,7 @@ public abstract class EnrollOutput implements IProfileOutput {
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
@@ -69,7 +69,7 @@ public abstract class EnrollOutput implements IProfileOutput {
     /**
      * Retrieves the descriptor of the given value
      * parameter by name.
-     * 
+     *
      * @param locale user locale
      * @param name property name
      * @return property descriptor
@@ -78,7 +78,7 @@ public abstract class EnrollOutput implements IProfileOutput {
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy name
      */
@@ -86,7 +86,7 @@ public abstract class EnrollOutput implements IProfileOutput {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy description
      */

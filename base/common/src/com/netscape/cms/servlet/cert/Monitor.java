@@ -52,7 +52,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Provide statistical queries of request and certificate records.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Monitor extends CMSServlet {
@@ -82,7 +82,7 @@ public class Monitor extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * 'monitor.template' to render the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
 

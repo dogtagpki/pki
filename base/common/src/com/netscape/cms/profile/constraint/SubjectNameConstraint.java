@@ -41,7 +41,7 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  * This class implements the subject name constraint.
  * It checks if the subject name in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SubjectNameConstraint extends EnrollConstraint {

@@ -19,7 +19,7 @@ package com.netscape.certsrv.template;
 
 /**
  * This class represents a string-based argument.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ArgString implements IArgValue {
@@ -27,7 +27,7 @@ public class ArgString implements IArgValue {
 
     /**
      * Constructs a string-based argument value.
-     * 
+     *
      * @param value argument value
      */
     public ArgString(String value) {
@@ -36,7 +36,7 @@ public class ArgString implements IArgValue {
 
     /**
      * Returns the argument value.
-     * 
+     *
      * @return argument value
      */
     public String getValue() {

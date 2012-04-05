@@ -33,7 +33,7 @@ import com.netscape.admin.certsrv.wizard.*;
 
 public class InstallWizard extends WizardWidget implements Runnable {
 
-    public InstallWizard(JFrame parent, InstallWizardInfo info, 
+    public InstallWizard(JFrame parent, InstallWizardInfo info,
       IWizardDone wizDone) {
         super(parent, wizDone);
         setWizardInfo(info);

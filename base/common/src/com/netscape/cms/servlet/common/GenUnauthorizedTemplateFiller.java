@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.IArgBlock;
 
 /**
  * default Unauthorized template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
@@ -35,7 +35,7 @@ public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
@@ -58,7 +58,7 @@ public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
         fixed.set(ICMSTemplateFiller.ERROR,
                 new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED")));
 
-        // this authority 
+        // this authority
         if (authority != null)
             fixed.set(ICMSTemplateFiller.AUTHORITY,
                     authority.getOfficialName());

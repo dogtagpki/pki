@@ -30,14 +30,14 @@ import com.netscape.certsrv.request.IRequest;
  * This interface represents a output policy which
  * provides information on how to build the result
  * page for the enrollment.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Initializes this default policy.
-     * 
+     *
      * @param profile owner of this policy
      * @param config configuration store
      * @exception EProfileException failed to initialize
@@ -47,14 +47,14 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves configuration store.
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
@@ -64,7 +64,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy name
      */
@@ -72,7 +72,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy description
      */
@@ -80,7 +80,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves a list of names of the value parameter.
-     * 
+     *
      * @return a list of property names
      */
     public Enumeration<String> getValueNames();
@@ -88,7 +88,7 @@ public interface IProfileOutput extends IConfigTemplate {
     /**
      * Retrieves the descriptor of the given value
      * parameter by name.
-     * 
+     *
      * @param locale user locale
      * @param name property name
      * @return property descriptor
@@ -97,7 +97,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves the value of the given value parameter by name.
-     * 
+     *
      * @param name property name
      * @param locale user locale
      * @param request request
@@ -109,7 +109,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Sets the value of the given value parameter by name.
-     * 
+     *
      * @param name property name
      * @param locale user locale
      * @param request request

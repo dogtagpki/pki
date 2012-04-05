@@ -30,7 +30,7 @@ import java.util.Vector;
 
 /**
  * An Access Control List (ACL) is encapsulated by this class.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class AclImpl extends OwnerImpl implements Acl {
@@ -59,7 +59,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 
     /**
      * Sets the name of the ACL.
-     * 
+     *
      * @param caller the principal who is invoking this method.
      * @param name the name of the ACL.
      * @exception NotOwnerException if the caller principal is
@@ -75,7 +75,7 @@ public class AclImpl extends OwnerImpl implements Acl {
 
     /**
      * Returns the name of the ACL.
-     * 
+     *
      * @return the name of the ACL.
      */
     public String getName() {
@@ -90,7 +90,7 @@ public class AclImpl extends OwnerImpl implements Acl {
      * or positive) already in the table, a false value is returned.
      * The caller principal must be a part of the owners list of
      * the ACL in order to invoke this method.
-     * 
+     *
      * @param caller the principal who is invoking this method.
      * @param entry the ACL entry that must be added to the ACL.
      * @return true on success, false if the entry is already present.
@@ -116,7 +116,7 @@ public class AclImpl extends OwnerImpl implements Acl {
      * Removes an ACL entry from this ACL.
      * The caller principal must be a part of the owners list of the ACL
      * in order to invoke this method.
-     * 
+     *
      * @param caller the principal who is invoking this method.
      * @param entry the ACL entry that must be removed from the ACL.
      * @return true on success, false if the entry is not part of the ACL.
@@ -139,10 +139,10 @@ public class AclImpl extends OwnerImpl implements Acl {
      * This method returns the set of allowed permissions for the
      * specified principal. This set of allowed permissions is calculated
      * as follows:
-     * 
+     *
      * If there is no entry for a group or a principal an empty permission
      * set is assumed.
-     * 
+     *
      * The group positive permission set is the union of all
      * the positive permissions of each group that the individual belongs to.
      * The group negative permission set is the union of all
@@ -151,18 +151,18 @@ public class AclImpl extends OwnerImpl implements Acl {
      * the postive permission set and the negative permission set,
      * it is removed from both. The group positive and negatoive permission
      * sets are calculated.
-     * 
+     *
      * The individial positive permission set and the individual negative
      * permission set is then calculated. Again abscence of an entry means
      * the empty set.
-     * 
+     *
      * The set of permissions granted to the principal is then calculated using
      * the simple rule: Individual permissions always override the Group permissions.
      * Specifically, individual negative permission set (specific
      * denial of permissions) overrides the group positive permission set.
      * And the individual positive permission set override the group negative
      * permission set.
-     * 
+     *
      * @param user the principal for which the ACL entry is returned.
      * @return The resulting permission set that the principal is allowed.
      */
@@ -211,7 +211,7 @@ public class AclImpl extends OwnerImpl implements Acl {
      * permission false is returned, a true value is returned otherwise.
      * This method does not authenticate the principal. It presumes that
      * the principal is a valid authenticated principal.
-     * 
+     *
      * @param principal the name of the authenticated principal
      * @param permission the permission that the principal must have.
      * @return true of the principal has the permission desired, false
@@ -253,10 +253,10 @@ public class AclImpl extends OwnerImpl implements Acl {
     }
 
     //
-    // Find the table that this entry belongs to. There are 4 
-    // tables that are maintained. One each for postive and 
-    // negative ACLs and one each for groups and users. 
-    // This method figures out which 
+    // Find the table that this entry belongs to. There are 4
+    // tables that are maintained. One each for postive and
+    // negative ACLs and one each for groups and users.
+    // This method figures out which
     // table is the one that this AclEntry belongs to.
     //
     private Hashtable<Principal, AclEntry> findTable(AclEntry entry) {

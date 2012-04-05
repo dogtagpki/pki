@@ -62,7 +62,7 @@ import com.netscape.cms.servlet.common.RawJS;
 
 /**
  * Output a 'pretty print' of a certificate request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CertReqParser extends ReqParser {
@@ -82,7 +82,7 @@ public class CertReqParser extends ReqParser {
 
     /**
      * Constructs a certificate request parser.
-     * 
+     *
      * @param details return detailed information (this can be time consuming)
      */
     public CertReqParser(boolean details) {
@@ -142,7 +142,7 @@ public class CertReqParser extends ReqParser {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
-                    // show certType specially 
+                    // show certType specially
                     String certType = http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
@@ -290,12 +290,12 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
-                // Get the certificate info from the request 
+                // Get the certificate info from the request
                 X509CertInfo[] certInfo =
                         req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
                 if (certInfo != null && certInfo[0] != null) {
-                    // Get the subject name if any set. 
+                    // Get the subject name if any set.
                     CertificateSubjectName subjectName = null;
                     String signatureAlgorithm = null;
                     String signatureAlgorithmName = null;
@@ -410,7 +410,7 @@ public class CertReqParser extends ReqParser {
 
                         }
 
-                        // Get the public key 
+                        // Get the public key
                         CertificateX509Key certKey = null;
 
                         try {
@@ -436,7 +436,7 @@ public class CertReqParser extends ReqParser {
                                     pp.toHexString(key.getKey(), 0, 16));
                         }
 
-                        // Get the validity period 
+                        // Get the validity period
                         CertificateValidity validity = null;
 
                         try {
@@ -444,7 +444,7 @@ public class CertReqParser extends ReqParser {
                                     (CertificateValidity)
                                     certInfo[0].get(X509CertInfo.VALIDITY);
                             if (validity != null) {
-                                long validityLength = (((Date) validity.get(CertificateValidity.NOT_AFTER)).getTime() - 
+                                long validityLength = (((Date) validity.get(CertificateValidity.NOT_AFTER)).getTime() -
                                         ((Date) validity.get(CertificateValidity.NOT_BEFORE)).getTime()) / 1000;
                                 arg.addLongValue("validityLength", validityLength);
                             }
@@ -694,7 +694,7 @@ public class CertReqParser extends ReqParser {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
-                    // show certType specially 
+                    // show certType specially
                     String certType = http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
@@ -818,7 +818,7 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
-                // Get the certificate info from the request 
+                // Get the certificate info from the request
                 RevokedCertImpl revokedCert[] = req.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
                 if (mDetails && revokedCert != null) {

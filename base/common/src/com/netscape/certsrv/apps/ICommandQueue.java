@@ -24,14 +24,14 @@ import com.netscape.cms.servlet.common.CMSRequest;
 /**
  * This interface represents a command queue for registeration
  * and unregisteration proccess for clean shutdown
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICommandQueue {
 
     /**
      * Registers a thread into the command queue.
-     * 
+     *
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
@@ -39,7 +39,7 @@ public interface ICommandQueue {
 
     /**
      * UnRegisters a thread from the command queue.
-     * 
+     *
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */

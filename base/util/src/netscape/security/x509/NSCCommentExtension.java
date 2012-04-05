@@ -31,7 +31,7 @@ import netscape.security.util.PrettyPrintFormat;
 
 /**
  * This class defines the NSCCommentExtension
- * 
+ *
  * @author asondhi
  * @see Extension
  * @see CertAttrSet
@@ -57,7 +57,7 @@ public class NSCCommentExtension extends Extension
             new ObjectIdentifier("2.16.840.1.113730.1.13");
     public String mComment = null;
 
-    // Private data members 
+    // Private data members
     private Vector<Object> mInfos;
 
     private PrettyPrintFormat pp = new PrettyPrintFormat(":");
@@ -74,7 +74,7 @@ public class NSCCommentExtension extends Extension
 
     /**
      * Create a NSCCommentExtension with the Vector of CertificatePolicyInfo.
-     * 
+     *
      * @param infos the Vector of CertificatePolicyInfo.
      */
     public NSCCommentExtension(boolean critical, String comment) throws IOException {
@@ -95,7 +95,7 @@ public class NSCCommentExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -139,7 +139,7 @@ public class NSCCommentExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -156,7 +156,7 @@ public class NSCCommentExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */

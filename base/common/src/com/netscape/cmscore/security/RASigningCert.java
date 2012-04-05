@@ -30,7 +30,7 @@ import com.netscape.certsrv.security.KeyCertData;
 
 /**
  * RA signing certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -92,7 +92,7 @@ public class RASigningCert extends CertificateInfo {
      return sAlg;
      }
      String alg = (String)mProperties.get(Constants.PR_KEY_TYPE);
-     
+
      if (alg.equals("RSA"))
      return SignatureAlgorithm.RSASignatureWithMD5Digest;
      else

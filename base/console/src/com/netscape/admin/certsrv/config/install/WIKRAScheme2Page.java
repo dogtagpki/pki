@@ -48,7 +48,7 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
       "install-cakra-scheme-usrpwds-wizard-help";
     private static final String RAKRAHELPINDEX =
       "install-rakra-scheme-usrpwds-wizard-help";
-    
+
     WIKRAScheme2Page(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -99,7 +99,7 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         else
             mHelpIndex = KRAHELPINDEX;
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -185,15 +185,15 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-       
-        String rawData = "";  
+
+        String rawData = "";
         int total = Integer.parseInt(wizardInfo.getTotalAgents());
         for (int i=0; i<total; i++) {
             String val1 = (String)mDataModel.getValueAt(i,1);
             String val2 = (String)mDataModel.getValueAt(i,2);
             rawData = rawData+ConfigConstants.PR_AGENT_UID+i+"="+val1;
             rawData = rawData+"&"+ConfigConstants.PR_AGENT_PWD+i+"="+val2;
-        } 
+        }
 
         rawData = rawData+"&"+ConfigConstants.TASKID+"="+TaskId.TASK_AGENTS;
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
@@ -242,7 +242,7 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         scrollPane.setHorizontalScrollBarPolicy(scrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(scrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
-        mTable.sizeColumnsToFit(true);   
+        mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         scrollPane.setBackground(Color.white);
         setLabelCellRenderer(mTable, 1);

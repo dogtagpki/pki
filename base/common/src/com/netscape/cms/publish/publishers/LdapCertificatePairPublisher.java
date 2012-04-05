@@ -41,7 +41,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 /**
  * module for publishing a cross certificate pair to ldap
  * crossCertificatePair attribute
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCertificatePairPublisher
@@ -153,7 +153,7 @@ public class LdapCertificatePairPublisher
     /**
      * publish a certificatePair
      * -should not be called from listeners.
-     * 
+     *
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the XcertificatePair
      * @param pair the Xcertificate bytes object.
@@ -166,7 +166,7 @@ public class LdapCertificatePairPublisher
     /**
      * publish a certificatePair
      * -should not be called from listeners.
-     * 
+     *
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the XcertificatePair
      * @param pair the cross cert bytes

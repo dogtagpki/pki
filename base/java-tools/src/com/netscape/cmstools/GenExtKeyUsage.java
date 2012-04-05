@@ -32,7 +32,7 @@ import netscape.security.x509.Extension;
  * The OIDs to be included in the extension are passed as command-line
  * arguments. The OIDs are described in RFC 2459. For example,
  * the OID for code signing is 1.3.6.1.5.5.7.3.3.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenExtKeyUsage {

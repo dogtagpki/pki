@@ -54,7 +54,7 @@ class WIGenOCSPKeyCertReqPage extends WIGenKeyCertReqPage {
 
         if (wizardInfo.isOCSPCertLocalCA() || !wizardInfo.isOCSPInstalled() ||
           (wizardInfo.isOCSPCertRequestDone() &&
-			  !wizardInfo.isOCSPCertRequestBack()) || 
+			  !wizardInfo.isOCSPCertRequestBack()) ||
           wizardInfo.isOCSPLocalCertDone() ||
           wizardInfo.isOCSPCertInstalledDone())
             return false;

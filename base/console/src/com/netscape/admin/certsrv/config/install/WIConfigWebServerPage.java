@@ -83,20 +83,20 @@ class WIConfigWebServerPage extends WizardBasePanel implements IWizardPanel {
 
         data.put(ConfigConstants.TASKID,TaskId.TASK_CONFIG_WEB_SERVER);
         data.put(ConfigConstants.OPTYPE, OpDef.OP_MODIFY);
-        data.put(ConfigConstants.PR_CERT_INSTANCE_NAME, 
+        data.put(ConfigConstants.PR_CERT_INSTANCE_NAME,
           consoleInfo.get(ConfigConstants.PR_CERT_INSTANCE_NAME));
 
-        data.put(ConfigConstants.PR_WEB_SERVERROOT, 
+        data.put(ConfigConstants.PR_WEB_SERVERROOT,
           mServerRootText.getText().trim());
         data.put(ConfigConstants.PR_USER_ID,
           mUserIDText.getText().trim());
- 
+
         startProgressStatus();
         CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATEWEBSERVER");
-        
+
         boolean ready = configCertCgi.configCert(data);
         dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {

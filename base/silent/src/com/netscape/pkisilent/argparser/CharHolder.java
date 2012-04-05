@@ -45,7 +45,7 @@ public class CharHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>CharHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param c Initial character value.
      */
     public CharHolder(char c) {

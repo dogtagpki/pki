@@ -26,7 +26,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the PolicyConstraint ASN.1 object.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -42,7 +42,7 @@ public class PolicyConstraint {
 
     /**
      * The default constructor for this object
-     * 
+     *
      * @param set the CertificatePolicySet (null for optional).
      * @param require require explicit policy (-1 for optional).
      * @param inhibit inhibit policy mapping (-1 for optional).
@@ -55,7 +55,7 @@ public class PolicyConstraint {
 
     /**
      * Create the PolicyConstraint from the DerValue.
-     * 
+     *
      * @param val the DerValue of the PolicyConstraint.
      * @exception IOException on decoding errors.
      */
@@ -107,7 +107,7 @@ public class PolicyConstraint {
 
     /**
      * Encode the object to the output stream.
-     * 
+     *
      * @param out the DerOutputStream to encode the object to.
      */
     public void encode(DerOutputStream out) throws IOException {

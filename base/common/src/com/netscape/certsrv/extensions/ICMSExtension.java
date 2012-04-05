@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * CMS extension interface, for creating extensions from http input and
  * displaying extensions to html forms.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICMSExtension {
@@ -44,7 +44,7 @@ public interface ICMSExtension {
 
     /**
      * Get name of this extension.
-     * 
+     *
      * @return the name of this CMS extension, for
      */
     public String getName();
@@ -56,7 +56,7 @@ public interface ICMSExtension {
 
     /**
      * Get an instance of the extension given http input.
-     * 
+     *
      * @return an instance of the extension.
      */
     public Extension getExtension(IArgBlock argblock)
@@ -65,7 +65,7 @@ public interface ICMSExtension {
     /**
      * Get Javascript name value pairs to put into the request processing
      * template.
-     * 
+     *
      * @return name value pairs
      */
     public IArgBlock getFormParams(Extension extension)

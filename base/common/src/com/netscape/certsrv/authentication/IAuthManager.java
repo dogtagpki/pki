@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.IConfigStore;
 /**
  * Authentication Manager interface.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAuthManager {
@@ -41,7 +41,7 @@ public interface IAuthManager {
     /**
      * Get the name of this authentication manager instance.
      * <p>
-     * 
+     *
      * @return the name of this authentication manager.
      */
     public String getName();
@@ -49,14 +49,14 @@ public interface IAuthManager {
     /**
      * Get name of authentication manager plugin.
      * <p>
-     * 
+     *
      * @return the name of the authentication manager plugin.
      */
     public String getImplName();
 
     /**
      * Authenticate the given credentials.
-     * 
+     *
      * @param authCred The authentication credentials
      * @return authentication token
      * @exception EMissingCredential If a required credential for this
@@ -69,7 +69,7 @@ public interface IAuthManager {
 
     /**
      * Initialize this authentication manager.
-     * 
+     *
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
@@ -86,7 +86,7 @@ public interface IAuthManager {
 
     /**
      * Gets a list of the required credentials for this authentication manager.
-     * 
+     *
      * @return The required credential attributes.
      */
     public String[] getRequiredCreds();
@@ -96,7 +96,7 @@ public interface IAuthManager {
      * The configuration parameters returned is passed to the
      * configuration console so configuration for instances of this
      * implementation can be made through the console.
-     * 
+     *
      * @return a list of configuration parameters.
      * @exception EBaseException If an internal error occurred
      */
@@ -105,7 +105,7 @@ public interface IAuthManager {
 
     /**
      * Get the configuration store for this authentication manager.
-     * 
+     *
      * @return The configuration store of this authentication manager.
      */
     public IConfigStore getConfigStore();

@@ -126,12 +126,12 @@ import com.netscape.cmsutil.util.Utils;
  * This servlet deals with PKCS#10-based certificate requests from
  * CRS, now called SCEP, and defined at:
  * http://search.ietf.org/internet-drafts/draft-nourse-scep-02.txt
- * 
+ *
  * The router is hardcoded to look for the http://host:80/cgi-bin/pkiclient.exe
- * 
+ *
  * The HTTP parameters are 'operation' and 'message'
  * operation can be either 'GetCACert' or 'PKIOperation'
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CRSEnrollment extends HttpServlet {
@@ -319,13 +319,13 @@ public class CRSEnrollment extends HttpServlet {
     }
 
     /**
-     * 
+     *
      * Service a CRS Request. It all starts here. This is where the message from the
      * router is processed
-     * 
+     *
      * @param httpReq The HttpServletRequest.
      * @param httpResp The HttpServletResponse.
-     * 
+     *
      */
     public void service(HttpServletRequest httpReq,
                       HttpServletResponse httpResp)
@@ -500,7 +500,7 @@ public class CRSEnrollment extends HttpServlet {
              * ANY cert = new ANY(chain[i].getEncoded());
              * certs.addElement(cert);
              * }
-             * 
+             *
              * SignedData crsd = new SignedData(
              * new SET(), // empty set of digestAlgorithmID's
              * new ContentInfo(
@@ -510,14 +510,14 @@ public class CRSEnrollment extends HttpServlet {
              * null, // no CRL's
              * new SET() // empty SignerInfos
              * );
-             * 
+             *
              * ContentInfo wrap = new ContentInfo(ContentInfo.SIGNED_DATA, crsd);
-             * 
+             *
              * ByteArrayOutputStream baos = new ByteArrayOutputStream();
              * wrap.encode(baos);
-             * 
+             *
              * bytes = baos.toByteArray();
-             * 
+             *
              * httpResp.setContentType("application/x-x509-ca-ra-cert");
              *****/
 
@@ -902,17 +902,17 @@ public class CRSEnrollment extends HttpServlet {
                 CMS.debug("Processing PKCSReq");
                 try {
                     // Check if there is an existing request. If this returns non-null,
-                    // then the request is 'active' (either pending or completed) in 
+                    // then the request is 'active' (either pending or completed) in
                     // which case, we compare the hash of the new request to the hash of the
-                    // one in the queue - if they are the same, I return the state of the 
+                    // one in the queue - if they are the same, I return the state of the
                     // original request - as if it was 'getCertInitial' message.
                     // If the hashes are different, then the user attempted to enroll
-                    // for a new request with the same txid, which is not allowed - 
+                    // for a new request with the same txid, which is not allowed -
                     // so we return 'failure'.
 
                     IRequest cmsRequest = findRequestByTransactionID(req.getTransactionID(), true);
 
-                    // If there was no request (with a cert) with this transaction ID, 
+                    // If there was no request (with a cert) with this transaction ID,
                     // process it as a new request
 
                     cert = handlePKCSReq(httpReq, cmsRequest, req, crsResp, cx);
@@ -1006,15 +1006,15 @@ public class CRSEnrollment extends HttpServlet {
      * Called if the router is requesting us to send it its certificate
      * Examine request queue for a request matching the transaction ID.
      * Ignore any rejected or cancelled requests.
-     * 
+     *
      * If a request is found in the pending state, the response should be
      * 'pending'
-     * 
+     *
      * If a request is found in the completed state, the response should be
      * to return the certificate
-     * 
+     *
      * If no request is found, the response should be to return null
-     * 
+     *
      */
 
     public X509CertImpl handleGetCertInitial(CRSPKIMessage req, CRSPKIMessage resp) {
@@ -1053,7 +1053,7 @@ public class CRSEnrollment extends HttpServlet {
 
     /**
      * Create an entry for this user in the publishing directory
-     * 
+     *
      */
 
     private boolean createEntry(String dn) {
@@ -1096,7 +1096,7 @@ public class CRSEnrollment extends HttpServlet {
 
     /**
      * Here we decrypt the PKCS10 message from the client
-     * 
+     *
      */
 
     public void unwrapPKCS10(CRSPKIMessage req, CryptoContext cx)
@@ -1316,7 +1316,7 @@ public class CRSEnrollment extends HttpServlet {
                 req.put(SUBJECTNAME, subject);
 
             if (key == null || subject == null) {
-                // log 
+                // log
                 //throw new ERegistrationException(RegistrationResources.ERROR_MALFORMED_P10);
             }
 
@@ -1536,7 +1536,7 @@ public class CRSEnrollment extends HttpServlet {
         return null;
     }
 
-    //////   post the request 
+    //////   post the request
 
     /*
       needed:
@@ -1604,7 +1604,7 @@ public class CRSEnrollment extends HttpServlet {
             credentials.set("PWD", p10Password);
 
             if (authenticator == null) {
-                // XXX - to help caRouterCert to work, we need to 
+                // XXX - to help caRouterCert to work, we need to
                 // add authentication to caRouterCert
                 authToken = new AuthToken(null);
             } else {
@@ -1867,7 +1867,7 @@ public class CRSEnrollment extends HttpServlet {
 
             byte[] ed = crsResp.makeEnvelopedData(0);
 
-            // 7. Make Digest of SignedData Content 
+            // 7. Make Digest of SignedData Content
             MessageDigest md = MessageDigest.getInstance(mHashAlgorithm);
             msgdigest = md.digest(ed);
 
@@ -1898,7 +1898,7 @@ public class CRSEnrollment extends HttpServlet {
             // recipientNonce and SenderNonce have already been set
 
             crsResp.makeAuthenticatedAttributes();
-            //      crsResp.makeAuthenticatedAttributes_old();                  
+            //      crsResp.makeAuthenticatedAttributes_old();
 
             // now package up the rest of the SignerInfo
             {

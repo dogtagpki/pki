@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
 /**
  * A class represents an ACI entry of an access control list.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ACLEntry {
@@ -44,7 +44,7 @@ public class ACLEntry {
 
     /**
      * Checks if this ACL entry is set to negative.
-     * 
+     *
      * @return true if this ACL entry expression is for "deny";
      *         false if this ACL entry expression is for "allow"
      */
@@ -61,9 +61,9 @@ public class ACLEntry {
 
     /**
      * Sets the ACL entry string
-     * 
+     *
      * @param s string in the following format:
-     * 
+     *
      *            <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
@@ -74,9 +74,9 @@ public class ACLEntry {
 
     /**
      * Gets the ACL Entry String
-     * 
+     *
      * @return ACL Entry string in the following format:
-     * 
+     *
      *         <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
@@ -88,7 +88,7 @@ public class ACLEntry {
     /**
      * Adds permission to this entry. Permission must be one of the
      * "rights" defined for each protected resource in its ACL
-     * 
+     *
      * @param acl the acl instance that this aclEntry is associated with
      * @param permission one of the "rights" defined for each
      *            protected resource in its ACL
@@ -104,7 +104,7 @@ public class ACLEntry {
     /**
      * Returns a list of permissions associated with
      * this entry.
-     * 
+     *
      * @return a list of permissions for this ACL entry
      */
     public Enumeration<String> permissions() {
@@ -113,7 +113,7 @@ public class ACLEntry {
 
     /**
      * Sets the expression associated with this entry.
-     * 
+     *
      * @param expressions the evaluator expressions. For example,
      *            group="Administrators"
      */
@@ -123,7 +123,7 @@ public class ACLEntry {
 
     /**
      * Retrieves the expression associated with this entry.
-     * 
+     *
      * @return the evaluator expressions. For example,
      *         group="Administrators"
      */
@@ -134,7 +134,7 @@ public class ACLEntry {
     /**
      * Checks to see if this <code>ACLEntry</code> contains a
      * particular permission
-     * 
+     *
      * @param permission one of the "rights" defined for each
      *            protected resource in its ACL
      * @return true if permission contained in the permission list
@@ -146,7 +146,7 @@ public class ACLEntry {
 
     /**
      * Checks if this entry has the given permission.
-     * 
+     *
      * @param permission one of the "rights" defined for each
      *            protected resource in its ACL
      * @return true if the permission is allowed; false if the
@@ -167,13 +167,13 @@ public class ACLEntry {
 
     /**
      * Parse string in the following format:
-     * 
+     *
      * <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
-     * 
+     *
      * into an instance of the <code>ACLEntry</code> class
-     * 
+     *
      * @param acl the acl instance associated with this aclentry
      * @param aclEntryString aclEntryString in the specified format
      * @return an instance of the <code>ACLEntry</code> class
@@ -217,7 +217,7 @@ public class ACLEntry {
 
     /**
      * Returns the string representation of this ACLEntry
-     * 
+     *
      * @return string representation of this ACLEntry
      */
     public String toString() {

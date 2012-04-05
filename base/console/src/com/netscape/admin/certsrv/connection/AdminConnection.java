@@ -45,7 +45,7 @@ public class AdminConnection {
      *==========================================================*/
     public static int NO_TIMEOUT = 0;
     public static int DEFAULT_TIMEOUT = 600000;      //600 sec
-    
+
     private IConnectionFactory mFactory= null;
 	private IConnection mConn = null;
 	private IAuthenticator mAuth = null;
@@ -80,7 +80,7 @@ public class AdminConnection {
 	                        IConnectionFactory factory,
 	                        String host, int port, String path) {
                if (mPM == null) {
-                 mPM = new FilePreferenceManager(Framework.IDENTIFIER, 
+                 mPM = new FilePreferenceManager(Framework.IDENTIFIER,
                        Framework.VERSION);
                }
                Preferences p = mPM.getPreferences(
@@ -88,7 +88,7 @@ public class AdminConnection {
                int timeout = p.getInt("CMSConnTimeout", 600000);
                setDefaultTimeout(timeout);
                setCurrentTimeout(timeout);
-               Debug.println("AdminConnection: " + timeout + " " + 
+               Debug.println("AdminConnection: " + timeout + " " +
                    mPM.getClass().getName());
 
 		mAuth = auth;
@@ -117,7 +117,7 @@ public class AdminConnection {
 	                        boolean enableKeepAlive,
 	                        String host, int port, String path) {
                if (mPM == null) {
-                 mPM = new FilePreferenceManager(Framework.IDENTIFIER, 
+                 mPM = new FilePreferenceManager(Framework.IDENTIFIER,
                        Framework.VERSION);
                }
                Preferences p = mPM.getPreferences(
@@ -125,7 +125,7 @@ public class AdminConnection {
                int timeout = p.getInt("CMSConnTimeout", 600000);
                setDefaultTimeout(timeout);
                setCurrentTimeout(timeout);
-               Debug.println("AdminConnection: " + timeout + " " + 
+               Debug.println("AdminConnection: " + timeout + " " +
                    mPM.getClass().getName());
 
 		mAuth = auth;
@@ -172,14 +172,14 @@ public class AdminConnection {
         b64.append('\n');
 
         return b64.toString();
-    } 
+    }
 
     /*==========================================================
 	 * public methods
      *==========================================================*/
 
     /**
-     * Set the listener. 
+     * Set the listener.
      */
     public void setConnectionListener(IConnectionListener l) {
         mConnectionListener = l;
@@ -217,7 +217,7 @@ public class AdminConnection {
      * @param timeout time in ms
      */
     public void setCurrentTimeout(int timeout) {
-        mCurrentTimeout = timeout;    
+        mCurrentTimeout = timeout;
     }
 
 
@@ -514,7 +514,7 @@ public class AdminConnection {
         throw new EAdminException(response.getErrorMessage(), true);
     }
 
-    public void validate(String dest, String scope, NameValuePairs pairs) 
+    public void validate(String dest, String scope, NameValuePairs pairs)
         throws EAdminException {
         Request request = new Request(mPath + "/" + dest);
         request.set(Constants.OP_TYPE, OpDef.OP_VALIDATE);
@@ -577,7 +577,7 @@ public class AdminConnection {
             return;
         } else if (response.getReturnCode() == Response.RESTART) {
             mConnectionListener.restartCallback();
-            return;    
+            return;
         }
         throw new EAdminException(response.getErrorMessage(), true);
     }
@@ -661,17 +661,17 @@ public class AdminConnection {
     	}
 
         try {
-    	    return processRequest(request, useGET);    
+	    return processRequest(request, useGET);
     	//all errors will set the connection to null
     	//to force re-connection and avoid null ptr exception
 
     	} catch (Exception e) {
             retryConnection();
-         
+
             try {
                 return processRequest(request, useGET);
             } catch (InterruptedIOException ex) {
-       
+
     	        //timeout occurred
     	        mConn = null;
 
@@ -681,7 +681,7 @@ public class AdminConnection {
     	    } catch (SocketException ex) {
     	        mConn = null;
     	        throw new EAdminException(CMSAdminResources.SERVER_UNREACHABLE, false);
-    	    } catch (IOException ex) { 
+	    } catch (IOException ex) {
  			    if (Debug.isEnabled()) {
 				    ex.printStackTrace();
 			}
@@ -736,12 +736,12 @@ public class AdminConnection {
           }
             sb.append("Content-length: " + sb1.toString().length() + "\n");
         }
- 
+
         sb.append("Pragma: no-cache\n");
         if (mIsKeepAlive) {
                 sb.append("Connection: Keep-Alive\n");
         }
- 
+
         if (mAuthType.equals("") || mAuthType.equals("pwd")) {
             BasicAuthenticator auth = (BasicAuthenticator)mAuth;
             // sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder();
@@ -761,7 +761,7 @@ public class AdminConnection {
             sb.append(sb1.toString());
         }
         //Debug.println(sb.toString());
- 
+
         //System.out.println("AdminConnection: sendRequest() - sending");
         int timeout = mDefaultTimeout;
         if (mCurrentTimeout > mDefaultTimeout)
@@ -770,18 +770,18 @@ public class AdminConnection {
             mConn.sendRequest(sb.toString());
 
             Response resp = new Response(mConn.getResponse());
- 
+
             if (!mIsKeepAlive) {
                 mConn.disconnect();
                 mConn = null;
             }
- 
+
             //set time out back to original
             mConn.setSoTimeout(mDefaultTimeout);
             mCurrentTimeout = mDefaultTimeout;
             return resp;
     }
-	
+
 	private void checkParams(String dest,String scope,String id)
 	{
 		NameValuePairs pairs = new NameValuePairs();

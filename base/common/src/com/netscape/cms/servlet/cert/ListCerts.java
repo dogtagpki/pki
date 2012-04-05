@@ -58,7 +58,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Retrieve a paged list of certs matching the specified query
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ListCerts extends CMSServlet {
@@ -93,7 +93,7 @@ public class ListCerts extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "queryCert.template" to render the response
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -400,7 +400,7 @@ public class ListCerts extends CMSServlet {
         int toCurIndex = 0;
 
         if (!serialToVal.equals(MINUS_ONE)) {
-            // if user specify a range, we need to 
+            // if user specify a range, we need to
             // calculate the totalRecordCount
             tolist = (ICertRecordList) mCertDB.findCertRecordsInList(
                         filter,
@@ -456,7 +456,7 @@ public class ListCerts extends CMSServlet {
                 }
 
                 // DS has a problem where last record will be returned
-                // even though the filter is not matched. 
+                // even though the filter is not matched.
                 /*cfu -  is this necessary?  it breaks when paging up
                 if (curSerial.compareTo(sentinel) == -1) {
                 	com.netscape.certsrv.apps.CMS.debug("curSerial compare sentinel -1 break...");

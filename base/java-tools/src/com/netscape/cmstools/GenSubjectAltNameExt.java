@@ -37,16 +37,16 @@ import netscape.security.x509.X500Name;
  * This program generates an subject alternative name extension
  * in base-64 encoding. The encoding output can be used with
  * the configuration wizard.
- * 
+ *
  * Usage:
- * 
+ *
  * <pre>
  *  GenSubjectAltNameExt \
  *    &lt;general_type0&gt; &lt;general_name0&gt; ... &lt;general_typeN&gt; &lt;general_nameN&gt;
- * 
+ *
  *  where,
  *    &lt;general_type&gt; can be one of the following string:
- *      DNSName 
+ *      DNSName
  *      EDIPartyName
  *      IPAddressName
  *      URIName
@@ -55,7 +55,7 @@ import netscape.security.x509.X500Name;
  *      X500Name
  *    &lt;general_name&gt; is string
  * </pre>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenSubjectAltNameExt {

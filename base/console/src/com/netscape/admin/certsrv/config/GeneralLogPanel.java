@@ -33,7 +33,7 @@ import java.awt.event.*;
 public class GeneralLogPanel extends CMSBaseTab {
 
     private static String PANEL_NAME = "GENERALLOG";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-general-logs-settings-help";
     private JCheckBox mEnable;
     private Color mActiveColor;
@@ -157,7 +157,7 @@ public class GeneralLogPanel extends CMSBaseTab {
                     mEnable.setSelected(false);
             } else if (name.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
                 mLevelText.setText(value);
-            } 
+            }
 
             /* else if (name.equals(Constants.PR_DEBUG_LOG_SHOWCALLER)) {
                 if (value.equals(Constants.TRUE))

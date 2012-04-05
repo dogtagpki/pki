@@ -35,7 +35,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the CRL Extensions.
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.4
  */
@@ -94,7 +94,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the Extension from.
      * @exception CRLException on decoding errors.
      * @exception X509ExtensionException on extension handling errors.
@@ -117,7 +117,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Decode the extensions from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception CRLException on decoding or validity errors.
      * @exception X509ExtensionException on extension handling errors.
@@ -142,7 +142,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Encode the extensions in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @param isExplicit the tag indicating whether this is an entry
      *            extension or a CRL extension.
@@ -185,7 +185,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Get the extension with this alias.
-     * 
+     *
      * @param alias the identifier string for the extension to retrieve.
      * @exception X509ExtensionException on extension handling errors.
      */
@@ -207,7 +207,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Set the extension value with this alias.
-     * 
+     *
      * @param alias the identifier string for the extension to set.
      * @param obj the Object to set the extension identified by the
      *            alias.
@@ -220,7 +220,7 @@ public class CRLExtensions extends Vector<Extension> {
 
     /**
      * Return an enumeration of names of the extensions.
-     * 
+     *
      * @return an enumeration of the names of the extensions in this CRL.
      */
     public Enumeration<Extension> getElements() {

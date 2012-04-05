@@ -69,7 +69,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     protected String mSection = "";
     protected String mErrorMsg = "";
     private ConsoleInfo _consoleInfo = null;
-    
+
     WISingleSignonPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -92,7 +92,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
 
         String tokenList = wizardInfo.getTokensList();
         StringTokenizer st1 = new StringTokenizer(tokenList, ":");
- 
+
         mTokenBox.removeAllItems();
         while (st1.hasMoreElements()) {
             String t1 = (String)st1.nextElement();
@@ -116,7 +116,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             capassword = "";
             ca = false;
         }
- 
+
         if (wizardInfo.isRAInstalled()) {
             tokenname = wizardInfo.getRATokenName();
             password = (String)wizardInfo.get("TOKEN:"+tokenname);
@@ -153,7 +153,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             sslpassword = password;
         }
         setBorder(makeTitledBorder(PANELNAME));
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -351,25 +351,25 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             rawData = rawData+"&"+tokenname+"="+capassword;
             tags = tags+":"+tokenname;
         }
-     
+
         if (!rapassword.equals("")) {
             tokenname = wizardInfo.getRATokenName();
             rawData = rawData+"&"+tokenname+"="+rapassword;
             tags = tags+":"+tokenname;
         }
-     
+
         if (!krapassword.equals("")) {
             tokenname = wizardInfo.getKRATokenName();
             rawData = rawData+"&"+tokenname+"="+krapassword;
             tags = tags+":"+tokenname;
         }
-     
+
         if (!sslpassword.equals("")) {
             tokenname = wizardInfo.getSSLTokenName();
             rawData = rawData+"&"+tokenname+"="+sslpassword;
             tags = tags+":"+tokenname;
         }
-     
+
 	if (mPasswordConf.isSelected()) {
             rawData = rawData+"&"+ConfigConstants.PR_DELETE_PASSWD_CONF+"="+
               ConfigConstants.TRUE;
@@ -379,17 +379,17 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
 	}
         rawData = rawData+"&"+ConfigConstants.PR_SINGLE_SIGNON_PW_TAGS+"="+tags;
         //data.put(ConfigConstants.PR_SINGLE_SIGNON, ConfigConstants.FALSE);
-            
+
         startProgressStatus();
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATESSON");
-        
+
        // boolean ready = send(rawData, wizardInfo);
 
        boolean ready = true;
         if (ready) {
             rawData = ConfigConstants.TASKID+"="+TaskId.TASK_MISCELLANEOUS;
 /*
-            data.put(ConfigConstants.PR_ADMIN_PASSWD, 
+            data.put(ConfigConstants.PR_ADMIN_PASSWD,
               (String)consoleInfo.get(ConfigConstants.PR_ADMIN_PASSWD));
 */
             ready = send(rawData, wizardInfo);
@@ -402,7 +402,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             } else
                 setErrorMessage(str);
             //dlg.setVisible(false);
-        
+
             endProgressStatus();
             return false;
         }
@@ -410,7 +410,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         //startServer(wizardInfo);
 
         //dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -458,7 +458,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
-        add(panel1, gbc);         
+        add(panel1, gbc);
 */
 
         JTextArea heading = createTextArea(mResource.getString(
@@ -494,7 +494,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, 0);
         add(dum, gbc);
- 
+
         JTextArea passwordConfText = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_PASSWDCONF_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
@@ -506,7 +506,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         gbc.gridwidth = gbc.REMAINDER;
         add(passwordConfText, gbc);
 
-	mPasswordConf = makeJCheckBox("PASSWDCONF"); 
+	mPasswordConf = makeJCheckBox("PASSWDCONF");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;

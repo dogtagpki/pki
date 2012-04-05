@@ -29,9 +29,9 @@ import netscape.security.util.ObjectIdentifier;
  * 2.5.4.3 and the Directory String Converter. The Directory String
  * Converter converts from a string to a DerValue with tag Printable, T.61 or
  * UniversalString.
- * 
+ *
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
- * 
+ *
  */
 
 public class X500NameAttrMap {
@@ -51,9 +51,9 @@ public class X500NameAttrMap {
 
     /**
      * Get the attribute name (keyword) of the specified OID.
-     * 
+     *
      * @param oid An ObjectIdentifier
-     * 
+     *
      * @return An attribute name (keyword string) for the OID.
      */
     public String getName(ObjectIdentifier oid) {
@@ -63,9 +63,9 @@ public class X500NameAttrMap {
 
     /**
      * Get the ObjectIdentifier of the attribute name.
-     * 
+     *
      * @param name An attribute name (string of ascii characters)
-     * 
+     *
      * @return An ObjectIdentifier for the attribute.
      */
     public ObjectIdentifier getOid(String name) {
@@ -75,9 +75,9 @@ public class X500NameAttrMap {
 
     /**
      * Get the Attribute Value Converter for the specified attribute name.
-     * 
+     *
      * @param name An attribute name
-     * 
+     *
      * @return An attribute value converter for the attribute name
      */
     public AVAValueConverter getValueConverter(String name) {
@@ -90,9 +90,9 @@ public class X500NameAttrMap {
 
     /**
      * Get the Attribute Value Converter for the specified ObjectIdentifier.
-     * 
+     *
      * @param oid An ObjectIdentifier
-     * 
+     *
      * @return An AVAValueConverter for the OID.
      */
     public AVAValueConverter getValueConverter(ObjectIdentifier oid) {
@@ -101,7 +101,7 @@ public class X500NameAttrMap {
 
     /**
      * Get an Enumeration of all attribute names in this map.
-     * 
+     *
      * @return An Enumeration of all attribute names.
      */
     public Enumeration<String> getAllNames() {
@@ -110,7 +110,7 @@ public class X500NameAttrMap {
 
     /**
      * Get an Enumeration of all ObjectIdentifiers in this map.
-     * 
+     *
      * @return An Enumeration of all OIDs in this map.
      */
     public Enumeration<ObjectIdentifier> getAllOIDs() {
@@ -119,7 +119,7 @@ public class X500NameAttrMap {
 
     /**
      * Get the ObjectIdentifier object in the map for the specified OID.
-     * 
+     *
      * @param oid An ObjectIdentifier.
      * @return The ObjectIdentifier object in this map for the OID.
      */
@@ -131,13 +131,13 @@ public class X500NameAttrMap {
     }
 
     //
-    // public add methods. 
+    // public add methods.
     //
 
     /**
      * Adds a attribute name, ObjectIdentifier, AVAValueConverter entry
      * to the map.
-     * 
+     *
      * @param name An attribute name (string of ascii chars)
      * @param oid The ObjectIdentifier for the attribute.
      * @param valueConverter An AVAValueConverter object for converting
@@ -168,11 +168,11 @@ public class X500NameAttrMap {
 
     //
     // public static methods.
-    // 
+    //
 
     /**
      * Get the global default X500NameAttrMap.
-     * 
+     *
      * @return The global default X500NameAttrMap.
      */
     public static X500NameAttrMap getDefault() {
@@ -181,7 +181,7 @@ public class X500NameAttrMap {
 
     /**
      * Get the global default X500NamAttrMap using the DirStrConverter.
-     * 
+     *
      * @return The global default X500NameAttrMap using the DirStrConverter.
      */
 
@@ -192,7 +192,7 @@ public class X500NameAttrMap {
 
     /**
      * Set the global default X500NameAttrMap.
-     * 
+     *
      * @param newDefault The new default X500NameAttrMap.
      */
     public static void setDefault(X500NameAttrMap newDefault) {
@@ -217,8 +217,8 @@ public class X500NameAttrMap {
 
     private static X500NameAttrMap defDirMap;
 
-    /* 
-     * Create the default maps on initialization. 
+    /*
+     * Create the default maps on initialization.
      */
     static {
         defMap = new X500NameAttrMap();
@@ -251,7 +251,7 @@ public class X500NameAttrMap {
         defMap.addNameOID("TITLE",
                 new ObjectIdentifier("2.5.4.12"),
                 directoryStr);
-        // RFC 1274 UserId, rfc822MailBox 
+        // RFC 1274 UserId, rfc822MailBox
         defMap.addNameOID("UID",
                 new ObjectIdentifier("0.9.2342.19200300.100.1.1"),
                 directoryStr);

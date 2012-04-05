@@ -23,7 +23,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 
 /**
  * Authority interface.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IAuthority extends ISubsystem {
@@ -31,7 +31,7 @@ public interface IAuthority extends ISubsystem {
     /**
      * Retrieves the request queue for the Authority.
      * <P>
-     * 
+     *
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue();

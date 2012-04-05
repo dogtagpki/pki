@@ -20,14 +20,14 @@ package com.netscape.certsrv.base;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPrettyPrintFormat {
 
     /**
      * Retrieves a pretty print string of the given byte array.
-     * 
+     *
      * @param in byte array
      * @param indentSize indentation size
      * @param lineLen length of line
@@ -39,7 +39,7 @@ public interface IPrettyPrintFormat {
 
     /**
      * Retrieves a pretty print string of the given byte array.
-     * 
+     *
      * @param in byte array
      * @param indentSize indentation size
      * @param lineLen length of line
@@ -49,7 +49,7 @@ public interface IPrettyPrintFormat {
 
     /**
      * Retrieves a pretty print string of the given byte array.
-     * 
+     *
      * @param in byte array
      * @param indentSize indentation size
      * @return pretty print string
@@ -58,7 +58,7 @@ public interface IPrettyPrintFormat {
 
     /**
      * Retrieves a pretty print string of the given byte array.
-     * 
+     *
      * @param in byte array
      * @return pretty print string
      */

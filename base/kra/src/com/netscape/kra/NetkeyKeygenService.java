@@ -76,7 +76,7 @@ import com.netscape.cmscore.util.Debug;
  * the caller (netkey RA) ...netkey RA should already has kek-wrapped
  * des key from the TKS. They are to be sent together back to
  * the token.
- * 
+ *
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -86,7 +86,7 @@ public class NetkeyKeygenService implements IService {
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
 
-    // private 
+    // private
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
@@ -110,7 +110,7 @@ public class NetkeyKeygenService implements IService {
     /**
      * Constructs request processor.
      * <P>
-     * 
+     *
      * @param kra key recovery authority
      */
     public NetkeyKeygenService(IKeyRecoveryAuthority kra) {
@@ -219,7 +219,7 @@ public class NetkeyKeygenService implements IService {
                 // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
                 kp = kpGen.genKeyPair();
             }
-            while (isBadDSAKeyPair(kp)); 
+            while (isBadDSAKeyPair(kp));
             */
             return kp;
         }
@@ -292,7 +292,7 @@ public class NetkeyKeygenService implements IService {
     /**
      * Services an archival request from netkey.
      * <P>
-     * 
+     *
      * @param request enrollment request
      * @return serving successful or not
      * @exception EBaseException failed to serve
@@ -588,7 +588,7 @@ public class NetkeyKeygenService implements IService {
      * y
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {

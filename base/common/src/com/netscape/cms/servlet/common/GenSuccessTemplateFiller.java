@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.IArgBlock;
 
 /**
  * default Success template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenSuccessTemplateFiller implements ICMSTemplateFiller {
@@ -35,7 +35,7 @@ public class GenSuccessTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
@@ -54,7 +54,7 @@ public class GenSuccessTemplateFiller implements ICMSTemplateFiller {
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         }
 
-        // this authority 
+        // this authority
         if (authority != null)
             fixed.set(ICMSTemplateFiller.AUTHORITY,
                     authority.getOfficialName());

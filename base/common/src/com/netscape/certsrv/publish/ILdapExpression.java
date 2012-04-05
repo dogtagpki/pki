@@ -23,7 +23,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * Interface for a Ldap predicate expression.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILdapExpression {
@@ -42,7 +42,7 @@ public interface ILdapExpression {
 
     /**
      * Evaluate the Expression.
-     * 
+     *
      * @param sc The SessionContext on which we are applying the condition.
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
@@ -52,7 +52,7 @@ public interface ILdapExpression {
 
     /**
      * Evaluate the Expression.
-     * 
+     *
      * @param req The PKIRequest on which we are applying the condition.
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
@@ -62,7 +62,7 @@ public interface ILdapExpression {
 
     /**
      * Convert to a string.
-     * 
+     *
      * @return String representation of expression.
      */
     public String toString();

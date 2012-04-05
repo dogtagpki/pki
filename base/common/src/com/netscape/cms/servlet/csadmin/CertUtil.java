@@ -490,10 +490,10 @@ public class CertUtil {
         }
 
         if (req != null) {
-            // update request with cert 
+            // update request with cert
             req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
 
-            // store request in db 
+            // store request in db
             try {
                 CMS.debug("certUtil: before updateRequest");
                 if (queue != null) {

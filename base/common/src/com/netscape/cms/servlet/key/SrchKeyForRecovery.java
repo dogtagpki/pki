@@ -47,8 +47,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Retrieve archived keys matching given public key material
- * 
- * 
+ *
+ *
  * @version $Revision$, $Date$
  */
 public class SrchKeyForRecovery extends CMSServlet {
@@ -93,7 +93,7 @@ public class SrchKeyForRecovery extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "srchKeyForRecovery.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -143,7 +143,7 @@ public class SrchKeyForRecovery extends CMSServlet {
      * <li>http.param querySentinel ID of first request to show
      * <li>http.param timeLimit number of seconds to limit ldap search to
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
 
@@ -295,7 +295,7 @@ public class SrchKeyForRecovery extends CMSServlet {
                     IKeyRecord rec = e.nextElement();
                     // rec is null when we specify maxResults
                     // DS will return an err=4, which triggers
-                    // a LDAPException.SIZE_LIMIT_ExCEEDED 
+                    // a LDAPException.SIZE_LIMIT_ExCEEDED
                     // in DSSearchResults.java
                     if (rec != null) {
                         IArgBlock rarg = CMS.createArgBlock();

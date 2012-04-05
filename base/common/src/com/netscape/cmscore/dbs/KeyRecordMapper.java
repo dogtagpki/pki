@@ -37,7 +37,7 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents a mapper to serialize
  * key record into database.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

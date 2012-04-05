@@ -177,7 +177,7 @@ public class CMSRAConnectorPanel  extends CMSBaseTab
 
                 NameValuePairs subsystems = mAdmin.search(DestDef.DEST_SERVER_ADMIN,
                   ScopeDef.SC_SUBSYSTEM, new NameValuePairs());
- 
+
                 boolean colocated = false;
                 if (name.equals("Data Recovery Manager Connector")) {
                     String val = values.get("id");

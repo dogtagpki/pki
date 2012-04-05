@@ -30,7 +30,7 @@ import com.netscape.certsrv.base.IAttrSet;
  * authorization happened, name of the resource, type of operation performed
  * on the resource.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthzToken implements IAttrSet {
@@ -77,13 +77,13 @@ public class AuthzToken implements IAttrSet {
     /**
      * Constructs an instance of a authorization token.
      * The token by default contains the following attributes: <br>
-     * 
+     *
      * <pre>
      * 	"authzMgrInstName" - The authorization manager instance name.
      * 	"authzMgrImplName" - The authorization manager plugin name.
      * 	"authzTime" - The - The time of authorization.
      * </pre>
-     * 
+     *
      * @param authzMgr The authorization manager that created this Token.
      */
     public AuthzToken(IAuthzManager authzMgr) {
@@ -95,7 +95,7 @@ public class AuthzToken implements IAttrSet {
 
     /**
      * Get the value of an attribute in the AuthzToken
-     * 
+     *
      * @param attrName The attribute name
      * @return The value of attrName if any.
      */
@@ -106,7 +106,7 @@ public class AuthzToken implements IAttrSet {
     /**
      * Used by an Authorization manager to set an attribute and value
      * in the AuthzToken.
-     * 
+     *
      * @param attrName The name of the attribute
      * @param value The value of the attribute to set.
      */
@@ -116,7 +116,7 @@ public class AuthzToken implements IAttrSet {
 
     /**
      * Removes an attribute in the AuthzToken
-     * 
+     *
      * @param attrName The name of the attribute to remove.
      */
     public void delete(String attrName) {
@@ -125,7 +125,7 @@ public class AuthzToken implements IAttrSet {
 
     /**
      * Enumerate all attribute names in the AuthzToken.
-     * 
+     *
      * @return Enumeration of all attribute names in this AuthzToken.
      */
     public Enumeration<String> getElements() {
@@ -134,7 +134,7 @@ public class AuthzToken implements IAttrSet {
 
     /**
      * Enumerate all attribute values in the AuthzToken.
-     * 
+     *
      * @return Enumeration of all attribute names in this AuthzToken.
      */
     public Enumeration<Object> getVals() {
@@ -144,7 +144,7 @@ public class AuthzToken implements IAttrSet {
     /**
      * Gets the name of the authorization manager instance that created
      * this token.
-     * 
+     *
      * @return The name of the authorization manager instance that created
      *         this token.
      */
@@ -155,7 +155,7 @@ public class AuthzToken implements IAttrSet {
     /**
      * Gets the plugin name of the authorization manager that created this
      * token.
-     * 
+     *
      * @return The plugin name of the authorization manager that created this
      *         token.
      */
@@ -165,7 +165,7 @@ public class AuthzToken implements IAttrSet {
 
     /**
      * Gets the time of authorization.
-     * 
+     *
      * @return The time of authorization
      */
     public Date getAuthzTime() {

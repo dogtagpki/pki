@@ -42,42 +42,42 @@ import javax.swing.*;
  * @date        03/30/97
  */
 public class CMSKernelUILoader implements ISubSystemUILoader {
-    
+
     protected static final int ERROR_MESSAGE = JOptionPane.ERROR_MESSAGE;
     /*==========================================================
      * variables
      *==========================================================*/
     private CMSUIFramework mUIFramework;      //parent framework
-    
+
     /*==========================================================
      * constructors
      *==========================================================*/
     public CMSKernelUILoader(CMSUIFramework framework) {
         mUIFramework = framework;
     }
-    
+
     /*==========================================================
      * public methods
      *==========================================================*/
     public void register() {
-        
+
         //register subsystem UI
         try {
             //task tab - this holds icons such as start server, stop server, etc
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
         }catch(Exception e) {
             Debug.println("CMSKernelUILoader: register() config tab - "+e.toString());
-        }            
+        }
         CMSResourcePage page;
-        CMSBaseResourceModel model;   
-            
-        try {            
+        CMSBaseResourceModel model;
+
+        try {
             //configuration tab - (holds main UI tree)
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             model = (CMSBaseResourceModel) page.getModel();
             populateConfigContent(model);
             populateConfigMenu(page);
-            
+
         } catch(Exception e) {
             Debug.println("CMSKernelUILoader: register() config tab - "+e.toString());
         }
@@ -91,31 +91,31 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
             Debug.println("CMSKernelUILoader: register() status - "+e.toString());
         }
     }
-    
+
     /*==========================================================
      * protected methods
-     *==========================================================*/    
+     *==========================================================*/
 
     /**
      * This method creates the configuration tree
      */
-     
+
     protected void populateConfigContent(CMSBaseResourceModel model) {
-        
+
         CMSResourceObject root = (CMSResourceObject) model.getRoot();
         CMSTabPanel tabPane = new CMSTabPanel(model, root);
         tabPane.addTab(new CMSLDAPSettingPanel(tabPane));
         tabPane.addTab(new CMSSMTPPanel(tabPane));
         tabPane.addTab(new CMSSelfTestsPanel(tabPane));
 
-        // The log panel would only really be useful if we were able to 
-        // enable or disable debug without restarting.  If we can do this, 
+        // The log panel would only really be useful if we were able to
+        // enable or disable debug without restarting.  If we can do this,
         // then we can enable this tab.
         //
         // tabPane.addTab(new GeneralLogPanel(tabPane));
 
         root.setCustomPanel(tabPane);
-        
+
 
         CMSResourceObject usernode = new CMSResourceObject("USERGROUPS");
         CMSUGTabPanel tabPane1 = new CMSUGTabPanel(model, usernode);
@@ -125,7 +125,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         usernode.setAllowsChildren(false);
         usernode.setIcon(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_UGOBJECT));
         model.addSubSystemNode(usernode);
-        
+
 // This ACL configuration may be revived in a future version
         CMSResourceObject aclnode = new CMSResourceObject("ACL");
         CMSUGTabPanel aclTabPane = new CMSUGTabPanel(model, aclnode);
@@ -136,7 +136,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
           CMSAdminResources.IMAGE_ACLOBJECT));
         aclnode.setAllowsChildren(false);
         model.addSubSystemNode(aclnode);
-        
+
 	// Authentication subsystem
 /*
         CMSResourceObject authnode = new CMSResourceObject("AUTH");
@@ -160,7 +160,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
 
 	jobsnode.setAllowsChildren(true);
 	CMSResourceObject cnode = new CMSResourceObject("JOBS");
-  
+
         tabPane1 = new CMSUGTabPanel(model, cnode);
         tabPane1.addTab(new JobsInstanceTab(model));
         tabPane1.addTab(new JobsImplTab(model));
@@ -190,10 +190,10 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         tabPane3.addTab(new UserCertsTab(model, DestDef.DEST_SERVER_ADMIN));
         NameValuePairs response;
 /*
-        try 
+        try
         {
         AdminConnection connection = model.getServerInfo().getAdmin();
-                  
+
         response = connection.search(DestDef.DEST_SERVER_ADMIN,
                    ScopeDef.SC_SUBSYSTEM,  new NameValuePairs());
          Debug.println(response.toString());
@@ -210,7 +210,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         encryptionnode.setAllowsChildren(false);
         model.addSubSystemNode(encryptionnode);
     }
-    
+
 
     /**
      * Modifies the window menu (File, Edit, View, etc) to add some
@@ -224,16 +224,16 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
             //                          CMSBaseMenuInfo.MENU_PKCS11,
             //                          new PKCS11ManagementAction(model.getConsoleInfo()));
             // reference Bug 613851 Manage PKCS#11 shows a blank window.
-            menuInfo.addMenuItemSeparator(CMSBaseMenuInfo.MENU_FILE);                          
+            menuInfo.addMenuItemSeparator(CMSBaseMenuInfo.MENU_FILE);
             menuInfo.addMenuItemSeparator(CMSBaseMenuInfo.MENU_VIEW);
             menuInfo.registerMenuItem(CMSBaseMenuInfo.MENU_VIEW,
                                       CMSBaseMenuInfo.MENU_REFRESH,
                                       new RefreshTabPane(model));
         } catch(Exception e) {
-            Debug.println("menuinfo register()"+e.toString());   
+            Debug.println("menuinfo register()"+e.toString());
         }
     }
-    
+
 
     /**
      * creates the tree view seen in the left panel when the user selects
@@ -248,13 +248,13 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
     protected void populateStatusContent(CMSResourcePage page) {
         CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
         CMSResourceObject root = (CMSResourceObject) model.getRoot();
-        
+
         //set general stat panel
         root.setCustomPanel(new StatusPanel(model));
-        
+
         CMSResourceObject list, node;
         CMSTabPanel tabPane;
-        
+
         //log content
         list = new CMSResourceObject("LOG");
         list.setCustomPanel(new CMSBlankPanel(model));
@@ -266,7 +266,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
 
         model.addSubSystemNode(list);
     }
-    
+
     protected void populateStatusMenu(CMSResourcePage page) {
         CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
         CMSBaseMenuInfo menuInfo = (CMSBaseMenuInfo)page.getMenuInfo();
@@ -279,7 +279,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
             Debug.println("menuinfo register()"+e.toString());
         }
     }
-    
+
     /**
      * retrieve log instance listing from the server
      * side and populate the index
@@ -297,7 +297,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
                                new NameValuePairs());
         } catch (EAdminException e) {
             //display error dialog
-			CMSAdminUtil.showErrorDialog(model.getFrame(), 
+			CMSAdminUtil.showErrorDialog(model.getFrame(),
 				ResourceBundle.getBundle(
 					CMSAdminResources.class.getName()
 					), e.getMessage(), ERROR_MESSAGE);

@@ -22,32 +22,32 @@ import java.security.Provider;
 /**
  * The SUN Security Provider.
  *
- * @author Benjamin Renaud 
+ * @author Benjamin Renaud
  *
  * @version 1.24, 97/12/10
  */
 
 /**
  * Defines the SUN provider.
- * 
+ *
  * Algorithm supported, and their names:
- * 
+ *
  * - SHA-1 is the message digest scheme decribed FIPS 180-1.
  * Aliases for SHA-1 are SHA.
- * 
+ *
  * - DSA is the signature scheme described in FIPS 186. (SHA used in
  * DSA is SHA-1: FIPS 186 with Change No 1.) Aliases for DSA are
  * SHA/DSA, SHA-1/DSA, SHA1/DSA, DSS and the object identifier
  * strings "OID.1.3.14.3.2.13", "OID.1.3.14.3.2.27" and
  * "OID.1.2.840.10040.4.3".
- * 
+ *
  * - DSA is the key generation scheme as described in FIPS 186.
  * Aliases for DSA include the OID strings "OID.1.3.14.3.2.12"
  * and "OID.1.2.840.10040.4.1".
- * 
+ *
  * - MD5 is the message digest scheme described in RFC 1321.
  * There are no aliases for MD5.
- * 
+ *
  * Notes: The name of algorithm described in FIPS-180 is SHA-0, and is
  * not supported by the SUN provider.)
  */
@@ -69,7 +69,7 @@ public final class Sun extends Provider {
             //	    AccessController.beginPrivileged();
 
             /*
-             * Signature engines 
+             * Signature engines
              */
             put("Signature.DSA", "netscape.security.provider.DSA");
 
@@ -89,7 +89,7 @@ public final class Sun extends Provider {
             put("Alg.Alias.Signature.SHA1withDSA", "DSA");
 
             /*
-             *  Key Pair Generator engines 
+             *  Key Pair Generator engines
              */
             put("KeyPairGenerator.DSA",
                     "netscape.security.provider.DSAKeyPairGenerator");
@@ -101,8 +101,8 @@ public final class Sun extends Provider {
             put("Alg.Alias.KeyPairGenerator.1.3.14.3.2.12", "DSA");
             put("Alg.Alias.KeyPairGenerator.1.2.840.10040.4.1", "DSA");
 
-            /* 
-             * Digest engines 
+            /*
+             * Digest engines
              */
             put("MessageDigest.MD5", "netscape.security.provider.MD5");
             put("MessageDigest.SHA-1", "netscape.security.provider.SHA");

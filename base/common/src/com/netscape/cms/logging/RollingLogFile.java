@@ -44,7 +44,7 @@ import com.netscape.cmsutil.util.Utils;
  * A rotating log file for Certificate log events. This class loosely follows
  * the Netscape Common Log API implementing rollover interval, size and file
  * naming conventions. It does not yet implement Disk Usage.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RollingLogFile extends LogFile {
@@ -113,7 +113,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Initialize and open a RollingLogFile using the prop config store
-     * 
+     *
      * @param config The property config store to find values in
      */
     public void init(IConfigStore config) throws IOException,
@@ -151,7 +151,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Set the rollover interval
-     * 
+     *
      * @param rolloverSeconds The amount of time in seconds until the log
      *            is rotated. A value of 0 will disable log rollover.
      **/
@@ -169,7 +169,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the rollover interval
-     * 
+     *
      * @return The interval in seconds in which the log is rotated
      **/
     public synchronized int getRolloverTime() {
@@ -178,7 +178,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Set the file expiration time
-     * 
+     *
      * @param expirationSeconds The amount of time in seconds until log files
      *            are deleted
      **/
@@ -203,7 +203,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the expiration time
-     * 
+     *
      * @return The age in seconds in which log files are delete
      **/
     public int getExpirationTime() {
@@ -280,15 +280,15 @@ public class RollingLogFile extends LogFile {
      * Remove any log files which have not been modified in the specified
      * time
      * <P>
-     * 
+     *
      * NOTE: automatic removal of log files is currently NOT supported!
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_DELETE used AFTER audit log expires (authorization should not allow,
      * but in case authorization gets compromised make sure it is written AFTER the log expiration happens)
      * </ul>
-     * 
+     *
      * @param expirationSeconds The number of seconds since the expired files
      *            have been modified.
      * @return the time in milliseconds when the next file expires
@@ -496,7 +496,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Write an event to the log file
-     * 
+     *
      * @param ev The event to be logged.
      **/
     public synchronized void log(ILogEvent ev) throws ELogException {
@@ -531,7 +531,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the log file list in the log directory
-     * 
+     *
      * @return an array of filenames with related path to cert server root
      */
     protected String[] fileList() {

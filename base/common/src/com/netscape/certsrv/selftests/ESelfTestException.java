@@ -34,10 +34,10 @@ import com.netscape.certsrv.base.EBaseException;
  * This class implements a self test exception. ESelfTestExceptions
  * are derived from EBaseExceptions in order to allow users
  * to easily do self tests without try-catch clauses.
- * 
+ *
  * ESelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ESelfTestException
@@ -73,7 +73,7 @@ public class ESelfTestException
     /**
      * Constructs a self test exception.
      * <P>
-     * 
+     *
      * @param msg exception details
      */
     public ESelfTestException(String msg) {
@@ -87,7 +87,7 @@ public class ESelfTestException
     /**
      * Returns the bundle file name.
      * <P>
-     * 
+     *
      * @return name of bundle class associated with this exception.
      */
     protected String getBundleName() {

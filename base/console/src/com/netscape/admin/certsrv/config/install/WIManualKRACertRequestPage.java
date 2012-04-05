@@ -53,7 +53,7 @@ class WIManualKRACertRequestPage extends WIManualCertRequestPage {
         if (wizardInfo.isCloning() && wizardInfo.isKRACloningDone())
             return false;
         if (wizardInfo.isKRACertLocalCA() || !wizardInfo.isKRAInstalled() ||
-			wizardInfo.isKRALocalCertDone() || 
+			wizardInfo.isKRALocalCertDone() ||
 			wizardInfo.isKRACertInstalledDone() ||
 			wizardInfo.isKRACertRequestSucc())
             return false;

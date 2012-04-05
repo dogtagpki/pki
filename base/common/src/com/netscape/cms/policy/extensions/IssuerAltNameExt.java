@@ -42,16 +42,16 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * Issuer Alt Name Extension policy.
- * 
+ *
  * This extension is used to associate Internet-style identities
  * with the Certificate issuer.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -101,7 +101,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     /**
      * Initializes this policy rule.
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -139,7 +139,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     /**
      * Adds a extension if none exists.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -224,7 +224,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
@@ -234,7 +234,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */

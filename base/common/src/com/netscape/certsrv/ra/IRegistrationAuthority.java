@@ -32,7 +32,7 @@ import com.netscape.certsrv.request.IRequestQueue;
  * An interface represents a Registration Authority that is
  * responsible for certificate enrollment operations.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRegistrationAuthority extends ISubsystem {
@@ -55,14 +55,14 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Retrieves the request queue of this registration authority.
-     * 
+     *
      * @return RA's request queue
      */
     public IRequestQueue getRequestQueue();
 
     /**
      * Retrieves the publishing processor of this registration authority.
-     * 
+     *
      * @return RA's publishing processor
      */
     public IPublisherProcessor getPublisherProcessor();
@@ -76,42 +76,42 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Retrieves the RA certificate.
-     * 
+     *
      * @return the RA certificate
      */
     public org.mozilla.jss.crypto.X509Certificate getRACert();
 
     /**
      * Retrieves the request in queue listener.
-     * 
+     *
      * @return the request in queue listener
      */
     public IRequestListener getRequestInQListener();
 
     /**
      * Retrieves the request listener for issued certificates.
-     * 
+     *
      * @return the request listener for issued certificates
      */
     public IRequestListener getCertIssuedListener();
 
     /**
      * Retrieves the request listener for revoked certificates.
-     * 
+     *
      * @return the request listener for revoked certificates
      */
     public IRequestListener getCertRevokedListener();
 
     /**
      * Returns the nickname of the RA certificate.
-     * 
+     *
      * @return the nickname of the RA certificate
      */
     public String getNickname();
 
     /**
      * Retrieves the nickname of the RA certificate from configuration store.
-     * 
+     *
      * @return the nickname of the RA certificate
      * @exception EBaseException failed to get nickname
      */
@@ -119,28 +119,28 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Sets the new nickname of the RA certifiate.
-     * 
+     *
      * @param name new nickname
      */
     public void setNewNickName(String name);
 
     /**
      * Sets the nickname of the RA certifiate.
-     * 
+     *
      * @param str nickname
      */
     public void setNickname(String str);
 
     /**
      * Retrieves the default validity period.
-     * 
+     *
      * @return the default validity length in days
      */
     public long getDefaultValidity();
 
     /**
      * Retrieves the issuer name of this registration authority.
-     * 
+     *
      * @return the issuer name of this registration authority
      */
     public X500Name getX500Name();
@@ -148,14 +148,14 @@ public interface IRegistrationAuthority extends ISubsystem {
     /**
      * Retrieves the RA service object that is responsible for
      * processing requests.
-     * 
+     *
      * @return RA service object
      */
     public IRAService getRAService();
 
     /**
      * Retrieves the request listener by name.
-     * 
+     *
      * @param name request listener name
      * @return the request listener
      */
@@ -163,7 +163,7 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Retrieves all request listeners.
-     * 
+     *
      * @return name enumeration of all request listeners
      */
     public Enumeration<String> getRequestListenerNames();

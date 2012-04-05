@@ -56,8 +56,8 @@ public class LdapConnInfo implements ILdapConnInfo {
         String version = (String) config.get(PROP_PROTOCOL);
 
         if (version != null && version.equals("")) {
-            // provide a default when this field is blank from the 
-            // configuration. 
+            // provide a default when this field is blank from the
+            // configuration.
             mVersion = LDAP_VERSION_3;
         } else {
             mVersion = config.getInteger(PROP_PROTOCOL, LDAP_VERSION_3);
@@ -82,7 +82,7 @@ public class LdapConnInfo implements ILdapConnInfo {
         mPort = port;
         mSecure = secure;
         if (mHost == null || mPort <= 0) {
-            // XXX log something here 
+            // XXX log something here
             throw new IllegalArgumentException("LDAP host or port is null");
         }
     }
@@ -91,7 +91,7 @@ public class LdapConnInfo implements ILdapConnInfo {
         mHost = host;
         mPort = port;
         if (mHost == null || mPort <= 0) {
-            // XXX log something here 
+            // XXX log something here
             throw new IllegalArgumentException("LDAP host or port is null");
         }
     }

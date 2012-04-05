@@ -24,9 +24,9 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CPSuri Qualifier.
- * 
+ *
  * CPSuri ::= IA5String;
- * 
+ *
  * @author Thomas Kwan
  */
 public class CPSuri extends Qualifier {
@@ -39,7 +39,7 @@ public class CPSuri extends Qualifier {
 
     /**
      * Create a PolicyQualifierInfo
-     * 
+     *
      * @param id the ObjectIdentifier for the policy id.
      */
     public CPSuri(String uri) {
@@ -52,7 +52,7 @@ public class CPSuri extends Qualifier {
 
     /**
      * Write the PolicyQualifier to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

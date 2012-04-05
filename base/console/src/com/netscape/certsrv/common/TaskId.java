@@ -67,7 +67,7 @@ public interface TaskId {
 
      // get master or clone setting
     public final static String TASK_MASTER_OR_CLONE = "SetMasterOrClone";
-   
+
     // single signon
     public final static String TASK_SINGLE_SIGNON = "singleSignon";
 
@@ -108,7 +108,7 @@ public interface TaskId {
     // check certificate extension
     public final static String TASK_CHECK_EXTENSION = "checkExtension";
 
-    // check validity period: make sure the notAfterDate of the certificate 
+    // check validity period: make sure the notAfterDate of the certificate
     // will not go beyond the notAfterDate of the CA cert which signs the certificate.
     public final static String TASK_VALIDITY_PERIOD = "checkValidityPeriod";
 

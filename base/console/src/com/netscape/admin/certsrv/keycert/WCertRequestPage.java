@@ -36,7 +36,7 @@ class WCertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
     private static final String PANELNAME = "COPYCERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WCertRequestPage() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WCertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-     
+
         if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
           wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))
             return false;
@@ -57,7 +57,7 @@ class WCertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
 //        mText.setText(CMSAdminUtil.certRequestWrapText(str, 40));
         mText.setText(str);
         setBorder(makeTitledBorder("COPYCERTREQUESTWIZARD"));
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

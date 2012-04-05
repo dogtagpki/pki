@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for the
  * Jobs package
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class JobsResources extends ListResourceBundle {

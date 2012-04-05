@@ -40,7 +40,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
      *==========================================================*/
     public static String RESOURCE_TAB_TYPE = "RESOURCE_TAB_TYPE";
     public static String TASK_TAB_TYPE = "TASK_TAB_TYPE";
-    
+
     private static String PREFIX = "CMSPAGEFEEDER_";
 
     private ConsoleInfo mConsoleInfo;		// global information
@@ -51,7 +51,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
 	//private ResourcePage mResourcePage;	// resource page
 	//private ResourcePage mContentPage;    // content page
     //private ResourcePage mUGPage;         // identity and roles page
-    
+
 	private ResourceBundle mResource;       // resource boundle
 
 	/*==========================================================
@@ -70,7 +70,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
 		mServerInfo = serverInfo;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mPages = new Hashtable();
-        
+
 		setFrameTitle(mResource.getString(PREFIX+"SERVERNAME"));
 		setMinimizedImage(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_MEDIUM).getImage());
 		setBannerImage(CMSAdminUtil.getThemeImage(CMSAdminResources.IMAGE_BRANDING).getImage());
@@ -99,13 +99,13 @@ public class CMSPageFeeder extends FrameworkInitializer {
             return task;
 */
         }
-        
+
         if (!type.trim().equals(RESOURCE_TAB_TYPE)) {
             throw new EAdminException(mResource.getString(PREFIX+"RESOURCE_TAB_NOT_FOUND"), true);
         }
-        
+
         if (mPages.containsKey(name.trim())) {
-            return (IPage) mPages.get(name.trim());    
+            return (IPage) mPages.get(name.trim());
         } else {
             CMSResourcePage page = new CMSResourcePage(new CMSBaseResourceModel(mConsoleInfo,mServerInfo));
             String title;
@@ -133,8 +133,8 @@ public class CMSPageFeeder extends FrameworkInitializer {
                   ((CMSResourcePage)page).getTree().expandRow(0);
           }
     }
-    
-    
+
+
     /*==========================================================
 	 * private methods
      *==========================================================*/

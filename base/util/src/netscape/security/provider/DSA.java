@@ -40,11 +40,11 @@ import netscape.security.util.DerValue;
  * The Digital Signature Standard (using the Digital Signature
  * Algorithm), as described in fips186 of the National Instute of
  * Standards and Technology (NIST), using fips180-1 (SHA-1).
- * 
+ *
  * @author Benjamin Renaud
- * 
+ *
  * @version 1.86, 97/09/17
- * 
+ *
  * @see DSAPublicKey
  * @see DSAPrivateKey
  */
@@ -95,9 +95,9 @@ public final class DSA extends Signature {
 
     /**
      * Initialize the DSA object with a DSA private key.
-     * 
+     *
      * @param privateKey the DSA private key
-     * 
+     *
      * @exception InvalidKeyException if the key is not a valid DSA private
      *                key.
      */
@@ -116,9 +116,9 @@ public final class DSA extends Signature {
 
     /**
      * Initialize the DSA object with a DSA public key.
-     * 
+     *
      * @param publicKey the DSA public key.
-     * 
+     *
      * @exception InvalidKeyException if the key is not a valid DSA public
      *                key.
      */
@@ -143,13 +143,13 @@ public final class DSA extends Signature {
      * Sign all the data thus far updated. The signature is formatted
      * according to the Canonical Encoding Rules, returned as a DER
      * sequence of Integer, r and s.
-     * 
+     *
      * @return a signature block formatted according to the Canonical
      *         Encoding Rules.
-     * 
+     *
      * @exception SignatureException if the signature object was not
      *                properly initialized, or if another exception occurs.
-     * 
+     *
      * @see netscape.security.provider.DSA#engineUpdate
      * @see netscape.security.provider.DSA#engineVerify
      */
@@ -178,13 +178,13 @@ public final class DSA extends Signature {
 
     /**
      * Verify all the data thus far updated.
-     * 
+     *
      * @param signature the alledged signature, encoded using the
      *            Canonical Encoding Rules, as a sequence of integers, r and s.
-     * 
+     *
      * @exception SignatureException if the signature object was not
      *                properly initialized, or if another exception occurs.
-     * 
+     *
      * @see netscape.security.provider.DSA#engineUpdate
      * @see netscape.security.provider.DSA#engineSign
      */
@@ -327,11 +327,11 @@ public final class DSA extends Signature {
 
     /**
      * Compute k for a DSA signature.
-     * 
+     *
      * @param seed the seed for generating k. This seed should be
      *            secure. This is what is refered to as the KSEED in the DSA
      *            specification.
-     * 
+     *
      * @param g the g parameter from the DSA key pair.
      */
     BigInteger generateK(int[] seed, BigInteger q) {
@@ -427,13 +427,13 @@ public final class DSA extends Signature {
     /**
      * This implementation recognizes the following parameter:
      * <dl>
-     * 
+     *
      * <dt><tt>Kseed</tt>
-     * 
+     *
      * <dd>a byte array.
-     * 
+     *
      * </dl>
-     * 
+     *
      * @deprecated
      */
     protected void engineSetParameter(String key, Object param) {
@@ -458,17 +458,17 @@ public final class DSA extends Signature {
     /**
      * Return the value of the requested parameter. Recognized
      * parameters are:
-     * 
+     *
      * <dl>
-     * 
+     *
      * <dt><tt>Kseed</tt>
-     * 
+     *
      * <dd>a byte array.
-     * 
+     *
      * </dl>
-     * 
+     *
      * @return the value of the requested parameter.
-     * 
+     *
      * @deprecated
      */
     protected Object engineGetParameter(String key) {
@@ -491,7 +491,7 @@ public final class DSA extends Signature {
 
     /**
      * Update a byte to be signed or verified.
-     * 
+     *
      * @param b the byte to updated.
      */
     protected void engineUpdate(byte b) {
@@ -500,7 +500,7 @@ public final class DSA extends Signature {
 
     /**
      * Update an array of bytes to be signed or verified.
-     * 
+     *
      * @param data the bytes to be updated.
      */
     protected void engineUpdate(byte[] data, int off, int len) {

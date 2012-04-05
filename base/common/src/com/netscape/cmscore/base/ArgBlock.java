@@ -38,7 +38,7 @@ import com.netscape.cmsutil.util.Utils;
  * This class represents a set of indexed arguments.
  * Each argument is indexed by a key, which can be
  * used during the argument retrieval.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ArgBlock implements IArgBlock {
@@ -66,7 +66,7 @@ public class ArgBlock implements IArgBlock {
      *==========================================================*/
     /**
      * Constructs an argument block with the given hashtable values.
-     * 
+     *
      * @param realm the type of argblock - used for debugging the values
      */
     public ArgBlock(String realm, Hashtable<String, String> httpReq) {
@@ -76,7 +76,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Constructs an argument block with the given hashtable values.
-     * 
+     *
      * @param httpReq hashtable keys and values
      */
     public ArgBlock(Hashtable<String, String> httpReq) {
@@ -109,7 +109,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Checks if this argument block contains the given key.
-     * 
+     *
      * @param n key
      * @return true if key is present
      */
@@ -124,7 +124,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds string-based value into this argument block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -139,7 +139,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as string.
-     * 
+     *
      * @param n key
      * @return argument value as string
      * @exception EBaseException failed to retrieve value
@@ -157,7 +157,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as string.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as string
@@ -175,7 +175,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as integer.
-     * 
+     *
      * @param n key
      * @return argument value as int
      * @exception EBaseException failed to retrieve value
@@ -197,7 +197,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as integer.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as int
@@ -217,7 +217,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as big integer.
-     * 
+     *
      * @param n key
      * @return argument value as big integer
      * @exception EBaseException failed to retrieve value
@@ -244,7 +244,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as big integer.
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as big integer
@@ -259,7 +259,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as object
-     * 
+     *
      * @param n key
      * @return argument value as object
      * @exception EBaseException failed to retrieve value
@@ -274,7 +274,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as object
-     * 
+     *
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as object
@@ -289,7 +289,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     * 
+     *
      * @param name name of the input type
      * @return boolean type: <code>true</code> or <code>false</code>
      * @exception EBaseException failed to retrieve value
@@ -311,7 +311,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     * 
+     *
      * @param name name of the input type
      * @return boolean type: <code>true</code> or <code>false</code>
      */
@@ -328,7 +328,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Gets KeyGenInfo
-     * 
+     *
      * @param name name of the input type
      * @param verify true if signature validation is required
      * @exception EBaseException
@@ -355,7 +355,7 @@ public class ArgBlock implements IArgBlock {
     /**
      * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     * 
+     *
      * @param name name of the input type
      * @return pkcs10 request
      * @exception EBaseException failed to retrieve value
@@ -389,7 +389,7 @@ public class ArgBlock implements IArgBlock {
     /**
      * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     * 
+     *
      * @param name name of the input type
      * @param def default PKCS10
      * @return pkcs10 request
@@ -420,7 +420,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param checkheader true if header must be present
      * @return PKCS10 object
@@ -454,7 +454,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param checkheader true if header must be present
      * @param def default PKCS10
@@ -489,7 +489,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     * 
+     *
      * @param name name of the input type
      * @param def default PKCS10
      * @return PKCS10 object
@@ -516,7 +516,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Sets argument into this block.
-     * 
+     *
      * @param name key
      * @param ob value
      */
@@ -526,7 +526,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument.
-     * 
+     *
      * @param name key
      * @return object value
      */
@@ -537,7 +537,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Deletes argument by the given key.
-     * 
+     *
      * @param name key
      */
     public void delete(String name) {
@@ -546,7 +546,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves a list of argument keys.
-     * 
+     *
      * @return a list of string-based keys
      */
     public Enumeration<String> getElements() {
@@ -555,7 +555,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves a list of argument keys.
-     * 
+     *
      * @return a list of string-based keys
      */
     public Enumeration<String> elements() {
@@ -564,7 +564,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds long-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -575,7 +575,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds integer-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -586,7 +586,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds boolean-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @return value
@@ -601,7 +601,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds integer-type arguments to this block.
-     * 
+     *
      * @param n key
      * @param v value
      * @param radix radix
@@ -617,7 +617,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Unwrap PKCS10 Package
-     * 
+     *
      * @param request string formated PKCS10 request
      * @exception EBaseException
      * @return Base64Encoded PKCS10 request
@@ -688,7 +688,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Decode Der encoded PKCS10 certifictae Request
-     * 
+     *
      * @param base64Request Base64 Encoded Certificate Request
      * @exception Exception
      * @return PKCS10

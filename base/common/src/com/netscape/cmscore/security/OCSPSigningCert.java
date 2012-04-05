@@ -35,7 +35,7 @@ import com.netscape.certsrv.security.KeyCertData;
 
 /**
  * OCSP signing certificate.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */

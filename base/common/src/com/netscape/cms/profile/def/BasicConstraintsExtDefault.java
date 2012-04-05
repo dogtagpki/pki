@@ -37,7 +37,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates Basic Constraint extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class BasicConstraintsExtDefault extends EnrollExtDefault {

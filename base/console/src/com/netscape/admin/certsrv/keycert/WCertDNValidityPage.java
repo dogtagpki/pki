@@ -37,7 +37,7 @@ class WCertDNValidityPage extends WBaseDNValidityPage implements IWizardPanel {
     private static final String PANELNAME = "CERTDNVALIDWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WCertDNValidityPage() {
         super(PANELNAME);
         init();
@@ -53,7 +53,7 @@ class WCertDNValidityPage extends WBaseDNValidityPage implements IWizardPanel {
           (wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA)))
             return false;
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -62,7 +62,7 @@ class WCertDNValidityPage extends WBaseDNValidityPage implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         String str = mSubjectDNText.getText().trim();
-        
+
         if (str.equals("")) {
             setErrorMessage("BLANKFIELD");
             return false;

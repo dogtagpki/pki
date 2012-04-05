@@ -43,7 +43,7 @@ import com.netscape.cms.profile.def.UserSigningAlgDefault;
  * This class implements the signing algorithm constraint.
  * It checks if the signing algorithm in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SigningAlgConstraint extends EnrollConstraint {

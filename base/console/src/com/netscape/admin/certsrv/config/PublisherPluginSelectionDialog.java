@@ -41,7 +41,7 @@ public class PublisherPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "PUBLISHERSELECTIONDIALOG";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "configuration-ca-add-publisherrule-dbox-help";
     private static final String RAHELPINDEX =
       "configuration-ra-add-publisherrule-dbox-help";
@@ -51,9 +51,9 @@ public class PublisherPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public PublisherPluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope = ScopeDef.SC_PUBLISHER_IMPLS;

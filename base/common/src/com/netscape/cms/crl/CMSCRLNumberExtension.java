@@ -35,7 +35,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a CRL number extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSCRLNumberExtension

@@ -37,7 +37,7 @@ import com.netscape.cmsutil.util.Cert;
 /**
  * A class represents the transport key pair. This key pair
  * is used to protected EE's private key in transit.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -113,7 +113,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
     public CryptoToken getToken() {
         // 390148: returning the token that owns the private
-        //         key. 
+        //         key.
         return getPrivateKey().getOwningToken();
     }
 

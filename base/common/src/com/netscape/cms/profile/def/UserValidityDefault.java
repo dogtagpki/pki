@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a user-supplied validity
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UserValidityDefault extends EnrollDefault {

@@ -62,7 +62,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
  * This class implements an enrollment default policy.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDefault {
@@ -125,7 +125,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale locale of the end user
      * @return localized description of this default policy
      */
@@ -145,7 +145,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Populates attributes into the certificate template.
-     * 
+     *
      * @param request enrollment request
      * @param info certificate template
      * @exception EProfileException failed to populate attributes
@@ -156,7 +156,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Sets values from the approval page into certificate template.
-     * 
+     *
      * @param name name of the attribute
      * @param locale user locale
      * @param info certificate template
@@ -171,7 +171,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     /**
      * Retrieves certificate template values and returns them to
      * the approval page.
-     * 
+     *
      * @param name name of the attribute
      * @param locale user locale
      * @param info certificate template
@@ -184,10 +184,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * The current implementation extracts enrollment specific attributes
      * and calls the populate() method of the subclass.
-     * 
+     *
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
@@ -220,10 +220,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Sets the value of the given value property by name.
-     * 
+     *
      * The current implementation extracts enrollment specific attributes
      * and calls the setValue() method of the subclass.
-     * 
+     *
      * @param name name of property
      * @param locale locale of the end user
      * @param request request
@@ -244,10 +244,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     /**
      * Retrieves the value of the given value
      * property by name.
-     * 
+     *
      * The current implementation extracts enrollment specific attributes
      * and calls the getValue() method of the subclass.
-     * 
+     *
      * @param name name of property
      * @param locale locale of the end user
      * @param request request
@@ -604,7 +604,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     /**
      * Check if a object identifier in string form is valid,
      * that is a string in the form n.n.n.n and der encode and decode-able.
-     * 
+     *
      * @param oid object identifier string.
      * @return true if the oid is valid
      */

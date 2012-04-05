@@ -76,7 +76,7 @@ import com.netscape.cmsutil.util.Utils;
  * Connector servlet
  * process requests from remote authority -
  * service request or return status.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ConnectorServlet extends CMSServlet {
@@ -158,7 +158,7 @@ public class ConnectorServlet extends CMSServlet {
         IPKIMessage msg = null;
         IPKIMessage replymsg = null;
 
-        // NOTE must read all bufer before redoing handshake for 
+        // NOTE must read all bufer before redoing handshake for
         // ssl client auth for client auth to work.
 
         // get request method
@@ -186,8 +186,8 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         // force client auth handshake, validate RA and get RA's Id.
-        // NOTE must do this after all contents are read for ssl 
-        // redohandshake to work 
+        // NOTE must do this after all contents are read for ssl
+        // redohandshake to work
 
         X509Certificate peerCert;
 
@@ -206,7 +206,7 @@ public class ConnectorServlet extends CMSServlet {
             return;
         }
 
-        // authenticate RA 
+        // authenticate RA
 
         String RA_Id = null;
         String raUserId = null;
@@ -260,7 +260,7 @@ public class ConnectorServlet extends CMSServlet {
         try {
             // decode request.
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
-            // process request 
+            // process request
             replymsg = processRequest(RA_Id, raUserId, msg, token);
         } catch (IOException e) {
             CMS.debug("ConnectorServlet: service " + e.toString());
@@ -283,7 +283,7 @@ public class ConnectorServlet extends CMSServlet {
 
         CMS.debug("ConnectorServlet: done processRequest");
 
-        // encode reply 
+        // encode reply
         try {
             String encodedrep = mReqEncoder.encode(replymsg);
 
@@ -373,7 +373,7 @@ public class ConnectorServlet extends CMSServlet {
                 CMS.getSubsystem("profile");
         IEnrollProfile profile = null;
 
-        // profile subsystem may not be available. In case of KRA for 
+        // profile subsystem may not be available. In case of KRA for
         // example
         if (ps == null) {
             CMS.debug("ConnectorServlet: Profile Subsystem not found ");
@@ -394,13 +394,13 @@ public class ConnectorServlet extends CMSServlet {
     /**
      * Process request
      * <P>
-     * 
+     *
      * (Certificate Request - all "agent" profile cert requests made through a connector)
      * <P>
-     * 
+     *
      * (Certificate Request Processed - all automated "agent" profile based cert acceptance made through a connector)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before
      * approval process)
@@ -409,7 +409,7 @@ public class ConnectorServlet extends CMSServlet {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS used when inter-CIMC_Boundary data transfer is
      * successful (this is used when data does not need to be captured)
      * </ul>
-     * 
+     *
      * @param source string containing source
      * @param sourceUserId string containing source user ID
      * @param msg PKI message
@@ -753,7 +753,7 @@ public class ConnectorServlet extends CMSServlet {
                             x509Certs =
                                     thisreq.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-                        // return potentially more than one certificates. 
+                        // return potentially more than one certificates.
                         if (x509Certs != null) {
                             for (int i = 0; i < x509Certs.length; i++) {
                                 mLogger.log(ILogger.EV_AUDIT,
@@ -1003,11 +1003,11 @@ public class ConnectorServlet extends CMSServlet {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -1027,12 +1027,12 @@ public class ConnectorServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Profile ID
-     * 
+     *
      * This method is inherited by all extended "EnrollProfile"s,
      * and is called to obtain the "ProfileID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message ProfileID
      */
     protected String auditProfileID() {
@@ -1054,11 +1054,11 @@ public class ConnectorServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param request a Request containing an X509CertImpl
      * @return cert string containing the certificate
      */

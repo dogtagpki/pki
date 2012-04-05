@@ -40,7 +40,7 @@ import com.netscape.cms.profile.def.UserExtensionDefault;
  * This class implements the general extension constraint.
  * It checks if the extension in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ExtensionConstraint extends EnrollConstraint {
@@ -110,7 +110,7 @@ public class ExtensionConstraint extends EnrollConstraint {
                             getConfig(CONFIG_OID)));
         }
 
-        // check criticality 
+        // check criticality
         String value = getConfig(CONFIG_CRITICAL);
 
         if (!isOptional(value)) {

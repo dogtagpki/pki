@@ -98,7 +98,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         }
 
         if (str.equals("") && !displayWarning) {
-            String errorMsg = 
+            String errorMsg =
               mResource.getString(mPanelName+"_DIALOG_MISSINGO_MESSAGE");
             JOptionPane.showMessageDialog(new JFrame(), errorMsg, "Warning",
               JOptionPane.WARNING_MESSAGE,
@@ -184,7 +184,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         gbc.gridwidth = gbc.REMAINDER;
         add(dnDesc, gbc);
 */
-        
+
 /*
         JTextArea desc = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
@@ -210,7 +210,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mDNComponents, gbc);
-     
+
         cnLabel = makeJLabel("CN");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.EAST;
@@ -219,7 +219,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         add(cnLabel, gbc);
 
-        mCNText = new JTextField(30); 
+        mCNText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
@@ -365,7 +365,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         mSubjectStringText = new JTextField(256);
 /*
-        mSubjectStringText = new JTextArea(null, null, 0, 0);        
+        mSubjectStringText = new JTextArea(null, null, 0, 0);
         mSubjectStringText.setBorder(BorderFactory.createLineBorder(Color.black));
         JScrollPane scrollPane = new JScrollPane(mSubjectStringText,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -391,7 +391,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         gbc.gridheight = gbc.REMAINDER;
         gbc.gridwidth = gbc.REMAINDER;
         add(d1, gbc);
-        
+
 
         mCNText.getDocument().addDocumentListener((DocumentListener)mSubjectDNText);
         mOUText.getDocument().addDocumentListener((DocumentListener)mSubjectDNText);
@@ -425,10 +425,10 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.repaintComp(cLabel);
         CMSAdminUtil.repaintComp(subjectDNLabel);
         if (enable)
-            CMSAdminUtil.enableJTextField(mSubjectStringText, !enable, 
+            CMSAdminUtil.enableJTextField(mSubjectStringText, !enable,
               getBackground());
         else
-            CMSAdminUtil.enableJTextField(mSubjectStringText, !enable, 
+            CMSAdminUtil.enableJTextField(mSubjectStringText, !enable,
               mActiveColor);
     }
 
@@ -437,10 +437,10 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
             enableFields(true, mActiveColor);
         } else {
             enableFields(false, getBackground());
-        } 
+        }
     }
 
-    public class SubjectDNTextArea extends JTextArea implements 
+    public class SubjectDNTextArea extends JTextArea implements
       DocumentListener {
 
         public SubjectDNTextArea(int rows, int columns) {
@@ -454,7 +454,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         public void removeUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
- 
+
         public void changedUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }

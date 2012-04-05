@@ -98,7 +98,7 @@ public class ComCrypto {
     /**
      * Constructor . Takes the parameter certificatedbdirectory , passwordfor cert database,
      * certificatenickname,keysize, keytype(RSA/DSA)
-     * 
+     *
      * @param certdbdirectory.
      * @param certdbpassword
      * @param certnickname
@@ -114,7 +114,7 @@ public class ComCrypto {
         keytype = kt;
     }
 
-    // Set and Get functions 
+    // Set and Get functions
 
     public void setCertDir(String cd) {
         cdir = cd;
@@ -496,12 +496,12 @@ public class ComCrypto {
             try {
                 CryptoManager.initialize(cdir);
             } catch (Exception e) {
-                // it is ok if it is already initialized 
+                // it is ok if it is already initialized
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
             }
 
-            // Step 2 log into database 
+            // Step 2 log into database
             try {
 
                 System.out.println("Debug : before getInstance");
@@ -527,7 +527,7 @@ public class ComCrypto {
                 }
             }
 
-            // Generating CRMF request 
+            // Generating CRMF request
 
             KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
@@ -565,7 +565,7 @@ public class ComCrypto {
 
             SEQUENCE s1 = new SEQUENCE();
 
-            // 1st : Encryption key 
+            // 1st : Encryption key
 
             s1.addElement(crmfMsg);
 
@@ -583,11 +583,11 @@ public class ComCrypto {
 
             byte encoded[] = ASN1Util.encode(s1);
 
-            // BASE64Encoder encoder = new BASE64Encoder(); 
+            // BASE64Encoder encoder = new BASE64Encoder();
             // String Req1 = encoder.encodeBuffer(encoded);
             String Req1 = Utils.base64encode(encoded);
 
-            // Set CRMF_REQUEST variable 
+            // Set CRMF_REQUEST variable
             CRMF_REQUEST = Req1;
 
             System.out.println("CRMF_REQUEST = " + CRMF_REQUEST);
@@ -602,7 +602,7 @@ public class ComCrypto {
     }
 
     /*
-     * This function is used to Generated CRMF requests wrapped with the 
+     * This function is used to Generated CRMF requests wrapped with the
      * transport cert so that we can do key archival with the drm.
      * This function expects transportcert variable to be set in this class.
      * Use setTransportCert() to do the same.
@@ -617,12 +617,12 @@ public class ComCrypto {
             try {
                 CryptoManager.initialize(cdir);
             } catch (Exception e) {
-                // it is ok if it is already initialized 
+                // it is ok if it is already initialized
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
             }
 
-            // Step 2 log into database 
+            // Step 2 log into database
             try {
 
                 System.out.println("Debug : before getInstance");
@@ -728,7 +728,7 @@ public class ComCrypto {
 
             SEQUENCE s1 = new SEQUENCE();
 
-            // 1st : Encryption key 
+            // 1st : Encryption key
             s1.addElement(crmfMsg);
 
             // 2nd : Signing Key
@@ -763,5 +763,5 @@ public class ComCrypto {
         return CRMF_REQUEST;
     }
 
-} // end of class 
+} // end of class
 

@@ -54,7 +54,7 @@ import com.netscape.symkey.SessionKey;
  * Service Authority. This servlet is responsible to serve
  * tks administrative operation such as configuration
  * parameter updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class TokenServlet extends CMSServlet {
@@ -134,7 +134,7 @@ public class TokenServlet extends CMSServlet {
 
     /**
      * Returns serlvet information.
-     * 
+     *
      * @return name of this servlet
      */
     public String getServletInfo() {
@@ -143,7 +143,7 @@ public class TokenServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param s The URL to decode.
      */
     protected String URLdecode(String s) {
@@ -455,7 +455,7 @@ public class TokenServlet extends CMSServlet {
 
                         // (1) generate DES key
                         /* applet does not support DES3
-                        org.mozilla.jss.crypto.KeyGenerator kg = 
+                        org.mozilla.jss.crypto.KeyGenerator kg =
                             internalToken.getKeyGenerator(KeyGenAlgorithm.DES3);
                             desKey = kg.generate();*/
 
@@ -1148,19 +1148,19 @@ public class TokenServlet extends CMSServlet {
         audit(auditMessage);
     }
 
-    /* 
+    /*
      *   For EncryptData:
      *   data=value1
      *   CUID=value2 // missing from RA
      *   versionID=value3  // missing from RA
      *
-     *   For ComputeSession: 
+     *   For ComputeSession:
      *   card_challenge=value1
      *   host_challenge=value2
-     
+
      *   For DiversifyKey:
      *   new_master_key_index
-     *   master_key_index   
+     *   master_key_index
      */
 
     private void processComputeRandomData(HttpServletRequest req,
@@ -1329,7 +1329,7 @@ public class TokenServlet extends CMSServlet {
 
     /**
      * Serves HTTP admin request.
-     * 
+     *
      * @param req HTTP request
      * @param resp HTTP response
      */

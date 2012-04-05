@@ -60,7 +60,7 @@ import com.netscape.certsrv.request.RequestId;
 
 /**
  * default Pending template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenPendingTemplateFiller implements ICMSTemplateFiller {
@@ -71,7 +71,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
@@ -92,7 +92,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
         if (sts != null)
             fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
 
-        // request id 
+        // request id
         IRequest req = cmsReq.getIRequest();
 
         if (req != null) {

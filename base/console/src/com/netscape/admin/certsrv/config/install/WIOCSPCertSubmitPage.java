@@ -48,7 +48,7 @@ class WIOCSPCertSubmitPage extends WICertSubmitPage implements IWizardPanel {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isOCSPCloningDone())
             return false;
-        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
 					   Constants.PR_OCSP_SIGNING_CERT);
 
         if (!wizardInfo.isOCSPInstalled() ||

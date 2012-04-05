@@ -50,7 +50,7 @@ public class ProfileNonPolicyNewDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public ProfileNonPolicyNewDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest, String scope, boolean new1) {
 
         super(parent, dest);
@@ -59,7 +59,7 @@ public class ProfileNonPolicyNewDialog extends CMSBaseConfigDialog
     	mHelpToken = "configuration-certificateprofiles";
 		mImplName_token = Constants.PR_POLICY_IMPL_NAME;
 		mImplType   = Constants.PR_EXT_PLUGIN_IMPLTYPE_POLICY;
-        mIsNew = new1; 
+        mIsNew = new1;
         mScope = scope;
 
 		init(nvp,parent,conn,dest);
@@ -289,8 +289,8 @@ setLabelCellEditor(mTable, 1);
         if (evt.getSource().equals(mOK)) {
 
             try {
-                if (mModel != null) { 
-                    mModel.progressStart(); 
+                if (mModel != null) {
+                    mModel.progressStart();
                 }
 
                 NameValuePairs nvp = new NameValuePairs();
@@ -312,21 +312,21 @@ setLabelCellEditor(mTable, 1);
 
                 if (mIsNew) {
                     String name = instanceName + ";" + id + ";" + mParamId;
-                    // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+                    // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                     mAdminConnection.add(mDest,
                       mScope, name, nvp);
                       //ScopeDef.SC_PROFILE_INPUT, name, nvp);
                 } else {
                     String name = instanceName + ";" + id;
-                    //mAdminConnection.modify(DestDef.DEST_CA_PROFILE_ADMIN, 
+                    //mAdminConnection.modify(DestDef.DEST_CA_PROFILE_ADMIN,
                     mAdminConnection.modify(mDest,
                       mScope, name, nvp);
                       //ScopeDef.SC_PROFILE_INPUT_CONFIG, name, nvp);
                 }
-		
+
                 mIsOK = true;
-                if (mModel != null) { 
-                    mModel.progressStop(); 
+                if (mModel != null) {
+                    mModel.progressStop();
                 }
 
                 this.dispose();
@@ -342,7 +342,7 @@ setLabelCellEditor(mTable, 1);
             this.dispose();
         }
 
-    } 
+    }
 
     public void showDialog(NameValuePairs data, String profileId, String paramId) {
 
@@ -358,28 +358,28 @@ setLabelCellEditor(mTable, 1);
         mModel.progressStart();
 
         // retrieve profile information
-        NameValuePairs response = null; 
-        NameValuePairs request = new NameValuePairs(); 
+        NameValuePairs response = null;
+        NameValuePairs request = new NameValuePairs();
         try {
-            if (mIsNew) 
+            if (mIsNew)
                 response = mAdminConnection.read(DestDef.DEST_REGISTRY_ADMIN,
                              //ScopeDef.SC_PROFILE_INPUT,
                              mScope, paramId, request);
             else
                 // response = mAdminConnection.read(DestDef.DEST_CA_PROFILE_ADMIN,
                 response = mAdminConnection.read(mDest,
-                    //ScopeDef.SC_PROFILE_INPUT_CONFIG, 
+                    //ScopeDef.SC_PROFILE_INPUT_CONFIG,
                     mScope, profileId+";"+mInputId, request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-            mModel.progressStop(); 
-        } 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+            mModel.progressStop();
+        }
         mModel.progressStop();
 
-        Vector defcolNames = new Vector(); 
-        defcolNames.addElement("Parameter"); 
-        defcolNames.addElement("Value"); 
-        Vector defdata = new Vector(); 
+        Vector defcolNames = new Vector();
+        defcolNames.addElement("Parameter");
+        defcolNames.addElement("Value");
+        Vector defdata = new Vector();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
@@ -397,7 +397,7 @@ setLabelCellEditor(mTable, 1);
    syntaxVal = value.substring(start_pos+1, end_pos);
    val = value.substring(end_pos+1);
 
-           Vector row = new Vector(); 
+           Vector row = new Vector();
            row.addElement(entry);
            row.addElement(val);
            defdata.addElement(row);
@@ -426,4 +426,4 @@ setLabelCellEditor(mTable, 1);
         table.getColumnModel().getColumn(index).setCellEditor(
           new DefaultCellEditor(new JTextField()));
     }
-}    
+}

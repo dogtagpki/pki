@@ -37,7 +37,7 @@ import com.netscape.certsrv.base.IAttrSet;
 
 /**
  * An interface that defines abilities of request objects,
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequest {
@@ -75,7 +75,7 @@ public interface IRequest {
     public static final String REQUESTOR_EMAIL = "csrRequestorEmail";
     public static final String REQUESTOR_COMMENTS = "csrRequestorComments";
 
-    // request attributes for all 
+    // request attributes for all
     public static final String AUTH_TOKEN = "AUTH_TOKEN";
     public static final String HTTP_PARAMS = "HTTP_PARAMS";
     public static final String HTTP_HEADERS = "HTTP_HEADERS";
@@ -111,7 +111,7 @@ public interface IRequest {
     public static final String REQUEST_TRUSTEDMGR_PRIVILEGE = "requestTrustedManagerPrivilege";
     public static final String FINGERPRINTS = "fingerprints";
 
-    // enrollment request values 
+    // enrollment request values
     public static final String SERVER_CERT = "server";
     public static final String CLIENT_CERT = "client";
     public static final String CA_CERT = "ca";
@@ -185,14 +185,14 @@ public interface IRequest {
 
     /**
      * Gets the primary identifier for this request.
-     * 
+     *
      * @return request id
      */
     RequestId getRequestId();
 
     /**
      * Gets the current state of this request.
-     * 
+     *
      * @return request status
      */
     RequestStatus getRequestStatus();
@@ -205,7 +205,7 @@ public interface IRequest {
      * The sourceId should be unique so that it can be used to retrieve request later without knowing the locally
      * assigned primary id (RequestID)
      * <p>
-     * 
+     *
      * @return
      *         the sourceId value (or null if none has been set)
      */
@@ -216,21 +216,21 @@ public interface IRequest {
      * in the database for this change to take effect. This can be done
      * by calling IRequestQueue.update() or by performing one of the
      * other operations like processRequest or approveRequest.
-     * 
+     *
      * @param id source id for this request
      */
     public void setSourceId(String id);
 
     /**
      * Gets the current owner of this request.
-     * 
+     *
      * @return request owner
      */
     public String getRequestOwner();
 
     /**
      * Sets the current owner of this request.
-     * 
+     *
      * @param owner
      *            The new owner of this request. If this value is set to null
      *            there will be no current owner
@@ -239,28 +239,28 @@ public interface IRequest {
 
     /**
      * Gets the type of this request.
-     * 
+     *
      * @return request type
      */
     public String getRequestType();
 
     /**
      * Sets the type or this request.
-     * 
+     *
      * @param type request type
      */
     public void setRequestType(String type);
 
     /**
      * Gets the version of this request.
-     * 
+     *
      * @return request version
      */
     public String getRequestVersion();
 
     /**
      * Gets the time this request was created.
-     * 
+     *
      * @return request creation time
      */
     Date getCreationTime();
@@ -268,7 +268,7 @@ public interface IRequest {
     /**
      * Gets the time this request was last modified (defined
      * as updated in the queue) (See IRequestQueue.update)
-     * 
+     *
      * @return request last modification time
      */
     Date getModificationTime();
@@ -291,42 +291,42 @@ public interface IRequest {
     /**
      * Copies meta attributes (excluding request Id, etc.) of another request
      * to this request.
-     * 
+     *
      * @param req another request
      */
     public void copyContents(IRequest req);
 
     /**
      * Gets context of this request.
-     * 
+     *
      * @return request context
      */
     public String getContext();
 
     /**
      * Sets context of this request.
-     * 
+     *
      * @param ctx request context
      */
     public void setContext(String ctx);
 
     /**
      * Sets status of this request.
-     * 
+     *
      * @param s request status
      */
     public void setRequestStatus(RequestStatus s);
 
     /**
      * Gets status of connector transfer.
-     * 
+     *
      * @return status of connector transfer
      */
     public boolean isSuccess();
 
     /**
      * Gets localized error message from connector transfer.
-     * 
+     *
      * @param locale request locale
      * @return error message from connector transfer
      */
@@ -334,15 +334,15 @@ public interface IRequest {
 
     /**************************************************************
      * ExtData data methods:
-     * 
+     *
      * These methods should be used in place of the mAttrData methods
      * deprecated above.
-     * 
+     *
      * These methods all store Strings in LDAP. This means they can no longer
      * be used as a garbage dump for all sorts of objects. A limited number
      * of helper methods are provided for Vectors/Arrays/Hashtables but the
      * keys and values for all of these should be Strings.
-     * 
+     *
      * The keys are used in the LDAP attribute names, and so much obey LDAP
      * key syntax rules: A-Za-z0-9 and hyphen.
      */
@@ -350,7 +350,7 @@ public interface IRequest {
     /**
      * Sets an Extended Data string-key string-value pair.
      * All keys are lower cased because LDAP does not preserve case.
-     * 
+     *
      * @param key The extended data key
      * @param value The extended data value
      * @return false if key is invalid.
@@ -361,7 +361,7 @@ public interface IRequest {
      * Sets an Extended Data string-key string-value pair.
      * The key and hashtable keys are all lowercased because LDAP does not
      * preserve case.
-     * 
+     *
      * @param key The extended data key
      * @param value The extended data value
      *            the Hashtable contains an illegal key.
@@ -372,7 +372,7 @@ public interface IRequest {
     /**
      * Checks whether the key is storing a simple String value, or a complex
      * (Vector/hashtable) structure.
-     * 
+     *
      * @param key The key to check for.
      * @return True if the key maps to a string. False if it maps to a
      *         hashtable.
@@ -383,7 +383,7 @@ public interface IRequest {
      * Returns the String value stored for the String key. Returns null
      * if not found. Throws exception if key stores a complex data structure
      * (Vector/Hashtable).
-     * 
+     *
      * @param key The key to lookup (case-insensitive)
      * @return The value associated with the key. null if not found or if the
      *         key is associated with a non-string value.
@@ -393,12 +393,12 @@ public interface IRequest {
     /**
      * Returns the Hashtable value for the String key. Returns null if not
      * found. Throws exception if the key stores a String value.
-     * 
+     *
      * The Hashtable returned is actually a subclass of Hashtable that
      * lowercases all keys used to access the hashtable. Its purpose is to
      * to make lookups seemless, but be aware it is not a normal hashtable and
      * might behave strangely in some cases (e.g., iterating keys)
-     * 
+     *
      * @param key The key to lookup (case-insensitive)
      * @return The hashtable value associated with the key. null if not found
      *         or if the key is associated with a string-value.
@@ -407,7 +407,7 @@ public interface IRequest {
 
     /**
      * Returns all the keys stored in ExtData
-     * 
+     *
      * @return Enumeration of all the keys.
      */
     public Enumeration<String> getExtDataKeys();
@@ -415,7 +415,7 @@ public interface IRequest {
     /**
      * Stores an array of Strings in ExtData.
      * The indices of the array are used as subkeys.
-     * 
+     *
      * @param key the ExtData key
      * @param values the array of string values to store
      * @return False if the key is invalid
@@ -426,7 +426,7 @@ public interface IRequest {
      * Retrieves an array of Strings stored with the key.
      * This only works if the data was stored as an array. If the data
      * is not correct, this method will return null.
-     * 
+     *
      * @param key The ExtData key
      * @return The value. Null if not found or the data isn't an array.
      */
@@ -434,7 +434,7 @@ public interface IRequest {
 
     /**
      * Removes the value of an extdata attribute.
-     * 
+     *
      * @param type key to delete
      */
     void deleteExtData(String type);
@@ -447,9 +447,9 @@ public interface IRequest {
      * Helper method to add subkey/value pair to a ExtData hashtable.
      * If the hashtable it exists, the subkey/value are added to it. Otherwise
      * a new hashtable is created.
-     * 
+     *
      * The key and subkey are lowercased because LDAP does not preserve case.
-     * 
+     *
      * @param key The top level key
      * @param subkey The hashtable data key
      * @param value The hashtable value
@@ -459,7 +459,7 @@ public interface IRequest {
 
     /**
      * Helper method to retrieve an individual value from a Hashtable value.
-     * 
+     *
      * @param key the ExtData key
      * @param subkey the key in the Hashtable value (case insensitive)
      * @return the value corresponding to the key/subkey
@@ -469,7 +469,7 @@ public interface IRequest {
     /**
      * Helper method to store an Integer value. It converts the integer value
      * to a String and stores it.
-     * 
+     *
      * @param key the ExtData key
      * @param value the Integer to store (as a String)
      * @return False if the key or value are invalid
@@ -479,7 +479,7 @@ public interface IRequest {
     /**
      * Retrieves an integer value. Returns null if not found or
      * the value can't be represented as an Integer.
-     * 
+     *
      * @param key The ExtData key to lookup
      * @return The integer value or null if not possible.
      */
@@ -487,7 +487,7 @@ public interface IRequest {
 
     /**
      * Stores an array of Integers
-     * 
+     *
      * @param key The extdata key
      * @param values The array of Integers to store
      * @return false if the key is invalid
@@ -496,7 +496,7 @@ public interface IRequest {
 
     /**
      * Retrieves an array of Integers
-     * 
+     *
      * @param key The extdata key
      * @return The array of Integers or null on error.
      */
@@ -505,7 +505,7 @@ public interface IRequest {
     /**
      * Helper method to store a BigInteger value. It converts the integer value
      * to a String and stores it.
-     * 
+     *
      * @param key the ExtData key
      * @param value the BigInteger to store (as a String)
      * @return False if the key or value are invalid
@@ -515,7 +515,7 @@ public interface IRequest {
     /**
      * Retrieves a BigInteger value. Returns null if not found or
      * the value can't be represented as a BigInteger.
-     * 
+     *
      * @param key The ExtData key to lookup
      * @return The integer value or null if not possible.
      */
@@ -523,7 +523,7 @@ public interface IRequest {
 
     /**
      * Stores an array of BigIntegers
-     * 
+     *
      * @param key The extdata key
      * @param values The array of BigIntegers to store
      * @return false if the key is invalid
@@ -532,7 +532,7 @@ public interface IRequest {
 
     /**
      * Retrieves an array of BigIntegers
-     * 
+     *
      * @param key The extdata key
      * @return The array of BigIntegers or null on error.
      */
@@ -541,7 +541,7 @@ public interface IRequest {
     /**
      * Helper method to store an exception.
      * It actually stores the e.toString() value.
-     * 
+     *
      * @param key The ExtData key to store under
      * @param e The throwable to store
      * @return False if the key is invalid.
@@ -550,7 +550,7 @@ public interface IRequest {
 
     /**
      * Stores a byte array as base64 encoded text
-     * 
+     *
      * @param key The ExtData key
      * @param data The byte array to store
      * @return False if the key is invalid.
@@ -559,7 +559,7 @@ public interface IRequest {
 
     /**
      * Retrieves the data, which should be base64 encoded as a byte array.
-     * 
+     *
      * @param key The ExtData key
      * @return The data, or null if an error occurs.
      */
@@ -568,7 +568,7 @@ public interface IRequest {
     /**
      * Stores a X509CertImpl as base64 encoded text using the getEncode()
      * method.
-     * 
+     *
      * @param key The ExtData key
      * @param data certificate
      * @return False if the key is invalid.
@@ -577,7 +577,7 @@ public interface IRequest {
 
     /**
      * Retrieves the data, which should be base64 encoded as a byte array.
-     * 
+     *
      * @param key The ExtData key
      * @return The data, or null if an error occurs.
      */
@@ -585,7 +585,7 @@ public interface IRequest {
 
     /**
      * Stores an array of X509CertImpls as a base64 encoded text.
-     * 
+     *
      * @param key The ExtData key
      * @param data The array of certs to store
      * @return False if the key or data is invalid.
@@ -594,7 +594,7 @@ public interface IRequest {
 
     /**
      * Retrieves an array of X509CertImpl.
-     * 
+     *
      * @param key The ExtData key
      * @return Array of certs, or null if not found or invalid data.
      */
@@ -603,7 +603,7 @@ public interface IRequest {
     /**
      * Stores a X509CertInfo as base64 encoded text using the getEncodedInfo()
      * method.
-     * 
+     *
      * @param key The ExtData key
      * @param data certificate
      * @return False if the key is invalid.
@@ -612,7 +612,7 @@ public interface IRequest {
 
     /**
      * Retrieves the data, which should be base64 encoded as a byte array.
-     * 
+     *
      * @param key The ExtData key
      * @return The data, or null if an error occurs.
      */
@@ -620,7 +620,7 @@ public interface IRequest {
 
     /**
      * Stores an array of X509CertInfos as a base64 encoded text.
-     * 
+     *
      * @param key The ExtData key
      * @param data The array of cert infos to store
      * @return False if the key or data is invalid.
@@ -629,7 +629,7 @@ public interface IRequest {
 
     /**
      * Retrieves an array of X509CertInfo.
-     * 
+     *
      * @param key The ExtData key
      * @return Array of cert infos, or null if not found or invalid data.
      */
@@ -637,7 +637,7 @@ public interface IRequest {
 
     /**
      * Stores an array of RevokedCertImpls as a base64 encoded text.
-     * 
+     *
      * @param key The ExtData key
      * @param data The array of cert infos to store
      * @return False if the key or data is invalid.
@@ -646,7 +646,7 @@ public interface IRequest {
 
     /**
      * Retrieves an array of RevokedCertImpl.
-     * 
+     *
      * @param key The ExtData key
      * @return Array of cert infos, or null if not found or invalid data.
      */
@@ -656,10 +656,10 @@ public interface IRequest {
      * Stores the contents of the String Vector in ExtData.
      * TODO - as soon as we're allowed to use JDK5 this should be changed
      * to use Vector<String> data.
-     * 
+     *
      * Note that modifications to the Vector are not automatically reflected
      * after it is stored. You must call set() again to make the changes.
-     * 
+     *
      * @param key The extdata key to store
      * @param data A vector of Strings to store
      * @return False on key error or invalid data.
@@ -671,7 +671,7 @@ public interface IRequest {
      * Note that the returned vector, if modified, does not make changes
      * in ExtData. You must call setExtData() to propogate changes back
      * into ExtData.
-     * 
+     *
      * @param key The extdata key
      * @return A Vector of strings, or null on error.
      */
@@ -680,7 +680,7 @@ public interface IRequest {
     /**
      * Gets boolean value for given type or default value
      * if attribute is absent.
-     * 
+     *
      * @param type attribute type
      * @param defVal default attribute value
      * @return attribute value
@@ -690,7 +690,7 @@ public interface IRequest {
     /**
      * Gets extdata boolean value for given type or default value
      * if attribute is absent for this request with this prefix.
-     * 
+     *
      * @param prefix request prefix
      * @param type attribute type
      * @param defVal default attribute value
@@ -700,7 +700,7 @@ public interface IRequest {
 
     /**
      * Stores an AuthToken the same as a Hashtable.
-     * 
+     *
      * @param key The ExtData key
      * @param data The authtoken to store
      * @return False if the key or data is invalid.
@@ -709,7 +709,7 @@ public interface IRequest {
 
     /**
      * Retrieves an authtoken.
-     * 
+     *
      * @param key The ExtData key
      * @return AuthToken, or null if not found or invalid data.
      */
@@ -717,7 +717,7 @@ public interface IRequest {
 
     /**
      * Stores a CertificateExtensions in extdata.
-     * 
+     *
      * @param key The ExtData key
      * @param data The CertificateExtensions to store
      * @return False if the key or data is invalid.
@@ -726,7 +726,7 @@ public interface IRequest {
 
     /**
      * Retrieves the CertificateExtensions associated with the key.
-     * 
+     *
      * @param key The ExtData key
      * @return the object, or null if not found or invalid data.
      */
@@ -734,7 +734,7 @@ public interface IRequest {
 
     /**
      * Stores a CertificateSubjectName in extdata.
-     * 
+     *
      * @param key The ExtData key
      * @param data The CertificateSubjectName to store
      * @return False if the key or data is invalid.
@@ -743,7 +743,7 @@ public interface IRequest {
 
     /**
      * Retrieves the CertificateSubjectName associated with the key.
-     * 
+     *
      * @param key The ExtData key
      * @return the object, or null if not found or invalid data.
      */

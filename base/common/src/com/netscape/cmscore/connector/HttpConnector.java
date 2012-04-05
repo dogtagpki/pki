@@ -70,7 +70,7 @@ public class HttpConnector implements IConnector {
         }
 
         //        mConn = CMS.getHttpConnection(dest, mFactory);
-        // this will start resending past requests in parallel. 
+        // this will start resending past requests in parallel.
         mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
         mResendThread = new Thread(mResender, "HttpConnector");
     }
@@ -95,7 +95,7 @@ public class HttpConnector implements IConnector {
             CMS.debug("can't create new HttpConnFactory");
         }
 
-        // this will start resending past requests in parallel. 
+        // this will start resending past requests in parallel.
         mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
         mResendThread = new Thread(mResender, "HttpConnector");
     }
@@ -140,7 +140,7 @@ public class HttpConnector implements IConnector {
             CMS.debug("reply status " + replyStatus);
 
             // non terminal states.
-            // XXX hack: don't resend get revocation info requests since 
+            // XXX hack: don't resend get revocation info requests since
             // resent results are ignored.
             if ((!r.getRequestType().equals(
                         IRequest.GETREVOCATIONINFO_REQUEST)) &&
@@ -169,7 +169,7 @@ public class HttpConnector implements IConnector {
                 r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
                 r.setExtData(IRequest.ERROR,
                         new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
-                // XXX overload svcerrors for now. 
+                // XXX overload svcerrors for now.
                 Vector<String> policyErrors = r.getExtDataInStringVector(IRequest.ERRORS);
 
                 if (policyErrors != null && policyErrors.size() > 0) {
@@ -189,7 +189,7 @@ public class HttpConnector implements IConnector {
             CMS.debug("HttpConn:  error sending request to cert " + e.toString());
             mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
                     .toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
-            // mSource.log(ILogger.LL_INFO, 
+            // mSource.log(ILogger.LL_INFO,
             //    "Queing " + r.getRequestId() + " for resend.");
             return false;
         } finally {

@@ -28,21 +28,21 @@ import java.util.Locale;
  * <p>
  * A plugin, for example, can be described as a property template.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IConfigTemplate {
 
     /**
      * Returns a list of configuration parameter names.
-     * 
+     *
      * @return parameter names
      */
     public Enumeration<String> getConfigNames();
 
     /**
      * Returns the descriptors of configuration parameter.
-     * 
+     *
      * @param locale user locale
      * @param name configuration parameter name
      * @return descriptor
@@ -51,7 +51,7 @@ public interface IConfigTemplate {
 
     /**
      * Sets configuration parameter.
-     * 
+     *
      * @param name parameter name
      * @param value parameter value
      * @exception EPropertyException failed to set parameter
@@ -61,7 +61,7 @@ public interface IConfigTemplate {
 
     /**
      * Retrieves configuration parameter by name.
-     * 
+     *
      * @return parameter
      */
     public String getConfig(String name);

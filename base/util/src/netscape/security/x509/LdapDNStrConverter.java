@@ -22,20 +22,20 @@ import java.io.IOException;
 /**
  * Abstract class that converts a Ldap DN String to an X500Name, RDN or AVA
  * and vice versa, except the string is a java string in unicode.
- * 
+ *
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
 public abstract class LdapDNStrConverter {
-    // 
+    //
     // public parsing methods.
     //
 
     /**
      * Converts a Ldap DN string to a X500Name object.
-     * 
+     *
      * @param dn a Ldap DN String.
-     * 
+     *
      * @return an X500Name object for the Ldap DN String.
      */
     public abstract X500Name parseDN(String dn)
@@ -49,9 +49,9 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Converts a Ldap DN string to a RDN object.
-     * 
+     *
      * @param rdn a Ldap DN String
-     * 
+     *
      * @return an RDN object.
      */
     public abstract RDN parseRDN(String rdn)
@@ -65,7 +65,7 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Converts a Ldap DN string to a AVA object.
-     * 
+     *
      * @param ava a Ldap DN string.
      * @return an AVA object.
      */
@@ -84,7 +84,7 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Converts a X500Name object to a Ldap dn string.
-     * 
+     *
      * @param dn an X500Name object.
      * @return a Ldap DN String.
      */
@@ -92,7 +92,7 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Converts an RDN object to a Ldap dn string.
-     * 
+     *
      * @param rdn an RDN object.
      * @return a Ldap dn string.
      */
@@ -100,7 +100,7 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Converts an AVA object to a Ldap dn string.
-     * 
+     *
      * @param ava An AVA object.
      * @return A Ldap dn string.
      */
@@ -114,9 +114,9 @@ public abstract class LdapDNStrConverter {
      * Gets a global default Ldap DN String converter.
      * Currently it is LdapV3DNStrConverter object using the default
      * X500NameAttrMap and accepts unknown OIDs.
-     * 
+     *
      * @see netscape.security.x509.LdapV3DNStrConverter
-     * 
+     *
      * @return The global default LdapDNStrConverter instance.
      */
     public static LdapDNStrConverter getDefault() {
@@ -125,7 +125,7 @@ public abstract class LdapDNStrConverter {
 
     /**
      * Set the global default LdapDNStrConverter object.
-     * 
+     *
      * @param defConverter A LdapDNStrConverter object to become
      *            the global default.
      */

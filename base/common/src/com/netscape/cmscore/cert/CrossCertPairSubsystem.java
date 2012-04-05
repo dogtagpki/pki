@@ -60,7 +60,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
  * If it happens that the above two cases finds its pairing
  * cert already there, then a CertifiatePair is created and put
  * in the internal db "crosscertificatepair;binary" attribute
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -141,7 +141,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * If it happens that it finds its pairing
      * cert already there, then a CertifiatePair is created and put
      * in the internal db "crosscertificatepair;binary" attribute
-     * 
+     *
      * @param certBytes cert in byte array to be imported
      */
     public void importCert(byte[] certBytes) throws EBaseException {
@@ -166,7 +166,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * If it happens that it finds its pairing
      * cert already there, then a CertifiatePair is created and put
      * in the internal db "crosscertificatepair;binary" attribute
-     * 
+     *
      * @param certBytes cert in byte array to be imported
      */
     public synchronized void importCert(Object certObj) throws EBaseException {
@@ -180,7 +180,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         // cert
         // 2. does cert2's subject match this CA's subject?
         // 3. other valididity checks: is this a ca cert?  Is this
-        // cert still valid?  If the issuer is not yet trusted, let it 
+        // cert still valid?  If the issuer is not yet trusted, let it
         // be.
 
         // get certs from internal db to see if we find a pair
@@ -277,7 +277,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
     /**
      * are cert1 and cert2 cross-signed certs?
-     * 
+     *
      * @param cert1 the cert for comparison in our internal db
      * @param cert2 the cert that's being considered
      */

@@ -41,7 +41,7 @@ public class ServerInfo {
     public static CMSProperties props = null;
     public static CMSProperties CMSprops = null;
 
-    // Private variables 
+    // Private variables
     private int i;
     public String CMSConfigFile, AdminConfigFile;
 
@@ -150,7 +150,7 @@ public class ServerInfo {
         readCMSConfig();
     }
 
-    // Private functions 
+    // Private functions
     private void SystemInfo() {
         try {
             domain = InetAddress.getLocalHost().getHostName();
@@ -351,5 +351,5 @@ public class ServerInfo {
 
     }// end of function main
 
-} // end of class 
+} // end of class
 

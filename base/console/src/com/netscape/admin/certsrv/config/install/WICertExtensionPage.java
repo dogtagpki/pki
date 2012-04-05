@@ -29,10 +29,10 @@ import com.netscape.admin.certsrv.config.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config.install
  */
-class WICertExtensionPage extends WBaseCertExtensionPage implements 
+class WICertExtensionPage extends WBaseCertExtensionPage implements
   IWizardPanel {
     protected String mHelpIndex;
-    
+
     WICertExtensionPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -45,7 +45,7 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
 
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
-        return super.initializePanel(info); 
+        return super.initializePanel(info);
     }
 
     public boolean concludePanel(WizardInfo info) {
@@ -60,7 +60,7 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
             rawData = rawData+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
             rawData = rawData+ConfigConstants.PR_CERTIFICATE_EXTENSION+"="+
               mMIMEText.getText().trim();
- 
+
             startProgressStatus();
             ready = send(rawData, wizardInfo);
             endProgressStatus();
@@ -105,14 +105,14 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
             if (mMIMECheckBox.isSelected())
                 nvps.put(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
 
-            wizardInfo.put(wizardInfo.ALL_CERT_INFO, nvps); 
+            wizardInfo.put(wizardInfo.ALL_CERT_INFO, nvps);
         }
 
         mModified = true;
         return ready;
     }
 
-    private void addValidityPeriod(InstallWizardInfo wizardInfo, 
+    private void addValidityPeriod(InstallWizardInfo wizardInfo,
       NameValuePairs nvps) {
         nvps.put(Constants.PR_BEGIN_YEAR, wizardInfo.getBeginYear());
         nvps.put(Constants.PR_BEGIN_MONTH, wizardInfo.getBeginMonth());
@@ -143,7 +143,7 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
     }
 
     private void addExtendedKey(NameValuePairs nvps) {
-        if (mSSLClient.isSelected()) 
+        if (mSSLClient.isSelected())
             nvps.put(Constants.PR_SSL_CLIENT_BIT, Constants.TRUE);
         if (mSSLServer.isSelected())
             nvps.put(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);

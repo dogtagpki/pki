@@ -40,7 +40,7 @@ public class CMSResourceObject extends ResourceObject {
     private JPanel mRightPane;
     private String mNickName;
     protected ResourceBundle mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-    
+
 	/*==========================================================
 	 * constructors
 	 *==========================================================*/
@@ -89,9 +89,9 @@ public class CMSResourceObject extends ResourceObject {
      * Returns the internal nickname for this resource object
      */
     public String getNickName() {
-        return mNickName;    
+        return mNickName;
     }
-    
+
 	/**
 	 * Returns the AWT Component that is displayed in the right hand pane
 	 * of the resource page.
@@ -110,7 +110,7 @@ public class CMSResourceObject extends ResourceObject {
 	public void setCustomPanel(JPanel panel) {
 	    mRightPane = panel;
 	}
-	
+
 	protected MenuItemText getMenuItemText(String keyword) {
 		ResourceBundle mResource = ResourceBundle.getBundle(
 			CMSAdminResources.class.getName());
@@ -121,6 +121,6 @@ public class CMSResourceObject extends ResourceObject {
 		if (desc == null)
 			desc = " ";
 		return new MenuItemText( keyword, name, desc);
-	}	
+	}
 
 }

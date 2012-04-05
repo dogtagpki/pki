@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Servlet to report the status, ie, the agent-initiated user
  * enrollment is enabled or disabled.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayHashUserEnroll extends CMSServlet {

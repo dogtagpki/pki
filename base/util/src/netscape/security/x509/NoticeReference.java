@@ -26,12 +26,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the NoticeReference.
- * 
+ *
  * NoticeReference ::= SEQUENCE {
  * organization DisplayText,
  * noticeNumbers SEQUENCE OF INTEGER
  * }
- * 
+ *
  * @author Thomas Kwan
  */
 public class NoticeReference {
@@ -77,7 +77,7 @@ public class NoticeReference {
 
     /**
      * Write the NoticeReference to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

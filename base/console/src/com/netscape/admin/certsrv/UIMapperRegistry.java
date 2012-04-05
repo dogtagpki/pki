@@ -53,10 +53,10 @@ public class UIMapperRegistry {
      * @param mapperClassName fully qualified class name implementing UI
      */
     /* XXX WE DON'T NEED THIS
-    public static void registerCertAttrUI(String className, String oid, 
-                                    String attrName, String mapperClassName) 
+    public static void registerCertAttrUI(String className, String oid,
+                                    String attrName, String mapperClassName)
         throws ClassNotFoundException, CertificateException
-    {                                    
+    {
         Class extClass, mapClass;
         extClass = Class.forName(className);
         mapClass = Class.forName(mapperClassName);
@@ -64,7 +64,7 @@ public class UIMapperRegistry {
         registerCertAttrUI(attrName,mapperClassName);
     }
     */
-    
+
     /**
      * internal register new cert attr
      *
@@ -74,14 +74,14 @@ public class UIMapperRegistry {
      */
     public static void registerCertAttrUI(String attrName, String mapperClassName) {
         mAttrContent.put(attrName, mapperClassName);
-    }    
-    
+    }
+
     /**
      * Retrieve all certificate attribute name
      */
     public static Enumeration getCertAttrNames() {
         return mAttrContent.keys();
-    }    
+    }
 
     /**
      * Retrieve all extension UI Mappers
@@ -95,7 +95,7 @@ public class UIMapperRegistry {
      *
      * @param certAttrClassName certificate attribute name
      */
-    public static IUIMapper getCertAttrUI(String certAttrClassName) 
+    public static IUIMapper getCertAttrUI(String certAttrClassName)
         throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
         String mapperClassName = (String) mAttrContent.get(certAttrClassName);
@@ -116,6 +116,6 @@ public class UIMapperRegistry {
         registry.addExtensionMapping
         */
     }
-    
+
 }
 

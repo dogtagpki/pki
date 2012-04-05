@@ -39,7 +39,7 @@ public class BasicAuthenticator implements IAuthenticator {
 	public String getUserid() {
 		return mUserid;
 	}
-	
+
 	public String getPassword() {
 		return mPassword;
 	}
@@ -47,7 +47,7 @@ public class BasicAuthenticator implements IAuthenticator {
 	public void setUserId(String userid) {
 		mUserid = userid;
 	}
-	
+
 	public void setPassword(String password) {
 		mPassword = password;
 	}

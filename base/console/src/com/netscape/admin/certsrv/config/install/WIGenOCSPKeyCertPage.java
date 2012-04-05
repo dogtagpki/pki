@@ -27,7 +27,7 @@ import com.netscape.management.client.util.*;
 
 /**
  * Generate the OCSP signing certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
@@ -51,7 +51,7 @@ class WIGenOCSPKeyCertPage extends WIGenKeyCertPage {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 
 Debug.println("+++++++++++++++++++++++++++++=WIGenOCSPKeyCertPage ");
-        if (!wizardInfo.isOCSPInstalled()) 
+        if (!wizardInfo.isOCSPInstalled())
             return false;
 
         mHelpIndex = OCSPHELPINDEX;

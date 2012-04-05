@@ -33,7 +33,7 @@ import com.netscape.certsrv.common.*;
  * The administrator can use this dialog to management the
  * certificates of specific user. This allows the import of
  * new certificates and delete/view of existing certificates.
- * 
+ *
  * This dialog is launched by clicking on the certificate button
  * on the main user management tab.
  *
@@ -64,7 +64,7 @@ public class CertManagementDialog extends JDialog
     private JList mList;
 
     private JButton mOK, mCancel, mAdd, mDelete, mView, mHelp;
-    private final static String HELPINDEX = 
+    private final static String HELPINDEX =
       "usersgroups-certsrv-manage-usercert-dbox-help";
 
     /*==========================================================
@@ -94,7 +94,7 @@ public class CertManagementDialog extends JDialog
      */
     public void showDialog(String uid) {
         mUID = uid;
-        
+
         if (!refresh())
             return;
         setButtons();
@@ -154,7 +154,7 @@ public class CertManagementDialog extends JDialog
     /*==========================================================
 	 * private methods
      *==========================================================*/
-    
+
     /**
      * Setup the initial UI components
      */
@@ -278,10 +278,10 @@ public class CertManagementDialog extends JDialog
 
     //refresh the table content
     private boolean refresh() {
-        
+
         mDataModel.clear();
         mPPData.removeAllElements();
-        
+
         NameValuePairs response;
         try {
             response = mConnection.read(DestDef.DEST_USER_ADMIN,
@@ -290,19 +290,19 @@ public class CertManagementDialog extends JDialog
         } catch (EAdminException e) {
             CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
                     e.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
-            return false;   
+            return false;
         }
-        
+
         //parse data
         String[] vals = new String[response.size()];
         int i=0;
-        
+
         for (String entry : response.keySet()) {
             vals[i++] = entry.trim();
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
             String str = reformat(vals[y]);
             mDataModel.addElement(new JLabel(str,
@@ -310,7 +310,7 @@ public class CertManagementDialog extends JDialog
                 JLabel.LEFT));
             mPPData.addElement(response.get(vals[y]));
         }
-        
+
         return true;
     }
 
@@ -334,7 +334,7 @@ public class CertManagementDialog extends JDialog
       String serial = val.substring(9, subject_pos).trim();
       long num = CMSAdminUtil.hexToLong(serial);
       try {
-          return "-1;" + 
+          return "-1;" +
 	     num + ";" +
              val.substring(issuer_pos+7).trim() + ";" +
              val.substring(subject_pos+8, issuer_pos).trim();
@@ -356,20 +356,20 @@ public class CertManagementDialog extends JDialog
 		String issuer=null;
 		String subject=null;
 
-		try { 
+		try {
 			version = st.nextToken();
 			serial  = st.nextToken();
 			issuer  = st.nextToken();
 			subject = st.nextToken();
 		} catch (Exception e) {}
-			
+
 		try {
 			if (serial != null) {
 				String hexserial = Integer.toHexString(Integer.parseInt(serial));
 				name = name + "Serial:0x"+hexserial;
 			}
 		} catch (Exception e) {}
-		
+
 
 		if (subject != null) {
 			name = name + "     Subject:"+subject;
@@ -381,7 +381,7 @@ public class CertManagementDialog extends JDialog
 
         return name;
     }
-    
+
     private void addCert(String B64E) {
         //send comment to server for the removal of user
         NameValuePairs config = new NameValuePairs();
@@ -397,8 +397,8 @@ public class CertManagementDialog extends JDialog
                     e.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
             return;
         }
-    }    
-    
+    }
+
     /**
      * routine to cleanup the certificate data
      * this removes end of line embedded in the
@@ -415,15 +415,15 @@ public class CertManagementDialog extends JDialog
                 buff.append(c);
         }
         return buff.toString();
-    }    
-    
+    }
+
     private void deleteCert() {
         //get entry name
         String dn = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
         dn = toServerFormat(dn);
         NameValuePairs config = new NameValuePairs();
         config.put(Constants.PR_USER_CERT, dn);
-        
+
         //send comment to server for the removal of user
         try {
             mConnection.modify(DestDef.DEST_USER_ADMIN,

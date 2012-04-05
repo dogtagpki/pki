@@ -222,7 +222,7 @@ public class WizardServlet extends VelocityServlet {
     public int getPanelNo(HttpServletRequest request) {
         int p = 0;
 
-        // panel number can be identified by either 
+        // panel number can be identified by either
         //   panel no (p parameter) directly, or
         //   panel name (panelname parameter).
         if (request.getParameter("panelname") != null) {
@@ -424,7 +424,7 @@ public class WizardServlet extends VelocityServlet {
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
-            // all sensitive parameters should be prefixed with 
+            // all sensitive parameters should be prefixed with
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed

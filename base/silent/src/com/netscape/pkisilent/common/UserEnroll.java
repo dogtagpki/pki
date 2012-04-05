@@ -60,7 +60,7 @@ public class UserEnroll extends TestClient {
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * 
+     *
      * @param propfilename name of the parameter file
      */
 
@@ -73,7 +73,7 @@ public class UserEnroll extends TestClient {
      * CertdbDirecrory(fullpath) , certdbPassword, keysize, keytype, requestorName,requestorEmail and Certtype.
      * valid values for Certtype - "ca","ra","ocsp"
      * <p>
-     * 
+     *
      * @param propfilename name of the parameter file
      */
 
@@ -515,22 +515,22 @@ public class UserEnroll extends TestClient {
          {
          System.out.println("Usage : propertiesfile");
          System.exit(0);
-         }   
+         }
 
 
          UserEnroll t = new UserEnroll(args[0]);
          st=t.enroll();
-         if (st){ 
+         if (st){
          System.out.println("User Enrolled successfully . RequestId is "+t.getrequestId());
          System.exit(t.getRequestId());
-         }     	
+         }
          else{
 
-         System.out.println("Error: " + t.getErrorDetail());	 
+         System.out.println("Error: " + t.getErrorDetail());
          System.exit(0);
          }
          */
     }// end of function main
 
-} // end of class 
+} // end of class
 

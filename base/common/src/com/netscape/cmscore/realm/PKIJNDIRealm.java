@@ -32,19 +32,19 @@ import javax.servlet.http.HttpServletResponse;
 
 /*
  *  Self contained PKI JNDI Real that overrides the standard JNDI Realm
- * 
+ *
  *  The purpose is to move authentication and authorization code out of the core server.
  *  This realm can be used standalone with only the dependency of having tomcatjss and jss installed
  *  and having tomcatjss connectors configured in the tomcat instance.
- *  
+ *
  *  This realm allows for configurable SSL client authentication checking as well
  *  as checking against the standard PKI ACLs we have configured in our ldap database.
  *  Those not using a CS instance could either not configure the ACL checking or
  *  override this class to read in and evaluate their own ACL's.
- *  
+ *
  *  This code makes use and simplifies some existing ACL and authorization code
  *  from the main server for now.
- * 
+ *
  */
 
 public class PKIJNDIRealm extends JNDIRealm {
@@ -123,11 +123,11 @@ public class PKIJNDIRealm extends JNDIRealm {
 
         //Call the getPrincipal method of the base JNDIRealm class
         //based on the just calculated uid. During the next call
-        // one of our methods to extract and store the user's ldap stored 
+        // one of our methods to extract and store the user's ldap stored
         //client cert will be invoked
 
         Principal user = getPrincipal(uid);
-        
+
         //ToDo: Possibly perform some more cert verficiation
         // such as OCSP, even though the tomcat jss connector
         // can already be configured for OCSP
@@ -154,12 +154,12 @@ public class PKIJNDIRealm extends JNDIRealm {
      * otherwise return <code>null</code>.
      * Override here to extract the client auth certificate from the
      * ldap db.
-     * 
+     *
      * @param context The directory context
      * @param username Username to be looked up
-     * 
+     *
      * @exception NamingException if a directory server error occurs
-     * 
+     *
      * @see #getUser(DirContext, String, String, int)
      */
     @Override
@@ -175,7 +175,7 @@ public class PKIJNDIRealm extends JNDIRealm {
         // Support for SSL client auth does not appear to support
         // the userPattern attribute. Certainly another method here
         // could be overridden to get this working.
-        
+
         User certUser = super.getUser(context, username);
 
         if (certUser != null) {
@@ -190,12 +190,12 @@ public class PKIJNDIRealm extends JNDIRealm {
      * Return <code>true</code> if this constraint is satisfied and processing
      * should continue, or <code>false</code> otherwise.
      * override to check for custom PKI ACL's authz permissions.
-     * 
+     *
      * @param request Request we are processing
      * @param response Response we are creating
      * @param constraints Security constraint we are enforcing
      * @param context The Context to which client of this class is attached.
-     * 
+     *
      * @exception IOException if an input/output error occurs
      */
     @Override
@@ -254,7 +254,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
         return allowed;
     }
-    
+
     /**
      * Return a List of roles associated with the given User.  Any
      * roles present in the user's directory entry are supplemented by
@@ -280,10 +280,10 @@ public class PKIJNDIRealm extends JNDIRealm {
 
         return super.getRoles(context, user);
     }
-    
+
     /* Custom variables, see <Realm> element */
 
-    /* Attribute to find encoded Cert in ldap 
+    /* Attribute to find encoded Cert in ldap
      * "userCertificate" is most common value.
      */
     private String certAttrName;
@@ -296,7 +296,7 @@ public class PKIJNDIRealm extends JNDIRealm {
         this.certAttrName = certAttrName;
     }
 
-    /* Attribute to find encoded acl resources in ldap 
+    /* Attribute to find encoded acl resources in ldap
      * "aclResources" is most common value.
      */
     private String aclAttrName;
@@ -309,7 +309,7 @@ public class PKIJNDIRealm extends JNDIRealm {
         this.aclAttrName = aclAttrName;
     }
 
-    /* Attribute for base dn of acl resources in ldap 
+    /* Attribute for base dn of acl resources in ldap
      */
 
     private String aclBase;
@@ -338,7 +338,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
     /* Saved user certificate object obtained during authentication
      * from the user's LDAP record.
-     * Will be accessed later to compare with incoming client auth certificate. 
+     * Will be accessed later to compare with incoming client auth certificate.
      */
     private X509Certificate storedUserCert;
 
@@ -547,7 +547,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
     }
 
-    /* Attempt to get the stored user certificate object and save it for 
+    /* Attempt to get the stored user certificate object and save it for
      * future reference. This all takes place within one command invocation from
      * the getPrincipal method defined here.
      */
@@ -630,7 +630,7 @@ public class PKIJNDIRealm extends JNDIRealm {
     // as one of the parameters to the message.
     // There may be a way to extract this information at this level.
     // The parameter name to scan for could be configured with the Realm.
-    
+
     private String getACLEntryDataForURL(String requestURI) {
         String aclEntryData;
 
@@ -746,9 +746,9 @@ public class PKIJNDIRealm extends JNDIRealm {
 
     /**
      * Parse ACL resource attributes
-     * 
+     *
      * @param res same format as the resource attribute:
-     * 
+     *
      *            <PRE>
      *     <resource name>:<permission1,permission2,...permissionn>:
      *     <allow|deny> (<subset of the permission set>) <evaluator expression>
@@ -894,14 +894,14 @@ public class PKIJNDIRealm extends JNDIRealm {
             return;
         }
     }
-    
+
     /**
      * Return a String representing the value of the specified attribute.
      * Create our own since the super class has it as private
-     * 
+     *
      * @param attrId Attribute name
      * @param attrs Attributes containing the required value
-     * 
+     *
      * @exception NamingException if a directory server error occurs
      */
     private Vector<String> getAttributeValues(String attrId, Attributes attrs)
@@ -929,7 +929,7 @@ public class PKIJNDIRealm extends JNDIRealm {
         }
         return values;
     }
-    
+
    /*
     * ToDo: Figure out how to do real logging
     */

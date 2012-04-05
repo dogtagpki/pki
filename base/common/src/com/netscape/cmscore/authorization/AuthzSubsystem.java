@@ -40,7 +40,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * Default authorization subsystem
  * <P>
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -71,7 +71,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * Initializes the authorization subsystem from the config store.
      * Load Authorization manager plugins, create and initialize
      * initialize authorization manager instances.
-     * 
+     *
      * @param owner The owner of this module.
      * @param config The configuration store.
      */
@@ -184,7 +184,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * authMgrzAccessInit is for servlets who want to initialize their
      * own authorization information before full operation. It is supposed
      * to be called during the init() method of a servlet.
-     * 
+     *
      * @param authzMgrName The authorization manager name
      * @param accessInfo the access information to be initialized. currently it's acl string in the format specified in
      *            the authorization manager
@@ -211,7 +211,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Authorization to the named authorization manager instance
-     * 
+     *
      * @param authzMgrName The authorization manager name
      * @param authToken the authenticaton token associated with a user
      * @param resource the resource protected by the authorization system
@@ -266,7 +266,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     /**
      * Gets configuration parameters for the given
      * authorization manager plugin.
-     * 
+     *
      * @param implName Name of the authorization plugin.
      * @return Hashtable of required parameters.
      */
@@ -303,7 +303,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Add an authorization manager instance.
-     * 
+     *
      * @param name name of the authorization manager instance
      * @param authzMgr the authorization manager instance to be added
      */
@@ -321,7 +321,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Gets the authorization manager instance of the specified name.
-     * 
+     *
      * @param name name of the authorization manager instance
      * @return the named authorization manager instance
      */
@@ -385,7 +385,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Retrieves id (name) of this subsystem.
-     * 
+     *
      * @return name of the authorization subsystem
      */
     public String getId() {
@@ -396,7 +396,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * Sets id string to this subsystem.
      * <p>
      * Use with caution. Should not do it when sharing with others
-     * 
+     *
      * @param id name to be applied to an authorization sybsystem
      */
     public void setId(String id) throws EBaseException {
@@ -444,7 +444,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -453,7 +453,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * gets the named authorization manager
-     * 
+     *
      * @param name of the authorization manager
      * @return the named authorization manager
      */

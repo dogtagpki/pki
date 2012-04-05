@@ -30,7 +30,7 @@ import javax.swing.table.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * Policy Implementation Information viewer 
+ * Policy Implementation Information viewer
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
@@ -160,7 +160,7 @@ public class StatusDialog extends JDialog
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE);
         gb3.setConstraints(mDetails, gbc);
 	content.add(mDetails);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mTextArea = new JTextArea("",3,50);
         mTextArea.setFont(mTitle.getFont());
@@ -180,7 +180,7 @@ public class StatusDialog extends JDialog
         gbc.weighty=1.0;
         gb3.setConstraints(scrollPanel, gbc);
         content.add(scrollPanel);
-        
+
         return content;
     }
 }

@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.ICertPrettyPrint;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */

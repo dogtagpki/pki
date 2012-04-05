@@ -34,7 +34,7 @@ import com.netscape.management.client.util.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public abstract class CMSBaseTab extends CMSBaseConfigPanel 
+public abstract class CMSBaseTab extends CMSBaseConfigPanel
   implements IRefreshTab {
 
     /*==========================================================
@@ -66,28 +66,28 @@ public abstract class CMSBaseTab extends CMSBaseConfigPanel
         super.clearDirtyFlag();
         mParent.clearDirtyTab(this);
     }
-    
+
     //=== OVERWRITE DIALOG MESSAGE =====================
-    
+
     protected void showMessageDialog(String keyword, int messageType ) {
         CMSAdminUtil.showMessageDialog(mParent.mModel.getFrame(), mResource, mPanelName, keyword, messageType);
     }
-    
+
     protected void showMessageDialog(String keyword) {
         showMessageDialog(keyword, ERROR_MESSAGE);
     }
-    
+
     protected int showConfirmDialog(String keyword, int messageType ) {
         return CMSAdminUtil.showConfirmDialog(mParent.mModel.getFrame(), mResource, mPanelName, keyword, messageType);
-    }    
-    
+    }
+
     protected int showConfirmDialog(String keyword) {
         return showConfirmDialog(keyword, WARNING_MESSAGE);
     }
-    
+
     protected void showErrorDialog(String message) {
         CMSAdminUtil.showErrorDialog(mParent.mModel.getFrame(), mResource, message, ERROR_MESSAGE);
-    }	    
+    }
 
     public void refresh() {
     }

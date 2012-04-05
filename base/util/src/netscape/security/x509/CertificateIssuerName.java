@@ -29,7 +29,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the X500Name attribute for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -52,7 +52,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Default constructor for the certificate attribute.
-     * 
+     *
      * @param name the X500Name
      */
     public CertificateIssuerName(X500Name name) {
@@ -61,7 +61,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -71,7 +71,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -91,7 +91,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Encode the name in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -104,7 +104,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Decode the name in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to marshal the contents from.
      * @exception IOException on errors.
      */

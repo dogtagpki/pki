@@ -29,7 +29,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 /**
  * A class represents a list of certificate records.
  * <P>
- * 
+ *
  * @author thomask mzhao
  * @version $Revision$, $Date$
  */

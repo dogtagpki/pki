@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * Maps a X509 certificate to a LDAP entry by using the subject name
  * of the certificate as the LDAP entry DN.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
@@ -103,7 +103,7 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Finds the entry for the certificate by looking for the cert
      * subject name in the subject name attribute.
-     * 
+     *
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      */
@@ -172,13 +172,13 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
 
         /*
          catch (IOException e) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          CMS.getLogMessage("PUBLISH_CANT_GET_SUBJECT", e.toString()));
          throw new ELdapException(
          LdapResources.GET_CERT_SUBJECT_DN_FAILED, e);
          }
          catch (CertificateEncodingException e) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()));
          throw new ELdapException(
          LdapResources.GET_DER_ENCODED_CERT_FAILED, e);

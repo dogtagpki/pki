@@ -50,7 +50,7 @@ import com.netscape.certsrv.request.RequestId;
  * A job for the Jobs Scheduler. This job checks in the internal ldap
  * db for certs about to expire within the next configurable days and
  * sends email notifications to the appropriate recipients.
- * 
+ *
  * the $TOKENS that are available for the this jobs's summary outer form are:<br
  >
  * <UL>
@@ -75,7 +75,7 @@ import com.netscape.certsrv.request.RequestId;
  * <LI>$HttpHost
  * <LI>$HttpPort
  * </UL>
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  * @see com.netscape.cms.jobs.AJobBase
@@ -248,7 +248,7 @@ public class RenewalNotificationJob
 
     /**
      * Initialize from the configuration file.
-     * 
+     *
      * @param id String name of this instance
      * @param implName string name of this implementation
      * @param config configuration store for this instance
@@ -289,7 +289,7 @@ public class RenewalNotificationJob
         mHttpHost = CMS.getEEHost();
         mHttpPort = CMS.getEESSLPort();
 
-        // read from the configuration file				
+        // read from the configuration file
         try {
             mPreDays = mConfig.getInteger(PROP_NOTIFYTRIGGEROFFSET, 30); // in days
             mPostDays = mConfig.getInteger(PROP_NOTIFYENDOFFSET, 15); // in days
@@ -354,7 +354,7 @@ public class RenewalNotificationJob
             // All cert records which:
             //   1) expire before the deadline
             //   2) have not already been renewed
-            // filter format: 
+            // filter format:
             // (& (notafter<='time')(!(certAutoRenew=DONE))(!certAutoRenew=DISABLED))
 
             StringBuffer f = new StringBuffer();
@@ -480,7 +480,7 @@ public class RenewalNotificationJob
 
     /**
      * get instance id.
-     * 
+     *
      * @return a String identifier
      */
     public String getId() {
@@ -489,7 +489,7 @@ public class RenewalNotificationJob
 
     /**
      * set instance id.
-     * 
+     *
      * @param id String id of the instance
      */
     public void setId(String id) {
@@ -498,7 +498,7 @@ public class RenewalNotificationJob
 
     /**
      * get cron string associated with this job
-     * 
+     *
      * @return a JobCron object that represents the schedule of this job
      */
     public IJobCron getJobCron() {
@@ -507,7 +507,7 @@ public class RenewalNotificationJob
 
     /**
      * gets the plugin name of this job.
-     * 
+     *
      * @return a String that is the name of this implementation
      */
     public String getImplName() {
@@ -516,7 +516,7 @@ public class RenewalNotificationJob
 
     /**
      * Gets the configuration substore used by this job
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -585,7 +585,7 @@ public class RenewalNotificationJob
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {

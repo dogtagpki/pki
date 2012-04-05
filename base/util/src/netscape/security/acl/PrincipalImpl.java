@@ -21,7 +21,7 @@ import java.security.Principal;
 
 /**
  * This class implements the principal interface.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class PrincipalImpl implements Principal {
@@ -30,7 +30,7 @@ public class PrincipalImpl implements Principal {
 
     /**
      * Construct a principal from a string user name.
-     * 
+     *
      * @param user The string form of the principal name.
      */
     public PrincipalImpl(String user) {
@@ -40,7 +40,7 @@ public class PrincipalImpl implements Principal {
     /**
      * This function returns true if the object passed matches
      * the principal represented in this implementation
-     * 
+     *
      * @param another the Principal to compare with.
      * @return true if the Principal passed is the same as that
      *         encapsulated in this object, false otherwise

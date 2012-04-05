@@ -31,13 +31,13 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  *   Request         ::=     SEQUENCE {
  *     reqCert                     CertID,
  *     singleRequestExtensions     [0] EXPLICIT Extensions OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 

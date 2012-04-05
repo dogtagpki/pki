@@ -53,7 +53,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * A class represents recovery request processor.
- * 
+ *
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -99,7 +99,7 @@ public class TokenKeyRecoveryService implements IService {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param s The URL to decode
      */
     protected String URLdecode(String s) {
@@ -189,7 +189,7 @@ public class TokenKeyRecoveryService implements IService {
      * - cuid may be used for additional validation check
      * - userid may be used for additional validation check
      * - wrappedDesKey is used for wrapping recovered private key
-     * 
+     *
      * @param request recovery request
      * @return operation success or not
      * @exception EBaseException failed to serve
@@ -320,7 +320,7 @@ public class TokenKeyRecoveryService implements IService {
 
         try {
             /*
-            CryptoToken internalToken = 
+            CryptoToken internalToken =
             CryptoManager.getInstance().getInternalKeyStorageToken();
             */
             CryptoToken token = mStorageUnit.getToken();
@@ -606,7 +606,7 @@ public class TokenKeyRecoveryService implements IService {
      * y
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {

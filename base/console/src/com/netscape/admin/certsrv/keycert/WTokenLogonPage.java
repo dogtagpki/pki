@@ -26,7 +26,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * This panel asks for the user to logon to the keycert token  . 
+ * This panel asks for the user to logon to the keycert token  .
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -69,7 +69,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         mDesc.setText(mResource.getString(mPanelName+"_TEXT_HEADING_LABEL"));
         mTokenNameText.setText(wizardInfo.getTokenName());
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -154,7 +154,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(passwordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.NORTHWEST;

@@ -23,14 +23,14 @@ import java.net.UnknownHostException;
 /**
  * Interface for all connection factory. Primarily act as
  * the abstraction layer for different kind of connection factory.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IConnectionFactory {
 
     /**
      * Creates connection using the host and port
-     * 
+     *
      * @param host The host to connect to
      * @param port The port to connect to
      * @return The created connection

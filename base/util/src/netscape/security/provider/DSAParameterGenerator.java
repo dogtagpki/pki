@@ -68,7 +68,7 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
     /**
      * Initializes this parameter generator for a certain strength
      * and source of randomness.
-     * 
+     *
      * @param strength the strength (size of prime) in bits
      * @param random the source of randomness
      */
@@ -91,10 +91,10 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
     /**
      * Initializes this parameter generator with a set of
      * algorithm-specific parameter generation values.
-     * 
+     *
      * @param params the set of algorithm-specific parameter generation values
      * @param random the source of randomness
-     * 
+     *
      * @exception InvalidAlgorithmParameterException if the given parameter
      *                generation values are inappropriate for this parameter generator
      */
@@ -106,7 +106,7 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
 
     /**
      * Generates the parameters.
-     * 
+     *
      * @return the new AlgorithmParameters object
      */
     protected AlgorithmParameters engineGenerateParameters() {
@@ -148,7 +148,7 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
      *
      * @param random the source of randomness to generate the
      * seed
-     * @param L the size of <code>p</code>, in bits.  
+     * @param L the size of <code>p</code>, in bits.
      *
      * @return an array of BigInteger, with <code>p</code> at index 0 and
      * <code>q</code> at index 1.
@@ -178,7 +178,7 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
      *
      * @return an array of BigInteger, with <code>p</code> at index 0,
      * <code>q</code> at index 1, the seed at index 2, and the counter value
-     * at index 3, or null if the seed does not yield suitable numbers.  
+     * at index 3, or null if the seed does not yield suitable numbers.
      */
     BigInteger[] generatePandQ(byte[] seed, int L) {
 

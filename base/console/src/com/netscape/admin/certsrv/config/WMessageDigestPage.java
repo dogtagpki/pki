@@ -47,7 +47,7 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
     protected String mCAKeyType;
     protected JTextArea mSignedByTypeLbl;
     private static final String HELPINDEX = "install-cert-mda-wizard-help";
-    
+
     public WMessageDigestPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -62,23 +62,23 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
         setBorder(makeTitledBorder(mPanelName));
 
         if (mCAKeyType.equals("RSA")) {
-            mECCHashTypeBox.setVisible(false); 
+            mECCHashTypeBox.setVisible(false);
             mDSAHashTypeBox.setVisible(false);
             mRSAHashTypeBox.setVisible(true);
             String sha1 = mResource.getString(mPanelName+"_COMBOBOX_RSAHASHTYPE_VALUE_2");
             mRSAHashTypeBox.setSelectedItem(sha1);
         } else if (mCAKeyType.equals("ECC")) {
-            mECCHashTypeBox.setVisible(true); 
+            mECCHashTypeBox.setVisible(true);
             mDSAHashTypeBox.setVisible(false);
             mRSAHashTypeBox.setVisible(false);
         } else {
-            mECCHashTypeBox.setVisible(false); 
+            mECCHashTypeBox.setVisible(false);
             mDSAHashTypeBox.setVisible(true);
             mRSAHashTypeBox.setVisible(false);
         }
 
         mHelpIndex = HELPINDEX;
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -93,7 +93,7 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
             mSignedByTypeLbl.setVisible(false);
             return;
         }
- 
+
         if (mCAKeyType.equals("RSA")) {
             mRSASignedByTypeBox.setVisible(true);
             mDSASignedByTypeBox.setVisible(false);
@@ -107,7 +107,7 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
             mDSASignedByTypeBox.setVisible(true);
             mRSASignedByTypeBox.setVisible(false);
         }
-        
+
         mSignedByTypeLbl.setVisible(true);
     }
 

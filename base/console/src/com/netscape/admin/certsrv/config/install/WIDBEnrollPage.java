@@ -50,7 +50,7 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -112,7 +112,7 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel.add(hostName, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mHostNameText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -121,7 +121,7 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         panel.add(mHostNameText, gbc);
-        
+
 /*
         CMSAdminUtil.resetGBC(gbc);
         JTextArea dummy = createTextArea(" ", 2, 5);
@@ -132,13 +132,13 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
 */
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel portNumber = makeJLabel("PORT");        
+        JLabel portNumber = makeJLabel("PORT");
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(portNumber, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(10);
         gbc.anchor = gbc.NORTHWEST;
@@ -147,7 +147,7 @@ class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(mPortText, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel versionLbl = makeJLabel("VERSION");
         gbc.anchor = gbc.NORTHEAST;

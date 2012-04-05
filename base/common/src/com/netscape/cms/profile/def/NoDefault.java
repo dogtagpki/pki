@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements no default policy.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class NoDefault implements IPolicyDefault {

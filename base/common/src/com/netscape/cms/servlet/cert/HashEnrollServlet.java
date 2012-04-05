@@ -85,7 +85,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 /**
  * performs face-to-face enrollment.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class HashEnrollServlet extends CMSServlet {
@@ -99,7 +99,7 @@ public class HashEnrollServlet extends CMSServlet {
     // enrollment templates.
     public static final String ENROLL_SUCCESS_TEMPLATE = "/ra/HashEnrollSuccess.template";
 
-    // http params 
+    // http params
     public static final String OLD_CERT_TYPE = "csrCertType";
     public static final String CERT_TYPE = "certType";
     // same as in ConfigConstant.java
@@ -130,7 +130,7 @@ public class HashEnrollServlet extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -157,7 +157,7 @@ public class HashEnrollServlet extends CMSServlet {
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {
-            // this should never happen. 
+            // this should never happen.
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId));
         }
@@ -165,7 +165,7 @@ public class HashEnrollServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -281,7 +281,7 @@ public class HashEnrollServlet extends CMSServlet {
          * === certAuth based enroll ===
          * "certAuthEnroll" is on.
          * "certauthEnrollType can be one of the three:
-         *		 single - it's for single cert enrollment 
+         *		 single - it's for single cert enrollment
          *		 dual - it's for dual certs enrollment
          *		 encryption - getting the encryption cert only via
          *                    authentication of the signing cert
@@ -349,8 +349,8 @@ public class HashEnrollServlet extends CMSServlet {
         String certBasedOldSubjectDN = null;
         BigInteger certBasedOldSerialNum = null;
 
-        // check if request was authenticated, if so set authtoken & certInfo. 
-        // also if authenticated, take certInfo from authToken. 
+        // check if request was authenticated, if so set authtoken & certInfo.
+        // also if authenticated, take certInfo from authToken.
         X509CertInfo certInfo = null;
 
         if (certAuthEnroll == true) {
@@ -399,14 +399,14 @@ public class HashEnrollServlet extends CMSServlet {
         } else {
             authMgr =
                     authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-            // don't store agent token in request. 
-            // agent currently used for bulk issuance. 
+            // don't store agent token in request.
+            // agent currently used for bulk issuance.
             // if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             log(ILogger.LL_INFO,
                     "Enrollment request was authenticated by " +
                             authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
             fillCertInfoFromAuthToken(certInfo, authToken);
-            // save authtoken attrs to request directly (for policy use) 
+            // save authtoken attrs to request directly (for policy use)
             saveAuthToken(authToken, req);
             // req.set(IRequest.AUTH_TOKEN, authToken);
             // }
@@ -606,9 +606,9 @@ public class HashEnrollServlet extends CMSServlet {
             req.setExtData(CHALLENGE_PASSWORD, pwd);
         }
 
-        // send request to request queue. 
+        // send request to request queue.
         mRequestQueue.processRequest(req);
-        // process result. 
+        // process result.
 
         // render OLD_CERT_TYPE's response differently, we
         // dont want any javascript in HTML, and need to
@@ -628,7 +628,7 @@ public class HashEnrollServlet extends CMSServlet {
         String agentID = null;
 
         if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-            // request is from eegateway, so fromUser. 
+            // request is from eegateway, so fromUser.
             initiative = AuditFormat.FROMUSER;
         } else {
             agentID = authToken.getInString("userid");
@@ -640,7 +640,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if (status != RequestStatus.COMPLETE) {
             cmsReq.setIRequestStatus(); // set status acc. to IRequest status.
-            // audit log the status 
+            // audit log the status
             try {
                 if (status == RequestStatus.REJECTED) {
                     Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
@@ -680,7 +680,7 @@ public class HashEnrollServlet extends CMSServlet {
                                         certInfo.get(X509CertInfo.SUBJECT), "" }
                                 );
                     }
-                } else { // other imcomplete status 
+                } else { // other imcomplete status
                     mLogger.log(ILogger.EV_AUDIT,
                             ILogger.S_OTHER,
                             AuditFormat.LEVEL,
@@ -802,7 +802,7 @@ public class HashEnrollServlet extends CMSServlet {
             throws EBaseException {
         // override subject, validity and extensions from auth token
         // CA determines algorithm, version and issuer.
-        // take key from keygen, cmc, pkcs10 or crmf. 
+        // take key from keygen, cmc, pkcs10 or crmf.
 
         // subject name.
         try {
@@ -953,14 +953,14 @@ public class HashEnrollServlet extends CMSServlet {
                             new CertificateSubjectName(subject));
                 } else if (authToken == null ||
                         authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
-                    // No subject name - error! 
+                    // No subject name - error!
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 }
 
-                // get extensions 
+                // get extensions
                 CertificateExtensions extensions = null;
 
                 try {
@@ -972,8 +972,8 @@ public class HashEnrollServlet extends CMSServlet {
                     extensions = null;
                 }
                 if (certTemplate.hasExtensions()) {
-                    // put each extension from CRMF into CertInfo. 
-                    // index by extension name, consistent with 
+                    // put each extension from CRMF into CertInfo.
+                    // index by extension name, consistent with
                     // CertificateExtensions.parseExtension() method.
                     if (extensions == null)
                         extensions = new CertificateExtensions();
@@ -1013,7 +1013,7 @@ public class HashEnrollServlet extends CMSServlet {
 
                 }
 
-                // Added a new configuration parameter 
+                // Added a new configuration parameter
                 // eeGateway.Enrollment.authTokenOverride=[true|false]
                 // By default, it is set to true. In most
                 // of the case, administrator would want
@@ -1022,7 +1022,7 @@ public class HashEnrollServlet extends CMSServlet {
                 // -- CRMFfillCert
                 if (authToken != null &&
                         authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null) {
-                    // if authenticated override subect name, validity and 
+                    // if authenticated override subect name, validity and
                     // extensions if any from authtoken.
                     fillCertInfoFromAuthToken(certInfo, authToken);
                 }
@@ -1161,11 +1161,11 @@ public class HashEnrollServlet extends CMSServlet {
         out.println("</HTML>");
     }
 
-    // XXX ALERT !! 
-    // Remove the following and calls to them when we bundle a cartman 
-    // later than alpha1. 
-    // These are here to cover up problem in cartman where the 
-    // key usage extension always ends up being digital signature only 
+    // XXX ALERT !!
+    // Remove the following and calls to them when we bundle a cartman
+    // later than alpha1.
+    // These are here to cover up problem in cartman where the
+    // key usage extension always ends up being digital signature only
     // and for rsa-ex ends up having no bits set.
 
     private boolean mIsTestBed = false;
@@ -1196,7 +1196,7 @@ public class HashEnrollServlet extends CMSServlet {
                         exts.get(KeyUsageExtension.NAME);
 
                 if (ext == null)
-                    // should not happen 
+                    // should not happen
                     continue;
                 byte[] value = ext.getExtensionValue();
 
@@ -1207,7 +1207,7 @@ public class HashEnrollServlet extends CMSServlet {
                     newvalue[1] = 0x03;
                     newvalue[2] = 0x07;
                     newvalue[3] = value[3];
-                    // force encryption certs to have digitial signature 
+                    // force encryption certs to have digitial signature
                     // set too so smime can find the cert for encryption.
                     if (value[3] == 0x20) {
 
@@ -1229,10 +1229,10 @@ public class HashEnrollServlet extends CMSServlet {
                     exts.set(KeyUsageExtension.NAME, newext);
                 }
             } catch (IOException e) {
-                // should never happen 
+                // should never happen
                 continue;
             } catch (CertificateException e) {
-                // should never happen 
+                // should never happen
                 continue;
             }
         }

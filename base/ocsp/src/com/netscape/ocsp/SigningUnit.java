@@ -50,7 +50,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * OCSP signing unit based on JSS.
- * 
+ *
  * $Revision$ $Date$
  */
 
@@ -198,10 +198,10 @@ public final class SigningUnit implements ISigningUnit {
     /**
      * Check if the signing algorithm name is supported and valid for this
      * signing unit's token and key.
-     * 
+     *
      * @param algname a signing algorithm name from JCA.
      * @return the mapped JSS signature algorithm object.
-     * 
+     *
      * @exception EBaseException if signing algorithm is not supported.
      */
     public SignatureAlgorithm checkSigningAlgorithmFromName(String algname)
@@ -252,7 +252,7 @@ public final class SigningUnit implements ISigningUnit {
                 signAlg = checkSigningAlgorithmFromName(algname);
             }
 
-            // XXX use a pool of signers based on alg ? 
+            // XXX use a pool of signers based on alg ?
             // XXX Map algor. name to id. hack: use hardcoded define for now.
             CMS.debug(
                     "Getting algorithm context for " + algname + " " + signAlg);

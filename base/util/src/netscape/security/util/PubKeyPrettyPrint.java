@@ -27,7 +27,7 @@ import netscape.security.x509.X509Key;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Jack Pan-Chen
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
@@ -58,7 +58,7 @@ public class PubKeyPrettyPrint {
     /**
      * This method return string representation of the certificate
      * in predefined format using specified client local. I18N Support.
-     * 
+     *
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */

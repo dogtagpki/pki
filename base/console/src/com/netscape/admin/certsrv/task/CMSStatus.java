@@ -112,7 +112,7 @@ public class CMSStatus extends CGITask
                     configDN);
         }
         _consoleInfo.put("arguments", configParams);
-	
+
         if (_consoleInfo.get("AdminUsername") == null)
 	  _consoleInfo.put("AdminUsername", _consoleInfo.getAuthenticationDN()
 );
@@ -132,7 +132,7 @@ public class CMSStatus extends CGITask
 	  status = false;
         }
         Debug.println("CMSStatus: status() after run status="+status);
-	
+
         if (!status) {
 	  Debug.println("Status task returned false");
 	} else {
@@ -143,10 +143,10 @@ public class CMSStatus extends CGITask
 
 
   	/**
-	 * Send an http request to the server. 
-	 * if the admin serever is down do 
+	 * Send an http request to the server.
+	 * if the admin serever is down do
 	 * Return true if we're sure it
-	 * succeeded, otherwise false.  
+	 * succeeded, otherwise false.
 	 *
 	 * @param viewInstance The calling page
 	 * @param cmd Command to execute
@@ -158,22 +158,22 @@ public class CMSStatus extends CGITask
       Debug.println( "Could not get adminURL for " + getDN() );
       return false;
     }
-    
+
     // Allow specifying e.g. "slapd-install" for instance
     String instance = (String)_consoleInfo.get( cmd );
-    
+
     if ( instance == null )
       instance = (String)_consoleInfo.get( "ServerInstance" );
     String fullCmd = mAdminURL + instance + "/" + cmd;
-    
+
     HttpManager h = new HttpManager();
     // tell the http manager to use UTF8 encoding
     h.setSendUTF8(true);
-    
+
     try {
       mSuccess = false;
       mFinished = false;
-      
+
       // _consoleInfo.get("arguments") is a hashtable of key/value pairs
       // to use as the arguments to the CGI
       Hashtable args = (Hashtable)_consoleInfo.get("arguments");
@@ -199,7 +199,7 @@ public class CMSStatus extends CGITask
 	    mSuccess = cmsAdmin.getStatusFromAgentPort();
       }
       Debug.println( "Falling back to get status by connecting to the server");
-      
+
     }
     return mSuccess;
   }

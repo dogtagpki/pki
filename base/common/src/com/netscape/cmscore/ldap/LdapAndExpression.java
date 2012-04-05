@@ -25,9 +25,9 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class represents an expression of the form
  * <var1 op val1 AND var2 op va2>.
- * 
+ *
  * Expressions are used as predicates for publishing rule selection.
- * 
+ *
  * @author mzhao
  * @version $Revision$, $Date$
  */

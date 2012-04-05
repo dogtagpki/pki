@@ -34,7 +34,7 @@ class WGenerateReqPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "GENERATEREQWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WGenerateReqPage() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WGenerateReqPage extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
             return false;
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

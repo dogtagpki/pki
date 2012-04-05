@@ -39,7 +39,7 @@ import com.netscape.certsrv.logging.ILogger;
  * Recovery Authority. This servlet is responsible to serve
  * KRA administrative operation such as configuration
  * parameter updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KRAAdminServlet extends AdminServlet {
@@ -71,7 +71,7 @@ public class KRAAdminServlet extends AdminServlet {
 
     /**
      * Returns serlvet information.
-     * 
+     *
      * @return name of this servlet
      */
     public String getServletInfo() {
@@ -80,7 +80,7 @@ public class KRAAdminServlet extends AdminServlet {
 
     /**
      * Serves HTTP admin request.
-     * 
+     *
      * @param req HTTP request
      * @param resp HTTP response
      */
@@ -153,7 +153,7 @@ public class KRAAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ)) {
                     setNotificationRIQConfig(req, resp);
                     return;
-                } else 
+                } else
                 */
                 if (scope.equals(ScopeDef.SC_GENERAL)) {
                     setGeneralConfig(req, resp);

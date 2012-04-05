@@ -22,12 +22,12 @@ package com.netscape.certsrv.policy;
  * typing for rules so that a policy processor can group rules
  * based on a particular type.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */

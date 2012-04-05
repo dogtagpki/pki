@@ -28,8 +28,8 @@ public interface ConfigConstants {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String OPTYPE = "opType";
-    public static final String TASKID = "taskID";  
- 
+    public static final String TASKID = "taskID";
+
     // Stages
     public static final String STAGES = "stages";
     public static final String STAGE_CONNECT_DB = "stageConnectDB";
@@ -189,8 +189,8 @@ public interface ConfigConstants {
     public static final String PR_MIGRATION_PASSWORD = "migrationPassword";
 
     // Key and Cert
-    public static final String PR_HARDWARE_SPLIT = "hardwareSplit";    
-    public static final String PR_TOKEN_LIST = "tokenList";    
+    public static final String PR_HARDWARE_SPLIT = "hardwareSplit";
+    public static final String PR_TOKEN_LIST = "tokenList";
     public static final String PR_TOKEN_NAME = "tokenName";
     public static final String PR_SUBJECT_NAME = "subjectName";
     public static final String PR_CA_SUBJECT_NAME = "caSubjectName";
@@ -292,7 +292,7 @@ public interface ConfigConstants {
     // CA serial number
     public static final String PR_CA_SERIAL_NUMBER = "caSerialNumber";
     public static final String PR_CA_ENDSERIAL_NUMBER = "caEndSerialNumber";
- 
+
     // KRA serial number
     public static final String PR_REQUEST_NUMBER = "requestNumber";
     public static final String PR_ENDREQUEST_NUMBER = "endRequestNumber";

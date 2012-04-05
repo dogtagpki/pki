@@ -24,7 +24,7 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CertificatePolicyInformation ASN.1 object.
- * 
+ *
  * @author Christine Ho
  */
 public class CertificatePolicyInfo implements java.io.Serializable {
@@ -37,7 +37,7 @@ public class CertificatePolicyInfo implements java.io.Serializable {
 
     /**
      * Create a CertificatePolicyInfo with the passed CertificatePolicyId's.
-     * 
+     *
      * @param id the CertificatePolicyId.
      */
     public CertificatePolicyInfo(CertificatePolicyId id) {
@@ -52,7 +52,7 @@ public class CertificatePolicyInfo implements java.io.Serializable {
 
     /**
      * Create the CertificatePolicyInfo from the DER encoded value.
-     * 
+     *
      * @param val the DER encoded value of the same.
      */
     public CertificatePolicyInfo(DerValue val) throws IOException {
@@ -94,7 +94,7 @@ public class CertificatePolicyInfo implements java.io.Serializable {
 
     /**
      * Write the CertificatePolicyInfo to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

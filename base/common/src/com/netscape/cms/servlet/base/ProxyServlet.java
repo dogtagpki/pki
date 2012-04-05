@@ -22,31 +22,31 @@ import com.netscape.certsrv.apps.CMS;
 
 /**
  * This is a servlet that proxies request to another servlet.
- * 
+ *
  * SERVLET REDIRECTION
  * Specify the URL of a servlet to forward the request to
  * destServlet: /ee/ca/newservlet
- * 
+ *
  * PARAMETER MAPPING
  * In the servlet configuration (as an init-param in web.xml) you
  * can optionally specify a value for the parameter 'parameterMap'
  * which contains a list of HTTP parameters which should be
  * translated to new names.
- * 
+ *
  * parameterMap: name1->newname1,name2->newname2
- * 
+ *
  * Optionally, names can be set to static values:
- * 
+ *
  * parameterMap: name1->name2=value
- * 
+ *
  * Examples:
  * Consider the following HTTP input parameters:
  * vehicle:car make:ford model:explorer
- * 
+ *
  * The following config strings will have this effect:
  * parameterMap: make->manufacturer,model->name=expedition,->suv=true
  * output: vehicle:car manufactuer:ford model:expedition suv:true
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProxyServlet extends HttpServlet {
@@ -222,7 +222,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                         }
                     }
                 }
-                // Now, deal with static values set in the config 
+                // Now, deal with static values set in the config
                 // which weren't set in the HTTP request
                 Set<Map.Entry<String, String[]>> s2 = mValueMap.entrySet();
                 Iterator<Map.Entry<String, String[]>> i2 = s2.iterator();

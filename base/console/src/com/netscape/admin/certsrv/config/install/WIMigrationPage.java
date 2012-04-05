@@ -58,7 +58,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
       "install-ca-migration-configuration-wizard-help";
     private static final String CAKRAHELPINDEX =
       "install-cakra-migration-configuration-wizard-help";
-    
+
     WIMigrationPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -84,19 +84,19 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         setBorder(makeTitledBorder(PANELNAME));
         initializeTokenBox(mCATokenBox);
 
-        if (mSSLTokenBox.getItemCount() > 0) 
+        if (mSSLTokenBox.getItemCount() > 0)
             mSSLTokenBox.removeAllItems();
         for (int i=0; i<mCATokenBox.getItemCount(); i++) {
             String str = (String)mCATokenBox.getItemAt(i);
             mSSLTokenBox.addItem(str);
         }
         int index = mCATokenBox.getSelectedIndex();
-        mWizardInfo.setMigrateCACertTokenName((String)mCATokenBox.getSelectedItem());   
+        mWizardInfo.setMigrateCACertTokenName((String)mCATokenBox.getSelectedItem());
         enableFields(index, mLogonInitCATokenLbl, mCAPasswdLbl, mCAPassword,
           mCAPasswdAgainLbl, mCAPasswordAgain, mCASOPLbl, mCASOPPassword);
 
         index = mSSLTokenBox.getSelectedIndex();
-        mWizardInfo.setMigrateSSLCertTokenName((String)mSSLTokenBox.getSelectedItem());   
+        mWizardInfo.setMigrateSSLCertTokenName((String)mSSLTokenBox.getSelectedItem());
         enableFields(index, mLogonInitSSLTokenLbl, mSSLPasswdLbl, mSSLPassword,
           mSSLPasswdAgainLbl, mSSLPasswordAgain, mSSLSOPLbl, mSSLSOPPassword);
 
@@ -104,16 +104,16 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         mSSLTokenBox.addItemListener(this);
         enablePasswordFields();
 
-        if (mWizardInfo.isCAInstalled() && mWizardInfo.isKRAInstalled()) 
+        if (mWizardInfo.isCAInstalled() && mWizardInfo.isKRAInstalled())
             mHelpIndex = CAKRAHELPINDEX;
         else
             mHelpIndex = CAHELPINDEX;
 
-        return true; 
+        return true;
     }
 
     private void initializeTokenBox(JComboBox tokenBox) {
-        if (tokenBox.getItemCount() > 0) 
+        if (tokenBox.getItemCount() > 0)
             tokenBox.removeAllItems();
 
         String tokenList = mWizardInfo.getTokensList();
@@ -278,16 +278,16 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
             data.put(ConfigConstants.PR_ENABLE_MIGRATION, ConfigConstants.TRUE);
         else
             data.put(ConfigConstants.PR_ENABLE_MIGRATION, ConfigConstants.FALSE);
-        data.put(ConfigConstants.PR_OUTPUT_PATH, 
+        data.put(ConfigConstants.PR_OUTPUT_PATH,
           mWizardInfo.getMigrationOutputPath());
         if (mWizardInfo.getInternalDBPasswd() != null)
-            data.put(ConfigConstants.PR_DB_PWD, 
+            data.put(ConfigConstants.PR_DB_PWD,
               mWizardInfo.getInternalDBPasswd());
-        data.put(ConfigConstants.PR_MIGRATION_PASSWORD, 
+        data.put(ConfigConstants.PR_MIGRATION_PASSWORD,
           mWizardInfo.getMigrationPasswd());
-        data.put(ConfigConstants.PR_SIGNING_KEY_MIGRATION_TOKEN, 
+        data.put(ConfigConstants.PR_SIGNING_KEY_MIGRATION_TOKEN,
           mWizardInfo.getSigningKeyMigrationToken());
-        data.put(ConfigConstants.PR_SIGNING_KEY_MIGRATION_TOKEN_PASSWD, 
+        data.put(ConfigConstants.PR_SIGNING_KEY_MIGRATION_TOKEN_PASSWD,
           mWizardInfo.getSigningKeyMigrationPasswd());
         data.put(ConfigConstants.PR_SSL_KEY_MIGRATION_TOKEN,
           mWizardInfo.getSSLKeyMigrationToken());
@@ -299,7 +299,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         endProgressStatus();
 
         mWizardInfo.put("TOKEN:"+caTokenName, mCAPassword.getText().trim());
-        mWizardInfo.put("TOKEN:"+sslTokenName, 
+        mWizardInfo.put("TOKEN:"+sslTokenName,
           mSSLPassword.getText().trim());
 
         if (!ready) {
@@ -320,21 +320,21 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         int index = 0;
         if (e.getSource().equals(mCATokenBox)) {
             index = mCATokenBox.getSelectedIndex();
-            mWizardInfo.setMigrateCACertTokenName((String)mCATokenBox.getSelectedItem());   
+            mWizardInfo.setMigrateCACertTokenName((String)mCATokenBox.getSelectedItem());
             enableFields(index, mLogonInitCATokenLbl, mCAPasswdLbl, mCAPassword,
               mCAPasswdAgainLbl, mCAPasswordAgain, mCASOPLbl, mCASOPPassword);
             enablePasswordFields();
         } else if (e.getSource().equals(mSSLTokenBox)) {
             index = mSSLTokenBox.getSelectedIndex();
-            mWizardInfo.setMigrateSSLCertTokenName((String)mSSLTokenBox.getSelectedItem());   
+            mWizardInfo.setMigrateSSLCertTokenName((String)mSSLTokenBox.getSelectedItem());
             enableFields(index, mLogonInitSSLTokenLbl, mSSLPasswdLbl, mSSLPassword,
               mSSLPasswdAgainLbl, mSSLPasswordAgain, mSSLSOPLbl, mSSLSOPPassword);
             enablePasswordFields();
         }
     }
 
-    private void enableFields(int index, JLabel logonInitLbl, JLabel passwdLbl, 
-      JPasswordField passwd, JLabel passwdAgainLbl, JPasswordField passwdAgain, 
+    private void enableFields(int index, JLabel logonInitLbl, JLabel passwdLbl,
+      JPasswordField passwd, JLabel passwdAgainLbl, JPasswordField passwdAgain,
       JLabel sopLbl, JPasswordField sopPasswd) {
         if (mTokenLogin[index].equals(ConfigConstants.TRUE)) {
             logonInitLbl.setText("");
@@ -367,7 +367,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         }
     }
 
-    protected void enableFields(JComponent comp1, JTextComponent comp2, 
+    protected void enableFields(JComponent comp1, JTextComponent comp2,
       boolean enable, Color color) {
         if (comp1 != null) {
             comp1.setEnabled(enable);
@@ -423,7 +423,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mPathLbl, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPathText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -432,11 +432,11 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         gbc.gridwidth = gbc.REMAINDER;
         add(mPathText, gbc);
 
-        mTransportLbl = makeJLabel("TRANSPORTPASSWORD"); 
+        mTransportLbl = makeJLabel("TRANSPORTPASSWORD");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mTransportLbl, gbc);
 
@@ -463,7 +463,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mDBPassword, gbc);
 */
@@ -476,7 +476,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel1.add(mCATokenHeading, gbc);
 

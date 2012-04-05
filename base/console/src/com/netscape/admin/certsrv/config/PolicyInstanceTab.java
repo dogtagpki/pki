@@ -42,7 +42,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "POLICYRULE";
-    
+
     protected JButton mOrder;
     private final static String RAHELPINDEX = "configuration-ra-policyrules-help";
     private final static String CAHELPINDEX = "configuration-ca-policyrules-help";
@@ -59,9 +59,9 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new PolicyRuleDataModel();
 		mScope = ScopeDef.SC_POLICY_RULES;
 		RULE_NAME = PolicyRuleDataModel.RULE_NAME;
-	  	RULE_STAT = PolicyRuleDataModel.RULE_STAT;  
+		RULE_STAT = PolicyRuleDataModel.RULE_STAT;
 
-        if (mDestination.equals(DestDef.DEST_RA_POLICY_ADMIN)) 
+        if (mDestination.equals(DestDef.DEST_RA_POLICY_ADMIN))
             mHelpToken = RAHELPINDEX;
         else if (mDestination.equals(DestDef.DEST_KRA_POLICY_ADMIN))
             mHelpToken = KRAHELPINDEX;
@@ -75,7 +75,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new PolicyConfigDialog(nvp,
@@ -89,7 +89,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new PolicyPluginSelectionDialog(parent,conn,dest,pluginType);
 	}
@@ -99,12 +99,12 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
     public void moreActionPerformed(ActionEvent e) {
         if (e.getSource().equals(mOrder)) {
             Debug.println("Order");
-            PolicyRuleOrderDialog dialog = 
-                new PolicyRuleOrderDialog(mModel.getFrame(), 
+            PolicyRuleOrderDialog dialog =
+                new PolicyRuleOrderDialog(mModel.getFrame(),
                             mConnection, mDestination);
-            dialog.showDialog(mDataModel.getRules());  
+            dialog.showDialog(mDataModel.getRules());
             refresh();
-        }        
+        }
     }
 
     /**
@@ -126,7 +126,7 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
     //set buttons
     protected void setButtons() {
 		super.setButtons();
-        
+
         if (mDataModel.getRowCount()<=0) {
 		    mOrder.setEnabled(false);
 		}
@@ -134,6 +134,6 @@ public class PolicyInstanceTab extends CMSPluginInstanceTab {
 	    	mOrder.setEnabled(true);
 		}
     }
-    
-   
+
+
 }

@@ -45,7 +45,7 @@ public class RuleInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "RULERULE";
-    
+
     private final static String RAHELPINDEX = "configuration-ra-ruleinstances-help";
     private final static String CAHELPINDEX = "configuration-ca-ruleinstances-help";
 
@@ -60,9 +60,9 @@ public class RuleInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new RuleRuleDataModel();
 		mScope = ScopeDef.SC_RULE_RULES;
 		RULE_NAME = RuleRuleDataModel.RULE_NAME;
-	  	RULE_STAT = RuleRuleDataModel.RULE_STAT;  
+		RULE_STAT = RuleRuleDataModel.RULE_STAT;
 
-        if (mDestination.equals(DestDef.DEST_RA_RULE_ADMIN)) 
+        if (mDestination.equals(DestDef.DEST_RA_RULE_ADMIN))
             mHelpToken = RAHELPINDEX;
         else
             mHelpToken = CAHELPINDEX;
@@ -74,7 +74,7 @@ public class RuleInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new RuleConfigDialog(nvp,
@@ -88,7 +88,7 @@ public class RuleInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new RulePluginSelectionDialog(parent,conn,dest,pluginType);
 	}

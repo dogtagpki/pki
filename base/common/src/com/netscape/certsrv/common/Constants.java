@@ -20,7 +20,7 @@ package com.netscape.certsrv.common;
 /**
  * This interface contains constants that are shared
  * by certificate server and its client SDK.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface Constants {
@@ -467,7 +467,7 @@ public interface Constants {
      * Security
      *========================================================*/
 
-    //functionality 
+    //functionality
     public final static String PR_CERT_SERVER = "SERVER";
     public final static String PR_CERT_ADMIN = "ADMIN";
     public final static String PR_CERT_AGENT = "AGENT";
@@ -544,7 +544,7 @@ public interface Constants {
     public final static String PR_TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA = "tls_rsa_des_sha";
 
     /*========================================================
-     * Watchdog and Server State Messages 
+     * Watchdog and Server State Messages
      *========================================================*/
 
     public final static String SERVER_STARTUP_WARNING_MESSAGE = "CMS Warning: ";

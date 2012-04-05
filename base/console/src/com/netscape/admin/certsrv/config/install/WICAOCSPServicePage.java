@@ -67,7 +67,7 @@ class WICAOCSPServicePage extends WizardBasePanel implements IWizardPanel {
 		String serial;
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         setBorder(makeTitledBorder(PANELNAME));
-		// If ca's signing cert is not generated, 
+		// If ca's signing cert is not generated,
 		// we allow "back" to modify the panel
         if (!wizardInfo.isCAInstalled())
             return false;
@@ -78,10 +78,10 @@ class WICAOCSPServicePage extends WizardBasePanel implements IWizardPanel {
 
 	mDesc.setText(mResource.getString(PANELNAME+"_TEXT_HEADING_LABEL"));
 
-        return true; 
+        return true;
     }
 
-    public boolean validatePanel() 
+    public boolean validatePanel()
     {
         mEnable = mOCSPServiceCB.isSelected();
         return true;

@@ -61,7 +61,7 @@ public class ACLEditDialog extends JDialog
         this(admin, parent, null, null);
     }
 
-    public ACLEditDialog(AdminConnection admin, JFrame parent, 
+    public ACLEditDialog(AdminConnection admin, JFrame parent,
       String name, String desc) {
         super(parent,true);
         mParentFrame = parent;
@@ -91,12 +91,12 @@ public class ACLEditDialog extends JDialog
         } else if (evt.getSource().equals(mDelete)) {
             int index = mList.getSelectedIndex();
             if (index >= 0) {
-                int i = CMSAdminUtil.showConfirmDialog(mParentFrame, 
+                int i = CMSAdminUtil.showConfirmDialog(mParentFrame,
                   mResource, PREFIX, "DELETE", CMSAdminUtil.WARNING_MESSAGE);
                 if (i == JOptionPane.YES_OPTION) {
                     mDataModel.removeElementAt(index);
                     Debug.println("Deleted");
-                    if (mDataModel.size() > 0) 
+                    if (mDataModel.size() > 0)
                         mList.setSelectedIndex(0);
                 }
             }
@@ -106,12 +106,12 @@ public class ACLEditDialog extends JDialog
                 if (mResourceName.equals("")) {
                     String msg = mResource.getString(
                       PREFIX+"_DIALOG_EMPTYRESOURCEID_MESSAGE");
-                    CMSAdminUtil.showErrorDialog(mParentFrame, 
-                      mResource, msg, CMSAdminUtil.ERROR_MESSAGE); 
+                    CMSAdminUtil.showErrorDialog(mParentFrame,
+                      mResource, msg, CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
             }
-     
+
             String rights = mRightsText.getText().trim();
 
             NameValuePairs pairs = new NameValuePairs();
@@ -160,11 +160,11 @@ public class ACLEditDialog extends JDialog
             }
         } else if (evt.getSource().equals(mAdd)) {
             String rights = mRightsText.getText().trim();
-            if (rights.equals("")) { 
+            if (rights.equals("")) {
                 String msg = mResource.getString(
                   PREFIX+"_DIALOG_EMPTYRIGHTS_MESSAGE");
-                CMSAdminUtil.showErrorDialog(mParentFrame, 
-                  mResource, msg, CMSAdminUtil.ERROR_MESSAGE); 
+                CMSAdminUtil.showErrorDialog(mParentFrame,
+                  mResource, msg, CMSAdminUtil.ERROR_MESSAGE);
                   return;
             }
             mOperations = rights;
@@ -254,7 +254,7 @@ public class ACLEditDialog extends JDialog
                 0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(helpPanel, gbc);
         center.add(helpPanel);
-        
+
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
@@ -277,7 +277,7 @@ public class ACLEditDialog extends JDialog
                 mDelete.setEnabled(true);
                 mEdit.setEnabled(true);
             }
-           
+
             return;
         }
 
@@ -312,7 +312,7 @@ public class ACLEditDialog extends JDialog
         //up, down buttons required
         //actionlister to this object
         mAdd = CMSAdminUtil.makeJButton(mResource, PREFIX, "ADD", null, this);
-        mDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE", 
+        mDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE",
           null, this);
         mEdit = CMSAdminUtil.makeJButton(mResource, PREFIX, "EDIT", null, this);
         JButton[] buttons = {mAdd, mDelete, mEdit};
@@ -344,7 +344,7 @@ public class ACLEditDialog extends JDialog
         mHelpArea.setWrapStyleWord(true);
         mHelpArea.setBackground(helpPanel.getBackground());
         mHelpArea.setEditable(false);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
@@ -410,7 +410,7 @@ public class ACLEditDialog extends JDialog
         mainPanel.add(rightsLbl);
         rightsLbl.setName("rights");
         rightsLbl.addMouseListener(this);
-   
+
         CMSAdminUtil.resetGBC(gbc);
         mRightsText = new JTextField(30);
         gbc.anchor = gbc.WEST;
@@ -493,7 +493,7 @@ public class ACLEditDialog extends JDialog
         return mainPanel;
     }
 
-    private void enableTextField(JTextField textFld, boolean enabled, 
+    private void enableTextField(JTextField textFld, boolean enabled,
       Color color) {
         textFld.setEnabled(enabled);
         textFld.setEditable(enabled);

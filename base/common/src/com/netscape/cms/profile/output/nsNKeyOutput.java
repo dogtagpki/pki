@@ -35,7 +35,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 /**
  * This class implements the output plugin that outputs
  * DER for the issued certificate for token keys
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class nsNKeyOutput extends EnrollOutput implements IProfileOutput {

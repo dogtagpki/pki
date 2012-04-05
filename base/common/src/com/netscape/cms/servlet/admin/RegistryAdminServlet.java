@@ -40,7 +40,7 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 
 /**
  * This implements the administration servlet for registry subsystem.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RegistryAdminServlet extends AdminServlet {

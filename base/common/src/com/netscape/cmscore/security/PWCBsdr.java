@@ -29,7 +29,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
 
-/* 
+/*
  * A class to retrieve passwords from the SDR password cache
  *
  * @author Christina Fu
@@ -91,7 +91,7 @@ public class PWCBsdr implements PasswordCallback {
         //                   + mprompt );
     }
 
-    /* We are now assuming that PasswordCallbackInfo.getname() returns 
+    /* We are now assuming that PasswordCallbackInfo.getname() returns
      * the tag we are hoping to match in the cache.
      */
 
@@ -167,7 +167,7 @@ public class PWCBsdr implements PasswordCallback {
 
     /* The password cache has failed to return a password (or a usable password.
      * Now we will try and get the password from the user and hopefully add
-     * the password to the cache pw cache 
+     * the password to the cache pw cache
      */
     public Password getPasswordAgain(PasswordCallbackInfo info)
             throws PasswordCallback.GiveUpException {

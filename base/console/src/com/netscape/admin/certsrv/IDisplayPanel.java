@@ -33,11 +33,11 @@ public interface IDisplayPanel {
     /**
      * Set the data associated with this ui
      */
-    public boolean setDisplayPanelContent(IAttributeContent content); 
-    
+    public boolean setDisplayPanelContent(IAttributeContent content);
+
     /**
      * Retrieve the error message to be displayed to the user
      */
-    public String getErrorMessage(); 
+    public String getErrorMessage();
 
 }

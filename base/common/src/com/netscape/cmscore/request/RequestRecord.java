@@ -267,7 +267,7 @@ public class RequestRecord
      * This table contains attribute handlers for attributes
      * of the request.  These attributes are ones that are stored
      * apart from the generic name/value pairs supported by the get/set
-     * interface plus the hashtable for the name/value pairs themselves. 
+     * interface plus the hashtable for the name/value pairs themselves.
      *
      * NOTE: Eventually, all attributes should be done here.  Currently
      *   only the last ones added are implemented this way.
@@ -430,10 +430,10 @@ class RequestIdMapper
 
 /**
  * A mapper between an request attr set and its LDAP attribute representation.
- * 
+ *
  * The attr attribute is no longer used. This class is kept for historical
  * and migration purposes.
- * 
+ *
  * @author thayes
  * @version $Revision$ $Date$
  * @deprecated
@@ -557,7 +557,7 @@ class RequestAttrsMapper
     /**
      * Implements IDBAttrMapper.mapLDAPAttributeSetToObject
      * <p>
-     * 
+     *
      * @see IDBAttrMapper#mapLDAPAttributeSetToObject
      */
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
@@ -567,7 +567,7 @@ class RequestAttrsMapper
 
         //
         // Data is stored in a (single valued) binary attribute
-        // 
+        //
         byte[] value;
 
         LDAPAttribute attr = null;
@@ -609,14 +609,14 @@ class RequestAttrsMapper
 /**
  * Maps dynamic data for the extData- prefix to and from the extData Hashtable
  * in RequestRecord.
- * 
+ *
  * The data in RequestRecord is stored in a Hashtable. It comes in two forms:
  * 1. String key1 => String value1
  * String key2 => String value2
  * This is stored in LDAP as:
  * extData-key1 => value1
  * extData-key2 => value2
- * 
+ *
  * 2. String key => Hashtable value
  * where value stores:
  * String key2 => String value2
@@ -624,10 +624,10 @@ class RequestAttrsMapper
  * This is stored in LDAP as:
  * extData-key;key2 => value2
  * extData-key;key3 => value3
- * 
+ *
  * These can be mixed, but each top-level key can only be associated with
  * a String value or a Hashtable value.
- * 
+ *
  */
 class ExtAttrDynMapper implements IDBDynAttrMapper {
 
@@ -644,10 +644,10 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
      * Decodes extdata encoded keys.
      * -- followed by a 4 digit hexadecimal string is decoded to the character
      * representing the hex string.
-     * 
+     *
      * The routine is written to be highly efficient. It only allocates
      * the StringBuffer if needed and copies the pieces in large chunks.
-     * 
+     *
      * @param key The key to decode
      * @return The decoded key.
      */
@@ -693,7 +693,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
 
     /**
      * Encoded extdata keys for storage in LDAP.
-     * 
+     *
      * The rules for encoding are trickier than decoding. We want to allow
      * '-' by itself to be stored in the database (for the common case of keys
      * like 'Foo-Bar'. Therefore we are using '--' as the encoding character.
@@ -706,11 +706,11 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
      * 4) If [-] is preceded or followed by [^a-zA-Z0-9] then
      * the - as well as all following [^a-zA-Z0-9] characters are encoded
      * as --XXXX.
-     * 
+     *
      * This routine tries to be as efficient as possible with StringBuffer and
      * large copies. However, the encoding unfortunately requires several
      * objects to be allocated.
-     * 
+     *
      * @param key The key to encode
      * @return The encoded key
      */

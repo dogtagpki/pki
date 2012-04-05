@@ -57,4 +57,4 @@ public class OCSPStoresConfigDialog extends CMSBaseConfigDialog
         init(nvp,parent,conn,dest);
     }
 
-}    
+}

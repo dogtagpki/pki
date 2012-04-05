@@ -50,7 +50,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Retrieve CRL for a Certificate Authority
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetCRL extends CMSServlet {
@@ -67,7 +67,7 @@ public class GetCRL extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -81,7 +81,7 @@ public class GetCRL extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      * @see DisplayCRL#process
      */

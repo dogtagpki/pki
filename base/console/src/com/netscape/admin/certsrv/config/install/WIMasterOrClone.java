@@ -40,9 +40,9 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
     protected JRadioButton mNo;
     protected JTextArea mLabel;
     private static final String PANELNAME = "MASTERORCLONE";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "install-internaldb-createdbagain-help";
-    
+
     WIMasterOrClone(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -97,7 +97,7 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
         Debug.println("WIMasterOrClone:concludePanel() 2");
         boolean ready = send(rawData, wizardInfo);
         endProgressStatus();
-        
+
         if (!ready) {
             String str = getErrorMessage(wizardInfo);
             if (str == null)
@@ -125,24 +125,24 @@ class WIMasterOrClone extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mLabel, gbc);
-        
- 
+
+
         mYes = makeJRadioButton("YES", false);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mYes, gbc);
-        
+
         mNo = makeJRadioButton("NO", false);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0,COMPONENT_SPACE, 
+        gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mNo, gbc);

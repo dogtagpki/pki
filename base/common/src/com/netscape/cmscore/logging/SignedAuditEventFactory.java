@@ -29,7 +29,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * A log event object for handling system messages
  * <P>
- * 
+ *
  * @author mikep
  * @author mzhao
  * @author cfu
@@ -50,7 +50,7 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Creates an log event.
-     * 
+     *
      * @param evtClass the event type
      * @param prop the resource bundle
      * @param source the subsystem ID who creates the log event
@@ -98,7 +98,7 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Set the resource bundle of the log event.
-     * 
+     *
      * @param prop the properties
      * @param event the log event
      */
@@ -116,7 +116,7 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Releases an log event.
-     * 
+     *
      * @param e the log event
      */
     public void release(ILogEvent e) {

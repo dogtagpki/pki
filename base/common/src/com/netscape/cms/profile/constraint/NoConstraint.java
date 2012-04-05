@@ -35,7 +35,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements no constraint.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class NoConstraint implements IPolicyConstraint {

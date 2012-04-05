@@ -36,7 +36,7 @@ public class Request extends TestClient {
     private String approveseqnum, type, reqType, reqState, agenttype;
     private int i;
 
-    // Program variables 
+    // Program variables
     private String ACTION_PROCESS_CERT_REQUEST = null;
     private String ACTION_LISTREQUEST = "/queryReq";
     private int reqtype = 1;
@@ -50,7 +50,7 @@ public class Request extends TestClient {
     private Vector<String> seqNum = new Vector<String>();
     private String AUTH_ID = null;
 
-    // Cert Detail variables 
+    // Cert Detail variables
 
     private String csrRequestorName, csrRequestorPhone, csrRequestorEmail, subject, subjectdn, reqStatus, certType;
     private String requestType, requestID, sslclient, clientcert, servercert, emailcert, objectsigningcert, sslcacert,
@@ -58,11 +58,11 @@ public class Request extends TestClient {
 
     private int totalNumApproved = 0;
 
-    // Constructors 
+    // Constructors
 
     /**
      * Constructor . Takes the parameter for Properties file name
-     * 
+     *
      * @param propfileName name of the parameter file.
      */
 
@@ -72,7 +72,7 @@ public class Request extends TestClient {
 
     /**
      * Constructor . Takes the parameter host , port and "angent type - ca/ra"
-     * 
+     *
      * @param hostname.
      * @param port
      * @param agenttype Whether ca or ra agent
@@ -86,7 +86,7 @@ public class Request extends TestClient {
 
     /**
      * Constructor . Takes the following parmaters
-     * 
+     *
      * @param hostName .
      * @param port
      * @param adminuid
@@ -151,7 +151,7 @@ public class Request extends TestClient {
 
     /**
      * List all pending enrollment request. Takes parameters fromRequestNumber,toRequestNumber
-     * 
+     *
      * @param fromrequest number
      * @param endrequestnumber.
      * @throws UnsupportedEncodingException
@@ -168,7 +168,7 @@ public class Request extends TestClient {
 
     /**
      * List all pending request. Takes parameters fromRequestNumber,toRequestNumber
-     * 
+     *
      * @param fromrequest number
      * @param endrequestnumber.
      * @throws UnsupportedEncodingException
@@ -185,7 +185,7 @@ public class Request extends TestClient {
 
     /**
      * Approve pending enrollment request. Takes parameters RequestNumber
-     * 
+     *
      * @param request number
      * @throws UnsupportedEncodingException
      */
@@ -207,7 +207,7 @@ public class Request extends TestClient {
 
     /**
      * Approve profile based pending enrollment request. Takes parameters RequestNumber
-     * 
+     *
      * @param request number
      * @throws UnsupportedEncodingException
      */
@@ -236,7 +236,7 @@ public class Request extends TestClient {
 
         cadualcert_name = name;
 
-        // reqtype = 7 means cadualcert profile request 
+        // reqtype = 7 means cadualcert profile request
         // this is just a convention that we follow within this file to distinguish
         // bet'n the different requests
 
@@ -255,7 +255,7 @@ public class Request extends TestClient {
 
     /**
      * Reject profile based pending enrollment request. Takes parameters RequestNumber
-     * 
+     *
      * @param request number
      * @throws UnsupportedEncodingException
      */
@@ -278,7 +278,7 @@ public class Request extends TestClient {
 
     /**
      * Cancel profile based pending enrollment request. Takes parameters RequestNumber
-     * 
+     *
      * @param request number
      * @throws UnsupportedEncodingException
      */
@@ -471,9 +471,9 @@ public class Request extends TestClient {
                         res.indexOf(";", ret) - 1);
             }
 
-        } // end of for loop 
+        } // end of for loop
 
-        // System.out.println("Debug : Retrieving cert details"); 
+        // System.out.println("Debug : Retrieving cert details");
 
         ret = res.indexOf("header.subject =");
         if (ret > 0) {
@@ -585,7 +585,7 @@ public class Request extends TestClient {
             System.out.println(res);
         }
 
-        // Find th Server_ATTRS paramteter value of reqStatus 
+        // Find th Server_ATTRS paramteter value of reqStatus
 
         int i = 1;
         int ret;
@@ -881,15 +881,15 @@ public class Request extends TestClient {
                     + "&keyUsageKeyAgreement=false"
                     + "&keyUsageKeyCertSign=false" + "&keyUsageCrlSign=false"
                     + "&keyUsageEncipherOnly=false"
-                    + "&keyUsageDecipherOnly=false" + /* -- For Older CMS 6.x servers use these 
-                                                      "&nsCertCritical=false" + 
-                                                      "&nsCertSSLClient=true" + 
-                                                      "&nsCertSSLServer=false" + 
-                                                      "&nsCertEmail=true" + 
-                                                      "&nsCertObjectSigning=false" + 
-                                                      "&nsCertSSLCA=false" + 
-                                                      "&nsCertEmailCA=false" + 
-                                                      "&nsCertObjectSigningCA=false" + 
+                    + "&keyUsageDecipherOnly=false" + /* -- For Older CMS 6.x servers use these
+                                                      "&nsCertCritical=false" +
+                                                      "&nsCertSSLClient=true" +
+                                                      "&nsCertSSLServer=false" +
+                                                      "&nsCertEmail=true" +
+                                                      "&nsCertObjectSigning=false" +
+                                                      "&nsCertSSLCA=false" +
+                                                      "&nsCertEmailCA=false" +
+                                                      "&nsCertObjectSigningCA=false" +
                                                       "&subjAltNameExtCritical=false" +
                                                       "&subjAltNames=RFC822Name: null" +
                                                       "&signingAlg=MD5withRSA" +
@@ -1024,7 +1024,7 @@ public class Request extends TestClient {
             while (i < seqNum.size()) {
 
                 approveseqnum = (seqNum.elementAt(i)).toString();
-                // Get request details 
+                // Get request details
                 reqtype = 2;
                 buildquery();
                 if (!Send()) {
@@ -1134,5 +1134,5 @@ public class Request extends TestClient {
 
     }// end of function main
 
-} // end of class 
+} // end of class
 

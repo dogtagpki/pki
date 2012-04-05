@@ -34,7 +34,7 @@ class WIGenKeyCertPage extends WizardBasePanel implements IWizardPanel {
     private JTextArea desc;
     private String mPanelName;
     protected String mHelpIndex;
-    
+
     WIGenKeyCertPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -51,7 +51,7 @@ class WIGenKeyCertPage extends WizardBasePanel implements IWizardPanel {
 
         String str = mResource.getString(mPanelName+"_TEXT_NEWKEY_LABEL");
         desc.setText(str);
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -86,15 +86,15 @@ class WIGenKeyCertPage extends WizardBasePanel implements IWizardPanel {
             rawData = rawData+"&"+name+"="+value;
         }
 	}
-        
+
         startProgressStatus();
-        
+
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATECERT");
-        
+
         boolean ready = send(rawData, wizardInfo);
-        
+
         //dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {

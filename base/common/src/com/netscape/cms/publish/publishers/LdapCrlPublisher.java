@@ -44,7 +44,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 /**
  * For publishing master or global CRL.
  * Publishes (replaces) the CRL in the CA's LDAP entry.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {

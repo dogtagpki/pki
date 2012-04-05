@@ -34,11 +34,11 @@ import netscape.security.x509.X509Key;
 
 /**
  * An X.509 public key for the Digital Signature Algorithm.
- * 
+ *
  * @author Benjamin Renaud
- * 
+ *
  * @version 1.52, 97/12/10
- * 
+ *
  * @see DSAPrivateKey
  * @see AlgIdDSA
  * @see DSA
@@ -54,7 +54,7 @@ public final class DSAPublicKey extends X509Key
     private BigInteger y;
 
     /*
-     * Keep this constructor for backwards compatibility with JDK1.1. 
+     * Keep this constructor for backwards compatibility with JDK1.1.
      */
     public DSAPublicKey() {
     }
@@ -110,7 +110,7 @@ public final class DSAPublicKey extends X509Key
 
     /**
      * Get the raw public value, y, without the parameters.
-     * 
+     *
      */
     public BigInteger getY() {
         return y;

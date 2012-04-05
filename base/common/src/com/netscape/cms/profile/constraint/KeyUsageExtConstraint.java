@@ -40,7 +40,7 @@ import com.netscape.cms.profile.def.UserExtensionDefault;
  * This class implements the key usage extension constraint.
  * It checks if the key usage constraint in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyUsageExtConstraint extends EnrollConstraint {

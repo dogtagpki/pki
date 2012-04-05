@@ -29,10 +29,10 @@ import netscape.security.util.DerValue;
 /**
  * A AVAValueConverter that converts a Printable String attribute to a DerValue
  * and vice versa. An example an attribute that is a printable string is "C".
- * 
+ *
  * @see ASN1CharStrConvMap
  * @see AVAValueConverter
- * 
+ *
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
@@ -44,11 +44,11 @@ public class PrintableConverter implements AVAValueConverter {
 
     /**
      * Converts a string with ASN.1 Printable characters to a DerValue.
-     * 
+     *
      * @param valueString a string with Printable characters.
-     * 
+     *
      * @return a DerValue.
-     * 
+     *
      * @exception IOException if a Printable encoder is not
      *                available for the conversion.
      */
@@ -78,11 +78,11 @@ public class PrintableConverter implements AVAValueConverter {
      * Converts a BER encoded value of PrintableString to a DER encoded value.
      * Checks if the BER encoded value is a PrintableString.
      * NOTE only DER encoded values are currently accepted on input.
-     * 
+     *
      * @param berStream A byte array of the BER encoded value.
-     * 
+     *
      * @return A DerValue.
-     * 
+     *
      * @exception IOException if the BER value cannot be converted to a
      *                PrintableString DER value.
      */
@@ -97,11 +97,11 @@ public class PrintableConverter implements AVAValueConverter {
     /**
      * Converts a DerValue of PrintableString to a java string with
      * PrintableString characters.
-     * 
+     *
      * @param avaValue a DerValue.
-     * 
+     *
      * @return a string with PrintableString characters.
-     * 
+     *
      * @exception IOException if the DerValue is not a PrintableString i.e.
      *                The DerValue cannot be converted to a string
      *                with PrintableString characters.

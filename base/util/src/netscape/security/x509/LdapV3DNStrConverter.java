@@ -39,13 +39,13 @@ import netscape.security.util.ObjectIdentifier;
  * A converter that converts Ldap v3 DN strings as specified in
  * draft-ietf-asid-ldapv3-dn-03.txt to a X500Name, RDN or AVA and
  * vice versa.
- * 
+ *
  * @see LdapDNStrConverter
  * @see X500Name
  * @see RDN
  * @see AVA
  * @see X500NameAttrMap
- * 
+ *
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
@@ -57,7 +57,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
     /**
      * Constructs a LdapV3DNStrConverter using the global default
      * X500NameAttrMap and accept OIDs not in the default X500NameAttrMap.
-     * 
+     *
      * @see X500NameAttrMap
      */
     public LdapV3DNStrConverter() {
@@ -70,7 +70,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * Constructs a LdapV3DNStrConverter using the specified X500NameAttrMap
      * and a boolean indicating whether to accept OIDs not listed in the
      * X500NameAttrMap.
-     * 
+     *
      * @param attributeMap a X500NameAttrMap
      * @param doAcceptUnknownOids whether to convert unregistered OIDs
      *            (oids not in the X500NameAttrMap)
@@ -90,7 +90,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Parse a Ldap v3 DN string to a X500Name.
-     * 
+     *
      * @param dn a LDAP v3 DN String
      * @return a X500Name
      * @exception IOException if an error occurs during the conversion.
@@ -114,7 +114,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Parse a Ldap v3 DN string with a RDN component to a RDN
-     * 
+     *
      * @param rdn a LDAP v3 DN String
      * @return a RDN
      * @exception IOException if an error occurs during the conversion.
@@ -138,7 +138,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Parse a Ldap v3 DN string with a AVA component to a AVA.
-     * 
+     *
      * @param ava a LDAP v3 DN string
      * @return a AVA
      */
@@ -165,12 +165,12 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Parses a Ldap DN string in a string reader to a X500Name.
-     * 
+     *
      * @param in Pushback string reader for a Ldap DN string.
      *            The pushback reader must have a pushback buffer size > 2.
-     * 
+     *
      * @return a X500Name
-     * 
+     *
      * @exception IOException if any reading or parsing error occurs.
      */
     public X500Name parseDN(PushbackReader in)
@@ -206,13 +206,13 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * Parses Ldap DN string with a rdn component
      * from a string reader to a RDN. The string reader will point
      * to the separator after the rdn component or -1 if at end of string.
-     * 
+     *
      * @param in Pushback string reader containing a Ldap DN string with
      *            at least one rdn component.
      *            The pushback reader must have a pushback buffer size > 2.
-     * 
+     *
      * @return RDN object of the first rdn component in the Ldap DN string.
-     * 
+     *
      * @exception IOException if any read or parse error occurs.
      */
     public RDN parseRDN(PushbackReader in)
@@ -250,11 +250,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * Parses a Ldap DN string with a AVA component
      * from a string reader to an AVA. The string reader will point
      * to the AVA separator after the ava string or -1 if end of string.
-     * 
+     *
      * @param in a Pushback reader containg a Ldap string with
      *            at least one AVA component.
      *            The Pushback reader must have a pushback buffer size > 2.
-     * 
+     *
      * @return AVA object of the first AVA component in the Ldap DN string.
      */
     public AVA parseAVA(PushbackReader in)
@@ -415,9 +415,9 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * from the attribute map or, if this keyword is an OID not
      * in the attribute map, create a new ObjectIdentifier for the keyword
      * if acceptUnknownOids is true.
-     * 
+     *
      * @param avaKeyword AVA keyword from a Ldap DN string.
-     * 
+     *
      * @return a ObjectIdentifier object
      * @exception IOException if the keyword is an OID not in the attribute
      *                map and acceptUnknownOids is false, or
@@ -462,12 +462,12 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * to a DerValue of ASN.1 type PrintableString, T61String or
      * UniversalString. A Directory String is a ASN.1 CHOICE of Printable,
      * T.61 or Universal string.
-     * 
+     *
      * @param avaValueString a attribute value from a Ldap DN string.
      * @param oid OID of the attribute.
-     * 
+     *
      * @return DerValue for the value.
-     * 
+     *
      * @exception IOException if an error occurs during conversion.
      * @see AVAValueConverter
      */
@@ -501,10 +501,10 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * is a legal value for the attribute.
      * <p>
      * <strong><i>NOTE:</i></strong> only DER encoded values are supported for the BER encoded value.
-     * 
+     *
      * @param berValue a value in BER encoding
      * @param oid ObjectIdentifier of the attribute.
-     * 
+     *
      * @return DerValue for the BER encoded value
      * @exception IOException if an error occurs during conversion.
      */
@@ -526,11 +526,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Converts a X500Name object to a Ldap v3 DN string (except in unicode).
-     * 
+     *
      * @param x500name a X500Name
-     * 
+     *
      * @return a Ldap v3 DN String (except in unicode).
-     * 
+     *
      * @exception IOException if an error is encountered during conversion.
      */
     public String encodeDN(X500Name x500name)
@@ -555,11 +555,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Converts a RDN to a Ldap v3 DN string (except in unicode).
-     * 
+     *
      * @param rdn a RDN
-     * 
+     *
      * @return a LDAP v3 DN string (except in unicode).
-     * 
+     *
      * @exception IOException if an error is encountered during conversion.
      */
     public String encodeRDN(RDN rdn)
@@ -582,11 +582,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * Converts a AVA to a Ldap v3 DN String (except in unicode).
-     * 
+     *
      * @param ava an AVA
-     * 
+     *
      * @return a Ldap v3 DN string (except in unicode).
-     * 
+     *
      * @exception IOException If an error is encountered during exception.
      */
     public String encodeAVA(AVA ava)
@@ -609,11 +609,11 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
     /**
      * Converts an OID to a attribute keyword in a Ldap v3 DN string
      * - either a keyword if known or a string of "1.2.3.4" syntax.
-     * 
+     *
      * @param oid a ObjectIdentifier
-     * 
+     *
      * @return a keyword to use in a Ldap V3 DN string.
-     * 
+     *
      * @exception IOException if an error is encountered during conversion.
      */
     public String encodeOID(ObjectIdentifier oid)
@@ -632,7 +632,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
      * Converts a value as a DerValue to a string in a Ldap V3 DN String.
      * If the value cannot be converted to a string it will be encoded in
      * octothorpe form.
-     * 
+     *
      * @param attrValue a value as a DerValue.
      * @param oid OID for the attribute.
      * @return a string for the value in a LDAP v3 DN String
@@ -692,7 +692,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * converts a raw value string to a string in Ldap V3 DN string format.
-     * 
+     *
      * @param valueStr a 'raw' value string.
      * @return a attribute value string in Ldap V3 DN string format.
      */
@@ -748,7 +748,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
 
     /**
      * gets the X500NameAttrMap used by the converter.
-     * 
+     *
      * @return X500NameAttrMap used by this converter.
      */
     public X500NameAttrMap getAttrMap() {
@@ -758,7 +758,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
     /**
      * returns true if the converter accepts unregistered attributes i.e.
      * OIDS not in the X500NameAttrMap.
-     * 
+     *
      * @return true if converter converts attributes not in the
      *         X500NameAttrMap.
      */

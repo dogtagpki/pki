@@ -38,7 +38,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.util.Debug;
 
 /**
- * 
+ *
  * @author stevep
  * @version $Revision
  */
@@ -52,7 +52,7 @@ public class OidLoaderSubsystem implements ISubsystem {
     private static final String PROP_CLASS = "class";
 
     /**
-     * 
+     *
      */
     private OidLoaderSubsystem() {
     }
@@ -122,7 +122,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
      * initialization of other subsystems.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */

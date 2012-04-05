@@ -63,7 +63,7 @@ public abstract class ConfigBaseServlet extends BaseServlet {
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
-            // all sensitive parameters should be prefixed with 
+            // all sensitive parameters should be prefixed with
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed

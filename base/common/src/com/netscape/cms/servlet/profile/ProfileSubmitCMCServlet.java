@@ -66,7 +66,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet submits end-user request into the profile framework.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileSubmitCMCServlet extends ProfileServlet {
@@ -104,9 +104,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      * be set up to always issue certificates against a certain profile
      * by setting the 'profileId' configuration in the servletConfig
      * If not, the user must specify the profileID when submitting the request
-     * 
+     *
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -212,17 +212,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     /**
      * Process the HTTP request
      * <P>
-     * 
+     *
      * (Certificate Request Processed - either an automated "EE" profile based cert acceptance, or an automated "EE"
      * profile based cert rejection)
      * <P>
-     * 
+     *
      * <ul>
      * <li>http.param profileId ID of profile to use to process request
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -267,7 +267,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             while (paramNames.hasMoreElements()) {
                 String paramName = paramNames.nextElement();
                 // added this facility so that password can be hidden,
-                // all sensitive parameters should be prefixed with 
+                // all sensitive parameters should be prefixed with
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
@@ -526,7 +526,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             Integer nums = (Integer) (context.get("numOfControls"));
             CMCOutputTemplate template = new CMCOutputTemplate();
             // if there is only one control GetCert, then simple response
-            // must be returned. 
+            // must be returned.
             if (nums != null && nums.intValue() == 1) {
                 TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
                 if (attr1 != null) {
@@ -623,7 +623,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 return;
             } catch (Throwable e) {
                 CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
-                //  throw new IOException("Profile " + profileId + 
+                //  throw new IOException("Profile " + profileId +
                 //          " cannot populate");
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
@@ -704,7 +704,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                 "CMS_PROFILE_DEFERRED",
                                 e.toString());
                 } catch (ERejectException e) {
-                    // return error to the user 
+                    // return error to the user
                     reqs[k].setRequestStatus(RequestStatus.REJECTED);
                     CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
                     errorCode = "3";
@@ -772,7 +772,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
 
             ///////////////////////////////////////////////
-            // output output list 
+            // output output list
             ///////////////////////////////////////////////
 
             CMS.debug("ProfileSubmitCMCServlet: done serving");
@@ -812,11 +812,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -842,11 +842,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param request request containing an X509CertImpl
      * @return cert string containing the certificate
      */

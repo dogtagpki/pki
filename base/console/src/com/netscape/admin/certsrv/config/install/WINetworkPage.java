@@ -54,7 +54,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
     private boolean mNumberError = false;
     private JLabel mPortLabel, mSSLPortLabel;
 
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "install-network-configuration-wizard-help";
     private static final String PANELNAME = "NETWORKWIZARD";
     private static final int MAX_PORT = 65535;
@@ -83,7 +83,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         mWizardInfo = wizardInfo;
-        if (wizardInfo.isNetworkDone()) 
+        if (wizardInfo.isNetworkDone())
             return false;
         setBorder(makeTitledBorder(PANELNAME));
         boolean cloning =  mWizardInfo.isCloning();
@@ -100,7 +100,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
         } else {
           mEnable.setSelected(wizardInfo.isEEEnabled());
         }
- 
+
         if (wizardInfo.isRAInstalled())
             mEnable.setSelected(true);
         mAdminSSLPortText.setText(wizardInfo.getAdminPort());
@@ -125,7 +125,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
             enableFields(mSSLPortLabel, mGatewaySSLPortText, true, mActiveColor);
             mEnableEEPorts = true;
         }
-        
+
         return true;
     }
 
@@ -155,13 +155,13 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
             return false;
         }
 
-        if (mEnableEEPorts) { 
+        if (mEnableEEPorts) {
             if (sslEEPort.equals("") || (mEnable.isSelected() && eePort.equals(""))) {
-                setErrorMessage("BLANKFIELD"); 
+                setErrorMessage("BLANKFIELD");
                 return false;
             }
         }
-        
+
         boolean cloning =  mWizardInfo.isCloning();
         String selected_sub = mWizardInfo.getCloneSubsystem();
         if (cloning && (selected_sub != null && selected_sub.equals("ca"))) {
@@ -177,24 +177,24 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
             if (num < MIN_PORT || num > MAX_PORT) {
                 setErrorMessage("PORTRANGE");
                 return false;
-            } 
+            }
             num = Integer.parseInt(agentPort);
             if (num < MIN_PORT || num > MAX_PORT) {
                 setErrorMessage("PORTRANGE");
                 return false;
-            } 
+            }
             if (mEnableEEPorts) {
                 num = Integer.parseInt(sslEEPort);
                 if (num < MIN_PORT || num > MAX_PORT) {
                     setErrorMessage("PORTRANGE");
                     return false;
-                } 
+                }
                 if (mEnable.isSelected()) {
                     num = Integer.parseInt(eePort);
                     if (num < MIN_PORT || num > MAX_PORT) {
                         setErrorMessage("PORTRANGE");
                         return false;
-                    } 
+                    }
                 }
             }
             if (cloning && (selected_sub != null && selected_sub.equals("ca")))
@@ -204,14 +204,14 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
             return false;
         }
 
-        if (adminPort.equals(agentPort) || agentPort.equals(sslEEPort) || 
+        if (adminPort.equals(agentPort) || agentPort.equals(sslEEPort) ||
           (mEnable.isSelected() && eePort.equals(sslEEPort))) {
             setErrorMessage("SAMEPORT");
             return false;
         }
 
         if (mEnableEEPorts) {
-            if (agentPort.equals(sslEEPort) || 
+            if (agentPort.equals(sslEEPort) ||
               (mEnable.isSelected() && eePort.equals(sslEEPort))) {
                 setErrorMessage("SAMEPORT");
                 return false;
@@ -309,7 +309,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         add(adminSSLport, gbc);
-       
+
         mAdminSSLPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -335,7 +335,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         add(agentPort, gbc);
-        
+
         mAgentSSLPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -346,7 +346,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         //gbc.gridwidth = gbc.REMAINDER;
         add(mAgentSSLPortText, gbc);
- 
+
         JLabel dummy2b = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -432,7 +432,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mAgentDesc, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mAgentPortLbl = makeJLabel("AGENTPORT");
         gbc.anchor = gbc.NORTHEAST;
@@ -440,7 +440,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mAgentPortLbl, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;
@@ -480,7 +480,7 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
                 mWarning = true;
                 String errormsg = mResource.getString(mPanelName+"_WARNING");
                 JOptionPane.showMessageDialog(mAdminFrame, errormsg, "Warning",
-                  JOptionPane.WARNING_MESSAGE, 
+                  JOptionPane.WARNING_MESSAGE,
                   CMSAdminUtil.getImage(CMSAdminResources.IMAGE_WARN_ICON));
             } else {
                 enableFields(false, getBackground());

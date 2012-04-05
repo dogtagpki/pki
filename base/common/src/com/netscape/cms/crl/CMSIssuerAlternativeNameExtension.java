@@ -48,7 +48,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This represents a issuer alternative name extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSIssuerAlternativeNameExtension

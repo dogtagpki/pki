@@ -35,7 +35,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Retrieve Transport Certificate used to
  * wrap Private key Archival requests
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayTransport extends CMSServlet {
@@ -70,7 +70,7 @@ public class DisplayTransport extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

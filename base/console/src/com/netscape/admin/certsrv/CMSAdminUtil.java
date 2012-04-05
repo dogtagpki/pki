@@ -45,30 +45,30 @@ public class CMSAdminUtil {
     /*==========================================================
      * variables
      *==========================================================*/
-    public static final int DEFAULT_TEXTFIELD_WIDTH = 30; 
+    public static final int DEFAULT_TEXTFIELD_WIDTH = 30;
     public static final int COMPONENT_SPACE = SuiLookAndFeel.COMPONENT_SPACE;
-    public static final int SEPARATED_COMPONENT_SPACE = 
+    public static final int SEPARATED_COMPONENT_SPACE =
                                     SuiLookAndFeel.SEPARATED_COMPONENT_SPACE;
-    public static final int DIFFERENT_COMPONENT_SPACE = 
+    public static final int DIFFERENT_COMPONENT_SPACE =
                                     SuiLookAndFeel.DIFFERENT_COMPONENT_SPACE;
-    public static final int HELP_BUTTON_OFFSET = 9;         
-    
+    public static final int HELP_BUTTON_OFFSET = 9;
+
     public static final int DEFAULT_BUTTON_SIZE = 72;
-    
+
     final public static Dimension DEFAULT_PANEL_SIZE = new Dimension(350,440);
     final public static int DEFAULT_PADDING = SuiLookAndFeel.COMPONENT_SPACE;
     private static final int DEFAULT_WIDTH = 40;
     final public static Insets DEFAULT_EMPTY_INSETS = new Insets(0,0,0,0);
     public static final Insets DEAFULT_END_INSETS = new Insets(COMPONENT_SPACE,
                                 COMPONENT_SPACE,COMPONENT_SPACE,COMPONENT_SPACE);
-    
+
     public static final int WARNING_MESSAGE = JOptionPane.WARNING_MESSAGE;
     public static final int ERROR_MESSAGE = JOptionPane.ERROR_MESSAGE;
     public static final int INFORMATION_MESSAGE = JOptionPane.INFORMATION_MESSAGE;
     public static final int OK_OPTION = JOptionPane.OK_OPTION;
     public static final int NO_OPTION = JOptionPane.NO_OPTION;
     public static final int CANCEL_OPTION = JOptionPane.CANCEL_OPTION;
-    
+
     private static Hashtable mPackageImages = new Hashtable();  //image container
     private static final ResourceSet mHelpResource =
       new ResourceSet("com.netscape.admin.certsrv.certsrv-help");
@@ -81,7 +81,7 @@ public class CMSAdminUtil {
     /*==========================================================
 	 * Utilities methods
      *==========================================================*/
-    
+
     /**
      * Utility function to retrieve images from the package image
      * class path.
@@ -139,7 +139,7 @@ public class CMSAdminUtil {
         component.repaint(1);
     }
 
-    public static void enableJTextField(JTextComponent component, 
+    public static void enableJTextField(JTextComponent component,
       boolean enable, Color color) {
         component.setEnabled(enable);
         component.setEditable(enable);
@@ -190,7 +190,7 @@ public class CMSAdminUtil {
     }
 
     public static void addComponents(JPanel panel, JComponent comp1,
-      JComponent comp2, JComponent comp3, JComponent comp4, 
+      JComponent comp2, JComponent comp3, JComponent comp4,
       GridBagConstraints gbc) {
         double weighty = gbc.weighty;
         CMSAdminUtil.resetGBC(gbc);
@@ -223,7 +223,7 @@ public class CMSAdminUtil {
      * Add a label and a textfield to a panel, assumed to be using
      * GridBagLayout.
      */
-    public static void addEntryField(JPanel panel, JComponent label, 
+    public static void addEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -247,7 +247,7 @@ public class CMSAdminUtil {
      * Add 3 components in the same row to a panel, assumed to be using
      * GridBagLayout.
      */
-    public static void addEntryField(JPanel panel, JComponent field1, 
+    public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -274,12 +274,12 @@ public class CMSAdminUtil {
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field3, gbc );
     }
-    
+
     /**
      * Add 4 components in the same row to a panel, assumed to be using
      * GridBagLayout.
      */
-    public static void addEntryField(JPanel panel, JComponent field1, 
+    public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, JComponent field4, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -304,7 +304,7 @@ public class CMSAdminUtil {
         gbc.anchor = gbc.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field3, gbc );
-        
+
         gbc.gridx++;
         gbc.anchor = gbc.WEST;
         gbc.fill = gbc.HORIZONTAL;
@@ -460,7 +460,7 @@ public class CMSAdminUtil {
         }
         return ret;
     }
-    
+
     public static String certRequestWrapText(String s, int width) {
         String ret = "";
         StringTokenizer tokenizer = new StringTokenizer(s, "\n");
@@ -470,7 +470,7 @@ public class CMSAdminUtil {
         String endCert = "";
         String content = "";
         while(tokenizer.hasMoreTokens()) {
-            String sToken = (String)tokenizer.nextToken();       
+            String sToken = (String)tokenizer.nextToken();
             if (index == 1) {
                 beginCert = sToken;
             } else if (index == numTokens) {
@@ -523,7 +523,7 @@ public class CMSAdminUtil {
 
     /**
      * Find out the table width to be used
-     * 
+     *
      * @table JTable object
      */
     public static int getTotalColumnWidth( JTable table ) {
@@ -540,14 +540,14 @@ public class CMSAdminUtil {
     /*==========================================================
      * Component Factory
      *==========================================================*/
-     
+
     //==== BORDER CREATION ====================================
     public static Border makeEtchedBorder() {
         Border margin = new EmptyBorder(0,0,
                             SuiLookAndFeel.VERT_WINDOW_INSET,0);
-        return new CompoundBorder(BorderFactory.createEtchedBorder(), margin);        
+        return new CompoundBorder(BorderFactory.createEtchedBorder(), margin);
     }
-    
+
     public static Border makeTitledBorder(ResourceBundle resource,
                                           String panelName,
                                           String keyword) {
@@ -559,31 +559,31 @@ public class CMSAdminUtil {
         }
         return new TitledBorder(title);
     }
-     
-    //==== DIALOG CREATION ====================================    
-    
+
+    //==== DIALOG CREATION ====================================
+
     public static void showMessageDialog(ResourceBundle resource,
                                          String panelName,
-                                         String keyword, 
+                                         String keyword,
                                          int messageType ) {
-        showMessageDialog(UtilConsoleGlobals.getActivatedFrame(), resource, panelName, keyword, messageType);                                            
+        showMessageDialog(UtilConsoleGlobals.getActivatedFrame(), resource, panelName, keyword, messageType);
     }
-     
+
     public static void showMessageDialog(JFrame frame,
-                                         String title, 
-                                         String msg, 
+                                         String title,
+                                         String msg,
                                          int messageType ) {
         Icon icon;
         if (messageType != ERROR_MESSAGE)
-            icon = getImage(CMSAdminResources.IMAGE_INFO_ICON);    
+            icon = getImage(CMSAdminResources.IMAGE_INFO_ICON);
         else
             icon = getImage(CMSAdminResources.IMAGE_ERROR_ICON);
-            
+
         JOptionPane.showMessageDialog(
                     frame,
                     CMSAdminUtil.wrapText(msg),
-                    title, 
-                    messageType, 
+                    title,
+                    messageType,
                     icon);
     }
 
@@ -593,7 +593,7 @@ public class CMSAdminUtil {
     public static void showMessageDialog(JFrame frame,
                                          ResourceBundle resource,
                                          String panelName,
-                                         String keyword, 
+                                         String keyword,
                                          int messageType ) {
         String msg, title;
         try {
@@ -606,32 +606,32 @@ public class CMSAdminUtil {
         } catch (MissingResourceException e) {
             title = "Missing Title";
         }
-        
+
         Icon icon;
         if (messageType != ERROR_MESSAGE)
-            icon = getImage(CMSAdminResources.IMAGE_INFO_ICON);    
+            icon = getImage(CMSAdminResources.IMAGE_INFO_ICON);
         else
             icon = getImage(CMSAdminResources.IMAGE_ERROR_ICON);
-            
+
         JOptionPane.showMessageDialog(
                     frame,
                     CMSAdminUtil.wrapText(msg),
-                    title, 
-                    messageType, 
+                    title,
+                    messageType,
                     icon);
     }
-    
-    public static void showErrorDialog(ResourceBundle resource, 
+
+    public static void showErrorDialog(ResourceBundle resource,
                                        String message,
-                                       int messageType) {                                        
-        showErrorDialog(new JFrame(), resource, message, messageType);                                        
+                                       int messageType) {
+        showErrorDialog(new JFrame(), resource, message, messageType);
     }
-    
+
     /**
      * Creating error dialog box for display
      */
     public static void showErrorDialog(JFrame frame,
-                                       ResourceBundle resource, 
+                                       ResourceBundle resource,
                                        String message,
                                        int messageType) {
         String title;
@@ -643,19 +643,19 @@ public class CMSAdminUtil {
         JOptionPane.showMessageDialog(
                     frame,
                     CMSAdminUtil.wrapText(message),
-                    title, 
-                    messageType, 
+                    title,
+                    messageType,
                     getImage(CMSAdminResources.IMAGE_ERROR_ICON));
     }
-   
+
     public static int showConfirmDialog( ResourceBundle resource,
                                          String panelName,
-                                         String keyword, 
-                                         int messageType ) 
+                                         String keyword,
+                                         int messageType )
     {
-        return showConfirmDialog(new JFrame(), resource, panelName, keyword, messageType);    
+        return showConfirmDialog(new JFrame(), resource, panelName, keyword, messageType);
     }
-    
+
     public static int showConfirmDialog( ResourceBundle resource,
                                          String panelName,
                                          String keyword, String[] params,
@@ -667,12 +667,12 @@ public class CMSAdminUtil {
 
     /**
      * Creating confirm dialog box for display
-     */    
+     */
     public static int showConfirmDialog( JFrame frame,
                                          ResourceBundle resource,
                                          String panelName,
-                                         String keyword, 
-                                         int messageType ) 
+                                         String keyword,
+                                         int messageType )
     {
         String msg, title;
         try {
@@ -685,15 +685,15 @@ public class CMSAdminUtil {
         } catch (MissingResourceException e) {
             title = "Missing Title";
         }
-        
+
         return JOptionPane.showConfirmDialog(
                 frame,
                 CMSAdminUtil.wrapText(msg), title,
                 JOptionPane.YES_NO_OPTION,
                 messageType,
                 getImage(CMSAdminResources.IMAGE_WARN_ICON));
-    }      
-    
+    }
+
     public static int showConfirmDialog(JFrame frame, ResourceBundle resource,
       String panelName, String keyword, String[] params, int messageType )
     {
@@ -722,26 +722,26 @@ public class CMSAdminUtil {
                 messageType,
                 getImage(CMSAdminResources.IMAGE_WARN_ICON));
     }
-    
+
     //==== LABEL CREATION ================================
-    
+
     /**
      * Factory Method to create LABEL using specified params
      */
-    public static JLabel makeJLabel(ResourceBundle resource, 
-                                       String panelName, 
+    public static JLabel makeJLabel(ResourceBundle resource,
+                                       String panelName,
                                        String keyword,
                                        Icon icon)
     {
         return makeJLabel(resource, panelName, keyword, icon, -1);
     }
-    
-    
+
+
     /**
      * Factory Method to create LABEL using specified params
      */
-    public static JLabel makeJLabel(ResourceBundle resource, 
-                                       String panelName, 
+    public static JLabel makeJLabel(ResourceBundle resource,
+                                       String panelName,
                                        String keyword,
                                        Icon icon,
                                        int alignment)
@@ -759,32 +759,32 @@ public class CMSAdminUtil {
         if (title != null)
             label.setText(title);
         if (alignment != -1)
-            label.setHorizontalAlignment(alignment);    
+            label.setHorizontalAlignment(alignment);
         //setToolTip(resource, panelName, "LABEL_"+keyword, label);
-        
+
         return label;
-    }     
-    
-    
+    }
+
+
     //==== TEXTFIELD CREATION ================================
-    
+
     /**
      * Factory Method to create TextFiled using specified params
      */
-    public static JTextField makeJTextField(Document d, 
-                                    String s, 
+    public static JTextField makeJTextField(Document d,
+                                    String s,
                                     int len,
                                     Object listener) {
-                                        
-        JTextField pf = new JTextField(DEFAULT_TEXTFIELD_WIDTH){ 
+
+        JTextField pf = new JTextField(DEFAULT_TEXTFIELD_WIDTH){
             public void setEnabled( boolean enabled ) {
                 super.setEnabled( enabled );
                 //super.setEditable(enabled);
                 super.setBackground( enabled ? Color.white: SystemColor.window);
-            } 
-        }; 
-        pf.setEnabled( true ); 
-        
+            }
+        };
+        pf.setEnabled( true );
+
         if (d != null)
             pf.setDocument(d);
         if (s != null)
@@ -794,17 +794,17 @@ public class CMSAdminUtil {
 
         pf.addActionListener((ActionListener)listener);
         //detect text changes
-        pf.getDocument().addDocumentListener((DocumentListener)listener);  
+        pf.getDocument().addDocumentListener((DocumentListener)listener);
         return pf;
-    }     
-    
+    }
+
     //==== PASSWORD FIELD CREATION ================================
-    
+
     /**
      * Factory Method to create Password Filed using specified params
      */
-    public static JPasswordField makeJPasswordField(Document d, 
-                                    String s, 
+    public static JPasswordField makeJPasswordField(Document d,
+                                    String s,
                                     int len,
                                     Object listener) {
         JPasswordField pf = new JPasswordField(DEFAULT_TEXTFIELD_WIDTH) {
@@ -813,8 +813,8 @@ public class CMSAdminUtil {
                 super.setEditable(enabled);
                 setBackground( enabled ? Color.white: SystemColor.window);
                 this.repaint();
-            } 
-        }; 
+            }
+        };
         pf.setEnabled( true );
         if (d != null)
             pf.setDocument(d);
@@ -825,13 +825,13 @@ public class CMSAdminUtil {
 
         pf.addActionListener((ActionListener)listener);
         //detect text changes
-        pf.getDocument().addDocumentListener((DocumentListener)listener);  
+        pf.getDocument().addDocumentListener((DocumentListener)listener);
         return pf;
-    }    
-    
-    
+    }
+
+
     //==== LIST CREATION ================================
-    
+
     /**
      * Factory Method to create a list box mode specified with specific
      * visible row count. Special cell renderer is used to display each cell.
@@ -845,14 +845,14 @@ public class CMSAdminUtil {
             listbox.setSelectedIndex(0);
         return listbox;
     }
-       
+
     //===== CHECKBOX CREATION =======================
-    
+
     /**
      * Factory Method to create CheckBox using specified params
      */
-    public static JCheckBox makeJCheckBox(ResourceBundle resource, 
-                                       String panelName, 
+    public static JCheckBox makeJCheckBox(ResourceBundle resource,
+                                       String panelName,
                                        String keyword,
                                        Icon icon,
                                        boolean select,
@@ -864,7 +864,7 @@ public class CMSAdminUtil {
         } catch (MissingResourceException e) {
             label = "Missing Label";
         }
-        
+
         JCheckBox button = new JCheckBox();
         if (label != null)
             button.setText(label);
@@ -873,17 +873,17 @@ public class CMSAdminUtil {
         button.setSelected(select);
         button.addActionListener(listener);
         //setToolTip(resource, panelName, "CHECKBOX_"+keyword, button);
-        
+
         return button;
-    } 
-    
+    }
+
     //===== RADIO BUTTON CREATION =======================
-    
+
     /**
      * Factory Method to create Radio Button using specified params
      */
-    public static JRadioButton makeJRadioButton(ResourceBundle resource, 
-                                       String panelName, 
+    public static JRadioButton makeJRadioButton(ResourceBundle resource,
+                                       String panelName,
                                        String keyword,
                                        Icon icon,
                                        boolean select,
@@ -895,7 +895,7 @@ public class CMSAdminUtil {
         } catch (MissingResourceException e) {
             label = "Missing Label";
         }
-        
+
         JRadioButton button = new JRadioButton();
         if (label != null)
             button.setText(label);
@@ -904,17 +904,17 @@ public class CMSAdminUtil {
         button.setSelected(select);
         button.addActionListener(listener);
         //setToolTip(resource, panelName, "RADIOBUTTON_"+keyword, button);
-        
+
         return button;
-    }        
-    
+    }
+
     //===== BUTTON CREATION =======================
-    
+
     /**
      * Factory Method to create Button using specified params
      */
-    public static JButton makeJButton(ResourceBundle resource, 
-                                       String panelName, 
+    public static JButton makeJButton(ResourceBundle resource,
+                                       String panelName,
                                        String keyword,
                                        Icon icon,
                                        ActionListener listener)
@@ -925,7 +925,7 @@ public class CMSAdminUtil {
         } catch (MissingResourceException e) {
             label = "Missing Label";
         }
-        
+
         JButton button = new JButton();
         if (label != null)
             button.setText(label);
@@ -933,10 +933,10 @@ public class CMSAdminUtil {
             button.setIcon(icon);
         button.addActionListener(listener);
         //setToolTip(resource, panelName, "BUTTON_"+keyword, button);
-        
+
         return button;
-    }    
-    
+    }
+
    /**
 	 * Create a panel with horizontally arranged, equally sized buttons
 	 * The buttons are aligned to the right in the panel (if it is
@@ -947,15 +947,15 @@ public class CMSAdminUtil {
      * @param isConfig don't pat button
 	 * @return A panel containing the buttons
 	 */
-	 
+
     public static JPanel makeJButtonPanel( JButton[] buttons) {
         return makeJButtonPanel(buttons, false, false);
     }
-    
+
     public static JPanel makeJButtonPanel( JButton[] buttons, boolean isHelp) {
         return makeJButtonPanel(buttons, isHelp, false);
-    } 	 
-	 
+    }
+
     public static JPanel makeJButtonPanel( JButton[] buttons, boolean isHelp, boolean isConfig) {
 		JButtonFactory.resize( buttons );
 		JPanel buttonPanel = new JPanel();
@@ -973,30 +973,30 @@ public class CMSAdminUtil {
 				gbc.gridwidth = gbc.REMAINDER;
 				if (isHelp)
 				    buttonPanel.add( Box.createHorizontalStrut(HELP_BUTTON_OFFSET));
-				else 
+				else
 				    buttonPanel.add( Box.createHorizontalStrut(SuiLookAndFeel.COMPONENT_SPACE) );
 		    }
 			buttonPanel.add( buttons[i], gbc );
-			if ( i < buttons.length-2 )    
+			if ( i < buttons.length-2 )
 		        buttonPanel.add( Box.createHorizontalStrut(SuiLookAndFeel.COMPONENT_SPACE) );
 		}
-		
+
 	    JPanel p = new JPanel();
 		p.setLayout( new BorderLayout() );
 		p.add( "Center", buttonPanel );
-		
+
 		if(!isConfig) {
 		    p.add( "South",
-	            Box.createVerticalStrut(DIFFERENT_COMPONENT_SPACE) );   
+	            Box.createVerticalStrut(DIFFERENT_COMPONENT_SPACE) );
 		    p.add( "East",
-			    Box.createHorizontalStrut(DIFFERENT_COMPONENT_SPACE) );	            
+			    Box.createHorizontalStrut(DIFFERENT_COMPONENT_SPACE) );
 	    } else {
 	        p.add( "South",
-	            Box.createVerticalStrut(DIFFERENT_COMPONENT_SPACE-COMPONENT_SPACE) );   
+	            Box.createVerticalStrut(DIFFERENT_COMPONENT_SPACE-COMPONENT_SPACE) );
 	    }
 		p.add( "North",
 			   Box.createVerticalStrut(DIFFERENT_COMPONENT_SPACE) );
-			   
+
 		return p;
 	}
 
@@ -1018,25 +1018,25 @@ public class CMSAdminUtil {
 		gbc.gridwidth = gbc.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.insets = new Insets(0, DIFFERENT_COMPONENT_SPACE, 0,0);
-		
+
 		for( int i = 0; i < buttons.length; i++ ) {
 			if ( i == buttons.length-1 )
 				gbc.gridheight = gbc.REMAINDER;
 			buttonPanel.add( buttons[i], gbc );
 			gbc.insets = new Insets(COMPONENT_SPACE, DIFFERENT_COMPONENT_SPACE,
       		                            0, 0);
-		}	    
-	    
+		}
+
 	    JPanel p = new JPanel();
 		p.setLayout( new BorderLayout() );
-		p.add( "Center", buttonPanel );			   
-		return p;	    
+		p.add( "Center", buttonPanel );
+		return p;
 	}
-	 
+
     //===== COMBOBOX CREATION =======================
-    
-    public static JComboBox makeJComboBox(ResourceBundle resource, 
-                                       String panelName, 
+
+    public static JComboBox makeJComboBox(ResourceBundle resource,
+                                       String panelName,
                                        String keyword)
     {
         String value = null;
@@ -1056,33 +1056,33 @@ public class CMSAdminUtil {
                 ++ii;
             } catch (MissingResourceException e) {
                 val = null;
-            }   
+            }
         } while (val != null);
-        
+
         if (value != null)
             jcb.setSelectedItem(value);
         return jcb;
     }
-    
-    
+
+
     //===== TOOL TIP CREATION =======================
-    
+
     /**
      * Set tool tip on compoenent using resources passed in
      */
-    public static void setToolTip(ResourceBundle resource, 
-                            String panelName, 
-                            String compKeyword, 
-                            JComponent w) 
+    public static void setToolTip(ResourceBundle resource,
+                            String panelName,
+                            String compKeyword,
+                            JComponent w)
     {
         try {
             String ttip = resource.getString(panelName+"_"+compKeyword+"_TTIP");
             w.setToolTipText(ttip);
         } catch (MissingResourceException e) {
             //DON'T HAVE TOOT TIP
-        }   
+        }
     }
-    
+
     public static String[] randomize(String [] t) {
         String[] s = new String[t.length];
         System.arraycopy(t,0,s,0,t.length);
@@ -1117,7 +1117,7 @@ public class CMSAdminUtil {
 				}
 			}
 		}
-	}    
+	}
 
     public static void bubbleSort(String[] str, String[] data) {
         for (int i = 0; i < str.length-1; i++) {
@@ -1166,21 +1166,21 @@ public class CMSAdminUtil {
     }
 
     //get localized string using the format
-    public static String getLocalizedString(ResourceBundle resource, 
-                                            String keyword, 
+    public static String getLocalizedString(ResourceBundle resource,
+                                            String keyword,
                                             Object param) {
         return MessageFormatter.getLocalizedString(resource.getClass().getName(),
-                                                   keyword, param);                                             
-    }    
-    
+                                                   keyword, param);
+    }
+
     //get localized string using the format
-    public static String getLocalizedString(ResourceBundle resource, 
-                                            String keyword, 
+    public static String getLocalizedString(ResourceBundle resource,
+                                            String keyword,
                                             Object [] params) {
         return MessageFormatter.getLocalizedString(resource.getClass().getName(),
-                                                   keyword, params);                                             
+                                                   keyword, params);
     }
-    
+
     public static String getPureString(String data) {
         StringBuffer input = new StringBuffer(data);
         StringBuffer buff = new StringBuffer();
@@ -1203,7 +1203,7 @@ public class CMSAdminUtil {
     static RemoteImage getSystemImage( String imagePath ) {
 		return new RemoteImage( imagePath );
     }
-    
+
     public static JTextArea createTextArea(String str, Color color) {
         JTextArea desc = new JTextArea(str);
         desc.setBackground(color);
@@ -1211,7 +1211,7 @@ public class CMSAdminUtil {
         desc.setCaretColor(color);
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
- 
+
         return desc;
     }
 

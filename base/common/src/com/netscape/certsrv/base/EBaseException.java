@@ -23,7 +23,7 @@ import java.util.Locale;
  * An exception with localizable error messages. It is the
  * base class for all exceptions in certificate server.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see com.netscape.certsrv.base.BaseResources
@@ -50,7 +50,7 @@ public class EBaseException extends Exception {
      * Constructs an instance of this exception with the given resource key.
      * If resource key is not found in the resource bundle, the resource key
      * specified is used as the error message.
-     * 
+     *
      * <pre>
      * new EBaseException(BaseResources.PERMISSION_DENIED);
      * new EBaseException(&quot;An plain error message&quot;);
@@ -65,12 +65,12 @@ public class EBaseException extends Exception {
     /**
      * Constructs an instance of this exception with the given resource key
      * and a parameter as a string.
-     * 
+     *
      * <PRE>
      * new EBaseException(BaseResource.NO_CONFIG_FILE, fileName);
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -83,7 +83,7 @@ public class EBaseException extends Exception {
     /**
      * Constructs an instance of the exception given the resource key and
      * a exception parameter.
-     * 
+     *
      * <PRE>
      * 		try {
      *  		...
@@ -92,7 +92,7 @@ public class EBaseException extends Exception {
      *      }
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat The resource key
      * @param param The parameter as an exception
      */
@@ -106,7 +106,7 @@ public class EBaseException extends Exception {
      * Constructs an instance of this exception given the resource key and
      * an array of parameters.
      * <P>
-     * 
+     *
      * @param msgFormat The resource key
      * @param params Array of params
      */
@@ -118,7 +118,7 @@ public class EBaseException extends Exception {
     /**
      * Returns the list of parameters.
      * <P>
-     * 
+     *
      * @return List of parameters.
      */
     public Object[] getParameters() {
@@ -128,7 +128,7 @@ public class EBaseException extends Exception {
     /**
      * Returns the exception string in the default locale.
      * <P>
-     * 
+     *
      * @return The exception string in the default locale.
      */
     public String toString() {
@@ -138,7 +138,7 @@ public class EBaseException extends Exception {
     /**
      * Returns the exception string in the given locale.
      * <P>
-     * 
+     *
      * @param locale The locale
      * @return The exception string in the given locale.
      */
@@ -149,7 +149,7 @@ public class EBaseException extends Exception {
 
     /**
      * Returns the given resource bundle name.
-     * 
+     *
      * @return the name of the resource bundle for this class.
      */
     protected String getBundleName() {

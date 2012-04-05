@@ -56,7 +56,7 @@ public class HierarchyPanel extends WizardPanelBase {
 
     public boolean shouldSkip() {
 
-        // we dont need to ask the hierachy if we are 
+        // we dont need to ask the hierachy if we are
         // setting up a clone
         try {
             IConfigStore c = CMS.getConfigStore();

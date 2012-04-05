@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * An interface contains constants for key record.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IKeyRecord {
@@ -53,7 +53,7 @@ public interface IKeyRecord {
 
     /**
      * Retrieves the state of the key.
-     * 
+     *
      * @return key state
      * @exception EBaseException failed to retrieve state of the key
      */
@@ -61,7 +61,7 @@ public interface IKeyRecord {
 
     /**
      * Retrieves key identifier.
-     * 
+     *
      * @return key id
      * @exception EBaseException failed to retrieve key id
      */
@@ -69,7 +69,7 @@ public interface IKeyRecord {
 
     /**
      * Retrieves key owner name.
-     * 
+     *
      * @return key owner name
      * @exception EBaseException failed to retrieve key owner name
      */
@@ -77,14 +77,14 @@ public interface IKeyRecord {
 
     /**
      * Retrieves key algorithm.
-     * 
+     *
      * @return key algorithm
      */
     public String getAlgorithm();
 
     /**
      * Retrieves key length.
-     * 
+     *
      * @return key length
      * @exception EBaseException failed to retrieve key length
      */
@@ -123,7 +123,7 @@ public interface IKeyRecord {
 
     /**
      * Retrieves archiver identifier.
-     * 
+     *
      * @return archiver uid
      */
 
@@ -131,21 +131,21 @@ public interface IKeyRecord {
 
     /**
      * Retrieves creation time.
-     * 
+     *
      * @return creation time
      */
     public Date getCreateTime();
 
     /**
      * Retrieves last modification time.
-     * 
+     *
      * @return modification time
      */
     public Date getModifyTime();
 
     /**
      * Retrieves dates of recovery.
-     * 
+     *
      * @return recovery history
      * @exception EBaseException failed to retrieve recovery history
      */
@@ -153,7 +153,7 @@ public interface IKeyRecord {
 
     /**
      * Retrieves public key data.
-     * 
+     *
      * @return public key data
      * @exception EBaseException failed to retrieve public key data
      */

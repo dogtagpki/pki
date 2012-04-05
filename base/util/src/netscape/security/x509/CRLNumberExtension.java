@@ -31,12 +31,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRL Number Extension.
- * 
+ *
  * <p>
  * This extension, if present, conveys a monotonically increasing sequence number for each CRL issued by a given CA
  * through a specific CA X.500 Directory entry or CRL distribution point. This extension allows users to easily
  * determine when a particular CRL supersedes another CRL.
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.2
  * @see Extension
@@ -69,7 +69,7 @@ public class CRLNumberExtension extends Extension
     /**
      * Create a CRLNumberExtension with the integer value .
      * The criticality is set to false.
-     * 
+     *
      * @param crlNum the value to be set for the extension.
      */
     public CRLNumberExtension(int crlNum) throws IOException {
@@ -82,7 +82,7 @@ public class CRLNumberExtension extends Extension
     /**
      * Create a CRLNumberExtension with the BigInteger value .
      * The criticality is set to false.
-     * 
+     *
      * @param crlNum the value to be set for the extension.
      */
     public CRLNumberExtension(BigInteger crlNum) throws IOException {
@@ -94,7 +94,7 @@ public class CRLNumberExtension extends Extension
 
     /**
      * Create a CRLNumberExtension with the BigInteger value .
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param crlNum the value to be set for the extension.
      */
@@ -107,7 +107,7 @@ public class CRLNumberExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -181,7 +181,7 @@ public class CRLNumberExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -191,7 +191,7 @@ public class CRLNumberExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

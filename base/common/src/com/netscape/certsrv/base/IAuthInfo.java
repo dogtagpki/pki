@@ -24,7 +24,7 @@ package com.netscape.certsrv.base;
  * user needs to authenticate to CMS using SSL. The
  * client certificate is expressed in authenticated context.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAuthInfo {

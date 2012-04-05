@@ -55,7 +55,7 @@ class WIServerCertExtensionPage extends WICertExtensionPage {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning())
             return false;
-        if (wizardInfo.isMigrationEnable() || 
+        if (wizardInfo.isMigrationEnable() ||
           wizardInfo.isSSLLocalCertDone() || wizardInfo.isSSLCertRequestDone() ||
           wizardInfo.isSSLCertInstalledDone())
             return false;

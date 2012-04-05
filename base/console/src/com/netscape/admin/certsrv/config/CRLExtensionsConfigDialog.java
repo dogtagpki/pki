@@ -73,4 +73,4 @@ public class CRLExtensionsConfigDialog extends CMSBaseConfigDialog
         init(nvp,parent,conn,dest,id);
     }
 
-}    
+}

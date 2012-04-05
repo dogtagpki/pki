@@ -26,7 +26,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the certificate policy set ASN.1 object.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -36,7 +36,7 @@ public class CertificatePolicySet {
 
     /**
      * The default constructor for this class.
-     * 
+     *
      * @param ids the sequence of CertificatePolicyId's.
      */
     public CertificatePolicySet(Vector<CertificatePolicyId> ids) {
@@ -45,7 +45,7 @@ public class CertificatePolicySet {
 
     /**
      * Create the object from the DerValue.
-     * 
+     *
      * @param in the passed DerInputStream.
      * @exception IOException on decoding errors.
      */
@@ -72,7 +72,7 @@ public class CertificatePolicySet {
 
     /**
      * Encode the policy set to the output stream.
-     * 
+     *
      * @param out the DerOutputStream to encode the data to.
      */
     public void encode(DerOutputStream out) throws IOException {

@@ -26,14 +26,14 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * An interface represents a encryption unit.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IEncryptionUnit extends IToken {
 
     /**
      * Retrieves the public key in this unit.
-     * 
+     *
      * @return public key
      */
     public PublicKey getPublicKey();
@@ -41,7 +41,7 @@ public interface IEncryptionUnit extends IToken {
     /**
      * Wraps data. The given key will be wrapped by the
      * private key in this unit.
-     * 
+     *
      * @param priKey private key to be wrapped
      * @return wrapped data
      * @exception EBaseException failed to wrap
@@ -60,7 +60,7 @@ public interface IEncryptionUnit extends IToken {
 
     /**
      * Verifies the given key pair.
-     * 
+     *
      * @param publicKey public key
      * @param privateKey private key
      */
@@ -70,7 +70,7 @@ public interface IEncryptionUnit extends IToken {
     /**
      * Unwraps data. This method rebuilds the private key by
      * unwrapping the private key data.
-     * 
+     *
      * @param sessionKey session key that unwrap the private key
      * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters
@@ -127,7 +127,7 @@ public interface IEncryptionUnit extends IToken {
     /**
      * Unwraps data. This method rebuilds the private key by
      * unwrapping the private key data.
-     * 
+     *
      * @param privateKey private key data
      * @param pubKey public key object
      * @return private key object
@@ -139,7 +139,7 @@ public interface IEncryptionUnit extends IToken {
     /**
      * Encrypts the internal private key (private key to the KRA's
      * internal storage).
-     * 
+     *
      * @param rawPrivate user's private key (key to be archived)
      * @return encrypted data
      * @exception EBaseException failed to encrypt
@@ -150,7 +150,7 @@ public interface IEncryptionUnit extends IToken {
     /**
      * Decrypts the internal private key (private key from the KRA's
      * internal storage).
-     * 
+     *
      * @param wrappedPrivateData unwrapped private key data (key to be recovered)
      * @return raw private key
      * @exception EBaseException failed to decrypt
@@ -160,7 +160,7 @@ public interface IEncryptionUnit extends IToken {
 
     /**
      * Decrypts the external private key (private key from the end-user).
-     * 
+     *
      * @param sessionKey session key that protects the user private
      * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters

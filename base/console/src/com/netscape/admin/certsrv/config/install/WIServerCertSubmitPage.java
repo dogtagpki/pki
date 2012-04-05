@@ -49,14 +49,14 @@ class WIServerCertSubmitPage extends WICertSubmitPage implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
           Constants.PR_SERVER_CERT);
 
         if (wizardInfo.isCloning())
             return false;
 
-        if (wizardInfo.isMigrationEnable() || 
-          wizardInfo.isSSLCertRequestDone() || wizardInfo.isSSLCertInstalledDone() || 
+        if (wizardInfo.isMigrationEnable() ||
+          wizardInfo.isSSLCertRequestDone() || wizardInfo.isSSLCertInstalledDone() ||
           !wizardInfo.isCAInstalled()) {
             wizardInfo.setSSLCertLocalCA(Constants.FALSE);
             return false;
@@ -68,7 +68,7 @@ class WIServerCertSubmitPage extends WICertSubmitPage implements IWizardPanel {
         if (wizardInfo.isCAInstalled() && wizardInfo.isKRAInstalled()) {
             if (wizardInfo.isSSLCertLocalCA()) {
                 mHelpIndex = CAKRALOCALHELPINDEX;
-            } else 
+            } else
                 mHelpIndex = CAKRAREMOTEHELPINDEX;
         } else if (wizardInfo.isSSLCertLocalCA()) {
             mHelpIndex = CALOCALHELPINDEX;

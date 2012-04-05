@@ -42,7 +42,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This class is to hold some general method for servlets.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSGateway {
@@ -345,7 +345,7 @@ public class CMSGateway {
      * epoch value passed in. If there is no header, or there is a problem
      * parsing the value, or if the file has been modified this will return
      * true, indicating the file has changed.
-     * 
+     *
      * @param lastModified The time value in milliseconds past the epoch to
      *            compare the If-Modified-Since header to.
      */

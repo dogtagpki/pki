@@ -42,10 +42,10 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * pages so that a CRMF request containing 2 certificate
  * requests will be generated.
  * <p>
- * 
+ *
  * This input can only be used with Netscape 7.x or later clients.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DualKeyGenInput extends EnrollInput implements IProfileInput {

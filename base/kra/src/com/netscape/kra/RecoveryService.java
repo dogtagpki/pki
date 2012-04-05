@@ -77,7 +77,7 @@ import com.netscape.cmscore.util.Debug;
  * Administrator recovery will create a PKCS12 file where stores the certificate and the recovered key.
  * <P>
  * End Entity recovery will send RA or CA a response where stores the recovered key.
- * 
+ *
  * @author thomask (original)
  * @author cfu (non-RSA keys; private keys secure handling);
  * @version $Revision$, $Date$
@@ -122,7 +122,7 @@ public class RecoveryService implements IService {
      * (either Administrator or End-Entity), the method reads
      * the key record from the database, and tried to recover the
      * key with the storage key unit.
-     * 
+     *
      * @param request recovery request
      * @return operation success or not
      * @exception EBaseException failed to serve
@@ -433,7 +433,7 @@ public class RecoveryService implements IService {
     /**
      * Creates a PFX (PKCS12) file. (the unwrapping/wrapping way)
      * - used when allowEncDecrypt_recovery is false
-     * 
+     *
      * @param request CRMF recovery request
      * @param priKey private key handle
      * @exception EBaseException failed to create P12 file
@@ -558,7 +558,7 @@ public class RecoveryService implements IService {
     /**
      * Creates a PFX (PKCS12) file.
      * - used when allowEncDecrypt_recovery is true
-     * 
+     *
      * @param request CRMF recovery request
      * @param priData decrypted private key (PrivateKeyInfo)
      * @exception EBaseException failed to create P12 file

@@ -128,7 +128,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         if (ca == null) {
             if (type.equals("otherca")) {
                 try {
-                    // this is a non-CA system that has elected to have its certificates 
+                    // this is a non-CA system that has elected to have its certificates
                     // signed by a CA outside of the security domain.
                     // in this case, we submitted the cert request for the admin cert to
                     // to security domain host.

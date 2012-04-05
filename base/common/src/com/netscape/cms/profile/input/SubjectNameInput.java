@@ -44,7 +44,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * <p>
  * The collected parameters could be used for fomulating the subject name in the certificate.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SubjectNameInput extends EnrollInput implements IProfileInput {

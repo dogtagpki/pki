@@ -30,14 +30,14 @@ import com.netscape.certsrv.common.NameValuePairs;
 
 /**
  * A log event listener which sends all log events to the system console/tty
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ConsoleLog implements ILogEventListener {
 
     /**
      * Log the given event. Usually called from a log manager.
-     * 
+     *
      * @param ev log event
      */
     public void log(ILogEvent ev) {
@@ -46,7 +46,7 @@ public class ConsoleLog implements ILogEventListener {
 
     /**
      * Flush the system output stream.
-     * 
+     *
      */
     public void flush() {
         System.err.flush();
@@ -61,7 +61,7 @@ public class ConsoleLog implements ILogEventListener {
     /**
      * get the configuration store that is associated with this
      * log listener
-     * 
+     *
      * @return the configuration store that is associated with this
      *         log listener
      */
@@ -80,7 +80,7 @@ public class ConsoleLog implements ILogEventListener {
      * Retrieve last "maxLine" number of system log with log lever >"level"
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
-     * 
+     *
      * @param req a Hashtable containing the required information such as
      *            log entry, log level, log source, and log name
      * @return the content of the log that match the criteria in req

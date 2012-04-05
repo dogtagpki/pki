@@ -28,7 +28,7 @@ import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.config.*;
 
 /**
- * Certificate Extension page for KRA transport certificate. 
+ * Certificate Extension page for KRA transport certificate.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -55,7 +55,7 @@ class WIKRACertExtensionPage extends WICertExtensionPage {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isKRACloningDone())
             return false;
-        if (!wizardInfo.isKRAInstalled() || 
+        if (!wizardInfo.isKRAInstalled() ||
           wizardInfo.isKRALocalCertDone() || wizardInfo.isKRACertRequestDone() ||
           wizardInfo.isKRACertInstalledDone())
             return false;

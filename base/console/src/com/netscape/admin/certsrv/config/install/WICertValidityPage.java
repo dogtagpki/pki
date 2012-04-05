@@ -41,7 +41,7 @@ import com.netscape.management.client.console.*;
 class WICertValidityPage extends WBaseValidityPage implements IWizardPanel {
     private String mPanelName;
     protected String mHelpIndex;
-    
+
     WICertValidityPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -111,7 +111,7 @@ class WICertValidityPage extends WBaseValidityPage implements IWizardPanel {
                         setErrorMessage(mResource.getString(mPanelName+"_ERROR1"));
                         return false;
                     }
-                } else 
+                } else
                     setErrorMessage(str);
                 return ready;
             }

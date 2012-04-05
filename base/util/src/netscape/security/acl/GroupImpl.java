@@ -24,7 +24,7 @@ import java.util.Vector;
 
 /**
  * This class implements a group of principals.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class GroupImpl implements Group {
@@ -33,7 +33,7 @@ public class GroupImpl implements Group {
 
     /**
      * Constructs a Group object with no members.
-     * 
+     *
      * @param groupName the name of the group
      */
     public GroupImpl(String groupName) {
@@ -42,7 +42,7 @@ public class GroupImpl implements Group {
 
     /**
      * adds the specified member to the group.
-     * 
+     *
      * @param user The principal to add to the group.
      * @return true if the member was added - false if the
      *         member could not be added.
@@ -61,7 +61,7 @@ public class GroupImpl implements Group {
 
     /**
      * removes the specified member from the group.
-     * 
+     *
      * @param user The principal to remove from the group.
      * @param true if the principal was removed false if
      *        the principal was not a member
@@ -80,7 +80,7 @@ public class GroupImpl implements Group {
     /**
      * This function returns true if the group passed matches
      * the group represented in this interface.
-     * 
+     *
      * @param another The group to compare this group to.
      */
     public boolean equals(Group another) {
@@ -103,7 +103,7 @@ public class GroupImpl implements Group {
 
     /**
      * returns true if the passed principal is a member of the group.
-     * 
+     *
      * @param member The principal whose membership must be checked for.
      * @return true if the principal is a member of this group,
      *         false otherwise
@@ -133,7 +133,7 @@ public class GroupImpl implements Group {
     //
     // This function is the recursive search of groups for this
     // implementation of the Group. The search proceeds building up
-    // a vector of already seen groups. Only new groups are considered, 
+    // a vector of already seen groups. Only new groups are considered,
     // thereby avoiding loops.
     //
     boolean isMemberRecurse(Principal member, Vector<Group> alreadySeen) {
@@ -147,12 +147,12 @@ public class GroupImpl implements Group {
                 return true;
             } else if (p instanceof GroupImpl) {
                 //
-                // if not recurse if the group has not been checked already. 
-                // Can call method in this package only if the object is an 
-                // instance of this class. Otherwise call the method defined 
-                // in the interface. (This can lead to a loop if a mixture of 
-                // implementations form a loop, but we live with this improbable 
-                // case rather than clutter the interface by forcing the 
+                // if not recurse if the group has not been checked already.
+                // Can call method in this package only if the object is an
+                // instance of this class. Otherwise call the method defined
+                // in the interface. (This can lead to a loop if a mixture of
+                // implementations form a loop, but we live with this improbable
+                // case rather than clutter the interface by forcing the
                 // implementation of this method.)
                 //
                 GroupImpl g = (GroupImpl) p;

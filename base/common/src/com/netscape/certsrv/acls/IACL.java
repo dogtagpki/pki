@@ -25,42 +25,42 @@ import java.util.Enumeration;
  * enforcer can verify the ACLs with the current
  * context to see if the corresponding resource is accessible.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IACL {
 
     /**
      * Returns the name of the current ACL.
-     * 
+     *
      * @return the name of the current ACL.
      */
     public String getName();
 
     /**
      * Returns the description of the current ACL.
-     * 
+     *
      * @return the description of the current ACL.
      */
     public String getDescription();
 
     /**
      * Returns a list of access rights of the current ACL.
-     * 
+     *
      * @return a list of access rights
      */
     public Enumeration<String> rights();
 
     /**
      * Returns a list of entries of the current ACL.
-     * 
+     *
      * @return a list of entries
      */
     public Enumeration<ACLEntry> entries();
 
     /**
      * Verifies if permission is granted.
-     * 
+     *
      * @param permission one of the applicable rights
      * @return true if the given permission is one of the applicable rights; false otherwise.
      */

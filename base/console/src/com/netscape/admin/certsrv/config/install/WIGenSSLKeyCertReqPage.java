@@ -54,7 +54,7 @@ class WIGenSSLKeyCertReqPage extends WIGenKeyCertReqPage {
             return false;
         if (wizardInfo.isSSLCertLocalCA() || wizardInfo.isMigrationEnable() ||
           (wizardInfo.isSSLCertRequestDone() &&
-			  !wizardInfo.isSSLCertRequestBack()) || 
+			  !wizardInfo.isSSLCertRequestBack()) ||
           wizardInfo.isSSLLocalCertDone() ||
           wizardInfo.isSSLCertInstalledDone())
             return false;

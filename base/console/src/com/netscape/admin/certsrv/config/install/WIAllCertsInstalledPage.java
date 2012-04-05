@@ -40,7 +40,7 @@ class WIAllCertsInstalledPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "ALLCERTSINSTALLEDWIZARD";
     private static final String HELPINDEX =
       "install-allcerts-getinstalled-wizard-help";
-    
+
     WIAllCertsInstalledPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -77,7 +77,7 @@ class WIAllCertsInstalledPage extends WizardBasePanel implements IWizardPanel {
                     }
                 }
             }
-        } 
+        }
 
         else if (wizardInfo.isRAInstalled() && wizardInfo.isKRAInstalled()) {
             if (raCertInstalled(wizardInfo) && kraCertInstalled(wizardInfo))
@@ -148,8 +148,8 @@ class WIAllCertsInstalledPage extends WizardBasePanel implements IWizardPanel {
         }
         setBorder(makeTitledBorder(PANELNAME));
         mLabel.setVisible(false);
- 
-        return true; 
+
+        return true;
     }
 
     private boolean caCertInstalled(InstallWizardInfo wizardInfo) {
@@ -202,8 +202,8 @@ class WIAllCertsInstalledPage extends WizardBasePanel implements IWizardPanel {
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_READ;
         // #344791 - help server to make up the hostname
 /*
-        data.put(ConfigConstants.PR_HOST, 
-          consoleInfo.get(ConfigConstants.PR_HOST)); 
+        data.put(ConfigConstants.PR_HOST,
+          consoleInfo.get(ConfigConstants.PR_HOST));
 */
         startProgressStatus();
         boolean ready = send(rawData, wizardInfo);

@@ -59,7 +59,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Retrieve certificate by serial number.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetBySerial extends CMSServlet {
@@ -85,7 +85,7 @@ public class GetBySerial extends CMSServlet {
      * Initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to import the cert to the users browser,
      * if that is what the user requested
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -101,7 +101,7 @@ public class GetBySerial extends CMSServlet {
         }
         mImportTemplateFiller = new ImportCertsTemplateFiller();
 
-        // override success and error templates to null - 
+        // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
 
@@ -118,7 +118,7 @@ public class GetBySerial extends CMSServlet {
      * <ul>
      * <li>http.param serialNumber serial number of certificate in HEX
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -279,7 +279,7 @@ public class GetBySerial extends CMSServlet {
             cmsReq.setStatus(CMSRequest.SUCCESS);
 
             // XXX follow request in cert record to set certtype, which will
-            // import cert only if it's client. For now assume "client" if 
+            // import cert only if it's client. For now assume "client" if
             // someone clicked to import this cert.
             cmsReq.getHttpParams().set("certType", "client");
 

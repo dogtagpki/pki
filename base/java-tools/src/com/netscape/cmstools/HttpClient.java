@@ -45,7 +45,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements a CMC Enroll client for testing.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class HttpClient {
@@ -166,7 +166,7 @@ public class HttpClient {
             is = socket.getInputStream();
         }
 
-        // send request 
+        // send request
         if (servlet == null) {
             System.out.println("Missing servlet name.");
             printUsage();

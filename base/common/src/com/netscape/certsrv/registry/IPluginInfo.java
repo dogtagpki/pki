@@ -25,17 +25,17 @@ import java.util.Locale;
  * name and description are information
  * for end-users.
  * <p>
- * 
+ *
  * The class name can be used to create an instance of the plugin.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPluginInfo {
 
     /**
      * Retrieves the localized plugin name.
-     * 
+     *
      * @param locale end-user locale
      * @return plugin name
      */
@@ -43,7 +43,7 @@ public interface IPluginInfo {
 
     /**
      * Retrieves the localized plugin description.
-     * 
+     *
      * @param locale end-user locale
      * @return plugin description
      */
@@ -54,7 +54,7 @@ public interface IPluginInfo {
      * Instance of plugin can be created with
      * <p>
      * Class.forName(info.getClassName());
-     * 
+     *
      * @return java class name
      */
     public String getClassName();

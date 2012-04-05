@@ -21,7 +21,7 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * This represents the extensions exception.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EExtensionsException extends EBaseException {

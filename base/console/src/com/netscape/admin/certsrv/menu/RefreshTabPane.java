@@ -51,7 +51,7 @@ public class RefreshTabPane implements IMenuAction {
     /*==========================================================
      * constructors
      *==========================================================*/
-     
+
     /**
      * Default Constructor that creates the refresh menu
      * call back item.
@@ -63,7 +63,7 @@ public class RefreshTabPane implements IMenuAction {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * perform the refresh function on the selected
      * tab panel, if the tab panel support the IRefreshTab
@@ -80,10 +80,10 @@ public class RefreshTabPane implements IMenuAction {
             }
         }
     }
-    
+
     /*==========================================================
 	 * EVNET HANDLER METHODS
-     *==========================================================*/ 
+     *==========================================================*/
 
     /**
      * Accepts the selection notification from the

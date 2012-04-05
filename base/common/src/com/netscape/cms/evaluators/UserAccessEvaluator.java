@@ -28,7 +28,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * A class represents a user acls evaluator.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UserAccessEvaluator implements IAccessEvaluator {
@@ -54,7 +54,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
-     * 
+     *
      * @return type for this acl evaluator: "user" or "at_user"
      */
     public String getType() {
@@ -63,7 +63,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
-     * 
+     *
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -80,7 +80,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in AuthToken to see if it's equal to value
-     * 
+     *
      * @param authToken AuthToken from authentication
      * @param type must be "at_user"
      * @param op must be "="
@@ -116,7 +116,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in session context to see if it's equal to value
-     * 
+     *
      * @param type must be "user"
      * @param op must be "="
      * @param value the user id

@@ -50,7 +50,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Get detailed information about CA CRL processing
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetInfo extends CMSServlet {
@@ -74,7 +74,7 @@ public class GetInfo extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -93,7 +93,7 @@ public class GetInfo extends CMSServlet {
      * <ul>
      * <li>http.param template filename of template to use to render the result
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

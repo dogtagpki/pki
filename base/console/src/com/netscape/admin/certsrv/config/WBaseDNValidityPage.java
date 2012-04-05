@@ -66,9 +66,9 @@ public class WBaseDNValidityPage extends WizardBasePanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(desc, gbc);
-     
+
         JLabel cnLabel = makeJLabel("CN");
-        mCNText = new JTextField(30); 
+        mCNText = new JTextField(30);
 /*
         JTextArea dummy = createTextArea(" ", 1, 1);
         CMSAdminUtil.addComponents(this, cnLabel, mCNText, dummy, gbc);
@@ -136,7 +136,7 @@ public class WBaseDNValidityPage extends WizardBasePanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(desc1, gbc);
-        
+
         validityLbl = makeJLabel("VALIDITY");
         mValidityText = new JTextField(5);
         mUnitBox = makeJComboBox("VALIDITY");
@@ -154,7 +154,7 @@ public class WBaseDNValidityPage extends WizardBasePanel {
         super.init();
     }
 
-    public class SubjectDNTextArea extends JTextArea implements 
+    public class SubjectDNTextArea extends JTextArea implements
       DocumentListener {
 
         public SubjectDNTextArea(int rows, int columns) {
@@ -168,7 +168,7 @@ public class WBaseDNValidityPage extends WizardBasePanel {
         public void removeUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }
- 
+
         public void changedUpdate(DocumentEvent e) {
             super.setText(updateStr());
         }

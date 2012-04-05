@@ -45,7 +45,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "CACERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WCACertRequest1Page() {
         super(PANELNAME);
         init();
@@ -59,7 +59,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         if (wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT))
             return true;
 
-        return false; 
+        return false;
     }
 
     public boolean validatePanel() {
@@ -91,7 +91,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(caLbl, gbc);
- 
+
         mCABtn = makeJRadioButton("SELFSIGN", true);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -109,7 +109,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mSubBtn, gbc);
-       
+
         ButtonGroup caGroup = new ButtonGroup();
         caGroup.add(mCABtn);
         caGroup.add(mSubBtn);
@@ -196,7 +196,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
 
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        
+
         if (mCABtn.isSelected())
             wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SELF_SIGNED);
         else if (mSubBtn.isSelected())

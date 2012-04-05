@@ -50,7 +50,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * A class represents the transport key pair. This key pair
  * is used to protected EE's private key in transit.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

@@ -44,7 +44,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Retrieve information.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetStats extends CMSServlet {
@@ -62,7 +62,7 @@ public class GetStats extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template
      * file "getOCSPInfo.template" to render the result page.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -79,7 +79,7 @@ public class GetStats extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

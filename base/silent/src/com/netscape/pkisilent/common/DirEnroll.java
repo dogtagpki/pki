@@ -51,7 +51,7 @@ public class DirEnroll extends TestClient {
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * 
+     *
      * @param propfilename name of the parameter file
      */
 
@@ -62,7 +62,7 @@ public class DirEnroll extends TestClient {
     /**
      * Constructor. Takes hostname , EESSLportnumber as parameter
      * <p>
-     * 
+     *
      * @param hostname
      * @param portnumber
      */
@@ -76,7 +76,7 @@ public class DirEnroll extends TestClient {
      * Constructor. Takes
      * hostname,EESSLportnumber,uid,password,certdbdirectorypath,certdbpassword,certificatenickname,keysize,teytype
      * <p>
-     * 
+     *
      * @param hostname
      * @param portnumber
      * @param subjectdn
@@ -98,7 +98,7 @@ public class DirEnroll extends TestClient {
         keytype = "RSA";
     }
 
-    // Set and Get functions 
+    // Set and Get functions
 
     /**
      * Use this method to set User Info
@@ -214,7 +214,7 @@ public class DirEnroll extends TestClient {
         return true;
     }
 
-    // Private functions 
+    // Private functions
 
     private boolean importCert(String certpack) {
 
@@ -466,5 +466,5 @@ public class DirEnroll extends TestClient {
         }
     }// end of function main
 
-} // end of class 
+} // end of class
 

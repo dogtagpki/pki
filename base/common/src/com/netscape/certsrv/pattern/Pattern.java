@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.IAttrSet;
  * <p>
  * $request.requestor_email$ $ctx.user_id$
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Pattern {
@@ -41,7 +41,7 @@ public class Pattern {
 
     /**
      * Constructs a pattern object with the given string.
-     * 
+     *
      * @param s string with pattern (i.e. $request.requestor_email$)
      */
     public Pattern(String s) {
@@ -50,7 +50,7 @@ public class Pattern {
 
     /**
      * Subtitutes this pattern with the given attribute set.
-     * 
+     *
      * @param key key name of the given attribute set
      * @param attrSet attribute set
      * @return substituted string
@@ -61,7 +61,7 @@ public class Pattern {
 
     /**
      * Subtitutes this pattern with the given attribute set.
-     * 
+     *
      * @param attrSetCollection attribute set collection
      * @return substituted string
      */
@@ -82,7 +82,7 @@ public class Pattern {
 
     /**
      * Subtitutes this pattern with the given attribute set.
-     * 
+     *
      * This is an extended version of the substitute() method.
      * It takes a more flexible pattern format that could have
      * non-token ($...$) format. e.g.
@@ -90,7 +90,7 @@ public class Pattern {
      * where "@redhat.com" is not in token pattern format, and will be
      * literally put in place. e.g.
      * TomRiddle@redhat.com
-     * 
+     *
      * @param key key name of the given attribute set
      * @param attrSet attribute set
      * @return substituted string

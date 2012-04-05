@@ -72,7 +72,7 @@ import com.netscape.certsrv.request.IRequest;
  * entry is not found, it has the option to create
  * the ldap entry given the dn and attributes
  * formulated.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapEnhancedMap
@@ -105,7 +105,7 @@ public class LdapEnhancedMap
     /* mapper plug-in fields */
     protected static final String PROP_DNPATTERN = "dnPattern";
     protected static final String PROP_CREATE = "createEntry";
-    // the object class of the entry to be created. xxxx not done yet  
+    // the object class of the entry to be created. xxxx not done yet
     protected static final String PROP_OBJCLASS = "objectClass";
     // req/cert/ext attribute --> directory attribute table
     protected static final String PROP_ATTRNUM = "attrNum";
@@ -206,7 +206,7 @@ public class LdapEnhancedMap
 
     /**
      * form a dn from component in the request and cert subject name
-     * 
+     *
      * @param req The request
      * @param obj The certificate or crl
      */
@@ -332,7 +332,7 @@ public class LdapEnhancedMap
 
     /**
      * for initializing from config store.
-     * 
+     *
      * implementation for extended
      * ILdapPlugin interface method
      */
@@ -439,7 +439,7 @@ public class LdapEnhancedMap
     /**
      * Maps an X500 subject name to an LDAP entry.
      * Uses DN pattern to form a DN for an LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occurred.
@@ -452,7 +452,7 @@ public class LdapEnhancedMap
     /**
      * Maps an X500 subject name to an LDAP entry.
      * Uses DN pattern to form a DN for an LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param req the request to map.
      * @param obj the object to map.

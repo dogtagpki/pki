@@ -36,7 +36,7 @@ import com.netscape.certsrv.common.*;
 public class CRLIPEditor extends JDialog implements ActionListener {
 
     private final static String PREFIX = "CRLIPEDITOR";
-    private final static String HELPINDEX = 
+    private final static String HELPINDEX =
         "configuration-revocation";
     private JButton mOK, mCancel, mHelp;
     private String mName;
@@ -319,7 +319,7 @@ public class CRLIPEditor extends JDialog implements ActionListener {
                 }
                 this.dispose();
             } catch (EAdminException ex) {
-                CMSAdminUtil.showMessageDialog(mParentFrame, 
+                CMSAdminUtil.showMessageDialog(mParentFrame,
                 "Error", ex.toString(), CMSAdminUtil.ERROR_MESSAGE);
             }
         } else if (e.getSource().equals(mHelp)) {

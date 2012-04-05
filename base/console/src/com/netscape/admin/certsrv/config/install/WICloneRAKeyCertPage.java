@@ -41,10 +41,10 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
     protected InstallWizardInfo mWizardInfo;
     protected JComboBox mRANicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONERAKEYCERTWIZARD";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "install-racertclone-wizard-help";
 
-    
+
     WICloneRAKeyCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -102,7 +102,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
                 mSSLNicknameBox.addItem(s1);
         }
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -137,10 +137,10 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         data.put(ConfigConstants.PR_CERT_INSTANCE_NAME,
           consoleInfo.get(ConfigConstants.PR_CERT_INSTANCE_NAME));
         data.put(ConfigConstants.PR_CLONE_RA_TOKEN_NAME, mRATokenname);
-        data.put(ConfigConstants.PR_CLONE_RA_NICKNAME, 
+        data.put(ConfigConstants.PR_CLONE_RA_NICKNAME,
           mRANicknameBox.getSelectedItem());
         data.put(ConfigConstants.PR_CLONE_SSL_TOKEN_NAME, mSSLTokenname);
-        data.put(ConfigConstants.PR_CLONE_SSL_NICKNAME, 
+        data.put(ConfigConstants.PR_CLONE_SSL_NICKNAME,
           mSSLNicknameBox.getSelectedItem());
 
         startProgressStatus();
@@ -173,7 +173,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(heading, gbc);
@@ -185,7 +185,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(raNicknameLbl, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mRANicknameBox = new JComboBox();
         gbc.anchor = gbc.NORTHWEST;

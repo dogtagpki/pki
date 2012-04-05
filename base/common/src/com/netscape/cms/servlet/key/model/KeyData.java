@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 
 /**
- * 
+ *
  */
 package com.netscape.cms.servlet.key.model;
 
@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class KeyData {
     @XmlElement
     String wrappedPrivateData;
-    
+
     @XmlElement
     String nonceData;
 
@@ -56,7 +56,7 @@ public class KeyData {
     public void setWrappedPrivateData(String wrappedPrivateData) {
         this.wrappedPrivateData = wrappedPrivateData;
     }
-    
+
     /**
      * @return the nonceData
      */

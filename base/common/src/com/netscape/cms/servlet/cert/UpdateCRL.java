@@ -61,7 +61,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Force the CRL to be updated now.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UpdateCRL extends CMSServlet {
@@ -109,7 +109,7 @@ public class UpdateCRL extends CMSServlet {
      * <li>http.param clearCRLCache true/false - should the CRL cache cleared before the CRL is generated?
      * <li>http.param crlIssuingPoint the CRL Issuing Point to Update
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

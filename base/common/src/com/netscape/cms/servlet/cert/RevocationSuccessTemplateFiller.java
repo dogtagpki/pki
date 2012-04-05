@@ -44,7 +44,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * - cert pretty print
  * - cert in base 64 encoding.
  * - cmmf blob to import
- * 
+ *
  * @version $Revision$, $Date$
  */
 class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
@@ -65,7 +65,7 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
-        // set host name and port. 
+        // set host name and port.
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         String host = httpReq.getServerName();
         int port = httpReq.getServerPort();
@@ -84,7 +84,7 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
         RevokedCertImpl[] revoked =
                 (RevokedCertImpl[]) cmsReq.getResult();
 
-        // revoked certs. 
+        // revoked certs.
         for (int i = 0; i < revoked.length; i++) {
             IArgBlock repeat = CMS.createArgBlock();
 

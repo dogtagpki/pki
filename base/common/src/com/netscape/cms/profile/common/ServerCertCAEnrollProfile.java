@@ -27,7 +27,7 @@ import com.netscape.certsrv.profile.IProfilePolicy;
 /**
  * This class implements a Certificate Manager enrollment
  * profile for Server Certificates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ServerCertCAEnrollProfile extends CAEnrollProfile

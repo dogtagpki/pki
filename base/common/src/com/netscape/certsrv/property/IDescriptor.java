@@ -21,7 +21,7 @@ import java.util.Locale;
 
 /**
  * This interface represents a property descriptor.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDescriptor {
@@ -56,7 +56,7 @@ public interface IDescriptor {
 
     /**
      * Returns the syntax of the property.
-     * 
+     *
      * @return syntax
      */
     public String getSyntax();
@@ -68,14 +68,14 @@ public interface IDescriptor {
      * - choice(cert,crl): cert,crl is the constraint
      * for choice
      * If null, no constraint shall be enforced.
-     * 
+     *
      * @return constraint
      */
     public String getConstraint();
 
     /**
      * Retrieves the description of the property.
-     * 
+     *
      * @param locale user locale
      * @return localized description
      */
@@ -83,7 +83,7 @@ public interface IDescriptor {
 
     /**
      * Retrieves the default value of the property.
-     * 
+     *
      * @return default value
      */
     public String getDefaultValue();

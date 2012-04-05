@@ -37,7 +37,7 @@ import com.netscape.certsrv.common.*;
 public class ProfileListDataModel extends DefaultListModel {
 
     private Vector mObjectContainer = new Vector();
-    
+
     public Object getObjectValueAt(int row) {
         return mObjectContainer.elementAt(row);
     }
@@ -51,7 +51,7 @@ public class ProfileListDataModel extends DefaultListModel {
         super.addElement(displayData);
         mObjectContainer.addElement(extraData);
     }
- 
+
     public void clear() {
         super.clear();
         mObjectContainer.clear();

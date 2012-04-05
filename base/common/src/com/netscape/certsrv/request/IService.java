@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.EBaseException;
  * This covers certificate generation, revocation, renewals,
  * revocation checking, and much more.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IService {
@@ -33,7 +33,7 @@ public interface IService {
      * Performs the service (such as certificate generation)
      * represented by this request.
      * <p>
-     * 
+     *
      * @param request
      *            The request that needs service. The service may use
      *            attributes stored in the request, and may update the

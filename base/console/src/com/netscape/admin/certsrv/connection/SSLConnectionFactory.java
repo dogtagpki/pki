@@ -74,7 +74,7 @@ public class SSLConnectionFactory implements IConnectionFactory {
 
         if (mType.equals(JSS_CONNECTION))
             return new JSSConnection(host, port);
-        return new JSSConnection(host, port);    
+        return new JSSConnection(host, port);
         //return new SSLConnection(host, port);
     }
 

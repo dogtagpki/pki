@@ -31,7 +31,7 @@ import com.netscape.cmsutil.util.Utils;
  * uid is placed in the SessionContext of the renewal session context
  * to be evaluated by this evaluator
  * <P>
- * 
+ *
  * @author Christina Fu
  * @version $Revision$, $Date$
  */
@@ -58,7 +58,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
-     * 
+     *
      * @return type for this acl evaluator: "user_origreq" or "at_user_origreq"
      */
     public String getType() {
@@ -67,7 +67,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
-     * 
+     *
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -84,7 +84,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in AuthToken to see if it's equal to value
-     * 
+     *
      * @param authToken AuthToken from authentication
      * @param type must be "at_userreq"
      * @param op must be "="
@@ -132,7 +132,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in session context to see if it's equal to value
-     * 
+     *
      * @param type must be "user_origreq"
      * @param op must be "="
      * @param value the user id

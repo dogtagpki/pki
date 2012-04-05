@@ -32,45 +32,45 @@ import com.netscape.certsrv.base.EBaseException;
  * class for parsing a DN pattern used to construct a certificate
  * subject name from ldap attributes and dn.
  * <p>
- * 
+ *
  * dnpattern is a string representing a subject name pattern to formulate from the directory attributes and entry dn. If
  * empty or not set, the ldap entry DN will be used as the certificate subject name.
  * <p>
- * 
+ *
  * The syntax is
- * 
+ *
  * <pre>
  * 	dnPattern := rdnPattern *[ "," rdnPattern ]
  * 	rdnPattern := avaPattern *[ "+" avaPattern ]
- * 		avaPattern := name "=" value | 
- * 			      name "=" "$attr" "." attrName [ "." attrNumber ] | 
- * 			      name "=" "$dn" "." attrName [ "." attrNumber ] | 
+ * 		avaPattern := name "=" value |
+ * 			      name "=" "$attr" "." attrName [ "." attrNumber ] |
+ * 			      name "=" "$dn" "." attrName [ "." attrNumber ] |
  * 			 	  "$dn" "." "$rdn" "." number
  * </pre>
- * 
+ *
  * <pre>
  * Example1: <i>E=$attr.mail.1, CN=$attr.cn, OU=$dn.ou.2, O=$dn.o, C=US </i>
  * Ldap entry: dn:  UID=jjames, OU=IS, OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     E=jjames@acme.org, CN=Jesse James, OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     E = the first 'mail' ldap attribute value in user's entry. <br>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
- *     C = the string "US" 
+ *     C = the string "US"
  * <p>
  * Example2: <i>E=$attr.mail.1, CN=$attr.cn, OU=$dn.ou.2, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     E=jjames@acme.org, CN=Jesse James, OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     E = the first 'mail' ldap attribute value in user's entry. <br>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN. note multiple AVAs
@@ -79,40 +79,40 @@ import com.netscape.certsrv.base.EBaseException;
  *     C = the string "US"
  * <p>
  * </pre>
- * 
+ *
  * <pre>
  * Example3: <i>CN=$attr.cn, $rdn.2, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     CN=Jesse James, OU=IS+OU=people, O=acme.org, C=US
- * <p>	
+ * <p>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     followed by the second RDN in the user's entry DN. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
- *     C = the string "US" 
+ *     C = the string "US"
  * <p>
  * Example4: <i>CN=$attr.cn, OU=$dn.ou.2+OU=$dn.ou.1, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
- * Ldap attributes: cn: Jesse James 
+ * Ldap attributes: cn: Jesse James
  * Ldap attributes: mail: jjames@acme.org
  * <p>
  * The subject name formulated will be : <br>
  *     CN=Jesse James, OU=people+OU=IS, O=acme.org, C=US
- * <p>	
+ * <p>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
- *     OU = the second 'ou' value in the user's entry DN followed by the 
+ *     OU = the second 'ou' value in the user's entry DN followed by the
  * 		first 'ou' value in the user's entry. note multiple AVAs
  * 	    in a RDN in this example. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
  *     C = the string "US"
  * <p>
  * </pre>
- * 
+ *
  * If an attribute or subject DN component does not exist the attribute is skipped.
- * 
+ *
  * @version $Revision$, $Date$
  */
 class RDNPattern {
@@ -130,14 +130,14 @@ class RDNPattern {
 
     /**
      * Construct a DN pattern by parsing a pattern string.
-     * 
+     *
      * @param pattenr the DN pattern
      * @exception EBaseException If parsing error occurs.
      */
     public RDNPattern(String pattern)
             throws EAuthException {
         if (pattern == null || pattern.equals("")) {
-            // create an attribute list that is the dn. 
+            // create an attribute list that is the dn.
             mLdapAttrs = new String[] { "dn" };
         } else {
             mPatternString = pattern;
@@ -179,7 +179,7 @@ class RDNPattern {
 
         if (lastChar != -1) {
             try {
-                in.unread(lastChar); // pushback last , 
+                in.unread(lastChar); // pushback last ,
             } catch (IOException e) {
                 throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
             }
@@ -203,7 +203,7 @@ class RDNPattern {
 
     /**
      * Form a Ldap v3 DN string from results of a ldap search.
-     * 
+     *
      * @param entry LDAPentry from a ldap search
      * @return Ldap v3 DN string to use for a subject name.
      */

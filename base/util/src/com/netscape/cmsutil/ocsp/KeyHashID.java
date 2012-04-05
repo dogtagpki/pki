@@ -30,13 +30,13 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * ResponderID ::= CHOICE {
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class KeyHashID implements ResponderID {

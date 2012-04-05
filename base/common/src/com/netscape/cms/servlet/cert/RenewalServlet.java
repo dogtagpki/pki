@@ -58,7 +58,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 /**
  * Certificate Renewal
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RenewalServlet extends CMSServlet {
@@ -70,12 +70,12 @@ public class RenewalServlet extends CMSServlet {
     // renewal templates.
     public static final String RENEWAL_SUCCESS_TEMPLATE = "RenewalSuccess.template";
 
-    // http params 
+    // http params
     public static final String CERT_TYPE = "certType";
     public static final String SERIAL_NO = "serialNo";
-    // XXX can't do pkcs10 cause it's got no serial no. 
+    // XXX can't do pkcs10 cause it's got no serial no.
     // (unless put serial no in pki attributes)
-    // public static final String PKCS10 = "pkcs10";	
+    // public static final String PKCS10 = "pkcs10";
     public static final String IMPORT_CERT = "importCert";
 
     private String mRenewalSuccessTemplate = RENEWAL_SUCCESS_TEMPLATE;
@@ -89,7 +89,7 @@ public class RenewalServlet extends CMSServlet {
      * initialize the servlet. This servlet makes use of the
      * template file "RenewalSuccess.template" to render the
      * response
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -111,7 +111,7 @@ public class RenewalServlet extends CMSServlet {
                     mRenewalSuccessFiller = filler;
             }
         } catch (Exception e) {
-            // this should never happen. 
+            // this should never happen.
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
                             mId));
@@ -121,7 +121,7 @@ public class RenewalServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -130,12 +130,12 @@ public class RenewalServlet extends CMSServlet {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
-        // renewal requires either: 
-        //  - coming from ee: 
-        //		- old cert from ssl client auth 
+        // renewal requires either:
+        //  - coming from ee:
+        //		- old cert from ssl client auth
         //		- old certs from auth manager
-        // 	- coming from agent or trusted RA: 
-        //  	- serial no of cert to be renewed. 
+        // 	- coming from agent or trusted RA:
+        //  	- serial no of cert to be renewed.
 
         BigInteger old_serial_no = null;
         X509CertImpl old_cert = null;
@@ -171,7 +171,7 @@ public class RenewalServlet extends CMSServlet {
                     authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
         }
 
-        // coming from agent 
+        // coming from agent
         if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             X509Certificate[] cert = new X509Certificate[1];
 
@@ -196,7 +196,7 @@ public class RenewalServlet extends CMSServlet {
             }
         } // coming from client
         else {
-            // from auth manager 
+            // from auth manager
             X509CertImpl[] cert = new X509CertImpl[1];
 
             old_serial_no = getCertFromAuthMgr(authToken, cert);
@@ -215,15 +215,15 @@ public class RenewalServlet extends CMSServlet {
                 req.setExtData(IRequest.OLD_CERTS,
                         new X509CertImpl[] { old_cert }
                         );
-                // create new certinfo from old_cert contents. 
+                // create new certinfo from old_cert contents.
                 X509CertInfo old_certInfo = (X509CertInfo)
                         ((X509CertImpl) old_cert).get(
                                 X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 new_certInfo = new X509CertInfo(old_certInfo.getEncodedInfo());
             } else {
-                // if no old cert (came from RA agent) create new cert info 
-                // (serializable) to pass through policies. And set the old 
+                // if no old cert (came from RA agent) create new cert info
+                // (serializable) to pass through policies. And set the old
                 // serial number to pick up.
                 new_certInfo = new CertInfo();
                 new_certInfo.set(X509CertInfo.SERIAL_NUMBER,
@@ -256,7 +256,7 @@ public class RenewalServlet extends CMSServlet {
             saveAuthToken(authToken, req);
         cmsReq.setIRequest(req);
 
-        // send request to request queue. 
+        // send request to request queue.
         mRequestQueue.processRequest(req);
 
         // for audit log
@@ -271,7 +271,7 @@ public class RenewalServlet extends CMSServlet {
             initiative = AuditFormat.FROMUSER;
         }
 
-        // check resulting status 
+        // check resulting status
         RequestStatus status = req.getRequestStatus();
 
         if (status != RequestStatus.COMPLETE) {
@@ -320,7 +320,7 @@ public class RenewalServlet extends CMSServlet {
                                     "" }
                             );
                 }
-            } else { // other imcomplete status 
+            } else { // other imcomplete status
                 mLogger.log(ILogger.EV_AUDIT,
                         ILogger.S_OTHER,
                         AuditFormat.LEVEL,
@@ -338,7 +338,7 @@ public class RenewalServlet extends CMSServlet {
             return;
         }
 
-        // service error 
+        // service error
         Integer result = req.getExtDataInInteger(IRequest.RESULT);
 
         CMS.debug(
@@ -413,8 +413,8 @@ public class RenewalServlet extends CMSServlet {
                 );
         cmsReq.setStatus(CMSRequest.SUCCESS);
 
-        // check if cert should be imported. 
-        // browser must have input type set to nav or cartman since 
+        // check if cert should be imported.
+        // browser must have input type set to nav or cartman since
         // there's no other way to tell
 
         IArgBlock httpParams = cmsReq.getHttpParams();

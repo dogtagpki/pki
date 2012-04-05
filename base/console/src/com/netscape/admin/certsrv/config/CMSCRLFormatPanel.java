@@ -33,10 +33,10 @@ import java.util.StringTokenizer;
  * @version $Revision$, $Date$
  */
 public class CMSCRLFormatPanel extends CMSBaseTab {
-    
+
     /*==========================================================
      * variables
-     *==========================================================*/    
+     *==========================================================*/
     private static String PANEL_NAME = "CRLFORMAT";
     private JCheckBox mEnableExtensions;
     private JCheckBox mEnableExpired;
@@ -203,7 +203,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         contentsPanel.add(mProfileCertsOnly, gbc);
-        
+
         mProfiles = makeJTextField(20);
         gbc.anchor = gbc.WEST;
         gbc.gridx++;
@@ -329,7 +329,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             nvps.put(Constants.PR_EXTENSIONS, Constants.TRUE);
         else
             nvps.put(Constants.PR_EXTENSIONS, Constants.FALSE);
- 
+
         if (mEnableExpired.isSelected())
             nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.TRUE);
         else
@@ -344,7 +344,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             nvps.put(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
         else
             nvps.put(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
-        
+
         if (mProfileCertsOnly.isSelected())
             nvps.put(Constants.PR_PROFILE_CERTS_ONLY, Constants.TRUE);
         else
@@ -401,7 +401,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     public boolean resetCallback() {
         refresh();
         return true;
-    }    
+    }
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mProfileCertsOnly)) {
@@ -432,7 +432,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     * Override the initialize method only for this panel.
     * We need to refresh in case the CRLDistributionPointExtension
     * has modified the caCertsOnly property for us.
-    **/ 
+    **/
     public void initialize() {
         Debug.println("CMSCRLFormatPanel: intialize()");
         if (!mInit) {

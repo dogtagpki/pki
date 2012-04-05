@@ -138,7 +138,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     public boolean approve(X509Certificate cert,
             SSLCertificateApprovalCallback.ValidityStatus status) {
 
-        // when this method is called by SSLSocket we get the server cert 
+        // when this method is called by SSLSocket we get the server cert
         // we can capture this for future use.
         server_cert = cert;
         return true;
@@ -794,7 +794,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     /**
      * Reads the actual data of the response based on the content length provided
      * by the server in the response header.
-     * 
+     *
      * @param response The response with which the data is associated.
      * @param inputStream The input stream from which to read the response.
      * @param contentLength The number of bytes that the server said are in the
@@ -808,7 +808,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
      *            array that should be considered part of the
      *            response (the number of header bytes is included in
      *            this count).
-     * 
+     *
      * @throws IOException If a problem occurs while reading data from the
      *             server.
      */
@@ -853,7 +853,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
      * Reads the actual data of the response using chunked encoding, which is a
      * way for the server to provide the data in several chunks rather than all at
      * once.
-     * 
+     *
      * @param response The response with which the data is associated.
      * @param inputStream The input stream from which to read the response.
      * @param dataRead The data that we have already read. This includes
@@ -865,7 +865,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
      *            array that should be considered part of the
      *            response (the number of header bytes is included in
      *            this count).
-     * 
+     *
      * @throws IOException If a problem occurs while reading data from the
      *             server.
      */
@@ -1166,13 +1166,13 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         if (auth_type != null && auth_type.equalsIgnoreCase("BASIC")) {
             // BASE64Encoder encoder = new BASE64Encoder();
 
-            // String temp = encoder.encodeBuffer((user_id + 
+            // String temp = encoder.encodeBuffer((user_id +
             // 			":" + user_password).getBytes());
             String temp = Utils.base64encode((user_id +
                     ":" + user_password).getBytes());
 
-            // note: temp already contains \r and \n. 
-            // remove \r and \n from the base64 encoded string. 
+            // note: temp already contains \r and \n.
+            // remove \r and \n from the base64 encoded string.
             // causes problems when sending http post requests
             // using PrintStream.println()
 

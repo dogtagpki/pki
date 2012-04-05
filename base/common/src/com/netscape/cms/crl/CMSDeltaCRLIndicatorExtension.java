@@ -35,7 +35,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a delta CRL indicator extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSDeltaCRLIndicatorExtension

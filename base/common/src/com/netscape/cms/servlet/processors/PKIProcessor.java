@@ -43,7 +43,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Process Certificate Requests
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PKIProcessor implements IPKIProcessor {
@@ -295,11 +295,11 @@ public class PKIProcessor implements IPKIProcessor {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -319,12 +319,12 @@ public class PKIProcessor implements IPKIProcessor {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {

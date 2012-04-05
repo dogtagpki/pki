@@ -49,7 +49,7 @@ import com.netscape.cmsutil.xml.XMLObject;
  * Token authentication.
  * Checked if the given token is valid.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class TokenAuthentication implements IAuthManager,
@@ -80,7 +80,7 @@ public class TokenAuthentication implements IAuthManager,
      * initializes the TokenAuthentication auth manager
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
-     * 
+     *
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
@@ -116,7 +116,7 @@ public class TokenAuthentication implements IAuthManager,
      * authenticates user(agent) by certificate
      * <p>
      * called by other subsystems or their servlets to authenticate users (agents)
-     * 
+     *
      * @param authCred - authentication credential that contains
      *            an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
@@ -217,7 +217,7 @@ public class TokenAuthentication implements IAuthManager,
      * the servlets that handle agent operations to authenticate its
      * users. It calls this method to know which are the
      * required credentials from the user (e.g. Javascript form data)
-     * 
+     *
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -230,7 +230,7 @@ public class TokenAuthentication implements IAuthManager,
      * the Certificate Server Console to display the table for
      * configuration purposes. CertUserDBAuthentication is currently not
      * exposed in this case, so this method is not to be used.
-     * 
+     *
      * @return configuration parameter names in Hashtable of Vectors
      *         where each hashtable entry's key is the substore name, value is a
      *         Vector of parameter names. If no substore, the parameter name
@@ -249,7 +249,7 @@ public class TokenAuthentication implements IAuthManager,
     /**
      * gets the configuretion substore used by this authentication
      * manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {

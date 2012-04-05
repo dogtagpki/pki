@@ -38,19 +38,19 @@ import org.mozilla.jss.asn1.SEQUENCE;
  * An extension that tells applications where to find
  * the latest (freshest) delta CRL for this certificate
  * or full CRL.
- * 
+ *
  * <pre>
  * cRLDistributionPoints ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
- * 
+ *
  * DistributionPoint ::= SEQUENCE {
  *      distributionPoint       [0]     DistributionPointName OPTIONAL,
  *      reasons                 [1]     ReasonFlags OPTIONAL,
  *      cRLIssuer               [2]     GeneralNames OPTIONAL }
- * 
+ *
  * DistributionPointName ::= CHOICE {
  *      fullName                [0]     GeneralNames,
  *      nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
- * 
+ *
  * ReasonFlags ::= BIT STRING {
  *      unused                  (0),
  *      keyCompromise           (1),
@@ -339,7 +339,7 @@ public class FreshestCRLExtension extends Extension
         /**
          * Given a bit array representing reason flags, extracts the reasons
          * and returns them as an array.
-         * 
+         *
          * @param bitFlags A bit vector containing reason flags.
          * @return An array of reasons contained in the bit vector.
          *         May be zero-length but will not be null.
@@ -352,7 +352,7 @@ public class FreshestCRLExtension extends Extension
          * Given a bit array representing reason flags, extracts the reasons
          * and returns them as an array. Currently, only the first byte
          * of the bitflags are examined.
-         * 
+         *
          * @param bitFlags A bit vector containing reason flags. The format
          *            is big-endian (MSB first). Only the first byte is examined.
          * @return An array of reasons contained in the bit vector.

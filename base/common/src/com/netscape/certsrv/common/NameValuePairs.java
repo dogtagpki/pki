@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
 /**
  * A class represents an ordered list of name
  * value pairs.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class NameValuePairs extends LinkedHashMap<String, String> {
@@ -39,7 +39,7 @@ public class NameValuePairs extends LinkedHashMap<String, String> {
     /**
      * Show the content of this name value container as
      * string representation.
-     * 
+     *
      * @return string representation
      */
     public String toString() {
@@ -57,7 +57,7 @@ public class NameValuePairs extends LinkedHashMap<String, String> {
 
     /**
      * Parses a string into name value pairs.
-     * 
+     *
      * @param s string
      * @param nvp name value pairs
      * @return true if successful

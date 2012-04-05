@@ -39,7 +39,7 @@ import com.netscape.admin.certsrv.task.*;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WCertMessageDigestPage extends WMessageDigestPage {
-    
+
     private static final String PANELNAME = "CERTMESSAGEDIGESTWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-messagedigest-help";
@@ -63,9 +63,9 @@ class WCertMessageDigestPage extends WMessageDigestPage {
 
         if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
             return false;
- 
+
         if ((wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
-            && !(wizardInfo.isSSLCertLocalCA()))	
+            && !(wizardInfo.isSSLCertLocalCA()))
             return false;
 
         if (!wizardInfo.isNewKey())
@@ -85,15 +85,15 @@ class WCertMessageDigestPage extends WMessageDigestPage {
            // non-signing cert, algorithm specified by CA
            return false;
         }
-            
-        return super.initializePanel(info); 
+
+        return super.initializePanel(info);
     }
 
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (mDSAHashTypeBox.isVisible()) 
+        if (mDSAHashTypeBox.isVisible())
             wizardInfo.setHashType((String)mDSAHashTypeBox.getSelectedItem());
-        else if (mECCHashTypeBox.isVisible()) 
+        else if (mECCHashTypeBox.isVisible())
             wizardInfo.setHashType((String)mECCHashTypeBox.getSelectedItem());
         else if (mRSAHashTypeBox.isVisible())
             wizardInfo.setHashType((String)mRSAHashTypeBox.getSelectedItem());

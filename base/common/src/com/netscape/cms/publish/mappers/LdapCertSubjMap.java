@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * Maps a X509 certificate to a LDAP entry by finding an LDAP entry
  * which has an attribute whose contents are equal to the cert subject name.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
@@ -62,7 +62,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * constructs a certificate subject name mapper with search base.
-     * 
+     *
      * @param searchBase the dn to start searching for the certificate
      *            subject name.
      */
@@ -76,7 +76,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * Constructor using non-ES cert map attribute name.
-     * 
+     *
      * @param searchBase entry to start search.
      * @param certSubjNameAttr attribute for certificate subject names.
      * @param certAttr attribute to find certificate.
@@ -172,7 +172,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Finds the entry for the certificate by looking for the cert
      * subject name in the subject name attribute.
-     * 
+     *
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      */
@@ -242,13 +242,13 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
 
         /*
          catch (IOException e) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          CMS.getLogMessage("PUBLISH_CANT_GET_SUBJECT", e.toString()));
          throw new ELdapException(
          LdapResources.GET_CERT_SUBJECT_DN_FAILED, e);
          }
          catch (CertificateEncodingException e) {
-         log(ILogger.LL_FAILURE, 
+         log(ILogger.LL_FAILURE,
          CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()));
          throw new ELdapException(
          LdapResources.GET_DER_ENCODED_CERT_FAILED, e);

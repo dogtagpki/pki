@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This abstract class is a base job for real job extentions for the
  * Jobs Scheduler.
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  */
@@ -55,7 +55,7 @@ public abstract class AJobBase implements IJob, Runnable {
     protected static final String STATUS_FAILURE = "failed";
     protected static final String STATUS_SUCCESS = "succeeded";
 
-    // variables used by the Job Scheduler Daemon 
+    // variables used by the Job Scheduler Daemon
     protected String mImplName = null;
     protected IConfigStore mConfig;
     protected String mId = null;
@@ -81,7 +81,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * tells if the job is enabled
-     * 
+     *
      * @return a boolean value indicating whether the job is enabled
      *         or not
      */
@@ -109,7 +109,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * get instance id.
-     * 
+     *
      * @return a String identifier
      */
     public String getId() {
@@ -118,7 +118,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * set instance id.
-     * 
+     *
      * @param id String id of the instance
      */
     public void setId(String id) {
@@ -127,7 +127,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * get cron string associated with this job
-     * 
+     *
      * @return a JobCron object that represents the schedule of this job
      */
     public IJobCron getJobCron() {
@@ -136,7 +136,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * gets the plugin name of this job.
-     * 
+     *
      * @return a String that is the name of this implementation
      */
     public String getImplName() {
@@ -145,7 +145,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * Gets the configuration substore used by this job
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -265,7 +265,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * logs an entry in the log file. Used by classes extending this class.
-     * 
+     *
      * @param level log level
      * @param msg log message in String
      */
@@ -278,7 +278,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * capable of logging multiline entry in the log file. Used by classes extending this class.
-     * 
+     *
      * @param level log level
      * @param msg log message in String
      * @param multiline boolean indicating whether the message is a

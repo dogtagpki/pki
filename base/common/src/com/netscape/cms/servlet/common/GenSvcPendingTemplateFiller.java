@@ -26,7 +26,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * default Service Pending template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
@@ -37,7 +37,7 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.

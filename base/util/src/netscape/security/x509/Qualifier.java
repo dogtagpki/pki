@@ -24,12 +24,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Qualifier.
- * 
+ *
  * Qualifier ::= CHOICE {
  * cPRuri CPSuri,
  * userNotice UserNotice
  * }
- * 
+ *
  * @author Thomas Kwan
  */
 public class Qualifier implements java.io.Serializable {
@@ -41,7 +41,7 @@ public class Qualifier implements java.io.Serializable {
 
     /**
      * Create a PolicyQualifierInfo
-     * 
+     *
      * @param id the ObjectIdentifier for the policy id.
      */
     public Qualifier() {
@@ -53,7 +53,7 @@ public class Qualifier implements java.io.Serializable {
 
     /**
      * Write the PolicyQualifier to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.IPrettyPrintFormat;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
@@ -76,7 +76,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
     /**
      * Provide white space indention
      * stevep - speed improvements. Factor of 10 improvement
-     * 
+     *
      * @param numSpace number of white space to be returned
      * @return white spaces
      */
@@ -92,7 +92,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
     /**
      * Convert Byte Array to Hex String Format
      * stevep - speedup by factor of 8
-     * 
+     *
      * @param byte array of data to hexify
      * @param indentSize number of spaces to prepend before each line
      * @param lineLen number of bytes to output on each line (0

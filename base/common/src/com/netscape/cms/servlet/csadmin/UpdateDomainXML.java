@@ -73,7 +73,7 @@ public class UpdateDomainXML extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -196,7 +196,7 @@ public class UpdateDomainXML extends CMSServlet {
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -455,7 +455,7 @@ public class UpdateDomainXML extends CMSServlet {
                     parser.addItemToContainer(parent, "Clone", clone.toUpperCase());
                     count++;
                 }
-                //update count 
+                //update count
 
                 String countS = "";
                 NodeList nlist = n.getChildNodes();

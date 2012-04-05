@@ -26,7 +26,7 @@ import netscape.security.util.PrettyPrintFormat;
 
 /**
  * Represent the GeneralSubtree ASN.1 object, whose syntax is:
- * 
+ *
  * <pre>
  * GeneralSubtree ::= SEQUENCE {
  *    base             GeneralName,
@@ -35,7 +35,7 @@ import netscape.security.util.PrettyPrintFormat;
  * }
  * BaseDistance ::= INTEGER (0..MAX)
  * </pre>
- * 
+ *
  * @version 1.5
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -53,7 +53,7 @@ public class GeneralSubtree {
 
     /**
      * The default constructor for the class.
-     * 
+     *
      * @param name the GeneralName
      * @param min the minimum BaseDistance
      * @param max the maximum BaseDistance
@@ -66,7 +66,7 @@ public class GeneralSubtree {
 
     /**
      * Create the object from its DER encoded form.
-     * 
+     *
      * @param val the DER encoded from of the same.
      */
     public GeneralSubtree(DerValue val) throws IOException {
@@ -122,7 +122,7 @@ public class GeneralSubtree {
 
     /**
      * Encode the GeneralSubtree.
-     * 
+     *
      * @param out the DerOutputStream to encode this object to.
      */
     public void encode(DerOutputStream out) throws IOException {

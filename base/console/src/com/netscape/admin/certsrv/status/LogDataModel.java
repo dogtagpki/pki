@@ -28,7 +28,7 @@ import com.netscape.admin.certsrv.*;
 
 /**
  * LogDataModel to be displayed at the right hand side
- * 
+ *
  * We need the log order in REVERSE.
  *
  * @author Jack Pan-Chen
@@ -54,7 +54,7 @@ public class LogDataModel extends CMSTableModel
         super();
         init(mColumns);
      }
-     
+
      public LogDataModel(ILogParser parser) {
         this();
         mParser = parser;
@@ -87,7 +87,7 @@ public class LogDataModel extends CMSTableModel
         }
         addRow(row);
     }
-    
+
     /**
      * NEED TO OVERWRITE THE TABLE MODEL ADD FUNCTION
      * SINCE WE ARE PROVIDING REVERSE ORDER ENTRIES IN
@@ -102,6 +102,6 @@ public class LogDataModel extends CMSTableModel
                 row = v.size() - 1;
         }
         fireTableDataChanged();
-    }    
+    }
 
 }

@@ -300,7 +300,7 @@ public class CRSPKIMessage {
      public void makeSignerInfo_old(int version,
      // issuer and serialnumber
      byte[] digest) {
-     
+
      si = new SignerInfo(new INTEGER(version),
      sgnIASN,                   // issuer and serialnum
      new AlgorithmIdentifier(MD5_DIGEST, new NULL()),       // digest algorithm
@@ -308,7 +308,7 @@ public class CRSPKIMessage {
      new AlgorithmIdentifier(RSA_ENCRYPTION,new NULL()),       // digest encryption algorithm
      new OCTET_STRING(digest),  // digest
      null);           // unauthenticated attributes
-     
+
      }
      */
 
@@ -813,7 +813,7 @@ public class CRSPKIMessage {
      * The PKCS10 request is encrypt with a symmetric key.
      * This key in turn is encrypted with the RSA key in the
      * CA certificate.
-     * 
+     *
      * riAlgid is the algorithm the symm key is encrypted with. It had
      * better be RSA
      * riKey is the encrypted symmetric key

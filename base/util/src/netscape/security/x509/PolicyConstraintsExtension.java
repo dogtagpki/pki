@@ -38,7 +38,7 @@ import netscape.security.util.DerValue;
  * a path contain an acceptable policy identifier.
  * <p>
  * The ASN.1 syntax for this is (IMPLICIT tagging is defined in the module definition):
- * 
+ *
  * <pre>
  * PolicyConstraints ::= SEQUENCE {
  *     requireExplicitPolicy [0] SkipCerts OPTIONAL,
@@ -46,7 +46,7 @@ import netscape.security.util.DerValue;
  * }
  * SkipCerts ::= INTEGER (0..MAX)
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -101,7 +101,7 @@ public class PolicyConstraintsExtension extends Extension
     /**
      * Create a PolicyConstraintsExtension object with criticality and
      * both require explicit policy and inhibit policy mapping.
-     * 
+     *
      * @param critical whether this extension should be critical
      * @param require require explicit policy (-1 for optional).
      * @param inhibit inhibit policy mapping (-1 for optional).
@@ -114,7 +114,7 @@ public class PolicyConstraintsExtension extends Extension
     /**
      * Create a PolicyConstraintsExtension object with both
      * require explicit policy and inhibit policy mapping.
-     * 
+     *
      * @param require require explicit policy (-1 for optional).
      * @param inhibit inhibit policy mapping (-1 for optional).
      */
@@ -134,7 +134,7 @@ public class PolicyConstraintsExtension extends Extension
 
     /**
      * Create the extension from its DER encoded value and criticality.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -200,7 +200,7 @@ public class PolicyConstraintsExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -210,7 +210,7 @@ public class PolicyConstraintsExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Show paged list of requests matching search criteria
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class QueryReq extends CMSServlet {
@@ -118,7 +118,7 @@ public class QueryReq extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "queryReq.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -143,7 +143,7 @@ public class QueryReq extends CMSServlet {
                 mParser = KeyReqParser.PARSER;
         }
 
-        // override success and error templates to null - 
+        // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
@@ -222,7 +222,7 @@ public class QueryReq extends CMSServlet {
      * <li>http.param totalCount total number of records in set of pages
      * <li>http.param direction "up", "down", "begin", or "end"
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
 
@@ -254,7 +254,7 @@ public class QueryReq extends CMSServlet {
         Locale[] locale = new Locale[1];
 
         try {
-            // if get a EBaseException we just throw it. 
+            // if get a EBaseException we just throw it.
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
@@ -265,9 +265,9 @@ public class QueryReq extends CMSServlet {
 
         /**
          * WARNING:
-         * 
+         *
          * PLEASE DO NOT TOUCH THE FILTER HERE. ALL FILTERS ARE INDEXED.
-         * 
+         *
          **/
         String filter = null;
         String reqState = req.getParameter("reqState");
@@ -353,7 +353,7 @@ public class QueryReq extends CMSServlet {
 
     /**
      * Perform search based on direction button pressed
-     * 
+     *
      * @param filter ldap filter indicating which VLV to search through. This can be
      *            'all requests', 'pending', etc
      * @param count the number of requests to show per page
@@ -382,7 +382,7 @@ public class QueryReq extends CMSServlet {
     }
 
     /**
-     * 
+     *
      * @param locale
      * @param filter the types of requests to return - this must match the VLV index
      * @param count maximum number of records to return
@@ -411,7 +411,7 @@ public class QueryReq extends CMSServlet {
             boolean jumptoend = false;
             if (marker.toString().equals("-1")) {
                 marker = BigInteger.ZERO; // I think this is inconsequential
-                jumptoend = true; // override  to '99' during search 
+                jumptoend = true; // override  to '99' during search
             }
 
             RequestId id = new RequestId(marker);
@@ -487,7 +487,7 @@ public class QueryReq extends CMSServlet {
 
     /**
      * If the vector contains the marker element at the end, remove it.
-     * 
+     *
      * @param v The vector to trim
      * @param marker the marker to look for.
      */
@@ -502,7 +502,7 @@ public class QueryReq extends CMSServlet {
     /**
      * Sometimes the list comes back from LDAP in reverse order. This function makes
      * sure the results are in 'forward' order.
-     * 
+     *
      * @param list
      * @return
      */
@@ -527,7 +527,7 @@ public class QueryReq extends CMSServlet {
 
     /**
      * If the requests are in backwards order, reverse the list
-     * 
+     *
      * @param list
      * @return
      */

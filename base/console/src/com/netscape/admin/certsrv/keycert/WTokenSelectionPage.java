@@ -67,7 +67,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         info.addEntry(wizardInfo.TOKENNAME, (String)mToken.getSelectedItem());
         if (mRequestBtn.isSelected())
             info.addEntry(wizardInfo.OPTYPE, wizardInfo.REQUESTTYPE);
-        else 
+        else
             info.addEntry(wizardInfo.OPTYPE, wizardInfo.INSTALLTYPE);
         return true;
     }
@@ -138,7 +138,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         gbc.weightx = 1.0;
         gbc.fill = gbc.NONE;
         gbc.weighty = 0.0;
-        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mToken, gbc);
 

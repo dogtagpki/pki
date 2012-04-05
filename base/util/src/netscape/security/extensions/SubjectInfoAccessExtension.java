@@ -41,7 +41,7 @@ import netscape.security.x509.URIName;
 /**
  * This represents the subject information access extension
  * as defined in RFC3280.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -65,7 +65,7 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -183,7 +183,7 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

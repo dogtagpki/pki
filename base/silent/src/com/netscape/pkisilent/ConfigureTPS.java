@@ -69,7 +69,7 @@ public class ConfigureTPS {
     public static String client_certdb_dir = null;
     public static String client_certdb_pwd = null;
 
-    // Login Panel 
+    // Login Panel
     public static String pin = null;
 
     public static String domain_name = null;
@@ -127,7 +127,7 @@ public class ConfigureTPS {
 
     public static String ss_keygen = null;
 
-    // names 
+    // names
     public static String tps_server_cert_subject_name = null;
     public static String tps_server_cert_nickname = null;
     public static String tps_subsystem_cert_subject_name = null;
@@ -627,7 +627,7 @@ public class ConfigureTPS {
         hr = hc.sslConnect(ca_hostname, ca_admin_port, admin_uri, query_string);
 
         try {
-            // cert_to_import = 
+            // cert_to_import =
             //     new sun.misc.BASE64Encoder().encode(hr.getResponseData());
             cert_to_import =
                     Utils.base64encode(hr.getResponseData());
@@ -834,7 +834,7 @@ public class ConfigureTPS {
         StringHolder x_admin_email = new StringHolder();
         StringHolder x_admin_password = new StringHolder();
 
-        // ldap 
+        // ldap
 
         StringHolder x_ldap_host = new StringHolder();
         StringHolder x_ldap_port = new StringHolder();

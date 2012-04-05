@@ -48,7 +48,7 @@ public class KeyDAO {
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
-    
+
     public KeyDAO() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
@@ -57,7 +57,7 @@ public class KeyDAO {
     /**
      * Returns list of keys meeting specified search filter.
      * Currently, vlv searches are not used for keys.
-     * 
+     *
      * @param filter
      * @param maxResults
      * @param maxTime
@@ -65,29 +65,29 @@ public class KeyDAO {
      * @return
      * @throws EBaseException
      */
-    public KeyDataInfos listKeys(String filter, int maxResults, int maxTime, UriInfo uriInfo) 
+    public KeyDataInfos listKeys(String filter, int maxResults, int maxTime, UriInfo uriInfo)
         throws EBaseException {
         List <KeyDataInfo> list = new ArrayList<KeyDataInfo>();
         Enumeration<IKeyRecord> e = null;
-        
-        e = repo.searchKeys(filter, maxResults, maxTime); 
+
+        e = repo.searchKeys(filter, maxResults, maxTime);
         if (e == null) {
             throw new EBaseException("search results are null");
         }
-        
+
         while (e.hasMoreElements()) {
             IKeyRecord rec = e.nextElement();
             if (rec != null) {
                 list.add(createKeyDataInfo(rec, uriInfo));
             }
         }
-        
+
         KeyDataInfos ret = new KeyDataInfos();
         ret.setKeyInfos(list);
-        
+
         return ret;
     }
-    
+
     public KeyData getKey(KeyId keyId, RecoveryRequestData data) throws EBaseException {
         KeyData keyData;
 
@@ -105,7 +105,7 @@ public class KeyDAO {
      // get wrapped key
         IKeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
         if (rec == null) {
-            return null;  
+            return null;
         }
 
         Hashtable<String, Object> requestParams = kra.getVolatileRequest(
@@ -182,10 +182,10 @@ public class KeyDAO {
         kra.destroyVolatileRequest(request.getRequestId());
 
         queue.markAsServiced(request);
-        
+
         return keyData;
     }
-    
+
     public KeyDataInfo createKeyDataInfo(IKeyRecord rec, UriInfo uriInfo) throws EBaseException {
         KeyDataInfo ret = new KeyDataInfo();
 
@@ -198,5 +198,5 @@ public class KeyDAO {
 
         return ret;
     }
-    
+
 }

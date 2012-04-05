@@ -28,7 +28,7 @@ package com.netscape.certsrv.jobs;
  * e.g. jobsScheduler.job.rnJob1.cron=30 11,23 * * 1-5 In this example, the job "rnJob1" will be executed from Monday
  * through Friday, at 11:30am and 11:30pm.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IJobCron {

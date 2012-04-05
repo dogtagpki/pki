@@ -33,7 +33,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * Uses HCL ssl socket.
- * 
+ *
  * @author Lily Hsiao lhsiao@netscape.com
  */
 public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {

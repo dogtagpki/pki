@@ -24,35 +24,35 @@ import com.netscape.certsrv.base.IAttrSet;
 /**
  * This interface defines the basic interfaces for
  * an identity group. (get/set methods for a group entry attributes)
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IGroup extends IAttrSet, IGroupConstants {
 
     /**
      * Retrieves the group name.
-     * 
+     *
      * @return the group name
      */
     public String getName();
 
     /**
      * Retrieves group identifier.
-     * 
+     *
      * @return the group id
      */
     public String getGroupID();
 
     /**
      * Retrieves group description.
-     * 
+     *
      * @return description
      */
     public String getDescription();
 
     /**
      * Checks if the given name is member of this group.
-     * 
+     *
      * @param name the given name
      * @return true if the given name is the member of this group; otherwise false.
      */
@@ -60,14 +60,14 @@ public interface IGroup extends IAttrSet, IGroupConstants {
 
     /**
      * Adds new member.
-     * 
+     *
      * @param name the given name.
      */
     public void addMemberName(String name);
 
     /**
      * Retrieves a list of member names.
-     * 
+     *
      * @return a list of member names for this group.
      */
     public Enumeration<String> getMemberNames();

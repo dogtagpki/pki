@@ -48,14 +48,14 @@ public class  CMSContentTableModel extends CMSTableModel {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-    
+
     /**
      * Returns the number of rows in the table
      * @return number of rows
      */
     public int getRowCount() {
         return mObjectContainer.size();
-    }     
+    }
 
     /**
      * Add data row and data object associated with this row
@@ -66,13 +66,13 @@ public class  CMSContentTableModel extends CMSTableModel {
         super.addRow(values);
         mObjectContainer.addElement(obj);
     }
-    
+
     /**
      * Remove row at the specified index position
      * @param index row index to be removed
      */
-    public void removeRow(int index) 
-        throws ArrayIndexOutOfBoundsException 
+    public void removeRow(int index)
+        throws ArrayIndexOutOfBoundsException
     {
         Debug.println("CMSContentDataModel: removeRow() - start");
         mObjectContainer.removeElementAt(index);

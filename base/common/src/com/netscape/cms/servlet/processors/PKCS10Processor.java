@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * PKCS10Processor process Certificate Requests in
  * PKCS10 format, as defined here:
  * http://www.rsasecurity.com/rsalabs/pkcs/pkcs-10/index.html
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PKCS10Processor extends PKIProcessor {

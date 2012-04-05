@@ -70,7 +70,7 @@ import com.netscape.cmsutil.ocsp.ResponseData;
  * A class represents a Certificate Authority that is
  * responsible for certificate specific operations.
  * <P>
- * 
+ *
  * @author lhsiao
  * @version $Revision$, $Date$
  */
@@ -118,7 +118,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
@@ -273,7 +273,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         } else if (alg.getOID().equals(MD5)) {
             return "MD5";
         } else if (alg.getOID().equals(SHA1)) {
-            return "SHA1"; // 1.3.14.3.2.26 
+            return "SHA1"; // 1.3.14.3.2.26
         } else {
             return null;
         }
@@ -394,7 +394,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -407,7 +407,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
     /**
      * logs a message in the CA area.
-     * 
+     *
      * @param level the debug level.
      * @param msg the message to debug.
      */
@@ -478,7 +478,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns default signing unit used by this CA
      * <P>
-     * 
+     *
      * @return request identifier
      */
     public ISigningUnit getSigningUnit() {
@@ -488,7 +488,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Retrieves the request queue for the Authority.
      * <P>
-     * 
+     *
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue() {
@@ -544,7 +544,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * try {
      * log(ILogger.LL_INFO, "start OCSP request");
      * TBSRequest tbsReq = request.getTBSRequest();
-     * 
+     *
      * Vector singleResponses = new Vector();
      * for (int i = 0; i < tbsReq.getRequestCount(); i++)
      * {
@@ -554,25 +554,25 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * SingleResponse sr = p.process(cid);
      * singleResponses.addElement(sr);
      * }
-     * 
-     * 
+     *
+     *
      * SingleResponse res[] = new SingleResponse[singleResponses.size()];
      * singleResponses.copyInto(res);
-     * 
+     *
      * X500Name name = getName();
      * Name.Template nameTemplate = new Name.Template();
      * NameID rid = new NameID((Name)nameTemplate.decode(
      * new ByteArrayInputStream(name.getEncoded())));
      * ResponseData rd = new ResponseData(rid, new GeneralizedTime(
      * CMS.getCurrentDate()), res);
-     * 
+     *
      * BasicOCSPResponse basicRes = sign(rd);
-     * 
+     *
      * OCSPResponse response = new OCSPResponse(
      * OCSPResponseStatus.SUCCESSFUL,
      * new ResponseBytes(ResponseBytes.OCSP_BASIC,
      * new OCTET_STRING(ASN1Util.encode(basicRes))));
-     * 
+     *
      * log(ILogger.LL_INFO, "done OCSP request");
      * return response;
      * } catch (Exception e) {
@@ -584,7 +584,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
     /**
      * Returns the in-memory count of the processed OCSP requests.
-     * 
+     *
      * @return number of processed OCSP requests in memory
      */
     public long getNumOCSPRequest() {
@@ -594,7 +594,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns the in-memory time (in mini-second) of
      * the processed time for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPRequestTotalTime() {
@@ -604,7 +604,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns the in-memory time (in mini-second) of
      * the signing time for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalSignTime() {
@@ -618,7 +618,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns the total data signed
      * for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalData() {

@@ -55,7 +55,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * uid/pwd/pin directory based authentication manager
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UidPwdPinDirAuthentication extends DirBasedAuthentication
@@ -179,7 +179,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
     /**
      * Authenticates a user based on its uid, pwd, pin in the directory.
-     * 
+     *
      * @param authCreds The authentication credentials with uid, pwd, pin.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
@@ -242,7 +242,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
             // log(ILogger.LL_SECURITY, "found user : " + userdn);
 
-            // check pin. 
+            // check pin.
             checkpin(conn, userdn, uid, pin);
 
             // set uid in the token.
@@ -376,7 +376,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -385,7 +385,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
     /**
      * Returns array of required credentials for this authentication manager.
-     * 
+     *
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {

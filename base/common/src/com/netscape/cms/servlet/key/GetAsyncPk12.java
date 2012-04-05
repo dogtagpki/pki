@@ -44,7 +44,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Get the recovered key in PKCS#12 format
  * - for asynchronous key recovery only
- * 
+ *
  */
 public class GetAsyncPk12 extends CMSServlet {
 
@@ -83,7 +83,7 @@ public class GetAsyncPk12 extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "finishAsyncRecovery.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -108,7 +108,7 @@ public class GetAsyncPk12 extends CMSServlet {
      * <ul>
      * <li>http.param reqID request id for recovery
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -228,7 +228,7 @@ public class GetAsyncPk12 extends CMSServlet {
                             CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
                 }
             } else if (((IKeyRecoveryAuthority) mService).getError(reqID) != null) {
-                // error in recovery process 
+                // error in recovery process
                 header.addStringValue(OUT_ERROR,
                         ((IKeyRecoveryAuthority) mService).getError(reqID));
             } else {

@@ -35,7 +35,7 @@ import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 
 /**
  * This class implements CertificatePair used for Cross Certification
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -48,7 +48,7 @@ public class CertificatePair implements ASN1Value {
      * construct a CertificatePair. It doesn't matter which is
      * forward and which is reverse in the parameters. It will figure
      * it out
-     * 
+     *
      * @param cert1 one X509Certificate
      * @param cert2 one X509Certificate
      */
@@ -76,7 +76,7 @@ public class CertificatePair implements ASN1Value {
      * construct a CertificatePair. It doesn't matter which is
      * forward and which is reverse in the parameters. It will figure
      * it out
-     * 
+     *
      * @param cert1 one certificate byte array
      * @param cert2 one certificate byte array
      */
@@ -114,7 +114,7 @@ public class CertificatePair implements ASN1Value {
         /* It looks the DN's returned are not normalized and fail
          * comparison
 
-         if ((c1.getIssuerDN().equals((Object) caCert.getSubjectDN()))) 
+         if ((c1.getIssuerDN().equals((Object) caCert.getSubjectDN())))
          debug("myCA signed c1");
          else {
          debug("c1 issuerDN="+c1.getIssuerDN().toString());
@@ -144,7 +144,7 @@ public class CertificatePair implements ASN1Value {
 
          if ((c1.getIssuerDN().equals((Object) caCert.getSubjectDN()))
          && (caCert.getSubjectDN().equals((Object) c2.getSubjectDN())))
-         
+
          {
          return false;
          } else if ((c2.getIssuerDN().equals((Object) caCert.getSubjectDN()))

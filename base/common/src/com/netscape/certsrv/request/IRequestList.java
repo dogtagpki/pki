@@ -23,7 +23,7 @@ import java.util.Enumeration;
  * An interface providing a list of RequestIds that match
  * some criteria. It could be a list of all elements in a
  * queue, or just some defined sub-set.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestList
@@ -35,21 +35,21 @@ public interface IRequestList
      * <p>
      * Callers should be sure there is another element in the list by calling hasMoreElements first.
      * <p>
-     * 
+     *
      * @return next request id
      */
     RequestId nextRequestId();
 
     /**
      * Gets next request from the list.
-     * 
+     *
      * @return next request
      */
     public Object nextRequest();
 
     /**
      * Gets next request Object from the list.
-     * 
+     *
      * @return next request
      */
     public IRequest nextRequestObject();

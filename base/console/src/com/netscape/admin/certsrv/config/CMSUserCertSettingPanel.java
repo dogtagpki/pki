@@ -52,24 +52,24 @@ public class CMSUserCertSettingPanel extends CMSCertSettingPanel {
         mParent = parent;
         if (panelName.equals("RAUSERCERTSETTING"))
             mHelpToken = RAHELPINDEX;
-        else 
+        else
             mHelpToken = CAHELPINDEX;
     }
 
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * Actual UI construction
      */
     public void init() {
-        super.init(); 
-        
+        super.init();
+
         //XXX B1 - disable the publisher configuration
         mPublisher.setEnabled(false);
-        //XXX B1 - disable the publisher configuration        
-        
+        //XXX B1 - disable the publisher configuration
+
         refresh();
     }
 
@@ -114,14 +114,14 @@ public class CMSUserCertSettingPanel extends CMSCertSettingPanel {
 
     /*==========================================================
 	 * EVNET HANDLER METHODS
-     *==========================================================*/ 
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mMapper)) {
             Debug.println("Edit Mapper Config");
             mDialog = new PanelMapperConfigDialog(_model.getFrame(), _admin);
-            mDialog.showDialog(_mapper.getText(), 
+            mDialog.showDialog(_mapper.getText(),
                 _servletName, ScopeDef.SC_USERCERT);
             if (!mDialog.isOK())
                 return;
@@ -150,6 +150,6 @@ public class CMSUserCertSettingPanel extends CMSCertSettingPanel {
             }
         }
     }
-     
+
 }
 

@@ -54,27 +54,27 @@ public class CMSEAUILoader implements ISubSystemUILoader {
     public void register() {
         //register subsystem UI
         try {
-            
+
             //task tab
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
-            
+
             //config tab
             CMSResourcePage page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
             populateConfigContent(model);
-            
+
             /*repos tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONTENT");
             model = (CMSBaseResourceModel) page.getModel();
             populateRepositoryContent(model);
             */
-            
+
             /*acl tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"ACCESSCONTROLLIST");
             model = (CMSBaseResourceModel) page.getModel();
             populateACLContent(model);
             */
-            
+
         }catch(Exception e) {
             Debug.println("CMSEAUILoader: register() config - "+e.toString());
         }
@@ -98,11 +98,11 @@ public class CMSEAUILoader implements ISubSystemUILoader {
 
         model.addSubSystemNode(list);
     }
-    
+
     /*
     protected void populateRepositoryContent(CMSBaseResourceModel model) {
         CMSResourceObject list, node;
-        
+
         //ca repositories node
         list = new CMSResourceObject("EAREPOSITORIES");
         list.setCustomPanel(new CMSBlankPanel(model));
@@ -129,7 +129,7 @@ public class CMSEAUILoader implements ISubSystemUILoader {
         node.setCustomPanel(new CMSBlankPanel(model));
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_DOCUMENT));
         node.setAllowsChildren(false);
-        list.add(node);        
+        list.add(node);
     }
     */
 

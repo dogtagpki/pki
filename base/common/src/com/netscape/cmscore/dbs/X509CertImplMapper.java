@@ -44,7 +44,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 /**
  * A class represents a mapper to serialize
  * x509 certificate into database.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

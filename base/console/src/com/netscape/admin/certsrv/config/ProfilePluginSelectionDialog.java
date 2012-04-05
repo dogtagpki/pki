@@ -45,9 +45,9 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public ProfilePluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope         = ScopeDef.SC_PROFILE_IMPLS;

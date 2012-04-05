@@ -42,12 +42,12 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Certificate Renewal Window Extension Policy
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -74,7 +74,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Initializes this policy rule.
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -88,7 +88,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -139,7 +139,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
             } catch (IOException e) {
                 // this is the hack: for some reason, the key which is the name
-                // of the policy has been converted into the OID 
+                // of the policy has been converted into the OID
                 try {
                     extensions.delete("2.16.840.1.113730.1.15");
                 } catch (IOException ee) {
@@ -218,7 +218,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -240,7 +240,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

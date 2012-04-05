@@ -46,31 +46,31 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * Subject Alternative Name extension policy.
- * 
+ *
  * Adds the subject alternative name extension as configured.
- * 
+ *
  * Two forms are supported. 1) For S/MIME certificates, email
  * addresses are copied from data stored in the request by the
  * authentication component. Both 'e' and 'altEmail' are supported
  * so that both the primary address and alternative forms may be
  * certified. Only the primary goes in the subjectName position (which
  * should be phased out).
- * 
+ *
  * e
  * mailAlternateAddress
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubjectAltNameExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
-    // (standard says SHOULD be marked critical if included.) 
+    // (standard says SHOULD be marked critical if included.)
     protected static final String PROP_CRITICAL = "critical";
     protected static final boolean DEF_CRITICAL = false;
 
@@ -106,11 +106,11 @@ public class SubjectAltNameExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=SubjectAltNameExt ra.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -150,9 +150,9 @@ public class SubjectAltNameExt extends APolicyRule
 
     /**
      * Adds the subject alternative names extension if not set already.
-     * 
+     *
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -187,7 +187,7 @@ public class SubjectAltNameExt extends APolicyRule
                     certInfo.get(X509CertInfo.EXTENSIONS);
 
             // Remove any previously computed version of the extension
-            // unless it is from RA. If from RA, accept what RA put in 
+            // unless it is from RA. If from RA, accept what RA put in
             // request and don't add our own.
             if (extensions != null) {
                 String sourceId = req.getSourceId();
@@ -232,7 +232,7 @@ public class SubjectAltNameExt extends APolicyRule
                 curCritical = true;
             }
 
-            // make the extension 
+            // make the extension
             SubjectAlternativeNameExtension sa = new SubjectAlternativeNameExtension(curCritical, gns);
 
             // add it to certInfo.
@@ -265,7 +265,7 @@ public class SubjectAltNameExt extends APolicyRule
     /**
      * Create a new SET of extensions in the certificate info
      * object.
-     * 
+     *
      * This should be a method in the X509CertInfo object
      */
     protected CertificateExtensions
@@ -285,7 +285,7 @@ public class SubjectAltNameExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -294,7 +294,7 @@ public class SubjectAltNameExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

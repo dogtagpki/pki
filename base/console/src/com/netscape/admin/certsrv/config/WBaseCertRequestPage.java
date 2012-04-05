@@ -43,7 +43,7 @@ public class WBaseCertRequestPage extends WizardBasePanel {
     protected JTextField mEmailText, mContactEmailTxt, mNameTxt, mContactPhoneTxt;
     protected JLabel mContactPhoneLbl, mContactEmailLbl, mNameLbl;
     protected JTextArea mContactText;
-    
+
     public WBaseCertRequestPage(String panelName) {
         super(panelName);
     }
@@ -135,10 +135,10 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         mEmailText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
-        gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, COMPONENT_SPACE); 
+        gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mEmailText, gbc);
-       
+
         mURLBtn = makeJRadioButton("URL", false);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -154,7 +154,7 @@ public class WBaseCertRequestPage extends WizardBasePanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mURLText, gbc);
-       
+
         ButtonGroup methodGroup = new ButtonGroup();
         methodGroup.add(mEmailBtn);
         methodGroup.add(mURLBtn);
@@ -169,7 +169,7 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.weightx = 1.0;
         gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;  
+        gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mContactText, gbc);
@@ -187,7 +187,7 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, 0);
         add(panel, gbc);
-  
+
         mNameLbl = makeJLabel("NAME");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.EAST;
@@ -221,7 +221,7 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
         panel.add(mContactEmailTxt, gbc);
-       
+
         mContactPhoneLbl = makeJLabel("PHONE");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;

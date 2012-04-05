@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.IArgBlock;
 
 /**
  * Default error template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenErrorTemplateFiller implements ICMSTemplateFiller {
@@ -37,7 +37,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
 
     /**
      * fill error details and description if any.
-     * 
+     *
      * @param cmsReq the CMS Request.
      * @param authority the authority
      * @param locale the locale of template.
@@ -60,11 +60,11 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
             return null;
         }
 
-        // error 
+        // error
         String ex = cmsReq.getError();
 
         // Changed by beomsuk
-        /*if (ex == null) 
+        /*if (ex == null)
          ex = new EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR"));
          fixed.set(ICMSTemplateFiller.ERROR, ex.toString(locale));
          */

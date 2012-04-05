@@ -62,7 +62,7 @@ public class Debug
     //  if (Debug.ON) {
     //     System.out.println("..");
     //	}
-    // I want to make sure that any Debug.trace() is not logged to 
+    // I want to make sure that any Debug.trace() is not logged to
     // System.out if the server is running under watchdog
 
     private static boolean TRACE_ON = false;
@@ -89,13 +89,13 @@ public class Debug
      * if the argument to Debug.trace() is an object whose toString() is
      * expensive, that this toString() will still be called in any case.
      * In such a case, it is wise to wrap the Debug.trace like this:
-     * 
+     *
      * <pre>
      * if (Debug.on()) {
      *     Debug.trace(&quot;obj is: &quot; + obj);
      * }
      * </pre>
-     * 
+     *
      * @param level the message level. If this is >= than the currently set
      *            level (set with setLevel() ), the message is printed
      * @param t the message to print
@@ -259,13 +259,13 @@ public class Debug
 
     /**
      * Set the current debugging level. You can use:
-     * 
+     *
      * <pre>
      * OBNOXIOUS = 10
      * VERBOSE   = 5
      * INFORM    = 1
      * </pre>
-     * 
+     *
      * Or another value
      */
 
@@ -307,7 +307,7 @@ public class Debug
     /**
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
-     * 
+     *
      * <pre>
      * debug.enabled   : (true|false) default false
      * debug.filename  : can be a pathname, or STDOUT
@@ -362,7 +362,7 @@ public class Debug
             setLevel(level);
         } catch (Exception e) {
             // Don't do anything. Logging is not set up yet, and
-            // we can't write to STDOUT. 
+            // we can't write to STDOUT.
         }
     }
 

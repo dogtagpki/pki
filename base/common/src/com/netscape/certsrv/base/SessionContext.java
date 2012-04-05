@@ -27,7 +27,7 @@ import java.util.Hashtable;
  * throughout the server. It is useful for passing
  * global and per-thread infomration in methods.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SessionContext extends Hashtable<Object, Object> {
@@ -110,7 +110,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * with the current thread.
      * This methods makes custom session context
      * possible.
-     * 
+     *
      * @param sc session context
      */
     public static void setContext(SessionContext sc) {
@@ -121,7 +121,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * Retrieves the session context associated with
      * the current thread. If no context is associated,
      * a context is created.
-     * 
+     *
      * @return sesssion context
      */
     public static SessionContext getContext() {
@@ -138,7 +138,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * Retrieves the session context associated with
      * the current thread. If no context is associated,
      * null is returned.
-     * 
+     *
      * @return sesssion context
      */
     public static SessionContext getExistingContext() {

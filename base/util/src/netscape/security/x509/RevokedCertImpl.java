@@ -39,7 +39,7 @@ import netscape.security.util.ObjectIdentifier;
  * <p>
  * Abstract class for a revoked certificate in a CRL. This class is for each entry in the
  * <code>revokedCertificates</code>, so it deals with the inner <em>SEQUENCE</em>. The ASN.1 definition for this is:
- * 
+ *
  * <pre>
  * revokedCertificates    SEQUENCE OF SEQUENCE  {
  *     userCertificate    CertificateSerialNumber,
@@ -47,11 +47,11 @@ import netscape.security.util.ObjectIdentifier;
  *     crlEntryExtensions Extensions OPTIONAL
  *                        -- if present, must be v2
  * }  OPTIONAL
- * 
+ *
  * CertificateSerialNumber  ::=  INTEGER
- * 
+ *
  * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
- * 
+ *
  * Extension  ::=  SEQUENCE  {
  *     extnId        OBJECT IDENTIFIER,
  *     critical      BOOLEAN DEFAULT FALSE,
@@ -61,7 +61,7 @@ import netscape.security.util.ObjectIdentifier;
  *                   -- the extnId object identifier value
  * }
  * </pre>
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.6 97/12/10
  */
@@ -88,7 +88,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     /**
      * Constructs a revoked certificate entry using the serial number and
      * revocation date.
-     * 
+     *
      * @param num
      *            the serial number of the revoked certificate.
      * @param date
@@ -102,7 +102,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     /**
      * Constructs a revoked certificate entry using the serial number,
      * revocation date and the entry extensions.
-     * 
+     *
      * @param num
      *            the serial number of the revoked certificate.
      * @param date
@@ -137,7 +137,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Sets extensions for this impl.
-     * 
+     *
      * @param crlEntryExts
      *            CRLExtensions
      */
@@ -147,7 +147,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Unmarshals a revoked certificate from its encoded form.
-     * 
+     *
      * @param revokedCert
      *            the encoded bytes.
      * @exception CRLException
@@ -167,7 +167,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Unmarshals a revoked certificate from its encoded form.
-     * 
+     *
      * @param derValue
      *            the DER value containing the revoked certificate.
      * @exception CRLException
@@ -183,7 +183,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     /**
      * Returns true if this revoked certificate entry has extensions, otherwise
      * false.
-     * 
+     *
      * @return true if this CRL entry has extensions, otherwise false.
      */
     public boolean hasExtensions() {
@@ -195,7 +195,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Decode a revoked certificate from an input stream.
-     * 
+     *
      * @param inStrm
      *            an input stream holding at least one revoked certificate
      * @exception CRLException
@@ -215,7 +215,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Encodes the revoked certificate to an output stream.
-     * 
+     *
      * @param outStrm
      *            an output stream to which the encoded revoked certificate is
      *            written.
@@ -251,7 +251,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Gets the serial number for this RevokedCertificate, the <em>userCertificate</em>.
-     * 
+     *
      * @return the serial number.
      */
     public BigInteger getSerialNumber() {
@@ -260,7 +260,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Gets the revocation date for this RevokedCertificate, the <em>revocationDate</em>.
-     * 
+     *
      * @return the revocation date.
      */
     public Date getRevocationDate() {
@@ -269,7 +269,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Returns extensions for this impl.
-     * 
+     *
      * @return the CRLExtensions
      */
     public CRLExtensions getExtensions() {
@@ -278,7 +278,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
 
     /**
      * Returns a printable string of this revoked certificate.
-     * 
+     *
      * @return value of this revoked certificate in a printable form.
      */
     public String toString() {
@@ -299,7 +299,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     /**
      * Gets a Set of the extension(s) marked CRITICAL in the
      * RevokedCertificate by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         Object that are marked critical.
      */
@@ -319,7 +319,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
     /**
      * Gets a Set of the extension(s) marked NON-CRITICAL in the
      * RevokedCertificate by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         Object that are marked critical.
      */
@@ -344,7 +344,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * by ".", that means,<br>
      * &lt;positive whole number&gt;.&lt;positive whole number&gt;.&lt;positive
      * whole number&gt;.&lt;...&gt;
-     * 
+     *
      * @param oid the Object Identifier value for the extension.
      * @return the DER encoded octet string of the extension value.
      */

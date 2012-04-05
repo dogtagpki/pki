@@ -51,7 +51,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This represents the authentication manager that authenticates
  * user against a file where id, and password are stored.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class FlatFileAuth
@@ -110,7 +110,7 @@ public class FlatFileAuth
 
     /**
      * This array is created as to include all the requested attributes
-     * 
+     *
      */
     String[] reqCreds = null;
 
@@ -127,7 +127,7 @@ public class FlatFileAuth
      * Get the named property
      * If the property is not set, use s as the default, and create
      * a new value for the property in the config file.
-     * 
+     *
      * @param propertyName Property name
      * @param s The default value of the property
      */
@@ -152,7 +152,7 @@ public class FlatFileAuth
      * Get the named property,
      * If the property is not set, use b as the default, and create
      * a new value for the property in the config file.
-     * 
+     *
      * @param propertyName Property name
      * @param b The default value of the property
      */
@@ -220,7 +220,7 @@ public class FlatFileAuth
 
     /**
      * Log a message.
-     * 
+     *
      * @param level The logging level.
      * @param msg The message to log.
      */
@@ -398,7 +398,7 @@ public class FlatFileAuth
     /**
      * Read a file with the following format:
      * <p>
-     * 
+     *
      * <pre>
      * param1: valuea
      * param2: valueb
@@ -406,7 +406,7 @@ public class FlatFileAuth
      * param1: valuec
      * param2: valued
      * </pre>
-     * 
+     *
      * @param f The file to read
      * @param keys The parameters to concat together to form the hash
      *            key
@@ -506,7 +506,7 @@ public class FlatFileAuth
     /**
      * Compare attributes provided by the user with those in
      * in flat file.
-     * 
+     *
      */
 
     private IAuthToken doAuthentication(Hashtable<String, String> user, IAuthCredentials authCred)
@@ -543,7 +543,7 @@ public class FlatFileAuth
 
     /**
      * Authenticate the request
-     * 
+     *
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
@@ -586,7 +586,7 @@ public class FlatFileAuth
             }
         }
 
-        // if a dn was specified in the password file for this user, 
+        // if a dn was specified in the password file for this user,
         // replace the requested dn with the one in the pwfile
         if (user != null) {
             String dn = (String) user.get("dn");
@@ -610,7 +610,7 @@ public class FlatFileAuth
     /**
      * Return a list of HTTP parameters which will be taken from the
      * request posting and placed into the AuthCredentials block
-     * 
+     *
      * Note that this method will not be called until after the
      * init() method is called
      */

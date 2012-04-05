@@ -38,9 +38,9 @@ import com.netscape.admin.certsrv.config.*;
  */
 class WIServerKeyPage extends WIKeyPage implements IWizardPanel {
     private static final String PANELNAME = "INSTALLSERVERKEYWIZARD";
-    private static final String LOCALHELPINDEX = 
+    private static final String LOCALHELPINDEX =
       "install-serverkeylocal-configuration-wizard-help";
-    private static final String REMOTEHELPINDEX = 
+    private static final String REMOTEHELPINDEX =
       "install-serverkeysub-configuration-wizard-help";
 
     WIServerKeyPage(JDialog parent) {
@@ -77,7 +77,7 @@ class WIServerKeyPage extends WIKeyPage implements IWizardPanel {
 
         if (mWizardInfo.isSSLCertLocalCA())
             mHelpIndex = LOCALHELPINDEX;
-        else 
+        else
             mHelpIndex = REMOTEHELPINDEX;
 
         enableFields();

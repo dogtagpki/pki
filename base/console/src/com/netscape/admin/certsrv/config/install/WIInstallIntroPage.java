@@ -43,7 +43,7 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
     protected JRadioButton mNo;
     protected String mPanelName;
     protected String mHelpIndex;
-    
+
     WIInstallIntroPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -57,7 +57,7 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(mPanelName));
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -83,26 +83,26 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(heading, gbc);
 
         mNo = makeJRadioButton("NO", false);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mNo, gbc);
-  
+
         mYes = makeJRadioButton("YES", true);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
-        gbc.insets = new Insets(0,COMPONENT_SPACE, 
+        gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mYes, gbc);
- 
+
         JLabel dummy = new JLabel("");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -112,7 +112,7 @@ class WIInstallIntroPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(dummy, gbc);
-        
+
         ButtonGroup buttonGrp = new ButtonGroup();
         buttonGrp.add(mYes);
         buttonGrp.add(mNo);

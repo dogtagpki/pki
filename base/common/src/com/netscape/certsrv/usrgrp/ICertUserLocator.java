@@ -24,14 +24,14 @@ import com.netscape.certsrv.ldap.ELdapException;
 /**
  * This interface defines a certificate mapping strategy to locate
  * a user
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICertUserLocator {
 
     /**
      * Returns a user whose certificates match with the given certificates
-     * 
+     *
      * @return an user interface
      * @exception EUsrGrpException thrown when failed to build user
      * @exception LDAPException thrown when LDAP internal database is not available
@@ -42,7 +42,7 @@ public interface ICertUserLocator {
 
     /**
      * Retrieves description.
-     * 
+     *
      * @return description
      */
     public String getDescription();

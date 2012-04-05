@@ -37,17 +37,17 @@ import netscape.security.x509.OIDMap;
 
 /**
  * Represent a PKCS Attribute.
- * 
+ *
  * <p>
  * Attributes are addiitonal attributes which can be inserted in a PKCS certificate request. For example a
  * "Driving License Certificate" could have the driving license number as a attribute.
- * 
+ *
  * <p>
  * Attributes are represented as a sequence of the attribute identifier (Object Identifier) and a set of DER encoded
  * attribute values. The current implementation only supports one value per attribute.
- * 
+ *
  * ASN.1 definition of Attribute:
- * 
+ *
  * <pre>
  * Attribute :: SEQUENCE {
  *    type    AttributeValue,
@@ -55,7 +55,7 @@ import netscape.security.x509.OIDMap;
  * }
  * AttributeValue ::= ANY
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.13
@@ -127,8 +127,8 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
                 Object[] passed = new Object[] { value };
                 attributeValue = cons.newInstance(passed);
             } else {
-                // attribute classes are usable for PKCS10 attributes. 
-                // this is used where the attributes are not actual 
+                // attribute classes are usable for PKCS10 attributes.
+                // this is used where the attributes are not actual
                 // implemented extensions.
                 attributeValue = new ACertAttrSet(inAttrValue);
             }
@@ -142,7 +142,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
     /**
      * Constructs an attribute from individual components of ObjectIdentifier
      * and the DER encoded value.
-     * 
+     *
      * @param attributeId the ObjectIdentifier of the attribute.
      * @param attributeValue the CertAttrSet.
      */
@@ -155,7 +155,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
     /**
      * Constructs an attribute from another attribute. To be used for
      * creating decoded subclasses.
-     * 
+     *
      * @param attr the attribute to create from.
      */
     public PKCS10Attribute(PKCS10Attribute attr) {
@@ -165,7 +165,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
 
     /**
      * Write the output to the DerOutputStream.
-     * 
+     *
      * @param out the OutputStream to write the attribute to.
      * @exception CertificateException on certificate encoding errors.
      * @exception IOException on encoding errors.
@@ -196,10 +196,10 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the OutputStream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding errors.
      */
     public void derEncode(OutputStream out) throws IOException {

@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
  * This class implements a single element in
  * an ordered list of self test instances.
  * <P>
- * 
+ *
  * @author mharmsen
  * @author thomask
  * @version $Revision$, $Date$
@@ -63,7 +63,7 @@ public class SelfTestOrderedInstance {
      * A "listElement" contains a string of the form "[instanceName]" or
      * "[instanceName]:critical".
      * <P>
-     * 
+     *
      * @param listElement a string containing the "instanceName" and
      *            information indictating whether or not the instance is "critical"
      */
@@ -106,7 +106,7 @@ public class SelfTestOrderedInstance {
     /**
      * Returns the name associated with this self test; may be null.
      * <P>
-     * 
+     *
      * @return instanceName of this self test
      */
     public String getSelfTestName() {
@@ -116,7 +116,7 @@ public class SelfTestOrderedInstance {
     /**
      * Returns the criticality associated with this self test.
      * <P>
-     * 
+     *
      * @return true if failure of this self test is fatal when
      *         it is executed; otherwise return false
      */
@@ -127,7 +127,7 @@ public class SelfTestOrderedInstance {
     /**
      * Sets/resets the criticality associated with this self test.
      * <P>
-     * 
+     *
      * @param criticalMode the criticality of this self test
      */
     public void setSelfTestCriticalMode(boolean criticalMode) {

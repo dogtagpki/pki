@@ -31,57 +31,57 @@ import com.netscape.certsrv.base.ISubsystem;
  * Certificiate Manager/LDAP Publishing panel. This
  * interface provides administrator additional capability
  * of publishing CRL to different destinations.
- * 
+ *
  * The CRL publishing frequency is configured via
  * Netscape Certificate Server Console's
  * Certificate Manager/Revocation List panel.
  * The CRL publishing may occur either everytime a
  * certificate is revoked or at a pre-defined interval.
- * 
+ *
  * To try out this new CRL publisher mechanism, do
  * the following:
  * (1) Write a sample CRL publisher class that implements
  * ICRLPublisher interface. For example,
- * 
+ *
  * <code>
  * public class CRLPublisher implements ICRLPublisher
  * {
- * 	public void init(ISubsystem owner, IConfigStore config) 
+ * 	public void init(ISubsystem owner, IConfigStore config)
  * 		throws EBaseException
  * 	{
  * 		log(ILogger.LL_DEBUG, "CRLPublisher: Initialized");
  * 	}
- * 
- * 	public void publish(String issuingPointId, X509CRLImpl crl) 
- * 		throws EBaseException 
+ *
+ * 	public void publish(String issuingPointId, X509CRLImpl crl)
+ * 		throws EBaseException
  *      {
- * 		log(ILogger.LL_DEBUG, "CRLPublisher: " + issuingPointId + 
+ * 		log(ILogger.LL_DEBUG, "CRLPublisher: " + issuingPointId +
  *                " crl=" + crl);
  * 	}
- * 
+ *
  *      public void log(int level, String msg)
  *      {
- *              Logger.getLogger().log(ILogger.EV_SYSTEM, 
+ *              Logger.getLogger().log(ILogger.EV_SYSTEM,
  *                      null, ILogger.S_OTHER, level,
  *                      msg);
  *      }
  * }
  * </code>
- * 
+ *
  * (2) Compile the class and place the class into
  * <server-root>\bin\cert\classes directory.
  * (3) Add the following parameter to CMS.cfg
  * ca.crlPublisher.class=<implementation class>
  * For example,
  * ca.crlPublisher.class=myCRLPublisher
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICRLPublisher {
 
     /**
      * Initializes this CRL publisher.
-     * 
+     *
      * @param owner parent of the publisher. An object of type
      *            CertificateAuthority.
      * @param config config store for this publisher. If this
@@ -96,7 +96,7 @@ public interface ICRLPublisher {
     /**
      * Publishes CRL. This method is invoked by CMS based
      * on the configured CRL publishing frequency.
-     * 
+     *
      * @param issuingPointId CRL issuing point identifier
      *            (i.e. MasterCRL)
      * @param crl CRL that is publishing

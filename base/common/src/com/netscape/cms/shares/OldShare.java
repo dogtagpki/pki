@@ -25,7 +25,7 @@ import com.netscape.certsrv.kra.IShare;
 /**
  * Use Java's reflection API to leverage CMS's
  * old Share and JoinShares implementations.
- * 
+ *
  * @deprecated
  * @version $Revision$ $Date$
  */

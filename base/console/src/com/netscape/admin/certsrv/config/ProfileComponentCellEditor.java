@@ -31,14 +31,14 @@ import javax.swing.*;
 public class ProfileComponentCellEditor implements TableCellEditor {
     protected EventListenerList listenerList = new EventListenerList();
     protected ChangeEvent changeEvent = null;
-                                  
+
     protected JComponent editorComponent = null;
     protected JComponent container = null;          // Can be tree or table
 
     public Component getComponent() {
         return editorComponent;
     }
-                                  
+
     public Object getCellEditorValue() {
         return editorComponent;
     }
@@ -46,28 +46,28 @@ public class ProfileComponentCellEditor implements TableCellEditor {
     public boolean isCellEditable(EventObject anEvent) {
         return true;
     }
-                                  
+
     public boolean shouldSelectCell(EventObject anEvent) {
         return true;
     }
-                                  
+
     public boolean stopCellEditing() {
         fireEditingStopped();
         return true;
     }
-                                  
+
     public void cancelCellEditing() {
         fireEditingCanceled();
     }
-                                  
+
     public void addCellEditorListener(CellEditorListener l) {
         listenerList.add(CellEditorListener.class, l);
     }
-                                  
+
     public void removeCellEditorListener(CellEditorListener l) {
         listenerList.remove(CellEditorListener.class, l);
     }
-                                  
+
     protected void fireEditingStopped() {
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
@@ -78,10 +78,10 @@ public class ProfileComponentCellEditor implements TableCellEditor {
                  if (changeEvent == null)
                      changeEvent = new ChangeEvent(this);
                  ((CellEditorListener)listeners[i+1]).editingStopped(changeEvent);
-             }              
+             }
         }
     }
-                                  
+
     protected void fireEditingCanceled() {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -93,14 +93,14 @@ public class ProfileComponentCellEditor implements TableCellEditor {
                 if (changeEvent == null)
                     changeEvent = new ChangeEvent(this);
                 ((CellEditorListener)listeners[i+1]).editingCanceled(changeEvent);
-            }              
+            }
         }
     }
-                                  
+
     // implements javax.swing.table.TableCellEditor
     public Component getTableCellEditorComponent(JTable table, Object value,
         boolean isSelected, int row, int column) {
-                                          
+
         editorComponent = (JComponent)value;
         container = table;
         return editorComponent;

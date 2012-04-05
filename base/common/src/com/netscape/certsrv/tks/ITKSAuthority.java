@@ -24,7 +24,7 @@ import com.netscape.certsrv.request.IRequestQueue;
  * An interface represents a Registration Authority that is
  * responsible for certificate enrollment operations.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ITKSAuthority extends ISubsystem {
@@ -41,14 +41,14 @@ public interface ITKSAuthority extends ISubsystem {
 
     /**
      * Retrieves the request queue of this registration authority.
-     * 
+     *
      * @return RA's request queue
      */
     public IRequestQueue getRequestQueue();
 
     /**
      * Returns the nickname of the RA certificate.
-     * 
+     *
      * @return the nickname of the RA certificate
      */
     public String getNickname();

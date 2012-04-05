@@ -38,9 +38,9 @@ import com.netscape.admin.certsrv.config.*;
  */
 class WIRAKeyPage extends WIKeyPage implements IWizardPanel {
     private static final String PANELNAME = "INSTALLRAKEYWIZARD";
-    private static final String RAHELPINDEX = 
+    private static final String RAHELPINDEX =
       "install-rakey-configuration-wizard-help";
-    private static final String RAKRAHELPINDEX = 
+    private static final String RAKRAHELPINDEX =
       "install-rakrakey-configuration-wizard-help";
 
     WIRAKeyPage(JDialog parent) {

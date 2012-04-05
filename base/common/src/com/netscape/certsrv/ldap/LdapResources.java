@@ -21,7 +21,7 @@ import java.util.ListResourceBundle;
 
 /**
  * A resource bundle for ldap subsystem.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapResources extends ListResourceBundle {

@@ -108,7 +108,7 @@ public class LdapConnModule implements ILdapConnModule {
      * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
-     * 
+     *
      * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */

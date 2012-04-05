@@ -29,14 +29,14 @@ import netscape.security.util.DerValue;
 
 /**
  * This class represents the Authority Key Identifier Extension.
- * 
+ *
  * <p>
  * The authority key identifier extension provides a means of identifying the particular public key used to sign a
  * certificate. This extension would be used where an issuer has multiple signing keys (either due to multiple
  * concurrent key pairs or due to changeover).
  * <p>
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * AuthorityKeyIdentifier ::= SEQUENCE {
  *    keyIdentifier             [0] KeyIdentifier           OPTIONAL,
@@ -45,7 +45,7 @@ import netscape.security.util.DerValue;
  * }
  * KeyIdentifier ::= OCTET STRING
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -130,7 +130,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
     /**
      * The default constructor for this extension. Null parameters make
      * the element optional (not present).
-     * 
+     *
      * @param id the KeyIdentifier associated with this extension.
      * @param names the GeneralNames associated with this extension
      * @param serialNum the CertificateSerialNumber associated with
@@ -151,7 +151,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -176,8 +176,8 @@ public class AuthorityKeyIdentifierExtension extends Extension
         }
 
         // NB. this is always encoded with the IMPLICIT tag
-        // The checks only make sense if we assume implicit tagging, 
-        // with explicit tagging the form is always constructed. 
+        // The checks only make sense if we assume implicit tagging,
+        // with explicit tagging the form is always constructed.
         while (val.data.available() != 0) {
             DerValue opt = val.data.getDerValue();
 
@@ -232,7 +232,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -242,7 +242,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on error.
      */

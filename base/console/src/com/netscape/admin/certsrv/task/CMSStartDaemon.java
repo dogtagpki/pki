@@ -47,13 +47,13 @@ public class CMSStartDaemon extends CGITask {
      * variables
      *==========================================================*/
     private static final String PREFIX = "CMSSTARTDAEMON";
-    
+
     public static final String START_DAEMON_CGI = "Tasks/Operation/start-daemon";
-    
+
 	private boolean mSuccess = false; // status of last executed CGI
 	private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
 	private String mCgiTask = null; // CGI task to call
-	
+
 	/*==========================================================
      * constructors
      *==========================================================*/
@@ -68,7 +68,7 @@ public class CMSStartDaemon extends CGITask {
         Debug.println("CMSStartDaemon: initialize()");
         _consoleInfo = info;
     }
-    
+
     /**
 	 * Starts the server specific creation code, providing the DN for the
 	 * target admin group. The method returns true or false depending
@@ -80,7 +80,7 @@ public class CMSStartDaemon extends CGITask {
 	 *          or failed (false).
 	 */
 	public boolean runDaemon(Hashtable configParams) {
-        String response = null;	    
+        String response = null;
 /*
         LDAPConnection ldc = _consoleInfo.getLDAPConnection();
         String ssdn = ldc.getAuthenticationDN();
@@ -101,7 +101,7 @@ public class CMSStartDaemon extends CGITask {
         if (_consoleInfo.get("AdminUserPassword") == null)
             _consoleInfo.put("AdminUserPassword",
                              _consoleInfo.getAuthenticationPassword());
-        Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword")); 
+        Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword"));
 
         Debug.println("Current DN = "+_consoleInfo.getCurrentDN());
 	    boolean status = false; // return value
@@ -114,11 +114,11 @@ public class CMSStartDaemon extends CGITask {
 		}
 		Debug.println("CMSStartDaemon: startDaemon() after run status=" +
 					  status + " mSuccess=" + mSuccess);
-again:		
+again:
         if (!mSuccess) {
             response = (String) mCgiResponse.get("NMC_ERRINFO");
             if ((response != null) && response.equalsIgnoreCase("daemon found lock file")) {
-                int result = CMSAdminUtil.showConfirmDialog(mResource, "CMSSTARTDAEMON"/*PREFIX*/, 
+                int result = CMSAdminUtil.showConfirmDialog(mResource, "CMSSTARTDAEMON"/*PREFIX*/,
                         "LOCKDELETECONFIRM", CMSAdminUtil.WARNING_MESSAGE);
                 if (result == CMSAdminUtil.OK_OPTION) {
     		        Debug.println("User wants to delete lock file.");
@@ -135,10 +135,10 @@ again:
                     "SYSTEMERROR", CMSAdminUtil.ERROR_MESSAGE);
             }
         }
-        
+
 		return mSuccess;
 	}
-   
+
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
@@ -146,7 +146,7 @@ again:
         mSuccess = false;
 		if (mCgiResponse != null)
 			mCgiResponse.clear();
-			
+
         try {
 			BufferedReader rspStream =
 				new BufferedReader(new InputStreamReader(response, "UTF8"));
@@ -168,13 +168,13 @@ again:
 		} catch (Exception e) {
 			Debug.println("StartDaemon.replyHandler: " + e.toString());
 		}
-		
+
 		Debug.println("StartDaemon.replyHandler: finished, mSuccess=" +
 					  mSuccess);
 
         finish();
     }
-    
+
     /**
 	 * return the value for the given keyword in the reply
 	 */
@@ -203,14 +203,14 @@ again:
 
 		Debug.println("Parse finished");
     }
-    
+
     /**
 	 * return the value for the response
 	 */
 	public Hashtable getResponse() {
-		return mCgiResponse; 
+		return mCgiResponse;
     }
-    
+
     /**
      * Get one value for one specified attribute from the given DN.
 	 * If there is more than 1 entry which matches the given criteria, the
@@ -233,7 +233,7 @@ again:
 
 		return null;
 	}
-	
+
     /**
      * Get the values for several specified attributes from the given DN.
 	 * If there is more than 1 entry which matches the given criteria, the
@@ -279,6 +279,6 @@ again:
 		}
 
 		return values;
-    }	
-	
+    }
+
 }

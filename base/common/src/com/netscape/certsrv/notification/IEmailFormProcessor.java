@@ -25,7 +25,7 @@ import java.util.Vector;
  * '$' is used preceeding a token name. A token name should not be a
  * substring of any other token name
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IEmailFormProcessor {

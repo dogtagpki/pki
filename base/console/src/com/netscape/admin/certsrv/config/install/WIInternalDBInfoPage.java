@@ -28,7 +28,7 @@ import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
 /**
- * This panel asks for the information of the current internal database. 
+ * This panel asks for the information of the current internal database.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -66,7 +66,7 @@ class WIInternalDBInfoPage extends WizardBasePanel implements IWizardPanel {
             return false;
         setBorder(makeTitledBorder(PANELNAME));
         mBindAsText.setText(wizardInfo.getDBBindDN());
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -149,7 +149,7 @@ class WIInternalDBInfoPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mPasswordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.NORTHWEST;

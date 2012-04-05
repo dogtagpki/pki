@@ -47,7 +47,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 /**
  * This class implements the output plugin that outputs
  * CMMF response for the issued certificate.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMMFOutput extends EnrollOutput implements IProfileOutput {

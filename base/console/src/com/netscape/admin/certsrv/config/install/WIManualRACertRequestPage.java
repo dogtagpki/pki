@@ -52,7 +52,7 @@ class WIManualRACertRequestPage extends WIManualCertRequestPage {
         if (wizardInfo.isCloning() && wizardInfo.isRACloningDone())
             return false;
         if (wizardInfo.isRACertLocalCA() || !wizardInfo.isRAInstalled() ||
-			wizardInfo.isRALocalCertDone() || 
+			wizardInfo.isRALocalCertDone() ||
 			wizardInfo.isRACertInstalledDone() ||
 			wizardInfo.isRACertRequestSucc() )
             return false;

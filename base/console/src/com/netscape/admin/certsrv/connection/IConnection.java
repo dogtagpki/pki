@@ -45,11 +45,11 @@ public interface IConnection {
      * Close the connection
      */
     public void disconnect();
-    
+
     /**
      * SetTimeout
      */
     public void setSoTimeout(int timeout) throws SocketException;
- 
- 
+
+
 }

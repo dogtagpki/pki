@@ -37,7 +37,7 @@ import com.netscape.cmscore.util.Debug;
  * A class represents a mapper to serialize
  * certificate record into database.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

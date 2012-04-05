@@ -6,7 +6,7 @@ package com.netscape.certsrv.dbs;
  * assigned db attribute into zero or more dynamically assigned LDAP
  * attributes, and vice versa.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDBDynAttrMapper extends IDBAttrMapper {
@@ -14,7 +14,7 @@ public interface IDBDynAttrMapper extends IDBAttrMapper {
     /**
      * Returns true if the LDAP attribute can be mapped by this
      * dynamic mapper.
-     * 
+     *
      * @param attrName LDAP attribute name to check
      * @return a list of supported attribute names
      */

@@ -167,7 +167,7 @@ public class DonePanel extends WizardPanelBase {
             Context context) {
         CMS.debug("DonePanel: display()");
 
-        // update session id 
+        // update session id
         String session_id = request.getParameter("session_id");
         if (session_id != null) {
             CMS.debug("NamePanel setting session id.");
@@ -326,7 +326,7 @@ public class DonePanel extends WizardPanelBase {
                 }
 
                 try {
-                    // Add this host (only CA can create new domain) 
+                    // Add this host (only CA can create new domain)
                     String cn = ownhost + ":" + ownadminsport;
                     String dn = "cn=" + cn + ",cn=CAList,ou=Security Domain," + basedn;
                     LDAPEntry entry = null;

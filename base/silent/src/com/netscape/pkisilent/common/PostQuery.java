@@ -76,7 +76,7 @@ public class PostQuery {
     }
 
     public boolean Send() {
-        // / This functions connects to the URL and POST HTTP Request . 
+        // / This functions connects to the URL and POST HTTP Request .
         // It compares with NMC_STATUS  and return the status.
         System.out.println(URLString);
         st = false;
@@ -127,7 +127,7 @@ public class PostQuery {
                 }
             }
             URLCon.disconnect();
-        } // try 
+        } // try
         catch (MalformedURLException e) {
             System.out.println(URLString + " is not a valid URL.");
 

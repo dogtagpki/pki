@@ -31,7 +31,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * This authentication does nothing but just returns an empty authToken.
  * <P>
- * 
+ *
  * @author chrisho
  * @version $Revision$, $Date$
  */
@@ -53,7 +53,7 @@ public class NullAuthentication implements IAuthManager {
      * initializes the NullAuthentication auth manager
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
-     * 
+     *
      * @param name - Name assigned to this authentication manager instance.
      * @param implName - Name of the authentication plugin.
      * @param config - The configuration store used by the
@@ -72,7 +72,7 @@ public class NullAuthentication implements IAuthManager {
      * authenticates nothing
      * <p>
      * called by other subsystems or their servlets to authenticate administrators
-     * 
+     *
      * @param authCred Authentication credentials.
      *            "uid" and "pwd" are required.
      * @return the authentication token (authToken) that contains the following
@@ -113,7 +113,7 @@ public class NullAuthentication implements IAuthManager {
      * required by this authentication manager. Generally used by
      * servlets that use this authentication manager, to retrieve
      * required credentials from the user (e.g. Javascript form data)
-     * 
+     *
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -123,7 +123,7 @@ public class NullAuthentication implements IAuthManager {
     /**
      * Get the list of configuration parameter names
      * required by this authentication manager. In this case, an empty list.
-     * 
+     *
      * @return String array of configuration parameters.
      */
     public String[] getConfigParams() {
@@ -139,7 +139,7 @@ public class NullAuthentication implements IAuthManager {
     /**
      * gets the configuration substore used by this authentication
      * manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -148,7 +148,7 @@ public class NullAuthentication implements IAuthManager {
 
     /**
      * Log a message.
-     * 
+     *
      * @param level The logging level.
      * @param msg The message to log.
      */

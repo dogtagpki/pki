@@ -48,7 +48,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
 
     private int mNumConns = 0; // number of available conns in array
-    private int mTotal = 0; // total num conns 
+    private int mTotal = 0; // total num conns
     private AnonConnection mConns[] = null;
 
     private boolean mInited = false;
@@ -69,7 +69,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
     /**
      * Constructor for LdapAnonConnFactory
-     * 
+     *
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection one wants to allow.
@@ -135,7 +135,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     protected void init(int minConns, int maxConns, LdapConnInfo connInfo)
             throws ELdapException {
         if (mInited)
-            return; // XXX should throw exception here ? 
+            return; // XXX should throw exception here ?
 
         if (minConns <= 0 || maxConns <= 0 || minConns > maxConns)
             throw new ELdapException(
@@ -181,10 +181,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             }
         } catch (LDAPException e) {
             // XXX errorCodeToString() used here so users won't see message.
-            // though why are messages from exceptions being displayed to 
+            // though why are messages from exceptions being displayed to
             // users ?
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                // need to intercept this because message from LDAP is 
+                // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         "Cannot connect to Ldap server. Error: " +
@@ -215,7 +215,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * If not the max number of connections may be reached prematurely.
      * The best thing to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {
@@ -242,7 +242,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * Returns null if maximum number of connections reached.
      * <p>
      * The best thing to put returnConn in a finally clause so it always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {
@@ -292,7 +292,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                             "to " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
         }
         CMS.debug("LdapAnonConnFactory.getConn(): num avail conns now " + mNumConns);
-        //Beginning of fix for Bugzilla #630176 
+        //Beginning of fix for Bugzilla #630176
         boolean isConnected = false;
         if (conn != null) {
             isConnected = conn.isConnected();
@@ -321,7 +321,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * If not the max number of connections may be reached prematurely.
      * <p>
      * The best thing to put returnConn in a finally clause so it always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {
@@ -342,7 +342,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         AnonConnection anon = (AnonConnection) conn;
 
         if (anon.getFacId() != mConns) {
-            // returning a connection not from this factory. 
+            // returning a connection not from this factory.
             log(ILogger.LL_WARN, "returnConn: unknown connection.");
         }
         // check if conn has already been returned.

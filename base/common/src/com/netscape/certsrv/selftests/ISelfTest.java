@@ -36,7 +36,7 @@ import com.netscape.certsrv.logging.ILogEventListener;
 /**
  * This class defines the interface of an individual self test.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ISelfTest {
@@ -62,7 +62,7 @@ public interface ISelfTest {
      * Initializes this subsystem with the configuration store
      * associated with this instance name.
      * <P>
-     * 
+     *
      * @param subsystem the associated subsystem
      * @param instanceName the name of this self test instance
      * @param parameters configuration store (self test parameters)
@@ -80,7 +80,7 @@ public interface ISelfTest {
     /**
      * Notifies this subsystem if it is in execution mode.
      * <P>
-     * 
+     *
      * @exception ESelfTestException failed to start
      */
     public void startupSelfTest()
@@ -97,7 +97,7 @@ public interface ISelfTest {
      * Returns the name associated with this self test. This method may
      * return null if the self test has not been intialized.
      * <P>
-     * 
+     *
      * @return instanceName of this self test
      */
     public String getSelfTestName();
@@ -106,7 +106,7 @@ public interface ISelfTest {
      * Returns the root configuration storage (self test parameters)
      * associated with this subsystem.
      * <P>
-     * 
+     *
      * @return configuration store (self test parameters) of this subsystem
      */
     public IConfigStore getSelfTestConfigStore();
@@ -115,7 +115,7 @@ public interface ISelfTest {
      * Retrieves description associated with an individual self test.
      * This method may return null.
      * <P>
-     * 
+     *
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
@@ -124,7 +124,7 @@ public interface ISelfTest {
     /**
      * Execute an individual self test.
      * <P>
-     * 
+     *
      * @param logger specifies logging subsystem
      * @exception ESelfTestException self test exception
      */

@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * Retrieve detailed information of a particular profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileSelectServlet extends ProfileServlet {
@@ -74,7 +74,7 @@ public class ProfileSelectServlet extends ProfileServlet {
      * <ul>
      * <li>http.param profileId the id of the profile to select
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

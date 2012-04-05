@@ -79,9 +79,9 @@ public class AuthBaseDialog extends JDialog
      * @param users list of current groups
      */
     // Changed by beomsuk
-    /*public void showDialog(NameValuePairs data, String name, 
+    /*public void showDialog(NameValuePairs data, String name,
       boolean pinDirExist, boolean userDirExist) {*/
-    public void showDialog(NameValuePairs data, String name, 
+    public void showDialog(NameValuePairs data, String name,
       boolean pinDirExist, boolean userDirExist, boolean portalExist) {
     // Change end
         mDataModel.removeAllRows();
@@ -172,7 +172,7 @@ public class AuthBaseDialog extends JDialog
                     mTable.setValueAt(str, row, col);
                 }
             }
- 
+
             try {
                 if (mAuthName.isVisible())
                     addPolicyRule(getData(), getRuleName());
@@ -323,8 +323,8 @@ public class AuthBaseDialog extends JDialog
             super(x);
         }
 
-        public Component getTableCellRendererComponent(JTable table, 
-          Object value, boolean isSelected, boolean hasFocus, int row, 
+        public Component getTableCellRendererComponent(JTable table,
+          Object value, boolean isSelected, boolean hasFocus, int row,
           int column) {
 
             if(value == null) {

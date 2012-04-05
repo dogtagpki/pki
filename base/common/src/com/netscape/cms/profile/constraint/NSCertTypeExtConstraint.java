@@ -39,7 +39,7 @@ import com.netscape.cms.profile.def.UserExtensionDefault;
  * This class implements the Netscape certificate type extension constraint.
  * It checks if the Netscape certificate type extension in the certificate
  * template satisfies the criteria.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class NSCertTypeExtConstraint extends EnrollConstraint {

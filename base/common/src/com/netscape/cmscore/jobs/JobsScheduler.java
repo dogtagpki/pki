@@ -47,7 +47,7 @@ import com.netscape.cmscore.util.Debug;
  * on each Tuesday (e.g. * 7 * * 2) will result in the execution of the job thread only once every 5 minutes during that
  * hour. <b>The inteval value is recommended at 1 minute, setting it otherwise has the potential of forever missing the
  * beat</b>. Use with caution.
- * 
+ *
  * @author cfu
  * @see JobCron
  * @version $Revision$, $Date$
@@ -93,7 +93,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * the config params have the following formats: jobScheduler.impl.[implementation name].class=[package name]
      * jobScheduler.job.[job name].pluginName=[implementation name] jobScheduler.job.[job name].cron=[crontab format]
      * jobScheduler.job.[job name].[any job specific params]=[values]
-     * 
+     *
      * @param config jobsScheduler configStore
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -373,7 +373,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
     /**
      * Retrieves id (name) of this subsystem.
-     * 
+     *
      * @return name of the Jobs Scheduler subsystem
      */
     public String getId() {
@@ -384,7 +384,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * Sets id string to this subsystem.
      * <p>
      * Use with caution. Should not do it when sharing with others
-     * 
+     *
      * @param id name to be applied to an Jobs Scheduler subsystem
      */
     public void setId(String id) throws EBaseException {
@@ -423,7 +423,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -433,7 +433,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     /**
      * Gets configuration parameters for the given
      * job plugin.
-     * 
+     *
      * @param implName Name of the job plugin.
      * @return Hashtable of required parameters.
      */
@@ -454,7 +454,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
                     implName));
         }
 
-        // XXX can find an instance of this plugin in existing 
+        // XXX can find an instance of this plugin in existing
         // auth manager instantces to avoid instantiation just for this.
 
         // a temporary instance

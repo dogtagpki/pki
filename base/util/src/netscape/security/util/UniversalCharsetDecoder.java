@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Converts bytes in ASN.1 UniversalString character set to UniversalString
  * characters.
- * 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */

@@ -21,7 +21,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Exception for Mapper Plugin not found.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class EMapperPluginNotFound extends ELdapException {
@@ -33,7 +33,7 @@ public class EMapperPluginNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing mapper plugin
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EMapperPluginNotFound(String errorString) {

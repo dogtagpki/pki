@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * GenerateKeyPairServlet
  * handles "server-side key pair generation" requests from the
  * netkey RA.
- * 
+ *
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -64,7 +64,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
     /**
      * Constructs GenerateKeyPair servlet.
-     * 
+     *
      */
     public GenerateKeyPairServlet() {
         super();
@@ -84,7 +84,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
     /**
      * Returns serlvet information.
-     * 
+     *
      * @return name of this servlet
      */
     public String getServletInfo() {
@@ -94,7 +94,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     /*
      * processServerSideKeyGen -
      *   handles netkey DRM serverside keygen.
-     * netkey operations: 
+     * netkey operations:
      *  1. generate keypair (archive user priv key)
      *  2. unwrap des key with transport key, then url decode it
      *  3. wrap user priv key with des key
@@ -219,8 +219,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
         }
     }
 
-    /* 
-    
+    /*
+
      *   For GenerateKeyPair:
      *
      *   input:
@@ -277,9 +277,9 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
     /**
      * XXX remember tocheck peer SSL cert and get RA id later
-     * 
+     *
      * Serves HTTP admin request.
-     * 
+     *
      * @param req HTTP request
      * @param resp HTTP response
      */

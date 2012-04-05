@@ -26,14 +26,14 @@ import com.netscape.certsrv.base.IConfigStore;
  * Maintains a pool of connections to the LDAP server.
  * Multiple threads use this interface to utilize and release
  * the Ldap connection resources.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILdapConnFactory {
 
     /**
      * Initialize the poll from the config store.
-     * 
+     *
      * @param config The configuration substore.
      * @exception EBaseException On configuration error.
      * @exception ELdapException On all other errors.
@@ -42,11 +42,11 @@ public interface ILdapConnFactory {
             throws EBaseException, ELdapException;
 
     /**
-     * 
+     *
      * Used for disconnecting all connections.
      * Used just before a subsystem
      * shutdown or process exit.
-     * 
+     *
      * @exception EldapException on Ldap failure when closing connections.
      */
     public void reset()
@@ -54,7 +54,7 @@ public interface ILdapConnFactory {
 
     /**
      * Returns the number of free connections available from this pool.
-     * 
+     *
      * @return Integer number of free connections.
      */
 
@@ -63,21 +63,21 @@ public interface ILdapConnFactory {
     /**
      * Returns the number of total connections available from this pool.
      * Includes sum of free and in use connections.
-     * 
+     *
      * @return Integer number of total connections.
      */
     public int totalConn();
 
     /**
      * Returns the maximum number of connections available from this pool.
-     * 
+     *
      * @return Integer maximum number of connections.
      */
     public int maxConn();
 
     /**
      * Request access to a Ldap connection from the pool.
-     * 
+     *
      * @exception ELdapException if any error occurs, such as a
      * @return Ldap connection object.
      *         connection is not available
@@ -87,7 +87,7 @@ public interface ILdapConnFactory {
 
     /**
      * Return connection to the factory. mandatory after a getConn().
-     * 
+     *
      * @param conn Ldap connection object to be returned to the free list of the pool.
      * @exception ELdapException On any failure to return the connection.
      */

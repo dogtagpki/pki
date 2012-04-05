@@ -51,7 +51,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
     public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
 
     private int mNumConns = 0; // number of available conns in array
-    private int mTotal = 0; // total num conns 
+    private int mTotal = 0; // total num conns
 
     private boolean doCloning = true;
     private LdapBoundConnection mMasterConn = null; // master connection object.
@@ -92,7 +92,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
     /**
      * Constructor for LdapBoundConnFactory
-     * 
+     *
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      *            the maximum number of clones of this connection or separate connections one wants to allow.
@@ -128,7 +128,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
     /**
      * initialize parameters obtained from either constructor or
      * config store
-     * 
+     *
      * @param minConns minimum number of connection handls to have available.
      * @param maxConns maximum total number of connections to ever have.
      * @param connInfo ldap connection info.
@@ -169,7 +169,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
     /**
      * makes the initial master connection used to clone others..
-     * 
+     *
      * @exception ELdapException if any error occurs.
      */
     protected void makeConnection(boolean errorIfDown) throws ELdapException {
@@ -201,7 +201,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
     /**
      * makes subsequent connections if cloning is not used .
-     * 
+     *
      * @exception ELdapException if any error occurs.
      */
     private LdapBoundConnection makeNewConnection(boolean errorIfDown) throws ELdapException {
@@ -268,7 +268,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * returnConn() method.
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {
@@ -295,7 +295,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * Returns null if maximum number of connections reached.
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {
@@ -396,7 +396,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * This is mandatory after a getConn().
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * LDAPConnection c = null;
      * try {

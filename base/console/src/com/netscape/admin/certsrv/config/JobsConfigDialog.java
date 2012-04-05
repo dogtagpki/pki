@@ -46,7 +46,7 @@ public class JobsConfigDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public JobsConfigDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -59,4 +59,4 @@ public class JobsConfigDialog extends CMSBaseConfigDialog
 		init(nvp,parent,conn,dest);
     }
 
-}    
+}

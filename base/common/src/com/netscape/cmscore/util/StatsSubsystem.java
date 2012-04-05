@@ -33,7 +33,7 @@ import com.netscape.certsrv.util.StatsEvent;
  * can be loaded into cert server kernel to perform
  * statistics collection.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -72,7 +72,7 @@ public class StatsSubsystem implements IStatsSubsystem {
      * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
      * initialization of other subsystems.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */

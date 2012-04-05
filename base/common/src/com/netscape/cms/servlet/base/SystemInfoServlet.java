@@ -34,7 +34,7 @@ import com.netscape.certsrv.apps.CMS;
  * thread.
  * <p>
  * Also allows user to trigger a new garbage collection
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SystemInfoServlet extends HttpServlet {
@@ -62,7 +62,7 @@ public class SystemInfoServlet extends HttpServlet {
      * <li>op = general - display information about memory, and other JVM informatino
      * <li>op = thread - display details about each thread.
      * </UL>
-     * 
+     *
      * @see javax.servlet.http.HttpServlet#service(HttpServletRequest, HttpServletResponse)
      */
     public void service(HttpServletRequest request,

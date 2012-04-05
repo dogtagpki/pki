@@ -42,50 +42,50 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
 /**
- * 
+ *
  * THIS POLICY HAS BEEN DEPRECATED SINCE CMS 4.2.
  * New Policy is com.netscape.certsrv.policy.SubjectAltNameExt.
  * <p>
- * 
+ *
  * Subject Alternative Name extension policy in CMS 4.1.
- * 
+ *
  * Adds the subject alternative name extension depending on the certificate type requested.
- * 
+ *
  * Two forms are supported. 1) For S/MIME certificates, email addresses are copied from data stored in the request by
  * the authentication component. Both 'e' and 'altEmail' are supported so that both the primary address and alternative
  * forms may be certified. Only the primary goes in the subjectName position (which should be phased out).
- * 
+ *
  * e mailAlternateAddress
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubjAltNameExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
-    // for future use. currently always allow. 
+    // for future use. currently always allow.
     protected static final String PROP_AGENT_OVERR = "allowAgentOverride";
     protected static final String PROP_EE_OVERR = "AllowEEOverride";
     protected static final String PROP_ENABLE_MANUAL_VALUES =
             "enableManualValues";
 
-    // for future use. currently always non-critical 
-    // (standard says SHOULD be marked critical if included.) 
+    // for future use. currently always non-critical
+    // (standard says SHOULD be marked critical if included.)
     protected static final String PROP_CRITICAL = "critical";
 
-    // for future use to allow overrides from forms. 
+    // for future use to allow overrides from forms.
     // request must be agent approved or authenticated.
     protected boolean mAllowAgentOverride = false;
     protected boolean mAllowEEOverride = false;
     protected boolean mEnableManualValues = false;
 
-    // for future use. currently always critical 
-    // (standard says SHOULD be marked critical if included.) 
+    // for future use. currently always critical
+    // (standard says SHOULD be marked critical if included.)
     protected boolean mCritical = false;
 
     public SubjAltNameExt() {
@@ -116,11 +116,11 @@ public class SubjAltNameExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=SubjAltNameExt ra.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -134,9 +134,9 @@ public class SubjAltNameExt extends APolicyRule
 
     /**
      * Adds the subject alternative names extension if not set already.
-     * 
+     *
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -303,7 +303,7 @@ public class SubjAltNameExt extends APolicyRule
     /**
      * Create a new SET of extensions in the certificate info
      * object.
-     * 
+     *
      * This should be a method in the X509CertInfo object
      */
     protected CertificateExtensions
@@ -323,7 +323,7 @@ public class SubjAltNameExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -339,7 +339,7 @@ public class SubjAltNameExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

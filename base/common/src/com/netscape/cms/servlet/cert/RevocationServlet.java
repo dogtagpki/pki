@@ -59,7 +59,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Perform the first step in revoking a certificate
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RevocationServlet extends CMSServlet {
@@ -71,11 +71,11 @@ public class RevocationServlet extends CMSServlet {
     // revocation templates.
     private final static String TPL_FILE = "reasonToRevoke.template";
 
-    // http params 
+    // http params
     public static final String SERIAL_NO = "serialNo";
-    // XXX can't do pkcs10 cause it's got no serial no. 
+    // XXX can't do pkcs10 cause it's got no serial no.
     // (unless put serial no in pki attributes)
-    // public static final String PKCS10 = "pkcs10";	
+    // public static final String PKCS10 = "pkcs10";
     public static final String REASON_CODE = "reasonCode";
 
     private String mFormPath = null;
@@ -92,7 +92,7 @@ public class RevocationServlet extends CMSServlet {
      * initialize the servlet. This servlet uses
      * the template file "reasonToRevoke.template" to render the
      * result.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -131,7 +131,7 @@ public class RevocationServlet extends CMSServlet {
      * actually perform the certificate revocation. This is the first
      * step in the multi-step revocation process. (the next step is
      * in the ReasonToRevoke servlet.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -140,12 +140,12 @@ public class RevocationServlet extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        // revocation requires either: 
-        //  - coming from ee: 
-        //		- old cert from ssl client auth 
+        // revocation requires either:
+        //  - coming from ee:
+        //		- old cert from ssl client auth
         //		- old certs from auth manager
-        // 	- coming from agent or trusted RA: 
-        //  	- serial no of cert to be revoked. 
+        // 	- coming from agent or trusted RA:
+        //  	- serial no of cert to be revoked.
 
         BigInteger old_serial_no = null;
         X509CertImpl old_cert = null;
@@ -186,7 +186,7 @@ public class RevocationServlet extends CMSServlet {
             return;
         }
 
-        // coming from agent 
+        // coming from agent
         if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             X509Certificate[] cert = new X509Certificate[1];
 
@@ -194,7 +194,7 @@ public class RevocationServlet extends CMSServlet {
             old_cert = (X509CertImpl) cert[0];
         } // coming from client
         else {
-            // from auth manager 
+            // from auth manager
             X509CertImpl[] cert = new X509CertImpl[1];
 
             old_serial_no = getCertFromAuthMgr(authToken, cert);

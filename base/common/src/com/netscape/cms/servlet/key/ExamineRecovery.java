@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * View the Key Recovery Request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ExamineRecovery extends CMSServlet {
@@ -107,7 +107,7 @@ public class ExamineRecovery extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID recovery request ID
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
 
@@ -167,7 +167,7 @@ public class ExamineRecovery extends CMSServlet {
         /*
          catch (NumberFormatException e) {
          error = eBaseException(
-         
+
          header.addStringValue(OUT_ERROR,
          MessageFormatter.getLocalizedString(
          locale[0],

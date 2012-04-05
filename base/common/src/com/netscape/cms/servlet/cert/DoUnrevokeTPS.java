@@ -55,7 +55,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DoUnrevokeTPS extends CMSServlet {
@@ -88,7 +88,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -113,7 +113,7 @@ public class DoUnrevokeTPS extends CMSServlet {
      * with a revovcation reason 'on hold' for this operation to succeed. The serial number may be expressed as a hex
      * number by prefixing '0x' to the serialNumber string
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -129,7 +129,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 try {
                     form = getTemplate(mFormPath, req, locale);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE, 
+                    log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
                     throw new ECMSGWException(
                       CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
@@ -217,20 +217,20 @@ public class DoUnrevokeTPS extends CMSServlet {
     /**
      * Process X509 cert status change request
      * <P>
-     * 
+     *
      * (Certificate Request - an "agent" cert status change request to take a certificate off-hold)
      * <P>
-     * 
+     *
      * (Certificate Request Processed - an "agent" cert status change request to take a certificate off-hold)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. -
      * "revocation") is made (before approval process)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is
      * changed (taken off-hold)
      * </ul>
-     * 
+     *
      * @param serialNumbers the serial number of the certificate
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
@@ -365,7 +365,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                     }
                 }
 
-                // let known update and publish status of all crls. 
+                // let known update and publish status of all crls.
                 Enumeration<ICRLIssuingPoint> otherCRLs =
                         ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
@@ -557,11 +557,11 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -587,11 +587,11 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     /**
      * Signed Audit Log Serial Number
-     * 
+     *
      * This method is called to obtain the serial number of the certificate
      * whose status is to be changed for a signed audit log message.
      * <P>
-     * 
+     *
      * @param eeSerialNumber a string containing the un-normalized serialNumber
      * @return id string containing the signed audit log message RequesterID
      */

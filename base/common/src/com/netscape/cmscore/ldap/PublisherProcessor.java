@@ -360,7 +360,7 @@ public class PublisherProcessor implements
     /**
      * Retrieves LDAP connection module.
      * <P>
-     * 
+     *
      * @return LDAP connection instance
      */
     public ILdapConnModule getLdapConnModule() {
@@ -444,7 +444,7 @@ public class PublisherProcessor implements
                 mAuthority.removeRequestListener(mLdapRequestListener);
             }
         } catch (Exception e) {
-            // ignore 
+            // ignore
         }
     }
 
@@ -830,7 +830,7 @@ public class PublisherProcessor implements
                     + " published as " + published
                     + " in the ldap directory. Cert Record not found. Error: "
                     + e
-                    + " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. " 
+                    + " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. "
                     + "Otherwise your internal db may be corrupted.");
         }
     }

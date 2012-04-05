@@ -426,7 +426,7 @@ public class CMSLDAP {
             LDAPAttribute cfile = new LDAPAttribute("nscertfile", "alias/");
             LDAPAttribute cauth = new LDAPAttribute("nssslclientauth", "allowed");
 
-            // conn.delete("cn=RSA,cn=encryption,cn=config"); 		
+            // conn.delete("cn=RSA,cn=encryption,cn=config");
 
             mods.add(LDAPModification.REPLACE, ssl3);
             mods.add(LDAPModification.DELETE, ssl3ciphers);
@@ -503,7 +503,7 @@ public class CMSLDAP {
                 i--;
             }
 
-            // conn.delete("cn=RSA,cn=encryption,cn=config"); 		
+            // conn.delete("cn=RSA,cn=encryption,cn=config");
             try {
                 conn.search(
                         "cn=RSA,cn=encryption,cn=config", searchScope, null,
@@ -573,7 +573,7 @@ public class CMSLDAP {
              DataInputStream dis = new DataInputStream(fis);
 
              byte[] bytes = new byte[dis.available()];
-             dis.readFully(bytes);		
+             dis.readFully(bytes);
 
              //		bytes=s.getBytes();
              */

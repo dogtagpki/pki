@@ -45,7 +45,7 @@ public class FloatHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>FloatHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param f Initial float value.
      */
     public FloatHolder(float f) {

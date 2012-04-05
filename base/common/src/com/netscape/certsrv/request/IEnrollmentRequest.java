@@ -22,7 +22,7 @@ package com.netscape.certsrv.request;
  * This version (currently) doesn't supply any additional
  * data, but is implementated only for testing and
  * demonstration purposes.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IEnrollmentRequest

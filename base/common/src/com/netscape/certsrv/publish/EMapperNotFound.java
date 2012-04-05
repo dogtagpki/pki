@@ -21,7 +21,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Exception for Publish Mapper not found.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class EMapperNotFound extends ELdapException {
@@ -33,7 +33,7 @@ public class EMapperNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing required mapper
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EMapperNotFound(String errorString) {

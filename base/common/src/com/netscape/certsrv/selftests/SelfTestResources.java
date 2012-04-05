@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for Self Tests.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SelfTestResources extends ListResourceBundle {

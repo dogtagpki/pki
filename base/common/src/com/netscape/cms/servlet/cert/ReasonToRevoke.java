@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Specify the RevocationReason when revoking a certificate
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ReasonToRevoke extends CMSServlet {
@@ -75,7 +75,7 @@ public class ReasonToRevoke extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * 'reasonToRevoke.template' to render the response
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -112,7 +112,7 @@ public class ReasonToRevoke extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

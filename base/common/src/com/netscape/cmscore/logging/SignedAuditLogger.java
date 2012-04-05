@@ -21,7 +21,7 @@ package com.netscape.cmscore.logging;
  * A class represents certificate server logger
  * implementation.
  * <P>
- * 
+ *
  * @author thomask
  * @author mzhao
  * @version $Revision$, $Date$

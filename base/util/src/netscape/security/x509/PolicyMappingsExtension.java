@@ -29,18 +29,18 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Policy Mappings Extension.
- * 
+ *
  * This extension, if present, identifies the certificate policies considered
  * identical between the issuing and the subject CA.
  * <p>
  * Extensions are addiitonal attributes which can be inserted in a X509 v3 certificate. For example a
  * "Driving License Certificate" could have the driving license number as a extension.
- * 
+ *
  * <p>
  * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating
  * whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding
  * of the extension value).
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -81,7 +81,7 @@ public class PolicyMappingsExtension extends Extension
 
     /**
      * Create a PolicyMappings with the Vector of CertificatePolicyMap.
-     * 
+     *
      * @param maps the Vector of CertificatePolicyMap.
      */
     public PolicyMappingsExtension(Vector<CertificatePolicyMap> map) throws IOException {
@@ -90,7 +90,7 @@ public class PolicyMappingsExtension extends Extension
 
     /**
      * Create a PolicyMappings with the Vector of CertificatePolicyMap.
-     * 
+     *
      * @param maps the Vector of CertificatePolicyMap.
      */
     public PolicyMappingsExtension(boolean critical, Vector<CertificatePolicyMap> map)
@@ -119,7 +119,7 @@ public class PolicyMappingsExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -162,7 +162,7 @@ public class PolicyMappingsExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -179,7 +179,7 @@ public class PolicyMappingsExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */

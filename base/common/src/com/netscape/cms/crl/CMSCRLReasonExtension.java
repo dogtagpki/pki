@@ -34,7 +34,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a CRL reason extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSCRLReasonExtension

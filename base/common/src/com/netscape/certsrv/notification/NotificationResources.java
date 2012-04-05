@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for the
  * Mail Notification package
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class NotificationResources extends ListResourceBundle {

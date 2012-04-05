@@ -45,21 +45,21 @@ import netscape.security.x509.X509ExtensionException;
  * program via the command line, and that the contents contain a CRL
  * encoded in an ASCII BASE 64 format. Note that the data file may contain
  * an optional "-----BEGIN" header and/or an optional "-----END" trailer.
- * 
+ *
  * <P>
  * The program may be invoked as follows:
- * 
+ *
  * <PRE>
- * 
+ *
  *      PrettyPrintCrl &lt;input filename&gt; [output filename]
- * 
+ *
  *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded CRL
- * 
+ *
  *             &lt;output filename&gt;  contains a CRL displayed
  *                                in a "pretty print" ASCII format
  * </PRE>
- * 
+ *
  * @version $Revision$, $Date$
  */
 

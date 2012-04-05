@@ -45,8 +45,8 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
     protected static String RULE_STAT = null;
     protected static String RULE_IMPL = null;
     protected static String RULE_TYPE = null;
-	
-    
+
+
     protected AdminConnection mConnection;
 
     protected JScrollPane mScrollPane;
@@ -138,25 +138,25 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
             }
             mModel.progressStop();
             Debug.println(response.toString());
-            
+
 			CMSBaseConfigDialog dialog = makeEditConfigDialog(
 				response,
 				mModel.getFrame(),
 				mModel.getServerInfo().getAdmin(),
 				mDestination);
-				
+
 			dialog.setModel(mModel);
 			dialog.setInstanceScope(mScope);
             dialog.showDialog(response, data.get(RULE_NAME));
-            
+
             if(!dialog.isOK()) return;
 
-            refresh();    
+            refresh();
         }
-        
+
         if (e.getSource().equals(mAdd)) {
             Debug.println("Add");
-            PluginSelectionDialog dialog = 
+            PluginSelectionDialog dialog =
 				getPluginSelectionDialog(
 					mModel.getFrame(),
 					mConnection,
@@ -168,7 +168,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
             dialog.showDialog();
             refresh();
         }
-        
+
         if (e.getSource().equals(mDelete)) {
             Debug.println("Delete");
             if(mTable.getSelectedRow()< 0)
@@ -191,8 +191,8 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
-    }    
+        setButtons();
+    }
 
     /*==========================================================
 	 * protected methods
@@ -201,8 +201,8 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 
         mDataModel.removeAllRows();
 		update();
-		    
-		setButtons();    
+
+		setButtons();
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 		mScrollPane.setBackground(Color.white);
 		mTable.addMouseListener(this);
 		setLabelCellRenderer(mTable,0);
-		
+
 		CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
       gbc.fill = gbc.BOTH;
@@ -289,7 +289,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 		Debug.println("Table.getColumnModel = "+table.getColumnModel());
 	    table.getColumnModel().getColumn(index).setCellRenderer(new LabelCellRenderer(new JLabel()));
 	}
-	
+
     //Set the first column's cellrender as label cell
 	protected void setLabelCellEditor(JTable table, int index) {
 	    table.getColumnModel().getColumn(index).setCellRenderer(new PasswordCellRenderer());
@@ -299,26 +299,26 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 
     //set buttons
     protected void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
-        
+
         if (mTable.getSelectionModel().isSelectionEmpty()) {
             mDelete.setEnabled(false);
             mEdit.setEnabled(false);
             return;
         }
-        
+
         if(mDataModel.getRowCount()<=0) {
 		    mDelete.setEnabled(false);
 		    mEdit.setEnabled(false);
 		    return;
 		}
-		
+
 	    mDelete.setEnabled(true);
 	    mEdit.setEnabled(true);
     }
-    
+
 	//=============================================
 	// SEND REQUESTS TO THE SERVER SIDE
 	//=============================================
@@ -386,11 +386,11 @@ Debug.println("xxxxxxx plugin " + plugin);
 				}
                	mDataModel.processData(data);
 			}
-        }        
+        }
 
         if (mDataModel.getRowCount() >0)
             mTable.setRowSelectionInterval(0,0);
-        
+
         mTable.invalidate();
         mTable.validate();
         mTable.repaint(1);
@@ -398,7 +398,7 @@ Debug.println("xxxxxxx plugin " + plugin);
     }
 
     private void delete() {
-        
+
         mModel.progressStart();
         //get entry name
         NameValuePairs data = (NameValuePairs)
@@ -419,7 +419,7 @@ Debug.println("xxxxxxx plugin " + plugin);
         mModel.progressStop();
         //send comment to server and refetch the content
         refresh();
-        
+
     }
 
     //this returns the onfiguration
@@ -430,13 +430,13 @@ Debug.println("xxxxxxx plugin " + plugin);
         if (mId != null && mId.length() > 0) {
             request.put(mId, "");
         }
-            
+
         NameValuePairs response = mConnection.read(mDestination,
                                                    mScope,
                                                    data.get(RULE_NAME),
                                                    request);
         return response;
     }
-    
-   
+
+
 }

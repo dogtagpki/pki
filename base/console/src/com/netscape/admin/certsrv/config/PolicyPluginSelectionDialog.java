@@ -41,7 +41,7 @@ public class PolicyPluginSelectionDialog extends PluginSelectionDialog
      * variables
      *==========================================================*/
     private static final String PREFIX = "POLICYSELECTIONDIALOG";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "configuration-ca-add-policyrule-dbox-help";
     private static final String RAHELPINDEX =
       "configuration-ra-add-policyrule-dbox-help";
@@ -53,9 +53,9 @@ public class PolicyPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public PolicyPluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope         = ScopeDef.SC_POLICY_IMPLS;

@@ -28,7 +28,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * CMSFile represents a file from the filesystem cached in memory
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSFile {

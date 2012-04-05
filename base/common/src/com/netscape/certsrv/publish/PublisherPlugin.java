@@ -22,15 +22,15 @@ import com.netscape.certsrv.base.Plugin;
 /**
  * This class represents a registered publisher plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PublisherPlugin extends Plugin {
 
     /**
-     * 
+     *
      * Constructs a PublisherPlugin based on name and classpath.
-     * 
+     *
      * @param id name of plugin.
      * @param path Classpath of plugin.
      */

@@ -40,7 +40,7 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "CLONEINSTALLWIZARD";
     private static final String HELPINDEX =
       "install-general-intro-wizard-help";
-    
+
     WIClonePage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -61,14 +61,14 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         setBorder(makeTitledBorder(PANELNAME));
-        
+
         if //(wizardInfo.isKRACertLocalCA() || !wizardInfo.isInstallCertNow() ||
           (!wizardInfo.isCloning()||wizardInfo.isClonePageDone())
             return false;
-        
+
         mAdminFrame = wizardInfo.getAdminFrame();
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -88,9 +88,9 @@ class WIClonePage extends WizardBasePanel implements IWizardPanel {
         boolean ready = send(rawData, wizardInfo);
 
         Debug.println("WIClonePage:concludePanel() 2");
-        
+
         endProgressStatus();
-        
+
         if (!ready) {
             String str = getErrorMessage(wizardInfo);
             if (str == null)

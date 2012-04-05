@@ -49,9 +49,9 @@ import com.netscape.cms.policy.APolicyRule;
  * Private Integer extension policy.
  * If this policy is enabled, it adds an Private Integer
  * extension to the certificate.
- * 
+ *
  * The following listed sample configuration parameters:
- * 
+ *
  * ca.Policy.impl.privateInteger.class=com.netscape.certsrv.policy.genericASNExt
  * ca.Policy.rule.genericASNExt.enable=true
  * ca.Policy.rule.genericASNExt.name=myIntegerExtension
@@ -76,12 +76,12 @@ import com.netscape.cms.policy.APolicyRule;
  * ca.Policy.rule.genericASNExt.implName=genericASNExt
  * ca.Policy.rule.genericASNExt.predicate=
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -210,12 +210,12 @@ public class GenericASN1Ext extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=genericASNExt ca.Policy.rule.<ruleName>.enable=true
      * ca.Policy.rule.<ruleName>.predicate=
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -256,7 +256,7 @@ public class GenericASN1Ext extends APolicyRule implements
             log(ILogger.LL_FAILURE, "" + e.toString());
         }
 
-        // Check OID value 
+        // Check OID value
         CMS.checkOID(name, oid);
         pattern = mConfig.getString(PROP_PATTERN, null);
         checkOID(0);
@@ -341,7 +341,7 @@ public class GenericASN1Ext extends APolicyRule implements
      * If this policy is enabled, add the private Integer
      * information extension to the certificate.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -453,7 +453,7 @@ public class GenericASN1Ext extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -485,7 +485,7 @@ public class GenericASN1Ext extends APolicyRule implements
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

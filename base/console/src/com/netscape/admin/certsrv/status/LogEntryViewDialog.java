@@ -186,7 +186,7 @@ public class LogEntryViewDialog extends JDialog
         scrollPanel.setAlignmentX(LEFT_ALIGNMENT);
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBackground(getBackground());
-        scrollPanel.setBorder(BorderFactory.createEmptyBorder()); 
+        scrollPanel.setBorder(BorderFactory.createEmptyBorder());
 	scrollPanel.setPreferredSize(new Dimension(500, 200));
         //gbc.fill = gbc.VERTICAL;
         gbc.fill = gbc.BOTH;

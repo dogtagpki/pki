@@ -35,9 +35,9 @@ import org.mozilla.jss.util.Password;
 
 /**
  * Tool used to test out signing a CRL
- * 
+ *
  * <p>
- * 
+ *
  * @version $Revision$ Date: $
  */
 public class TestCRLSigning {
@@ -59,7 +59,7 @@ public class TestCRLSigning {
         CryptoManager.initialize(vals);
         cm = CryptoManager.getInstance();
 
-        // Login to token 
+        // Login to token
         CryptoToken token = null;
         if (tokenname.equals("internal")) {
             token = cm.getInternalKeyStorageToken();

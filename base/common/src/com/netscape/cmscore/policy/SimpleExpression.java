@@ -30,9 +30,9 @@ import com.netscape.cmscore.util.Debug;
 /**
  * This class represents an expression of the form var = val,
  * var != val, var < val, var > val, var <= val, var >= val.
- * 
+ *
  * Expressions are used as predicates for policy selection.
- * 
+ *
  * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
@@ -46,7 +46,7 @@ public class SimpleExpression implements IExpression {
     private boolean hasWildCard;
     public static final char WILDCARD_CHAR = '*';
 
-    // This is just for indicating a null expression. 
+    // This is just for indicating a null expression.
     public static SimpleExpression NULL_EXPRESSION = new SimpleExpression("null", OP_EQUAL, "null");
 
     public static IExpression parse(String input)

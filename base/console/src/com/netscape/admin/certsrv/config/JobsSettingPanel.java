@@ -32,7 +32,7 @@ import java.awt.event.*;
  * @version $Revision$, $Date$
  */
 public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "jobsscheduler-certsrv-setting-jobrule-help";
     private JTextField mFrequencyText;
     private JCheckBox mEnable;
@@ -48,7 +48,7 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
         this(panelName, parent, true);
         mPanelName = panelName;
     }
-    
+
     public JobsSettingPanel(String panelName, CMSTabPanel parent, boolean flag) {
         super(panelName, parent);
         mServletName = DestDef.DEST_JOBS_ADMIN;
@@ -63,7 +63,7 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         mCenterPanel.setLayout(gb);
-        
+
         //add the enable checkbox
         mEnable = makeJCheckBox("ENABLE");
         mEnable.setSelected(true);
@@ -72,13 +72,13 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE, 
+        gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
                                 0,
                                 DIFFERENT_COMPONENT_SPACE);
         gb.setConstraints(mEnable, gbc);
 		mCenterPanel.add(mEnable);
-        
+
         //add the frequency panel
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -92,7 +92,7 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
         GridBagLayout gb1 = new GridBagLayout();
         serverInfo.setLayout(gb1);
 		serverInfo.setBorder(makeTitledBorder("FREQUENCY"));
-        
+
         // add frequency label and text field
         CMSAdminUtil.resetGBC(gbc);
         mFrequencyLabel = makeJLabel("FREQUENCY");

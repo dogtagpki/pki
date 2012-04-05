@@ -178,7 +178,7 @@ public class Crypt {
     /**
      * Create a Crypt object with specified salt. Use setPasswd() before
      * getEncryptedPasswd().
-     * 
+     *
      * @param salt the salt string for encryption
      */
     public Crypt(String salt) {
@@ -191,7 +191,7 @@ public class Crypt {
      * Create a Crypt object with specified passwd and salt (often the
      * already encypted passwd). Get the encrypted result with
      * getEncryptedPasswd().
-     * 
+     *
      * @param passwd the passwd to encrypt
      * @param salt the salt string for encryption
      */
@@ -203,7 +203,7 @@ public class Crypt {
 
     /**
      * Retrieve the passwd string currently being encrypted.
-     * 
+     *
      * @return the current passwd string
      */
     public String getPasswd() {
@@ -212,7 +212,7 @@ public class Crypt {
 
     /**
      * Retrieve the salt string currently being used for encryption.
-     * 
+     *
      * @return the current salt string
      */
     public String getSalt() {
@@ -222,7 +222,7 @@ public class Crypt {
     /**
      * Retrieve the resulting encrypted string from the current passwd and
      * salt settings.
-     * 
+     *
      * @return the encrypted passwd
      */
     public String getEncryptedPasswd() {
@@ -232,7 +232,7 @@ public class Crypt {
     /**
      * Set a new passwd string for encryption. Use getEncryptedPasswd() to
      * retrieve the new result.
-     * 
+     *
      * @param passwd the new passwd string
      */
     public void setPasswd(String passwd) {
@@ -243,7 +243,7 @@ public class Crypt {
     /**
      * Set a new salt string for encryption. Use getEncryptedPasswd() to
      * retrieve the new result.
-     * 
+     *
      * @param salt the new salt string
      */
     public void setSalt(String salt) {

@@ -54,11 +54,11 @@ import com.netscape.cms.profile.common.ProfilePolicy;
 
 /**
  * This class is an administration servlet for policy management.
- * 
+ *
  * Each service (CA, KRA, RA) should be responsible
  * for registering an instance of this with the remote
  * administration subsystem.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileAdminServlet extends AdminServlet {
@@ -396,12 +396,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add policy profile
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -539,12 +539,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add profile input
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -665,12 +665,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add profile output
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -792,12 +792,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Delete policy profile
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -913,12 +913,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Delete profile input
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1031,12 +1031,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Delete profile output
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1149,12 +1149,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add default policy profile configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1286,12 +1286,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add policy constraints profile configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1425,12 +1425,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Modify default policy profile configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1557,12 +1557,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Modify profile input configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1677,12 +1677,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Modify profile output configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1798,12 +1798,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Modify policy constraints profile configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -2272,12 +2272,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Delete profile instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -2410,12 +2410,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Add profile instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -2573,12 +2573,12 @@ public class ProfileAdminServlet extends AdminServlet {
     /**
      * Modify profile instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE used when configuring cert profile (general settings
      * and cert profile; obsoletes extensions and constraints policies)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred

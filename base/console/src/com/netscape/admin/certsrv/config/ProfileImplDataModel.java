@@ -41,7 +41,7 @@ public class ProfileImplDataModel extends CMSContentTableModel
     public static final String IMPL_CLASS = "CLASS";
     public static final String IMPL_TYPE = "TYPE";
     public static final String IMPL_DESC = "DESC";
-     
+
     private static String[] mColumns = {POLICY_IMPL, IMPL_TYPE, CLASSNAME};
 
     /*==========================================================

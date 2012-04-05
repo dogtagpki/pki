@@ -34,7 +34,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * This servlet is started by the web server at startup, and
  * it starts the CMS framework.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSStartServlet extends HttpServlet {

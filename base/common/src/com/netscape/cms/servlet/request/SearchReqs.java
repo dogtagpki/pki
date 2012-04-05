@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Search for certificates matching complex query filter
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SearchReqs extends CMSServlet {
@@ -90,7 +90,7 @@ public class SearchReqs extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses queryReq.template
      * to render the response
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {

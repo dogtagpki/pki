@@ -21,14 +21,14 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * An interface represents a generic token unit.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IToken {
 
     /**
      * Logins to the token unit.
-     * 
+     *
      * @param pin password to access the token
      * @exception EBaseException failed to login to this token
      */

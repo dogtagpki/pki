@@ -30,28 +30,28 @@ import com.netscape.certsrv.request.IRequest;
  * This represents a default policy that populates
  * the request with additional values.
  * <p>
- * 
+ *
  * During request submission process, a default policy is invoked to populate the default values in the request. The
  * default values will later on be used for execution. The default values are like the parameters for the request.
  * <p>
- * 
+ *
  * This policy is called in 2 places. For automated enrollment request, this policy is invoked to populate the HTTP
  * parameters into the request. For request that cannot be executed immediately, this policy will be invoked again right
  * after the agent's approval.
  * <p>
- * 
+ *
  * Each default policy may contain zero or more properties that describe the default value. For example, a X509 Key can
  * be described by its key type, key length, and key data. The properties help to describe the default value into human
  * readable values.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Initializes this default policy.
-     * 
+     *
      * @param profile owner of this default policy
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
@@ -61,14 +61,14 @@ public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Retrieves the configuration store of this default.
-     * 
+     *
      * @return configuration store of this default policy
      */
     public IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
@@ -77,7 +77,7 @@ public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale locale of the end user
      * @return localized name of this default policy
      */
@@ -85,7 +85,7 @@ public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale locale of the end user
      * @return localized description of this default policy
      */
@@ -93,7 +93,7 @@ public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Retrieves a list of names of the property.
-     * 
+     *
      * @return a list of property names. The values are
      *         of type java.lang.String
      */
@@ -103,7 +103,7 @@ public interface IPolicyDefault extends IConfigTemplate {
      * Retrieves the descriptor of the given property
      * by name. The descriptor contains syntax
      * information.
-     * 
+     *
      * @param locale locale of the end user
      * @param name name of property
      * @return descriptor of the property
@@ -112,7 +112,7 @@ public interface IPolicyDefault extends IConfigTemplate {
 
     /**
      * Sets the value of the given value property by name.
-     * 
+     *
      * @param name name of property
      * @param locale locale of the end user
      * @param request request
@@ -125,7 +125,7 @@ public interface IPolicyDefault extends IConfigTemplate {
     /**
      * Retrieves the value of the given value
      * property by name.
-     * 
+     *
      * @param name name of property
      * @param locale locale of the end user
      * @param request request

@@ -45,7 +45,7 @@ public class BooleanHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>BooleanHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param b Initial boolean value.
      */
     public BooleanHolder(boolean b) {

@@ -76,7 +76,7 @@ public class CMSBaseConfigDialog extends JDialog
 	/* true if creating a new instance
 	 * false if editing an old one
      */
-	protected boolean mNewInstance=false;  // 
+	protected boolean mNewInstance=false;  //
 
 	private ExtendedPluginInfoSet mEPIs = null;
 	protected CMSBaseResourceModel mModel = null;
@@ -140,7 +140,7 @@ public class CMSBaseConfigDialog extends JDialog
 
 	/**
 	 * retrieve the extended plugin information for this plugin
-	 * from the server. The servlet must implement the scope 
+	 * from the server. The servlet must implement the scope
 	 * 'extendedPluginInfo' and the plugin must implement the
 	 * IExtendedPluginInfo interface, or else the display
 	 * will revert back to simple name-value pairs.
@@ -148,12 +148,12 @@ public class CMSBaseConfigDialog extends JDialog
 
 	ExtendedPluginInfoSet getExtendedPluginInfo(String implname,
 			NameValuePairs oldstyle) {
-		
+
 		NameValuePairs data = new NameValuePairs();
 		String query = mImplType+":"+implname;//implName:pluginName
         NameValuePairs response=null;
 
-		if (mImplType.equals("policy") && 
+		if (mImplType.equals("policy") &&
 			(mRuleName != null) && !mRuleName.trim().equals("")) {
 			query = query + ":" + mRuleName;
 		}
@@ -174,7 +174,7 @@ public class CMSBaseConfigDialog extends JDialog
 
 	/* if the servlet or rule wasn't capable of handling the new style
 	 * of interface, just return the names from the name/value pairs that
-	 * were passed in 
+	 * were passed in
 	 * otherwise, for each parameter name, fetch the associated
 	 * parameter type from the extendedPluginInfo that the server
 	 * returned
@@ -191,10 +191,10 @@ public class CMSBaseConfigDialog extends JDialog
 
 
 		String ht = response.get("HELP_TOKEN");
-		if (ht != null) epis.setHelpToken(ht); 
+		if (ht != null) epis.setHelpToken(ht);
 
 		String hs = response.get("HELP_TEXT");
-		if (hs != null) epis.setHelpSummary(hs); 
+		if (hs != null) epis.setHelpSummary(hs);
 
 		return epis;
 	}
@@ -265,7 +265,7 @@ public class CMSBaseConfigDialog extends JDialog
 					0,	// bottom
 					5); // right
 				p.add(l,gbc);
-				
+
 
 				/* if there was no text extendedplugininfo for this parameter
 				 * just make it a text box
@@ -283,7 +283,7 @@ public class CMSBaseConfigDialog extends JDialog
 				 */
 				comp.addFocusListener(this);
 
-				gbc.weightx = 0.7; 
+				gbc.weightx = 0.7;
 				gbc.fill = gbc.HORIZONTAL;
 				gbc.gridwidth = gbc.RELATIVE;
 				gbc.anchor = gbc.WEST;
@@ -298,17 +298,17 @@ public class CMSBaseConfigDialog extends JDialog
 				 * keep it from hiting the edge of the panel
 				 */
 				JLabel j = new JLabel("");
-				gbc.weightx = 0.1; 
+				gbc.weightx = 0.1;
 				gbc.fill = gbc.HORIZONTAL;
 				gbc.gridwidth = gbc.REMAINDER;
 				gbc.anchor = gbc.WEST;
 				gbc.insets = new Insets(
 						CMSAdminUtil.COMPONENT_SPACE,  //top
 						0,  //left
-						0,  //bottom 
+						0,  //bottom
 						CMSAdminUtil.COMPONENT_SPACE); // right
 				p.add(j,gbc);
-		
+
            	}
        	}
 
@@ -352,9 +352,9 @@ public class CMSBaseConfigDialog extends JDialog
         return mIsOK;
     }
 
-    
+
     public String getRuleName() {
-        return mRuleName;    
+        return mRuleName;
     }
 
     /*==========================================================
@@ -384,7 +384,7 @@ public class CMSBaseConfigDialog extends JDialog
 
 		mHelpLabel.setText(text);
 		mHelpLabel.repaint();
-			
+
 	}
 
 	/** need to supply this method for focuslistener, but we
@@ -392,7 +392,7 @@ public class CMSBaseConfigDialog extends JDialog
 	 */
 	public void focusLost(FocusEvent f) {
 	}
-	
+
 
 	/*
 	 * mouselistener events - for JLabel
@@ -451,14 +451,14 @@ public class CMSBaseConfigDialog extends JDialog
 	public void actionPerformed(ActionEvent evt) {
 
         if (evt.getSource().equals(mOK)) {
-            
+
 		/* if  this is a new instance of a rule, (as opposed to editing an old one) */
             if (mNewInstance) {
                 mRuleName = mPluginName.getText();
 		/* make sure they set the name of the rule, otherwise, show an error message */
                 if (mRuleName.trim().equals("")) {
                     CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
-                        mResource.getString("INSTANCECONFIGDIALOG_DIALOG_NOINSTANCENAME_MESSAGE"), 
+                        mResource.getString("INSTANCECONFIGDIALOG_DIALOG_NOINSTANCENAME_MESSAGE"),
                         CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
@@ -466,7 +466,7 @@ public class CMSBaseConfigDialog extends JDialog
 			else {
 				mRuleName = mPluginLabel.getText();
 			}
-            
+
 			Debug.println(4,"User pressed okay on instance config dialog");
 			Enumeration e = mEPIs.keys();
 			NameValuePairs nvp = new NameValuePairs();
@@ -481,7 +481,7 @@ public class CMSBaseConfigDialog extends JDialog
 						nvp.put("PASSWORD_CACHE_ADD", value + ";" + password);
 					}
 				}
-				
+
 				nvp.put(paramName, value);
 			}
 			nvp.put(PolicyRuleDataModel.RULE_NAME, mRuleName);
@@ -509,7 +509,7 @@ public class CMSBaseConfigDialog extends JDialog
                         ex.toString(),CMSAdminUtil.ERROR_MESSAGE);
 			}
         }
-        
+
         if (evt.getSource().equals(mCancel)) {
             this.dispose();
         }
@@ -591,19 +591,19 @@ public class CMSBaseConfigDialog extends JDialog
 
 		/* mPluginName and mPluginLabel occupy the same space in the UI, but
 		 * only one of them is visible at a time. showDialog() determines which
-		 * is visible. If this is a new component, mPluginName is visible, and is a 
+		 * is visible. If this is a new component, mPluginName is visible, and is a
 		 * a text field, so the user can enter the name of the new instance.
 		 * Otherwise, it's just a label, showing the existing name.
 		 */
 	// 'Policy Rule ID' here
         CMSAdminUtil.resetGBC(gbc);
-        mRulenameCaption = CMSAdminUtil.makeJLabel(mResource, PREFIX, 
+        mRulenameCaption = CMSAdminUtil.makeJLabel(mResource, PREFIX,
             "RULENAME", null);
 		mRulenameCaption.addMouseListener(this);
         mPluginLabel = new JLabel();
         mPluginLabel.setVisible(false);
         mPluginName = new JTextField();
-        
+
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
 		gbc.gridwidth = 1;
@@ -621,10 +621,10 @@ public class CMSBaseConfigDialog extends JDialog
       		                     0,CMSAdminUtil.COMPONENT_SPACE);
         mListPanel.add( mPluginName, gbc );
         mListPanel.add( mPluginLabel, gbc );
-        
+
 	// 'Policy Plugin ID' here
         CMSAdminUtil.resetGBC(gbc);
-        mImplnameCaption = CMSAdminUtil.makeJLabel(mResource, PREFIX, 
+        mImplnameCaption = CMSAdminUtil.makeJLabel(mResource, PREFIX,
          "IMPLNAME", null);
 		mImplnameCaption.addMouseListener(this);
 
@@ -648,7 +648,7 @@ public class CMSBaseConfigDialog extends JDialog
 
 		mScrollPane = new JScrollPane(mParamPanel);
 		mScrollPane.setBorder(CMSAdminUtil.makeEtchedBorder());
-		
+
 		CMSAdminUtil.resetGBC(gbc);
 		gbc.fill = gbc.BOTH;
         gbc.anchor = gbc.WEST;
@@ -691,14 +691,14 @@ public class CMSBaseConfigDialog extends JDialog
         return mListPanel;
     }
 
-}    
+}
 
 
 class ExtendedPluginInfoSet extends Hashtable {
 
 	/**
 	 * Add a value for this config parameter.
-	 * the format of 'syntax' is specified in 
+	 * the format of 'syntax' is specified in
 	 * @see com.netscape.certsrv.base.IExtendedPluginInfo
 	 */
 	public void add(String param, String syntax, boolean oldstyle) {
@@ -725,7 +725,7 @@ class ExtendedPluginInfoSet extends Hashtable {
 			helptext = rest; // ADDED to fix bug #383969
 /*
 			semicolon = rest.indexOf(';');
-			if (semicolon == -1) {  // no more semicolons 
+			if (semicolon == -1) {  // no more semicolons
 				helptext = rest;
 			}
 			else {
@@ -786,7 +786,7 @@ class ExtendedPluginInfoCheckBox extends JCheckBox
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
-	
+
 	public ExtendedPluginInfoCheckBox(ExtendedPluginInfo epi, boolean b)
 	{
 		super("",b);
@@ -805,14 +805,14 @@ implements ExtendedPluginInfoComponent
 			return "false";
 		}
 	}
-		
+
 }
 
 class ExtendedPluginInfoComboBox extends JComboBox
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
-	
+
 	public ExtendedPluginInfoComboBox(ExtendedPluginInfo epi, Vector v)
 	{
 		super(v);
@@ -832,7 +832,7 @@ class ExtendedPluginInfoTextField extends JTextField
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
-	
+
 	public ExtendedPluginInfoTextField(ExtendedPluginInfo epi, String s)
 	{
 		super(s);
@@ -852,7 +852,7 @@ class ExtendedPluginInfoPasswordField extends JPasswordField
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
-	
+
 	public ExtendedPluginInfoPasswordField(ExtendedPluginInfo epi, String s)
 	{
 		super(s);
@@ -872,7 +872,7 @@ class ExtendedPluginInfoNumberField extends JTextField
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
-	
+
 	public ExtendedPluginInfoNumberField(ExtendedPluginInfo epi, String s)
 	{
 		super(s);
@@ -893,7 +893,7 @@ implements ExtendedPluginInfoComponent
 
 	static class NumberDocument extends PlainDocument {
 
-      public void insertString(int offs, String str, AttributeSet a) 
+      public void insertString(int offs, String str, AttributeSet a)
 		throws BadLocationException {
 
 		if (str == null) {
@@ -902,9 +902,9 @@ implements ExtendedPluginInfoComponent
 
 		char[] chars = str.toCharArray();
 		int j=0;
-		
+
 		for (int i = 0; i < chars.length; i++) {
-			if ( (chars[i]<'0' || chars[i]>'9')  
+			if ( (chars[i]<'0' || chars[i]>'9')
 				&& (chars[i] != '.')
 				&& (chars[i] != '-') ) {
 			}
@@ -929,7 +929,7 @@ implements ExtendedPluginInfoComponent
  */
 
 class ExtendedPluginInfo {
-		
+
 	public static final int  TYPE_STRING = 0;
 	public static final int  TYPE_BOOLEAN = 1;
 	public static final int  TYPE_NUMBER = 2;
@@ -1015,7 +1015,7 @@ class ExtendedPluginInfo {
 	public int getType() {
 		return mType;
 	}
-	
+
 	public void setRequired(boolean b) {
 		mRequired = b;
 	}

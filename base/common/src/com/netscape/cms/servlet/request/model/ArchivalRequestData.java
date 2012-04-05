@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 
 /**
- * 
+ *
  */
 package com.netscape.cms.servlet.request.model;
 
@@ -42,21 +42,21 @@ public class ArchivalRequestData {
 
     @XmlElement
     protected String clientId;
-    
+
     @XmlElement
     protected String transWrappedSessionKey;
-    
+
     @XmlElement
     protected String dataType;
-    
+
     @XmlElement
     protected String wrappedPrivateData;
-    
+
     public ArchivalRequestData() {
         // required for JAXB (defaults)
     }
-    
-    public ArchivalRequestData(MultivaluedMap<String, String> form) {        
+
+    public ArchivalRequestData(MultivaluedMap<String, String> form) {
         clientId = form.getFirst(CLIENT_ID);
         transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
         dataType = form.getFirst(DATA_TYPE);
@@ -118,6 +118,6 @@ public class ArchivalRequestData {
     public void setWrappedPrivateData(String wrappedPrivateData) {
         this.wrappedPrivateData = wrappedPrivateData;
     }
-    
+
 
 }

@@ -33,11 +33,11 @@ import netscape.security.x509.AlgIdDSA;
 
 /**
  * A PKCS#8 private key for the Digital Signature Algorithm.
- * 
+ *
  * @author Benjamin Renaud
- * 
+ *
  * @version 1.47, 97/12/10
- * 
+ *
  * @see DSAPublicKey
  * @see AlgIdDSA
  * @see DSA
@@ -110,7 +110,7 @@ public final class DSAPrivateKey extends PKCS8Key
 
     /**
      * Get the raw private key, x, without the parameters.
-     * 
+     *
      */
     public BigInteger getX() {
         return x;

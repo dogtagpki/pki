@@ -30,7 +30,7 @@ import javax.swing.table.*;
 import com.netscape.certsrv.common.*;
 
 /**
- * Policy Implementation Information viewer 
+ * Policy Implementation Information viewer
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
@@ -148,7 +148,7 @@ public class ViewDialog extends JDialog
         JLabel label1 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "NAME", null);
         mNameField = new JLabel();
         CMSAdminUtil.addEntryField(content, label1, mNameField, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "CLASS", null);
         mClassField = new JLabel();
@@ -162,7 +162,7 @@ public class ViewDialog extends JDialog
                                 CMSAdminUtil.COMPONENT_SPACE,0,0);
         gb3.setConstraints(label3, gbc);
         content.add(label3);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mTextArea = new JTextArea("",30,10);
         mTextArea.setFont(mClassField.getFont());
@@ -183,7 +183,7 @@ public class ViewDialog extends JDialog
         gbc.weighty=1.0;
         gb3.setConstraints(scrollPanel, gbc);
         content.add(scrollPanel);
-        
+
         return content;
     }
 }

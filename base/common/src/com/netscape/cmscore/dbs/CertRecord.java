@@ -36,7 +36,7 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 /**
  * A class represents a serializable certificate record.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

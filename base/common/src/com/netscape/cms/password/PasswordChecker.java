@@ -27,7 +27,7 @@ import com.netscape.certsrv.password.IPasswordCheck;
  * For example, it can also specify the format of the password which has to
  * be 8 characters long and must be in alphanumeric.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
@@ -67,7 +67,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
     /**
      * Returns true if the given password meets the quality requirement;
      * otherwise returns false.
-     * 
+     *
      * @param mPassword The given password being checked.
      * @return true if the password meets the quality requirement; otherwise
      *         returns false.
@@ -83,7 +83,7 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
 
     /**
      * Returns a reason if the password doesnt meet the quality requirement.
-     * 
+     *
      * @return string as a reason if the password quality requirement is not met.
      */
     public String getReason(String mPassword) {

@@ -40,7 +40,7 @@ import com.netscape.cmscore.util.Debug;
  * A class represents a mapper to serialize
  * revocation information into database.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

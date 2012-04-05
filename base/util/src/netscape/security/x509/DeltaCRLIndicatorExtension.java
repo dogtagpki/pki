@@ -32,12 +32,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Delta CRL Indicator Extension.
- * 
+ *
  * <p>
  * The delta CRL indicator is a critical CRL extension that identifies a delta-CRL. The value of BaseCRLNumber
  * identifies the CRL number of the base CRL that was used as the starting point in the generation of this delta- CRL.
  * The delta-CRL contains the changes between the base CRL and the current CRL issued along with the delta-CRL.
- * 
+ *
  * @see Extension
  * @see CertAttrSet
  */
@@ -81,7 +81,7 @@ public class DeltaCRLIndicatorExtension extends Extension
     /**
      * Create a DeltaCRLIndicatorExtension with the integer value.
      * The criticality is set to true.
-     * 
+     *
      * @param baseCRLNum the value to be set for the extension.
      */
     public DeltaCRLIndicatorExtension(int baseCRLNum) throws IOException {
@@ -94,7 +94,7 @@ public class DeltaCRLIndicatorExtension extends Extension
     /**
      * Create a DeltaCRLIndicatorExtension with the BigInteger value.
      * The criticality is set to true.
-     * 
+     *
      * @param baseCRLNum the value to be set for the extension.
      */
     public DeltaCRLIndicatorExtension(BigInteger baseCRLNum) throws IOException {
@@ -106,7 +106,7 @@ public class DeltaCRLIndicatorExtension extends Extension
 
     /**
      * Create a DeltaCRLIndicatorExtension with the BigInteger value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param baseCRLNum the value to be set for the extension.
      */
@@ -120,7 +120,7 @@ public class DeltaCRLIndicatorExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -194,7 +194,7 @@ public class DeltaCRLIndicatorExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -204,7 +204,7 @@ public class DeltaCRLIndicatorExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

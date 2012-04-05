@@ -31,7 +31,7 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 /**
- * Self Tests Implementation Information viewer 
+ * Self Tests Implementation Information viewer
  *
  * @author Matthew Harmsen
  * @author Thomas Kwan
@@ -166,7 +166,7 @@ public class ViewSelfTestsDialog extends JDialog
         gbc.weighty = 1.0;
         gb3.setConstraints( scrollPanel, gbc );
         content.add( scrollPanel );
-        
+
         return content;
     }
 }

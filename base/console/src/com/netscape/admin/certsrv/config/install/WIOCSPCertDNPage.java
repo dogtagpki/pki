@@ -22,7 +22,7 @@ import javax.swing.*;
 import com.netscape.management.client.util.*;
 
 /**
- * Subject DN page for RA signing certificate 
+ * Subject DN page for RA signing certificate
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -78,6 +78,6 @@ class WIOCSPCertDNPage extends WICertDNPage {
         str = mCText.getText().trim();
         wizardInfo.setOCSPCComp(str);
     }
-    
+
 }
 

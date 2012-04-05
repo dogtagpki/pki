@@ -218,7 +218,7 @@ public class CMSPassword extends JDialog
         }
         if (evt.getSource().equals(mHelp)) {
             CMSAdminUtil.help(HELPINDEX);
-            return;   
+            return;
         }
     }
 
@@ -259,7 +259,7 @@ public class CMSPassword extends JDialog
           null, this);
         mHelp = CMSAdminUtil.makeJButton(mResource, PREFIX, "HELP",
           null, this);
-        
+
         //JButton[] buttons = { mOK, mCancel, mHelp};
         JButton[] buttons = { mOK, mCancel};
         JButtonFactory.resize( buttons );
@@ -276,7 +276,7 @@ public class CMSPassword extends JDialog
             getRootPane().setDefaultButton(mOK);
         }
     }
-    
+
     /**
      * Inner class which handles key events for JTextField components.
      */

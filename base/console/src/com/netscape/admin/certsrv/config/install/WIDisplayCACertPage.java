@@ -32,7 +32,7 @@ class WIDisplayCACertPage extends WIDisplayCertPage {
     private static final String PANELNAME = "INSTALLDISPLAYCACERTWIZARD";
     private static final String CAHELPINDEX = "install-cacert-display-wizard-help";
     private static final String CAKRAHELPINDEX = "install-cakracert-display-wizard-help";
-    
+
     WIDisplayCACertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -68,7 +68,7 @@ class WIDisplayCACertPage extends WIDisplayCertPage {
               ConfigConstants.TRUE);
             return true;
         }
-    
+
         return false;
     }
 }

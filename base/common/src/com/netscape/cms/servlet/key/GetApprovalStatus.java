@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Check to see if a Key Recovery Request has been approved
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetApprovalStatus extends CMSServlet {
@@ -79,7 +79,7 @@ public class GetApprovalStatus extends CMSServlet {
      * initialize the servlet. This servlet uses the template files
      * "getApprovalStatus.template" and "finishRecovery.template"
      * to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -102,7 +102,7 @@ public class GetApprovalStatus extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID request ID to check
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -189,7 +189,7 @@ public class GetApprovalStatus extends CMSServlet {
                      }
                      */
                 } else if (((IKeyRecoveryAuthority) mService).getError(recoveryID) != null) {
-                    // error in recovery process 
+                    // error in recovery process
                     header.addStringValue(OUT_ERROR,
                             ((IKeyRecoveryAuthority) mService).getError(recoveryID));
                     rComplete = 1;

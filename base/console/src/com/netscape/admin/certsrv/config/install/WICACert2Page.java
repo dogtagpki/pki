@@ -37,7 +37,7 @@ class WICACert2Page extends WBaseDNPage implements IWizardPanel {
     private static final String PANELNAME = "CACERT2WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WICACert2Page() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WICACert2Page extends WBaseDNPage implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

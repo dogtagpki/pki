@@ -25,11 +25,11 @@ import java.security.MessageDigestSpi;
  * the National Institute of Standards and Technology along with the
  * National Security Agency. This is the updated version of SHA
  * fip-180 as superseded by fip-180-1.
- * 
+ *
  * <p>
  * It implement JavaSecurity MessageDigest, and can be used by in the Java Security framework, as a pluggable
  * implementation, as a filter for the digest stream classes.
- * 
+ *
  * @version 1.30 97/12/10
  * @author Roger Riggs
  * @author Benjamin Renaud
@@ -38,7 +38,7 @@ import java.security.MessageDigestSpi;
 public class SHA extends MessageDigestSpi implements Cloneable {
 
     /* This private hookm controlled by the appropriate constructor,
-       causes this class to implement the first version of SHA, 
+       causes this class to implement the first version of SHA,
        as defined in FIPS 180, as opposed to FIPS 180-1. This was
        useful for DSA testing. */
     private int version = 1;
@@ -81,7 +81,7 @@ public class SHA extends MessageDigestSpi implements Cloneable {
 
     /**
      * Update a byte.
-     * 
+     *
      * @param b the byte
      */
     private void engineUpdate(int b) {
@@ -105,7 +105,7 @@ public class SHA extends MessageDigestSpi implements Cloneable {
 
     /**
      * Update a buffer.
-     * 
+     *
      * @param b the data to be updated.
      * @param off the start offset in the data
      * @param len the number of bytes to be updated.
@@ -256,11 +256,11 @@ public class SHA extends MessageDigestSpi implements Cloneable {
 
     /**
      * Compute a the hash for the current block.
-     * 
+     *
      * This is in the same vein as Peter Gutmann's algorithm listed in
      * the back of Applied Cryptography, Compact implementation of
      * "old" NIST Secure Hash Algorithm.
-     * 
+     *
      */
     private void computeBlock() {
         int temp, a, b, c, d, e;

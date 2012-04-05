@@ -66,7 +66,7 @@ import com.netscape.cmsutil.util.Utils;
  * A class represents a storage key unit. Currently, this
  * is implemented with cryptix, the final implementation
  * should be built on JSS/HCL.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

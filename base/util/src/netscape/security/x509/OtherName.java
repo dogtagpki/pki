@@ -27,18 +27,18 @@ import netscape.security.util.ObjectIdentifier;
 /**
  * This class implements the OtherName as required by the GeneralNames
  * ASN.1 object.
- * 
+ *
  * OtherName ::= SEQUENCE {
  * type-id OBJECT IDENTIFIER,
  * value [0] EXPLICIT ANY DEFINED BY type-id
  * }
- * 
+ *
  * @see GeneralName
  * @see GeneralNameInterface
  * @see GeneralNames
- * 
+ *
  * @version 1.2
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
@@ -52,7 +52,7 @@ public class OtherName implements GeneralNameInterface {
 
     /**
      * Create the IPAddressName object from the passed encoded Der value.
-     * 
+     *
      * @param derValue the encoded DER IPAddressName.
      * @exception IOException on error.
      */
@@ -103,7 +103,7 @@ public class OtherName implements GeneralNameInterface {
 
     /**
      * Create the IPAddressName object with the specified name.
-     * 
+     *
      * @param name the IPAddressName.
      */
     public OtherName(byte[] data) {
@@ -126,7 +126,7 @@ public class OtherName implements GeneralNameInterface {
 
     /**
      * Encode the IPAddress name into the DerOutputStream.
-     * 
+     *
      * @param out the DER stream to encode the IPAddressName to.
      * @exception IOException on encoding errors.
      */
@@ -157,9 +157,9 @@ public class OtherName implements GeneralNameInterface {
 
         // Decode all the Attributes
         mOID = derVal.data.getOID();
-        // skip tag 
+        // skip tag
         DerValue tag = derVal.data.getDerValue();
-        // read data 
+        // read data
         DerValue data = tag.data.getDerValue();
         mData = data.toByteArray();
     }

@@ -43,17 +43,17 @@ public class TKSKeysTab extends CMSBaseUGTab {
      *==========================================================*/
     private static final String PANEL_NAME = "TKSKEYS";
     private CryptoManager mCryptoManager = null;
-    
+
 	private AdminConnection mConnection;
     private String mDestination;
     private CMSBaseResourceModel mModel;
     private ConsoleInfo mConsoleInfo;
-    private JComboBox mToken;   
+    private JComboBox mToken;
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
     protected ListKeysModel mDataModel;   //table model
     protected KeyCreateDialog mEditor=null;      //keep single copy
-    
+
     protected JButton mRefresh, mAdd, mHelp;
     private final static String HELPINDEX = "configuration-log-plugin-help";
 
@@ -68,7 +68,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
         mDataModel = new ListKeysModel();
         mDestination = destination;
         mHelpToken = HELPINDEX;
-        
+
     }
 
     /*==========================================================
@@ -109,8 +109,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
         if(row < 0)
             return;
 
-  
-    
+
+
     }
 
     //==== MOUSELISTENER ======================
@@ -119,7 +119,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================
@@ -128,8 +128,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
     public void refresh() {
 
         mDataModel.removeAllRows();
-        update();       
-        
+        update();
+
         setButtons();
         mTable.invalidate();
         mTable.validate();
@@ -142,8 +142,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
     protected JPanel createButtonPanel() {
         //edit, add, delete, help buttons required
         //actionlister to this object
- 
-		
+
+
 		mAdd = makeJButton("ADD");
 
         JButton[] buttons = {mAdd};
@@ -181,9 +181,9 @@ public class TKSKeysTab extends CMSBaseUGTab {
                                  CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE*30);
-		gb.setConstraints(mToken, gbc);        
+		gb.setConstraints(mToken, gbc);
         mListPanel.add(mToken);
-   
+
 
         //center table
         mTable = new JTable(mDataModel);
@@ -220,11 +220,11 @@ public class TKSKeysTab extends CMSBaseUGTab {
         gbc.insets = EMPTY_INSETS;
         gb.setConstraints(buttonPanel, gbc);
         mListPanel.add(buttonPanel);
- 
+
         NameValuePairs response=null;
         try {
             response = mConnection.search(mDestination,
-              ScopeDef.SC_TOKEN, new NameValuePairs()); 
+              ScopeDef.SC_TOKEN, new NameValuePairs());
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());
@@ -237,7 +237,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
             for (String entry : response.keySet()) {
 				vals[i++] = entry.trim();
 			}
-        
+
 			int sindex = 0;
 			CMSAdminUtil.quickSort(vals, 0, response.size()-1);
 			for (i=0; i<vals.length; i++) {
@@ -245,7 +245,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
 				String entry = vals[i];
 				String value = response.get(entry);
 				// look for the comma separator
-				
+
 				StringTokenizer st = new StringTokenizer(value, ",");
                 while (st.hasMoreTokens()) {
                     String currentToken= st.nextToken();
@@ -268,29 +268,29 @@ public class TKSKeysTab extends CMSBaseUGTab {
 
     //set buttons
     private void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
         //Debug.println("setButtons() - "+mTable.getSelectionModel().isSelectionEmpty());
 
-        
+
     }
-    
+
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
     private void update() {
         //send request and parse data
-        
+
         mModel.progressStart();
-        
+
         NameValuePairs response;
         NameValuePairs request;
         request = new NameValuePairs();
         request.put(Constants.PR_TOKEN_LIST, (String) mToken.getSelectedItem());
         try {
             response = mConnection.search(mDestination,
-              ScopeDef.SC_TKSKEYSLIST, request); 
+              ScopeDef.SC_TKSKEYSLIST, request);
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());
@@ -308,7 +308,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
             for (String entry : response.keySet()) {
                 vals[i++] = entry.trim();
             }
-            
+
             int sindex = 0;
             CMSAdminUtil.quickSort(vals, 0, response.size()-1);
             for (i=0; i<vals.length; i++) {
@@ -348,7 +348,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
           (String)(mDataModel.getValueAt(row, 0));
         String id = nickname+":SERIAL#<"+mDataModel.getValueAt(row, 1)+">"
           +mDataModel.getValueAt(row, 2);
-        
+
         //send comment to server for the removal of user
         try {
             mConnection.delete(mDestination, ScopeDef.SC_USERCERTSLIST, id);

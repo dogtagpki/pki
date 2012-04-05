@@ -49,13 +49,13 @@ public class CMSMigrateCreate extends CGITask
      * variables
      *==========================================================*/
     private static final String PREFIX = "CMSMIGRATECREATE";
-    
+
     private static final String CREATE_CGI_NAME = "Tasks/Operation/Create";
-    
+
 	//private boolean mSuccess = false; // status of last executed CGI
 	private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
 	private String mCgiTask = null; // CGI task to call
-	
+
 	/*==========================================================
      * constructors
      *==========================================================*/
@@ -70,17 +70,17 @@ public class CMSMigrateCreate extends CGITask
         Debug.println("CMSMigrateCreate: initialize()");
         _consoleInfo = info;
     }
-    
+
     public boolean migrate(String serverRoot,
 						   String server,
 						   String targetDN,
 						   boolean flag) {
-						    
-        Debug.println("CMSMigrateCreate: migrate()");	
-        
+
+        Debug.println("CMSMigrateCreate: migrate()");
+
         return false;
-    }						    
-    
+    }
+
     /**
 	 * Starts the server specific creation code, providing the DN for the
 	 * target admin group. The method returns true or false depending
@@ -94,7 +94,7 @@ public class CMSMigrateCreate extends CGITask
 	public boolean createNewInstance(String targetDN) {
 	    //Debug.println("CMSMigrateCreate: createNewInstance()- "+targetDN);
 	    //targetDN: cn=Server Group, cn=cynthiar.mcom.com, ou=mcom.com, o=NetscapeRoot
-	    
+
         JFrame mActiveFrame = UtilConsoleGlobals.getActivatedFrame();
 	    boolean status = false; // return value
 	    //show dialog
@@ -104,54 +104,54 @@ public class CMSMigrateCreate extends CGITask
 	    if (dialog.isCancel()) {
 	        return status;
 	    }
-	    
+
 	    //construct the rest of the configuration parameters
         //serverName=cynthiar.mcom.com
-        //sieURL=ldap://laiking.mcom.com:389/o=netscapeRoot 
-        //adminUID=admin 
-        //adminPWD=admin 
-        //instanceID=cert-data 
-        //serverRoot=/u/thomask/s4 
-        //adminDomain=mcom.com 
-        
+        //sieURL=ldap://laiking.mcom.com:389/o=netscapeRoot
+        //adminUID=admin
+        //adminPWD=admin
+        //instanceID=cert-data
+        //serverRoot=/u/thomask/s4
+        //adminDomain=mcom.com
+
 	    Hashtable configParams = new Hashtable();
-	   
+
 	    configParams.put("instanceID",dialog.getInstanceName());
-	    
+
 	    String[] entries = LDAPDN.explodeDN(targetDN, false);
 	    String DN = entries[entries.length-3] + ", " +
 			entries[entries.length-2] + ", " +
 			entries[entries.length-1];
-	
+
 		//DN: cn=cynthiar.mcom.com, ou=mcom.com, o=NetscapeRoot
 
 		configParams.put("machineName", getValue(DN, "serverHostName",
 								  LDAPConnection.SCOPE_BASE, null));
         configParams.put("serverRoot", getValue(targetDN, "nsconfigroot",
-								  LDAPConnection.SCOPE_BASE, null));							  
+								  LDAPConnection.SCOPE_BASE, null));
         LDAPConnection ldc = _consoleInfo.getLDAPConnection();
 		String ssdn = ldc.getAuthenticationDN();
 		String[] avas = LDAPDN.explodeDN(ssdn, false);
 		String uid = avas[0];
 		if (!uid.startsWith("uid")) {
-                	CMSAdminUtil.showMessageDialog(mActiveFrame, 
-				mResource, PREFIX, "RESTARTADMINERROR", 
+			CMSAdminUtil.showMessageDialog(mActiveFrame,
+				mResource, PREFIX, "RESTARTADMINERROR",
 				CMSAdminUtil.ERROR_MESSAGE);
 			return false;
 		}
 		configParams.put("adminUID", uid.substring(4,uid.length()));
-		
-		configParams.put("adminPWD",ldc.getAuthenticationPassword());								  
-	    String ldapUrl = "ldap://" + ldc.getHost() + ":" + 
-	                    Integer.toString(ldc.getPort()) + "/" + 
+
+		configParams.put("adminPWD",ldc.getAuthenticationPassword());
+	    String ldapUrl = "ldap://" + ldc.getHost() + ":" +
+	                    Integer.toString(ldc.getPort()) + "/" +
 	                    (String)_consoleInfo.get("BaseDN");
 		configParams.put("sieURL", ldapUrl);
-		
+
 	    String searchDN = entries[entries.length-2];
 		configParams.put("adminDomain", searchDN.substring(3,searchDN.length()));
-		
+
 		Debug.println("CMSMigrateCreate: createNewInstance()- "+configParams.toString());
-		
+
 		// set the arguments for the CGI call
 		_consoleInfo.put("arguments", configParams);
 		_consoleInfo.put(CREATE_CGI_NAME, "cert");
@@ -162,8 +162,8 @@ public class CMSMigrateCreate extends CGITask
 		if (_consoleInfo.get("AdminUserPassword") == null)
 			_consoleInfo.put("AdminUserPassword",
 							 _consoleInfo.getAuthenticationPassword());
-		Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword"));			
-		
+		Debug.println("AdminUserPassword = " + _consoleInfo.get("AdminUserPassword"));
+
 		// call the CGI program
 		Debug.println("CMSMigrateCreate: createNewInstance() before run task="+CREATE_CGI_NAME);
 		mCgiTask = CREATE_CGI_NAME;
@@ -191,7 +191,7 @@ public class CMSMigrateCreate extends CGITask
                     "SYSTEMERROR", CMSAdminUtil.ERROR_MESSAGE);
             else
                 JOptionPane.showMessageDialog(mActiveFrame, errorMsg,
-                  "Error", CMSAdminUtil.ERROR_MESSAGE, 
+                  "Error", CMSAdminUtil.ERROR_MESSAGE,
                   CMSAdminUtil.getImage(CMSAdminResources.IMAGE_ERROR_ICON));
         }
 
@@ -200,7 +200,7 @@ public class CMSMigrateCreate extends CGITask
 
 		return mSuccess;
 	}
-   
+
     /**
 	 *	the operation is finished after we receive the http stream
 	 */
@@ -208,7 +208,7 @@ public class CMSMigrateCreate extends CGITask
         mSuccess = false;
 		if (mCgiResponse != null)
 			mCgiResponse.clear();
-			
+
         try {
 			BufferedReader rspStream =
 				new BufferedReader(new InputStreamReader(response, "UTF8"));
@@ -230,13 +230,13 @@ public class CMSMigrateCreate extends CGITask
 		} catch (Exception e) {
 			Debug.println("MigrateCreate.replyHandler: " + e.toString());
 		}
-		
+
 		Debug.println("MigrateCreate.replyHandler: finished, mSuccess=" +
 					  mSuccess);
 
         finish();
     }
-    
+
     /**
 	 * return the value for the given keyword in the reply
 	 */
@@ -266,7 +266,7 @@ public class CMSMigrateCreate extends CGITask
 
 		Debug.println("Parse finished");
     }
-    
+
     /**
      * Get one value for one specified attribute from the given DN.
 	 * If there is more than 1 entry which matches the given criteria, the
@@ -289,7 +289,7 @@ public class CMSMigrateCreate extends CGITask
 
 		return null;
 	}
-	
+
     /**
      * Get the values for several specified attributes from the given DN.
 	 * If there is more than 1 entry which matches the given criteria, the
@@ -335,6 +335,6 @@ public class CMSMigrateCreate extends CGITask
 		}
 
 		return values;
-    }	
-	
+    }
+
 }

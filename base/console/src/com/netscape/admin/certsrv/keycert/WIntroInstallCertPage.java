@@ -35,7 +35,7 @@ class WIntroInstallCertPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INTROINSTALLCERTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WIntroInstallCertPage() {
         super(PANELNAME);
         init();
@@ -49,7 +49,7 @@ class WIntroInstallCertPage extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE))
             return false;
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

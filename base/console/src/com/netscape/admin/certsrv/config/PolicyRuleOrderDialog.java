@@ -99,12 +99,12 @@ public class PolicyRuleOrderDialog extends JDialog
         mDataModel.clear();
         for (int i=0; i<rules.size(); i++)
             mDataModel.addElement(
-                new JLabel((String)rules.elementAt(i), 
+                new JLabel((String)rules.elementAt(i),
                 CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),
                 JLabel.LEFT));
         if (mDataModel.getSize() >0)
             mList.setSelectedIndex(0);
-            
+
         refresh();
         setArrowButtons();
         this.show();
@@ -147,7 +147,7 @@ public class PolicyRuleOrderDialog extends JDialog
             mDataModel.insertElementAt(obj,index+1);
             mList.setSelectedIndex(index+1);
             setArrowButtons();
-            refresh();            
+            refresh();
         }
         if (evt.getSource().equals(mHelp)) {
             CMSAdminUtil.help(mHelpToken);
@@ -161,7 +161,7 @@ public class PolicyRuleOrderDialog extends JDialog
 
     public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {
-        setArrowButtons();    
+        setArrowButtons();
     }
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {
@@ -282,12 +282,12 @@ public class PolicyRuleOrderDialog extends JDialog
             x++;
             buf.append(((JLabel)mDataModel.getElementAt(i)).getText());
         }
-        
+
         NameValuePairs nvp = new NameValuePairs();
         nvp.put(Constants.PR_POLICY_ORDER, buf.toString());
-        
+
         Debug.println("ORDER: "+buf.toString());
-        
+
         mConnection.modify(mDestination,
                                ScopeDef.SC_POLICY_RULES,
                                Constants.RS_ID_ORDER,
@@ -296,7 +296,7 @@ public class PolicyRuleOrderDialog extends JDialog
 
     //set arrow buttons
     private void setArrowButtons() {
-        
+
         //enable and diable buttons accordingly
         Debug.println("setArrowButtons() - "+mList.getSelectedIndex());
         if (mList.getSelectedIndex()< 0) {
@@ -305,7 +305,7 @@ public class PolicyRuleOrderDialog extends JDialog
             mOK.setEnabled(false);
             return;
         }
-            
+
         if (mList.getSelectedIndex()==0)
             mUp.setEnabled(false);
         else
@@ -314,7 +314,7 @@ public class PolicyRuleOrderDialog extends JDialog
             mDown.setEnabled(true);
         else
             mDown.setEnabled(false);
-        mOK.setEnabled(true);    
+        mOK.setEnabled(true);
     }
 
     //refresh the table content

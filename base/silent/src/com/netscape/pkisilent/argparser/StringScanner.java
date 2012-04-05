@@ -22,7 +22,7 @@ package com.netscape.pkisilent.argparser;
  * Copyright John E. Lloyd, 2004. All rights reserved. Permission to use,
  * copy, modify and redistribute is granted, provided that this copyright
  * notice is retained and the author is given credit whenever appropriate.
- * 
+ *
  * This software is distributed "as is", without any warranty, including
  * any implied warranty of merchantability or fitness for a particular
  * use. The author assumes no responsibility for, and shall not be liable
@@ -420,7 +420,7 @@ class StringScanner {
         }
         if (exception == null) {
             //	      if (Character.isLetterOrDigit(c=buf[idx]) || c == '_')
-            //	       { exception = new StringScanException (idx, 
+            //	       { exception = new StringScanException (idx,
             //"malformed floating number");
             //	       }
             //	      else

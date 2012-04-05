@@ -30,14 +30,14 @@ import com.netscape.certsrv.request.IRequest;
  * This interface represents a input policy which
  * provides information on how to create the
  * end-user enrollment page.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Initializes this default policy.
-     * 
+     *
      * @param profile owner of this input
      * @param config configuration store
      * @exception EProfileException failed to initialize
@@ -47,14 +47,14 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Returns configuration store.
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
@@ -64,7 +64,7 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return localized input name
      */
@@ -72,7 +72,7 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return localized input description
      */
@@ -80,7 +80,7 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Retrieves a list of names of the property.
-     * 
+     *
      * @return a list of property names
      */
     public Enumeration<String> getValueNames();
@@ -88,7 +88,7 @@ public interface IProfileInput extends IConfigTemplate {
     /**
      * Retrieves the descriptor of the given value
      * property by name.
-     * 
+     *
      * @param locale user locale
      * @param name property name
      * @return descriptor of the property
@@ -97,7 +97,7 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Retrieves value from the request.
-     * 
+     *
      * @param name property name
      * @param locale user locale
      * @param request request
@@ -108,7 +108,7 @@ public interface IProfileInput extends IConfigTemplate {
 
     /**
      * Sets the value of the given property by name.
-     * 
+     *
      * @param name property name
      * @param locale user locale
      * @param request request

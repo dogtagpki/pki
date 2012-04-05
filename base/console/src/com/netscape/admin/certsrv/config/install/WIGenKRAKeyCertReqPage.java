@@ -54,7 +54,7 @@ class WIGenKRAKeyCertReqPage extends WIGenKeyCertReqPage {
             return false;
         if (wizardInfo.isKRACertLocalCA() || !wizardInfo.isKRAInstalled() ||
           (wizardInfo.isKRACertRequestDone() &&
-			  !wizardInfo.isKRACertRequestBack()) || 
+			  !wizardInfo.isKRACertRequestBack()) ||
           wizardInfo.isKRALocalCertDone() ||
           wizardInfo.isKRACertInstalledDone())
             return false;

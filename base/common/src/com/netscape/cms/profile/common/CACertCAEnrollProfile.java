@@ -27,7 +27,7 @@ import com.netscape.certsrv.profile.IProfilePolicy;
 /**
  * This class implements a Certificate Manager enrollment
  * profile for CA Certificates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CACertCAEnrollProfile extends CAEnrollProfile
@@ -44,7 +44,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile
         NameValuePairs inputParams2 = new NameValuePairs();
         createProfileInput("i2", "submitterInfoInputImpl", inputParams2);
 
-        // create outputs 
+        // create outputs
         NameValuePairs outputParams1 = new NameValuePairs();
         createProfileOutput("o1", "certOutputImpl", outputParams1);
 

@@ -27,7 +27,7 @@ import com.netscape.certsrv.logging.ILogQueue;
 /**
  * A class represents a log queue.
  * <P>
- * 
+ *
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -49,7 +49,7 @@ public class LogQueue implements ILogQueue {
     /**
      * Initializes the log queue.
      * <P>
-     * 
+     *
      */
     public void init() {
         mListeners = new Vector<ILogEventListener>();
@@ -71,7 +71,7 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Adds an event listener.
-     * 
+     *
      * @param listener the log event listener
      */
     public void addLogEventListener(ILogEventListener listener) {
@@ -82,7 +82,7 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Removes an event listener.
-     * 
+     *
      * @param listener the log event listener
      */
     public void removeLogEventListener(ILogEventListener listener) {
@@ -91,7 +91,7 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Logs an event, and notifies logger to reuse the event.
-     * 
+     *
      * @param event the log event
      */
     public void log(ILogEvent event) {
@@ -106,7 +106,7 @@ public class LogQueue implements ILogQueue {
                 // ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_EVENT_FAILED",
                 //          event.getEventType(), e.toString())));
 
-                // Don't do this again.  
+                // Don't do this again.
                 removeLogEventListener((ILogEventListener) mListeners.elementAt(i));
             }
         }

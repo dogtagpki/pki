@@ -25,12 +25,12 @@ import java.math.BigInteger;
  * such parsed values. Convert to "BigInteger" if you need to do
  * arbitrary precision arithmetic, rather than just represent
  * the number as a wrapped array of bytes.
- * 
+ *
  * <P>
  * <em><b>NOTE:</b>  This class may eventually disappear, to
  * be supplanted by big-endian byte arrays which hold both signed
  * and unsigned arbitrary-precision integers.
- * 
+ *
  * @version 1.23
  * @author David Brownell
  */
@@ -42,7 +42,7 @@ public final class BigInt {
     /**
      * Constructs a "Big" integer from a set of (big-endian) bytes.
      * Leading zeroes should be stripped off.
-     * 
+     *
      * @param data a sequence of bytes, most significant bytes/digits
      *            first. CONSUMED.
      */
@@ -80,7 +80,7 @@ public final class BigInt {
 
     /**
      * Constructs a "Big" integer from a normal Java integer.
-     * 
+     *
      * @param i the java primitive integer
      */
     public BigInt(int i) {
@@ -107,7 +107,7 @@ public final class BigInt {
 
     /**
      * Converts the "big" integer to a java primitive integer.
-     * 
+     *
      * @exception NumberFormatException if 32 bits is insufficient.
      */
     public int toInt() {
@@ -181,7 +181,7 @@ public final class BigInt {
     /**
      * Returns true iff the parameter is a numerically equivalent
      * BigInt.
-     * 
+     *
      * @param other the object being compared with this one.
      */
     public boolean equals(Object other) {
@@ -192,7 +192,7 @@ public final class BigInt {
 
     /**
      * Returns true iff the parameter is numerically equivalent.
-     * 
+     *
      * @param other the BigInt being compared with this one.
      */
     public boolean equals(BigInt other) {

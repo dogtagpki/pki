@@ -273,21 +273,21 @@ public class PromptForTrustDialog extends AbstractDialog implements SuiConstants
     private JPanel createActionButtons() {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
-        
+
         accept = JButtonFactory.create(
                                        mResource.getString("SSLCLIENT_TRUST_DIALOG_ACCEPT"),
                                        buttonActionListener, "ACCEPT");
         accept.registerKeyboardAction(buttonActionListener, "ACCEPT",
                                       KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
                                       JComponent.WHEN_IN_FOCUSED_WINDOW);
-        
+
         JButton reject = JButtonFactory.create(
                                               mResource.getString("SSLCLIENT_TRUST_DIALOG_REJECT"),
                                                buttonActionListener, "REJECT");
         reject.registerKeyboardAction(buttonActionListener, "REJECT",
                                       KeyStroke.getKeyStroke(KeyEvent.VK_R, 0),
                                       JComponent.WHEN_IN_FOCUSED_WINDOW);
-        
+
         JButton viewCert = JButtonFactory.create(
                                                  mResource.getString("SSLCLIENT_TRUST_DIALOG_VIEWCERT"),  buttonActionListener, "VIEWCERT");
         viewCert.registerKeyboardAction(buttonActionListener, "VIEWCERT",

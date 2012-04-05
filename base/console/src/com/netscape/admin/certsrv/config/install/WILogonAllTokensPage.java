@@ -83,9 +83,9 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
             String token = (String)tokenizer.nextElement();
             loggedIn = (String)tokenizerLoggedIn.nextElement();
             inits = (String)tokenizerInits.nextElement();
- 
-           // if (loggedIn.equals("false")) { 
-                // always logon to the token. 
+
+           // if (loggedIn.equals("false")) {
+                // always logon to the token.
                 if (inits.equals("true")) {
                     Vector v = new Vector();
                     v.addElement(new JLabel(token));
@@ -141,8 +141,8 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
             } else {
                 tokenNames = tokenNames+":"+val1;
                 pwds = pwds+":"+val2;
-            } 
-        }   
+            }
+        }
 
         startProgressStatus();
         String rawData = ConfigConstants.PR_TOKEN_LOGONLIST+"="+tokenNames;
@@ -225,7 +225,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         mTable.setDefaultRenderer(JComponent.class, new ComponentCellRenderer());
         mTable.setDefaultEditor(JComponent.class,
           new ProfileComponentCellEditor());
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.BOTH;

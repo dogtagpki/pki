@@ -42,7 +42,7 @@ public class LdapAnonConnection extends LDAPConnection {
             throws LDAPException {
         super(connInfo.getSecure() ? new LdapJssSSLSocketFactory() : null);
 
-        // Set option to automatically follow referrals. 
+        // Set option to automatically follow referrals.
         // rebind info is also anonymous.
         boolean followReferrals = connInfo.getFollowReferrals();
 

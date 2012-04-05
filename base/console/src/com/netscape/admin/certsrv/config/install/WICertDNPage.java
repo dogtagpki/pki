@@ -66,7 +66,7 @@ class WICertDNPage extends WBaseDNPage {
         populateDN(str);
 */
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -84,7 +84,7 @@ class WICertDNPage extends WBaseDNPage {
         } else {
             str = str2;
         }
-        
+
         if (str.equals("")) {
             setErrorMessage("BLANKFIELD");
             return false;
@@ -123,7 +123,7 @@ class WICertDNPage extends WBaseDNPage {
         wizardInfo.addEntry(Constants.PR_SUBJECT_NAME, str);
 
         try {
-            connection.validate(DestDef.DEST_SERVER_ADMIN, 
+            connection.validate(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_SUBJECT_NAME, nvps);
         } catch (EAdminException e) {
             //showErrorDialog(e.toString());

@@ -30,14 +30,14 @@ import com.netscape.certsrv.dbs.ModificationSet;
 /**
  * An interface represents a CMS CRL repository. It stores
  * all the CRL issuing points.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICRLRepository {
 
     /**
      * Adds CRL issuing point record.
-     * 
+     *
      * @param rec issuing point record
      * @exception EBaseException failed to add new issuing point record
      */
@@ -46,7 +46,7 @@ public interface ICRLRepository {
 
     /**
      * Retrieves all the issuing points' names.
-     * 
+     *
      * @return A list of issuing points' names.
      * @exception EBaseException failed to retrieve all the issuing points' names.
      */
@@ -54,7 +54,7 @@ public interface ICRLRepository {
 
     /**
      * Reads issuing point record.
-     * 
+     *
      * @return issuing point record
      * @exception EBaseException failed to read issuing point record
      */
@@ -63,7 +63,7 @@ public interface ICRLRepository {
 
     /**
      * Deletes issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @exception EBaseException failed to delete issuing point record
      */
@@ -72,7 +72,7 @@ public interface ICRLRepository {
 
     /**
      * Modifies issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param mods set of modifications
      * @exception EBaseException failed to modify issuing point record
@@ -82,7 +82,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param newCRL encoded binary CRL
      * @param thisUpdate time of this update
@@ -97,7 +97,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param newCRL encoded binary CRL
      * @param thisUpdate time of this update
@@ -118,7 +118,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param revokedCerts list of revoked certificates
      * @param unrevokedCerts list of released from hold certificates
@@ -129,7 +129,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param expiredCerts list of expired certificates
      * @exception EBaseException failed to update issuing point record
@@ -139,7 +139,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record.
-     * 
+     *
      * @param id issuing point record id
      * @param crlSize CRL size
      * @param revokedCerts list of revoked certificates
@@ -155,7 +155,7 @@ public interface ICRLRepository {
 
     /**
      * Updates CRL issuing point record with delta-CRL.
-     * 
+     *
      * @param id issuing point record id
      * @param deltaCRLNumber delta CRL number
      * @param deltaCRLSize delta CRL size
@@ -171,7 +171,7 @@ public interface ICRLRepository {
     /**
      * Updates CRL issuing point record with reference to the first
      * unsaved data.
-     * 
+     *
      * @param id issuing point record id
      * @param firstUnsaved reference to the first unsaved data
      * @exception EBaseException failed to update issuing point record

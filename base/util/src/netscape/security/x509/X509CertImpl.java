@@ -59,22 +59,22 @@ import netscape.security.util.ObjectIdentifier;
  * software distribution, and Secure Electronic Transactions (SET). There
  * is a commercial infrastructure ready to manage large scale deployments
  * of X.509 identity certificates.
- * 
+ *
  * <P>
  * These certificates are managed and vouched for by <em>Certificate
  * Authorities</em> (CAs). CAs are services which create certificates by placing data in the X.509 standard format and
  * then digitally signing that data. Such signatures are quite difficult to forge. CAs act as trusted third parties,
  * making introductions between agents who have no direct knowledge of each other. CA certificates are either signed by
  * themselves, or by some other CA such as a "root" CA.
- * 
+ *
  * <P>
  * RFC 1422 is very informative, though it does not describe much of the recent work being done with X.509 certificates.
  * That includes a 1996 version (X.509v3) and a variety of enhancements being made to facilitate an explosion of
  * personal certificates used as "Internet Drivers' Licences", or with SET for credit card transactions.
- * 
+ *
  * <P>
  * More recent work includes the IETF PKIX Working Group efforts, especially part 1.
- * 
+ *
  * @author Dave Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -152,7 +152,7 @@ public class X509CertImpl extends X509Certificate
      * must include only a certificate, and no "garbage" may be left at
      * the end. If you need to ignore data at the end of a certificate,
      * use another constructor.
-     * 
+     *
      * @param certData the encoded bytes, with no trailing padding.
      * @exception CertificateException on parsing and initialization errors.
      */
@@ -165,7 +165,7 @@ public class X509CertImpl extends X509Certificate
      * As a special optimization, this constructor acts as X509CertImpl(byte[])
      * except that it takes an X509CertInfo which it uses as a 'hint' for
      * how to construct one field.
-     * 
+     *
      * @param certData the encode bytes, with no traiing padding
      * @param certInfo the certInfo which has already been constructed
      *            from the certData
@@ -190,7 +190,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * unmarshals an X.509 certificate from an input stream.
-     * 
+     *
      * @param in an input stream holding at least one certificate
      * @exception CertificateException on parsing and initialization errors.
      */
@@ -209,7 +209,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Construct an initialized X509 Certificate. The certificate is stored
      * in raw form and has to be signed to be useful.
-     * 
+     *
      * @param certInfo the X509CertificateInfo which the Certificate is to be
      *            created from.
      */
@@ -221,7 +221,7 @@ public class X509CertImpl extends X509Certificate
      * Unmarshal a certificate from its encoded form, parsing a DER value.
      * This form of constructor is used by agents which need to examine
      * and use certificate contents.
-     * 
+     *
      * @param derVal the der value containing the encoded cert.
      * @exception CertificateException on parsing and initialization errors.
      */
@@ -242,7 +242,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Decode an X.509 certificate from an input stream.
-     * 
+     *
      * @param in an input stream holding at least one certificate
      * @exception CertificateException on parsing errors.
      * @exception IOException on other errors.
@@ -257,7 +257,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Appends the certificate to an output stream.
-     * 
+     *
      * @param out an input stream to which the certificate is appended.
      * @exception CertificateEncodingException on encoding errors.
      */
@@ -276,10 +276,10 @@ public class X509CertImpl extends X509Certificate
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the output stream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
@@ -294,7 +294,7 @@ public class X509CertImpl extends X509Certificate
      * assumed that each certificate type would have only a single
      * form of encoding; for example, X.509 certificates would
      * be encoded as ASN.1 DER.
-     * 
+     *
      * @exception CertificateEncodingException if an encoding error occurs.
      */
     public byte[] getEncoded() throws CertificateEncodingException {
@@ -311,9 +311,9 @@ public class X509CertImpl extends X509Certificate
      * verification key provided. Successfully verifying a certificate
      * does <em>not</em> indicate that one should trust the entity which
      * it represents.
-     * 
+     *
      * @param key the public key used for verification.
-     * 
+     *
      * @exception InvalidKeyException on incorrect key.
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
@@ -333,10 +333,10 @@ public class X509CertImpl extends X509Certificate
      * verification key provided. Successfully verifying a certificate
      * does <em>not</em> indicate that one should trust the entity which
      * it represents.
-     * 
+     *
      * @param key the public key used for verification.
      * @param sigProvider the name of the provider.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -369,10 +369,10 @@ public class X509CertImpl extends X509Certificate
      * passed (associating a signature algorithm and an X.500 name).
      * This operation is used to implement the certificate generation
      * functionality of a certificate authority.
-     * 
+     *
      * @param key the private key used for signing.
      * @param algorithm the name of the signature algorithm used.
-     * 
+     *
      * @exception InvalidKeyException on incorrect key.
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
@@ -391,11 +391,11 @@ public class X509CertImpl extends X509Certificate
      * passed (associating a signature algorithm and an X.500 name).
      * This operation is used to implement the certificate generation
      * functionality of a certificate authority.
-     * 
+     *
      * @param key the private key used for signing.
      * @param algorithm the name of the signature algorithm used.
      * @param provider the name of the provider.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -449,7 +449,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Checks that the certificate is currently valid, i.e. the current
      * time is within the specified validity period.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired.
      * @exception CertificateNotYetValidException if the certificate is not
      *                yet valid.
@@ -464,10 +464,10 @@ public class X509CertImpl extends X509Certificate
      * Checks that the specified date is within the certificate's
      * validity period, or basically if the certificate would be
      * valid at the specified date/time.
-     * 
+     *
      * @param date the Date to check against to see if this certificate
      *            is valid at that date/time.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired
      *                with respect to the <code>date</code> supplied.
      * @exception CertificateNotYetValidException if the certificate is not
@@ -489,7 +489,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Return the requested attribute from the certificate.
-     * 
+     *
      * @param name the name of the attribute.
      * @exception CertificateParsingException on invalid attribute identifier.
      */
@@ -531,7 +531,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Set the requested attribute in the certificate.
-     * 
+     *
      * @param name the name of the attribute.
      * @param obj the value of the attribute.
      * @exception CertificateException on invalid attribute identifier.
@@ -573,7 +573,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Delete the requested attribute from the certificate.
-     * 
+     *
      * @param name the name of the attribute.
      * @exception CertificateException on invalid attribute identifier.
      * @exception IOException on other errors.
@@ -663,7 +663,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the publickey from this certificate.
-     * 
+     *
      * @return the publickey.
      */
     public PublicKey getPublicKey() {
@@ -680,7 +680,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the version number from the certificate.
-     * 
+     *
      * @return the version number.
      */
     public int getVersion() {
@@ -697,7 +697,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the serial number from the certificate.
-     * 
+     *
      * @return the serial number.
      */
     public BigInteger getSerialNumber() {
@@ -715,7 +715,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the subject distinguished name from the certificate.
-     * 
+     *
      * @return the subject name.
      */
     public Principal getSubjectDN() {
@@ -733,7 +733,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the issuer distinguished name from the certificate.
-     * 
+     *
      * @return the issuer name.
      */
     public Principal getIssuerDN() {
@@ -751,7 +751,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the notBefore date from the validity period of the certificate.
-     * 
+     *
      * @return the start date of the validity period.
      */
     public Date getNotBefore() {
@@ -768,7 +768,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the notAfter date from the validity period of the certificate.
-     * 
+     *
      * @return the end date of the validity period.
      */
     public Date getNotAfter() {
@@ -786,7 +786,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets the DER encoded certificate informations, the <code>tbsCertificate</code> from this certificate.
      * This can be used to verify the signature independently.
-     * 
+     *
      * @return the DER encoded certificate information.
      * @exception CertificateEncodingException if an encoding error occurs.
      */
@@ -799,7 +799,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the raw Signature bits from the certificate.
-     * 
+     *
      * @return the signature.
      */
     public byte[] getSignature() {
@@ -814,7 +814,7 @@ public class X509CertImpl extends X509Certificate
      * Gets the signature algorithm name for the certificate
      * signature algorithm.
      * For example, the string "SHA-1/DSA" or "DSS".
-     * 
+     *
      * @return the signature algorithm name.
      */
     public String getSigAlgName() {
@@ -826,7 +826,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets the signature algorithm OID string from the certificate.
      * For example, the string "1.2.840.10040.4.3"
-     * 
+     *
      * @return the signature algorithm oid string.
      */
     public String getSigAlgOID() {
@@ -839,7 +839,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets the DER encoded signature algorithm parameters from this
      * certificate's signature algorithm.
-     * 
+     *
      * @return the DER encoded signature algorithm parameters, or
      *         null if no parameters are present.
      */
@@ -855,7 +855,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the Issuer Unique Identity from the certificate.
-     * 
+     *
      * @return the Issuer Unique Identity.
      */
     public boolean[] getIssuerUniqueID() {
@@ -876,7 +876,7 @@ public class X509CertImpl extends X509Certificate
 
     /**
      * Gets the Subject Unique Identity from the certificate.
-     * 
+     *
      * @return the Subject Unique Identity.
      */
     public boolean[] getSubjectUniqueID() {
@@ -898,7 +898,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets a Set of the extension(s) marked CRITICAL in the
      * certificate by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         certificate that are marked critical.
      */
@@ -926,7 +926,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets a Set of the extension(s) marked NON-CRITICAL in the
      * certificate by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         certificate that are NOT marked critical.
      */
@@ -977,7 +977,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Gets the DER encoded extension identified by the passed
      * in oid String.
-     * 
+     *
      * @param oid the Object Identifier value for the extension.
      */
     public byte[] getExtensionValue(String oid) {
@@ -1024,7 +1024,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Get a boolean array representing the bits of the KeyUsage extension,
      * (oid = 2.5.29.15).
-     * 
+     *
      * @return the bit values of this extension as an array of booleans.
      */
     public boolean[] getKeyUsage() {
@@ -1047,7 +1047,7 @@ public class X509CertImpl extends X509Certificate
     /**
      * Get the certificate constraints path length from the
      * the critical BasicConstraints extension, (oid = 2.5.29.19).
-     * 
+     *
      * @return the length of the constraint.
      */
     public int getBasicConstraints() {
@@ -1170,12 +1170,12 @@ public class X509CertImpl extends X509Certificate
         /**
          * Construct the alternate Certificate class with the Certificate
          * type and Certificate encoding bytes.
-         * 
+         *
          * <p>
-         * 
+         *
          * @param type the standard name of the Certificate type.
          *            <p>
-         * 
+         *
          * @param data the Certificate data.
          */
         protected CertificateRep1(String type, byte[] data) {
@@ -1185,11 +1185,11 @@ public class X509CertImpl extends X509Certificate
 
         /**
          * Resolve the Certificate Object.
-         * 
+         *
          * <p>
-         * 
+         *
          * @return the resolved Certificate Object.
-         * 
+         *
          * @throws java.io.ObjectStreamException if the Certificate could not
          *             be resolved.
          */

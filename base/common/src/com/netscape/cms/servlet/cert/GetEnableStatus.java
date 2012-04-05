@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Servlet to get the enrollment status, enable or disable.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetEnableStatus extends CMSServlet {
@@ -63,7 +63,7 @@ public class GetEnableStatus extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -83,7 +83,7 @@ public class GetEnableStatus extends CMSServlet {
      * <ul>
      * <li>http.param
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

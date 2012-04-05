@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.IAttrSet;
 /**
  * An interface represents a database object
  * that is serializable.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDBObj extends IAttrSet {
@@ -34,7 +34,7 @@ public interface IDBObj extends IAttrSet {
      * names. This method should return the
      * attribute name even if there is no attribute
      * value for the attribute.
-     * 
+     *
      * @return a list of serializable attribute names
      */
     public Enumeration<String> getSerializableAttrNames();

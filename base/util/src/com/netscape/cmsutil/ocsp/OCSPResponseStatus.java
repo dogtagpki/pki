@@ -29,7 +29,7 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * OCSPResponseStatus ::= ENUMERATED {
  *     successful            (0),  --Response has valid confirmations
@@ -41,7 +41,7 @@ import org.mozilla.jss.asn1.Tag;
  *     unauthorized          (6)   --Request unauthorized
  * }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class OCSPResponseStatus implements ASN1Value {

@@ -47,7 +47,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
     private static final int MAX_PORT = 65535;
     private static final int MIN_PORT = 1;
 
-    private Color mActiveColor; 
+    private Color mActiveColor;
 
     // TextField for port
     private JTextField mAdminSSLPortText;
@@ -88,7 +88,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         mModel = parent.getResourceModel();
         mHelpToken = HELPINDEX;
     }
-    
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
@@ -122,7 +122,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         JLabel adminBacklog = makeJLabel("ADMINBACKLOG");
         mAdminSSLBacklogText = makeJTextField(10);
         JLabel dummy1 = new JLabel(" ");
-        CMSAdminUtil.addEntryField(adminPanel, adminSSLport, 
+        CMSAdminUtil.addEntryField(adminPanel, adminSSLport,
           mAdminSSLPortText, adminBacklog, mAdminSSLBacklogText, dummy1, gbc);
 
         mActiveColor = mAdminSSLPortText.getBackground();
@@ -138,7 +138,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         gbc.weightx = 1.0;
         gb.setConstraints(agentPanel, gbc);
         mCenterPanel.add(agentPanel);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel agentPort = makeJLabel("AGENTSSLPORT");
         mAgentSSLPortText = makeJTextField(10);
@@ -168,7 +168,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         mGatewayBacklogText = makeJTextField(10);
         mEnableLabel = makeJLabel("ENABLED");
         mEnable = makeJCheckBox();
-        CMSAdminUtil.addEntryField(gatewayPanel, mPortLabel, mGatewayPortText, 
+        CMSAdminUtil.addEntryField(gatewayPanel, mPortLabel, mGatewayPortText,
           mBacklogLabel, mGatewayBacklogText, mEnableLabel, mEnable, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
@@ -177,10 +177,10 @@ public class CMSNetworkPanel extends CMSBaseTab {
         mSSLBacklogLabel = makeJLabel("SECUREEEBACKLOG");
         mGatewaySSLBacklogText = makeJTextField(10);
         JLabel dummy2 = new JLabel(" ");
-        CMSAdminUtil.addEntryField(gatewayPanel, mSSLPortLabel, 
+        CMSAdminUtil.addEntryField(gatewayPanel, mSSLPortLabel,
           mGatewaySSLPortText, mSSLBacklogLabel, mGatewaySSLBacklogText,
           dummy2, gbc);
-          
+
         refresh();
     }
 
@@ -200,14 +200,14 @@ public class CMSNetworkPanel extends CMSBaseTab {
         //String docroot = mDocRootText.getText().trim();
 
         //check blank fields
-        if (adminSSLPortStr.equals("") || 
+        if (adminSSLPortStr.equals("") ||
           (gatewayPortStr.equals("") && mGatewayPortText.isEnabled()) ||
-          (gatewaySSLPortStr.equals("") && mGatewaySSLPortText.isEnabled()) || 
-          agentSSLPortStr.equals("") || 
-          adminSSLBacklogStr.equals("") || 
+          (gatewaySSLPortStr.equals("") && mGatewaySSLPortText.isEnabled()) ||
+          agentSSLPortStr.equals("") ||
+          adminSSLBacklogStr.equals("") ||
           (gatewayBacklogStr.equals("") && mGatewayBacklogText.isEnabled()) ||
           (gatewaySSLBacklogStr.equals("") && mGatewaySSLBacklogText.isEnabled()) ||
-          agentSSLBacklogStr.equals("") ) { 
+          agentSSLBacklogStr.equals("") ) {
             showMessageDialog("BLANKFIELD");
             return false;
         }
@@ -380,11 +380,11 @@ public class CMSNetworkPanel extends CMSBaseTab {
                     mAgentSSLBacklogText.setText(str);
                 } else if (name.equals(Constants.PR_GATEWAY_S_BACKLOG)) {
                     if (str.equals(DISABLED)) {
-                        enableFields(mSSLBacklogLabel, mGatewaySSLBacklogText, 
+                        enableFields(mSSLBacklogLabel, mGatewaySSLBacklogText,
                           false, getBackground());
                         mGatewaySSLBacklogText.setText("");
                     } else {
-                        enableFields(mSSLBacklogLabel, mGatewaySSLBacklogText, 
+                        enableFields(mSSLBacklogLabel, mGatewaySSLBacklogText,
                           true, mActiveColor);
                         mGatewaySSLBacklogText.setText(str);
                     }
@@ -427,7 +427,7 @@ public class CMSNetworkPanel extends CMSBaseTab {
         repaint(1);
     }
 
-    private void enableFields(JLabel label, JTextComponent text, 
+    private void enableFields(JLabel label, JTextComponent text,
       boolean enabled, Color color) {
         label.setEnabled(enabled);
         text.setEnabled(enabled);

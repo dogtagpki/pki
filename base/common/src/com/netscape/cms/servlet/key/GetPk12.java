@@ -44,7 +44,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Get the recovered key in PKCS#12 format
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetPk12 extends CMSServlet {
@@ -82,7 +82,7 @@ public class GetPk12 extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "finishRecovery.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -107,7 +107,7 @@ public class GetPk12 extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID ID of request to recover
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

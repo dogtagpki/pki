@@ -55,15 +55,15 @@ public class CMSOCSPUILoader implements ISubSystemUILoader {
     public void register() {
         //register subsystem UI
         try {
-            
+
             //task tab
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
-            
+
             //config tab
             CMSResourcePage page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
             populateConfigContent(model);
-            
+
         }catch(Exception e) {
             Debug.println("CMSCAUILoader: register() config - "+e.toString());
         }
@@ -75,7 +75,7 @@ public class CMSOCSPUILoader implements ISubSystemUILoader {
     protected void populateConfigContent(CMSBaseResourceModel model) {
         CMSResourceObject list, node;
         CMSTabPanel tabPane;
-        
+
         //ca node
         list = new CMSResourceObject("OCSPCONFIG");
         tabPane = new CMSTabPanel(model, list);
@@ -93,8 +93,8 @@ public class CMSOCSPUILoader implements ISubSystemUILoader {
 ;
         node.setAllowsChildren(false);
         list.add(node);
-        
+
         model.addSubSystemNode(list);
     }
-    
+
 }

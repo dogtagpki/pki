@@ -39,9 +39,9 @@ class WIRecreateDBPage extends WizardBasePanel implements IWizardPanel {
     protected JRadioButton mNo;
     protected JTextArea mLabel;
     private static final String PANELNAME = "INSTALLDBAGAIN";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "install-internaldb-createdbagain-help";
-    
+
     WIRecreateDBPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -65,9 +65,9 @@ class WIRecreateDBPage extends WizardBasePanel implements IWizardPanel {
             return false;
         if (wizardInfo.isDBCreated()) {
             setBorder(makeTitledBorder(PANELNAME));
-            return true; 
+            return true;
         }
-      
+
         return false;
     }
 
@@ -93,7 +93,7 @@ class WIRecreateDBPage extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mLabel, gbc);
@@ -101,7 +101,7 @@ class WIRecreateDBPage extends WizardBasePanel implements IWizardPanel {
         mYes = makeJRadioButton("YES", false);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mYes, gbc);
@@ -109,7 +109,7 @@ class WIRecreateDBPage extends WizardBasePanel implements IWizardPanel {
         mNo = makeJRadioButton("NO", true);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0,COMPONENT_SPACE, 
+        gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mNo, gbc);

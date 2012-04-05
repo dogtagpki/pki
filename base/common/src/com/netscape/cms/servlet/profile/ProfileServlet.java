@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.ServletUtils;
 
 /**
  * This servlet is the base class of all profile servlets.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileServlet extends CMSServlet {
@@ -168,7 +168,7 @@ public class ProfileServlet extends CMSServlet {
      * initialize the servlet. Servlets implementing this method
      * must specify the template to use as a parameter called
      * "templatePath" in the servletConfig
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
 

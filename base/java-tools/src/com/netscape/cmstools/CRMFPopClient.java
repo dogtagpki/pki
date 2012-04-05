@@ -72,48 +72,48 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * A command-line utility used to generate a Certificate Request Message
  * Format (CRMF) request with proof of possesion (POP).
- * 
+ *
  * Usage:
- * 
+ *
  * <pre>
  *     CRMFPopClient  TOKEN_PWD
  *                    PROFILE_NAME HOST PORT USER_NAME REQUESTOR_NAME
  *                    POP_OPTION
  *                    SUBJECT_DN [OUTPUT_CERT_REQ]
- * 
+ *
  *                    ---  or  ---
- * 
+ *
  *     CRMFPopClient  TOKEN_PWD
  *                    POP_OPTION
  *                    OUTPUT_CERT_REQ SUBJECT_DN
- * 
- * 
+ *
+ *
  *     where POP_OPTION can be [POP_SUCCESS or POP_FAIL or POP_NONE]
  * </pre>
  * <p>
  * Examples:
- * 
+ *
  * <pre>
  *     CRMFPopClient  password123
  *                    caEncUserCert host.example.com 1026 MyUid MyUid
  *                    [POP_SUCCESS or POP_FAIL or POP_NONE]
  *                    CN=MyTest,C=US,UID=MyUid
- * 
+ *
  *                    ---  or  ---
- * 
+ *
  *     CRMFPopClient  password123
  *                    caEncUserCert host.example.com 1026 joe joe
  *                    [POP_SUCCESS or POP_FAIL or POP_NONE]
- *                    CN=MyTest,C=US,UID=MyUid OUTPUT_CERT_REQ 
- * 
+ *                    CN=MyTest,C=US,UID=MyUid OUTPUT_CERT_REQ
+ *
  *                    ---  or  ---
- * 
+ *
  *     CRMFPopClient  password123
  *                    [POP_SUCCESS or POP_FAIL or POP_NONE]
  *                    OUTPUT_CERT_REQ CN=MyTest,C=US,UID=MyUid
  * </pre>
  * <p>
- * 
+ *
  * <pre>
  * IMPORTANT:  The file "transport.txt" needs to be created to contain the
  *             transport certificate in its base64 encoded format.  This
@@ -121,7 +121,7 @@ import com.netscape.cmsutil.util.Utils;
  *             in base64 encoded format with the header and footer removed.
  * </pre>
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CRMFPopClient {
@@ -277,7 +277,7 @@ public class CRMFPopClient {
         try {
             CryptoManager.initialize(DB_DIR);
         } catch (Exception e) {
-            // it is ok if it is already initialized 
+            // it is ok if it is already initialized
             System.out.println("INITIALIZATION ERROR: " + e.toString());
             //		return;
         }
@@ -317,7 +317,7 @@ public class CRMFPopClient {
             KeyGenerator kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg1.generate();
 
-            System.out.println("."); //before KeyWrapper");	
+            System.out.println("."); //before KeyWrapper");
 
             // wrap private key using session
             KeyWrapper wrapper1 =
@@ -332,7 +332,7 @@ public class CRMFPopClient {
 
             System.out.println("."); //key wrapper wrapped");
 
-            // wrap session using transport 
+            // wrap session using transport
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
 
@@ -487,7 +487,7 @@ public class CRMFPopClient {
 
                 String Req = URLEncoder.encode(Req1, "UTF-8");
 
-                // post PKCS10 
+                // post PKCS10
 
                 url =
                         new URL("http://"

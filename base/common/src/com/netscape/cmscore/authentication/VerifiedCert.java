@@ -24,7 +24,7 @@ import com.netscape.certsrv.apps.CMS;
 
 /**
  * class storing verified certificate.
- * 
+ *
  * @version $Revision$, $Date$
  */
 

@@ -32,7 +32,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the AlgorithmId for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -58,7 +58,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Default constructor for the certificate attribute.
-     * 
+     *
      * @param algId the Algorithm identifier
      */
     public CertificateAlgorithmId(AlgorithmId algId) {
@@ -67,7 +67,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -78,7 +78,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -109,7 +109,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Encode the algorithm identifier in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -122,7 +122,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Decode the algorithm identifier from the passed stream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */

@@ -25,36 +25,36 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * An interface represents the database session. Operations
  * can be performed with a session.
- * 
+ *
  * Transaction and Caching support can be integrated
  * into session.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDBSSession {
 
     /**
      * Returns database subsystem.
-     * 
+     *
      * @return subsystem
      */
     public ISubsystem getDBSubsystem();
 
     /**
      * Closes this session.
-     * 
+     *
      * @exception EDBException failed to close session
      */
     public void close() throws EDBException;
 
     /**
      * Adds object to backend database. For example,
-     * 
+     *
      * <PRE>
      * session.add(&quot;cn=123459,o=certificate repository,o=airius.com&quot;,
      *             certRec);
      * </PRE>
-     * 
+     *
      * @param name name of the object
      * @param obj object to be added
      * @exception EDBException failed to add object
@@ -63,7 +63,7 @@ public interface IDBSSession {
 
     /**
      * Reads an object from the database.
-     * 
+     *
      * @param name name of the object that is to be read
      * @return database object
      * @exception EBaseException failed to read object
@@ -73,7 +73,7 @@ public interface IDBSSession {
     /**
      * Reads an object from the database, and only populates
      * the selected attributes.
-     * 
+     *
      * @param name name of the object that is to be read
      * @param attrs selected attributes
      * @return database object
@@ -84,7 +84,7 @@ public interface IDBSSession {
 
     /**
      * Deletes object from database.
-     * 
+     *
      * @param name name of the object that is to be deleted
      * @exception EBaseException failed to delete object
      */
@@ -92,7 +92,7 @@ public interface IDBSSession {
 
     /**
      * Modify an object in the database.
-     * 
+     *
      * @param name name of the object that is to be modified
      * @param mods modifications
      * @exception EBaseException failed to modify
@@ -103,7 +103,7 @@ public interface IDBSSession {
     /**
      * Searchs for a list of objects that match the
      * filter.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @return search results
@@ -115,7 +115,7 @@ public interface IDBSSession {
     /**
      * Searchs for a list of objects that match the
      * filter.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param maxSize max number of entries
@@ -128,7 +128,7 @@ public interface IDBSSession {
     /**
      * Searchs for a list of objects that match the
      * filter.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param maxSize max number of entries
@@ -142,7 +142,7 @@ public interface IDBSSession {
     /**
      * Retrieves a list of object that satifies the given
      * filter.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes
@@ -154,7 +154,7 @@ public interface IDBSSession {
 
     /**
      * Retrieves a list of objects.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes
@@ -167,7 +167,7 @@ public interface IDBSSession {
     /**
      * Sets persistent search to retrieve modified
      * certificate records.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes
@@ -181,7 +181,7 @@ public interface IDBSSession {
 
     /**
      * Retrieves a list of objects.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes
@@ -196,7 +196,7 @@ public interface IDBSSession {
 
     /**
      * Retrieves a list of objects.
-     * 
+     *
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes

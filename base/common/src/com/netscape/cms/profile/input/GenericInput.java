@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class implements a generic input.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenericInput extends EnrollInput implements IProfileInput {

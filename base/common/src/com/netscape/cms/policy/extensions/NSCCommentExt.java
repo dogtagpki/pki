@@ -47,12 +47,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Netscape comment
  * Adds Netscape comment policy
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -89,10 +89,10 @@ public class NSCCommentExt extends APolicyRule
      * Initializes this policy rule.
      * <p>
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=NSCCommentExtImpl ca.Policy.rule.<ruleName>.displayText=<n>
      * ca.Policy.rule.<ruleName>.commentFile=<n> ca.Policy.rule.<ruleName>.enable=false
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -147,7 +147,7 @@ public class NSCCommentExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -199,7 +199,7 @@ public class NSCCommentExt extends APolicyRule
 
             } catch (IOException e) {
                 // this is the hack: for some reason, the key which is the name
-                // of the policy has been converted into the OID 
+                // of the policy has been converted into the OID
                 try {
                     extensions.delete("2.16.840.1.113730.1.13");
                 } catch (IOException ee) {
@@ -269,7 +269,7 @@ public class NSCCommentExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -278,7 +278,7 @@ public class NSCCommentExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

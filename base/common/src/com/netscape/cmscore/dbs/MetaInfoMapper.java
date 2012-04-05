@@ -32,14 +32,14 @@ import com.netscape.certsrv.dbs.IDBObj;
 /**
  * A class represent mapper for metainfo attribute. Metainfo
  * is in format of the following:
- * 
+ *
  * <PRE>
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * </PRE>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

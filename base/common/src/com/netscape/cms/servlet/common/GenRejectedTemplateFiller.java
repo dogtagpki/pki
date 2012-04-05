@@ -28,7 +28,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * default Service Pending template filler
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
@@ -60,7 +60,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
             return null;
         }
 
-        // request id 
+        // request id
         IRequest req = cmsReq.getIRequest();
 
         if (req != null) {

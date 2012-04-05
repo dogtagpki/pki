@@ -431,7 +431,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public boolean isCRLExtensionEnabled(String extName) {
-        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && 
+        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) &&
                 mEnabledCRLExtensions.contains(extName));
     }
 
@@ -610,7 +610,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     mCriticalCRLExtensions.remove(id);
                 }
             }
-            //Sync the onlyContainsCACerts with similar property in CRLIssuingPoint 
+            //Sync the onlyContainsCACerts with similar property in CRLIssuingPoint
             //called caCertsOnly.
             if (name.equals(CMSIssuingDistributionPointExtension.PROP_CACERTS)) {
                 NameValuePairs crlIssuingPointPairs = null;

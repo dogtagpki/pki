@@ -32,10 +32,10 @@ import java.awt.event.*;
  * @version $Revision$, $Date$
  */
 public class CMSCRLCachePanel extends CMSBaseTab {
-    
+
     /*==========================================================
      * variables
-     *==========================================================*/    
+     *==========================================================*/
     private static String PANEL_NAME = "CRLCACHE";
 
     private JCheckBox mEnableCache;
@@ -83,11 +83,11 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     public void init() {
         Debug.println("CRLCachePanel: init()");
         _admin = _model.getServerInfo().getAdmin();
-        
+
         GridBagLayout gb = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         mCenterPanel.setLayout(gb);
-        
+
 
         //cache panel
         JPanel cachePanel = new JPanel();
@@ -333,7 +333,7 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     public boolean resetCallback() {
         refresh();
         return true;
-    }    
+    }
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mEnableCache)) {

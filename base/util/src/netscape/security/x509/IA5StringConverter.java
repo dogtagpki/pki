@@ -29,16 +29,16 @@ import netscape.security.util.DerValue;
 /**
  * A AVAValueConverter that converts a IA5String attribute to a DerValue
  * and vice versa. An example an attribute that is a IA5String string is "E".
- * 
+ *
  * @see AVAValueConverter
- * 
+ *
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
 public class IA5StringConverter implements AVAValueConverter {
-    // public constructors 
+    // public constructors
 
-    /* 
+    /*
      * Contructs a IA5String Converter.
      */
     public IA5StringConverter() {
@@ -46,11 +46,11 @@ public class IA5StringConverter implements AVAValueConverter {
 
     /*
      * Converts a string with ASN.1 IA5String characters to a DerValue.
-     * 
+     *
      * @param valueString 	a string with IA5String characters.
-     * 
-     * @return			a DerValue. 
-     * 
+     *
+     * @return			a DerValue.
+     *
      * @exception IOException	if a IA5String encoder is not
      *				available for the conversion.
      */
@@ -81,11 +81,11 @@ public class IA5StringConverter implements AVAValueConverter {
      * Checks if the BER encoded value is a IA5String.
      * NOTE only DER encoding is currently supported on for the BER
      * encoded value.
-     * 
+     *
      * @param berStream 	a byte array of the BER encoded value.
-     * 
-     * @return 			a DerValue. 
-     * 
+     *
+     * @return 			a DerValue.
+     *
      * @exception IOException   if the BER value cannot be converted
      *				to a IA5String DER value.
      */
@@ -100,9 +100,9 @@ public class IA5StringConverter implements AVAValueConverter {
     }
 
     /*
-     * Converts a DerValue of IA5String to a java string with IA5String 
-     * characters. 
-     * 
+     * Converts a DerValue of IA5String to a java string with IA5String
+     * characters.
+     *
      * @param avaValue 	a DerValue.
      *
      * @return 		a string with IA5String characters.

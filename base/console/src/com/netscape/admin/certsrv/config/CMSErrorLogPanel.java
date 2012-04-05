@@ -47,7 +47,7 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
         mHelpToken = HELPINDEX;
         mIsNT = isNT;
     }
-    
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
@@ -90,14 +90,14 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
 
     private void parseVals(NameValuePairs nvp) {
         if (nvp.get(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
-            Constants.TRUE)) 
+            Constants.TRUE))
             activateLog.setSelected(true);
         else
             activateLog.setSelected(false);
         mLevel = Integer.parseInt(nvp.get(Constants.PR_LOG_LEVEL));
         mlogBufSizTextData = nvp.get(Constants.PR_LOG_BUFFERSIZE);
         mlogMaxSizTextData = nvp.get(Constants.PR_LOG_MAXFILESIZE);
-        int val = 
+        int val =
           Integer.parseInt(nvp.get(Constants.PR_LOG_ROLLEROVER_INTERVAL));
         mFrequency = getRollOverIndex(val);
     }
@@ -159,7 +159,7 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
         clearDirtyFlag();
         return true;
     }
-	 
+
     /**
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
@@ -171,8 +171,8 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
 
 	/*==========================================================
 	 * EVENT HANDLER METHODS
-     *==========================================================*/     
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);

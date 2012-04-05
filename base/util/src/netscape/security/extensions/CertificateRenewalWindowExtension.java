@@ -33,11 +33,11 @@ import netscape.security.x509.Extension;
 /**
  * This represents the CertificateRenewalWindow extension
  * as defined in draft-thayes-cert-renewal-00
- * 
+ *
  * CertificateRenewalWindow ::= SEQUENCE {
  * beginTime GeneralizedTime,
  * endTime GeneralizedTime OPTIONAL }
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -161,7 +161,7 @@ public class CertificateRenewalWindowExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

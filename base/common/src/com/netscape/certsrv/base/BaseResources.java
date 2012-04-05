@@ -23,7 +23,7 @@ import java.util.ListResourceBundle;
  * A class represents a resource bundle for the entire
  * system.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */

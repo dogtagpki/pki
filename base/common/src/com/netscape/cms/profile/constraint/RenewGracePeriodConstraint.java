@@ -38,13 +38,13 @@ import com.netscape.cms.profile.def.NoDefault;
 /**
  * This class supports renewal grace period, which has two
  * parameters: graceBefore and graceAfter
- * 
+ *
  * @author Christina Fu
  * @version $Revision$, $Date$
  */
 public class RenewGracePeriodConstraint extends EnrollConstraint {
 
-    // for renewal: # of days before the orig cert expiration date 
+    // for renewal: # of days before the orig cert expiration date
     public static final String CONFIG_RENEW_GRACE_BEFORE = "renewal.graceBefore";
     // for renewal: # of days after the orig cert expiration date
     public static final String CONFIG_RENEW_GRACE_AFTER = "renewal.graceAfter";

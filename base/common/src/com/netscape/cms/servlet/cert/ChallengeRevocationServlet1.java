@@ -69,7 +69,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
  * revocation request and submits it to the authority subsystem for processing
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ChallengeRevocationServlet1 extends CMSServlet {
@@ -88,7 +88,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     private IPublisherProcessor mPublisherProcessor = null;
     private String mRequestID = null;
 
-    // http params 
+    // http params
     public static final String SERIAL_NO = TOKEN_CERT_SERIAL;
     public static final String REASON_CODE = "reasonCode";
     public static final String CHALLENGE_PHRASE = "challengePhrase";
@@ -103,7 +103,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     /**
      * Initialize the servlet. This servlet uses the file
      * revocationResult.template for the response
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -130,7 +130,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
      * <li>http.param REASON_CODE the revocation reason
      * <li>http.param b64eCertificate the base-64 encoded certificate to revoke
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -370,7 +370,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 Vector<String> serialNumbers = new Vector<String>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; 
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1;
                             i = revokeAll.indexOf('=', i)) {
                         if (i > -1) {
                             i++;

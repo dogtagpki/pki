@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 
 /**
- * 
+ *
  */
 package com.netscape.cms.servlet.request.model;
 
@@ -40,7 +40,7 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 @XmlRootElement(name="SecurityDataRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RecoveryRequestData {
-    
+
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
     private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
@@ -50,24 +50,24 @@ public class RecoveryRequestData {
     @XmlElement
     @XmlJavaTypeAdapter(KeyIdAdapter.class)
     protected KeyId keyId;
-    
+
     @XmlElement
     @XmlJavaTypeAdapter(RequestIdAdapter.class)
     protected RequestId requestId;
-    
+
     @XmlElement
     protected String transWrappedSessionKey;
-    
+
     @XmlElement
     protected String sessionWrappedPassphrase;
-    
+
     @XmlElement
     protected String nonceData;
 
     public RecoveryRequestData() {
         // required for JAXB (defaults)
     }
-    
+
     public RecoveryRequestData(MultivaluedMap<String, String> form) {
         if (form.containsKey(KEY_ID)) {
             keyId = new KeyId(form.getFirst(KEY_ID));

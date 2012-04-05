@@ -44,7 +44,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -114,7 +114,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
      * publish a user certificate
      * Adds the cert to the multi-valued certificate attribute as a
      * DER encoded binary blob. Does not check if cert already exists.
-     * 
+     *
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
@@ -176,7 +176,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 return;
             }
 
-            // publish 
+            // publish
             LDAPModification mod = null;
             if (deleteCert) {
                 mod = new LDAPModification(LDAPModification.REPLACE,

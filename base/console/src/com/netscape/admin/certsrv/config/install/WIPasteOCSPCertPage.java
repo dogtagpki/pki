@@ -50,7 +50,7 @@ class WIPasteOCSPCertPage extends WIPasteCertPage {
 
         if (wizardInfo.isCloning() && wizardInfo.isOCSPCloningDone())
             return false;
-        if (wizardInfo.isOCSPCertLocalCA() || !wizardInfo.isInstallCertNow() 
+        if (wizardInfo.isOCSPCertLocalCA() || !wizardInfo.isInstallCertNow()
           || !wizardInfo.isOCSPInstalled() || wizardInfo.isOCSPCertInstalledDone())
             return false;
 

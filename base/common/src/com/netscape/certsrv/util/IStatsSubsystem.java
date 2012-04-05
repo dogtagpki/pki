@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * can be loaded into cert server kernel to perform
  * statistics collection.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

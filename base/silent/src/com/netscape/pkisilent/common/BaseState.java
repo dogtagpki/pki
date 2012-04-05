@@ -31,14 +31,14 @@ public class BaseState {
     private String ldapbase, ldaphost, ldapport, ldapdn, ldapdnpw;
     private boolean ldapsecConn = false;
 
-    // Constructor 
+    // Constructor
 
     public BaseState() {
     }
 
     /**
      * Constructor . Takes the parameter CMSConfigfilename ( with fullpath)
-     * 
+     *
      * @param CMSConfigfile.
      */
 

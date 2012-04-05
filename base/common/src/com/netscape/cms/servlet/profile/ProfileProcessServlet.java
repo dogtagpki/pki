@@ -66,7 +66,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet approves profile-based request.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileProcessServlet extends ProfileServlet {
@@ -359,7 +359,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             if (op.equals("assign")) {
                 String owner = req.getRequestOwner();
 
-                // assigned owner 
+                // assigned owner
                 if (owner != null && owner.length() > 0) {
                     if (!grantPermission(req, authToken)) {
                         CMS.debug("ProfileProcessServlet: Permission not granted to assign request.");
@@ -548,15 +548,15 @@ public class ProfileProcessServlet extends ProfileServlet {
     /**
      * Cancel request
      * <P>
-     * 
+     *
      * (Certificate Request Processed - a manual "agent" profile based cert cancellation)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -605,15 +605,15 @@ public class ProfileProcessServlet extends ProfileServlet {
     /**
      * Reject request
      * <P>
-     * 
+     *
      * (Certificate Request Processed - a manual "agent" profile based cert rejection)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -662,15 +662,15 @@ public class ProfileProcessServlet extends ProfileServlet {
     /**
      * Approve request
      * <P>
-     * 
+     *
      * (Certificate Request Processed - a manual "agent" profile based cert acceptance)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -835,11 +835,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -865,11 +865,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Value
-     * 
+     *
      * This method is called to obtain the "reason" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param request the actual request
      * @return reason string containing the signed audit log message reason
      */
@@ -901,11 +901,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */

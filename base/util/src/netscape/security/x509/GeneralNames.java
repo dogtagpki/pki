@@ -29,11 +29,11 @@ import netscape.security.util.DerValue;
  * X509 certificates.
  * <p>
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -46,11 +46,11 @@ public class GeneralNames extends Vector<GeneralNameInterface> {
 
     /**
      * Create the GeneralNames, decoding from the passed DerValue.
-     * 
+     *
      * <b>Caution when using this constructor. It may be broken!
      * Better to call addElement(gni) directly where gni is
      * a GeneralNameInterface object </b>
-     * 
+     *
      * @param derVal the DerValue to construct the GeneralNames from.
      * @exception GeneralNamesException on decoding error.
      * @exception IOException on error.
@@ -75,7 +75,7 @@ public class GeneralNames extends Vector<GeneralNameInterface> {
 
     /**
      * Create the GeneralNames
-     * 
+     *
      * @param names a non-empty array of names to put into the
      *            generalNames
      */
@@ -99,7 +99,7 @@ public class GeneralNames extends Vector<GeneralNameInterface> {
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception GeneralNamesException on encoding error.
      * @exception IOException on error.

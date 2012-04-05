@@ -50,7 +50,7 @@ class WIKRACertSubmitPage extends WICertSubmitPage implements IWizardPanel {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isKRACloningDone())
             return false;
-        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
           Constants.PR_KRA_TRANSPORT_CERT);
         if (!wizardInfo.isKRAInstalled() ||
           wizardInfo.isKRACertRequestDone() || wizardInfo.isKRACertInstalledDone() ||

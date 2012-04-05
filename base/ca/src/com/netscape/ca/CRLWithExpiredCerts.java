@@ -31,9 +31,9 @@ public class CRLWithExpiredCerts extends CRLIssuingPoint {
     /**
      * overrides getRevokedCerts in CRLIssuingPoint to include
      * all revoked certs, including once that have expired.
-     * 
+     *
      * @param thisUpdate parameter is ignored.
-     * 
+     *
      * @exception EBaseException if an exception occured getting revoked
      *                certificates from the database.
      */

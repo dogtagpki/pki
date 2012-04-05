@@ -37,7 +37,7 @@ import netscape.security.util.PrettyPrintFormat;
  * information appearing in the permitted subtrees.
  * <p>
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * NameConstraints ::= SEQUENCE {
  *    permittedSubtrees [0]  GeneralSubtrees OPTIONAL,
@@ -50,7 +50,7 @@ import netscape.security.util.PrettyPrintFormat;
  *    maximum           [1]  BaseDistance OPTIONAL }
  * BaseDistance ::== INTEGER (0..MAX)
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.10
@@ -113,7 +113,7 @@ public class NameConstraintsExtension extends Extension
      * The default constructor for this class. Either parameter
      * can be set to null to indicate it is omitted but both
      * cannot be null.
-     * 
+     *
      * @param permitted the permitted GeneralSubtrees (null for optional).
      * @param excluded the excluded GeneralSubtrees (null for optional).
      */
@@ -145,7 +145,7 @@ public class NameConstraintsExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -219,7 +219,7 @@ public class NameConstraintsExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -229,7 +229,7 @@ public class NameConstraintsExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

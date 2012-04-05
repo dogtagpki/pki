@@ -49,7 +49,7 @@ class WIRACertSubmitPage extends WICertSubmitPage implements IWizardPanel {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         if (wizardInfo.isCloning() && wizardInfo.isRACloningDone())
             return false;
-        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
           Constants.PR_RA_SIGNING_CERT);
         if (!wizardInfo.isRAInstalled() ||
           wizardInfo.isRACertRequestDone() || wizardInfo.isRACertInstalledDone() ||

@@ -38,7 +38,7 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
     private static String PANEL_NAME = "CACERTSETTING";
     private PanelMapperConfigDialog mDialog = null;
     private CMSTabPanel mParent;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-ca-ldappublish-cacert-help";
 
 	/*==========================================================
@@ -53,17 +53,17 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * Actual UI construction
      */
     public void init() {
         super.init();
-        
+
         //XXX B1 - disable the publisher configuration
         mPublisher.setEnabled(false);
         //XXX B1 - disable the publisher configuration
-        
+
         refresh();
     }
 
@@ -105,17 +105,17 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
         refresh();
         return true;
     }
-    
+
     /*==========================================================
 	 * EVNET HANDLER METHODS
-     *==========================================================*/ 
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mMapper)) {
             Debug.println("Edit Mapper Config");
             mDialog = new PanelMapperConfigDialog(_model.getFrame(), _admin);
-            mDialog.showDialog(_mapper.getText(), 
+            mDialog.showDialog(_mapper.getText(),
                     DestDef.DEST_CA_ADMIN, ScopeDef.SC_CACERT);
             if (!mDialog.isOK())
                 return;
@@ -124,24 +124,24 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
             //Debug.println("Edit Publisher Config");
         }
     }
-    
+
     /*==========================================================
 	 * private methods
      *==========================================================*/
-    
+
     /* get config parameters associated with each mapper
     private NameValueParis getConfig() throws EAdminException {
-        
+
         NameValuePairs response = _admin.read(DestDef.DEST_CA_ADMIN,
-              ScopeDef.SC_CAMAPPER, _mapper.getText()], 
+              ScopeDef.SC_CAMAPPER, _mapper.getText()],
               new NameValuePairs());
         return response;
     }
     */
-    
-    /*send configuration to server 
+
+    /*send configuration to server
     private void sendConfig(NameValuePairs response) {
-        
+
         response.add(Constants.PR_MAPPER, MAPPER[_mapper.getSelectedIndex()]);
         _model.progressStart();
         try {
@@ -153,10 +153,10 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
             return false;
         }
         _model.progressStop();
-       
+
     }
     */
-    
+
     private void populate(NameValuePairs nvps) {
         for (String name : nvps.keySet()) {
             String value = nvps.get(name);
@@ -166,6 +166,6 @@ public class CMSCACertSettingPanel extends CMSCertSettingPanel {
                 _publisher.setText(value);
             }
         }
-    }     
+    }
 }
 

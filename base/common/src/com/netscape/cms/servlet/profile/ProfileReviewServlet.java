@@ -55,7 +55,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * This servlet allows reviewing of profile-based request.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileReviewServlet extends ProfileServlet {
@@ -77,7 +77,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -99,7 +99,7 @@ public class ProfileReviewServlet extends ProfileServlet {
      * <ul>
      * <li>http.param requestId the ID of the profile to review
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

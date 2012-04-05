@@ -83,7 +83,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Check the status of a certificate request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CheckRequest extends CMSServlet {
@@ -123,7 +123,7 @@ public class CheckRequest extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "requestStatus.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -143,7 +143,7 @@ public class CheckRequest extends CMSServlet {
      * the 'queryPending' parameter.
      * <li>http.param queryPending query formatted as a CMC request
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -329,7 +329,7 @@ public class CheckRequest extends CMSServlet {
         String type = r.getRequestType();
         Integer result = r.getExtDataInInteger(IRequest.RESULT);
 
-        /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) { 
+        /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) {
                     X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
                     IArgBlock rarg = CMS.createArgBlock();
 

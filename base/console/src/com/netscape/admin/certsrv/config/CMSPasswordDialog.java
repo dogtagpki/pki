@@ -37,13 +37,13 @@ import com.netscape.admin.certsrv.connection.*;
  * @date        07/21/98
  */
 
-public class CMSPasswordDialog extends JDialog 
+public class CMSPasswordDialog extends JDialog
     implements ActionListener, DocumentListener, MouseListener
 {
-    
+
     /*==========================================================
      * variables
-     *==========================================================*/    
+     *==========================================================*/
     private static final int WIDTH = 300;
     private static final int HEIGHT = 216;
 
@@ -59,12 +59,12 @@ public class CMSPasswordDialog extends JDialog
     private ResourceBundle mResource;
     private AdminConnection mAdmin;
     private JButton mOK, mCancel, mHelp;
-    
-    
+
+
     /*==========================================================
      * constructors
      *==========================================================*/
-     
+
     /**
      * @param parent parent frame
      */
@@ -72,7 +72,7 @@ public class CMSPasswordDialog extends JDialog
         super(parent, true);
         mParentFrame = parent;
         mAdmin = conn;
-        mResource = 
+        mResource =
           ResourceBundle.getBundle(CMSAdminResources.class.getName());
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
@@ -96,30 +96,30 @@ public class CMSPasswordDialog extends JDialog
         center.add(contentPanel);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel lUsername = 
+        JLabel lUsername =
           new JLabel(mResource.getString(PREFIX+"_LABEL_USERID_LABEL"));
         lUsername.setToolTipText(
           mResource.getString(PREFIX+"_LABEL_USERID_TTIP"));
 
         mUsernameField = new JLabel(uid);
-        
+
 
         CMSAdminUtil.addEntryField(contentPanel, lUsername, mUsernameField,
           gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel lOldPassword= 
+        JLabel lOldPassword=
           new JLabel(mResource.getString(PREFIX+"_LABEL_OLDPASSWORD_LABEL"));
         lOldPassword.setToolTipText(
           mResource.getString(PREFIX+"_LABEL_OLDPASSWORD_TTIP"));
         mOldPasswordField = new JPasswordField();
         mOldPasswordField.getDocument().addDocumentListener(this);
         mOldPasswordField.addMouseListener(this);
-        CMSAdminUtil.addEntryField(contentPanel, lOldPassword, 
+        CMSAdminUtil.addEntryField(contentPanel, lOldPassword,
           mOldPasswordField, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel lPassword= 
+        JLabel lPassword=
           new JLabel(mResource.getString(PREFIX+"_LABEL_PASSWORD_LABEL"));
         lPassword.setToolTipText(
           mResource.getString(PREFIX+"_LABEL_PASSWORD_TTIP"));
@@ -130,13 +130,13 @@ public class CMSPasswordDialog extends JDialog
           gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel lPasswordAgain= 
+        JLabel lPasswordAgain=
           new JLabel(mResource.getString(PREFIX+"_LABEL_PASSWORD_AGAIN_LABEL"));
         lPassword.setToolTipText(
           mResource.getString(PREFIX+"_LABEL_PASSWORD_AGAIN_TTIP"));
         mPasswordFieldAgain = new JPasswordField();
         mPasswordFieldAgain.getDocument().addDocumentListener(this);
-        mPasswordFieldAgain.addMouseListener(this);     
+        mPasswordFieldAgain.addMouseListener(this);
         CMSAdminUtil.addEntryField(contentPanel, lPasswordAgain,
           mPasswordFieldAgain, gbc);
 
@@ -200,19 +200,19 @@ public class CMSPasswordDialog extends JDialog
     public String getPassword() {
         return mPassword;
     }
-    
-     
+
+
     /*==========================================================
      * EVNET HANDLER METHODS
      *==========================================================*/
-     
+
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource().equals(mOK)) {
             String userid = mUsernameField.getText().trim();
             String oldpassword = mOldPasswordField.getText().trim();
             String newpassword = mPasswordField.getText().trim();
             String passwordAgain = mPasswordFieldAgain.getText().trim();
- 
+
             /* PROACTIVE VERIFICATION
             if (oldpassword.equals("") || newpassword.equals("") ||
               passwordAgain.equals("")) {
@@ -225,9 +225,9 @@ public class CMSPasswordDialog extends JDialog
                 CMSAdminUtil.showMessageDialog(mParentFrame, mResource,
                   PREFIX, "CONFIRMED", CMSAdminUtil.ERROR_MESSAGE);
                 return;
-            } 
-            
-               
+            }
+
+
             NameValuePairs nvps = new NameValuePairs();
             nvps.put(Constants.PR_OLD_AGENT_PWD, oldpassword);
             nvps.put(Constants.PR_AGENT_PWD, newpassword);
@@ -241,7 +241,7 @@ public class CMSPasswordDialog extends JDialog
                 if (!ex.getMessage().equals("Server Error"))
                     return;
             }
-           
+
             mCanceled = false;
             this.dispose();
             return;
@@ -253,21 +253,21 @@ public class CMSPasswordDialog extends JDialog
             return;
         }
     }
-    
-    
+
+
     //== DocumentListener ==
     public void insertUpdate(DocumentEvent e) {
         setButtons();
     }
-    
+
     public void removeUpdate(DocumentEvent e){
         setButtons();
     }
-    
+
     public void changedUpdate(DocumentEvent e){
         setButtons();
     }
-    
+
     //==== MOUSELISTENER ======================
     public void mouseClicked(MouseEvent e) {
         setButtons();
@@ -277,34 +277,34 @@ public class CMSPasswordDialog extends JDialog
     public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {
-        setButtons();    
-    }   
-    
-    
+        setButtons();
+    }
+
+
     /*==========================================================
      * private methods
-     *==========================================================*/  
-    
+     *==========================================================*/
+
     private JPanel makeActionPane() {
-        mOK = CMSAdminUtil.makeJButton(mResource, PREFIX, "OK", null, 
+        mOK = CMSAdminUtil.makeJButton(mResource, PREFIX, "OK", null,
           this);
         mOK.setEnabled(false);
-        mCancel = CMSAdminUtil.makeJButton(mResource, PREFIX, "CANCEL", 
+        mCancel = CMSAdminUtil.makeJButton(mResource, PREFIX, "CANCEL",
           null, this);
         JButton[] buttons = { mOK, mCancel};
         JButtonFactory.resize( buttons );
         return CMSAdminUtil.makeJButtonPanel(buttons);
-    } 
-    
+    }
+
     //set buttons
     private void setButtons() {
         if ( (mPasswordField.getText().trim().equals("")) ||
              (mPasswordFieldAgain.getText().trim().equals("")) ||
              (mOldPasswordField.getText().trim().equals("")) ) {
-            mOK.setEnabled(false);                
+            mOK.setEnabled(false);
         } else {
-            mOK.setEnabled(true);   
+            mOK.setEnabled(true);
         }
-    }   
-    
+    }
+
 }

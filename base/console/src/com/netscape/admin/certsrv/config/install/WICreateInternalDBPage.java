@@ -82,7 +82,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
             enableRemoteDB(mEnable.isSelected());
         }
     }
-	
+
     private void enableLocalDB(boolean e)
     {
         Color c;
@@ -156,15 +156,15 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
             mPasswordText.setText("");
             mPasswordAgainText.setText("");
             mRemoteBaseDNText.setText("o=netscapeCertificateServer");
-            mRemoteDatabaseText.setText("userRoot"); 
+            mRemoteDatabaseText.setText("userRoot");
             mRemoteBindAsText.setText("cn=directory manager");
             enableLocalDB(mEnable.isSelected());
             enableRemoteDB(mEnable.isSelected());
             mLocal.setEnabled(mEnable.isSelected());
             mRemote.setEnabled(mEnable.isSelected());
-            return true; 
+            return true;
         }
-      
+
         return false;
     }
 
@@ -270,10 +270,10 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
    	    wizardInfo.setDBBindDN(mBindAsText.getText().trim());
    	    wizardInfo.setDBName(mInstanceIDText.getText().trim());
         }
- 
+
         startProgressStatus();
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATEDB");
-        
+
         boolean ready = send(rawData, wizardInfo);
 
         if (ready) {
@@ -282,7 +282,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
             ready = send(rawData, wizardInfo);
         }
         //dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -332,7 +332,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(COMPONENT_SPACE, 2*COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 2*COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(mLocal, gbc);
 
@@ -355,13 +355,13 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         mActiveColor = mInstanceIDText.getBackground();
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel portNumber = makeJLabel("PORT");        
+        JLabel portNumber = makeJLabel("PORT");
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(portNumber, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(10);
         gbc.anchor = gbc.WEST;
@@ -370,7 +370,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mPortText, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mBindAsLabel = makeJLabel("ADMIN");
         //gbc.anchor = gbc.NORTHWEST;
@@ -396,7 +396,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mPasswordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.WEST;
@@ -428,7 +428,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.fill = gbc.NONE;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(COMPONENT_SPACE, 2*COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, 2*COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(mRemote, gbc);
 
@@ -454,13 +454,13 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         add(mRemoteHostText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        JLabel portNumber1 = makeJLabel("PORT");        
+        JLabel portNumber1 = makeJLabel("PORT");
         gbc.anchor = gbc.NORTHEAST;
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(portNumber1, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mRemotePortText = makeJTextField(10);
         gbc.anchor = gbc.WEST;
@@ -469,7 +469,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mRemotePortText, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel baseDNLbl = makeJLabel("BASEDN");
         gbc.anchor = gbc.NORTHEAST;
@@ -512,7 +512,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(passwordLabel, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mRemotePasswordText = makeJPasswordField(30);
         gbc.anchor = gbc.WEST;
@@ -546,7 +546,7 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(dummy1, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mSchema = makeJCheckBox("SCHEMA", true);
         gbc.anchor = gbc.NORTHWEST;
@@ -570,8 +570,8 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
         wizardInfo.setDBCreated(ConfigConstants.TRUE);
         wizardInfo.setDBCreateNow(ConfigConstants.FALSE);
         wizardInfo.setCreateDBDone(ConfigConstants.TRUE);
-        
-        if (mEnable.isSelected()) 
+
+        if (mEnable.isSelected())
             wizardInfo.setCloneDBCreated("true");
         else {
             wizardInfo.setUpdateDBInfoDone(ConfigConstants.TRUE);

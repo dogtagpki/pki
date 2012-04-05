@@ -39,11 +39,11 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
     private JRadioButton mNo;
     private static final String PANELNAME = "INTROMIGRATIONWIZARD";
     private String mHelpIndex;
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "install-ca-migration-enable-wizard-help";
-    private static final String CAKRAHELPINDEX = 
+    private static final String CAKRAHELPINDEX =
       "install-cakra-migration-enable-wizard-help";
-    
+
     WIIntroMigrationPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -66,7 +66,7 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
         if (!wizardInfo.isCAInstalled() || wizardInfo.isMigrationDone())
             return false;
         if (wizardInfo.isCAInstalled() && wizardInfo.isKRAInstalled())
-            mHelpIndex = CAKRAHELPINDEX;   
+            mHelpIndex = CAKRAHELPINDEX;
         else
             mHelpIndex = CAHELPINDEX;
         setBorder(makeTitledBorder(PANELNAME));
@@ -91,7 +91,7 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
             // do the data migration
             data.put(ConfigConstants.TASKID, TaskId.TASK_MIGRATION);
             data.put(ConfigConstants.OPTYPE, OpDef.OP_MODIFY);
-            data.put(ConfigConstants.PR_ENABLE_MIGRATION, 
+            data.put(ConfigConstants.PR_ENABLE_MIGRATION,
               ConfigConstants.FALSE);
         }
 
@@ -138,8 +138,8 @@ class WIIntroMigrationPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mYes, gbc);
- 
-        mNo = makeJRadioButton("NO", true);        
+
+        mNo = makeJRadioButton("NO", true);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(0,COMPONENT_SPACE,

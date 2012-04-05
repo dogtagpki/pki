@@ -50,7 +50,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * A class representing a recoverBySerial servlet.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RecoverBySerial extends CMSServlet {

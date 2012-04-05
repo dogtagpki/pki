@@ -67,7 +67,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         super(panelName, parent);
         mModel = parent.getResourceModel();
     }
-    
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
@@ -115,7 +115,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         gbc.fill = gbc.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         logInfo.add(logFQC, gbc);
-		
+
 		mlogFQC = makeJComboBox("LOGFQC");
         gbc.anchor = gbc.WEST;
         logInfo.add(mlogFQC, gbc);
@@ -125,7 +125,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         gbc.fill = gbc.HORIZONTAL;
         gbc.weightx = 1.0;
         logInfo.add(dummyFQC, gbc);
-        
+
 		// Log File Maximum Size
         CMSAdminUtil.resetGBC(gbc);
         JLabel logMaxSiz = makeJLabel("LOGMAXSIZ");
@@ -142,7 +142,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         gbc.fill = gbc.HORIZONTAL;
         logInfo.add(mlogMaxSizText, gbc);
         mActiveColor = mlogMaxSizText.getBackground();
-   
+
         mMaxLabel = makeJLabel("SIZEUNIT");
         gbc.weightx = 0.0;
         gbc.fill = gbc.NONE;
@@ -314,7 +314,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
 		mlogFQC.setSelectedIndex(mFrequency);
         mlogMaxSizText.setText(mlogMaxSizTextData);
 	    mlogBufSizText.setText(mlogBufSizTextData);
-        mLogLevel.setSelectedIndex(mLevel);       
+        mLogLevel.setSelectedIndex(mLevel);
 
         if (mIsNT) {
             if (mActivateNTLog.isSelected()) {
@@ -353,8 +353,8 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
 
 	/*==========================================================
 	 * EVENT HANDLER METHODS
-     *==========================================================*/     
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);

@@ -55,11 +55,11 @@ import com.netscape.cmscore.util.Debug;
  * Renewal, Revocation and KeyRecovery and KeyArchival.
  * 2. To apply the configured policies on the given request.
  * 3. To enable policy listing/configuration via MCC console.
- * 
+ *
  * Since the policy processor also implements the IPolicy interface
  * the processor itself presents itself as one big policy to the
  * request processor.
- * 
+ *
  * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
@@ -126,7 +126,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Returns the configuration store.
      * <P>
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -136,7 +136,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Initializes the PolicyProcessor
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this Subsystem.
@@ -323,7 +323,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             } catch (Throwable e) {
                 mAuthority.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_POLICY_INIT_FAILED", instanceName, e.toString()));
-                // disable rule initialized if there is 
+                // disable rule initialized if there is
                 // configuration error
                 enabled = false;
                 c.putString(PROP_ENABLE, "false");
@@ -372,7 +372,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     /**
      * Apply policies on the given request.
-     * 
+     *
      * @param IRequest The given request
      * @return The policy result object.
      */
@@ -384,9 +384,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (op == null) {
             CMS.debug("GenericPolicyProcessor: apply op null");
             // throw new AssertionException("Missing operation type in request. Can't happen!");
-            // Return ACCEPTED for now. Looks like even get CA chain 
-            // is being passed in here with request type set elsewhere 
-            // on the request. 
+            // Return ACCEPTED for now. Looks like even get CA chain
+            // is being passed in here with request type set elsewhere
+            // on the request.
             return PolicyResult.ACCEPTED;
         }
         if (isProfileRequest(req)) {
@@ -920,7 +920,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Predicate for the persistent rule can't be changed.
         ht.put(IPolicyRule.PROP_ENABLE, String.valueOf(active));
 
-        // put old config store parameters first. 
+        // put old config store parameters first.
         for (Enumeration<String> oldkeys = oldStore.keys(); oldkeys.hasMoreElements();) {
             String k = (String) oldkeys.nextElement();
             String v = (String) oldStore.getString(k);
@@ -957,7 +957,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // Try to initialize this rule.
         newRule.init(this, newStore);
 
-        // If we are successfully initialized, replace the rule 
+        // If we are successfully initialized, replace the rule
         // instance
         policyInstance.setRule(newRule);
         policyInstance.setActive(active);
@@ -1161,26 +1161,26 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Initializes the default system policies. Currently there is only
      * one policy - ManualAuthentication. More may be added later on.
-     * 
+     *
      * The default policies may be disabled - for example to over-ride
      * agent approval for testing the system by setting the following
      * property in the config file:
-     * 
+     *
      * <subsystemId>.Policy.systemPolicies.enable=false
-     * 
+     *
      * By default the value for this property is true.
-     * 
+     *
      * Users can over-ride the default system policies by listing their
      * 'custom' system policies under the following property:
-     * 
+     *
      * <subsystemId>.Policy.systemPolicies=<system policy1 class path>,
      * <system policy2 class path>
-     * 
+     *
      * There can only be one instance of the system policy in the system
      * and will apply to all requests, and hence predicates are not used
      * for a system policy. Due to the same reason, these properties are
      * not configurable using the Console.
-     * 
+     *
      * A System policy may read config properties from a subtree under
      * <subsystemId>.Policy.systemPolicies.<ClassName>. An example is
      * ra.Policy.systemPolicies.ManualAuthentication.param1=value
@@ -1221,7 +1221,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 mSystemDefaults = DEF_POLICIES;
         }
 
-        // Now Initialize the rules. These defaults have only one 
+        // Now Initialize the rules. These defaults have only one
         // instance and the rule name is the name of the class itself.
         // Any configuration parameters required could be read from
         // <subsystemId>.Policy.default.RuleName.
@@ -1268,84 +1268,84 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Read list of undeletable policies if any configured in the
      * system.
-     * 
+     *
      * These are required to protect the system from being misconfigured
      * to the point that the requests wouldn't serialize or certain
      * fields in the certificate(s) being checked will go unchecked
      * ..etc.
-     * 
+     *
      * For now the following policies are undeletable:
-     * 
+     *
      * DirAuthRule: This is a default DirectoryAuthentication policy
      * for user certificates that interprets directory
      * credentials. The presence of this policy is needed
      * if the OOTB DirectoryAuthentication-based automatic
      * certificate issuance is supported.
-     * 
+     *
      * DefaultUserNameRule: This policy verifies/sets subjectDn for user
      * certificates.
-     * 
+     *
      * DefaultServerNameRule: This policy verifies/sets subjectDn for
      * server certificates.
-     * 
+     *
      * DefaultValidityRule: Verifies/sets validty for all certificates.
-     * 
+     *
      * DefaultRenewalValidityRule: Verifies/sets validity for certs being
      * renewed.
-     * 
+     *
      * The 'undeletables' cannot be deleted from the config file, nor
      * can the be disabled. If any predicates are associated with them
      * the predicates can't be changed either. But, other config parameters
      * such as maxValidity, renewalInterval ..etc can be changed to suit
      * local policy requirements.
-     * 
+     *
      * During start up the policy processor will verify if the undeletables
      * are present, and that they are enabled and that their predicates are
      * not changed.
-     * 
+     *
      * The rules mentioned above are currently hard coded. If these need to
      * read from the config file, the 'undeletables' can be configured as
      * as follows:
-     * 
+     *
      * <subsystemId>.Policy.undeletablePolicies=<comma separated rule names>
      * Example:
      * ra.Policy.undeletablePolicies=DirAuthRule, DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule,
      * DefaultRenewalValidityRule
-     * 
+     *
      * The predicates if any associated with them may be configured as
      * follows:
      * <subsystemId>.Policy.undeletablePolicies.DirAuthRule.predicate= certType == client.
-     * 
+     *
      * where subsystemId is ra or ca.
-     * 
+     *
      * If the undeletables are configured in the file,the configured entries
      * take precedence over the hardcoded ones in this file. If you are
      * configuring them in the file, please remember to configure the
      * predicates if applicable.
-     * 
+     *
      * During policy configuration from MCC, the policy processor will not
      * let you delete an 'undeletable', nor will it let you disable it.
      * You will not be able to change the predicate either. Other parameters
      * can be configured as needed.
-     * 
+     *
      * If a particular rule needs to be removed from the 'undeletables',
      * either remove it from the hard coded list above, or configure the
      * rules required rules only via the config file. The former needs
      * recompilation of the source. The later is flexible to be able to
      * make any rule an 'undeletable' or nor an 'undeletable'.
-     * 
+     *
      * Example: We want to use only manual forms for enrollment.
      * We do n't need to burn in DirAuthRule. We need to configure all
      * other rules except the DirAuthRule as follows:
-     * 
+     *
      * ra.Policy.undeletablePolicies = DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule,
      * DefaultRenewalValidityRule
-     * 
+     *
      * The following predicates are necessary:
-     * 
+     *
      * ra.Policy.undeletablePolicies.DefaultUserNameRule.predicate = certType == client
      * ra.Policy.undeletablePolicies.DefaultServerNameRule.predicate = certType == server
-     * 
+     *
      * The other two rules do not have any predicates.
      */
     private void initUndeletablePolicies(IConfigStore mConfig)
@@ -1375,7 +1375,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             return;
         }
 
-        // For each rule read from the config file, see if any 
+        // For each rule read from the config file, see if any
         // predicate is set.
         mUndeletablePolicies = new Hashtable<String, IExpression>();
         for (Enumeration<String> e = rules.elements(); e.hasMoreElements();) {

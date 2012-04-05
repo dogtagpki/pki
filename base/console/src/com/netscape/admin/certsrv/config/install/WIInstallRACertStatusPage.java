@@ -52,7 +52,7 @@ class WIInstallRACertStatusPage extends WIInstallCertStatusPage {
           !wizardInfo.isRAInstalled() || wizardInfo.isRACertChainImportDone())
             return false;
 
-		if (wizardInfo.hasEntireRAChain()) 
+		if (wizardInfo.hasEntireRAChain())
 			return false;
 
         wizardInfo.setCertType(Constants.PR_RA_SIGNING_CERT);

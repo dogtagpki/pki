@@ -37,7 +37,7 @@ class WSSLKeyPage extends WBaseKeyPage implements IWizardPanel {
     private static final String PANELNAME = "SSLKEYWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WSSLKeyPage() {
         super(PANELNAME);
         init();
@@ -48,7 +48,7 @@ class WSSLKeyPage extends WBaseKeyPage implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

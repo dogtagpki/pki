@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * This interface represents a property descriptor. A descriptor
  * includes information that describe a property.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Descriptor implements IDescriptor {
@@ -34,7 +34,7 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Constructs a descriptor.
-     * 
+     *
      * @param syntax syntax
      * @param constraint constraint
      * @param defValue default value
@@ -49,7 +49,7 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Returns the syntax of the property.
-     * 
+     *
      * @return syntax
      */
     public String getSyntax() {
@@ -58,7 +58,7 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Returns the default value of the property.
-     * 
+     *
      * @return default value
      */
     public String getDefaultValue() {
@@ -74,7 +74,7 @@ public class Descriptor implements IDescriptor {
      * <p>
      * If null, no constraint shall be enforced.
      * <p>
-     * 
+     *
      * @return constraint
      */
     public String getConstraint() {
@@ -83,7 +83,7 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Retrieves the description of the property.
-     * 
+     *
      * @param locale user locale
      * @return description
      */

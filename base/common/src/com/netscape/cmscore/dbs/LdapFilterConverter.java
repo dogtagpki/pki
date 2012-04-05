@@ -28,7 +28,7 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  * A class represents a filter converter
  * that understands how to convert a attribute
  * type from one defintion to another.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

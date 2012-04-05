@@ -69,7 +69,7 @@ class WICACertExtensionPage extends WICertExtensionPage {
             mExtendedKeyCheckBox.setSelected(false);
             mKeyUsageBox.setSelected(true);
         }
-        
+
         if (wizardInfo.isCAInstalled() && wizardInfo.isKRAInstalled())
             mHelpIndex = CAKRAHELPINDEX;
         else

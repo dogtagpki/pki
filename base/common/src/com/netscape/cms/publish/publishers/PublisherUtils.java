@@ -30,7 +30,7 @@ import java.util.Vector;
 
 /**
  * Publisher utility class.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PublisherUtils {
@@ -105,7 +105,7 @@ public class PublisherUtils {
 
     /**
      * strips out double quotes around String parameter
-     * 
+     *
      * @param s the string potentially bracketed with double quotes
      * @return string stripped of surrounding double quotes
      */

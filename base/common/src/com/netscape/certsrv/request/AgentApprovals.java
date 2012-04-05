@@ -25,7 +25,7 @@ import java.util.Vector;
 /**
  * A collection of AgentApproval objects.
  * <single-threaded>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AgentApprovals
@@ -41,7 +41,7 @@ public class AgentApprovals
      * <p>
      * If an approval is already present for this user, it is updated with a new date. Otherwise a new value is
      * inserted.
-     * 
+     *
      * @param userName user name of the approving agent
      */
     public void addApproval(String userName) {
@@ -61,7 +61,7 @@ public class AgentApprovals
      * Removes an approval from approval's list.
      * <p>
      * If there is no approval for this userName, this call does nothing.
-     * 
+     *
      * @param userName user name of the approving agent
      */
     public void removeApproval(String userName) {
@@ -73,7 +73,7 @@ public class AgentApprovals
 
     /**
      * Finds an existing AgentApproval for the named user.
-     * 
+     *
      * @param userName user name of the approving agent
      * @return an AgentApproval object
      */
@@ -93,7 +93,7 @@ public class AgentApprovals
 
     /**
      * Returns an enumeration of the agent approvals
-     * 
+     *
      * @return an enumeration of the agent approvals
      */
     public Enumeration<AgentApproval> elements() {
@@ -107,7 +107,7 @@ public class AgentApprovals
      * where epoch is the date.getTime()
      * <p>
      * This is used for serialization in Request.setExtData().
-     * 
+     *
      * @return The string vector.
      */
     public Vector<String> toStringVector() {
@@ -123,7 +123,7 @@ public class AgentApprovals
     /**
      * Recreates an AgentApprovals instance from a Vector of strings that
      * was created by toStringVector().
-     * 
+     *
      * @param stringVector The vector of strings to translate
      * @return the AgentApprovals instance or null if it can't be translated.
      */

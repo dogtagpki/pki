@@ -26,7 +26,7 @@ import java.util.Vector;
  * the agent-initiated user enrollment, and whom agents enable this feature,
  * and the value of the timeout.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class HashAuthData extends Hashtable<String, Vector<Object>> {

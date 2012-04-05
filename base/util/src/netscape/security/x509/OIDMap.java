@@ -31,7 +31,7 @@ import netscape.security.util.ObjectIdentifier;
  * This class defines the mapping from OID & name to classes and vice
  * versa. Used by CertificateExtensions & PKCS10 to get the java
  * classes associated with a particular OID/name.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.12
@@ -212,7 +212,7 @@ public class OIDMap {
 
     /**
      * Add a name to lookup table.
-     * 
+     *
      * @param className the name of the fully qualified class implementing
      *            the asn object.
      * @param oid the string representation of the object identifier for
@@ -239,7 +239,7 @@ public class OIDMap {
 
     /**
      * Return user friendly name associated with the OID.
-     * 
+     *
      * @param oid the name of the object identifier to be returned.
      * @return the user friendly name or null if no name
      *         is registered for this oid.
@@ -250,7 +250,7 @@ public class OIDMap {
 
     /**
      * Return Object identifier for user friendly name.
-     * 
+     *
      * @param name the user friendly name.
      * @return the Object Identifier or null if no oid
      *         is registered for this name.
@@ -261,7 +261,7 @@ public class OIDMap {
 
     /**
      * Return the java class object associated with the user friendly name.
-     * 
+     *
      * @param name the user friendly name.
      * @exception CertificateException if class cannot be instantiated.
      */
@@ -280,7 +280,7 @@ public class OIDMap {
 
     /**
      * Return the java class object associated with the object identifier..
-     * 
+     *
      * @param oid the name of the object identifier to be returned.
      * @exception CertificateException if class cannot be instatiated.
      */

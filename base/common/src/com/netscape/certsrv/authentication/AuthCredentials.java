@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.IArgBlock;
  * Authentication Credentials as input to the authMgr. It contains all the
  * information required for authentication in the authMgr.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
@@ -44,7 +44,7 @@ public class AuthCredentials implements IAuthCredentials {
 
     /**
      * Sets an authentication credential with credential name and the credential object
-     * 
+     *
      * @param name credential name
      * @param cred credential object
      */
@@ -56,7 +56,7 @@ public class AuthCredentials implements IAuthCredentials {
     /**
      * Returns the credential to which the specified name is mapped in this
      * credential set
-     * 
+     *
      * @param name credential name
      * @return the authentication credential for the given name
      */
@@ -68,7 +68,7 @@ public class AuthCredentials implements IAuthCredentials {
      * Removes the name and its corresponding credential from this
      * credential set. This method does nothing if the named
      * credential is not in the credential set.
-     * 
+     *
      * @param name credential name
      */
     public void delete(String name) {
@@ -79,7 +79,7 @@ public class AuthCredentials implements IAuthCredentials {
      * Returns an enumeration of the credential names in this credential
      * set. Use the Enumeration methods on the returned object to
      * fetch the elements sequentially.
-     * 
+     *
      * @return an enumeration of the names in this credential set
      */
     public Enumeration<String> getElements() {
@@ -96,7 +96,7 @@ public class AuthCredentials implements IAuthCredentials {
 
     /**
      * Returns the argblock.
-     * 
+     *
      * @return the argblock.
      */
     public IArgBlock getArgBlock() {

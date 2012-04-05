@@ -47,7 +47,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
     public String ACTION_STRING;
     public String query;
     public boolean debug = false;
-    // Certificate nicknames to be used by Test Clients 
+    // Certificate nicknames to be used by Test Clients
     private int i;
     private String testConfigFile;
 
@@ -71,7 +71,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
     public String UID, OU, O, DN, E, CN, C, GN, SN, L, MAIL;
     // Enroll
     protected String PWD;
-    // CRypto 
+    // CRypto
     public ComCrypto cCrypt = new ComCrypto();
     public String pkcs10request = null;
 
@@ -90,7 +90,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
         return true;
     }
 
-    // Constructor 
+    // Constructor
 
     public TestClient() {
         keysize = "1024";
@@ -102,7 +102,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
      * Before creating a new instance of this class make sure you have set TEST_CONFIG_FILE variable in your
      * environnemt.
      * Reads the TEST_CONFIG_FILE . Initializes the certificate database. See engage.cfg file for example.
-     * 
+     *
      * @param keysize
      * @param keytype
      */
@@ -420,7 +420,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
         }
 
         ldaprootDN = props.getProperty("LDAPROOTDN");
-        // Strip of th e quotes "cn=directory manager" string 
+        // Strip of th e quotes "cn=directory manager" string
         if (ldaprootDN.indexOf("\"") > -1) {
             ldaprootDN = ldaprootDN.substring(1, ldaprootDN.length() - 1);
         }
@@ -485,7 +485,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
             return (getString(p));
         }
 
-        // This following method doesn't Always get a free port. 
+        // This following method doesn't Always get a free port.
         // while (st) {
         // if(isSocketUnused(host,p) )
         // st=false;
@@ -524,13 +524,13 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *******************************************************************
-         *  Sample programs to initialze calsses 
+         *  Sample programs to initialze calsses
          *******************************************************************
          */
 
         /*
          ********************************************************************
-         * To Test AutoInstaller 
+         * To Test AutoInstaller
          *******************************************************************
          */
 
@@ -549,12 +549,12 @@ public class TestClient implements SSLCertificateApprovalCallback {
          a.setAdminInfo(s.GetHostName(),s.GetAdminPort(),"mcom.com","admin","admin");
 
          // setCAInfo
-         a.setCAInfo(s.GetHostName(),"1027","8100","admin","secret12");  
+         a.setCAInfo(s.GetHostName(),"1027","8100","admin","secret12");
          //setInternalDB info
-         String dp = t.getFreePort("38900"); 
+         String dp = t.getFreePort("38900");
          a.setInternalDBInfo(s.GetHostName(),"38907","ca-db","cn=directory manager","secret12"  );
 
-         // set tokenInfo 
+         // set tokenInfo
 
          a.setTokenInfo("Internal","secret12");
 
@@ -578,7 +578,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          ******************************************************
-         *   Example to Get Server Details 
+         *   Example to Get Server Details
          ******************************************************
          */
 
@@ -617,8 +617,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
          Profiles pr = new Profiles(s.GetHostName(),s.GetEESSLPort());
          pr.setProfileType("caCMCUserCert");
          pr.setCertAuthority("ca");
-         
-         String request = t.readRequest(requestfile+".out");	
+
+         String request = t.readRequest(requestfile+".out");
          String bstr = "-----BEGIN NEW CERTIFICATE REQUEST-----";
          String estr="-----END NEW CERTIFICATE REQUEST-----";
          String  Blob1 = request.substring(bstr.length() + 1);
@@ -672,7 +672,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          ***************************************************************
-         Submit Profile based request 
+         Submit Profile based request
          *********************************************************
          */
 
@@ -687,7 +687,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          pr.clientCertEnroll();
          System.out.println("Request ID is " + pr.getRequestID());
 
-         
+
          Request re = new Request (s.GetHostName(),s.GetAgentPort(),"ca");
          re.setAgentCertName(t.GetAdminCertName());
          re.ApproveProfileRequests(pr.getRequestID());
@@ -706,7 +706,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
          if(!CrmfClient.Enroll())
          {System.out.println("CRMFClient : could not submit  request");}
-         
+
 
          checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),t.getString(CrmfClient.getRequestId()),"false");
          cr.checkRequestStatus();
@@ -732,7 +732,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example to Connect oto Config Directory port  
+         *   Example to Connect oto Config Directory port
          *************************************************************
          */
 
@@ -740,9 +740,9 @@ public class TestClient implements SSLCertificateApprovalCallback {
          CMSLDAP cmsldap = new CMSLDAP(s.GetHostName(),s.GetConfigLDAPPort(),t.GetLDAPDN(),t.GetLDAPDNPW());
          if(cmsldap.connect())
          System.out.println("LDAP Connection successful");
-         else 
+         else
          System.out.println("Error Connecting to LDAPSERVER");
-         
+
          // Add user to config directoory
          if (cmsldap.userAdd("ou=people,"+t.GetLDAPBASE(),"t2","t2","t2","netscape"))
          System.out.println("Added user to Config directory");
@@ -751,7 +751,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example to Submit a CRMFCleint request to CA  
+         *   Example to Submit a CRMFCleint request to CA
          *************************************************************
          */
 
@@ -778,10 +778,10 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /* System.out.println("KRAAgent ");
          KraAgent kraAgent = new KraAgent(s.GetHostName(),s.GetAgentPort());
-         kraAgent.setAgentCertName(t.GetKRAAgentCertName());	 
+         kraAgent.setAgentCertName(t.GetKRAAgentCertName());
          System.out.println("KRAAgent List archival");
-         
-         Vector aReq= kraAgent.ListArchivalRequests(); 
+
+         Vector aReq= kraAgent.ListArchivalRequests();
          int i=0;
          while(i < aReq.size() )
          {
@@ -795,10 +795,10 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example to submit manual user enrollment request   
+         *   Example to submit manual user enrollment request
          *************************************************************
          /*
-         
+
 
          /*
          UserEnroll ue = new UserEnroll(s.GetHostName(),"1029");
@@ -811,7 +811,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example to submit   Directory based enroolemt request 
+         *   Example to submit   Directory based enroolemt request
          *************************************************************
          /*
 
@@ -821,8 +821,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
          System.out.println("Success ");
 
          if(cmsldap.TurnOnSSL("slapd-jupiter2","Server-Cert cert-jupiter2","7000"))
-         System.out.println("Turned on ssl"); 
-         else 
+         System.out.println("Turned on ssl");
+         else
          return;
 
          cmsldap.TurnOffSSL();
@@ -837,7 +837,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example to submit Admin Enrollment request   
+         *   Example to submit Admin Enrollment request
          *************************************************************
          /*
 
@@ -851,13 +851,13 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example   gent List Pending request 
+         *   Example   gent List Pending request
          *************************************************************
          /*
 
          /*
 
-         // Agent List and Approve Request 
+         // Agent List and Approve Request
          Request re = new Request (s.GetHostName(),s.GetAgentPort(),s.GetCertAuthority());
          re.setAgentCertName(t.GetAdminCertName());
          re.ListPendingRequests("2","70");
@@ -866,11 +866,11 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example for CheckRequest Status and add the certificate to internal db   
+         *   Example for CheckRequest Status and add the certificate to internal db
          *************************************************************
          /*
 
-         /*	
+         /*
          // check request status and Revoke cert
          checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),t.getString(ue.getRequestId()),"false");
          checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),"1","false");
@@ -888,7 +888,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example  agent ro revoke request  
+         *   Example  agent ro revoke request
          *************************************************************
          /*
 
@@ -904,7 +904,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          /*
 
          /*
-         // Update CRLand DISPLAY it 
+         // Update CRLand DISPLAY it
 
          System.out.println("Displayin CRL");
          CRL crl = new CRL (s.GetHostName(),s.GetAgentPort(),"/tmp/crlfile");
@@ -920,7 +920,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
         /*
          *************************************************************
-         *   Example for stopping and starting servers   
+         *   Example for stopping and starting servers
          *************************************************************
          */
 
@@ -929,8 +929,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
          if (idb.ldapStop()) System.out.println("IDB stopped");
          if(idb.ldapStart()) System.out.println("IDB Started");
 
-         System.out.println("------------------------------------------"); 
-         System.out.println(" CMS Test:"); 
+         System.out.println("------------------------------------------");
+         System.out.println(" CMS Test:");
          CMSTask task = new CMSTask(t.GetInstanceRoot());
          task.CMSStop();
          task.CMSStart();

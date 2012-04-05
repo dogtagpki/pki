@@ -28,7 +28,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * A log event object for handling audit messages
  * <P>
- * 
+ *
  * @author mikep
  * @author mzhao
  * @version $Revision$, $Date$
@@ -48,7 +48,7 @@ public class AuditEventFactory implements ILogEventFactory {
 
     /**
      * Creates an log event.
-     * 
+     *
      * @param evtClass the event type
      * @param prop the resource bundle
      * @param source the subsystem ID who creates the log event
@@ -72,7 +72,7 @@ public class AuditEventFactory implements ILogEventFactory {
 
     /**
      * Set the resource bundle of the log event.
-     * 
+     *
      * @param prop the properties
      * @param event the log event
      */
@@ -90,7 +90,7 @@ public class AuditEventFactory implements ILogEventFactory {
 
     /**
      * Releases an log event.
-     * 
+     *
      * @param e the log event
      */
     public void release(ILogEvent e) {

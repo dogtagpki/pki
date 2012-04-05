@@ -24,13 +24,13 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the DisplayText.
- * 
+ *
  * DisplayText ::= CHOICE {
  * visibleString VisibleString (SIZE (1..200)),
  * bmpString BMPString (SIZE (1..200)),
  * utf8String UTF8String (SIZE (1..200)),
  * }
- * 
+ *
  * @author Thomas Kwan
  */
 public class DisplayText {
@@ -56,7 +56,7 @@ public class DisplayText {
 
     /**
      * Write the DisplayText to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

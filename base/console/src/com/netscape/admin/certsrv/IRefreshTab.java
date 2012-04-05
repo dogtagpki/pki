@@ -19,7 +19,7 @@ package com.netscape.admin.certsrv;
 
 /**
  * The interface for refreshing the tab.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  *
@@ -28,7 +28,7 @@ package com.netscape.admin.certsrv;
  * @see com.netscape.admin.certsrv.CMSBaseResourceModel
  */
 public interface IRefreshTab {
-    
+
     /**
      * fresh the panel. The panel should IGNOR all
      * modification made, retrieve the old value
@@ -36,6 +36,6 @@ public interface IRefreshTab {
      * components on this panel.
      */
     public void refresh();
-    
+
 }
 

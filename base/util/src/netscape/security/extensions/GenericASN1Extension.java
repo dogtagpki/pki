@@ -173,7 +173,7 @@ public class GenericASN1Extension extends Extension
     /**
      * Create a GenericASN1Extension with the value and oid.
      * The criticality is set to false.
-     * 
+     *
      * @param the values to be set for the extension.
      */
     public GenericASN1Extension(String name, String oid, String pattern, boolean critical,
@@ -199,7 +199,7 @@ public class GenericASN1Extension extends Extension
     /**
      * Create a GenericASN1Extension with the value and oid.
      * The criticality is set to false.
-     * 
+     *
      * @param the values to be set for the extension.
      */
     public GenericASN1Extension(Hashtable<String, String> config)
@@ -228,7 +228,7 @@ public class GenericASN1Extension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -276,7 +276,7 @@ public class GenericASN1Extension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -286,7 +286,7 @@ public class GenericASN1Extension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

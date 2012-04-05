@@ -42,7 +42,7 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "LOGRULE";
-    
+
     private final static String HELPINDEX = "configuration-loginstances-help";
 
 
@@ -57,7 +57,7 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
 		mScope = ScopeDef.SC_LOG_RULES;
 		RULE_NAME = LogRuleDataModel.RULE_NAME;
         RULE_IMPL = LogRuleDataModel.RULE_IMPL;
-	  	RULE_STAT = LogRuleDataModel.RULE_STAT;  
+		RULE_STAT = LogRuleDataModel.RULE_STAT;
 
         mHelpToken = HELPINDEX;
     }
@@ -68,7 +68,7 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new LogConfigDialog(nvp,
@@ -82,7 +82,7 @@ public class LogInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new LogPluginSelectionDialog(parent,conn,dest,pluginType);
 	}

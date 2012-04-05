@@ -49,12 +49,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Subject Public Key Extension Policy
  * Adds the subject public key id extension to certificates.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -101,11 +101,11 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate= ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -145,7 +145,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
                                 KEYID_TYPE_SPKISHA1));
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(PROP_KEYID_TYPE + "=" + mKeyIdType);
 
@@ -157,7 +157,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Adds Subject Key identifier Extension to a certificate.
      * If the extension is already there, accept it.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -194,7 +194,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
                             extensions.get(SubjectKeyIdentifierExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
             if (subjectKeyIdExt != null) {
                 if (agentApproved(req)) {
@@ -253,7 +253,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Form the Key Identifier in the Subject Key Identifier extension.
      * <p>
-     * 
+     *
      * @param certInfo Certificate Info
      * @param req request
      * @return A Key Identifier.
@@ -284,7 +284,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
      * the least significate 60 bits of the sha-1 hash of the subject
      * public key BIT STRING in accordance with RFC 2459.
      * <p>
-     * 
+     *
      * @param certInfo - certificate info
      * @return A Key Identifier with value formulatd as described.
      */
@@ -339,7 +339,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -348,7 +348,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

@@ -46,12 +46,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Certificate Scope Of Use extension policy. This extension
  * is defined in draft-thayes-cert-scope-00.txt
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -100,12 +100,12 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt ca.Policy.rule.<ruleName>.enable=true
      * ca.Policy.rule.<ruleName>.predicate=
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -157,7 +157,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * If this policy is enabled, add the authority information
      * access extension to the certificate.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -244,7 +244,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -300,7 +300,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

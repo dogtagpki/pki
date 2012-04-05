@@ -29,7 +29,7 @@ import com.netscape.certsrv.base.IConfigStore;
 
 /**
  * Utility class
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ServletUtils {

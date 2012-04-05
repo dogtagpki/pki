@@ -49,8 +49,8 @@ import com.netscape.certsrv.logging.ILogger;
  * A class representing an administration servlet for the
  * Authentication Management subsystem. This servlet is responsible
  * to serve configuration requests for the Auths Management subsystem.
- * 
- * 
+ *
+ *
  * @version $Revision$, $Date$
  */
 public class AuthAdminServlet extends AdminServlet {
@@ -198,7 +198,7 @@ public class AuthAdminServlet extends AdminServlet {
                     null, resp);
             return;
         }
-        // for the rest					
+        // for the rest
         try {
             super.authenticate(req);
             if (op.equals(OpDef.OP_AUTH)) { // for admin authentication only
@@ -354,11 +354,11 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Add authentication manager plug-in
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
@@ -611,11 +611,11 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Add authentication manager instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
@@ -960,11 +960,11 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Delete authentication manager plug-in
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
@@ -1132,11 +1132,11 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Delete authentication manager instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
@@ -1203,7 +1203,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // only remove from memory
             // cannot shutdown because we don't keep track of whether it's
-            // being used. 
+            // being used.
             mAuths.getInstances().remove(id);
 
             // remove the configuration.
@@ -1382,11 +1382,11 @@ public class AuthAdminServlet extends AdminServlet {
      * The old instance is left running, so this is very expensive.
      * Restart of server recommended.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
@@ -1469,7 +1469,7 @@ public class AuthAdminServlet extends AdminServlet {
                 return;
             }
 
-            // get plugin for implementation 
+            // get plugin for implementation
             AuthMgrPlugin plugin =
                     (AuthMgrPlugin) mAuths.getPlugins().get(implname);
 
@@ -1491,7 +1491,7 @@ public class AuthAdminServlet extends AdminServlet {
                 return;
             }
 
-            // save old instance substore params in case new one fails. 
+            // save old instance substore params in case new one fails.
 
             IAuthManager oldinst =
                     (IAuthManager) mAuths.get(id);

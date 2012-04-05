@@ -40,7 +40,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a Private Key Usage Period extension
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
@@ -290,7 +290,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
 
-            // always + 60 seconds 
+            // always + 60 seconds
             String startTimeStr = getConfig(CONFIG_START_TIME);
 
             if (startTimeStr == null || startTimeStr.equals("")) {

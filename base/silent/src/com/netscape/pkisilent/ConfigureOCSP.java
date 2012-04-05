@@ -76,7 +76,7 @@ public class ConfigureOCSP {
     public static String client_certdb_dir = null;
     public static String client_certdb_pwd = null;
 
-    // Login Panel 
+    // Login Panel
     public static String pin = null;
 
     public static String domain_name = null;
@@ -148,7 +148,7 @@ public class ConfigureOCSP {
     public static String backup_pwd = null;
     public static String backup_fname = null;
 
-    // cert subject names 
+    // cert subject names
     public static String ocsp_sign_cert_subject_name = null;
     public static String ocsp_subsystem_cert_subject_name = null;
     public static String ocsp_server_cert_subject_name = null;
@@ -661,7 +661,7 @@ public class ConfigureOCSP {
         hr = hc.sslConnect(sd_hostname, sd_admin_port, admin_uri, query_string);
 
         // get response data
-        // String cert_to_import = 
+        // String cert_to_import =
         //         new sun.misc.BASE64Encoder().encode(hr.getResponseData());
         String cert_to_import =
                 Utils.base64encode(hr.getResponseData());
@@ -882,7 +882,7 @@ public class ConfigureOCSP {
         StringHolder x_admin_email = new StringHolder();
         StringHolder x_admin_password = new StringHolder();
 
-        // ldap 
+        // ldap
         StringHolder x_ldap_host = new StringHolder();
         StringHolder x_ldap_port = new StringHolder();
         StringHolder x_bind_dn = new StringHolder();

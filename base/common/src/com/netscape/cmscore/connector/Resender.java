@@ -67,7 +67,7 @@ public class Resender implements IResender {
         mDest = dest;
         mNickName = nickName;
 
-        //mConn = new HttpConnection(dest, 
+        //mConn = new HttpConnection(dest,
         //           new JssSSLSocketFactory(nickName));
     }
 
@@ -80,7 +80,7 @@ public class Resender implements IResender {
         if (interval > 0)
             mInterval = interval * SECOND; // interval specified in seconds.
 
-        //mConn = new HttpConnection(dest, 
+        //mConn = new HttpConnection(dest,
         //           new JssSSLSocketFactory(nickName));
     }
 
@@ -96,7 +96,7 @@ public class Resender implements IResender {
 
             CMS.debug(
                     "added request Id " + rid + " in init to resend queue.");
-            // note these are added as strings 
+            // note these are added as strings
             mRequestIds.addElement(rid.toString());
         }
     }
@@ -149,7 +149,7 @@ public class Resender implements IResender {
             try {
                 r = mQueue.findRequest(rid);
             } catch (EBaseException e) {
-                // XXX bad case. should we remove the rid now ? 
+                // XXX bad case. should we remove the rid now ?
                 mAuthority.log(ILogger.LL_WARN,
                         CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
                 continue;

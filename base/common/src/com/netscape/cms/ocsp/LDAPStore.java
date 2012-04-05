@@ -74,7 +74,7 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 /**
  * This is the LDAP OCSP store. It reads CA certificate and
  * revocation list attributes from the CA entry.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LDAPStore implements IDefStore, IExtendedPluginInfo {

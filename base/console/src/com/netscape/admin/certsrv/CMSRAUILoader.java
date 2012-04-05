@@ -54,27 +54,27 @@ public class CMSRAUILoader implements ISubSystemUILoader {
     public void register() {
         //register subsystem UI
         try {
-            
+
             //task tab
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
-            
+
             //config tab
             CMSResourcePage page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
             populateConfigContent(model);
-            
+
             /*repos tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONTENT");
             model = (CMSBaseResourceModel) page.getModel();
             populateRepositoryContent(model);
             */
-            
+
             /*acl tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"ACCESSCONTROLLIST");
             model = (CMSBaseResourceModel) page.getModel();
-            populateACLContent(model); 
+            populateACLContent(model);
             */
-            
+
         }catch(Exception e) {
             Debug.println("CMSRAUILoader: register() config - "+e.toString());
         }
@@ -128,7 +128,7 @@ public class CMSRAUILoader implements ISubSystemUILoader {
         list.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_FOLDER));
         list.setAllowsChildren(true);
         list.setCustomPanel(tabPane);
-        
+
         //policies sub node
         CMSResourceObject node2;
         node = new CMSResourceObject("POLICIES");
@@ -167,14 +167,14 @@ public class CMSRAUILoader implements ISubSystemUILoader {
 		notificationNode.setAllowsChildren(false);
 		list.add(notificationNode);
 
-        
+
         /* servlet sub node - XXX NOT FOR B1
         CMSResourceObject node3;
         node3 = new CMSResourceObject("SERVLET");
         CMSUGTabPanel tabPane3 = new CMSUGTabPanel(model, node3);
-        tabPane3.addTab(new ServletInstanceTab(model, 
+        tabPane3.addTab(new ServletInstanceTab(model,
           DestDef.DEST_RA_SERVLET_ADMIN));
-        tabPane3.addTab(new ServletImplTab(model, 
+        tabPane3.addTab(new ServletImplTab(model,
           DestDef.DEST_RA_SERVLET_ADMIN));
         node3.setCustomPanel(tabPane3);
         node3.setIcon(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_SERVLETOBJECT));
@@ -192,7 +192,7 @@ public class CMSRAUILoader implements ISubSystemUILoader {
         node.setAllowsChildren(false);
         list.add(node);
         */
-        
+
         /*backup restore sub node
         node = new CMSResourceObject("BACKUP");
         tabPane = new CMSTabPanel(model, node);
@@ -203,7 +203,7 @@ public class CMSRAUILoader implements ISubSystemUILoader {
         node.setAllowsChildren(false);
         list.add(node);
         */
-        
+
         //ldap publishing
         //node = new CMSResourceObject("PUBLISHING");
         //tabPane = new CMSTabPanel(model, node);
@@ -224,14 +224,14 @@ public class CMSRAUILoader implements ISubSystemUILoader {
         node.setAllowsChildren(false);
         list.add(node);
         */
-        
+
         model.addSubSystemNode(list);
     }
-    
+
     /*
     protected void populateRepositoryContent(CMSBaseResourceModel model) {
         CMSResourceObject list, node;
-        
+
         //ra repositories node
         list = new CMSResourceObject("RAREPOSITORIES");
         list.setCustomPanel(new CMSBlankPanel(model));
@@ -259,7 +259,7 @@ public class CMSRAUILoader implements ISubSystemUILoader {
         node.setCustomPanel(new CMSBlankPanel(model));
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_DOCUMENT));
         node.setAllowsChildren(false);
-        list.add(node);        
+        list.add(node);
     }
     */
 

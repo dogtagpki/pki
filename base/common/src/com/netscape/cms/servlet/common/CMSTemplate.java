@@ -44,7 +44,7 @@ import com.netscape.certsrv.logging.ILogger;
  * &lt;CMS_TEMPLATE&gt; and replace the tag with
  * a series of javascript variable definitions
  * (depending on the servlet)
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSTemplate extends CMSFile {
@@ -76,7 +76,7 @@ public class CMSTemplate extends CMSFile {
 
     /**
      * Constructor
-     * 
+     *
      * @param file template file to load
      * @param charset character set
      * @throws IOException if the there was an error opening the file
@@ -146,7 +146,7 @@ public class CMSTemplate extends CMSFile {
     /**
      * Write a javascript representation of 'input'
      * surrounded by SCRIPT tags to the outputstream
-     * 
+     *
      * @param rout the outputstream to write to
      * @param input the parameters to write
      */
@@ -176,7 +176,7 @@ public class CMSTemplate extends CMSFile {
             out.println("var recordSet = new Array;");
             out.println("var result = new Object();");
 
-            // hack 
+            // hack
             out.println("var httpParamsCount = 0;");
             out.println("var httpHeadersCount = 0;");
             out.println("var authTokenCount = 0;");
@@ -253,7 +253,7 @@ public class CMSTemplate extends CMSFile {
     /**
      * Ouput the pre-amble HTML Header including
      * the pre-output buffer.
-     * 
+     *
      * @param out output stream specified
      * @return success or error
      */
@@ -275,7 +275,7 @@ public class CMSTemplate extends CMSFile {
     /**
      * Output the post HTML tags and post-output
      * buffer.
-     * 
+     *
      * @param out output stream specified
      * @return success or error
      */
@@ -294,7 +294,7 @@ public class CMSTemplate extends CMSFile {
         return mAbsPath;
     }
 
-    // inherit getabspath, getContent, get last access and set last access 
+    // inherit getabspath, getContent, get last access and set last access
 
     /*==========================================================
      * private methods

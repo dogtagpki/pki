@@ -33,7 +33,7 @@ import com.netscape.cmsutil.ocsp.ResponseData;
  * This class represents the primary interface for the Online Certificate
  * Status Protocol (OCSP) server.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IOCSPAuthority extends ISubsystem {
@@ -50,7 +50,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the OCSP store given its name.
      * <P>
-     * 
+     *
      * @param id the string representation of an OCSP store
      * @return IOCSPStore an instance of an OCSP store object
      */
@@ -59,7 +59,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the signing unit.
      * <P>
-     * 
+     *
      * @return ISigningUnit an instance of a signing unit object
      */
     public ISigningUnit getSigningUnit();
@@ -67,7 +67,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the responder ID by its name.
      * <P>
-     * 
+     *
      * @return ResponderID an instance of a responder ID
      */
     public ResponderID getResponderIDByName();
@@ -75,7 +75,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the responder ID by its hash.
      * <P>
-     * 
+     *
      * @return ResponderID an instance of a responder ID
      */
     public ResponderID getResponderIDByHash();
@@ -84,7 +84,7 @@ public interface IOCSPAuthority extends ISubsystem {
      * This method retrieves the default OCSP store
      * (i. e. - information from the internal database).
      * <P>
-     * 
+     *
      * @return IDefStore an instance of the default OCSP store
      */
     public IDefStore getDefaultStore();
@@ -92,7 +92,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method sets the supplied algorithm as the default signing algorithm.
      * <P>
-     * 
+     *
      * @param algorithm a string representing the requested algorithm
      * @exception EBaseException if the algorithm is unknown or disallowed
      */
@@ -102,7 +102,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the default signing algorithm.
      * <P>
-     * 
+     *
      * @return String the name of the default signing algorithm
      */
     public String getDefaultAlgorithm();
@@ -110,7 +110,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves all potential OCSP signing algorithms.
      * <P>
-     * 
+     *
      * @return String[] the names of all potential OCSP signing algorithms
      */
     public String[] getOCSPSigningAlgorithms();
@@ -118,7 +118,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method logs the specified message at the specified level.
      * <P>
-     * 
+     *
      * @param level the log level
      * @param msg the log message
      */
@@ -128,7 +128,7 @@ public interface IOCSPAuthority extends ISubsystem {
      * This method logs the specified message at the specified level given
      * the specified event.
      * <P>
-     * 
+     *
      * @param event the log event
      * @param level the log message
      * @param msg the log message
@@ -138,7 +138,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves the X500Name of an OCSP server instance.
      * <P>
-     * 
+     *
      * @return X500Name an instance of the X500 name object
      */
     public X500Name getName();
@@ -146,7 +146,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method retrieves an OCSP server instance digest name as a string.
      * <P>
-     * 
+     *
      * @param alg the signing algorithm
      * @return String the digest name of the related OCSP server
      */
@@ -155,7 +155,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method signs the basic OCSP response data provided as a parameter.
      * <P>
-     * 
+     *
      * @param rd response data
      * @return BasicOCSPResponse signed response data
      * @exception EBaseException error associated with an inability to sign
@@ -167,7 +167,7 @@ public interface IOCSPAuthority extends ISubsystem {
     /**
      * This method compares two byte arrays to see if they are equivalent.
      * <P>
-     * 
+     *
      * @param bytes the first byte array
      * @param ints the second byte array
      * @return boolean true or false

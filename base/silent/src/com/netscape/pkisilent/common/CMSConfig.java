@@ -81,7 +81,7 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    // Authentication   
+    // Authentication
 
     // Enable DirectoryBased Authentication
     /**
@@ -207,7 +207,7 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    // Publishing 
+    // Publishing
     /**
      * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber (
      * in case of secured connection give ldap secured port)
@@ -414,7 +414,7 @@ public class CMSConfig extends ServerInfo {
     }
 
     public void CreateOCSPPublisher(String OCSPHost, String OCSPPort, String OCSPEEPort) {
-        // Set host nmae with fully qualified hostname 
+        // Set host nmae with fully qualified hostname
         String location = "http://" + OCSPHost + ":" + OCSPEEPort + "/ocsp";
 
         CMSprops.setProperty("ca.crl.MasterCRL.alwaysUpdate", "true");
@@ -505,7 +505,7 @@ public class CMSConfig extends ServerInfo {
         CMSprops.setProperty("cardcryptogram.validate.enable", "false");
     }
 
-    // Policies 
+    // Policies
     public void DefaultValidityRule(String SubsystemType, String lagtime, String leadtime, String maxValidity) {
         if (SubsystemType.equals("ca")) {
             CMSprops.setProperty("ca.Policy.rule.DefaultValidityRule.enable",
@@ -560,10 +560,10 @@ public class CMSConfig extends ServerInfo {
         CMSConfig s = new CMSConfig(args[0]);
 
         // boolean secureC = false;
-        // s.EnableDirEnrollment(secureC);	
+        // s.EnableDirEnrollment(secureC);
         s.saveCMSConfig();
 
     }// end of function main
 
-} // end of class 
+} // end of class
 

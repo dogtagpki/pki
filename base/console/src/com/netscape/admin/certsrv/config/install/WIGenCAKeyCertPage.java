@@ -26,7 +26,7 @@ import com.netscape.certsrv.common.*;
 
 /**
  * Generate the CA signing certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.keycert
@@ -52,7 +52,7 @@ class WIGenCAKeyCertPage extends WIGenKeyCertPage {
         if (wizardInfo.isCloning() && wizardInfo.isCACloningDone())
             return false;
 
-        if (!wizardInfo.isCACertLocalCA() || !wizardInfo.isCAInstalled() || 
+        if (!wizardInfo.isCACertLocalCA() || !wizardInfo.isCAInstalled() ||
           wizardInfo.isMigrationEnable() || wizardInfo.isSelfSignedCACertDone() ||
           wizardInfo.isCACertRequestDone() || wizardInfo.isCACertInstalledDone())
             return false;

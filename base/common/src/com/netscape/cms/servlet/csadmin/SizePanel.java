@@ -414,7 +414,7 @@ public class SizePanel extends WizardPanelBase {
             CMS.debug("SizePanel: update() Exception caught: " + e.toString());
         }
 
-        // generate key pair 
+        // generate key pair
         Enumeration<Cert> c = mCerts.elements();
 
         while (c.hasMoreElements()) {

@@ -80,7 +80,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * A log event listener which write logs to log files
- * 
+ *
  * @version $Revision$, $Date$
  **/
 public class LogFile implements ILogEventListener, IExtendedPluginInfo {
@@ -229,7 +229,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Constructor for a LogFile.
-     * 
+     *
      */
     public LogFile() {
     }
@@ -310,7 +310,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * add the event to the selected events list
-     * 
+     *
      * @param event to be selected
      */
     public void selectEvent(String event) {
@@ -320,7 +320,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * remove the event from the selected events list
-     * 
+     *
      * @param event to be de-selected
      */
     public void deselectEvent(String event) {
@@ -330,7 +330,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * replace the selected events list
-     * 
+     *
      * @param events comma-separated event list
      */
     public void replaceEvents(String events) {
@@ -386,7 +386,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Initialize and open the log using the parameters from a config store
-     * 
+     *
      * @param config The property config store to find values in
      */
     public void init(IConfigStore config) throws IOException,
@@ -506,7 +506,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Initialize and open the log
-     * 
+     *
      * @param bufferSize The buffer size for the output stream in bytes
      * @param flushInterval The interval in seconds to flush the log
      */
@@ -628,11 +628,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Startup the instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP used at audit function startup
      * </ul>
-     * 
+     *
      * @exception EBaseException if an internal error occurred
      */
     public void startup() throws EBaseException {
@@ -690,12 +690,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Record that the signed audit log has been signed
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_SIGNING used when a signature on the audit log is generated (same as
      * "flush" time)
      * </ul>
-     * 
+     *
      * @exception IOException for input/output problems
      * @exception ELogException when plugin implementation fails
      * @exception SignatureException when signing fails
@@ -756,7 +756,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Open the log file. This creates the buffered FileWriter
-     * 
+     *
      */
     protected synchronized void open() throws IOException {
         RandomAccessFile out;
@@ -804,7 +804,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Flush the log file. Also update the MAC for hash protected logs
-     * 
+     *
      */
     public synchronized void flush() {
         try {
@@ -838,7 +838,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Close the log file
-     * 
+     *
      */
     protected synchronized void close() {
         try {
@@ -855,7 +855,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Shutdown this log file.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN used at audit function shutdown
      * </ul>
@@ -881,7 +881,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Set the flush interval
      * <P>
-     * 
+     *
      * @param flushInterval The amount of time in seconds until the log
      *            is flush. A value of 0 will disable autoflush. This will also set
      *            the update period for hash protected logs.
@@ -940,7 +940,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Synchronized method to write a string to the log file. All I18N
      * should take place before this call.
-     * 
+     *
      * @param entry The log entry string
      */
     protected synchronized void log(String entry) throws ELogException {
@@ -1053,7 +1053,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Write an event to the log file
-     * 
+     *
      * @param ev The event to be logged.
      */
     public void log(ILogEvent ev) throws ELogException {
@@ -1116,7 +1116,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * change multi-line log entry by replace "\n" with "\n "
-     * 
+     *
      * @param original The original multi-line log entry.
      */
     private String prepareMultiline(String original) {
@@ -1134,7 +1134,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * Read all entries whose logLevel>=lowLevel && log source = source
      * to at most maxLine entries(from end)
      * If the parameter is -1, it's ignored and return all entries
-     * 
+     *
      * @param maxLine The maximum lines to be returned
      * @param lowLevel The lowest log level to be returned
      * @param source The particular log source to be returned
@@ -1302,7 +1302,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     /**
      * Retrieves the configuration store of this subsystem.
      * <P>
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -1510,11 +1510,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all classes that extend this "LogFile"
      * class, and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {

@@ -28,7 +28,7 @@ import com.netscape.management.client.util.*;
 public class CMSCALDAPPanel extends CMSBaseLDAPPanel {
 
     private static String PANEL_NAME = "CALDAPSETTING";
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-ca-ldappublish-destination-help";
 
     public CMSCALDAPPanel(CMSTabPanel parent) {

@@ -26,7 +26,7 @@ import java.util.Properties;
  * written to the destination log file. This object also maintains a collection of ILogFactory objects
  * which are used to create the supported types of ILogEvents. CMS comes out of the box with three event
  * types: "signedAudit", "system", and "audit".
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILogger {
@@ -269,7 +269,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
@@ -278,7 +278,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -288,7 +288,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -298,7 +298,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -309,7 +309,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -320,7 +320,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -331,7 +331,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -342,7 +342,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -355,7 +355,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param prop The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -370,7 +370,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
@@ -380,7 +380,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -391,7 +391,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -402,7 +402,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -414,7 +414,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -426,7 +426,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source TTTTsource of the log event.
@@ -438,7 +438,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -452,7 +452,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param prop The resource bundle used for the detailed message.
      * @param source The source of the log event.

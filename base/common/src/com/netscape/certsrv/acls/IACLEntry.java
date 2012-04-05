@@ -20,14 +20,14 @@ package com.netscape.certsrv.acls;
 /**
  * A class represents an entry of access control list.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IACLEntry {
 
     /**
      * Returns the ACL entry string of the entry.
-     * 
+     *
      * @return the ACL entry string of the entry.
      */
     public String getACLEntryString();

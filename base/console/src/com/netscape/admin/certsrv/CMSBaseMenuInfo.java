@@ -103,7 +103,7 @@ public class CMSBaseMenuInfo implements IMenuInfo {
         Vector items = (Vector) mCategoryIDMenuItems.elementAt(i);
         items.addElement(item);     //XXX check exist already ??
     }
-    
+
     /**
      * Add menu item separator
      */

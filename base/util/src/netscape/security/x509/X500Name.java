@@ -32,14 +32,14 @@ import netscape.security.util.ObjectIdentifier;
  * identified by X.509 certificates. They are world-wide, hierarchical,
  * and descriptive. Entities can be identified by attributes, and in
  * some systems can be searched for according to those attributes.
- * 
+ *
  * <P>
  * <em>This class exposes only partial X.500 name functionality.  Most
  * notably, it works best if Relative Distinguished Names only have one
  * (unique) attribute each, and if only the most common attributes need
  * to be visible to applications.  This limitation, and others, will
  * be lifted over time.</em>
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -63,7 +63,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      * as &lb;CN=Dave, OU=JavaSoft, O=Sun Microsystems, C=US&rb;. The
      * older "/C=US/O=Sun Microsystems, Inc/OU=JavaSoft/CN=Dave" syntax
      * is not currently supported. (The former is RFC 1779 style.)
-     * 
+     *
      * @param ldapDNString a Ldap DN String e.g. as defined in RFC1779
      */
     public X500Name(String ldapDNString)
@@ -81,9 +81,9 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a X500Name from a Ldap DN String using the specified
      * LdapDNStrConverter. Also use the input tags.
-     * 
+     *
      * @see LdapDNStrConverter
-     * 
+     *
      * @param ldapDNString a Ldap DN String e.g. as defined in RFC1779.
      * @param ldapDNStrConverter A LdapDNStrConverter
      */
@@ -114,9 +114,9 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a X500Name from a Ldap DN String using the specified
      * LdapDNStrConverter.
-     * 
+     *
      * @see LdapDNStrConverter
-     * 
+     *
      * @param ldapDNString a Ldap DN String e.g. as defined in RFC1779.
      * @param ldapDNStrConverter A LdapDNStrConverter
      */
@@ -135,7 +135,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a X500Name from fields common in enterprise application
      * environments.
-     * 
+     *
      * @param commonName common name of a person, e.g. "Vivette Davis"
      * @param organizationUnit small organization name, e.g. "Purchasing"
      * @param organizationName large organization name, e.g. "Onizuka, Inc."
@@ -176,7 +176,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a X500Name from fields common in Internet application
      * environments.
-     * 
+     *
      * @param commonName common name of a person, e.g. "Vivette Davis"
      * @param organizationUnit small organization name, e.g. "Purchasing"
      * @param organizationName large organization name, e.g. "Onizuka, Inc."
@@ -229,7 +229,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a name from an ASN.1 encoded value. The encoding
      * of the name in the stream uses DER (a BER/1 subset).
-     * 
+     *
      * @param value a DER-encoded value holding an X.500 name.
      */
     public X500Name(DerValue value) throws IOException {
@@ -240,7 +240,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a name from an ASN.1 encoded input stream. The encoding
      * of the name in the stream uses DER (a BER/1 subset).
-     * 
+     *
      * @param in DER-encoded data holding an X.500 name.
      */
     public X500Name(DerInputStream in)
@@ -250,7 +250,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Constructs a name from an ASN.1 encoded byte array.
-     * 
+     *
      * @param name DER-encoded byte array holding an X.500 name.
      */
     public X500Name(byte[] name)
@@ -263,7 +263,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Constructs a X500Name from array of RDN. The RDNs are expected to
      * be in big endian order i.e. most significant first.
-     * 
+     *
      * @param rdns an array of RDN.
      */
     public X500Name(RDN[] rdns)
@@ -273,7 +273,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * convenience method.
-     * 
+     *
      * @param rdns a vector of rdns.
      */
     public X500Name(Vector<RDN> rdnVector)
@@ -287,7 +287,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Compares this name with another, for equality.
-     * 
+     *
      * @return true iff the names are identical.
      */
     synchronized public boolean equals(X500Name other) {
@@ -339,7 +339,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "Country" name component. If more than one
      * such attribute exists, the topmost one is returned.
-     * 
+     *
      * @return "C=" component of the name, if any.
      */
     public String getCountry() throws IOException {
@@ -351,7 +351,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns an "Organization" name component. If more than
      * one such attribute exists, the topmost one is returned.
-     * 
+     *
      * @return "O=" component of the name, if any.
      */
     public String getOrganization() throws IOException {
@@ -363,7 +363,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns an "Organizational Unit" name component. If more
      * than one such attribute exists, the topmost one is returned.
-     * 
+     *
      * @return "OU=" component of the name, if any.
      */
     public String getOrganizationalUnit() throws IOException {
@@ -375,7 +375,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "Common Name" component. If more than one such
      * attribute exists, the topmost one is returned.
-     * 
+     *
      * @return "CN=" component of the name, if any.
      */
     public String getCommonName() throws IOException {
@@ -387,7 +387,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "UID" component. If more than one such
      * attribute exists, the topmost one is returned.
-     * 
+     *
      * @return "UID=" component of the name, if any.
      */
     public String getUserID() throws IOException {
@@ -399,7 +399,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "Locality" name component. If more than one
      * such component exists, the topmost one is returned.
-     * 
+     *
      * @return "L=" component of the name, if any.
      */
     public String getLocality() throws IOException {
@@ -411,7 +411,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "State" name component. If more than one
      * such component exists, the topmost one is returned.
-     * 
+     *
      * @return "S=" component of the name, if any.
      */
     public String getState() throws IOException {
@@ -423,7 +423,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a "Email" name component. If more than one
      * such component exists, the topmost one is returned.
-     * 
+     *
      * @return "E=" component of the name, if any.
      */
     public String getEmail() throws IOException {
@@ -436,7 +436,7 @@ public class X500Name implements Principal, GeneralNameInterface {
     /**
      * Returns a Ldap DN String from the X500Name using the global default
      * LdapDNStrConverter
-     * 
+     *
      * @see LdapDNStrConverter
      * @return Ldap DN string of this X500Name using the default converter.
      */
@@ -452,7 +452,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      * using the specified LdapDNStrconverter.
      * For example, RFC1779String converter can be passed to convert the
      * DN to RFC1779 string syntax.
-     * 
+     *
      * @see LdapDNStrConverter
      * @param ldapDNStrConverter a LdapDNStrConverter
      * @return Ldap DN string of the X500Name
@@ -512,7 +512,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Returns an enumerator of RDNs in the X500Name.
-     * 
+     *
      * @return enumeration of rdns in this X500Name.
      */
     public Enumeration<RDN> getRDNs() {
@@ -521,7 +521,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Returns an array of RDN in the X500Name.
-     * 
+     *
      * @return array of RDN in this X500name.
      */
     public RDN[] getNames() {
@@ -530,7 +530,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Returns the number of RDNs in the X500Name.
-     * 
+     *
      * @return number of RDNs in this X500Name.
      */
     public int getNamesLength() {
@@ -560,7 +560,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Encodes the name in DER-encoded form.
-     * 
+     *
      * @param out where to put the DER-encoded X.500 name
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -583,7 +583,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 
     /**
      * Gets the name in DER-encoded form.
-     * 
+     *
      * @return the DER encoded byte array of this name,
      *         null if no names are present.
      */

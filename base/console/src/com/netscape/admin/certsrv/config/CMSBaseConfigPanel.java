@@ -35,11 +35,11 @@ import java.awt.event.*;
  * @version $Revision$, $Date$
  */
 public abstract class CMSBaseConfigPanel extends CMSBasePanel {
-    
+
     /*==========================================================
      * variables
      *==========================================================*/
-     
+
     private String mTitle;                  // panel title actually shows
     protected boolean mDirty = false;       // panel dirty flag
     protected boolean mInit = false;        // true if this panel is initialized
@@ -59,32 +59,32 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
             mTitle = title;
         } catch (MissingResourceException e) {
             mTitle = "Missing Title";
-        }   
+        }
     }
-    
+
     public CMSBaseConfigPanel() {
-        super("");    
+        super("");
         mTitle = "Missing Title";
     }
-    
+
     /*==========================================================
 	 * abstract methods
      *==========================================================*/
-     
+
     //Actual Instanciation of the panels
     public abstract void init();
-    
+
     //Implementation for saving panel information
     public abstract boolean applyCallback();
-    
+
     //Implementation for reset values
     public abstract boolean resetCallback();
-    
-     
+
+
     /*==========================================================
 	 * public methods
      *==========================================================*/
-    
+
     //Implementation for calling help
     public void helpCallback() {
         CMSAdminUtil.help(mHelpToken);
@@ -96,15 +96,15 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
      */
     public String getTitle() {
 		return mTitle;
-	} 
-	
+	}
+
 	/**
      * set the title of the tab
      */
     public void setTitle(String title) {
 		mTitle = title;
-	} 
-	
+	}
+
 	/**
      * see if the contents of the panel have been changed but not applied
      * @return true if dirty; otherwise,false.
@@ -112,7 +112,7 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
     public boolean isDirty() {
         return mDirty;
     }
-    
+
     /**
      * Called by the Tab parent to initialize the panel
      */
@@ -124,11 +124,11 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
             mInit = true;
         }
     }
-      
+
     /*==========================================================
 	 * EVNET HANDLER METHODS
-     *==========================================================*/     
-     
+     *==========================================================*/
+
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
         if (mInit)
@@ -160,21 +160,21 @@ public abstract class CMSBaseConfigPanel extends CMSBasePanel {
         if (mInit)
             this.setDirtyFlag();
     }
-     
+
     /*==========================================================
 	 * protected methods
      *==========================================================*/
-     
-    //=== Dirty Flag =========================  
-    
+
+    //=== Dirty Flag =========================
+
     //set dirty flag
     protected void setDirtyFlag() {
         mDirty = true;
     }
-     
+
     //clear dirty flag
     protected void clearDirtyFlag() {
         mDirty = false;
     }
-  	        
+
 }

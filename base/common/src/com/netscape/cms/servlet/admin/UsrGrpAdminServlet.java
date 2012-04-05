@@ -63,10 +63,10 @@ import com.netscape.cmsutil.util.Utils;
  * User/Group Manager. It communicates with client
  * SDK to allow remote administration of User/Group
  * manager.
- * 
+ *
  * This servlet will be registered to remote
  * administration subsystem by usrgrp manager.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UsrGrpAdminServlet extends AdminServlet {
@@ -167,11 +167,11 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
          log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
 
-         sendResponse(ERROR, 
+         sendResponse(ERROR,
          MessageFormatter.getLocalizedString(
          getLocale(req),
          AdminResources.class.getName(),
-         AdminResources.SRVLT_FAIL_AUTHS), 
+         AdminResources.SRVLT_FAIL_AUTHS),
          null, resp);
          return;
          }
@@ -333,7 +333,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     /**
      * Searches for users in LDAP directory. List uids only
-     * 
+     *
      * Request/Response Syntax:
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
@@ -381,7 +381,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * List user information. Certificates covered in a separate
      * protocol for findUserCerts(). List of group memberships are
      * also provided.
-     * 
+     *
      * Request/Response Syntax:
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
@@ -462,7 +462,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     /**
      * List user certificate(s)
-     * 
+     *
      * Request/Response Syntax:
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
@@ -542,7 +542,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     /**
      * Searchess for groups in LDAP server
-     * 
+     *
      * Request/Response Syntax:
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#group
@@ -648,16 +648,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Adds a new user to LDAP server
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -973,16 +973,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Adds a certificate to a user
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1327,19 +1327,19 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Removes a certificate for a user
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      * <P>
-     * 
+     *
      * In this method, "certDN" is actually a combination of version, serialNumber, issuerDN, and SubjectDN.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1473,16 +1473,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * any group he/she belongs to before trying to remove the user
      * itself.
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1643,16 +1643,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Adds a new group in local scope.
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#group
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1783,16 +1783,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * removes a group
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#group
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1886,18 +1886,18 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * modifies a group
      * <P>
-     * 
+     *
      * last person of the super power group "Certificate Server Administrators" can never be removed.
      * <P>
-     * 
+     *
      * http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#group
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -2126,16 +2126,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
     /**
      * Modifies an existing user in local scope.
      * <P>
-     * 
+     *
      * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
      * users/groups)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred

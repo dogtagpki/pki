@@ -18,9 +18,9 @@
 package com.netscape.certsrv.publish;
 
 /**
- * 
+ *
  * Class representing a LdapMapper.
- * 
+ *
  * @version $Revision$ $Date$
  */
 
@@ -29,9 +29,9 @@ public class MapperProxy {
     private ILdapMapper mMapper;
 
     /**
-     * 
+     *
      * Contructs MapperProxy .
-     * 
+     *
      * @param enable Enabled or not.
      * @param mapper Corresponding ILdapMapper object.
      */
@@ -41,9 +41,9 @@ public class MapperProxy {
     }
 
     /**
-     * 
+     *
      * Returns if enabled.
-     * 
+     *
      * @return true if enabled, otherwise false.
      */
     public boolean isEnable() {
@@ -51,9 +51,9 @@ public class MapperProxy {
     }
 
     /**
-     * 
+     *
      * Returns ILdapMapper object.
-     * 
+     *
      * @return Intance of ILdapMapper object.
      */
     public ILdapMapper getMapper() {

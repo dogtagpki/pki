@@ -24,7 +24,7 @@ import com.netscape.certsrv.ldap.ELdapException;
  * error is found while evaluating a PKI component. An example
  * would be in trying to evaluate a PKI authentication message and
  * the parsing operation fails due to a missing token.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ECompSyntaxErr extends ELdapException {
@@ -36,7 +36,7 @@ public class ECompSyntaxErr extends ELdapException {
 
     /**
      * Construct a ECompSyntaxErr
-     * 
+     *
      * @param errorString The descriptive error condition.
      */
 

@@ -20,7 +20,7 @@ package com.netscape.certsrv.client;
 /**
  * this class represents the callback interface between
  * the client package and the data storage object (data model)
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDataProcessor {
@@ -28,7 +28,7 @@ public interface IDataProcessor {
     /**
      * This method will be callby the client package each time
      * data object arrived from the server side.
-     * 
+     *
      * @param data data object expected by the interface implementor
      */
     public void processData(Object data);

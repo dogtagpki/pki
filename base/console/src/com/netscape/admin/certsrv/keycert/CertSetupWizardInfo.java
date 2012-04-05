@@ -215,10 +215,10 @@ public class CertSetupWizardInfo extends WizardInfo {
         return (String)get(Constants.PR_ISSUER_NAME);
     }
 
-    public String getSerialNumber() {    
+    public String getSerialNumber() {
         return (String)get(Constants.PR_SERIAL_NUMBER);
     }
-  
+
     public String getNotBefore() {
         return (String)get(Constants.PR_BEFORE_VALIDDATE);
     }
@@ -306,7 +306,7 @@ public class CertSetupWizardInfo extends WizardInfo {
     public String getHashType() {
         return (String)get(ConfigConstants.PR_HASH_TYPE);
     }
- 
+
     public void setHashType(String type) {
         put(ConfigConstants.PR_HASH_TYPE, type);
     }
@@ -314,7 +314,7 @@ public class CertSetupWizardInfo extends WizardInfo {
     public String getSignedByType() {
         return (String)get(ConfigConstants.PR_SIGNEDBY_TYPE);
     }
- 
+
     public void setSignedByType(String type) {
         put(ConfigConstants.PR_SIGNEDBY_TYPE, type);
     }

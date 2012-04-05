@@ -32,13 +32,13 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * RevokedInfo ::= SEQUENCE {
  *  revocationTime              GeneralizedTime,
  *  revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class RevokedInfo implements CertStatus {

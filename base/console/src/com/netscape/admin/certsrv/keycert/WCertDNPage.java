@@ -39,7 +39,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
       "configuration-keycert-wizard-subjectdn-help";
 
     private String certType = "";
-    
+
     WCertDNPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -98,7 +98,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         //enableFields(true, mActiveColor);
         if (subjectName != null)
             populateDN(subjectName);
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -118,7 +118,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         } else {
             str = str2;
         }
-        
+
         if (str.equals("")) {
             setErrorMessage("BLANKFIELD");
             return false;
@@ -135,7 +135,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         wizardInfo.addEntry(Constants.PR_SUBJECT_NAME, str);
 
         try {
-            connection.validate(DestDef.DEST_SERVER_ADMIN, 
+            connection.validate(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_SUBJECT_NAME, nvps);
         } catch (EAdminException e) {
             //showErrorDialog(e.toString());

@@ -23,7 +23,7 @@ import com.netscape.certsrv.profile.IProfileContext;
 
 /**
  * This class implements the profile context.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileContext implements IProfileContext {

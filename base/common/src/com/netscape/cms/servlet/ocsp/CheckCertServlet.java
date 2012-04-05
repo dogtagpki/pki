@@ -49,7 +49,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * Check the status of a specific certificate
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class CheckCertServlet extends CMSServlet {
@@ -83,7 +83,7 @@ public class CheckCertServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "checkCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -103,7 +103,7 @@ public class CheckCertServlet extends CMSServlet {
      * <li>http.param cert certificate to check. Base64, DER encoded, wrapped in -----BEGIN CERTIFICATE-----, -----END
      * CERTIFICATE----- strings
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

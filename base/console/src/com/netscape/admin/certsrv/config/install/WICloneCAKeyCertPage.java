@@ -41,10 +41,10 @@ class WICloneCAKeyCertPage extends WizardBasePanel implements IWizardPanel {
     protected InstallWizardInfo mWizardInfo;
     protected JComboBox mCANicknameBox, mOCSPNicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONECAKEYCERTWIZARD";
-    private static final String CAHELPINDEX = 
+    private static final String CAHELPINDEX =
       "install-cacertclone-wizard-help";
 
-    
+
     WICloneCAKeyCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -77,8 +77,8 @@ class WICloneCAKeyCertPage extends WizardBasePanel implements IWizardPanel {
             return false;
         if (wizardInfo.isCACloningDone())
             return false;
-        if (!wizardInfo.isCAInstalled() || wizardInfo.isMigrationEnable() 
-          || wizardInfo.isSelfSignedCACertDone() 
+        if (!wizardInfo.isCAInstalled() || wizardInfo.isMigrationEnable()
+          || wizardInfo.isSelfSignedCACertDone()
           || wizardInfo.isCACertRequestDone())
             return false;
 
@@ -116,7 +116,7 @@ class WICloneCAKeyCertPage extends WizardBasePanel implements IWizardPanel {
                 mOCSPNicknameBox.addItem(s1);
         }
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -195,7 +195,7 @@ class WICloneCAKeyCertPage extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(heading, gbc);
@@ -207,7 +207,7 @@ class WICloneCAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(caNicknameLbl, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mCANicknameBox = new JComboBox();
         gbc.anchor = gbc.NORTHWEST;

@@ -47,12 +47,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Adds the name constraints extension to a (CA) certificate.
  * Filtering of CA certificates is done through predicates.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -89,21 +89,21 @@ public class NameConstraintsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName=
      * ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
 
-        // XXX should do do this ? 
-        // if CA does not allow subordinate CAs by way of basic constraints, 
-        // this policy always rejects 
+        // XXX should do do this ?
+        // if CA does not allow subordinate CAs by way of basic constraints,
+        // this policy always rejects
         /*****
          * ICertAuthority certAuthority = (ICertAuthority)
          * ((IPolicyProcessor)owner).getAuthority();
@@ -192,7 +192,7 @@ public class NameConstraintsExt extends APolicyRule
             }
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
                 PROP_NUM_PERMITTEDSUBTREES + "=" + mNumPermittedSubtrees);
@@ -225,15 +225,15 @@ public class NameConstraintsExt extends APolicyRule
 
     /**
      * Adds Name Constraints Extension to a (CA) certificate.
-     * 
+     *
      * If a Name constraints Extension is already there, accept it if
      * it's been approved by agent, else replace it.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        // if extension hasn't been properly configured reject requests until 
+        // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
         if (mNameConstraintsExtension == null) {
             //setError(req, PolicyResources.EXTENSION_NOT_INITED_1, NAME);
@@ -275,7 +275,7 @@ public class NameConstraintsExt extends APolicyRule
                             extensions.get(NameConstraintsExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
 
             if (nameConstraintsExt != null) {
@@ -320,7 +320,7 @@ public class NameConstraintsExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -350,7 +350,7 @@ public class NameConstraintsExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

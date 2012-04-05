@@ -45,11 +45,11 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 
 /**
  * This class is an administration servlet for policy management.
- * 
+ *
  * Each service (CA, KRA, RA) should be responsible
  * for registering an instance of this with the remote
  * administration subsystem.
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -114,14 +114,14 @@ public class PolicyAdminServlet extends AdminServlet {
         // NOTE:  The "Certificate Policies" framework ONLY applied to
         //        to CA, KRA, and legacy RA (pre-CMS 7.0) subsystems.
         //
-        //        Further, the "PolicyAdminServlet.java" servlet is ONLY used 
+        //        Further, the "PolicyAdminServlet.java" servlet is ONLY used
         //        by the CA Console for the following:
         //
         //            SERVLET-NAME           URL-PATTERN
         //            ====================================================
         //            capolicy               ca/capolicy
         //
-        //        Finally, the "PolicyAdminServlet.java" servlet is ONLY used 
+        //        Finally, the "PolicyAdminServlet.java" servlet is ONLY used
         //        by the KRA Console for the following:
         //
         //            SERVLET-NAME           URL-PATTERN
@@ -480,12 +480,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Delete policy implementation
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -602,12 +602,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Add policy implementation
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -709,12 +709,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Delete policy instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -849,12 +849,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Add policy instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1006,12 +1006,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Change ordering of policy instances
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1097,12 +1097,12 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Modify policy instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and
      * extensions
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1182,7 +1182,7 @@ public class PolicyAdminServlet extends AdminServlet {
                 sendResponse(ERROR, INVALID_POLICY_IMPL_ID, null, resp);
                 return;
             }
-            // XXX 
+            // XXX
             for (@SuppressWarnings("unchecked")
             Enumeration<String> n = req.getParameterNames(); n.hasMoreElements();) {
                 String p = n.nextElement();

@@ -69,7 +69,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMCRevReqServlet extends CMSServlet {
@@ -96,7 +96,7 @@ public class CMCRevReqServlet extends CMSServlet {
     private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
 
-    // http params 
+    // http params
     public static final String SERIAL_NO = TOKEN_CERT_SERIAL;
     public static final String REASON_CODE = "reasonCode";
     public static final String CHALLENGE_PHRASE = "challengePhrase";
@@ -110,7 +110,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -136,11 +136,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * <ul>
      * <li>http.param cmcRequest the base-64 encoded CMC request
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -315,20 +315,20 @@ public class CMCRevReqServlet extends CMSServlet {
      * Process cert status change request using the Certificate Management
      * protocol using CMS (CMC)
      * <P>
-     * 
+     *
      * (Certificate Request - an "EE" cert status change request)
      * <P>
-     * 
+     *
      * (Certificate Request Processed - an "EE" cert status change request)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. -
      * "revocation") is made (before approval process)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is
      * changed (revoked, expired, on-hold, off-hold)
      * </ul>
-     * 
+     *
      * @param argSet CMS template parameters
      * @param header argument block
      * @param reason revocation reason (0 - Unspecified, 1 - Key compromised,
@@ -965,11 +965,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -995,11 +995,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Serial Number
-     * 
+     *
      * This method is called to obtain the serial number of the certificate
      * whose status is to be changed for a signed audit log message.
      * <P>
-     * 
+     *
      * @param eeSerialNumber a string containing the un-normalized serialNumber
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1028,11 +1028,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Request Type
-     * 
+     *
      * This method is called to obtain the "Request Type" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param reason an integer denoting the revocation reason
      * @return string containing REVOKE or ON_HOLD
      */

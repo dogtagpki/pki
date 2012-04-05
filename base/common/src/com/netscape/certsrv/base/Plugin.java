@@ -20,7 +20,7 @@ package com.netscape.certsrv.base;
 /**
  * This represents a generici CMS plugin.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Plugin {
@@ -30,7 +30,7 @@ public class Plugin {
 
     /**
      * Constructs a plugin.
-     * 
+     *
      * @param id plugin implementation name
      * @param classPath class path
      */
@@ -41,7 +41,7 @@ public class Plugin {
 
     /**
      * Returns the plugin identifier.
-     * 
+     *
      * @return plugin id
      */
     public String getId() {
@@ -50,7 +50,7 @@ public class Plugin {
 
     /**
      * Returns the plugin classpath.
-     * 
+     *
      * @return plugin classpath
      */
     public String getClassPath() {

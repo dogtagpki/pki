@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for the
  * user/group manager
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -30,7 +30,7 @@ public class UsrGrpResources extends ListResourceBundle {
 
     /**
      * Returns the content of this resource.
-     * 
+     *
      * @return the content of this resource.
      */
     public Object[][] getContents() {

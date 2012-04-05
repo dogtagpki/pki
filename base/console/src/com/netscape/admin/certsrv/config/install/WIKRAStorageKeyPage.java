@@ -30,7 +30,7 @@ import javax.swing.event.*;
 import java.awt.event.*;
 
 /**
- * Install KRA storage key. 
+ * Install KRA storage key.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -45,7 +45,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
       "install-cakra-storagekey-wizard-help";
     private static final String RAKRAHELPINDEX =
       "install-rakra-storagekey-wizard-help";
-    
+
     protected JComboBox mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
     protected JPasswordField mPassword, mPasswordAgain, mSOPPassword;
     protected JLabel keyTypeLbl, keyLengthCustomText, keyLengthLbl, unitLbl,
@@ -122,7 +122,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
        //mTokenBox.setSelectedIndex(0);
        mTokenBox.addItemListener(this);
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -131,13 +131,13 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
 
     public void actionPerformed(ActionEvent e) {
       int index = mTokenBox.getSelectedIndex();
-      if (index > 0) { 
+      if (index > 0) {
         mPassword.setEnabled(true);
         mPassword.setBackground(mActiveColor);
       } else {
         // Internal Token
         mPassword.setEnabled(false);
-        mPassword.setBackground(getBackground()); 
+        mPassword.setBackground(getBackground());
       }
     }
 
@@ -293,7 +293,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.gridwidth = gbc.REMAINDER;
-        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
 		COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel2.add(mSOPPassword, gbc);

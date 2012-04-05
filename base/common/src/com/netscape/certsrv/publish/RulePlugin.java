@@ -22,15 +22,15 @@ import com.netscape.certsrv.base.Plugin;
 /**
  * This class represents a registered Publishing Rule plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RulePlugin extends Plugin {
 
     /**
-     * 
+     *
      * Constructs a RulePlugin based on name and classpath.
-     * 
+     *
      * @param id name of RulePlugin.
      * @param path Classpath of RulePlugin.
      */

@@ -34,10 +34,10 @@ import com.netscape.admin.certsrv.connection.*;
  * @version $Revision$, $Date$
  */
 public class CMSServerInfo implements IConnectionListener {
-    
+
     /*==========================================================
      * variables
-     *==========================================================*/    
+     *==========================================================*/
     private static final String PREFIX = "SERVER";
 	private AdminConnection mAdmin = null;     // srever entry point
 	private String mHost = null;                // server host
@@ -48,7 +48,7 @@ public class CMSServerInfo implements IConnectionListener {
 	private String mUserid = null;              // user id
 	private String mInstallDate = null;         // server install date
 	private String mPassword = null;            // user password
-	private String mPath = null; 
+	private String mPath = null;
 	private Vector mSubsystem = new Vector();
 
 	/*==========================================================
@@ -56,8 +56,8 @@ public class CMSServerInfo implements IConnectionListener {
      *==========================================================*/
 	public CMSServerInfo(String host, int port, String userid, String password,
 	                     String serverid, String installDate, String version,
-      String serverRoot, String path) 
-	    throws EAdminException 
+      String serverRoot, String path)
+	    throws EAdminException
 	{
 
 		mHost = host;
@@ -69,20 +69,20 @@ public class CMSServerInfo implements IConnectionListener {
         mInstallDate = installDate;
         mServerRoot = serverRoot;
 		mPath = path;
-        
+
         Debug.println("CMSServerInfo: host "+mHost+" port "+mPort+
           " userid "+mUserid+" serverRoot "+mServerRoot+" serverid "+mServerId);
         mAdmin = new AdminConnection(
-	                new BasicAuthenticator(mUserid, mPassword), 
+	                new BasicAuthenticator(mUserid, mPassword),
 	                new SSLConnectionFactory(SSLConnectionFactory.JSS_CONNECTION),
 	                true /* KeepAlive */, mHost, mPort, mPath);
-		mAdmin.setConnectionListener(this);	
+		mAdmin.setConnectionListener(this);
 	}
 
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     public void restartCallback() {
         JFrame frame = UtilConsoleGlobals.getActivatedFrame();
         if (frame != null) {
@@ -94,24 +94,24 @@ public class CMSServerInfo implements IConnectionListener {
     }
 
     public void ping() throws EAdminException {
-		
+
 		// Need to do authentication here
 		NameValuePairs config = new NameValuePairs();
 		config.put(Constants.PR_PING, "");
-		
+
 		NameValuePairs response;
-		
+
 		response = mAdmin.read(DestDef.DEST_AUTH_ADMIN,
 		            ScopeDef.SC_AUTH,
 		            Constants.RS_ID_CONFIG,
 		            config);
-		
+
 		if (!response.get(Constants.PR_PING).equalsIgnoreCase(Constants.TRUE)) {
             Debug.println("Ping failed -> Server off");
 		    throw new EAdminException("PING_FAILED",false);
 	    }
     }
-    
+
     public void authenticate() throws EAdminException {
         mAdmin.auth(DestDef.DEST_AUTH_ADMIN, ScopeDef.SC_AUTH);
     }
@@ -131,27 +131,27 @@ public class CMSServerInfo implements IConnectionListener {
 	public int getPort() {
 		return mPort;
 	}
-	
+
 	public String getUserId() {
-	    return mUserid;    
+	    return mUserid;
 	}
-	
+
 	public String getServerId() {
-	    return mServerId;    
+	    return mServerId;
 	}
 
 	public String getServerRoot() {
-	    return mServerRoot;    
+	    return mServerRoot;
 	}
 
     public String getServerVersion() {
         return mServerVersion;
     }
-    
+
     public String getInstallDate() {
-        return mInstallDate;    
+        return mInstallDate;
     }
-    
+
 	public Object clone() {
 		try {
 			return new CMSServerInfo(mHost, mPort, mUserid, mPassword,
@@ -160,13 +160,13 @@ public class CMSServerInfo implements IConnectionListener {
 			return null;
 		}
 	}
-	
+
 	public Vector getInstalledSubsystems() {
         return mSubsystem;
 	}
-	
+
 	public void setInstalledSubsystems(Vector subsystem) {
 	    mSubsystem = subsystem;
 	}
-	
+
 }

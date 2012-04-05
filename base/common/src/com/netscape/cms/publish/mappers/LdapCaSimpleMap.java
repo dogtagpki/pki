@@ -54,7 +54,7 @@ import com.netscape.certsrv.request.IRequest;
  * in the directory to publish the cert or crl.
  * The restriction of this mapper is that the ldap dn components must
  * be part of certificate subject name or request attributes or constant.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
@@ -82,7 +82,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * Constructor.
-     * 
+     *
      * @param dnPattern The base DN.
      */
     public LdapCaSimpleMap(String dnPattern) {
@@ -157,7 +157,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Maps a X500 subject name to LDAP entry.
      * Uses DN pattern to form a DN for a LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
@@ -170,7 +170,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * Maps a X500 subject name to LDAP entry.
      * Uses DN pattern to form a DN for a LDAP base search.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param req the request to map.
      * @param obj the object to map.
@@ -277,7 +277,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * form a dn from component in the request and cert subject name
-     * 
+     *
      * @param req The request
      * @param obj The certificate or crl
      */

@@ -39,7 +39,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLRepository;
  * A class represents a CRL repository. It stores all the
  * CRL issuing points.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

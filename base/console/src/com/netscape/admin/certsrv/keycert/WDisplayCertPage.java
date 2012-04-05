@@ -44,7 +44,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
     private JTextArea mTextArea;
     private JTextField mCertNameField;
     private Color mActiveColor;
-    
+
     WDisplayCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -84,7 +84,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
             mCertNameField.setText(certName);
 
         CMSAdminUtil.repaintComp(mCertNameField);
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -94,7 +94,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
                 setErrorMessage("EMPTYCERTNAME");
                 return false;
             }
-        }  
+        }
         return true;
     }
 
@@ -150,7 +150,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
         }
         wizardInfo.addEntry(Constants.PR_ADD_CERT, new Boolean(true));
 /*
-        CMSAdminUtil.showMessageDialog(mResource, PANELNAME, 
+        CMSAdminUtil.showMessageDialog(mResource, PANELNAME,
           "INSTALL", JOptionPane.INFORMATION_MESSAGE);
 */
         return true;
@@ -182,7 +182,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(mCertNameField, gbc);
         mActiveColor = mCertNameField.getBackground();
-    
+
         mCertNameField.setEditable(false);
         mCertNameField.setBackground(getBackground());
         mCertNameField.setEnabled(false);
@@ -245,7 +245,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
     }
 
     private String[] parseStr(String dn) {
-        StringTokenizer tokenizer = new StringTokenizer(dn, ","); 
+        StringTokenizer tokenizer = new StringTokenizer(dn, ",");
         int numTokens = tokenizer.countTokens();
         String[] results = new String[numTokens];
         int i=0;

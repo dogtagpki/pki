@@ -71,7 +71,7 @@ class WIRemoteKRASubsystem extends WizardBasePanel implements IWizardPanel {
         mWizardInfo = wizardInfo;
         if (wizardInfo.isServicesDone())
             return false;
-        if ((wizardInfo.isCAInstalled() || wizardInfo.isRAInstalled()) 
+        if ((wizardInfo.isCAInstalled() || wizardInfo.isRAInstalled())
           && !wizardInfo.isKRAInstalled()) {
             setBorder(makeTitledBorder(PANELNAME));
             if (mYes.isSelected())
@@ -124,8 +124,8 @@ class WIRemoteKRASubsystem extends WizardBasePanel implements IWizardPanel {
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         wizardInfo.setDRMHost(mHost);
-        wizardInfo.setDRMPort(mPort);   
-        wizardInfo.setDRMTimeout(mTimeout);   
+        wizardInfo.setDRMPort(mPort);
+        wizardInfo.setDRMTimeout(mTimeout);
         ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
         CMSConfigCert configCertCgi = new CMSConfigCert();
         configCertCgi.initialize(wizardInfo);
@@ -180,11 +180,11 @@ class WIRemoteKRASubsystem extends WizardBasePanel implements IWizardPanel {
                 data.put(ConfigConstants.KRA_HOST, wizardInfo.getDRMHost());
                 data.put(ConfigConstants.KRA_PORT, wizardInfo.getDRMPort());
                 data.put(ConfigConstants.KRA_TIMEOUT, wizardInfo.getDRMTimeout());
-                data.put(ConfigConstants.REMOTE_KRA_ENABLED, 
+                data.put(ConfigConstants.REMOTE_KRA_ENABLED,
                   ConfigConstants.TRUE);
                 wizardInfo.enableRemoteDRM(ConfigConstants.TRUE);
-            } else { 
-                data.put(ConfigConstants.REMOTE_KRA_ENABLED, 
+            } else {
+                data.put(ConfigConstants.REMOTE_KRA_ENABLED,
                   ConfigConstants.FALSE);
                 wizardInfo.enableRemoteDRM(ConfigConstants.FALSE);
             }
@@ -196,7 +196,7 @@ class WIRemoteKRASubsystem extends WizardBasePanel implements IWizardPanel {
         CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CONFIGDB");
         boolean ready = configCertCgi.configCert(data);
         dlg.setVisible(false);
-        
+
         endProgressStatus();
 
         if (!ready) {
@@ -322,7 +322,7 @@ class WIRemoteKRASubsystem extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         add(mTimeunitLbl, gbc);
         */
-        
+
         JLabel label = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;

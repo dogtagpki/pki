@@ -28,7 +28,7 @@ import netscape.security.util.DerValue;
 
 /**
  * A plain certattr set used by pkcs10 to parse an unknown attribute.
- * 
+ *
  * @author Lily Hsiao
  */
 public class ACertAttrSet implements CertAttrSet {
@@ -45,7 +45,7 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Returns a short string describing this certificate attribute.
-     * 
+     *
      * @return value of this certificate attribute in
      *         printable form.
      */
@@ -56,9 +56,9 @@ public class ACertAttrSet implements CertAttrSet {
     /**
      * Encodes the attribute to the output stream in a format
      * that can be parsed by the <code>decode</code> method.
-     * 
+     *
      * @param out the OutputStream to encode the attribute to.
-     * 
+     *
      * @exception CertificateException on encoding or validity errors.
      * @exception IOException on other errors.
      */
@@ -69,9 +69,9 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Decodes the attribute in the input stream.
-     * 
+     *
      * @param in the InputStream to read the encoded attribute from.
-     * 
+     *
      * @exception CertificateException on decoding or validity errors.
      * @exception IOException on other errors.
      */
@@ -82,10 +82,10 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Sets an attribute value within this CertAttrSet.
-     * 
+     *
      * @param name the name of the attribute (e.g. "x509.info.key")
      * @param obj the attribute object.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      * @exception IOException on other errors.
      */
@@ -96,9 +96,9 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Gets an attribute value for this CertAttrSet.
-     * 
+     *
      * @param name the name of the attribute to return.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      * @exception IOException on other errors.
      */
@@ -109,9 +109,9 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Deletes an attribute value from this CertAttrSet.
-     * 
+     *
      * @param name the name of the attribute to delete.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      * @exception IOException on other errors.
      */
@@ -123,7 +123,7 @@ public class ACertAttrSet implements CertAttrSet {
     /**
      * Returns an enumeration of the names of the attributes existing within
      * this attribute.
-     * 
+     *
      * @return an enumeration of the attribute names.
      */
     public Enumeration<String> getAttributeNames() {
@@ -132,7 +132,7 @@ public class ACertAttrSet implements CertAttrSet {
 
     /**
      * Returns the name (identifier) of this CertAttrSet.
-     * 
+     *
      * @return the name of this CertAttrSet.
      */
     public String getName() {

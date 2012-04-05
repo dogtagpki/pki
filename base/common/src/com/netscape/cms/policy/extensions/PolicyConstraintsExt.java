@@ -44,12 +44,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Adds the policy constraints extension to (CA) certificates.
  * Filtering of CA certificates is done through predicates.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -90,21 +90,21 @@ public class PolicyConstraintsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName=
      * ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
 
-        // XXX should do do this ? 
-        // if CA does not allow subordinate CAs by way of basic constraints, 
-        // this policy always rejects 
+        // XXX should do do this ?
+        // if CA does not allow subordinate CAs by way of basic constraints,
+        // this policy always rejects
         /*****
          * ICertAuthority certAuthority = (ICertAuthority)
          * ((GenericPolicyProcessor)owner).mAuthority;
@@ -136,7 +136,7 @@ public class PolicyConstraintsExt extends APolicyRule
         if (mInhibitPolicyMapping < -1)
             mInhibitPolicyMapping = -1;
 
-        // create instance of policy constraings extension 
+        // create instance of policy constraings extension
         try {
             mPolicyConstraintsExtension =
                     new PolicyConstraintsExtension(mCritical,
@@ -152,7 +152,7 @@ public class PolicyConstraintsExt extends APolicyRule
                             "Could not init Policy Constraints Extension. Error: " + e));
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
                 PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);
@@ -162,15 +162,15 @@ public class PolicyConstraintsExt extends APolicyRule
 
     /**
      * Adds Policy Constraints Extension to a (CA) certificate.
-     * 
+     *
      * If a Policy constraints Extension is already there, accept it if
      * it's been approved by agent, else replace it.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        // if extension hasn't been properly configured reject requests until 
+        // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
         if (mPolicyConstraintsExtension == null) {
             return PolicyResult.ACCEPTED;
@@ -210,7 +210,7 @@ public class PolicyConstraintsExt extends APolicyRule
                             extensions.get(PolicyConstraintsExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
 
             if (policyConstraintsExt != null) {
@@ -247,7 +247,7 @@ public class PolicyConstraintsExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -256,7 +256,7 @@ public class PolicyConstraintsExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

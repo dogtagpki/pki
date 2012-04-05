@@ -24,7 +24,7 @@ import netscape.security.x509.X509CertImpl;
 
 /**
  * Compares validity dates for use in sorting.
- * 
+ *
  * @author kanda
  * @version $Revision$, $Date$
  */

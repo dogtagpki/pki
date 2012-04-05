@@ -37,9 +37,9 @@ public class ListKeysModel extends CMSTableModel
      *==========================================================*/
     public static final String COL1 = "KEYNAME";
     public static final String COL2 = "SERIALNUMBER";
-    public static final String COL3 = "ISSUERNAME";  
+    public static final String COL3 = "ISSUERNAME";
     public static final String COL4 = "TOKENNAME";
-     
+
     private static String[] mColumns = {COL1};
 
     /*==========================================================

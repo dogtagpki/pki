@@ -43,17 +43,17 @@ public class UserCertsTab extends CMSBaseUGTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "USERCERTS";
-  
+
     private AdminConnection mConnection;
     private String mDestination;
     private CMSBaseResourceModel mModel;
     private ConsoleInfo mConsoleInfo;
-    
+
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
     protected ListCertsModel mDataModel;   //table model
     protected CertViewDialog mEditor=null;      //keep single copy
-    
+
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String HELPINDEX = "configuration-log-plugin-help";
 
@@ -119,7 +119,7 @@ public class UserCertsTab extends CMSBaseUGTab {
               (String)(mTable.getValueAt(row, 0));
             String serialno = (String)(mTable.getValueAt(row, 1));
             String issuername = (String)(mTable.getValueAt(row, 2));
-            
+
             try {
                 NameValuePairs nvps = new NameValuePairs();
                 nvps.put(Constants.PR_NICK_NAME, nickname);
@@ -138,7 +138,7 @@ public class UserCertsTab extends CMSBaseUGTab {
                 CMSAdminUtil.showErrorDialog(mModel.getFrame(), mResource, ex.toString(),
                   CMSAdminUtil.ERROR_MESSAGE);
             }
-        }        
+        }
     }
 
     //==== MOUSELISTENER ======================
@@ -147,7 +147,7 @@ public class UserCertsTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================
@@ -156,8 +156,8 @@ public class UserCertsTab extends CMSBaseUGTab {
     public void refresh() {
 
         mDataModel.removeAllRows();
-        update();       
-        
+        update();
+
         setButtons();
         mTable.invalidate();
         mTable.validate();
@@ -241,7 +241,7 @@ public class UserCertsTab extends CMSBaseUGTab {
 
     //set buttons
     private void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
         //Debug.println("setButtons() - "+mTable.getSelectionModel().isSelectionEmpty());
@@ -250,29 +250,29 @@ public class UserCertsTab extends CMSBaseUGTab {
             mView.setEnabled(false);
             return;
         }
-        
+
         if(mDataModel.getRowCount()<=0) {
             mDelete.setEnabled(false);
             mView.setEnabled(false);
             return;
         }
-        
+
         mDelete.setEnabled(true);
-        mView.setEnabled(true);        
-        
+        mView.setEnabled(true);
+
     }
-    
+
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
     private void update() {
         //send request and parse data
-        
+
         mModel.progressStart();
         NameValuePairs response;
         try {
             response = mConnection.search(mDestination,
-              ScopeDef.SC_USERCERTSLIST, new NameValuePairs()); 
+              ScopeDef.SC_USERCERTSLIST, new NameValuePairs());
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());
@@ -290,7 +290,7 @@ public class UserCertsTab extends CMSBaseUGTab {
             for (String entry : response.keySet()) {
                 vals[i++] = entry.trim();
             }
-            
+
             int sindex = 0;
             String snickname = "";
             CMSAdminUtil.quickSort(vals, 0, response.size()-1);
@@ -313,7 +313,7 @@ public class UserCertsTab extends CMSBaseUGTab {
             }
             mTable.setRowSelectionInterval(0,0);
         }
-            
+
         mModel.progressStop();
     }
 
@@ -324,7 +324,7 @@ public class UserCertsTab extends CMSBaseUGTab {
           (String)(mDataModel.getValueAt(row, 0));
         String id = nickname+":SERIAL#<"+mDataModel.getValueAt(row, 1)+">"
           +mDataModel.getValueAt(row, 2);
-        
+
         //send comment to server for the removal of user
         try {
             mConnection.delete(mDestination, ScopeDef.SC_USERCERTSLIST, id);

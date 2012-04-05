@@ -29,7 +29,7 @@ public class EMissingCredential extends EAuthException {
 
     /**
      * Constructs a exception for a missing required authentication credential
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EMissingCredential(String errorString) {

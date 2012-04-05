@@ -41,7 +41,7 @@ import com.netscape.cms.profile.def.ValidityDefault;
  * This class implements the validity constraint.
  * It checks if the validity in the certificate
  * template is within the CA's validity.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CAValidityConstraint extends CAEnrollConstraint {

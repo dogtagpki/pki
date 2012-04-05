@@ -24,9 +24,9 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class represents an Or expression of the form
  * (var1 op val1 OR var2 op val2).
- * 
+ *
  * Expressions are used as predicates for policy selection.
- * 
+ *
  * @deprecated
  * @author kanda
  * @version $Revision$, $Date$

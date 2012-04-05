@@ -55,7 +55,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
     /**
      * Constructor. Takes hostname , portnumber , certificate nickname, token password ,client certdb directory
-     * 
+     *
      * @param hostname
      * @param portnumber
      * @param agent cert nickname
@@ -88,10 +88,10 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
     }
 
-    // Get and Set methods 
+    // Get and Set methods
 
     /*
-     * Get the page returned by the server 
+     * Get the page returned by the server
      */
 
     public StringBuffer getPage() {
@@ -99,7 +99,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     /*
-     * Set the query string to be submitted to the server 
+     * Set the query string to be submitted to the server
      */
 
     public void setQueryString(String qu) {
@@ -107,7 +107,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     /*
-     *Set token password 
+     *Set token password
      */
 
     public void setTokenPassword(String pwd) {
@@ -131,7 +131,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     /*
-     * set Agent port number 
+     * set Agent port number
      */
 
     public void setPort(int p) {
@@ -139,7 +139,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     /*
-     * Set Agent cert nickname 
+     * Set Agent cert nickname
      */
 
     public void setCertNickName(String cname) {
@@ -147,14 +147,14 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     /*
-     * Set action URL 
+     * Set action URL
      */
 
     public void setActionURL(String url) {
         ACTIONURL = url;
     }
 
-    // Submit requests 
+    // Submit requests
 
     public boolean Send() {
         try {
@@ -196,7 +196,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
                 System.out.println(line);
             }
 
-            // Send Connection: close to let the server close the connection. 
+            // Send Connection: close to let the server close the connection.
             // Else the socket on the server side continues to remain in TIME_WAIT state
 
             ps.println("Connection: close");
@@ -315,4 +315,4 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
     }
 
-} // end of class 
+} // end of class

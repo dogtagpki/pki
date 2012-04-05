@@ -22,12 +22,12 @@ import java.util.ListResourceBundle;
 /**
  * Error messages for Policies.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle

@@ -28,14 +28,14 @@ import com.netscape.certsrv.request.IRequest;
  * validates if the given request conforms to the set
  * rules.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPolicyConstraint extends IConfigTemplate {
 
     /**
      * Initializes this constraint policy.
-     * 
+     *
      * @param profile owner of this policy
      * @param config configuration store for this constraint
      * @exception EProfileException failed to initialize
@@ -46,7 +46,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
     /**
      * Returns the corresponding configuration store
      * of this constraint policy.
-     * 
+     *
      * @return config store of this constraint
      */
     public IConfigStore getConfigStore();
@@ -54,7 +54,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
     /**
      * Validates the request. The request is not modified
      * during the validation.
-     * 
+     *
      * @param request request to be validated
      * @exception ERejectException reject the given request
      */
@@ -63,7 +63,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
 
     /**
      * Returns localized description of this constraint.
-     * 
+     *
      * @param locale locale of the end-user
      * @return localized description of this constraint
      */
@@ -71,7 +71,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
 
     /**
      * Returns localized name of this constraint.
-     * 
+     *
      * @param locale locale of the end-user
      * @return localized name of this constraint
      */
@@ -80,7 +80,7 @@ public interface IPolicyConstraint extends IConfigTemplate {
     /**
      * Checks if this constraint is applicable to the
      * given default policy.
-     * 
+     *
      * @param def default policy to be checked
      * @return true if this constraint can be applied to
      *         the given default policy

@@ -26,7 +26,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 
 /**
  * Interface for mapping a CRL to a LDAP entry.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapCrlMapper {
@@ -34,7 +34,7 @@ public interface ILdapCrlMapper {
     /**
      * maps a crl to a LDAP entry.
      * returns dn of the mapped LDAP entry.
-     * 
+     *
      * @param conn the LDAP connection
      * @param crl the CRL to map
      * @param checkForCrl whether to check for the presence of the CRL
@@ -50,7 +50,7 @@ public interface ILdapCrlMapper {
 
     /**
      * initialize from config store.
-     * 
+     *
      * @param config the configuration store to initialize from.
      * @exception ELdapException Initialization failed due to Ldap error.
      * @exception EBaseException Initialization failed.

@@ -41,7 +41,7 @@ public class CMSBlankPanel extends CMSBaseTab {
     public CMSBlankPanel(ResourceModel model) {
         super(PANEL_NAME, null);
     }
-    
+
     public CMSBlankPanel(ResourceModel model, CMSTabPanel parent, String name) {
         super(PANEL_NAME, parent);
         setTitle(name);
@@ -50,13 +50,13 @@ public class CMSBlankPanel extends CMSBaseTab {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-     
+
     /**
      * Actual Instanciation of the UI components
-     */ 
+     */
     public void init() {
     }
-    
+
     /**
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
@@ -64,7 +64,7 @@ public class CMSBlankPanel extends CMSBaseTab {
     public boolean applyCallback() {
         return true;
     }
-    
+
     /**
      * Implementation for reset values
      * @return true if save successful; otherwise, false.
@@ -72,7 +72,7 @@ public class CMSBlankPanel extends CMSBaseTab {
     public boolean resetCallback() {
         return true;
     }
-    
+
     /**
      * Implementation for calling help
      */

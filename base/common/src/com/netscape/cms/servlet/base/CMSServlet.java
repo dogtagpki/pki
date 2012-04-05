@@ -101,7 +101,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This is the base class of all CS servlet.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class CMSServlet extends HttpServlet {
@@ -132,7 +132,7 @@ public abstract class CMSServlet extends HttpServlet {
     private final static String FAILED = "1";
     private final static String HDR_LANG = "accept-language";
 
-    // final error message - if error and exception templates don't work 
+    // final error message - if error and exception templates don't work
     // send out this text string directly to output.
 
     public final static String PROP_FINAL_ERROR_MSG = "finalErrorMsg";
@@ -206,7 +206,7 @@ public abstract class CMSServlet extends HttpServlet {
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
-    // members. 
+    // members.
 
     protected boolean mRenderResult = true;
     protected String mFinalErrorMsg = FINAL_ERROR_MSG;
@@ -222,7 +222,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mId = null;
     protected IConfigStore mConfig = null;
 
-    // the authority, RA, CA, KRA this servlet is serving. 
+    // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
     protected IRequestQueue mRequestQueue = null;
 
@@ -317,7 +317,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         try {
-            // get final error message. 
+            // get final error message.
             // used when templates can't even be loaded.
             String eMsg =
                     sc.getInitParameter(PROP_FINAL_ERROR_MSG);
@@ -350,12 +350,12 @@ public abstract class CMSServlet extends HttpServlet {
                 }
             }
 
-            // get http params NOT to store in a IRequest and  
-            // get http headers TO store in a IRequest. 
+            // get http params NOT to store in a IRequest and
+            // get http headers TO store in a IRequest.
             getDontSaveHttpParams(sc);
             getSaveHttpHeaders(sc);
         } catch (Exception e) {
-            // should never occur since we provide defaults above. 
+            // should never occur since we provide defaults above.
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
                             e.toString()));
@@ -393,7 +393,7 @@ public abstract class CMSServlet extends HttpServlet {
         while (paramNames.hasMoreElements()) {
             String pn = (String) paramNames.nextElement();
             // added this facility so that password can be hidden,
-            // all sensitive parameters should be prefixed with 
+            // all sensitive parameters should be prefixed with
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
@@ -447,10 +447,10 @@ public abstract class CMSServlet extends HttpServlet {
         }
         CMS.debug("CMSServlet: " + mId + " start to service.");
 
-        // get a cms request 
+        // get a cms request
         CMSRequest cmsRequest = newCMSRequest();
 
-        // set argblock 
+        // set argblock
         cmsRequest.setHttpParams(CMS.createArgBlock("http-request-params", toHashtable(httpReq)));
 
         // set http request
@@ -522,7 +522,7 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * Create a new CMSRequest object. This should be overriden by servlets
      * implementing different types of request
-     * 
+     *
      * @return a new CMSRequest object
      */
     protected CMSRequest newCMSRequest() {
@@ -532,7 +532,7 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * process an HTTP request. Servlets must override this with their
      * own implementation
-     * 
+     *
      * @throws EBaseException if the servlet was unable to satisfactorily
      *             process the request
      */
@@ -544,7 +544,7 @@ public abstract class CMSServlet extends HttpServlet {
      * Output a template.
      * If an error occurs while outputing the template the exception template
      * is used to display the error.
-     * 
+     *
      * @param cmsReq the CS request
      */
     protected void renderResult(CMSRequest cmsReq)
@@ -688,7 +688,7 @@ public abstract class CMSServlet extends HttpServlet {
      * In others if an exception occurs while rendering the template the
      * exception template (this) is called.
      * <p>
-     * 
+     *
      * @param cmsReq the CS request to pass to template filler if any.
      * @param e the unexpected exception
      */
@@ -705,8 +705,8 @@ public abstract class CMSServlet extends HttpServlet {
 
             // When an exception occurs the exit is non-local which probably
             // will leave the requestStatus value set to something other
-            // than CMSRequest.EXCEPTION, so force the requestStatus to 
-            // EXCEPTION since it must be that if we're here. 
+            // than CMSRequest.EXCEPTION, so force the requestStatus to
+            // EXCEPTION since it must be that if we're here.
             cmsReq.setStatus(CMSRequest.EXCEPTION);
 
             if (filler != null) {
@@ -743,14 +743,14 @@ public abstract class CMSServlet extends HttpServlet {
 
     public void renderFinalError(CMSRequest cmsReq, Exception ex)
             throws IOException {
-        // this template is the last resort for all other unexpected 
-        // errors in other templates so we can only output text. 
+        // this template is the last resort for all other unexpected
+        // errors in other templates so we can only output text.
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         httpResp.setContentType("text/html");
         ServletOutputStream out = httpResp.getOutputStream();
 
-        // replace $ERRORMSG with exception message if included. 
+        // replace $ERRORMSG with exception message if included.
         String finalErrMsg = mFinalErrorMsg;
         int tokenIdx = mFinalErrorMsg.indexOf(ERROR_MSG_TOKEN);
 
@@ -772,10 +772,10 @@ public abstract class CMSServlet extends HttpServlet {
 
         /*
          try {
-         s = (SSLSocket) ((HTTPRequest) httpReq).getConnection().getSocket(); 
+         s = (SSLSocket) ((HTTPRequest) httpReq).getConnection().getSocket();
          } catch (ClassCastException e) {
          CMS.getLogger().log(
-         ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_WARN, 
+         ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_WARN,
          CMS.getLogMessage("CMSGW_SSL_NO_INVALIDATE"));
          // ignore.
          return;
@@ -831,7 +831,7 @@ public abstract class CMSServlet extends HttpServlet {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
                 CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
-        // iws60 support Java Servlet Spec V2.2, attribute 
+        // iws60 support Java Servlet Spec V2.2, attribute
         // javax.servlet.request.X509Certificate now contains array
         // of X509Certificates instead of one X509Certificate object
         X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
@@ -1125,7 +1125,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * instantiate a new filler from a class name,
-     * 
+     *
      * @return null if can't be instantiated, new instance otherwise.
      */
     protected ICMSTemplateFiller newFillerObject(String fillerClass) {
@@ -1153,12 +1153,12 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected void setDefaultTemplates(ServletConfig sc) {
         // Subclasses should override these for diff templates and params in
-        // their constructors. 
-        // Set a template name to null to not use these standard ones. 
-        // When template name is set to null nothing will be displayed. 
+        // their constructors.
+        // Set a template name to null to not use these standard ones.
+        // When template name is set to null nothing will be displayed.
         // Servlet is assumed to have rendered its own output.
-        // The only exception is the unexpected error template where the 
-        // default one will always be used if template name is null. 
+        // The only exception is the unexpected error template where the
+        // default one will always be used if template name is null.
         String successTemplate = null;
         String errorTemplate = null;
         String unauthorizedTemplate = null;
@@ -1237,7 +1237,7 @@ public abstract class CMSServlet extends HttpServlet {
                     unexpectedErrorTemplate = "/" + gateway + unexpectedErrorTemplate;
             }
         } catch (Exception e) {
-            // this should never happen. 
+            // this should never happen.
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
                             mId));
@@ -1319,7 +1319,7 @@ public abstract class CMSServlet extends HttpServlet {
     private static final String IMPORT_CERT = "importCert";
     private static final String IMPORT_CHAIN = "importCAChain";
     private static final String IMPORT_CERT_MIME_TYPE = "importCertMimeType";
-    // default mime type 
+    // default mime type
     private static final String NS_X509_USER_CERT = "application/x-x509-user-cert";
     private static final String NS_X509_EMAIL_CERT = "application/x-x509-email-cert";
 
@@ -1391,7 +1391,7 @@ public abstract class CMSServlet extends HttpServlet {
                 caChain = ((ICertAuthority) mAuthority).getCACertChain();
                 caCerts = caChain.getChain();
 
-                // set user + CA cert chain in pkcs7 
+                // set user + CA cert chain in pkcs7
                 X509CertImpl[] userChain =
                         new X509CertImpl[caCerts.length + 1];
 
@@ -1511,7 +1511,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * make a CRL entry from a serial number and revocation reason.
-     * 
+     *
      * @return a RevokedCertImpl that can be entered in a CRL.
      */
     protected RevokedCertImpl formCRLEntry(
@@ -1536,7 +1536,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * check if a certificate (serial number) is revoked on a CA.
-     * 
+     *
      * @return true if cert is marked revoked in the CA's database.
      * @return false if cert is not marked revoked.
      */
@@ -1676,13 +1676,13 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * Authentication
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only
      * webserver env can pick up the SSL violation; CS authMgr can pick up cert mis-match, so this event is used)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication succeeded
      * </ul>
-     * 
+     *
      * @exception EBaseException an error has occurred
      */
     public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
@@ -1724,7 +1724,7 @@ public abstract class CMSServlet extends HttpServlet {
 
             //
             // check authentication by auth manager if any.
-            // 
+            //
             if (authMgrName == null) {
 
                 // Fixed Blackflag Bug #613900:  Since this code block does
@@ -1873,14 +1873,14 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * Authorize must occur after Authenticate
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization has failed
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization is successful
      * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CS that's when one
      * accesses a role port)
      * </ul>
-     * 
+     *
      * @param authzMgrName string representing the name of the authorization
      *            manager
      * @param authToken the authentication token
@@ -2033,11 +2033,11 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -2057,12 +2057,12 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -2097,12 +2097,12 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Log Group ID
-     * 
+     *
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "gid" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditGroupID() {
@@ -2137,11 +2137,11 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Groups
-     * 
+     *
      * This method is called to extract all "groups" associated
      * with the "auditSubjectID()".
      * <P>
-     * 
+     *
      * @param SubjectID string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
      *         with the "auditSubjectID()"

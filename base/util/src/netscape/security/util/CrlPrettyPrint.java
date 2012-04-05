@@ -32,7 +32,7 @@ import netscape.security.x509.X509CRLImpl;
 /**
  * This class will display the certificate content in predefined
  * format.
- * 
+ *
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
@@ -66,7 +66,7 @@ public class CrlPrettyPrint {
      * This method return string representation of the certificate
      * revocation list in predefined format using specified client
      * local. I18N Support.
-     * 
+     *
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */

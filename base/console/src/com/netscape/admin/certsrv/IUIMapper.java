@@ -53,37 +53,37 @@ public interface IUIMapper {
      * @return description or null if none
      */
     public String getDesc();
-    
+
     /**
      * Is this UI provide edit panel
      */
-    public boolean isEditable(); 
-    
+    public boolean isEditable();
+
     /**
      * Is this UI Provide display panel
      */
-    public boolean isDisplayable(); 
-    
+    public boolean isDisplayable();
+
     /**
      * Is this UI provide search filter panel
      */
-    public boolean isFilterable(); 
-    
+    public boolean isFilterable();
+
     /**
      * retrieve Editor Panel
      * isEditable() will be called before this operation is
      * used.
      */
-    public IEditorPanel getEditorPanel(); 
-    
+    public IEditorPanel getEditorPanel();
+
     /**
      * retrieve Display Panel
      */
-    public IDisplayPanel getDisplayPanel(); 
-    
+    public IDisplayPanel getDisplayPanel();
+
     /**
      * Retrieve Filter Panel
      */
-    public IFilterPanel getFilterPanel(); 
+    public IFilterPanel getFilterPanel();
 
 }

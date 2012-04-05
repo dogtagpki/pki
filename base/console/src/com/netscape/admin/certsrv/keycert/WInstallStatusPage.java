@@ -36,7 +36,7 @@ class WInstallStatusPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INSTALLSTATUSWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-installcertstatus-help";
-    
+
     WInstallStatusPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -61,13 +61,13 @@ class WInstallStatusPage extends WizardBasePanel implements IWizardPanel {
         if (wizardInfo.isCertAdded().booleanValue())
             mDesc.setText(mResource.getString(
               "INSTALLSTATUSWIZARD_TEXT_SUCCESS_LABEL"));
-        else 
+        else
             mDesc.setText(mResource.getString(
               "INSTALLSTATUSWIZARD_TEXT_FAIL_LABEL"));
 
         setBorder(makeTitledBorder(PANELNAME));
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

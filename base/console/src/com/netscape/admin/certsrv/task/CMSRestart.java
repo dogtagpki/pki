@@ -74,7 +74,7 @@ public class CMSRestart extends CGITask
 
         Hashtable configParams = new Hashtable();
         configParams.put("serverRoot",_consoleInfo.get("serverRoot"));
-        
+
         String servid = (String)_consoleInfo.get("servid");
         int index = servid.indexOf("-");
         if (index != -1) {

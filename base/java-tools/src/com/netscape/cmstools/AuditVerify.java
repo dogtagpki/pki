@@ -40,7 +40,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for verifying signed audit logs
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuditVerify {
@@ -202,7 +202,7 @@ public class AuditVerify {
 
             // verify signer's certificate
             //  not checking validity because we want to allow verifying old logs
-            // 
+            //
             if (!isSigningCert(cert_i)) {
                 System.out.println("info: signing certificate is not a signing certificate");
                 System.exit(1);

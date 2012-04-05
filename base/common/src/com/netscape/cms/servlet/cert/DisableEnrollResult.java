@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * For Face-to-face enrollment, disable EE enrollment feature
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.cms.servlet.cert.EnableEnrollResult
  */

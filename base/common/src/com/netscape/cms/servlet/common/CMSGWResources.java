@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for cms gateway.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */

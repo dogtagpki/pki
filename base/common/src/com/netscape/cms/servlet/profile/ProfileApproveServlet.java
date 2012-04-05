@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * Toggle the approval state of a profile
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileApproveServlet extends ProfileServlet {
@@ -71,7 +71,7 @@ public class ProfileApproveServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -82,13 +82,13 @@ public class ProfileApproveServlet extends ProfileServlet {
     /**
      * Process the HTTP request.
      * <P>
-     * 
+     *
      * <ul>
      * <li>http.param profileId the id of the profile to change
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL used when an agent approves/disapproves a cert
      * profile set by the administrator for automatic approval
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -460,11 +460,11 @@ public class ProfileApproveServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Profile ID
-     * 
+     *
      * This method is called to obtain the "ProfileID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param req HTTP request
      * @return id string containing the signed audit log message ProfileID
      */
@@ -490,11 +490,11 @@ public class ProfileApproveServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Profile Operation
-     * 
+     *
      * This method is called to obtain the "Profile Operation" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param req HTTP request
      * @return operation string containing either OP_APPROVE, OP_DISAPPROVE,
      *         or SIGNED_AUDIT_EMPTY_VALUE

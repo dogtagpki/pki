@@ -45,41 +45,41 @@ import com.netscape.certsrv.request.IRequest;
  * class for parsing a DN pattern used to construct a ldap dn from
  * request attributes and cert subject name.
  * <p>
- * 
+ *
  * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and
  * request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
  * <p>
- * 
+ *
  * The syntax is
- * 
+ *
  * <pre>
  * 	dnPattern := rdnPattern *[ "," rdnPattern ]
  * 	rdnPattern := avaPattern *[ "+" avaPattern ]
- * 		avaPattern := name "=" value | 
- * 			      name "=" "$subj" "." attrName [ "." attrNumber ] | 
- * 			      name "=" "$ext" "." extName [ "." nameType ] [ "." attrNumber ] 
- * 			      name "=" "$req" "." attrName [ "." attrNumber ] | 
+ * 		avaPattern := name "=" value |
+ * 			      name "=" "$subj" "." attrName [ "." attrNumber ] |
+ * 			      name "=" "$ext" "." extName [ "." nameType ] [ "." attrNumber ]
+ * 			      name "=" "$req" "." attrName [ "." attrNumber ] |
  * 			 	  "$rdn" "." number
  * </pre>
- * 
+ *
  * <pre>
  * Example1: <i>cn=Certificate Manager,ou=people,o=mcom.com</i>
  * cert subject name: dn:  CN=Certificate Manager, OU=people, O=mcom.com
- * request attributes: uid: cmanager 
+ * request attributes: uid: cmanager
  * <p>
  * The dn formulated will be : <br>
  *     CN=Certificate Manager, OU=people, O=mcom.com
  * <p>
  * note: Subordinate ca enrollment will use ca mapper. Use predicate
  * to distinguish the ca itself and the subordinates.
- * 
+ *
  * Example2: <i>UID=$req.HTTP_PARAMS.uid, OU=$subj.ou, OU=people, , O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, OU=people, , O=mcom.com
- * request attributes: uid: cmanager 
+ * request attributes: uid: cmanager
  * <p>
  * The dn formulated will be : <br>
  *     UID=jjames, OU=IS, OU=people, O=mcom.com
- * <p>	
+ * <p>
  *     UID = the 'uid' attribute value in the request. <br>
  *     OU = the 'ou' value in the cert subject name.  <br>
  *     O = the string mcom.com. <br>
@@ -87,20 +87,20 @@ import com.netscape.certsrv.request.IRequest;
  * Example3: <i>UID=$req.HTTP_PARAMS.uid, E=$ext.SubjectAlternativeName.RFC822Name.1, O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, OU=people, O=mcom.com
  * cert subjectAltName is rfc822Name: jjames@mcom.com
- * request attributes: uid: cmanager 
+ * request attributes: uid: cmanager
  * <p>
  * The dn formulated will be : <br>
  *     UID=jjames, E=jjames@mcom.com, O=mcom.com
- * <p>	
+ * <p>
  *     UID = the 'uid' attribute value in the request. <br>
  *     E = The first rfc822name value in the subjAltName extension.  <br>
  *     O = the string mcom.com. <br>
  * <p>
  * </pre>
- * 
+ *
  * If an request attribute or subject DN component does not exist, the attribute is skipped. There is potential risk
  * that a wrong dn will be mapped into.
- * 
+ *
  * @version $Revision$, $Date$
  */
 class MapAVAPattern {
@@ -138,7 +138,7 @@ class MapAVAPattern {
     /* the attribute in the AVA pair */
     protected String mAttr = null;
 
-    /* value - could be name of a request  attribute or 
+    /* value - could be name of a request  attribute or
      * cert subject dn attribute. */
     protected String mValue = null;
 
@@ -185,7 +185,7 @@ class MapAVAPattern {
         if (c == -1)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "All blank"));
 
-        // $rdn "." number syntax. 
+        // $rdn "." number syntax.
 
         if (c == '$') {
             //System.out.println("$rdn syntax");
@@ -230,9 +230,9 @@ class MapAVAPattern {
             return;
         }
 
-        // name "=" ... syntax. 
+        // name "=" ... syntax.
 
-        // read name 
+        // read name
         //System.out.println("reading name");
 
         StringBuffer attrBuf = new StringBuffer();
@@ -253,10 +253,10 @@ class MapAVAPattern {
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                     "Missing \"=\" in ava pattern"));
 
-        // read value 
+        // read value
         //System.out.println("reading value");
 
-        // skip spaces 
+        // skip spaces
         //System.out.println("skip spaces for value");
         try {
             while ((c = in.read()) == ' ' || c == '\t') {//System.out.println("spaces2 read "+(char)c);
@@ -271,7 +271,7 @@ class MapAVAPattern {
                     "no value after = in ava pattern"));
 
         if (c == '$') {
-            // check for $subj $ext or $req 
+            // check for $subj $ext or $req
             try {
                 c = in.read();
                 //System.out.println("check $dn or $attr read "+(char)c);
@@ -327,7 +327,7 @@ class MapAVAPattern {
                             "unknown keyword. expecting $subj $ext or $req."));
             }
 
-            // get request attr name of subject dn pattern from above. 
+            // get request attr name of subject dn pattern from above.
             String attrName = attrBuf.toString().trim();
 
             //System.out.println("----- attrName "+attrName);
@@ -337,10 +337,10 @@ class MapAVAPattern {
             mAttr = attrName;
 
             /*
-             try { 
-             ObjectIdentifier attrOid = 
-             mLdapDNStrConverter.parseAVAKeyword(attrName); 
-             mAttr = mLdapDNStrConverter.encodeOID(attrOid);		
+             try {
+             ObjectIdentifier attrOid =
+             mLdapDNStrConverter.parseAVAKeyword(attrName);
+             mAttr = mLdapDNStrConverter.encodeOID(attrOid);
              //System.out.println("----- mAttr "+mAttr);
              }
              catch (IOException e) {
@@ -359,7 +359,7 @@ class MapAVAPattern {
                     valueBuf.append((char) c);
                 }
                 if (c == '+' || c == ',') // either ',' or '+'
-                    in.unread(c); // pushback last , or + 
+                    in.unread(c); // pushback last , or +
             } catch (IOException e) {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
@@ -439,7 +439,7 @@ class MapAVAPattern {
             // value is constant. treat as regular ava.
             mType = TYPE_CONSTANT;
             //System.out.println("----- mType constant");
-            // parse ava value. 
+            // parse ava value.
             StringBuffer valueBuf = new StringBuffer();
 
             valueBuf.append((char) c);
@@ -450,7 +450,7 @@ class MapAVAPattern {
                     valueBuf.append((char) c);
                 }
                 if (c == '+' || c == ',') { // either ',' or '+'
-                    in.unread(c); // pushback last , or + 
+                    in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
                 throw new ELdapException(

@@ -49,12 +49,12 @@ import com.netscape.cms.policy.APolicyRule;
  * NS Cert Type policy.
  * Adds the ns cert type extension depending on cert type requested.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -70,20 +70,20 @@ public class NSCertTypeExt extends APolicyRule
     protected static final boolean[] DEF_BITS =
             new boolean[NSCertTypeExtension.NBITS];
 
-    // XXX for future use. currenlty always allow. 
+    // XXX for future use. currenlty always allow.
     protected static final String PROP_AGENT_OVERR = "allowAgentOverride";
     protected static final String PROP_EE_OVERR = "AllowEEOverride";
 
-    // XXX for future use. currently always critical 
-    // (standard says SHOULD be marked critical if included.) 
+    // XXX for future use. currently always critical
+    // (standard says SHOULD be marked critical if included.)
     protected static final String PROP_CRITICAL = "critical";
 
-    // XXX for future use to allow overrides from forms. 
+    // XXX for future use to allow overrides from forms.
     // request must be agent approved or authenticated.
     protected boolean mAllowAgentOverride = false;
     protected boolean mAllowEEOverride = false;
 
-    // XXX for future use. currently always non-critical 
+    // XXX for future use. currently always non-critical
     protected boolean mCritical = false;
 
     protected int mCAPathLen = -1;
@@ -111,11 +111,11 @@ public class NSCertTypeExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=nsCertTypeExt ra.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -153,7 +153,7 @@ public class NSCertTypeExt extends APolicyRule
      * reads ns cert type choices from form. If no choices from form
      * will defaults to all.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -224,7 +224,7 @@ public class NSCertTypeExt extends APolicyRule
 
             bits = getBitsFromRequest(req, mSetDefaultBits);
 
-            // check if ca doesn't allow any subordinate ca 
+            // check if ca doesn't allow any subordinate ca
             if (mCAPathLen == 0 && bits != null) {
                 if (bits[NSCertTypeExtension.SSL_CA_BIT] ||
                         bits[NSCertTypeExtension.EMAIL_CA_BIT] ||
@@ -283,7 +283,7 @@ public class NSCertTypeExt extends APolicyRule
         // always return false for now to make sure minimum is set.
         // agents and ee can add others.
 
-        // must be agent approved or authenticated for allowing extensions 
+        // must be agent approved or authenticated for allowing extensions
         // which is always the case if we get to this point.
         IAuthToken token = req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
 
@@ -448,7 +448,7 @@ public class NSCertTypeExt extends APolicyRule
 
         if (certType.equals(IRequest.CLIENT_CERT)) {
             CMS.debug("NSCertTypeExt: setting bits for client cert");
-            // we can only guess here when it's client. 
+            // we can only guess here when it's client.
             // sets all client bit for default.
             bits[NSCertTypeExtension.SSL_CLIENT_BIT] = true;
             bits[NSCertTypeExtension.EMAIL_BIT] = true;
@@ -488,7 +488,7 @@ public class NSCertTypeExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -526,7 +526,7 @@ public class NSCertTypeExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

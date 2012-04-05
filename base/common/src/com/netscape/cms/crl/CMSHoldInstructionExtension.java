@@ -36,7 +36,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a hold instruction extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSHoldInstructionExtension
@@ -116,7 +116,7 @@ public class CMSHoldInstructionExtension
         }
         if (instruction != null) {
             if (!(instruction.equalsIgnoreCase(PROP_INSTR_NONE) ||
-                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) || 
+                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) ||
                     instruction.equalsIgnoreCase(PROP_INSTR_REJECT))) {
                 instruction = PROP_INSTR_NONE;
             }

@@ -38,17 +38,17 @@ import com.netscape.cms.policy.APolicyRule;
  * ValidityConstraints is a default rule for Enrollment and
  * Renewal that enforces minimum and maximum validity periods
  * and changes them if not met.
- * 
+ *
  * Optionally the lead and lag times - i.e how far back into the
  * front or back the notBefore date could go in minutes can also
  * be specified.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -115,13 +115,13 @@ public class ValidityConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.minValidity=30 ra.Policy.rule.<ruleName>.maxValidity=180
      * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -171,7 +171,7 @@ public class ValidityConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -257,7 +257,7 @@ public class ValidityConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -278,7 +278,7 @@ public class ValidityConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {
@@ -287,10 +287,10 @@ public class ValidityConstraints extends APolicyRule
 
     /**
      * Create a default validity value for a request
-     * 
+     *
      * This code can be easily overridden in a derived class, if the
      * calculations here aren't accepatble.
-     * 
+     *
      * TODO: it might be good to base this calculation on the creation
      * time of the request.
      */

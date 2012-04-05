@@ -34,7 +34,7 @@ import com.netscape.cms.servlet.common.IndexTemplateFiller;
 /**
  * This is the servlet that builds the index page in
  * various ports.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class IndexServlet extends CMSServlet {

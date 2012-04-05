@@ -28,7 +28,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 
 /**
  * Output a 'pretty print' of a Key Archival record
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyRecordParser {
@@ -60,7 +60,7 @@ public class KeyRecordParser {
                 rec.getSerialNumber(), 10);
         rarg.addStringValue(OUT_KEY_ALGORITHM,
                 rec.getAlgorithm());
-        // Possible Enhancement: sun's BASE64Encode is not 
+        // Possible Enhancement: sun's BASE64Encode is not
         // fast. We may may to have our native implmenetation.
         IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
 

@@ -30,9 +30,9 @@ import com.netscape.cmscore.util.AssertionException;
 /**
  * This class represents an expression of the form var = val,
  * var != val, var < val, var > val, var <= val, var >= val.
- * 
+ *
  * Expressions are used as predicates for publishing rule selection.
- * 
+ *
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -45,7 +45,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     private boolean hasWildCard;
     public static final char WILDCARD_CHAR = '*';
 
-    // This is just for indicating a null expression. 
+    // This is just for indicating a null expression.
     public static LdapSimpleExpression NULL_EXPRESSION = new LdapSimpleExpression("null", OP_EQUAL, "null");
 
     public static ILdapExpression parse(String input)

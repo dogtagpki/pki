@@ -352,7 +352,7 @@ public class SecurityDomainPanel extends WizardPanelBase {
             config.putString("securitydomain.httpsadminport",
                     CMS.getAdminPort());
 
-            // make sure the subsystem certificate is issued by the security  
+            // make sure the subsystem certificate is issued by the security
             // domain
             config.putString("preop.cert.subsystem.type", "local");
             config.putString("preop.cert.subsystem.profile", "subsystemCert.profile");

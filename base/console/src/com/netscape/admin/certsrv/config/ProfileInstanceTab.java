@@ -42,7 +42,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "PROFILERULE";
-    
+
     protected JButton mOrder;
     private final static String HELPINDEX = "configuration-certificateprofiles";
     private ResourceBundle mResource;
@@ -59,7 +59,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 		mScope = ScopeDef.SC_POLICY_RULES;
         mDest = dest;
 		RULE_NAME = PolicyRuleDataModel.RULE_NAME;
-	  	RULE_STAT = PolicyRuleDataModel.RULE_STAT;  
+		RULE_STAT = PolicyRuleDataModel.RULE_STAT;
         mResource = ResourceBundle.getBundle(
           CMSAdminResources.class.getName());
 
@@ -71,7 +71,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 		return new ProfileEditDialog(nvp,
 			parent,
@@ -84,7 +84,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new ProfileConfigDialog(nvp,
@@ -98,7 +98,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new ProfilePluginSelectionDialog(parent,conn,DestDef.DEST_REGISTRY_ADMIN, dest, pluginType);
 	}
@@ -107,9 +107,9 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
     //=== ACTIONLISTENER =====================
     public void actionPerformed(ActionEvent e) {
       if (e.getSource().equals(mEdit) || e.getSource().equals(mDelete)) {
-          if(mTable.getSelectedRow()< 0) 
-              return; 
-          NameValuePairs data = (NameValuePairs) 
+          if(mTable.getSelectedRow()< 0)
+              return;
+          NameValuePairs data = (NameValuePairs)
             mDataModel.getObjectValueAt(mTable.getSelectedRow());
           // dont check enable and disable here.  We want to
           // view profile even though it is enabled
@@ -121,12 +121,12 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
     public void moreActionPerformed(ActionEvent e) {
         if (e.getSource().equals(mOrder)) {
             Debug.println("Order");
-            PolicyRuleOrderDialog dialog = 
-                new PolicyRuleOrderDialog(mModel.getFrame(), 
+            PolicyRuleOrderDialog dialog =
+                new PolicyRuleOrderDialog(mModel.getFrame(),
                             mConnection, mDestination);
-            dialog.showDialog(mDataModel.getRules());  
+            dialog.showDialog(mDataModel.getRules());
             refresh();
-        }        
+        }
     }
 
     /**
@@ -148,7 +148,7 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
     //set buttons
     protected void setButtons() {
 		super.setButtons();
-        
+
         if (mDataModel.getRowCount()<=0) {
 		    mOrder.setEnabled(false);
 		}
@@ -156,6 +156,6 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 	    	mOrder.setEnabled(true);
 		}
     }
-    
-   
+
+
 }

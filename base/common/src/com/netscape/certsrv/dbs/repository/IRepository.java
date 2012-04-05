@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
  * An interface represents a generic repository. It maintains unique
  * serial number within repository.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRepository {
@@ -33,7 +33,7 @@ public interface IRepository {
     /**
      * Retrieves the next serial number, and also increase the
      * serial number by one.
-     * 
+     *
      * @return serial number
      * @exception EBaseException failed to retrieve next serial number
      */
@@ -46,7 +46,7 @@ public interface IRepository {
 
     /**
      * Retrieves the next serial number without increasing the serial number.
-     * 
+     *
      * @return serial number
      * @exception EBaseException failed to retrieve next serial number
      */
@@ -54,7 +54,7 @@ public interface IRepository {
 
     /**
      * Set the maximum serial number.
-     * 
+     *
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number
      */
@@ -62,7 +62,7 @@ public interface IRepository {
 
     /**
      * Set the maximum serial number in next range.
-     * 
+     *
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number in next range
      */
@@ -71,7 +71,7 @@ public interface IRepository {
     /**
      * Checks to see if a new range is needed, or if we have reached the end of the
      * current range, or if a range conflict has occurred.
-     * 
+     *
      * @exception EBaseException failed to check next range for conflicts
      */
     public void checkRanges() throws EBaseException;
@@ -79,7 +79,7 @@ public interface IRepository {
     /**
      * Sets whether serial number management is enabled for certs
      * and requests.
-     * 
+     *
      * @param value true/false
      * @exception EBaseException failed to set
      */

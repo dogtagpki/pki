@@ -53,7 +53,7 @@ class WIInstallKRACertStatusPage extends WIInstallCertStatusPage {
           !wizardInfo.isKRAInstalled() || wizardInfo.isKRACertChainImportDone())
             return false;
 
-		if (wizardInfo.hasEntireKRAChain()) 
+		if (wizardInfo.hasEntireKRAChain())
 			return false;
 
         wizardInfo.setCertType(Constants.PR_KRA_TRANSPORT_CERT);

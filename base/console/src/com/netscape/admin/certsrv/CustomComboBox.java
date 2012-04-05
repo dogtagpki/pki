@@ -41,14 +41,14 @@ public class CustomComboBox extends JComboBox {
 }
 
 class CustomCellRenderer extends JLabel implements ListCellRenderer   {
-    
+
     final static Color selectedCellBackground = new Color(0,0,128);
     final static Color selectedCellForeground = Color.white;
     final static Color defaultCellBackground = Color.white;
     final static Color defaultCellForeground = Color.black;
     final static String SELECTION_TITLE = CustomComboBoxModel.SELECTION_TITLE;
     final static String SELECTION_ICON = CustomComboBoxModel.SELECTION_ICON;
-    
+
     CustomComboBox combobox;
 
     public CustomCellRenderer(CustomComboBox x) {
@@ -72,7 +72,7 @@ class CustomCellRenderer extends JLabel implements ListCellRenderer   {
             setBackground(defaultCellBackground);
 	        setForeground(defaultCellForeground);
         }
-        
+
     return this;
     }
 }

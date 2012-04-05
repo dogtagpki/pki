@@ -58,7 +58,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Process CRMF requests, according to RFC 2511
  * See http://www.ietf.org/rfc/rfc2511.txt
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CRMFProcessor extends PKIProcessor {
@@ -88,12 +88,12 @@ public class CRMFProcessor extends PKIProcessor {
     /**
      * Verify Proof of Possession (POP)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION used when proof of possession is checked during
      * certificate enrollment
      * </ul>
-     * 
+     *
      * @param certReqMsg the certificate request message
      * @exception EBaseException an error has occurred
      */

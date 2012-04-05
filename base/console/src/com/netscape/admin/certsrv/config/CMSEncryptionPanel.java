@@ -31,7 +31,7 @@ import com.netscape.admin.certsrv.keycert.*;
 import com.netscape.admin.certsrv.managecert.*;
 
 /**
- * Encryption panel used for setup server encryption options. 
+ * Encryption panel used for setup server encryption options.
  * This is a wrapper class that emulates the CMSBaseTab API
  * calls.
  *
@@ -51,10 +51,10 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private JPanel mEncryptPane;
     private JComboBox mSelection, mTokenList, mCertList;
     private Hashtable mCertMapping;         //maps the function list items to tags
-    private String mSelectedItem, mSelectedToken, mSelectedCert;           
-    private JButton mWizard, mCipherPref, mSetup;   
+    private String mSelectedItem, mSelectedToken, mSelectedCert;
+    private JButton mWizard, mCipherPref, mSetup;
     private Hashtable mTokenCertList;        //container for tokens and certs (Vector)
-    private boolean mIsDomestic = false;    
+    private boolean mIsDomestic = false;
     private boolean mHasFortezza =  false;
     private Vector mCipherPrefStore;
     private CMSCipherPreferenceDialog mCipherDialog;
@@ -63,7 +63,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private boolean mWarningOn = false;
     private static final String HELPINDEX =
       "configuration-system-encryption-help";
-    
+
     /**=========================================================
      * constructors
      * @param parent the parent panel
@@ -79,7 +79,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mCipherPrefStore = new Vector();
         mHelpToken = HELPINDEX;
     }
-    
+
     /*==========================================================
      * public methods
      *==========================================================*/
@@ -93,19 +93,19 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        
+
         //certificate settings
         JPanel top = new JPanel();
         GridBagLayout gb2 = new GridBagLayout();
         top.setLayout(gb2);
         top.setBorder( new CompoundBorder(
             BorderFactory.createTitledBorder(
-                mResource.getString("ENCRYPTION_BORDER_CERT_LABEL")), 
+                mResource.getString("ENCRYPTION_BORDER_CERT_LABEL")),
             new EmptyBorder(-3,
                             0,
                             DIFFERENT_COMPONENT_SPACE - 3,
                             0)));
-                            
+
         //add selection combobox
         JLabel label1 = makeJLabel("SELECT");
         mSelection = new JComboBox();
@@ -116,10 +116,10 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
             mSelectedItem = (String) mSelection.getSelectedItem();
         } else {
             //disable if nothing there
-            mSelection.setEnabled(false);    
+            mSelection.setEnabled(false);
         }
         mSelection.addItemListener(this);
-        
+
         //add encryption panel
         mEncryptPane = createCertEntry();
         //mEncryptPane = new InnerEncryptionPane(mConsoleInfo);
@@ -134,13 +134,13 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 COMPONENT_SPACE,0,COMPONENT_SPACE);
         gb2.setConstraints(mEncryptPane, gbc);
         top.add(mEncryptPane);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.gridwidth = gbc.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(top, gbc);
         mCenterPanel.add(top);
-        
+
         mWizard = makeJButton("WIZARD");
         mCipherPref = makeJButton("CIPHERPREF");
         mSetup = makeJButton("SETUP");
@@ -150,20 +150,20 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         //addButtonEntryField(mCenterPanel, mSetup, mWizard, mCipherPref, gbc);
         addButtonEntryField(mCenterPanel, mSetup, mWizard, gbc);
         //addButtonEntryField(mCenterPanel, mCipherPref, gbc);
-        
+
         /* retrieve data from server and
          * feed data into mEncryptionPane for display ...
          */
         refresh();
     }
-    
+
     /**
      * Implementation for saving panel information
      * @return true if save successful; otherwise, false.
      */
     public boolean applyCallback() {
         if (mWarningOn) {
-            String errorMsg = 
+            String errorMsg =
               mResource.getString(mPanelName+"_LABEL_WARNING_LABEL");
             JOptionPane.showMessageDialog(new JFrame(), errorMsg, "Warning",
               JOptionPane.WARNING_MESSAGE,
@@ -174,22 +174,22 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
         //save current changes if modified
         saveChanges((String) mSelection.getSelectedItem());
-        
+
         //construct NVP parameters
         NameValuePairs nvp = new NameValuePairs();
         for (Enumeration e = mCertMapping.keys() ; e.hasMoreElements() ;) {
-            CipherEntryData data = 
+            CipherEntryData data =
                 (CipherEntryData)mCertMapping.get(e.nextElement());
             nvp.put(data.getTagName(), data.getTokenName() + "," + data.getCertName());
         }
-        
+
         if (updateCertMap(nvp)) {
             mWarningOn = false;
             clearDirtyFlag();
             return true;
         }
-        
-        return false;    
+
+        return false;
     }
 
     /**
@@ -208,7 +208,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
      * refresh the panel and update data
      */
     public void refresh() {
-        
+
         //call server to get the encryption settings
         NameValuePairs response;
         try {
@@ -219,14 +219,14 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                     e.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
             return;
         }
-        
+
         //setup the data and UI
         updateFlag = true;
         cleanup();
         setupDataContainer(response);
         setupComboSelection();
         updateFlag = false;
-        
+
         clearDirtyFlag();
     }
 
@@ -246,47 +246,47 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         }
 */
        if (e.getSource().equals(mSetup)) {
-            ManageCertDialog manageDialog = 
+            ManageCertDialog manageDialog =
               new ManageCertDialog(mParent.getResourceModel().getFrame());
             manageDialog.showDialog(mParent.getResourceModel().getServerInfo().getAdmin());
        }
        if (e.getSource().equals(mWizard)) {
             Debug.println("Wizard");
-            
-            //XXX launch OUR OWN wizard 
+
+            //XXX launch OUR OWN wizard
             CertSetupWizardInfo info = new
 				CertSetupWizardInfo(mConnection, mConsoleInfo);
             CertSetupWizard wizard = new CertSetupWizard(mParent.getResourceModel(), info);
             //  mParent.getResourceModel().getFrame(), info);
             //KeyCertWizard wizard = new KeyCertWizard(mConnection);
-            
+
             //XXX we should update the settings to reflect the changes
-            
-            
+
+
             return;
-       } 
+       }
        if (e.getSource().equals(mCipherPref)) {
             Debug.println("Wizard");
-            
+
             if (mCipherDialog == null) {
                 mCipherDialog = new CMSCipherPreferenceDialog(mParent.mModel.getFrame(),
-                        mIsDomestic, 
-                        mHasFortezza, 
+                        mIsDomestic,
+                        mHasFortezza,
                     CMSCipherPreferenceDialog.SSL2|CMSCipherPreferenceDialog.SSL3);
-            
+
             }
-       
+
             refresh();
             setupCipherDialog(mCipherDialog);
-            
+
             mCipherDialog.show();
-            
+
             if (!mCipherDialog.isModified())
                 return;
-            
+
             //Save the cipher settings
             StringBuffer buf = new StringBuffer();
-            
+
             if (mCipherDialog.isSSLEnabled(mCipherDialog.SSL2)) {
                 String[] v2 = mCipherDialog.getSSLPreference(mCipherDialog.SSL2);
                 for (int i=0; i< v2.length; i++) {
@@ -297,30 +297,30 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                     }
                 }
             }
-            
+
             if (mCipherDialog.isSSLEnabled(mCipherDialog.SSL3)) {
                 String[] v3 = mCipherDialog.getSSLPreference(mCipherDialog.SSL3);
                 for (int i=0; i< v3.length; i++) {
                     if (mCipherDialog.isCipherEnabled(v3[i])) {
-                        if (buf.length()>0) 
+                        if (buf.length()>0)
                             buf.append(",");
                         buf.append(v3[i]);
                     }
                 }
             }
-            
+
             updateCipherPref(buf.toString());
-            
+
             //save the new settings
             mCipherDialog.setSaved(true);
-            
+
             return;
        }
     }
-    
+
     //== ItemListener ==
     public void itemStateChanged(ItemEvent e){
-        
+
         if (e.getSource().equals(mSelection)) {
             if (e.getStateChange() == e.SELECTED) {
                 if (!mSelectionIgnore) {
@@ -349,35 +349,35 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         }
         mWarningOn = true;
     }
-    
+
     /*==========================================================
      * Private Methods
      *==========================================================*/
-    
+
     //save the mappings if changes made
     private void saveChanges(String entry) {
         if ( (!mSelectedToken.equals((String)mTokenList.getSelectedItem())) ||
              (!mSelectedCert.equals((String)mCertList.getSelectedItem())) ) {
-            
+
             CipherEntryData data = (CipherEntryData) mCertMapping.get(entry);
             data.setData((String)mTokenList.getSelectedItem(),
                          (String)mCertList.getSelectedItem());
         }
     }
 
-    //cleanup the 
+    //cleanup the
     private void cleanup() {
         mTokenCertList.clear();
         mCipherPrefStore.removeAllElements();
         mTokenList.removeAllItems();
         mCertList.removeAllItems();
     }
-    
+
     //setup the cipher dialog
     private void setupCipherDialog(CMSCipherPreferenceDialog dialog) {
         Debug.println("setupCipherDialog");
         dialog.setSSLEnabled(dialog.SSL3,true);
-        
+
         //set selected/unselected ciphers
         String[] v2 = dialog.getSSLPreference(dialog.SSL2);
 
@@ -410,26 +410,26 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 dialog.setCipherEnabled(v3[i], false);
             }
         }
-        
+
         mCipherDialog.setSaved(true);
     }
-    
+
     //initialize the data containers
     private void setupDataContainer(NameValuePairs response) {
-        
+
         //setup security version flag
         String version = response.get(Constants.PR_CIPHER_VERSION);
         if ( (version != null) && (version.equals(
             Constants.PR_CIPHER_VERSION_DOMESTIC)) ) {
-            mIsDomestic = true;            
+            mIsDomestic = true;
         }
-        
+
         //setup fortezza flag
         String fortezza = response.get(Constants.PR_CIPHER_FORTEZZA);
         if ( (fortezza != null) && (fortezza.equalsIgnoreCase("TRUE")) ){
-            mHasFortezza = true;            
+            mHasFortezza = true;
         }
-        
+
         //setup cipher preference settings
         String cipherpref = response.get(Constants.PR_CIPHER_PREF);
         //Debug.println("cipher preference: "+cipherpref);
@@ -441,9 +441,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 mCipherPrefStore.addElement(pref);
             }
         } else {
-            Debug.println("ERROR: CMSEncryptionPanel: setupDataContainer()- no cert pref list");       
+            Debug.println("ERROR: CMSEncryptionPanel: setupDataContainer()- no cert pref list");
         }
-        
+
         //setup the cipher entry data - loop through table and retrieve
         //the current mappings
         mSelectionIgnore = true;
@@ -457,7 +457,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                     String token = tokenizer.nextToken().trim();
                     String cert = tokenizer.nextToken().trim();
                     data.setData(token, cert);
-                } catch(Exception ex) {    
+                } catch(Exception ex) {
                     Debug.println("ERROR: CMSEncryptionPanel: setupDataContainer()- no token/cert not complete");
                 }
             } else {
@@ -468,7 +468,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
             }
         }
         mSelectionIgnore = false;
-        
+
         //setup the token-cert list data table
         String tokenlist = response.get(Constants.PR_TOKEN_LIST);
         if ( (tokenlist != null) && (!tokenlist.trim().equals("")) ) {
@@ -476,7 +476,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
             while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken().trim();
                 Debug.println("Token: "+token);
-                
+
                 //get the certificate associated with this token
                 String certList = response.get(Constants.PR_TOKEN_PREFIX + token);
                 Vector certVector = new Vector();
@@ -486,31 +486,31 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                         certVector.addElement(tokenizer2.nextToken().trim());
                     }
                 } else {
-                    Debug.println("WARNING: CMSEncryptionPanel: setupDataContainer()- no certlist for: "+token);   
+                    Debug.println("WARNING: CMSEncryptionPanel: setupDataContainer()- no certlist for: "+token);
                 }
-                
+
                 //set the token-cert to hashtable
                 mTokenCertList.put(token, certVector);
                 mTokenList.addItem(token);
             }
         } else {
-            Debug.println("ERROR: CMSEncryptionPanel: setupDataContainer()- no tokenlist");   
+            Debug.println("ERROR: CMSEncryptionPanel: setupDataContainer()- no tokenlist");
         }
-        
+
         //setup the initial combobox selection
         String newToken = (String) mTokenList.getSelectedItem();
         mSelectedToken = newToken;
         mCertList.removeAllItems();
         Vector list = (Vector) mTokenCertList.get(newToken);
         for (int i=0; i< list.size(); i++)
-            mCertList.addItem(list.elementAt(i));    
+            mCertList.addItem(list.elementAt(i));
     }
-    
+
     //setup combobox selection
     private void setupComboSelection() {
         //get current function selection
         CipherEntryData data = (CipherEntryData) mCertMapping.get(mSelection.getSelectedItem());
-        
+
         //select correct token from the token list
         String oldToken = (String) mTokenList.getSelectedItem();
         String newToken = data.getTokenName();
@@ -523,7 +523,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mCertList.setSelectedItem(data.getCertName());
         mSelectedCert = data.getCertName();
     }
-    
+
     //setup the certlist combo
     private void setupCertCombo() {
         String newToken = (String) mTokenList.getSelectedItem();
@@ -532,7 +532,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         for (int i=0; i< list.size(); i++)
             mCertList.addItem(list.elementAt(i));
     }
-    
+
     //creating the certificate mapping UI components
     private JPanel createCertEntry() {
         JPanel panel = new JPanel();
@@ -540,15 +540,15 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC(gbc);
         panel.setLayout(gb);
-        
+
         //set border
         panel.setBorder( new CompoundBorder(
-            BorderFactory.createTitledBorder(mResource.getString("ENCRYPTION_BORDER_MAPTO_LABEL")), 
+            BorderFactory.createTitledBorder(mResource.getString("ENCRYPTION_BORDER_MAPTO_LABEL")),
             new EmptyBorder(-3,
                             0,
                             CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                             0)));
-                            
+
         //add components
         mTokenList = new JComboBox();
         mTokenList.addItemListener(this);
@@ -559,13 +559,13 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         CMSAdminUtil.addEntryField(panel, label1, mTokenList, label2, mCertList, gbc);
         return panel;
     }
-     
+
     /**
      * The certificates used by each subsystem are stored as cert list
      * strings in the resource file using the PR_ prefix tags.
      */
     private void updateCertSelection() {
-        //get installed subsystem     
+        //get installed subsystem
         Vector v = mServerInfo.getInstalledSubsystems();
 
         //add default system certificate list
@@ -583,7 +583,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 loadCertList(certname);
             }
         }
-        
+
         //create additional subsystem certificate list
         for (int i=0; i< v.size(); i++) {
             String name = (String)v.elementAt(i);
@@ -597,11 +597,11 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                         }
                     }
             } catch (MissingResourceException e) {
-                Debug.println("ERROR: unable retrieving subsystem certificate list: "+name);    
+                Debug.println("ERROR: unable retrieving subsystem certificate list: "+name);
             }
-        }        
+        }
     }
-    
+
     //register the certificate and mapping entry
     private void loadCertList(String certTag) {
         //add to selection list
@@ -616,7 +616,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mCertMapping.put(name, new CipherEntryData(certTag));
     }
 
-    private static void addTopEntryField(JPanel panel, JComponent label, 
+    private static void addTopEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -636,7 +636,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         panel.add( field, gbc );
     }
 
-   private static void addButtonEntryField(JPanel panel, 
+   private static void addButtonEntryField(JPanel panel,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -657,9 +657,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                         0,COMPONENT_SPACE);
         panel.add( field, gbc );
-    }       
+    }
 
-    private static void addButtonEntryField(JPanel panel, JComponent label, 
+    private static void addButtonEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -669,7 +669,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(new JLabel(""));
-        
+
         gbc.gridx++;
         gbc.weightx = 1.0;
         panel.add( label, gbc );
@@ -684,9 +684,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                         0,COMPONENT_SPACE);
         panel.add( field, gbc );
-    }       
+    }
 
-    private static void addButtonEntryField(JPanel panel, JComponent label, 
+    private static void addButtonEntryField(JPanel panel, JComponent label,
       JComponent field, JComponent field1, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -696,7 +696,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(new JLabel(""));
-        
+
         gbc.gridx++;
         gbc.weightx = 1.0;
         panel.add( label, gbc );
@@ -722,14 +722,14 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                         0,COMPONENT_SPACE);
         panel.add( field1, gbc );
-    }       
+    }
 
     /*==========================================================
-     * SEND STUFF TO SERVER 
-     *==========================================================*/    
- 
+     * SEND STUFF TO SERVER
+     *==========================================================*/
+
     //retrieve security information from the server side
-    private NameValuePairs updateSecurityInformation() 
+    private NameValuePairs updateSecurityInformation()
         throws EAdminException
     {
         Debug.println("Get Security Information");
@@ -738,32 +738,32 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         nvp.put(Constants.PR_CIPHER_VERSION, "");
         nvp.put(Constants.PR_CIPHER_FORTEZZA, "");
         nvp.put(Constants.PR_TOKEN_LIST, "");
-        
+
         //create installed certificate list data request
         for (Enumeration e = mCertMapping.elements(); e.hasMoreElements() ;) {
             CipherEntryData data = (CipherEntryData)e.nextElement();
             nvp.put(data.getTagName(), "");
         }
-        
+
         NameValuePairs response;
-        
+
         response = mConnection.read(DestDef.DEST_SERVER_ADMIN,
                            ScopeDef.SC_ENCRYPTION,
                            Constants.RS_ID_CONFIG,
-                           nvp);  
-        
+                           nvp);
+
         Debug.println("Received: "+response.toString());
-        
+
         return response;
     }
-    
+
     //modify cipher preference
     private void updateCipherPref(String list) {
         Debug.println("Set Cipher Preference: "+list);
-        
+
         NameValuePairs nvp = new NameValuePairs();
         nvp.put(Constants.PR_CIPHER_PREF, list);
-        
+
         //send to server
         try {
             mConnection.modify(DestDef.DEST_SERVER_ADMIN,
@@ -777,11 +777,11 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
             return;
         }
     }
-    
+
     //modify certificate mapping
     private boolean updateCertMap(NameValuePairs config) {
         Debug.println("Set Certificate Mapping: "+config.toString());
-        
+
         //send to server
         try {
             mConnection.modify(DestDef.DEST_SERVER_ADMIN,
@@ -794,42 +794,42 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                     e.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
             return false;
         }
-        
+
         return true;
-    }    
-    
+    }
+
 }
 
 //internal data structure
 class CipherEntryData {
-    
+
     String mTag;
     String mToken;
     String mCert;
-    
+
     public CipherEntryData(String tag) {
         mTag = tag;
     }
-    
+
     public void setData(String token, String cert) {
         mToken = token;
         mCert = cert;
     }
-    
+
     public String getCertName() {
-        return mCert;    
+        return mCert;
     }
-    
+
     public String getTokenName() {
-        return mToken;    
+        return mToken;
     }
-    
+
     public String getTagName() {
-        return mTag;    
+        return mTag;
     }
-    
+
     public String toString() {
-        return mTag+"-"+mToken+":"+mCert;    
+        return mTag+"-"+mToken+":"+mCert;
     }
 
 }

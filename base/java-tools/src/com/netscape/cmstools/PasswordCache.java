@@ -45,17 +45,17 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for interacting with the PWcache
- * 
+ *
  * @version $Revision$, $Date$
  */
 
 public class PasswordCache {
 
-    /* These are the tags that identify various passwords 
-     * They should probably be converted instances of some 
-     * class so that we can expose an API to add additional 
+    /* These are the tags that identify various passwords
+     * They should probably be converted instances of some
+     * class so that we can expose an API to add additional
      * TAG's for use if I want to add a password for use
-     * with my own authenticaion module 
+     * with my own authenticaion module
      */
     public static final String PROP_PWC_NICKNAME = "sso_key";
     public static final String PW_TAG_INTERNAL_LDAP_DB = "Internal LDAP Database";
@@ -89,7 +89,7 @@ public class PasswordCache {
 
     /**
      * clean up an argv by removing the trailing, empty arguments
-     * 
+     *
      * This is necessary to support the script wrapper which calls the
      * tool with arguments in quotes such as:
      * "$1" "$2"
@@ -342,7 +342,7 @@ public class PasswordCache {
     }
 }
 
-/* 
+/*
  * A class for managing passwords in the SDR password cache
  *
  * @author Christina Fu

@@ -77,7 +77,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Submit a Certificate Enrollment request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EnrollServlet extends CMSServlet {
@@ -91,7 +91,7 @@ public class EnrollServlet extends CMSServlet {
     // enrollment templates.
     public static final String ENROLL_SUCCESS_TEMPLATE = "EnrollSuccess.template";
 
-    // http params 
+    // http params
     public static final String OLD_CERT_TYPE = "csrCertType";
     public static final String CERT_TYPE = "certType";
     // same as in ConfigConstant.java
@@ -171,7 +171,7 @@ public class EnrollServlet extends CMSServlet {
      * <ul>
      * <li>CMSServlet.PROP_ID - ID for signed audit log messages
      * <li>CMSServlet.PROP_SUCCESS_TEMPLATE - success template file
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -288,7 +288,7 @@ public class EnrollServlet extends CMSServlet {
 
                 init_testbed_hack(mConfig);
             } catch (Exception e) {
-                // this should never happen. 
+                // this should never happen.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR",
                                 e.toString(), mId));
@@ -304,7 +304,7 @@ public class EnrollServlet extends CMSServlet {
      * Getter method to see if Proof of Posession checking is enabled.
      * this value is set in the CMS.cfg filem with the parameter
      * "enrollment.enforcePop". It defaults to false
-     * 
+     *
      * @return true if user is required to Prove that they possess the
      *         private key corresponding to the public key in the certificate
      *         request they are submitting
@@ -323,7 +323,7 @@ public class EnrollServlet extends CMSServlet {
      * <LI>The request is preprocessed, then processed further in one of the cert request processor classes:
      * KeyGenProcessor, PKCS10Processor, CMCProcessor, CRMFProcessor
      * </UL>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -693,23 +693,23 @@ public class EnrollServlet extends CMSServlet {
     /**
      * Process X509 certificate enrollment request
      * <P>
-     * 
+     *
      * (Certificate Request - either an "admin" cert request for an admin certificate, an "agent" cert request for
      * "bulk enrollment", or an "EE" standard cert request)
      * <P>
-     * 
+     *
      * (Certificate Request Processed - either an automated "admin" non-profile based CA admin cert acceptance, an
      * automated "admin" non-profile based CA admin cert rejection, an automated "EE" non-profile based cert acceptance,
      * or an automated "EE" non-profile based cert rejection)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made
      * (before approval process)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param cmsReq a certificate enrollment request
      * @exception EBaseException an error has occurred
      */
@@ -806,7 +806,7 @@ public class EnrollServlet extends CMSServlet {
              * === certAuth based enroll ===
              * "certAuthEnroll" is on.
              * "certauthEnrollType can be one of the three:
-             *       single - it's for single cert enrollment 
+             *       single - it's for single cert enrollment
              *       dual - it's for dual certs enrollment
              *       encryption - getting the encryption cert only via
              *                    authentication of the signing cert
@@ -938,8 +938,8 @@ public class EnrollServlet extends CMSServlet {
             if (authToken != null) {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-                // don't store agent token in request. 
-                // agent currently used for bulk issuance. 
+                // don't store agent token in request.
+                // agent currently used for bulk issuance.
                 // if (!authMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 log(ILogger.LL_INFO,
                         "Enrollment request was authenticated by " +
@@ -1355,9 +1355,9 @@ public class EnrollServlet extends CMSServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            // send request to request queue. 
+            // send request to request queue.
             mRequestQueue.processRequest(req);
-            // process result. 
+            // process result.
 
             // render OLD_CERT_TYPE's response differently, we
             // do not want any javascript in HTML, and need to
@@ -1693,11 +1693,11 @@ public class EnrollServlet extends CMSServlet {
         out.println("</HTML>");
     }
 
-    // XXX ALERT !! 
-    // Remove the following and calls to them when we bundle a cartman 
-    // later than alpha1. 
-    // These are here to cover up problem in cartman where the 
-    // key usage extension always ends up being digital signature only 
+    // XXX ALERT !!
+    // Remove the following and calls to them when we bundle a cartman
+    // later than alpha1.
+    // These are here to cover up problem in cartman where the
+    // key usage extension always ends up being digital signature only
     // and for rsa-ex ends up having no bits set.
 
     private boolean mIsTestBed = false;
@@ -1709,11 +1709,11 @@ public class EnrollServlet extends CMSServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */

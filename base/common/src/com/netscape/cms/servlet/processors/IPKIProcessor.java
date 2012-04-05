@@ -22,7 +22,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
  * This represents the request parser.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPKIProcessor {

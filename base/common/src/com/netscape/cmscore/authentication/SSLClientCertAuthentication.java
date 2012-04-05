@@ -49,7 +49,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * SSL client based authentication.
  * <P>
- * 
+ *
  * @author chrisho
  * @version $Revision$, $Date$
  */
@@ -224,7 +224,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -233,7 +233,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     /**
      * Returns array of required credentials for this authentication manager.
-     * 
+     *
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -268,7 +268,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     /**
      * Gets the configuration substore used by this authentication manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {

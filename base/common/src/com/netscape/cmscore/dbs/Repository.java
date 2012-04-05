@@ -39,11 +39,11 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
  * <P>
  * To build domain specific repository, subclass should be created.
  * <P>
- * 
+ *
  * @author galperin
  * @author thomask
  * @version $Revision: 1.4
- * 
+ *
  *          $, $Date$
  */
 
@@ -126,7 +126,7 @@ public abstract class Repository implements IRepository {
     /**
      * Retrieves the next serial number attr in db.
      * <P>
-     * 
+     *
      * @return next serial number
      */
     protected BigInteger getSerialNumber() throws EBaseException {
@@ -152,7 +152,7 @@ public abstract class Repository implements IRepository {
         BigInteger serial = rec.getSerialNumber();
 
         if (!mInit) {
-            // cms may crash after issue a cert but before update 
+            // cms may crash after issue a cert but before update
             // the serial number record
             try {
                 IDBObj obj = s.read("cn=" +
@@ -173,7 +173,7 @@ public abstract class Repository implements IRepository {
     /**
      * Updates the serial number to the specified in db.
      * <P>
-     * 
+     *
      * @param num serial number
      */
     protected void setSerialNumber(BigInteger num) throws EBaseException {
@@ -186,7 +186,7 @@ public abstract class Repository implements IRepository {
 
     /**
      * Get the maximum serial number.
-     * 
+     *
      * @return maximum serial number
      */
     public String getMaxSerial() {
@@ -195,7 +195,7 @@ public abstract class Repository implements IRepository {
 
     /**
      * Set the maximum serial number.
-     * 
+     *
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number
      */
@@ -212,7 +212,7 @@ public abstract class Repository implements IRepository {
 
     /**
      * Get the maximum serial number in next range.
-     * 
+     *
      * @return maximum serial number in next range
      */
     public String getNextMaxSerial() {
@@ -221,7 +221,7 @@ public abstract class Repository implements IRepository {
 
     /**
      * Set the maximum serial number in next range
-     * 
+     *
      * @param serial maximum number in next range
      * @exception EBaseException failed to set maximum serial number in next range
      */
@@ -240,7 +240,7 @@ public abstract class Repository implements IRepository {
 
     /**
      * Get the minimum serial number.
-     * 
+     *
      * @return minimum serial number
      */
     public String getMinSerial() {
@@ -337,7 +337,7 @@ public abstract class Repository implements IRepository {
     /**
      * Updates the serial number to the specified in db and cache.
      * <P>
-     * 
+     *
      * @param num serial number
      */
     public void setTheSerialNumber(BigInteger num) throws EBaseException {
@@ -364,7 +364,7 @@ public abstract class Repository implements IRepository {
      * Retrieves the next serial number, and also increase the
      * serial number by one.
      * <P>
-     * 
+     *
      * @return serial number
      */
     public synchronized BigInteger getNextSerialNumber() throws
@@ -422,7 +422,7 @@ public abstract class Repository implements IRepository {
     /**
      * Checks to see if a new range is needed, or if we have reached the end of the
      * current range, or if a range conflict has occurred.
-     * 
+     *
      * @exception EBaseException failed to check next range for conflicts
      */
     public void checkRanges() throws EBaseException {
@@ -483,7 +483,7 @@ public abstract class Repository implements IRepository {
     /**
      * Sets whether serial number management is enabled for certs
      * and requests.
-     * 
+     *
      * @param value true/false
      * @exception EBaseException failed to set
      */

@@ -36,13 +36,13 @@ import java.util.TimeZone;
  * Output stream marshaling DER-encoded data. This is eventually provided
  * in the form of a byte array; there is no advance limit on the size of
  * that byte array.
- * 
+ *
  * <P>
  * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
  * sufficient for generating most X.509 certificates.
- * 
+ *
  * @version 1.32
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -51,7 +51,7 @@ public class DerOutputStream
         extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Construct an DER output stream.
-     * 
+     *
      * @param size how large a buffer to preallocate.
      */
     public DerOutputStream(int size) {
@@ -68,7 +68,7 @@ public class DerOutputStream
      * Writes tagged, pre-marshaled data. This calcuates and encodes
      * the length, so that the output data is the standard triple of
      * { tag, length, data } used by all DER values.
-     * 
+     *
      * @param tag the DER value tag for the data, such as <em>DerValue.tag_Sequence</em>
      * @param buf buffered data, which must be DER-encoded
      */
@@ -82,7 +82,7 @@ public class DerOutputStream
      * Writes tagged data using buffer-to-buffer copy. As above,
      * this writes a standard DER record. This is often used when
      * efficiently encapsulating values in sequences.
-     * 
+     *
      * @param tag the DER value tag for the data, such as <em>DerValue.tag_Sequence</em>
      * @param out buffered data
      */
@@ -96,14 +96,14 @@ public class DerOutputStream
      * Writes implicitly tagged data using buffer-to-buffer copy. As above,
      * this writes a standard DER record. This is often used when
      * efficiently encapsulating implicitly tagged values.
-     * 
+     *
      * @param tag the DER value of the context-specific tag that replaces
      *            original tag of the value in the output , such as in
-     * 
+     *
      *            <pre>
      * 	<em> <field> [N] IMPLICIT <type></em>
      * </pre>
-     * 
+     *
      *            For example, <em>FooLength [1] IMPLICIT INTEGER</em>, with value=4;
      *            would be encoded as "81 01 04" whereas in explicit
      *            tagging it would be encoded as "A1 03 02 01 04".
@@ -236,7 +236,7 @@ public class DerOutputStream
     /**
      * Marshals a DER bit string on the output stream. The bit
      * string must be byte-aligned.
-     * 
+     *
      * @param bits the bit string, MSB first
      */
     public void putBitString(byte[] bits) throws IOException {
@@ -297,7 +297,7 @@ public class DerOutputStream
         byte lastByte = bitString[maxIndex];
         length = (maxIndex + 1) * 8; // maximum, might reduce in next step
 
-        // now find the last 1 bit in this last byte 
+        // now find the last 1 bit in this last byte
         for (i = 1; i <= 0x80; i <<= 1) {
             if ((lastByte & i) == 0) {
                 length--;
@@ -311,7 +311,7 @@ public class DerOutputStream
     /**
      * Marshals a DER bit string on the output stream.
      * The bit strings need not be byte-aligned.
-     * 
+     *
      * @param bits the bit string, MSB first
      */
     public void putUnalignedBitString(BitArray ba) throws IOException {
@@ -327,7 +327,7 @@ public class DerOutputStream
      * Marshals a DER bit string on the output stream.
      * All trailing 0 bits will be stripped off in accordance with DER
      * encoding.
-     * 
+     *
      * @param bits the bit string, MSB first
      */
     public void putUnalignedBitString(byte[] bitString) throws IOException {
@@ -338,7 +338,7 @@ public class DerOutputStream
      * Marshals a DER bit string on the output stream.
      * All trailing 0 bits will be stripped off in accordance with DER
      * encoding.
-     * 
+     *
      * @param bits the bit string as an array of booleans.
      */
     public void putUnalignedBitString(boolean[] bitString) throws IOException {
@@ -347,7 +347,7 @@ public class DerOutputStream
 
     /**
      * DER-encodes an ASN.1 OCTET STRING value on the output stream.
-     * 
+     *
      * @param octets the octet string
      */
     public void putOctetString(byte[] octets) throws IOException {
@@ -390,7 +390,7 @@ public class DerOutputStream
      * Marshals the contents of a set on the output stream without
      * ordering the elements. Ok for BER encoding, but not for DER
      * encoding.
-     * 
+     *
      * For DER encoding, use orderedPutSet() or orderedPutSetOf().
      */
     public void putSet(DerValue[] set) throws IOException {
@@ -419,7 +419,7 @@ public class DerOutputStream
      * set elements be sorted into ascending lexicographical order
      * before being output. Hence sets with the same tags and
      * elements have the same DER encoding.
-     * 
+     *
      * This method supports the ASN.1 "SET OF" construct, but not
      * "SET", which uses a different order.
      */
@@ -433,7 +433,7 @@ public class DerOutputStream
      * set elements be sorted into ascending tag order
      * before being output. Hence sets with the same tags and
      * elements have the same DER encoding.
-     * 
+     *
      * This method supports the ASN.1 "SET" construct, but not
      * "SET OF", which uses a different order.
      */
@@ -456,7 +456,7 @@ public class DerOutputStream
     /**
      * Marshals a the contents of a set on the output stream with the
      * encodings of its sorted in increasing order.
-     * 
+     *
      * @param order the order to use when sorting encodings of components.
      */
     private void putOrderedSet(byte tag, DerEncoder[] set,
@@ -612,7 +612,7 @@ public class DerOutputStream
 
     /**
      * Marshals a DER UTC time/date value.
-     * 
+     *
      * <P>
      * YYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per IETF-PKIX
      * partI.
@@ -642,7 +642,7 @@ public class DerOutputStream
 
     /**
      * Marshals a DER Generalized Time/date value.
-     * 
+     *
      * <P>
      * YYYYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per
      * IETF-PKIX partI.
@@ -669,7 +669,7 @@ public class DerOutputStream
 
     /**
      * Put the encoding of the length in the stream.
-     * 
+     *
      * @param len the length of the attribute.
      * @exception IOException on writing errors.
      */
@@ -703,7 +703,7 @@ public class DerOutputStream
 
     /**
      * Put the tag of the attribute in the stream.
-     * 
+     *
      * @param class the tag class type, one of UNIVERSAL, CONTEXT,
      *        APPLICATION or PRIVATE
      * @param form if true, the value is constructed, otherwise it is
@@ -720,7 +720,7 @@ public class DerOutputStream
 
     /**
      * Write the current contents of this <code>DerOutputStream</code> to an <code>OutputStream</code>.
-     * 
+     *
      * @exception IOException on output error.
      */
     public void derEncode(OutputStream out) throws IOException {

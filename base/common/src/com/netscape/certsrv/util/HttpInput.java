@@ -175,7 +175,7 @@ public class HttpInput {
             }
             /*
 
-                      if (i.equals("256") || i.equals("384") || i.equals("521")) { 
+                      if (i.equals("256") || i.equals("384") || i.equals("521")) {
                         return i;
                       } else {
                         throw new IOException("Invalid key length '" + i + "'. Currently supported ECC key lengths are 256, 384, 521.");

@@ -41,10 +41,10 @@ class WICloneOCSPKeyCertPage extends WizardBasePanel implements IWizardPanel {
     protected InstallWizardInfo mWizardInfo;
     protected JComboBox mOCSPNicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONEOCSPKEYCERTWIZARD";
-    private static final String OCSPHELPINDEX = 
+    private static final String OCSPHELPINDEX =
       "install-ocspcertclone-wizard-help";
 
-    
+
     WICloneOCSPKeyCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -100,7 +100,7 @@ class WICloneOCSPKeyCertPage extends WizardBasePanel implements IWizardPanel {
                 mOCSPNicknameBox.addItem(s1);
         }
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

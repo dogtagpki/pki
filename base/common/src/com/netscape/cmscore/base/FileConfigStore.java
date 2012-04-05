@@ -40,7 +40,7 @@ import com.netscape.cmsutil.util.Utils;
  * <P>
  * Note that a LdapConfigStore can be implemented so that it reads the configuration stores from the Ldap directory.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
@@ -56,7 +56,7 @@ public class FileConfigStore extends PropConfigStore implements
     /**
      * Constructs a file configuration store.
      * <P>
-     * 
+     *
      * @param fileName file name
      * @exception EBaseException failed to create file configuration
      */
@@ -73,7 +73,7 @@ public class FileConfigStore extends PropConfigStore implements
     /**
      * Loads property file into memory.
      * <P>
-     * 
+     *
      * @param fileName file name
      * @exception EBaseException failed to load configuration
      */
@@ -93,7 +93,7 @@ public class FileConfigStore extends PropConfigStore implements
      * <filename>.<current_time_in_milliseconds>.
      * Commits the current properties to the configuration file.
      * <P>
-     * 
+     *
      * @param backup
      */
     public void commit(boolean createBackup) throws EBaseException {
@@ -151,7 +151,7 @@ public class FileConfigStore extends PropConfigStore implements
      * Note that the superclass's save is synchronized. It means no properties can be altered (inserted) at the saving
      * time.
      * <P>
-     * 
+     *
      * @param fileName filename
      * @exception EBaseException failed to save configuration
      */

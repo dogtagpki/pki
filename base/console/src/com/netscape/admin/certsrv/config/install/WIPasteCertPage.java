@@ -32,8 +32,8 @@ import com.netscape.management.client.console.*;
 import com.netscape.management.client.util.*;
 
 /**
- * This page is to install the certificate in the internal token. The user can 
- * import the cert from the file, paste the Base 64 encoded blob in the 
+ * This page is to install the certificate in the internal token. The user can
+ * import the cert from the file, paste the Base 64 encoded blob in the
  * text area or get the cert from the CMS where the request was sent.
  *
  * @author Christine Ho
@@ -53,14 +53,14 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
     protected String mHelpIndex;
     protected Color mActiveColor;
     protected JTextArea introLbl;
-    
+
     protected JTextField mHostText, mPortText, mRIDText;
     protected JLabel mHostLbl, mPortLbl, mRIDLbl;
     protected String mHost, mPort, mRID;
     protected JLabel mSSLText;
     protected JCheckBox mSSL; // ssl or not
     protected JLabel mQueryText;
-    protected JRadioButton mQueryBtn;    
+    protected JRadioButton mQueryBtn;
 
     public static final int MAX_PORT = 65535;
     public static final int MIN_PORT = 1;
@@ -88,7 +88,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 		String port = wizardInfo.getCMEEPort();
 		if (port != null && !port.equals(""))
 			mPortText.setText(port);
-		
+
 		String portType = wizardInfo.getCMEEType();
 		if (portType != null && portType.equals("http"))
 			mSSL.setSelected(false);
@@ -98,7 +98,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 			mRIDText.setText(rid);
 
         setBorder(makeTitledBorder(mPanelName));
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -176,7 +176,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 			if (mHost != null && !mHost.equals(""))
 				wizardInfo.setCMHost(mHost);
 			if (mPort != null && !mPort.equals(""))
-				wizardInfo.setCMEEPort(mPort);   
+				wizardInfo.setCMEEPort(mPort);
 			if (mSSL.isSelected())
 				wizardInfo.setCMEEType("https");
 			else
@@ -191,11 +191,11 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 			data1.put("importCert", "true");
 			data1.put("requestId", mRID);
 */
-			 
+
 			startProgressStatus();
 			boolean ready = send(mHost, Integer.parseInt(mPort), "/checkRequest",
               rawData1, wizardInfo);
-        
+
 			endProgressStatus();
 
 			if (!ready) {
@@ -262,7 +262,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(introLbl, gbc);
-		
+
         mFileBtn = makeJRadioButton("FILE", true);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -302,7 +302,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
         add(desc, gbc);
 
         mBase64Text = new JTextArea(null, null, 6, 10);
-        JScrollPane scrollPane = new JScrollPane(mBase64Text, 
+        JScrollPane scrollPane = new JScrollPane(mBase64Text,
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(30, 50));
@@ -425,7 +425,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(label, gbc);
-		
+
         ButtonGroup buttonGrp = new ButtonGroup();
         buttonGrp.add(mFileBtn);
         buttonGrp.add(mBase64Btn);

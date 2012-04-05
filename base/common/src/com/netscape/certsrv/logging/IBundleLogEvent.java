@@ -22,7 +22,7 @@ package com.netscape.certsrv.logging;
  * See ILogEvent class.
  * This class maintains a resource bundle name for given
  * event type.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IBundleLogEvent extends ILogEvent {
@@ -30,7 +30,7 @@ public interface IBundleLogEvent extends ILogEvent {
     /**
      * Sets the name of the resource bundle to be associated
      * with this event type.
-     * 
+     *
      * @param bundle name of resource bundle.
      */
     public void setBundleName(String bundle);

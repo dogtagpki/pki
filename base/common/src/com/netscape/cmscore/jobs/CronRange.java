@@ -25,7 +25,7 @@ package com.netscape.cmscore.jobs;
  * <p>
  * an Element can contain either an integer number or a range specified as CronRange. In case of integer numbers, begin
  * and end are of the same value
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -67,7 +67,7 @@ public class CronRange {
     /**
      * checks to see if the lower and higher boundary values are
      * within the min/max.
-     * 
+     *
      * @param min the minimum value one can specify in this field
      * @param max the maximum value one can specify in this field
      * @return a boolean (true/false) on whether the begin/end values

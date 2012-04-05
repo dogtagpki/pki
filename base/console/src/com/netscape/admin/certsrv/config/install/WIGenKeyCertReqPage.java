@@ -33,14 +33,14 @@ import com.netscape.certsrv.common.*;
 class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
     private JTextArea desc;
     private String mPanelName;
-    private static final String CERTREQ_BEGIN_HEADING = 
+    private static final String CERTREQ_BEGIN_HEADING =
       "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    private static final String CERTREQ_END_HEADING = 
+    private static final String CERTREQ_END_HEADING =
       "-----END NEW CERTIFICATE REQUEST-----";
     private static final int LINE_COUNT = 76;
     protected String mHelpIndex;
     protected String mTokenName;
-    
+
     protected JRadioButton mPKCS10;
     protected JRadioButton mCMC;
 	protected String mSigningCert = null;
@@ -126,7 +126,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 			CMSAdminUtil.repaintComp(mPKCS10);
 		}
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -206,12 +206,12 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 
         return ready;
     }
-   
+
     private String reformat(String pkcs) {
         int beginIndex = CERTREQ_BEGIN_HEADING.length();
         int endIndex = CERTREQ_END_HEADING.length();
         int totalLen = pkcs.length();
-        String content = pkcs.substring(beginIndex, totalLen-endIndex);   
+        String content = pkcs.substring(beginIndex, totalLen-endIndex);
         String result = CERTREQ_BEGIN_HEADING+"\n";
         int index = 0;
         while (content.length() >= LINE_COUNT) {
@@ -273,7 +273,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
         ButtonGroup group = new ButtonGroup();
         group.add(mCMC);
         group.add(mPKCS10);
-     
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel d1 = new JLabel(" ");
         gbc.anchor = gbc.NORTHWEST;
@@ -282,7 +282,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
         gbc.gridheight = gbc.REMAINDER;
         gbc.gridwidth = gbc.REMAINDER;
         add(d1, gbc);
-        
+
         super.init();
     }
 

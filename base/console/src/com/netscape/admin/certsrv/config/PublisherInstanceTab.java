@@ -42,7 +42,7 @@ public class PublisherInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "PUBLISHERRULE";
-    
+
     private final static String RAHELPINDEX = "configuration-ra-publisherinstances-help";
     private final static String CAHELPINDEX = "configuration-ca-publisherinstances-help";
     private final static String KRAHELPINDEX = "configuration-kra-publisherinstances-help";
@@ -58,9 +58,9 @@ public class PublisherInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new PublisherRuleDataModel();
 		mScope = ScopeDef.SC_PUBLISHER_RULES;
 		RULE_NAME = PublisherRuleDataModel.RULE_NAME;
-	  	RULE_STAT = PublisherRuleDataModel.RULE_STAT;  
+		RULE_STAT = PublisherRuleDataModel.RULE_STAT;
 
-        if (mDestination.equals(DestDef.DEST_RA_PUBLISHER_ADMIN)) 
+        if (mDestination.equals(DestDef.DEST_RA_PUBLISHER_ADMIN))
             mHelpToken = RAHELPINDEX;
         else
             mHelpToken = CAHELPINDEX;
@@ -72,7 +72,7 @@ public class PublisherInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new PublisherConfigDialog(nvp,
@@ -86,7 +86,7 @@ public class PublisherInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new PublisherPluginSelectionDialog(parent,conn,dest,pluginType);
 	}

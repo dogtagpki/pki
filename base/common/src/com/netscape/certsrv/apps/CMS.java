@@ -101,13 +101,13 @@ import com.netscape.cmsutil.password.IPasswordStore;
  * This represents the CMS server. Plugins can access other
  * public objects such as subsystems via this inteface.
  * This object also include a set of utility functions.
- * 
+ *
  * This object does not include the actual implementation.
  * It acts as a public interface for plugins, and the
  * actual implementation is in the CMS engine
  * (com.netscape.cmscore.apps.CMSEngine) that implements
  * ICMSEngine interface.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public final class CMS {
@@ -139,7 +139,7 @@ public final class CMS {
 
     /**
      * Private constructor.
-     * 
+     *
      * @param engine CMS engine implementation
      */
     private CMS(ICMSEngine engine) {
@@ -149,7 +149,7 @@ public final class CMS {
     /**
      * This method is used for unit tests. It allows the underlying _engine
      * to be stubbed out.
-     * 
+     *
      * @param engine The stub engine to set, for testing.
      */
     public static void setCMSEngine(ICMSEngine engine) {
@@ -158,7 +158,7 @@ public final class CMS {
 
     /**
      * Gets this ID .
-     * 
+     *
      * @return CMS engine identifier
      */
     public static String getId() {
@@ -168,7 +168,7 @@ public final class CMS {
     /**
      * Sets the identifier of this subsystem. Should never be called.
      * Returns error.
-     * 
+     *
      * @param id CMS engine identifier
      */
     public static void setId(String id) throws EBaseException {
@@ -177,7 +177,7 @@ public final class CMS {
 
     /**
      * Initialize all static, dynamic and final static subsystems.
-     * 
+     *
      * @param owner null
      * @param config main config store.
      * @exception EBaseException if any error occur in subsystems during
@@ -194,7 +194,7 @@ public final class CMS {
 
     /**
      * Starts up all subsystems. subsystems must be initialized.
-     * 
+     *
      * @exception EBaseException if any subsystem fails to startup.
      */
     public static void startup() throws EBaseException {
@@ -219,7 +219,7 @@ public final class CMS {
      * Checks to ensure that all new incoming requests have been blocked.
      * This method is used for reentrancy protection.
      * <P>
-     * 
+     *
      * @return true or false
      */
     public static boolean areRequestsDisabled() {
@@ -269,7 +269,7 @@ public final class CMS {
      * server will be initialization state first. After the
      * initialization state, the server will be in the running
      * state.
-     * 
+     *
      * @return true if the server is in the running state
      */
     public static boolean isInRunningState() {
@@ -280,7 +280,7 @@ public final class CMS {
      * Returns the logger of the current server. The logger can
      * be used to log critical informational or critical error
      * messages.
-     * 
+     *
      * @return logger
      */
     public static ILogger getLogger() {
@@ -291,7 +291,7 @@ public final class CMS {
      * Returns the signed audit logger of the current server. This logger can
      * be used to log critical informational or critical error
      * messages.
-     * 
+     *
      * @return signed audit logger
      */
     public static ILogger getSignedAuditLogger() {
@@ -300,7 +300,7 @@ public final class CMS {
 
     /**
      * Creates a repository record in the internal database.
-     * 
+     *
      * @return repository record
      */
     public static IRepositoryRecord createRepositoryRecord() {
@@ -309,9 +309,9 @@ public final class CMS {
 
     /**
      * Parse ACL resource attributes
-     * 
+     *
      * @param resACLs same format as the resourceACLs attribute:
-     * 
+     *
      *            <PRE>
      *     <resource name>:<permission1,permission2,...permissionn>:
      *     <allow|deny> (<subset of the permission set>) <evaluator expression>
@@ -325,7 +325,7 @@ public final class CMS {
 
     /**
      * Creates an issuing poing record.
-     * 
+     *
      * @return issuing record
      */
     public static ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
@@ -335,7 +335,7 @@ public final class CMS {
 
     /**
      * Retrieves the default CRL issuing point record name.
-     * 
+     *
      * @return CRL issuing point record name
      */
     public static String getCRLIssuingPointRecordName() {
@@ -344,7 +344,7 @@ public final class CMS {
 
     /**
      * Retrieves the process id of this server.
-     * 
+     *
      * @return process id of the server
      */
     public static int getPID() {
@@ -353,7 +353,7 @@ public final class CMS {
 
     /**
      * Retrieves the instance roort path of this server.
-     * 
+     *
      * @return instance directory path name
      */
     public static String getInstanceDir() {
@@ -363,7 +363,7 @@ public final class CMS {
     /**
      * Returns a server wide system time. Plugins should call
      * this method to retrieve system time.
-     * 
+     *
      * @return current time
      */
     public static Date getCurrentDate() {
@@ -374,7 +374,7 @@ public final class CMS {
 
     /**
      * Puts data of an byte array into the debug file.
-     * 
+     *
      * @param data byte array to be recorded in the debug file
      */
     public static void debug(byte data[]) {
@@ -384,7 +384,7 @@ public final class CMS {
 
     /**
      * Puts a message into the debug file.
-     * 
+     *
      * @param msg debugging message
      */
     public static void debug(String msg) {
@@ -394,7 +394,7 @@ public final class CMS {
 
     /**
      * Puts a message into the debug file.
-     * 
+     *
      * @param level 0-10 (0 is less detail, 10 is more detail)
      * @param msg debugging message
      */
@@ -405,7 +405,7 @@ public final class CMS {
 
     /**
      * Puts an exception into the debug file.
-     * 
+     *
      * @param e exception
      */
     public static void debug(Throwable e) {
@@ -415,7 +415,7 @@ public final class CMS {
 
     /**
      * Checks if the debug mode is on or not.
-     * 
+     *
      * @return true if debug mode is on
      */
     public static boolean debugOn() {
@@ -439,7 +439,7 @@ public final class CMS {
      * is expecting to find, or what database attributes it is looking for.
      * @param type indicates what the source of key/val is. For example,
      *     this could be 'CS.cfg', or something else. In the debug
-     *     subsystem, there is a mechanism to filter this so only the types 
+     *     subsystem, there is a mechanism to filter this so only the types
      *     you care about are listed
      * @param key  the 'key' of the hashtable which is being accessed.
      *     This could be the name of the config parameter, or the http param
@@ -468,7 +468,7 @@ public final class CMS {
 
     /**
      * Returns the names of all the registered subsystems.
-     * 
+     *
      * @return a list of string-based subsystem names
      */
     public static Enumeration<String> getSubsystemNames() {
@@ -481,7 +481,7 @@ public final class CMS {
 
     /**
      * Returns all the registered subsystems.
-     * 
+     *
      * @return a list of ISubsystem-based subsystems
      */
     public static Enumeration<ISubsystem> getSubsystems() {
@@ -490,7 +490,7 @@ public final class CMS {
 
     /**
      * Retrieves the registered subsytem with the given name.
-     * 
+     *
      * @param name subsystem name
      * @return subsystem of the given name
      */
@@ -500,7 +500,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param msgID message id defined in UserMessages.properties
      * @return localized user message
      */
@@ -512,7 +512,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
      * @return localized user message
@@ -525,7 +525,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
      * @return localized user message
@@ -538,7 +538,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
@@ -552,7 +552,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -566,7 +566,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
@@ -581,7 +581,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -603,7 +603,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
      * @param p1 1st parameter
@@ -619,7 +619,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param msgID message id defined in UserMessages.properties
      * @param p an array of parameters
      * @return localized user message
@@ -632,7 +632,7 @@ public final class CMS {
 
     /**
      * Retrieves the localized user message from UserMessages.properties.
-     * 
+     *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
      * @param p an array of parameters
@@ -646,7 +646,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @return localized log message
      */
@@ -656,7 +656,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p an array of parameters
      * @return localized log message
@@ -667,7 +667,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @return localized log message
@@ -678,7 +678,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -690,7 +690,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -703,7 +703,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -717,7 +717,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -732,7 +732,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -748,7 +748,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -766,7 +766,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -785,7 +785,7 @@ public final class CMS {
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
-     * 
+     *
      * @param msgID message id defined in LogMessages.properties
      * @param p1 1st parameter
      * @param p2 2nd parameter
@@ -805,7 +805,7 @@ public final class CMS {
 
     /**
      * Returns the main config store. It is a handle to CMS.cfg.
-     * 
+     *
      * @return configuration store
      */
     public static IConfigStore getConfigStore() {
@@ -814,7 +814,7 @@ public final class CMS {
 
     /**
      * Retrieves time server started up.
-     * 
+     *
      * @return last startup time
      */
     public static long getStartupTime() {
@@ -823,7 +823,7 @@ public final class CMS {
 
     /**
      * Retrieves the HTTP Connection for use with connector.
-     * 
+     *
      * @param authority remote authority
      * @param factory socket factory
      * @return http connection to the remote authority
@@ -835,7 +835,7 @@ public final class CMS {
 
     /**
      * Retrieves the HTTP Connection for use with connector.
-     * 
+     *
      * @param authority remote authority
      * @param factory socket factory
      * @param timeout return error if connection cannot be established within
@@ -849,7 +849,7 @@ public final class CMS {
 
     /**
      * Retrieves the request sender for use with connector.
-     * 
+     *
      * @param authority local authority
      * @param nickname nickname of the client certificate
      * @param remote remote authority
@@ -863,7 +863,7 @@ public final class CMS {
 
     /**
      * Retrieves the nickname of the server's server certificate.
-     * 
+     *
      * @return nickname of the server certificate
      */
     public static String getServerCertNickname() {
@@ -872,7 +872,7 @@ public final class CMS {
 
     /**
      * Sets the nickname of the server's server certificate.
-     * 
+     *
      * @param tokenName name of token where the certificate is located
      * @param nickName name of server certificate
      */
@@ -882,7 +882,7 @@ public final class CMS {
 
     /**
      * Sets the nickname of the server's server certificate.
-     * 
+     *
      * @param newName new nickname of server certificate
      */
     public static void setServerCertNickname(String newName) {
@@ -891,7 +891,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's secure end entity service.
-     * 
+     *
      * @return host name of end-entity service
      */
     public static String getEEHost() {
@@ -900,7 +900,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's non-secure end entity service.
-     * 
+     *
      * @return host name of end-entity non-secure service
      */
     public static String getEENonSSLHost() {
@@ -909,7 +909,7 @@ public final class CMS {
 
     /**
      * Retrieves the IP address of the server's non-secure end entity service.
-     * 
+     *
      * @return ip address of end-entity non-secure service
      */
     public static String getEENonSSLIP() {
@@ -918,7 +918,7 @@ public final class CMS {
 
     /**
      * Retrieves the port number of the server's non-secure end entity service.
-     * 
+     *
      * @return port of end-entity non-secure service
      */
     public static String getEENonSSLPort() {
@@ -927,7 +927,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's secure end entity service.
-     * 
+     *
      * @return port of end-entity secure service
      */
     public static String getEESSLHost() {
@@ -936,7 +936,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's secure end entity service.
-     * 
+     *
      * @return port of end-entity secure service
      */
     public static String getEEClientAuthSSLPort() {
@@ -945,7 +945,7 @@ public final class CMS {
 
     /**
      * Retrieves the IP address of the server's secure end entity service.
-     * 
+     *
      * @return ip address of end-entity secure service
      */
     public static String getEESSLIP() {
@@ -954,7 +954,7 @@ public final class CMS {
 
     /**
      * Retrieves the port number of the server's secure end entity service.
-     * 
+     *
      * @return port of end-entity secure service
      */
     public static String getEESSLPort() {
@@ -963,7 +963,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's agent service.
-     * 
+     *
      * @return host name of agent service
      */
     public static String getAgentHost() {
@@ -972,7 +972,7 @@ public final class CMS {
 
     /**
      * Retrieves the IP address of the server's agent service.
-     * 
+     *
      * @return ip address of agent service
      */
     public static String getAgentIP() {
@@ -981,7 +981,7 @@ public final class CMS {
 
     /**
      * Retrieves the port number of the server's agent service.
-     * 
+     *
      * @return port of agent service
      */
     public static String getAgentPort() {
@@ -990,7 +990,7 @@ public final class CMS {
 
     /**
      * Retrieves the host name of the server's administration service.
-     * 
+     *
      * @return host name of administration service
      */
     public static String getAdminHost() {
@@ -999,7 +999,7 @@ public final class CMS {
 
     /**
      * Retrieves the IP address of the server's administration service.
-     * 
+     *
      * @return ip address of administration service
      */
     public static String getAdminIP() {
@@ -1008,7 +1008,7 @@ public final class CMS {
 
     /**
      * Retrieves the port number of the server's administration service.
-     * 
+     *
      * @return port of administration service
      */
     public static String getAdminPort() {
@@ -1017,7 +1017,7 @@ public final class CMS {
 
     /**
      * Creates a general name constraints.
-     * 
+     *
      * @param generalNameChoice type of general name
      * @param value general name string
      * @return general name object
@@ -1030,7 +1030,7 @@ public final class CMS {
 
     /**
      * Creates a general name.
-     * 
+     *
      * @param generalNameChoice type of general name
      * @param value general name string
      * @return general name object
@@ -1043,7 +1043,7 @@ public final class CMS {
 
     /**
      * Get default parameters for subject alt name configuration.
-     * 
+     *
      * @param name configuration name
      * @param params configuration parameters
      */
@@ -1054,7 +1054,7 @@ public final class CMS {
 
     /**
      * Get extended plugin info for subject alt name configuration.
-     * 
+     *
      * @param name configuration name
      * @param params configuration parameters
      */
@@ -1065,7 +1065,7 @@ public final class CMS {
 
     /**
      * Creates subject alt name configuration.
-     * 
+     *
      * @param name configuration name
      * @param config configuration store
      * @param isValueConfigured true if value is configured
@@ -1079,7 +1079,7 @@ public final class CMS {
 
     /**
      * Retrieves default general name configuration.
-     * 
+     *
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
@@ -1093,7 +1093,7 @@ public final class CMS {
 
     /**
      * Retrieves default general names configuration.
-     * 
+     *
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
@@ -1107,7 +1107,7 @@ public final class CMS {
 
     /**
      * Retrieves extended plugin info for general name configuration.
-     * 
+     *
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
@@ -1121,7 +1121,7 @@ public final class CMS {
 
     /**
      * Retrieves extended plugin info for general name configuration.
-     * 
+     *
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
@@ -1135,7 +1135,7 @@ public final class CMS {
 
     /**
      * Created general names configuration.
-     * 
+     *
      * @param name configuration name
      * @param config configuration store
      * @param isValueConfigured true if value is configured
@@ -1151,7 +1151,7 @@ public final class CMS {
 
     /**
      * Created general name constraints configuration.
-     * 
+     *
      * @param name configuration name
      * @param config configuration store
      * @param isValueConfigured true if value is configured
@@ -1167,7 +1167,7 @@ public final class CMS {
 
     /**
      * Created general name constraints configuration.
-     * 
+     *
      * @param name configuration name
      * @param config configuration store
      * @param isValueConfigured true if value is configured
@@ -1183,7 +1183,7 @@ public final class CMS {
 
     /**
      * Returns the finger print of the given certificate.
-     * 
+     *
      * @param cert certificate
      * @return finger print of certificate
      */
@@ -1194,7 +1194,7 @@ public final class CMS {
 
     /**
      * Returns the finger print of the given certificate.
-     * 
+     *
      * @param certDer DER byte array of the certificate
      * @return finger print of certificate
      */
@@ -1205,7 +1205,7 @@ public final class CMS {
 
     /**
      * Returns the finger print of the given certificate.
-     * 
+     *
      * @param cert certificate
      * @return finger print of certificate
      */
@@ -1217,7 +1217,7 @@ public final class CMS {
     /**
      * Creates a HTTP PKI Message that can be sent to a remote
      * authority.
-     * 
+     *
      * @return a new PKI Message for remote authority
      */
     public static IPKIMessage getHttpPKIMessage() {
@@ -1227,7 +1227,7 @@ public final class CMS {
     /**
      * Creates a request encoder. A request cannot be sent to
      * the remote authority in its regular format.
-     * 
+     *
      * @return a request encoder
      */
     public static IRequestEncoder getHttpRequestEncoder() {
@@ -1236,7 +1236,7 @@ public final class CMS {
 
     /**
      * Converts a BER-encoded byte array into a MIME-64 encoded string.
-     * 
+     *
      * @param data data in byte array format
      * @return base-64 encoding for the data
      */
@@ -1246,7 +1246,7 @@ public final class CMS {
 
     /**
      * Converts a MIME-64 encoded string into a BER-encoded byte array.
-     * 
+     *
      * @param data base-64 encoding for the data
      * @return data data in byte array format
      */
@@ -1257,7 +1257,7 @@ public final class CMS {
     /**
      * Retrieves the ldap connection information from the configuration
      * store.
-     * 
+     *
      * @param config configuration parameters of ldap connection
      * @return a LDAP connection info
      */
@@ -1270,7 +1270,7 @@ public final class CMS {
      * Creates a LDAP SSL socket with the given nickname. The
      * certificate associated with the nickname will be used
      * for client authentication.
-     * 
+     *
      * @param certNickname nickname of client certificate
      * @return LDAP SSL socket factory
      */
@@ -1281,7 +1281,7 @@ public final class CMS {
 
     /**
      * Creates a LDAP SSL socket.
-     * 
+     *
      * @return LDAP SSL socket factory
      */
     public static LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
@@ -1290,7 +1290,7 @@ public final class CMS {
 
     /**
      * Creates a LDAP Auth Info object.
-     * 
+     *
      * @return LDAP authentication info
      */
     public static ILdapAuthInfo getLdapAuthInfo() {
@@ -1299,7 +1299,7 @@ public final class CMS {
 
     /**
      * Retrieves the LDAP connection factory.
-     * 
+     *
      * @return bound LDAP connection pool
      */
     public static ILdapConnFactory getLdapBoundConnFactory()
@@ -1309,7 +1309,7 @@ public final class CMS {
 
     /**
      * Retrieves the LDAP connection factory.
-     * 
+     *
      * @return anonymous LDAP connection pool
      */
     public static ILdapConnFactory getLdapAnonConnFactory()
@@ -1319,7 +1319,7 @@ public final class CMS {
 
     /**
      * Retrieves the default X.509 certificate template.
-     * 
+     *
      * @return default certificate template
      */
     public static X509CertInfo getDefaultX509CertInfo() {
@@ -1329,7 +1329,7 @@ public final class CMS {
     /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
-     * 
+     *
      * @param cert certificate
      * @return base-64 format certificate
      */
@@ -1369,7 +1369,7 @@ public final class CMS {
 
     /**
      * Checks if the given certificate is a signing certificate.
-     * 
+     *
      * @param cert certificate
      * @return true if the given certificate is a signing certificate
      */
@@ -1379,7 +1379,7 @@ public final class CMS {
 
     /**
      * Checks if the given certificate is an encryption certificate.
-     * 
+     *
      * @param cert certificate
      * @return true if the given certificate is an encryption certificate
      */
@@ -1389,7 +1389,7 @@ public final class CMS {
 
     /**
      * Retrieves the email form processor.
-     * 
+     *
      * @return email form processor
      */
     public static IEmailFormProcessor getEmailFormProcessor() {
@@ -1398,7 +1398,7 @@ public final class CMS {
 
     /**
      * Retrieves the email form template.
-     * 
+     *
      * @return email template
      */
     public static IEmailTemplate getEmailTemplate(String path) {
@@ -1407,7 +1407,7 @@ public final class CMS {
 
     /**
      * Retrieves the email notification handler.
-     * 
+     *
      * @return email notification
      */
     public static IMailNotification getMailNotification() {
@@ -1416,7 +1416,7 @@ public final class CMS {
 
     /**
      * Retrieves the email key resolver.
-     * 
+     *
      * @return email key resolver
      */
     public static IEmailResolverKeys getEmailResolverKeys() {
@@ -1425,7 +1425,7 @@ public final class CMS {
 
     /**
      * Checks if the given OID is valid.
-     * 
+     *
      * @param attrName attribute name
      * @param value attribute value
      * @return object identifier of the given attrName
@@ -1437,7 +1437,7 @@ public final class CMS {
 
     /**
      * Retrieves the email resolver that checks for subjectAlternateName.
-     * 
+     *
      * @return email key resolver
      */
     public static IEmailResolver getReqCertSANameEmailResolver() {
@@ -1446,7 +1446,7 @@ public final class CMS {
 
     /**
      * Retrieves the extension pretty print handler.
-     * 
+     *
      * @param e extension
      * @param indent indentation
      * @return extension pretty print handler
@@ -1457,7 +1457,7 @@ public final class CMS {
 
     /**
      * Retrieves the certificate pretty print handler.
-     * 
+     *
      * @param delimiter delimiter
      * @return certificate pretty print handler
      */
@@ -1467,7 +1467,7 @@ public final class CMS {
 
     /**
      * Retrieves the CRL pretty print handler.
-     * 
+     *
      * @param crl CRL
      * @return CRL pretty print handler
      */
@@ -1477,7 +1477,7 @@ public final class CMS {
 
     /**
      * Retrieves the CRL cache pretty print handler.
-     * 
+     *
      * @param ip CRL issuing point
      * @return CRL pretty print handler
      */
@@ -1487,7 +1487,7 @@ public final class CMS {
 
     /**
      * Retrieves the certificate pretty print handler.
-     * 
+     *
      * @param cert certificate
      * @return certificate pretty print handler
      */
@@ -1505,7 +1505,7 @@ public final class CMS {
 
     /**
      * Retrieves the password check.
-     * 
+     *
      * @return default password checker
      */
     public static IPasswordCheck getPasswordChecker() {
@@ -1514,7 +1514,7 @@ public final class CMS {
 
     /**
      * Puts a password entry into the single-sign on cache.
-     * 
+     *
      * @param tag password tag
      * @param pw password
      */
@@ -1524,7 +1524,7 @@ public final class CMS {
 
     /**
      * Retrieves the password callback.
-     * 
+     *
      * @return default password callback
      */
     public static PasswordCallback getPasswordCallback() {
@@ -1533,7 +1533,7 @@ public final class CMS {
 
     /**
      * Retrieves command queue
-     * 
+     *
      * @return command queue
      */
     public static ICommandQueue getCommandQueue() {
@@ -1542,7 +1542,7 @@ public final class CMS {
 
     /**
      * Loads the configuration file and starts CMS's core implementation.
-     * 
+     *
      * @param path path to configuration file (CMS.cfg)
      * @exception EBaseException failed to start CMS
      */
@@ -1582,7 +1582,7 @@ public final class CMS {
 
             shutdown();
             throw e;
-        } catch (Exception e) { // catch everything here purposely 
+        } catch (Exception e) { // catch everything here purposely
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bos);
 

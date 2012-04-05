@@ -57,7 +57,7 @@ import com.netscape.certsrv.request.RequestId;
  * <UL>
  * $SerialNumber $IssuerDN $SubjectDN $NotAfter $NotBefore $RequestorEmail $CertType
  * </UL>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class UnpublishExpiredJob extends AJobBase
@@ -376,7 +376,7 @@ public class UnpublishExpiredJob extends AJobBase
      * Returns a list of configuration parameter names.
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {

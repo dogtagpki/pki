@@ -69,9 +69,9 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for signing PKCS #10 , return CMC enrollment request
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMCEnroll {
@@ -124,7 +124,7 @@ public class CMCEnroll {
     /**
      * getCMCBlob create and return the enrollent request.
      * <P>
-     * 
+     *
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param manager the crypto manger.
      * @param nValue the nickname of the certificate inside the token.

@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * subsystems can be loaded into this kernel by specifying
  * parameters in the configuration store.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class IndexTemplateFiller implements ICMSTemplateFiller {
@@ -101,7 +101,7 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
             count++;
         }
         // information about what is selected is provided
-        // from the caller. This parameter (selected) is used 
+        // from the caller. This parameter (selected) is used
         // by header servlet
         try {
             header.addStringValue("selected",

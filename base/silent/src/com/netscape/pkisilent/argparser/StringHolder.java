@@ -45,7 +45,7 @@ public class StringHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>StringHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param s Initial String reference.
      */
     public StringHolder(String s) {

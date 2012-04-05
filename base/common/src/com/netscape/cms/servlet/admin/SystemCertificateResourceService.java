@@ -31,9 +31,9 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
- * 
+ *
  * @author alee
- * 
+ *
  */
 public class SystemCertificateResourceService extends CMSResourceService implements SystemCertificateResource {
 

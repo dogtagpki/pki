@@ -75,13 +75,13 @@ public class CMSEAGeneralPanel extends CMSBaseTab implements ItemListener {
         gbc.weighty = 1.0;
         gb.setConstraints(agentsPanel, gbc);
         mCenterPanel.add(agentsPanel);
-        
+
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel numberLabel = makeJLabel("NUMBER");
         mNumberOfAgentsText = makeJTextField(30);
         CMSAdminUtil.addEntryField(agentsPanel, numberLabel, mNumberOfAgentsText, gbc);
-        
+
         refresh();
     }
 

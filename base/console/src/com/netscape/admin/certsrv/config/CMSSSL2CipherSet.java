@@ -23,7 +23,7 @@ import java.util.*;
 
 /**
  * Constructs a SSL2 cipher suites.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config

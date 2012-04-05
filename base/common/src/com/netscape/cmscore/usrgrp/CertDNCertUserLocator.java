@@ -34,7 +34,7 @@ import com.netscape.certsrv.usrgrp.IUser;
  * the incoming certificate(s) with the certificate(s)
  * in the scope. It matches the "certdn" field which contains
  * the subject dn of the certificate
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */

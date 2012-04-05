@@ -23,7 +23,7 @@ import java.util.Vector;
 /**
  * This class implements that basic intefaces of transfer protocols.
  * It is used by subclasses implementing specific protocols.
- * 
+ *
  * @version 1.25, 08/07/97
  * @author Jonathan Payne
  */

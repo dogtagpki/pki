@@ -32,7 +32,7 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
  * Authorization Manager interface needs to be implemented by all
  * authorization managers.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAuthzManager {
@@ -40,7 +40,7 @@ public interface IAuthzManager {
     /**
      * Get the name of this authorization manager instance.
      * <p>
-     * 
+     *
      * @return String the name of this authorization manager.
      */
     public String getName();
@@ -49,12 +49,12 @@ public interface IAuthzManager {
      * Get implementation name of authorization manager plugin.
      * <p>
      * An example of an implementation name will be:
-     * 
+     *
      * <PRE>
      * com.netscape.cms.BasicAclAuthz
      * </PRE>
      * <p>
-     * 
+     *
      * @return The name of the authorization manager plugin.
      */
     public String getImplName();
@@ -66,13 +66,13 @@ public interface IAuthzManager {
      * <p>
      * The accessInfo format is determined by each individual authzmgr. For example, for BasicAclAuthz, The accessInfo
      * is the resACLs, whose format should conform to the following:
-     * 
+     *
      * <pre>
      *    <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl
      * </pre>
      * <P>
      * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
-     * 
+     *
      * @param accessInfo the access info string in the format specified in the authorization manager
      * @exception EBaseException error parsing the accessInfo
      */
@@ -81,7 +81,7 @@ public interface IAuthzManager {
     /**
      * Check if the user is authorized to perform the given operation on the
      * given resource.
-     * 
+     *
      * @param authToken the authToken associated with a user.
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
@@ -97,7 +97,7 @@ public interface IAuthzManager {
 
     /**
      * Initialize this authorization manager.
-     * 
+     *
      * @param name The name of this authorization manager instance.
      * @param implName The name of the authorization manager plugin.
      * @param config The configuration store for this authorization manager.
@@ -117,7 +117,7 @@ public interface IAuthzManager {
      * The configuration parameters returned is passed to the
      * console so configuration for instances of this
      * implementation can be made through the console.
-     * 
+     *
      * @return a list of names for configuration parameters.
      * @exception EBaseException If an internal error occurred
      */
@@ -126,21 +126,21 @@ public interface IAuthzManager {
 
     /**
      * Get the configuration store for this authorization manager.
-     * 
+     *
      * @return The configuration store of this authorization manager.
      */
     public IConfigStore getConfigStore();
 
     /**
      * Get ACL entries
-     * 
+     *
      * @return enumeration of ACL entries.
      */
     public Enumeration<ACL> getACLs();
 
     /**
      * Get individual ACL entry for the given name of entry.
-     * 
+     *
      * @param target The name of the ACL entry
      * @return The ACL entry.
      */
@@ -148,7 +148,7 @@ public interface IAuthzManager {
 
     /**
      * Update ACLs in the database
-     * 
+     *
      * @param id The name of the ACL entry (ie, resource id)
      * @param rights The allowable rights for this resource
      * @param strACLs The value of the ACL entry
@@ -160,14 +160,14 @@ public interface IAuthzManager {
 
     /**
      * Get all registered evaluators.
-     * 
+     *
      * @return All registered evaluators.
      */
     public Enumeration<IAccessEvaluator> aclEvaluatorElements();
 
     /**
      * Register new evaluator
-     * 
+     *
      * @param type Type of evaluator
      * @param evaluator Value of evaluator
      */
@@ -175,7 +175,7 @@ public interface IAuthzManager {
 
     /**
      * Return a table of evaluators
-     * 
+     *
      * @return A table of evaluators
      */
     public Hashtable<String, IAccessEvaluator> getAccessEvaluators();

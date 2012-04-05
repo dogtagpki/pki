@@ -57,7 +57,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public ProfileEditDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -242,7 +242,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         policyColNames.addElement("Id");
         policyColNames.addElement("Defaults");
         policyColNames.addElement("Constraints");
-        Vector policyData = new Vector(); 
+        Vector policyData = new Vector();
         Vector policyRow = new Vector();
         policyRow.addElement("p1");
         policyRow.addElement("p1");
@@ -257,11 +257,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         mPolicyDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE", null, this);
         JPanel buttonPanel = createUserButtonPanel(mPolicyAdd,
           mPolicyDelete, mPolicyEdit);
-        JPanel lpanel = createListPanel(mPolicyTable, buttonPanel, 
+        JPanel lpanel = createListPanel(mPolicyTable, buttonPanel,
           policyColNames, policyData);
 
         Vector inputColNames = new Vector();
-        inputColNames.addElement("Id");    
+        inputColNames.addElement("Id");
         inputColNames.addElement("Inputs");
         Vector inputData = new Vector();
         Vector inputRow = new Vector();
@@ -276,7 +276,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         mInputDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE", null, this);
         JPanel buttonPanel1 = createUserButtonPanel(mInputAdd,
           mInputDelete, mInputEdit);
-        JPanel lpanel1 = createListPanel(mInputTable, buttonPanel1, 
+        JPanel lpanel1 = createListPanel(mInputTable, buttonPanel1,
           inputColNames, inputData);
 
         Vector outputColNames = new Vector();
@@ -292,11 +292,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         mOutputTable = new JTable(model2);
         mOutputEdit = CMSAdminUtil.makeJButton(mResource, PREFIX, "EDIT", null, this);
         mOutputAdd = CMSAdminUtil.makeJButton(mResource, PREFIX, "ADD", null, this);
-        mOutputDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE", 
+        mOutputDelete = CMSAdminUtil.makeJButton(mResource, PREFIX, "DELETE",
           null , this);
         JPanel buttonPanel2 = createUserButtonPanel(mOutputAdd,
           mOutputDelete, mOutputEdit);
-        JPanel lpanel2 = createListPanel(mOutputTable, buttonPanel2, 
+        JPanel lpanel2 = createListPanel(mOutputTable, buttonPanel2,
           outputColNames, outputData);
 
 //        JPanel lpanel2 = createOutputPanel();
@@ -377,11 +377,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         return null;
     }
 
-    public JPanel createListPanel(JTable table, JPanel buttonPanel, 
+    public JPanel createListPanel(JTable table, JPanel buttonPanel,
       Vector column, Vector datav)
     {
         Vector colNames = column;
-        Vector data = datav; 
+        Vector data = datav;
 
         JPanel listPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -448,7 +448,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
 
         if (evt.getSource().equals(mPolicyAdd)) {
             String profileId = mPluginName.getText();
-            Debug.println("Add Policy"); 
+            Debug.println("Add Policy");
             ProfilePolicySelectionDialog dialog =
               new ProfilePolicySelectionDialog(mDefSetId, profileId,
                 "PROFILEPOLICYSELDIALOG",
@@ -456,15 +456,15 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                 mAdminConnection,
                DestDef.DEST_REGISTRY_ADMIN, mDest);
 
-            dialog.setModel(mModel); 
-            dialog.setDisplay(); 
-            dialog.showDialog(); 
+            dialog.setModel(mModel);
+            dialog.setDisplay();
+            dialog.showDialog();
             refresh();
         }
 
         if (evt.getSource().equals(mInputAdd)) {
             String profileId = mPluginName.getText();
-            Debug.println("Add Input"); 
+            Debug.println("Add Input");
             ProfileNonPolicySelDialog dialog =
               new ProfileNonPolicySelDialog(profileId,
               "PROFILEINPUTSELDIALOG", mModel.getFrame(),
@@ -491,11 +491,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         }
 
         if (evt.getSource().equals(mPolicyDelete)) {
-            JTable table = getTable();   
-            if (table.getSelectedRowCount() <= 0) { 
+            JTable table = getTable();
+            if (table.getSelectedRowCount() <= 0) {
                 String msg = mResource.getString(
                   PREFIX+"_DIALOG_NOPOLICY_MESSAGE");
-                    CMSAdminUtil.showErrorDialog(mModel.getFrame(), 
+                    CMSAdminUtil.showErrorDialog(mModel.getFrame(),
                       mResource, msg, CMSAdminUtil.ERROR_MESSAGE);
                 return;
             }
@@ -507,8 +507,8 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                   table.getValueAt(table.getSelectedRow(), 1);
                 try {
                     deletePolicy(mPluginName.getText().trim(),policyId);
-                    
-                    ProfileEditDataModel model = 
+
+                    ProfileEditDataModel model =
                       (ProfileEditDataModel)table.getModel();
                     model.removeRow(table.getSelectedRow());
                     table.invalidate();
@@ -587,21 +587,21 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             }
         }
 
-        if (evt.getSource().equals(mPolicyEdit)) { 
+        if (evt.getSource().equals(mPolicyEdit)) {
             JTable table = getTable();
             // pick selected entry
-            if (table.getSelectedRowCount() <= 0) { 
-                CMSAdminUtil.showErrorDialog(mModel.getFrame(), 
-                  mResource, 
-                  "You must select a policy first", 
+            if (table.getSelectedRowCount() <= 0) {
+                CMSAdminUtil.showErrorDialog(mModel.getFrame(),
+                  mResource,
+                  "You must select a policy first",
                   CMSAdminUtil.ERROR_MESSAGE);
 			    return;
             }
             String policyId = (String)
-              table.getValueAt(table.getSelectedRow(), 0) + ":" + 
+              table.getValueAt(table.getSelectedRow(), 0) + ":" +
               table.getValueAt(table.getSelectedRow(), 1);
 
-            Debug.println("Edit"); 
+            Debug.println("Edit");
             NameValuePairs nvp = new NameValuePairs();
             ProfilePolicyEditDialog dialog =
               new ProfilePolicyEditDialog(nvp,
@@ -612,8 +612,8 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             dialog.setModel(mModel);
 
             String name = mPluginName.getText() + ";" + policyId;
-	        Debug.println(" XXXX name=" + name);	
-            dialog.showDialog(null, name); 
+	        Debug.println(" XXXX name=" + name);
+            dialog.showDialog(null, name);
         }
 
         if (evt.getSource().equals(mInputEdit)) {
@@ -635,7 +635,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
               new ProfileNonPolicyNewDialog(nvp,
               mModel.getFrame(),
               mAdminConnection,
-              //DestDef.DEST_CA_PROFILE_ADMIN, 
+              //DestDef.DEST_CA_PROFILE_ADMIN,
               mDest,
               ScopeDef.SC_PROFILE_INPUT_CONFIG, false);
             dialog.setModel(mModel);
@@ -678,7 +678,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
 
             NameValuePairs nvp = new NameValuePairs();
             try {
-                if (mModel != null) 
+                if (mModel != null)
                     mModel.progressStart();
 
                 String instanceName = mPluginName.getText();
@@ -690,15 +690,15 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         //      nvp.add("config", mConfigField.getText());
 
 /*
-         //       mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
+         //       mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                   ScopeDef.SC_PROFILE_RULES, instanceName, nvp);
 */
-                //DestDef.DEST_CA_PROFILE_ADMIN, 
+                //DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.modify(mDest,
                   ScopeDef.SC_PROFILE_RULES, instanceName, nvp);
 
                 mIsOK = true;
-                if (mModel != null) 
+                if (mModel != null)
                     mModel.progressStop();
                 this.dispose();
             } catch (EAdminException ex) {
@@ -712,9 +712,9 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             this.dispose();
         }
 
-    } 
+    }
 
-    private void deletePolicy(String profileId, String policyId) 
+    private void deletePolicy(String profileId, String policyId)
       throws EAdminException{
         NameValuePairs nvps = new NameValuePairs();
         nvps.put("POLICYID", policyId);
@@ -754,23 +754,23 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         mModel.progressStart();
 
         // retrieve profile information
-        NameValuePairs response = null; 
-        NameValuePairs request = new NameValuePairs(); 
+        NameValuePairs response = null;
+        NameValuePairs request = new NameValuePairs();
         try {
             //response = mAdminConnection.read(DestDef.DEST_CA_PROFILE_ADMIN,
             response = mAdminConnection.read(mDest,
                              ScopeDef.SC_PROFILE_RULES,
                              name, request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-            mModel.progressStop(); 
-        } 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+            mModel.progressStop();
+        }
         mModel.progressStop();
 
             String enable = response.get("enable");
 
 	    if (response != null) {
-        	mPluginName.setEnabled(false); 
+		mPluginName.setEnabled(false);
                 mPluginName.setBackground(getBackground());
         	mPluginName.setText(name);
 		mNameField.setText(response.get("name"));
@@ -801,28 +801,28 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                 mOutputDelete.setEnabled(false);
             }
     }
- 
+
     private void setProfileOtherInfo(String name) {
         if (mModel != null)
             mModel.progressStart();
         JTable table = getTable();
         NameValuePairs request = new NameValuePairs();
-        NameValuePairs response = null;  
+        NameValuePairs response = null;
         if (table == mPolicyTable) {
             try {
                 response = mAdminConnection.read(
                   mDest,
                   ScopeDef.SC_PROFILE_POLICIES, name, request);
             } catch (EAdminException e) {
-              CMSAdminUtil.showErrorDialog(mParentFrame, mResource, 
-                  e.toString(), CMSAdminUtil.ERROR_MESSAGE); 
+              CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
+                  e.toString(), CMSAdminUtil.ERROR_MESSAGE);
                 if (mModel != null)
-                    mModel.progressStop(); 
+                    mModel.progressStop();
                 return;
             }
 
             if (mModel != null)
-                mModel.progressStop(); 
+                mModel.progressStop();
             if (response != null) {
               populatePolicies(response, table);
             }
@@ -832,15 +832,15 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                   mDest,
                   ScopeDef.SC_PROFILE_INPUT, name, request);
             } catch (EAdminException e) {
-              CMSAdminUtil.showErrorDialog(mParentFrame, mResource, 
-                  e.toString(), CMSAdminUtil.ERROR_MESSAGE); 
+              CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
+                  e.toString(), CMSAdminUtil.ERROR_MESSAGE);
                 if (mModel != null)
-                    mModel.progressStop(); 
+                    mModel.progressStop();
                 return;
             }
 
             if (mModel != null)
-                mModel.progressStop(); 
+                mModel.progressStop();
             if (response != null) {
               populateNonPolicy(response, table);
             }
@@ -850,15 +850,15 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                   mDest,
                   ScopeDef.SC_PROFILE_OUTPUT, name, request);
             } catch (EAdminException e) {
-              CMSAdminUtil.showErrorDialog(mParentFrame, mResource, 
-                  e.toString(), CMSAdminUtil.ERROR_MESSAGE); 
+              CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
+                  e.toString(), CMSAdminUtil.ERROR_MESSAGE);
                 if (mModel != null)
-                    mModel.progressStop(); 
+                    mModel.progressStop();
                 return;
             }
 
             if (mModel != null)
-                mModel.progressStop(); 
+                mModel.progressStop();
             if (response != null) {
               populateNonPolicy(response, table);
             }
@@ -885,11 +885,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             String def = st.nextToken();
             String con = st.nextToken();
             Vector<String> row = new Vector<String>();
-           
+
             StringTokenizer st1 = new StringTokenizer(entry, ":");
             String setId = st1.nextToken();
             String id = st1.nextToken();
-           
+
             if (mDefSetId == null) {
               mDefSetId = setId;
             }
@@ -928,4 +928,4 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         model.setInfo(d, colNames);
         table.setModel(model);
     }
-}    
+}

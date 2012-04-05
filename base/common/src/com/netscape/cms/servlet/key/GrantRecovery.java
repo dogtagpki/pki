@@ -43,7 +43,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Approve a key recovery request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GrantRecovery extends CMSServlet {
@@ -84,7 +84,7 @@ public class GrantRecovery extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * 'grantRecovery.template' to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -111,9 +111,9 @@ public class GrantRecovery extends CMSServlet {
      * <li>http.param recoveryID ID of the request to approve
      * <li>http.param agentID User ID of the agent approving the request
      * <li>http.param agentPWD Password of the agent approving the request
-     * 
+     *
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -189,12 +189,12 @@ public class GrantRecovery extends CMSServlet {
      * Recovers a key. The p12 will be protected by the password
      * provided by the administrator.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used whenever DRM agents login as recovery agents
      * to approve key recovery requests
      * </ul>
-     * 
+     *
      * @param argSet CMS template parameters
      * @param header argument block
      * @param recoveryID string containing the recovery ID

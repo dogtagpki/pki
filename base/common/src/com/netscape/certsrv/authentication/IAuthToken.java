@@ -39,7 +39,7 @@ public interface IAuthToken {
 
     /**
      * Sets an attribute value within this AttrSet.
-     * 
+     *
      * @param name the name of the attribute
      * @param value the attribute object.
      * @return false on an error
@@ -48,7 +48,7 @@ public interface IAuthToken {
 
     /**
      * Gets an attribute value.
-     * 
+     *
      * @param name the name of the attribute to return.
      * @exception EBaseException on attribute handling errors.
      * @return the attribute value
@@ -58,7 +58,7 @@ public interface IAuthToken {
     /**
      * Returns an enumeration of the names of the attributes existing within
      * this AttrSet.
-     * 
+     *
      * @return an enumeration of the attribute names.
      */
     public Enumeration<String> getElements();
@@ -72,7 +72,7 @@ public interface IAuthToken {
     /**
      * Retrieves the byte array value for name. The value should have been
      * previously stored as a byte array (it will be CMS.AtoB decoded).
-     * 
+     *
      * @param name The attribute name.
      * @return The byte array or null on error.
      */
@@ -80,7 +80,7 @@ public interface IAuthToken {
 
     /**
      * Stores the byte array with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on an error
@@ -89,7 +89,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the Integer value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The Integer or null on error.
      */
@@ -97,7 +97,7 @@ public interface IAuthToken {
 
     /**
      * Stores the Integer with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on an error
@@ -106,7 +106,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the BigInteger array value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -114,7 +114,7 @@ public interface IAuthToken {
 
     /**
      * Stores the BigInteger array with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on an error
@@ -123,7 +123,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the Date value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -131,7 +131,7 @@ public interface IAuthToken {
 
     /**
      * Stores the Date with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on an error
@@ -140,7 +140,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the String array value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -148,7 +148,7 @@ public interface IAuthToken {
 
     /**
      * Stores the String array with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return False on error.
@@ -157,7 +157,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the X509CertImpl value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -165,7 +165,7 @@ public interface IAuthToken {
 
     /**
      * Stores the X509CertImpl with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on error
@@ -174,7 +174,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the CertificateExtensions value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -182,7 +182,7 @@ public interface IAuthToken {
 
     /**
      * Stores the CertificateExtensions with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on error
@@ -191,7 +191,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the Certificates value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -199,7 +199,7 @@ public interface IAuthToken {
 
     /**
      * Stores the Certificates with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on error
@@ -208,7 +208,7 @@ public interface IAuthToken {
 
     /**
      * Retrieves the byte[][] value for name.
-     * 
+     *
      * @param name The attribute name.
      * @return The value or null on error.
      */
@@ -216,7 +216,7 @@ public interface IAuthToken {
 
     /**
      * Stores the byte[][] with the associated key.
-     * 
+     *
      * @param name The attribute name.
      * @param value The value to store
      * @return false on error

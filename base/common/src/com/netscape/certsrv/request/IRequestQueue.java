@@ -32,7 +32,7 @@ import com.netscape.certsrv.dbs.repository.IRepository;
  * provides an interface for creating and viewing requests,
  * as well as performing operations on them.
  * <p>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IRequestQueue {
@@ -45,7 +45,7 @@ public interface IRequestQueue {
      * The request is LOCKED. The caller MUST release the request object by calling releaseRequest().
      * <p>
      * TODO: provide other required values (such as type and sourceId)
-     * 
+     *
      * @param requestType request type
      * @return new request
      * @exception EBaseException failed to create new request
@@ -61,7 +61,7 @@ public interface IRequestQueue {
      * <p>
      * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
      * releaseRequest().
-     * 
+     *
      * @param r request to be cloned
      * @return cloned request
      * @exception EBaseException failed to clone request
@@ -75,7 +75,7 @@ public interface IRequestQueue {
      * to a valid request id.
      * <p>
      * Errors may be generated for other conditions.
-     * 
+     *
      * @param id request id
      * @return found request
      * @exception EBaseException failed to access request queue
@@ -87,7 +87,7 @@ public interface IRequestQueue {
      * Begins processing for this request. This call
      * is valid only on requests with status BEGIN
      * An error is generated for other cases.
-     * 
+     *
      * @param req request to be processed
      * @exception EBaseException failed to process request
      */
@@ -96,14 +96,14 @@ public interface IRequestQueue {
 
     /**
      * Sets request scheduler.
-     * 
+     *
      * @param scheduler request scheduler
      */
     public void setRequestScheduler(IRequestScheduler scheduler);
 
     /**
      * Gets request scheduler.
-     * 
+     *
      * @return request scheduler
      */
     public IRequestScheduler getRequestScheduler();
@@ -115,7 +115,7 @@ public interface IRequestQueue {
      * <p>
      * This call might be used by agent servlets that want to copy a previous request, and resubmit it. By putting it
      * into PENDING state, the normal agent screens can be used for further processing.
-     * 
+     *
      * @param req
      *            the request to mark PENDING
      * @exception EBaseException failed to mark request as pending
@@ -131,7 +131,7 @@ public interface IRequestQueue {
      * <p>
      * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
      * releaseRequest().
-     * 
+     *
      * @param r request to be cloned
      * @return cloned request mark PENDING
      * @exception EBaseException failed to clone or mark request
@@ -149,7 +149,7 @@ public interface IRequestQueue {
      * <p>
      * The request processing code adds an AgentApproval to this request that contains the authentication id of the
      * agent. This data is retrieved from the Session object (qv).
-     * 
+     *
      * @param request
      *            the request that is being approved
      * @exception EBaseException failed to approve request
@@ -164,7 +164,7 @@ public interface IRequestQueue {
      * <p>
      * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
      * action
-     * 
+     *
      * @param request
      *            the request that is being rejected
      * @exception EBaseException failed to reject request
@@ -179,7 +179,7 @@ public interface IRequestQueue {
      * <p>
      * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
      * action
-     * 
+     *
      * @param request
      *            the request that is being canceled
      * @exception EBaseException failed to cancel request
@@ -193,7 +193,7 @@ public interface IRequestQueue {
      * This call can be made after changing a value like source id or owner, to force the new value to be written.
      * <p>
      * The request must be locked to make this call.
-     * 
+     *
      * @param request
      *            the request that is being updated
      * @exception EBaseException failed to update request
@@ -208,7 +208,7 @@ public interface IRequestQueue {
      * <p>
      * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
      * object.
-     * 
+     *
      * @return request list
      */
     public IRequestList listRequests();
@@ -221,7 +221,7 @@ public interface IRequestQueue {
      * <p>
      * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
      * object.
-     * 
+     *
      * @param status request status
      * @return request list
      */
@@ -233,7 +233,7 @@ public interface IRequestQueue {
      * <p>
      * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
      * object.
-     * 
+     *
      * @param filter search filter
      * @return request list
      */
@@ -245,7 +245,7 @@ public interface IRequestQueue {
      * <p>
      * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
      * object.
-     * 
+     *
      * @param filter search filter
      * @param maxSize max size to return
      * @return request list
@@ -258,7 +258,7 @@ public interface IRequestQueue {
      * <p>
      * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
      * object.
-     * 
+     *
      * @param filter search filter
      * @param maxSize max size to return
      * @param timeLimit timeout value for the search
@@ -269,14 +269,14 @@ public interface IRequestQueue {
     /**
      * Gets requests that are pending on handling by the service
      * <p>
-     * 
+     *
      * @return list of pending requests
      */
     // public IRequestList listServicePendingRequests();
 
     /**
      * Locates a request from the SourceId.
-     * 
+     *
      * @param id
      *            a unique identifier for the record that is based on the source
      *            of the request, and possibly an identify assigned by the source.
@@ -289,7 +289,7 @@ public interface IRequestQueue {
     /**
      * Locates all requests with a particular SourceId.
      * <p>
-     * 
+     *
      * @param id
      *            an identifier for the record that is based on the source
      *            of the request
@@ -303,7 +303,7 @@ public interface IRequestQueue {
      * Releases the LOCK on a request obtained from findRequest() or
      * newRequest()
      * <p>
-     * 
+     *
      * @param r request
      */
     public void releaseRequest(IRequest r);
@@ -311,7 +311,7 @@ public interface IRequestQueue {
     /**
      * Marks as serviced after destination authority has serviced request.
      * Used by connector.
-     * 
+     *
      * @param r request
      */
     public void markAsServiced(IRequest r);
@@ -323,7 +323,7 @@ public interface IRequestQueue {
 
     /**
      * Gets a pageable list of IRequest entries in this queue.
-     * 
+     *
      * @param pageSize page size
      * @return request list
      */
@@ -331,7 +331,7 @@ public interface IRequestQueue {
 
     /**
      * Gets a pageable list of IRequest entries in this queue.
-     * 
+     *
      * @param filter search filter
      * @param pageSize page size
      * @param sortKey the attributes to sort by
@@ -343,7 +343,7 @@ public interface IRequestQueue {
 
     /**
      * Gets a pageable list of IRequest entries in this queue.
-     * 
+     *
      * @param fromId request id to start with
      * @param filter search filter
      * @param pageSize page size
@@ -358,7 +358,7 @@ public interface IRequestQueue {
     /**
      * Gets a pageable list of IRequest entries in this queue. This
      * jumps right to the end of the list
-     * 
+     *
      * @param fromId request id to start with
      * @param jumpToEnd jump to end of list (set fromId to null)
      * @param filter search filter
@@ -373,7 +373,7 @@ public interface IRequestQueue {
 
     /**
      * Retrieves the notifier for pending request.
-     * 
+     *
      * @return notifier for pending request
      */
     public INotify getPendingNotify();
@@ -392,7 +392,7 @@ public interface IRequestQueue {
 
     /**
      * Gets request repository.
-     * 
+     *
      * @return request repository
      */
     public IRepository getRequestRepository();

@@ -79,7 +79,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
         //gbc.weighty = 1.0;
 //        gb.setConstraints(adminPanel, gbc);
 //        mCenterPanel.add(adminPanel);
-        
+
 
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
@@ -89,7 +89,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
         gbc.weighty = 1.0;
         gb.setConstraints(signingPanel, gbc);
         mCenterPanel.add(signingPanel);
-        
+
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel signingLabel = makeJLabel("ALGORITHM");

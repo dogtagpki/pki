@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the PKCS10 attributes for the request.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.10
@@ -52,7 +52,7 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the attributes from.
      * @exception IOException on decoding errors.
      */
@@ -73,9 +73,9 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
 
     /**
      * Encode the attributes in DER form to the stream.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
-     * 
+     *
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out)
@@ -86,7 +86,7 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
     /**
      * Encode the attributes in DER form to the stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on encoding errors.
      */

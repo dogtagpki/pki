@@ -83,7 +83,7 @@ public class CMSAdmin extends AbstractServerObject
         if (mActiveFrame == null)
             mActiveFrame = UtilConsoleGlobals.getActivatedFrame();
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-		// STATUS_UPDATE_INTERVAL = 1500000;	
+		// STATUS_UPDATE_INTERVAL = 1500000;
     }
 
     /*==========================================================
@@ -303,7 +303,7 @@ public class CMSAdmin extends AbstractServerObject
         }
     }
 
-    /** 
+    /**
      * Enable/Disable start/stop action menu.
      */
     private void enableStartStop(IPage viewInstance) {
@@ -348,12 +348,12 @@ public class CMSAdmin extends AbstractServerObject
 		// moved from WIIntroPage.java
         data.put(ConfigConstants.TASKID,TaskId.TASK_GET_DEFAULT_INFO);
         data.put(ConfigConstants.OPTYPE, OpDef.OP_READ);
-        data.put(ConfigConstants.PR_CERT_INSTANCE_NAME, 
+        data.put(ConfigConstants.PR_CERT_INSTANCE_NAME,
           mConsoleInfo.get(ConfigConstants.PR_CERT_INSTANCE_NAME));
         // #344791 - help server to make up the hostname
-        data.put(ConfigConstants.PR_HOST, 
-          mConsoleInfo.get(ConfigConstants.PR_HOST)); 
-        data.put(ConfigConstants.PR_SERVER_ROOT, 
+        data.put(ConfigConstants.PR_HOST,
+          mConsoleInfo.get(ConfigConstants.PR_HOST));
+        data.put(ConfigConstants.PR_SERVER_ROOT,
           mConsoleInfo.get(ConfigConstants.PR_SERVER_ROOT));
         return data;
     }
@@ -392,7 +392,7 @@ public class CMSAdmin extends AbstractServerObject
         data.clear();
         data = null;
         boolean isInfoReady = false;
- 
+
         if (success) {
             InstallWizardInfo wizardInfo =
               new InstallWizardInfo(mConsoleInfo);
@@ -404,7 +404,7 @@ public class CMSAdmin extends AbstractServerObject
             data = createWizardInfo();
             isInfoReady = configCertCgi.configCert(data);
        		Debug.println("CMSAdmin: isInfoReady = "+isInfoReady);
- 
+
             if (isInfoReady) {
                 JFrame frame = new JFrame();
                 Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
@@ -529,7 +529,7 @@ public class CMSAdmin extends AbstractServerObject
                     ex.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
                 return false;
         }
-        
+
 
         //LOAD UI FRAMEWORK
         try {
@@ -592,7 +592,7 @@ public class CMSAdmin extends AbstractServerObject
             Debug.println("Check server status");
       if (getConsoleInfo().getCurrentDN() == null) {
 		return STATUS_STARTED;
-      } else { 
+      } else {
 	    if ( mPort == 0) {
 	      mServerStatus = STATUS_UNKNOWN;
 	      return STATUS_UNKNOWN;
@@ -633,7 +633,7 @@ public class CMSAdmin extends AbstractServerObject
    * @return The Certificate Server status.
    */
   public boolean getStatusFromAgentPort() {
-    
+
     if (mPort == 0) {
       getInfo(getConsoleInfo().getCurrentDN());
                     if (mPort == 0) {
@@ -641,7 +641,7 @@ public class CMSAdmin extends AbstractServerObject
 		      return false;
 		    }
     }
-    
+
     //check if ssl port is functional
     try {
       if ((mServerInfo == null) || (mServerInfo.getPort() == 0)) {
@@ -649,9 +649,9 @@ public class CMSAdmin extends AbstractServerObject
 	mServerInfo = new CMSServerInfo(mHost, mPort, "", "",
 					mServerID, mInstallationDate, mServerVersion, mServerRoot, path);
       }
-      
+
       mServerInfo.ping();
-      
+
     } catch (EAdminException e) {
       Debug.println("CMSAdmin: getServerStatus() -"+e.toString());
       if (e.getMessageString().equals(CMSAdminResources.SERVER_NORESPONSE) ||
@@ -666,7 +666,7 @@ public class CMSAdmin extends AbstractServerObject
       //            mServerStatus = STATUS_UNKNOWN;
       return false;
     }
-    
+
     Debug.println("CMSAdmin: getServerStatus() -OK");
     //        mServerStatus = STATUS_STARTED;
     return true;
@@ -706,7 +706,7 @@ public class CMSAdmin extends AbstractServerObject
 	boolean status = task.run( null );
 	Debug.println("remove run");
 	Debug.println("Remove server status: "+ status);
-	String instance = (String) mConsoleInfo.get("ServerInstance"); 
+	String instance = (String) mConsoleInfo.get("ServerInstance");
 	if (null == instance) {
 	  instance = "";
 	}
@@ -718,7 +718,7 @@ public class CMSAdmin extends AbstractServerObject
 	  String[] attrs = { "*", "numsubordinates" };
 	  String sieDN = mConsoleInfo.getCurrentDN();
 	  Debug.println("removeServer:sieDN:" + sieDN);
-	  
+
 	  LDAPEntry sieEntry = null;
 	  try {
 	    sieEntry = ldc.read( sieDN, attrs );
@@ -732,7 +732,7 @@ public class CMSAdmin extends AbstractServerObject
 	      args);
 	      _removed = false; // remove failed
 	      */
-	      return false;	      
+	      return false;
 	  }
 	  if (sieEntry != null )	{
 	    try {
@@ -762,7 +762,7 @@ public class CMSAdmin extends AbstractServerObject
 	    DSUtil.showInformationDialog(_info.getFrame(), "121",
 	    (String)null) ;
 	    }
-	    
+
 	    */
 	}
 	//        CMSAdminUtil.showMessageDialog(mConsoleInfo.getFrame(), mResource, PREFIX,
@@ -772,9 +772,9 @@ public class CMSAdmin extends AbstractServerObject
 
 
 
-  private boolean delete_sieTree (LDAPEntry entry ) 
+  private boolean delete_sieTree (LDAPEntry entry )
     throws LDAPException {
-      
+
       LDAPConnection ldc = mConsoleInfo.getLDAPConnection();
       boolean ret = false;
 
@@ -785,13 +785,13 @@ public class CMSAdmin extends AbstractServerObject
 	search_results = ldc.search( dn,
 				     LDAPConnection.SCOPE_ONE,
 				     "(objectClass=*)", attrs, false );
-	
+
 	while ( search_results.hasMoreElements() ) {
 				/* Get the next child */
 	  LDAPEntry child_entry =
 	    (LDAPEntry)search_results.nextElement();
 	  ret = delete_sieTree( child_entry );
-	  
+
 	}
       }
       ldc.delete(dn);
@@ -817,14 +817,14 @@ public class CMSAdmin extends AbstractServerObject
 
 
   private boolean remove_serverInstance (String sieDN )  {
-    
+
     LDAPSearchResults search_results = null;
     String baseDN =(String)	 mConsoleInfo.get("BaseDN");
     LDAPConnection ldc = mConsoleInfo.getLDAPConnection();
     String[] attrs = { "*", "uniquemember" };
     String filter = "(&(objectclass=groupOfUniquenames)(uniquemember=" +
       sieDN+"))";
-	
+
     try {
       search_results = ldc.search( baseDN, ldc.SCOPE_SUB,
 				   filter, attrs, false);
@@ -836,7 +836,7 @@ public class CMSAdmin extends AbstractServerObject
     while ( search_results.hasMoreElements() ) {
       // need to remove the reference to the sieDN from
       // this entry.
-			
+
       entry = (LDAPEntry)search_results.nextElement();
       String eDN = (String) entry.getDN();
       // Now we need to modify the entry to delete the
@@ -845,7 +845,7 @@ public class CMSAdmin extends AbstractServerObject
     }
     return true;
   }
-  
+
   private boolean remove_intstanceFromEntry ( LDAPConnection ldc,
 					      String eDN, String sieDN )	{
 
@@ -853,7 +853,7 @@ public class CMSAdmin extends AbstractServerObject
     LDAPAttribute attUmember = new LDAPAttribute("uniquemember", sieDN);
     Debug.println("DSAdmin:remove_intstanceFromEntry: Modifying entry:" +
 		  eDN);
-    mods.add( LDAPModification.DELETE, attUmember );	
+    mods.add( LDAPModification.DELETE, attUmember );
     try {
       ldc.modify(eDN, mods );
     } catch ( LDAPException e ) {

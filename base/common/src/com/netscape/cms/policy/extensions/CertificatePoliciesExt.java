@@ -53,12 +53,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Certificate Policies.
  * Adds certificate policies extension.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -90,12 +90,12 @@ public class CertificatePoliciesExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName=
      * ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -115,7 +115,7 @@ public class CertificatePoliciesExt extends APolicyRule
                         "value must be greater than or equal to 1"));
         }
 
-        // init Policy Mappings, check values if enabled. 
+        // init Policy Mappings, check values if enabled.
         mCertPolicies = new CertPolicy[mNumCertPolicies];
         for (int i = 0; i < mNumCertPolicies; i++) {
             String subtreeName = PROP_CERTPOLICY + i;
@@ -147,7 +147,7 @@ public class CertificatePoliciesExt extends APolicyRule
             }
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
                 PROP_NUM_CERTPOLICIES + "=" + mNumCertPolicies);
@@ -159,7 +159,7 @@ public class CertificatePoliciesExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -203,7 +203,7 @@ public class CertificatePoliciesExt extends APolicyRule
                     extensions.delete(CertificatePoliciesExtension.NAME);
                 } catch (IOException e) {
                     // this is the hack: for some reason, the key which is the name
-                    // of the policy has been converted into the OID 
+                    // of the policy has been converted into the OID
                     try {
                         extensions.delete("2.5.29.32");
                     } catch (IOException ee) {
@@ -236,7 +236,7 @@ public class CertificatePoliciesExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -271,7 +271,7 @@ public class CertificatePoliciesExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {
@@ -335,7 +335,7 @@ class CertPolicy {
 
     /**
      * forms policy map parameters.
-     * 
+     *
      * @param name name of this policy map, for example certPolicy0
      * @param config parent's config from where we find this configuration.
      * @param enabled whether policy was enabled.

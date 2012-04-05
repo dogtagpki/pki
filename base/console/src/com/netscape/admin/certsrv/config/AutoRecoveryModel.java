@@ -37,8 +37,8 @@ public class AutoRecoveryModel extends CMSTableModel
      *==========================================================*/
     public static final String COL1 = "NUMBER";
     public static final String COL2 = "UID";
-    public static final String COL3 = "PASSWORD";  
-     
+    public static final String COL3 = "PASSWORD";
+
     private static String[] mColumns = {COL1, COL2, COL3};
 
     /*==========================================================

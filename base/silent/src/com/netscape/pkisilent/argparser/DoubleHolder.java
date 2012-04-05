@@ -45,7 +45,7 @@ public class DoubleHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>DoubleHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param d Initial double value.
      */
     public DoubleHolder(double d) {

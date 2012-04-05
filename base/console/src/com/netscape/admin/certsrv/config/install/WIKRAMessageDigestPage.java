@@ -41,7 +41,7 @@ import com.netscape.management.client.util.*;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIKRAMessageDigestPage extends WMessageDigestPage {
-    
+
     private static final String PANELNAME = "INSTALLKRAMESSAGEDIGESTWIZARD";
 
     WIKRAMessageDigestPage(JDialog parent) {
@@ -66,12 +66,12 @@ class WIKRAMessageDigestPage extends WMessageDigestPage {
 
         mCAKeyType = wizardInfo.getCAKeyType();
 
-        return super.initializePanel(info); 
+        return super.initializePanel(info);
     }
 
     public void getUpdateInfo(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-        if (mDSAHashTypeBox.isVisible()) 
+        if (mDSAHashTypeBox.isVisible())
             wizardInfo.setHashType((String)mDSAHashTypeBox.getSelectedItem());
         else
             wizardInfo.setHashType((String)mRSAHashTypeBox.getSelectedItem());

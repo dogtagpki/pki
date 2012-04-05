@@ -26,16 +26,16 @@ import com.netscape.cmscore.util.Debug;
 
 /**
  * Default implementation of predicate parser.
- * 
+ *
  * Limitations:
- * 
+ *
  * 1. Currently parentheses are not suported.
  * 2. Only ==, != <, >, <= and >= operators are supported.
  * 3. The only boolean operators supported are AND and OR. AND takes precedence
  * over OR. Example: a AND b OR e OR c AND d
  * is treated as (a AND b) OR e OR (c AND d)
  * 4. If this is n't adequate, roll your own.
- * 
+ *
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -51,7 +51,7 @@ public class LdapPredicateParser {
 
     /**
      * Parse the predicate expression and return a vector of expressions.
-     * 
+     *
      * @param predicateExp The predicate expression as read from the config file.
      * @return expVector The vector of expressions.
      */
@@ -197,7 +197,7 @@ public class LdapPredicateParser {
          * req.set("request", "issuance");
          * req.set("id", new Integer(10));
          * req.set("dualcerts", new Boolean(true));
-         * 
+         *
          * Vector v = new Vector();
          * v.addElement("one");
          * v.addElement("two");
@@ -227,8 +227,8 @@ public class LdapPredicateParser {
          * }
          * catch (Exception e) {e.printStackTrace(); }
          * }
-         * 
-         * 
+         *
+         *
          * try
          * {
          * BufferedReader rdr = new BufferedReader(
@@ -248,7 +248,7 @@ public class LdapPredicateParser {
          * boolean result = exp.evaluate(req);
          * System.out.println("Result: " + result);
          * }
-         * 
+         *
          * }catch (Exception e){e.printStackTrace();}
          * }
          * }

@@ -105,7 +105,7 @@ public class LdapRequestListener implements IRequestListener {
             obj.setCerts(certs);
             return obj;
         } else if (type.equals(IRequest.RENEWAL_REQUEST)) {
-            // Note we do not remove old certs from directory during renewal 
+            // Note we do not remove old certs from directory during renewal
             X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
             if (certs == null || certs.length == 0) {
@@ -262,7 +262,7 @@ class LdapRenewalListener implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        // Note we do not remove old certs from directory during renewal 
+        // Note we do not remove old certs from directory during renewal
         Certificate[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0) {

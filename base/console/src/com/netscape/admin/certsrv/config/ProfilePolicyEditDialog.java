@@ -50,7 +50,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public ProfilePolicyEditDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -300,7 +300,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 //        setLabelCellRenderer(mDefaultTable,1);
 //setLabelCellEditor(mDefaultTable, 1);
         mDefaultTable.setDefaultRenderer(JComponent.class, new JComponentCellRenderer());
-        mDefaultTable.setDefaultEditor(JComponent.class, 
+        mDefaultTable.setDefaultEditor(JComponent.class,
           new ProfileComponentCellEditor());
 
         CMSAdminUtil.resetGBC(gbc);
@@ -363,7 +363,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mConstraintTable.addMouseListener(this);
 //        setLabelCellRenderer(mConstraintTable,0);
         mConstraintTable.setDefaultRenderer(JComponent.class, new JComponentCellRenderer());
-        mConstraintTable.setDefaultEditor(JComponent.class, 
+        mConstraintTable.setDefaultEditor(JComponent.class,
           new ProfileComponentCellEditor());
 
         CMSAdminUtil.resetGBC(gbc);
@@ -443,7 +443,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 
     String policyId = mDescField.getText() + ":" + mIdField.getText();
     String name = instanceName + ";" + policyId;
-		
+
 /*
                 nvp.add("impl", mImplName.getText());
                 nvp.add("name", mNameField.getText());
@@ -464,7 +464,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 	        }
 
 
-                //mAdminConnection.modify(DestDef.DEST_CA_PROFILE_ADMIN, 
+                //mAdminConnection.modify(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.modify(mDest,
                   ScopeDef.SC_PROFILE_DEFAULT_POLICY, name, nvp);
 
@@ -486,7 +486,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
             nvp.put(name1, val);
 	        }
                 instanceName = mPluginName.getText();
-//DestDef.DEST_CA_PROFILE_ADMIN, 
+//DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.modify(mDest,
                   ScopeDef.SC_PROFILE_CONSTRAINT_POLICY, name, nvp);
 
@@ -503,7 +503,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
             this.dispose();
         }
 
-    } 
+    }
 
     private String getHelpDescription(String value) {
         int start_pos = value.indexOf(';');
@@ -562,32 +562,32 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 	String pid = st1.nextToken();
 
         // retrieve profile information
-        NameValuePairs response = null; 
-        NameValuePairs request = new NameValuePairs(); 
+        NameValuePairs response = null;
+        NameValuePairs request = new NameValuePairs();
         try {
           //response = mAdminConnection.read(DestDef.DEST_CA_PROFILE_ADMIN,
           response = mAdminConnection.read(mDest,
                              ScopeDef.SC_PROFILE_DEFAULT_POLICY,
                              name, request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-          mModel.progressStop(); 
-        } 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+          mModel.progressStop();
+        }
         mModel.progressStop();
 
-        Vector defcolNames = new Vector(); 
-        defcolNames.addElement("Parameter"); 
-        defcolNames.addElement("Value"); 
-        Vector defdata = new Vector(); 
+        Vector defcolNames = new Vector();
+        defcolNames.addElement("Parameter");
+        defcolNames.addElement("Value");
+        Vector defdata = new Vector();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
            String value = response.get(entry);
                   Debug.println("ProfilePolicyEditDialog entry= "+entry);
-                  Debug.println("ProfilePolicyEditDialog value= "+value); 
+                  Debug.println("ProfilePolicyEditDialog value= "+value);
 
             Object obj = getComponent(value);
-           Vector row = new Vector(); 
+           Vector row = new Vector();
            JLabel label = new JLabel(entry);
            ((Component)obj).addFocusListener(this);
            mHelpDesc.put(obj, getHelpDescription(value));
@@ -620,22 +620,22 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
                              ScopeDef.SC_PROFILE_CONSTRAINT_POLICY,
                              name,
                              request);
-        } catch (EAdminException e) { 
-//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString()); 
-          mModel.progressStop(); 
-        } 
-        mModel.progressStop(); 
+        } catch (EAdminException e) {
+//          CMSAdminUtil.showErrorDialog(mParentFrame, mResource, e.toString());
+          mModel.progressStop();
+        }
+        mModel.progressStop();
 
-        Vector colNames = new Vector(); 
-        colNames.addElement("Parameter"); 
-        colNames.addElement("Value"); 
-        Vector d = new Vector(); 
+        Vector colNames = new Vector();
+        colNames.addElement("Parameter");
+        colNames.addElement("Value");
+        Vector d = new Vector();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
            String value = response.get(entry);
                   Debug.println("entry= "+entry);
-                  Debug.println("value= "+value); 
+                  Debug.println("value= "+value);
 
            Object obj = getComponent(value);
            Vector row = new Vector();
@@ -649,7 +649,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          ProfilePolicyEditDataModel model = new ProfilePolicyEditDataModel();
          model.setInfo(d, colNames);
          mConstraintTable.setModel(model);
-       
+
         this.show();
     }
 
@@ -668,8 +668,8 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
     }
 
     class JComponentCellRenderer implements TableCellRenderer {
-        public Component getTableCellRendererComponent(JTable table, 
-          Object value, boolean isSelected, boolean hasFocus, int row, 
+        public Component getTableCellRendererComponent(JTable table,
+          Object value, boolean isSelected, boolean hasFocus, int row,
           int column) {
             return (JComponent)value;
         }
@@ -695,4 +695,4 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
           Debug.println("focusLost");
         }
 
-}    
+}

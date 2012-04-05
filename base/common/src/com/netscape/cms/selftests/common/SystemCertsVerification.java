@@ -45,7 +45,7 @@ import com.netscape.cms.selftests.ASelfTest;
  * This class implements a self test to check the system certs
  * of the subsystem
  * <P>
- * 
+ *
  * @version $Revision: $, $Date: $
  */
 public class SystemCertsVerification
@@ -74,7 +74,7 @@ public class SystemCertsVerification
      * Initializes this subsystem with the configuration store
      * associated with this instance name.
      * <P>
-     * 
+     *
      * @param subsystem the associated subsystem
      * @param instanceName the name of this self test instance
      * @param parameters configuration store (self test parameters)
@@ -128,7 +128,7 @@ public class SystemCertsVerification
     /**
      * Notifies this subsystem if it is in execution mode.
      * <P>
-     * 
+     *
      * @exception ESelfTestException failed to start
      */
     public void startupSelfTest()
@@ -149,7 +149,7 @@ public class SystemCertsVerification
      * Returns the name associated with this self test. This method may
      * return null if the self test has not been intialized.
      * <P>
-     * 
+     *
      * @return instanceName of this self test
      */
     public String getSelfTestName() {
@@ -160,7 +160,7 @@ public class SystemCertsVerification
      * Returns the root configuration storage (self test parameters)
      * associated with this subsystem.
      * <P>
-     * 
+     *
      * @return configuration store (self test parameters) of this subsystem
      */
     public IConfigStore getSelfTestConfigStore() {
@@ -171,7 +171,7 @@ public class SystemCertsVerification
      * Retrieves description associated with an individual self test.
      * This method may return null.
      * <P>
-     * 
+     *
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
@@ -183,7 +183,7 @@ public class SystemCertsVerification
     /**
      * Execute an individual self test.
      * <P>
-     * 
+     *
      * @param logger specifies logging subsystem
      * @exception ESelfTestException self test exception
      */

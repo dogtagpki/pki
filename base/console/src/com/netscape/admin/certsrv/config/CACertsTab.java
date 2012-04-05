@@ -33,7 +33,7 @@ import com.netscape.admin.certsrv.keycert.*;
 /**
  * CA certs Tab
  *
- * @author Christine Ho 
+ * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  */
@@ -47,12 +47,12 @@ public class CACertsTab extends CMSBaseUGTab {
     private AdminConnection mConnection;
     private String mDestination;
     private ConsoleInfo mConsoleInfo;
-    
+
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
     protected ListCertsModel mDataModel;   //table model
     protected CertViewDialog mEditor=null;      //keep single copy
-    
+
     protected JButton mRefresh, mAdd, mDelete, mView, mEdit, mHelp;
     private final static String HELPINDEX = "configuration-log-plugin-help";
 
@@ -162,17 +162,17 @@ public class CACertsTab extends CMSBaseUGTab {
                 String[] params = new String[2];
                 if (trust.equals("U")) {
                     params[0] = "untrusted";
-                    params[1] = "trust"; 
+                    params[1] = "trust";
                     i = showConfirmDialog("TRUST", params);
                 } else {
                     params[0] = "trusted";
-                    params[1] = "untrust"; 
+                    params[1] = "untrust";
                     i = showConfirmDialog("TRUST", params);
                 }
 
                 if (i == JOptionPane.YES_OPTION) {
                     nvps.put("trustbit", params[1]);
-                    mConnection.modify(DestDef.DEST_SERVER_ADMIN, 
+                    mConnection.modify(DestDef.DEST_SERVER_ADMIN,
                       ScopeDef.SC_ROOTCERT_TRUSTBIT,
                       Constants.RS_ID_CONFIG, nvps);
                 }
@@ -189,7 +189,7 @@ public class CACertsTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================
@@ -198,8 +198,8 @@ public class CACertsTab extends CMSBaseUGTab {
     public void refresh() {
 
         mDataModel.removeAllRows();
-        update();       
-        
+        update();
+
         setButtons();
         mTable.invalidate();
         mTable.validate();
@@ -284,7 +284,7 @@ public class CACertsTab extends CMSBaseUGTab {
 
     //set buttons
     private void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
         //Debug.println("setButtons() - "+mTable.getSelectionModel().isSelectionEmpty());
@@ -293,28 +293,28 @@ public class CACertsTab extends CMSBaseUGTab {
             mView.setEnabled(false);
             return;
         }
-        
+
         if(mDataModel.getRowCount()<=0) {
             mDelete.setEnabled(false);
             mView.setEnabled(false);
             return;
         }
-        
+
         mDelete.setEnabled(true);
-        mView.setEnabled(true);        
-        
+        mView.setEnabled(true);
+
     }
-    
+
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
     private void update() {
         //send request and parse data
-        
+
         mModel.progressStart();
         NameValuePairs response;
         try {
-            response = mConnection.search(mDestination, ScopeDef.SC_ROOTCERTSLIST, 
+            response = mConnection.search(mDestination, ScopeDef.SC_ROOTCERTSLIST,
               new NameValuePairs());
         } catch (EAdminException e) {
             //display error dialog

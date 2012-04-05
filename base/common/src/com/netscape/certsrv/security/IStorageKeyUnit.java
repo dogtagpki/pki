@@ -27,14 +27,14 @@ import com.netscape.certsrv.base.EBaseException;
  * An interface represents a storage key unit. This storage
  * unit contains a storage key pair that is used for
  * encrypting the user private key for long term storage.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IStorageKeyUnit extends IEncryptionUnit {
 
     /**
      * Retrieves total number of recovery agents.
-     * 
+     *
      * @return total number of recovery agents
      */
     public int getNoOfAgents() throws EBaseException;
@@ -42,28 +42,28 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
     /**
      * Retrieves number of recovery agents required to
      * perform recovery operation.
-     * 
+     *
      * @return required number of recovery agents for recovery operation
      */
     public int getNoOfRequiredAgents() throws EBaseException;
 
     /**
      * Sets the numer of required recovery agents
-     * 
+     *
      * @param number number of required agents
      */
     public void setNoOfRequiredAgents(int number);
 
     /**
      * Retrieves a list of agents in this unit.
-     * 
+     *
      * @return a list of string-based agent identifiers
      */
     public Enumeration<String> getAgentIdentifiers();
 
     /**
      * Changes agent password.
-     * 
+     *
      * @param id agent id
      * @param oldpwd old password
      * @param newpwd new password
@@ -75,7 +75,7 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
 
     /**
      * Changes M-N recovery scheme.
-     * 
+     *
      * @param n total number of agents
      * @param m required number of agents for recovery operation
      * @param oldcreds all old credentials
@@ -88,7 +88,7 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
 
     /**
      * Logins to this unit.
-     * 
+     *
      * @param ac agent's credentials
      * @exception EBaseException failed to login
      */

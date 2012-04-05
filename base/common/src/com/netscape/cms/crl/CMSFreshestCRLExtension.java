@@ -40,7 +40,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a freshest CRL extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSFreshestCRLExtension

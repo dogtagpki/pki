@@ -38,15 +38,15 @@ import com.netscape.cms.policy.APolicyRule;
 
 /**
  * Whether to allow renewal of an expired cert.
- * 
+ *
  * @version $Revision$, $Date$
  *          <P>
- * 
+ *
  *          <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  *          <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -93,12 +93,12 @@ public class RenewalConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
+     *
      * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.allowExpiredCerts=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -125,7 +125,7 @@ public class RenewalConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -218,7 +218,7 @@ public class RenewalConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -233,7 +233,7 @@ public class RenewalConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

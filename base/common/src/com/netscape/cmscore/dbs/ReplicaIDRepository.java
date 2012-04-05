@@ -29,7 +29,7 @@ import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
  * A class represents a replica repository. It
  * creates unique managed replica IDs.
  * <P>
- * 
+ *
  * @author alee
  * @version $Revision$, $Date$
  */

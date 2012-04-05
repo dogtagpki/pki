@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements the image
  * input that collects a picture.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ImageInput extends EnrollInput implements IProfileInput {

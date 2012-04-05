@@ -42,11 +42,11 @@ import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 
 /**
  * Tool for parsing a CMC response
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
- * 
+ *
  */
 public class CMCResponse {
 

@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Display a specific Key Archival Request
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayBySerial extends CMSServlet {
@@ -76,7 +76,7 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "displayBySerial.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -101,7 +101,7 @@ public class DisplayBySerial extends CMSServlet {
      * <ul>
      * <li>http.param serialNumber serial number of the key archival request
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -141,7 +141,7 @@ public class DisplayBySerial extends CMSServlet {
         }
 
         // Note that we should try to handle all the exceptions
-        // instead of passing it up back to the servlet 
+        // instead of passing it up back to the servlet
         // framework.
 
         IArgBlock header = CMS.createArgBlock();

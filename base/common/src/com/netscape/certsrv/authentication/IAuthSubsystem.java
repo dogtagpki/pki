@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * An interface that represents an authentication component
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IAuthSubsystem extends ISubsystem {
@@ -120,7 +120,7 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Authenticate the given credentials using the given manager name.
-     * 
+     *
      * @param authCred The authentication credentials
      * @param authMgrName The authentication manager name
      * @return a authentication token.
@@ -134,7 +134,7 @@ public interface IAuthSubsystem extends ISubsystem {
     /**
      * Gets the required credential attributes for the given authentication
      * manager.
-     * 
+     *
      * @param authMgrName The authentication manager name
      * @return a Vector of required credential attribute names.
      * @exception EBaseException If the required credential is missing
@@ -143,7 +143,7 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Adds (registers) the given authentication manager.
-     * 
+     *
      * @param name The authentication manager name
      * @param authMgr The authentication manager instance.
      */
@@ -151,14 +151,14 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Deletes (deregisters) the given authentication manager.
-     * 
+     *
      * @param name The authentication manager name to delete.
      */
     public void delete(String name);
 
     /**
      * Gets the Authentication manager instance of the specified name.
-     * 
+     *
      * @param name The authentication manager's name.
      * @exception EBaseException when internal error occurs.
      */
@@ -167,21 +167,21 @@ public interface IAuthSubsystem extends ISubsystem {
     /**
      * Gets an enumeration of authentication managers registered to the
      * authentication subsystem.
-     * 
+     *
      * @return a list of authentication managers
      */
     public Enumeration<IAuthManager> getAuthManagers();
 
     /**
      * Gets an enumeration of authentication manager plugins.
-     * 
+     *
      * @return a list of authentication plugins
      */
     public Enumeration<AuthMgrPlugin> getAuthManagerPlugins();
 
     /**
      * Gets a single authentication manager plugin implementation
-     * 
+     *
      * @param name given authentication plugin name
      * @return the given authentication plugin
      */
@@ -189,7 +189,7 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Get configuration parameters for a authentication mgr plugin.
-     * 
+     *
      * @param implName The plugin name.
      * @return configuration parameters for the given authentication manager plugin
      * @exception EAuthMgrPluginNotFound If the authentication manager
@@ -201,7 +201,7 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Log error message.
-     * 
+     *
      * @param level log level
      * @param msg error message
      */
@@ -209,21 +209,21 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Get a hashtable containing all authentication plugins.
-     * 
+     *
      * @return all authentication plugins.
      */
     public Hashtable<String, AuthMgrPlugin> getPlugins();
 
     /**
      * Get a hashtable containing all authentication instances.
-     * 
+     *
      * @return all authentication instances.
      */
     public Hashtable<?, ?> getInstances();
 
     /**
      * Get an authentication manager interface for the given name.
-     * 
+     *
      * @param name given authentication manager name.
      * @return an authentication manager for the given manager name.
      */
@@ -231,7 +231,7 @@ public interface IAuthSubsystem extends ISubsystem {
 
     /**
      * Get an authentication manager plugin impl for the given name.
-     * 
+     *
      * @param name given authentication manager name.
      * @return an authentication manager plugin
      */

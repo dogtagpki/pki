@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.EBaseException;
  * has knowledge on how to convert a db attribute into
  * zero or more LDAP attribute, and vice versa.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IDBAttrMapper {
@@ -37,14 +37,14 @@ public interface IDBAttrMapper {
      * Retrieves a list of LDAP attributes that are used
      * in the mapper. By having this, the framework can
      * provide search on selective attributes.
-     * 
+     *
      * @return a list of supported attribute names
      */
     public Enumeration<String> getSupportedLDAPAttributeNames();
 
     /**
      * Maps object attribute into LDAP attributes.
-     * 
+     *
      * @param parent parent object where the object comes from
      * @param name name of db attribute
      * @param obj object itself
@@ -58,7 +58,7 @@ public interface IDBAttrMapper {
     /**
      * Maps LDAP attributes into object, and puts the object
      * into 'parent'.
-     * 
+     *
      * @param attrs LDAP attribute set
      * @param name name of db attribute to be processed
      * @param parent parent object where the object should be added
@@ -69,7 +69,7 @@ public interface IDBAttrMapper {
 
     /**
      * Maps search filters into LDAP search filter.
-     * 
+     *
      * @param name name of db attribute
      * @param op filte operation (i.e. "=", ">=")
      * @param value attribute value

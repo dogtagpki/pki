@@ -85,7 +85,7 @@ import com.netscape.symkey.SessionKey;
  * servlet is responsible to serve Certificate Server
  * level administrative operations such as configuration
  * parameter updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public final class CMSAdminServlet extends AdminServlet {
@@ -505,12 +505,12 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Modify encryption configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION used when configuring encryption (cert settings and SSL
      * cipher preferences)
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to modify encryption configuration
@@ -935,7 +935,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         }
                     }
                 }
-                // String symKeys = new String("key1,key2"); 
+                // String symKeys = new String("key1,key2");
                 String symKeys = SessionKey.ListSymmetricKeys(selectedToken);
                 params.put(Constants.PR_TOKEN_LIST, symKeys);
 
@@ -1072,11 +1072,11 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Retrieve a certificate request
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC used when asymmetric keys are generated
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to retrieve certificate request
@@ -1444,12 +1444,12 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Issue import certificate
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to
      * import CA certs into the certificate database
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to issue an import certificate
@@ -1860,12 +1860,12 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Install certificates
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to
      * import CA certs into the certificate database
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to install a certificate
@@ -2018,15 +2018,15 @@ public final class CMSAdminServlet extends AdminServlet {
             // 600124 - renewal of SSL crash the server
             // we now do not delete previously installed certificates.
 
-            // Same Subject   | Same Nickname |  Same Key  |     Legal 
-            // ----------------------------------------------------------- 
-            // 1.   Yes             Yes            No              Yes 
-            // 2.   Yes             Yes            Yes             Yes 
-            // 3.   No              No             Yes             Yes 
-            // 4.   No              No             No              Yes 
-            // 5.   No              Yes            Yes             No 
-            // 6.   No              Yes            No              No 
-            // 7.   Yes             No             Yes             No 
+            // Same Subject   | Same Nickname |  Same Key  |     Legal
+            // -----------------------------------------------------------
+            // 1.   Yes             Yes            No              Yes
+            // 2.   Yes             Yes            Yes             Yes
+            // 3.   No              No             Yes             Yes
+            // 4.   No              No             No              Yes
+            // 5.   No              Yes            Yes             No
+            // 6.   No              Yes            No              No
+            // 7.   Yes             No             Yes             No
             // 8.   Yes             No             No              No
 
             // Based on above table, the following cases are permitted:
@@ -2280,12 +2280,12 @@ public final class CMSAdminServlet extends AdminServlet {
      * For "importing" cross-signed cert into internal db for further
      * cross pair matching and publishing
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to
      * import a CA cross-signed certificate into the database
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to import a cross-certificate pair
@@ -2809,7 +2809,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             nickname = value.substring(0, index);
             date = value.substring(index + 1);
-            // cant use this one now since jss doesnt have the interface to 
+            // cant use this one now since jss doesnt have the interface to
             // do it.
             jssSubSystem.deleteCert(nickname, date);
             //            jssSubsystem.deleteCACert(nickname, date);
@@ -2997,12 +2997,12 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Establish trust of a CA certificate
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Manage Certificate" is used to edit
      * the trustness of certs and deletion of certs
      * </ul>
-     * 
+     *
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to establish CA certificate trust
@@ -3092,11 +3092,11 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Execute all self tests specified to be run on demand.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self tests are run on demand
      * </ul>
-     * 
+     *
      * @exception EMissingSelfTestException a self test plugin instance
      *                property name was missing
      * @exception ESelfTestException a self test is missing a required
@@ -3394,11 +3394,11 @@ public final class CMSAdminServlet extends AdminServlet {
 
     /**
      * Signed Audit Log Public Key
-     * 
+     *
      * This method is called to obtain the public key from the passed in
      * "KeyPair" object for a signed audit log message.
      * <P>
-     * 
+     *
      * @param object a Key Pair Object
      * @return key string containing the public key
      */

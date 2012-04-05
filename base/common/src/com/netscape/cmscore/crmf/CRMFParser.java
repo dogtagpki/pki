@@ -41,7 +41,7 @@ public class CRMFParser {
 
     /**
      * Retrieves PKIArchiveOptions from CRMF request.
-     * 
+     *
      * @param request CRMF request
      * @return PKIArchiveOptions
      * @exception failed to extrace option

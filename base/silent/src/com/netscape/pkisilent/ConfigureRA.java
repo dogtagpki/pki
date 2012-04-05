@@ -64,7 +64,7 @@ public class ConfigureRA {
     public static String client_certdb_dir = null;
     public static String client_certdb_pwd = null;
 
-    // Login Panel 
+    // Login Panel
     public static String pin = null;
 
     public static String domain_name = null;
@@ -94,7 +94,7 @@ public class ConfigureRA {
     public static String ra_subsystem_cert_pp = null;
     public static String ra_subsystem_cert_cert = null;
 
-    // names 
+    // names
     public static String ra_server_cert_subject_name = null;
     public static String ra_server_cert_nickname = null;
     public static String ra_subsystem_cert_subject_name = null;
@@ -514,7 +514,7 @@ public class ConfigureRA {
         hr = hc.sslConnect(ca_hostname, ca_admin_port, admin_uri, query_string);
 
         try {
-            // cert_to_import = 
+            // cert_to_import =
             //     new sun.misc.BASE64Encoder().encode(hr.getResponseData());
             cert_to_import =
                     Utils.base64encode(hr.getResponseData());

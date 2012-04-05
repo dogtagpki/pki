@@ -43,7 +43,7 @@ class WMNResultPage extends WizardBasePanel
      *==========================================================*/
     private static final String PANELNAME = "WMNRESULTPAGE";
 
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-kra-wizard-newagentpwd-keyscheme-help";
 
     /*==========================================================

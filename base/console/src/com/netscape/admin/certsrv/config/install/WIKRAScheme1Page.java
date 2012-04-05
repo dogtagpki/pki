@@ -44,7 +44,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
     private static final String RAKRAHELPINDEX =
       "install-rakra-mnscheme-wizard-help";
     private int mRequired, mAvail;
-    
+
     WIKRAScheme1Page(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -80,7 +80,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
             mHelpIndex = RAKRAHELPINDEX;
         else
             mHelpIndex = KRAHELPINDEX;
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -135,7 +135,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         add(requiredLbl, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mRequiredText = makeJTextField(5);
         gbc.anchor = gbc.NORTHWEST;

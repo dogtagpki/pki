@@ -53,7 +53,7 @@ class WIManualOCSPCertRequestPage extends WIManualCertRequestPage {
         if (wizardInfo.isCloning() && wizardInfo.isOCSPCloningDone())
             return false;
         if (wizardInfo.isOCSPCertLocalCA() || !wizardInfo.isOCSPInstalled() ||
-			wizardInfo.isOCSPLocalCertDone() || 
+			wizardInfo.isOCSPLocalCertDone() ||
 			wizardInfo.isOCSPCertInstalledDone() ||
 			wizardInfo.isOCSPCertRequestSucc() )
             return false;

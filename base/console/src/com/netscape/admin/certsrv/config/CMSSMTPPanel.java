@@ -35,7 +35,7 @@ public class CMSSMTPPanel extends CMSBaseTab {
     private static String PANEL_NAME = "SMTPSETTING";
     private JTextField mServerText;
     private JTextField mPortText;
-    private Color mActiveColor; 
+    private Color mActiveColor;
     private AdminConnection mAdmin;
     private CMSBaseResourceModel mModel;
     private CMSTabPanel mParent;
@@ -80,7 +80,7 @@ public class CMSSMTPPanel extends CMSBaseTab {
         JLabel portLabel = makeJLabel("PORT");
         mPortText = makeJTextField(30);
         CMSAdminUtil.addEntryField(smtpInfo, portLabel, mPortText, gbc);
-      
+
         refresh();
     }
 
@@ -92,7 +92,7 @@ public class CMSSMTPPanel extends CMSBaseTab {
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_SMTP, Constants.RS_ID_CONFIG, nvps);
- 
+
             populate(val);
         } catch (EAdminException e) {
             showErrorDialog(e.toString());

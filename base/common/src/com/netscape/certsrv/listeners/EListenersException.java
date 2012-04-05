@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * A class represents a listener exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EListenersException extends EBaseException {
@@ -39,7 +39,7 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a listeners exception.
      * <P>
-     * 
+     *
      * @param msgFormat The error message resource key.
      */
     public EListenersException(String msgFormat) {
@@ -49,7 +49,7 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a listeners exception.
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format.
      * @param param message string parameter.
      */
@@ -60,7 +60,7 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a Listeners exception.
      * <P>
-     * 
+     *
      * @param msgFormat The resource key.
      * @param e The parameter as an exception.
      */
@@ -71,7 +71,7 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a Listeners exception.
      * <P>
-     * 
+     *
      * @param msgFormat The resource key.
      * @param params Array of params.
      */
@@ -82,7 +82,7 @@ public class EListenersException extends EBaseException {
     /**
      * get the listener resource class name.
      * <P>
-     * 
+     *
      * @return the class name of the resource.
      */
     protected String getBundleName() {

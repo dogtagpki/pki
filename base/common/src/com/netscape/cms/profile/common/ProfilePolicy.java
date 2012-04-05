@@ -25,7 +25,7 @@ import com.netscape.certsrv.profile.IProfilePolicy;
  * This class implements a profile policy that
  * contains a default policy and a constraint
  * policy.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfilePolicy implements IProfilePolicy {

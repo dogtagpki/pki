@@ -40,7 +40,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
  * This class implements the generic enrollment constraint.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollConstraint implements IPolicyConstraint {
@@ -114,7 +114,7 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     /**
      * Validates the request. The request is not modified
      * during the validation.
-     * 
+     *
      * @param request enrollment request
      * @param info certificate template
      * @exception ERejectException request is rejected due
@@ -126,11 +126,11 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     /**
      * Validates the request. The request is not modified
      * during the validation.
-     * 
+     *
      * The current implementation of this method calls
      * into the subclass's validate(request, info)
      * method for validation checking.
-     * 
+     *
      * @param request request
      * @exception ERejectException request is rejected due
      *                to violation of constraint

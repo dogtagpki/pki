@@ -23,7 +23,7 @@ package com.netscape.certsrv.profile;
  * <p>
  * A rejected request cannot be reprocessed. Rejected request is considered as a request in its terminal state.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ERejectException extends EProfileException {
@@ -35,7 +35,7 @@ public class ERejectException extends EProfileException {
 
     /**
      * Creates a rejection exception.
-     * 
+     *
      * @param msg localized message that indicates
      *            the reason why a request is
      *            rejected.

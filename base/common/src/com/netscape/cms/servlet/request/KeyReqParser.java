@@ -30,7 +30,7 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
 
 /**
  * Output a 'pretty print' of a Key Archival request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KeyReqParser extends ReqParser {

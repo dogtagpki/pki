@@ -35,7 +35,7 @@ import com.netscape.certsrv.request.IRequest;
  * Default crl mapper.
  * maps the crl to a ldap entry by using components in the issuer name
  * to find the CA's entry.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCrlIssuerCompsMap
@@ -49,14 +49,14 @@ public class LdapCrlIssuerCompsMap
 
     /**
      * Constructor.
-     * 
+     *
      * The DN comps are used to form a LDAP entry to begin a subtree search.
      * The filter comps are used to form a search filter for the subtree.
      * If none of the DN comps matched, baseDN is used for the subtree.
      * If the baseDN is null and none of the DN comps matched, it is an error.
      * If none of the DN comps and filter comps matched, it is an error.
      * If just the filter comps is null, a base search is performed.
-     * 
+     *
      * @param baseDN The base DN.
      * @param dnComps Components to form the LDAP base dn for search.
      * @param filterComps Components to form the LDAP search filter.
@@ -110,7 +110,7 @@ public class LdapCrlIssuerCompsMap
      * If the formed DN is null and baseDN is null an error is thrown.
      * If the filter is null a base search is performed.
      * If both are null an error is thrown.
-     * 
+     *
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
      * @return the result. LdapCertMapResult is also used for CRL.

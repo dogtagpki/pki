@@ -28,7 +28,7 @@ import java.io.FilenameFilter;
  * <P>
  * Copied verbatium from sun.awt.tiny.TinyFileDialogPeer. Used by RollingLogFile expiration code
  * <P>
- * 
+ *
  * @author mikep
  * @version $Revision$, $Date$
  */

@@ -27,14 +27,14 @@ import java.util.Locale;
  * A log event represents a certain kind of log message designed for a specific purpose.
  * For instance, an audit type event represents messages having to do with auditable CMS
  * actions. The resulting message will ultimately appear into a specific log file.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILogEvent extends Serializable {
 
     /**
      * Retrieves event time stamp.
-     * 
+     *
      * @return Long integer of the time the event was created.
      */
     public long getTimeStamp();
@@ -43,7 +43,7 @@ public interface ILogEvent extends Serializable {
      * Retrieves log source.
      * This is an id of the subsystem responsible
      * for creating the log event.
-     * 
+     *
      * @return Integer source id.
      */
     public int getSource();
@@ -52,14 +52,14 @@ public interface ILogEvent extends Serializable {
      * Retrieves log level.
      * The log level of an event represents its relative importance
      * or severity within CMS.
-     * 
+     *
      * @return Integer log level value.
      */
     public int getLevel();
 
     /**
      * Retrieves NT specific log event type.
-     * 
+     *
      * @return Integer NTEventType value.
      */
     public int getNTEventType();
@@ -67,7 +67,7 @@ public interface ILogEvent extends Serializable {
     /**
      * Retrieves multiline attribute.
      * Does this message consiste of more than one line.
-     * 
+     *
      * @return Boolean of multiline status.
      */
     public boolean getMultiline();
@@ -75,7 +75,7 @@ public interface ILogEvent extends Serializable {
     /**
      * Retrieves log event type. Each type of event
      * has an associated String type value.
-     * 
+     *
      * @return String containing the type of event.
      */
     public String getEventType();
@@ -83,7 +83,7 @@ public interface ILogEvent extends Serializable {
     /**
      * Sets log event type. Each type of event
      * has an associated String type value.
-     * 
+     *
      * @param eventType String containing the type of event.
      */
     public void setEventType(String eventType);
@@ -92,7 +92,7 @@ public interface ILogEvent extends Serializable {
      * Returns localized message string. This method should
      * only be called if a localized string is necessary.
      * <P>
-     * 
+     *
      * @return Details message.
      */
     public String toContent();
@@ -100,7 +100,7 @@ public interface ILogEvent extends Serializable {
     /**
      * Returns the string based on the given locale.
      * <P>
-     * 
+     *
      * @param locale locale
      * @return Details message.
      */

@@ -31,18 +31,18 @@ import java.util.Vector;
  * the advantage that it allows only a single encoding of primitive data.
  * (High level data such as dates still support many encodings.) That is,
  * it uses the "Definite" Encoding Rules (DER) not the "Basic" ones (BER).
- * 
+ *
  * <P>
  * Note that, like BER/1, DER streams are streams of explicitly tagged data values. Accordingly, this programming
  * interface does not expose any variant of the java.io.InputStream interface, since that kind of input stream holds
  * untagged data values and using that I/O model could prevent correct parsing of the DER data.
- * 
+ *
  * <P>
  * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
  * sufficient for parsing most X.509 certificates.
- * 
+ *
  * @version 1.35
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -60,7 +60,7 @@ public class DerInputStream {
      * Create a DER input stream from a data buffer. The buffer is not
      * copied, it is shared. Accordingly, the buffer should be treated
      * as read-only.
-     * 
+     *
      * @param data the buffer from which to create the string (CONSUMED)
      */
     public DerInputStream(byte[] data) {
@@ -72,7 +72,7 @@ public class DerInputStream {
      * Create a DER input stream from part of a data buffer.
      * The buffer is not copied, it is shared. Accordingly, the
      * buffer should be treated as read-only.
-     * 
+     *
      * @param data the buffer from which to create the string (CONSUMED)
      * @param offset the first index of <em>data</em> which will
      *            be read as DER input in the new stream
@@ -91,7 +91,7 @@ public class DerInputStream {
 
     /**
      * Creates a new DER input stream from part of this input stream.
-     * 
+     *
      * @param len how long a chunk of the current input stream to use,
      *            starting at the current position.
      * @param do_skip true if the existing data in the input stream should
@@ -173,8 +173,8 @@ public class DerInputStream {
         int length = getLength(buffer) - 1;
 
         /*
-         * First byte = number of excess bits in the last octet of the 
-         * representation. 
+         * First byte = number of excess bits in the last octet of the
+         * representation.
          */
         int validBits = length * 8 - buffer.read();
 
@@ -231,7 +231,7 @@ public class DerInputStream {
      * ordered, and they are often used, like a "struct" in C or C++,
      * to group data values. They may have optional or context
      * specific values.
-     * 
+     *
      * @param startLen guess about how long the sequence will be
      *            (used to initialize an auto-growing data structure)
      * @return array of the values in the sequence
@@ -256,7 +256,7 @@ public class DerInputStream {
      * though DER may specify an order for some kinds of sets (such
      * as the attributes in an X.500 relative distinguished name)
      * to facilitate binary comparisons of encoded values.
-     * 
+     *
      * @param startLen guess about how large the set will be
      *            (used to initialize an auto-growing data structure)
      * @return array of the values in the sequence
@@ -272,7 +272,7 @@ public class DerInputStream {
      * though DER may specify an order for some kinds of sets (such
      * as the attributes in an X.500 relative distinguished name)
      * to facilitate binary comparisons of encoded values.
-     * 
+     *
      * @param startLen guess about how large the set will be
      *            (used to initialize an auto-growing data structure)
      * @param implicit if true tag is assumed implicit.
@@ -299,7 +299,7 @@ public class DerInputStream {
 
         if (len == 0)
             // return empty array instead of null, which should be
-            // used only for missing optionals 
+            // used only for missing optionals
             return new DerValue[0];
 
         /*

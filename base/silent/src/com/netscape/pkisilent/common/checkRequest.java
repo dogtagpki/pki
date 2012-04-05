@@ -55,12 +55,12 @@ public class checkRequest extends TestClient {
     private String tokenpwd;
     private String cdir;
 
-    // public methods 
+    // public methods
 
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * 
+     *
      * @param propfilename name of the parameter file
      */
 
@@ -232,7 +232,7 @@ public class checkRequest extends TestClient {
         return false;
     }
 
-    // Private functions 
+    // Private functions
 
     private void setElapsedTime(long dif) {
         elapsedTime = dif;
@@ -613,5 +613,5 @@ public class checkRequest extends TestClient {
         }
     }// end of function main
 
-} // end of class 
+} // end of class
 

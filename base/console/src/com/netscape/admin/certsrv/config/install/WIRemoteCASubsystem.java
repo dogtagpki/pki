@@ -71,7 +71,7 @@ class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
             return false;
         if (wizardInfo.isRAInstalled() && !wizardInfo.isCAInstalled()) {
             setBorder(makeTitledBorder(PANELNAME));
-            if (wizardInfo.isKRAInstalled()) 
+            if (wizardInfo.isKRAInstalled())
                 mHelpIndex = RAKRAHELPINDEX;
             else
                 mHelpIndex = RAHELPINDEX;
@@ -116,8 +116,8 @@ class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         wizardInfo.setCMHost(mHost);
-        wizardInfo.setCMPort(mPort);   
-        wizardInfo.setCMTimeout(mTimeout);   
+        wizardInfo.setCMPort(mPort);
+        wizardInfo.setCMTimeout(mTimeout);
 
         if ((wizardInfo.isCAInstalled() || wizardInfo.isRAInstalled())
           && !wizardInfo.isKRAInstalled()) {
@@ -180,9 +180,9 @@ class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
         startProgressStatus();
 
         CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CONFIGDB");
-        
+
         boolean ready = configCertCgi.configCert(data);
-        
+
         dlg.setVisible(false);
 
         endProgressStatus();
@@ -273,7 +273,7 @@ class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE);
         add(timeunitLbl, gbc);
         */
-        
+
         JLabel label = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;

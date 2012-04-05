@@ -26,7 +26,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the UniqueIdentity class used by certificates.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -37,7 +37,7 @@ public class UniqueIdentity {
 
     /**
      * The default constructor for this class.
-     * 
+     *
      * @param id the byte array containing the unique identifier.
      */
     public UniqueIdentity(BitArray id) {
@@ -46,7 +46,7 @@ public class UniqueIdentity {
 
     /**
      * The default constructor for this class.
-     * 
+     *
      * @param id the byte array containing the unique identifier.
      */
     public UniqueIdentity(byte[] id) {
@@ -55,7 +55,7 @@ public class UniqueIdentity {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the UniqueIdentity from.
      * @exception IOException on decoding errors.
      */
@@ -66,7 +66,7 @@ public class UniqueIdentity {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param derVal the DerValue decoded from the stream.
      * @param tag the tag the value is encoded under.
      * @exception IOException on decoding errors.
@@ -84,7 +84,7 @@ public class UniqueIdentity {
 
     /**
      * Encode the UniqueIdentity in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @param tag enocode it under the following tag.
      * @exception IOException on errors.

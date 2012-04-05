@@ -57,29 +57,29 @@ public class CMSCAUILoader implements ISubSystemUILoader {
     public void register() {
         //register subsystem UI
         try {
-            
+
             //task tab
             IPage task = mUIFramework.getPage(CMSPageFeeder.TASK_TAB_TYPE,"");
-            
+
             //config tab
             CMSResourcePage page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONFIGURATION");
             CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
             model.setResourcePage(page);
             populateConfigContent(model);
-            
+
             /*repos tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"CONTENT");
             model = (CMSBaseResourceModel) page.getModel();
             populateRepositoryContent(model);
             populateRepositoryMenu(page);
             */
-            
+
             /*acl tab
             page = (CMSResourcePage) mUIFramework.getPage(CMSPageFeeder.RESOURCE_TAB_TYPE,"ACCESSCONTROLLIST");
             model = (CMSBaseResourceModel) page.getModel();
             populateACLContent(model);
             */
-            
+
         }catch(Exception e) {
             Debug.println("CMSCAUILoader: register() config - "+e.toString());
         }
@@ -113,7 +113,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
 
         jobsnode.setAllowsChildren(true);
         CMSResourceObject cnode = new CMSResourceObject("JOBS");
- 
+
         tabPane1 = new CMSUGTabPanel(model, cnode);
         tabPane1.addTab(new JobsInstanceTab(model));
         tabPane1.addTab(new JobsImplTab(model));
@@ -134,7 +134,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
         list.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_FOLDER));
         list.setAllowsChildren(true);
         list.setCustomPanel(tabPane);
-        
+
         //policies sub node
         //CMSResourceObject node2;
         node = new CMSResourceObject("POLICIES");
@@ -176,7 +176,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
 		notificationNode.setAllowsChildren(false);
 		list.add(notificationNode);
 
-        
+
         /* servlet sub node - XXX NOT FOR B1
            Servlet Instance Tab code is under config/servlet. It has
 		   been 'cvs removed'. It needs porting to new UI.
@@ -203,7 +203,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
         node.setAllowsChildren(false);
         list.add(node);
         */
-        
+
         /* crl extensions sub node
         node = new CMSResourceObject("CRLEXTENSIONS");
         CMSUGTabPanel crlExtTabPane = new CMSUGTabPanel(model, node);
@@ -269,7 +269,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
         node.setAllowsChildren(false);
         list.add(node);
         */
-        
+
         //ldap publishing
         node = new CMSResourceObject("PUBLISHING");
         tabPane = new CMSTabPanel(model, node);
@@ -286,9 +286,9 @@ public class CMSCAUILoader implements ISubSystemUILoader {
 	// allow mappers
         node = new CMSResourceObject("MAPPERS");
         CMSUGTabPanel ugtabPane = new CMSUGTabPanel(model, node);
-        ugtabPane.addTab(new MapperInstanceTab(model, 
+        ugtabPane.addTab(new MapperInstanceTab(model,
 		DestDef.DEST_CA_PUBLISHER_ADMIN));
-        ugtabPane.addTab(new MapperImplTab(model, 
+        ugtabPane.addTab(new MapperImplTab(model,
 		DestDef.DEST_CA_PUBLISHER_ADMIN));
         node.setCustomPanel(ugtabPane);
         node.setIcon(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULEOBJECT));
@@ -298,9 +298,9 @@ public class CMSCAUILoader implements ISubSystemUILoader {
 	// allow LDAP publisher and mapper plugins
         node = new CMSResourceObject("PUBLISHERS");
         ugtabPane = new CMSUGTabPanel(model, node);
-        ugtabPane.addTab(new PublisherInstanceTab(model, 
+        ugtabPane.addTab(new PublisherInstanceTab(model,
 		DestDef.DEST_CA_PUBLISHER_ADMIN));
-        ugtabPane.addTab(new PublisherImplTab(model, 
+        ugtabPane.addTab(new PublisherImplTab(model,
 		DestDef.DEST_CA_PUBLISHER_ADMIN));
         node.setCustomPanel(ugtabPane);
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULEOBJECT));
@@ -310,24 +310,24 @@ public class CMSCAUILoader implements ISubSystemUILoader {
 	// allow rules
         node = new CMSResourceObject("RULES");
         ugtabPane = new CMSUGTabPanel(model, node);
-        ugtabPane.addTab(new RuleInstanceTab(model, 
+        ugtabPane.addTab(new RuleInstanceTab(model,
 		DestDef.DEST_CA_PUBLISHER_ADMIN));
      // XXX just support one publishing rule type
-     //   ugtabPane.addTab(new RuleImplTab(model, 
+     //   ugtabPane.addTab(new RuleImplTab(model,
      //		DestDef.DEST_CA_PUBLISHER_ADMIN));
         node.setCustomPanel(ugtabPane);
         node.setIcon(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULEOBJECT));
         node.setAllowsChildren(false);
         publishingNode.add(node);
 
-        
+
         model.addSubSystemNode(list);
     }
-    
+
     /*
     protected void populateRepositoryContent(CMSBaseResourceModel model) {
         CMSResourceObject list, node;
-        
+
         //ca repositories node
         list = new CMSResourceObject("CAREPOSITORIES");
         list.setCustomPanel(new CMSBlankPanel(model));
@@ -347,15 +347,15 @@ public class CMSCAUILoader implements ISubSystemUILoader {
     }
 
     protected void populateRepositoryMenu(CMSResourcePage page) {
-        CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();    
+        CMSBaseResourceModel model = (CMSBaseResourceModel) page.getModel();
         CMSBaseMenuInfo menuInfo = (CMSBaseMenuInfo)page.getMenuInfo();
         try {
             menuInfo.registerMenuItem(CMSBaseMenuInfo.MENU_FILE,
                                       CMSBaseMenuInfo.MENU_NEWCERT,
-                                      new CertRequestAction(model.getConsoleInfo(),model.getServerInfo()));            
+                                      new CertRequestAction(model.getConsoleInfo(),model.getServerInfo()));
         } catch(Exception e) {
-            Debug.println("menuinfo register()"+e.toString());   
-        }            
+            Debug.println("menuinfo register()"+e.toString());
+        }
     }
     */
     protected void populateACLContent(CMSBaseResourceModel model) {
@@ -366,7 +366,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
         node.setCustomPanel(new CMSBlankPanel(model));
         node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_DOCUMENT));
         node.setAllowsChildren(false);
-        list.add(node);   
+        list.add(node);
         */
     }
 

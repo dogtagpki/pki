@@ -49,9 +49,9 @@ public class LogPluginSelectionDialog extends PluginSelectionDialog
      *==========================================================*/
     public LogPluginSelectionDialog(
 			JFrame parent,
-			AdminConnection conn, 
+			AdminConnection conn,
 			String dest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(PREFIX, parent,conn, dest, pluginType);
         mScope = ScopeDef.SC_LOG_IMPLS;

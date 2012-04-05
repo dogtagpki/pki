@@ -39,10 +39,10 @@ public class Response {
 
 	private int mRetcode;
 	private String mErrorMsg;
-	
+
 	//internal structure is changed to vector to maintain
 	//the ordering
-	
+
 	private Vector mName = new Vector();
 	private Vector mValue = new Vector();
 
@@ -70,7 +70,7 @@ public class Response {
 		}
 		if (mContents != null) {
 			String resultStr = new String(mContents);
-			StringTokenizer st = new StringTokenizer(resultStr, 
+			StringTokenizer st = new StringTokenizer(resultStr,
 				"&");
 			while (st.hasMoreTokens()) {
 				String p = st.nextToken();
@@ -86,12 +86,12 @@ public class Response {
 		}
 	}
 
-	public int getReturnCode() { 
-		return mRetcode; 
+	public int getReturnCode() {
+		return mRetcode;
 	}
 
-	public String getErrorMessage() { 
-		return mErrorMsg; 
+	public String getErrorMessage() {
+		return mErrorMsg;
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class Response {
 	    try {
 		    value =  (String) mValue.elementAt(i);
 		} catch (ArrayIndexOutOfBoundsException e) {
-		    value = "";    
+		    value = "";
 		}
 		return value;
 	}

@@ -21,7 +21,7 @@ import java.util.Comparator;
 
 /**
  * Compare two byte arrays in lexicographical order.
- * 
+ *
  * @version 1.4 97/12/10
  * @author D. N. Hoover
  */
@@ -33,12 +33,12 @@ public class ByteArrayLexOrder implements Comparator<byte[]> {
      * in order until they differ--the array with the smaller entry
      * is "smaller". If array entries are
      * equal till one array ends, then the longer array is "bigger".
-     * 
+     *
      * @param obj1 first byte array to compare.
      * @param obj2 second byte array to compare.
      * @return negative number if obj1 < obj2, 0 if obj1 == obj2,
      *         positive number if obj1 > obj2.
-     * 
+     *
      * @exception <code>ClassCastException</code> if either argument is not a byte array.
      */
     public final int compare(byte[] bytes1, byte[] bytes2) {

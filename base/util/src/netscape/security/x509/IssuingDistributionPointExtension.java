@@ -35,7 +35,7 @@ import org.mozilla.jss.asn1.ASN1Util;
 /**
  * A critical CRL extension that identifies the CRL distribution point
  * for a particular CRL
- * 
+ *
  * <pre>
  * issuingDistributionPoint ::= SEQUENCE {
  *         distributionPoint       [0] DistributionPointName OPTIONAL,
@@ -43,11 +43,11 @@ import org.mozilla.jss.asn1.ASN1Util;
  *         onlyContainsCACerts     [2] BOOLEAN DEFAULT FALSE,
  *         onlySomeReasons         [3] ReasonFlags OPTIONAL,
  *         indirectCRL             [4] BOOLEAN DEFAULT FALSE }
- * 
+ *
  * DistributionPointName ::= CHOICE {
  *         fullName                [0]     GeneralNames,
  *         nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
- * 
+ *
  * ReasonFlags ::= BIT STRING {
  *         unused                  (0),
  *         keyCompromise           (1),
@@ -56,9 +56,9 @@ import org.mozilla.jss.asn1.ASN1Util;
  *         superseded              (4),
  *         cessationOfOperation    (5),
  *         certificateHold         (6) }
- * 
+ *
  * GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
- * 
+ *
  * GeneralName ::= CHOICE {
  *         otherName                       [0]     OtherName,
  *         rfc822Name                      [1]     IA5String,
@@ -69,24 +69,24 @@ import org.mozilla.jss.asn1.ASN1Util;
  *         uniformResourceIdentifier       [6]     IA5String,
  *         iPAddress                       [7]     OCTET STRING,
  *         registeredID                    [8]     OBJECT IDENTIFIER}
- * 
+ *
  * OtherName ::= SEQUENCE {
  *         type-id    OBJECT IDENTIFIER,
  *         value      [0] EXPLICIT ANY DEFINED BY type-id }
- * 
+ *
  * EDIPartyName ::= SEQUENCE {
  *         nameAssigner            [0]     DirectoryString OPTIONAL,
  *         partyName               [1]     DirectoryString }
- * 
+ *
  * RelativeDistinguishedName ::=
  *         SET OF AttributeTypeAndValue
- * 
+ *
  * AttributeTypeAndValue ::= SEQUENCE {
  *         type     AttributeType,
  *         value    AttributeValue }
- * 
+ *
  * AttributeType ::= OBJECT IDENTIFIER
- * 
+ *
  * AttributeValue ::= ANY DEFINED BY AttributeType
  * </pre>
  */

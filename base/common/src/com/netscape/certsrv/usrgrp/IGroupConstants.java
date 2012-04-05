@@ -19,7 +19,7 @@ package com.netscape.certsrv.usrgrp;
 
 /**
  * This interface defines the attribute names for a group entry
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IGroupConstants {

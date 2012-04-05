@@ -48,7 +48,7 @@ class WMNNewAgent extends WizardBasePanel
     private NewAgentModel mDataModel;
     private JTable mTable;
     protected JScrollPane mScrollPane;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
       "configuration-kra-wizard-newagentpwd-keyscheme-help";
 
     /*==========================================================

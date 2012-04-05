@@ -33,7 +33,7 @@ public class CertificateChain implements Serializable {
 
     /**
      * constructs a certificate chain from a certificate.
-     * 
+     *
      * @param cert a certificate
      */
     public CertificateChain(X509Certificate cert) {
@@ -43,7 +43,7 @@ public class CertificateChain implements Serializable {
 
     /**
      * constructs a certificate chain from a X509 certificate array.
-     * 
+     *
      * @param chain a certificate array.
      */
     public CertificateChain(X509Certificate[] chain) {
@@ -52,7 +52,7 @@ public class CertificateChain implements Serializable {
 
     /**
      * returns the certificate at specified index in chain.
-     * 
+     *
      * @param index the index.
      * @return the X509 certificate at the given index.
      */
@@ -62,7 +62,7 @@ public class CertificateChain implements Serializable {
 
     /**
      * returns the first certificate in chain.
-     * 
+     *
      * @return the X509 certificate at the given index.
      */
     public X509Certificate getFirstCertificate() {
@@ -71,7 +71,7 @@ public class CertificateChain implements Serializable {
 
     /**
      * returns the certificate chain as an array of X509 certificates.
-     * 
+     *
      * @return an array of X509 Certificates.
      */
     public X509Certificate[] getChain() {

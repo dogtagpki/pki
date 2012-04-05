@@ -26,7 +26,7 @@ import com.netscape.certsrv.dbs.IElementProcessor;
  * This class helps test avoid the problem of test stubs having to
  * implement a new stub method every time the interface changes.
  * It also makes the tests clearer by not cluttered them with empty methods.
- * 
+ *
  * Do not put any behaviour in this class.
  */
 public class DBVirtualListDefaultStub<T> implements IDBVirtualList<T> {

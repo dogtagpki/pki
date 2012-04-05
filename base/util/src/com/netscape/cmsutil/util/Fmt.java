@@ -595,7 +595,7 @@ public class Fmt {
      * show( Fmt.fmt( 1.0D / 8.0D ) );
      * System.out.println( "Done with tests." );
      * }
-     * 
+     *
      * private static void show( String str )
      * {
      * System.out.println( "#" + str + "#" );

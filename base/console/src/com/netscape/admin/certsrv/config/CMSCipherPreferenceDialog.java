@@ -24,7 +24,7 @@ import java.awt.*;
 
 /**
  * Allows user to select the SSL cipher preferences.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
@@ -41,17 +41,17 @@ public class CMSCipherPreferenceDialog extends AbstractDialog {
     private static final ResourceSet mHelpResource =
       new ResourceSet("com.netscape.admin.certsrv.certsrv-help");
     Help help;
-    
+
     public CMSCipherPreferenceDialog(JFrame parent, boolean isDomestic) {
         this(parent, isDomestic, false);
     }
 
-    public CMSCipherPreferenceDialog(JFrame parent, boolean isDomestic, 
+    public CMSCipherPreferenceDialog(JFrame parent, boolean isDomestic,
       boolean hasFortezza) {
         this(parent, isDomestic, hasFortezza, SSL2|SSL3);
     }
 
-    public CMSCipherPreferenceDialog(JFrame parent, boolean isDomestic, 
+    public CMSCipherPreferenceDialog(JFrame parent, boolean isDomestic,
       boolean hasFortezza, int SSLVersion) {
 
         super(parent, "", true, OK | CANCEL | HELP);
@@ -103,10 +103,10 @@ public class CMSCipherPreferenceDialog extends AbstractDialog {
         switch(sslVersion) {
             case SSL2:
                 cipher = ssl2CipherPref.getCipherList();
-            break; 
+            break;
             case SSL3:
                 cipher = ssl3CipherPref.getCipherList();
-            break; 
+            break;
             default:
             break;
         }

@@ -35,19 +35,19 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the Private Key Usage Extension.
- * 
+ *
  * <p>
  * The Private Key Usage Period extension allows the certificate issuer to specify a different validity period for the
  * private key than the certificate. This extension is intended for use with digital signature keys. This extension
  * consists of two optional components notBefore and notAfter. The private key associated with the certificate should
  * not be used to sign objects before or after the times specified by the two components, respectively.
- * 
+ *
  * <pre>
  * PrivateKeyUsagePeriod ::= SEQUENCE {
  *     notBefore  [0]  GeneralizedTime OPTIONAL,
  *     notAfter   [1]  GeneralizedTime OPTIONAL }
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.12
@@ -102,7 +102,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * The default constructor for PrivateKeyUsageExtension.
-     * 
+     *
      * @param notBefore the date/time before which the private key
      *            should not be used.
      * @param notAfter the date/time after which the private key
@@ -120,10 +120,10 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
-     * 
+     *
      * @exception CertificateException on certificate parsing errors.
      * @exception IOException on error.
      */
@@ -143,9 +143,9 @@ public class PrivateKeyUsageExtension extends Extension
         DerInputStream str = new DerInputStream(extValue);
         DerValue[] seq = str.getSequence(2);
 
-        // NB. this is always encoded with the IMPLICIT tag 
-        // The checks only make sense if we assume implicit tagging, 
-        // with explicit tagging the form is always constructed. 
+        // NB. this is always encoded with the IMPLICIT tag
+        // The checks only make sense if we assume implicit tagging,
+        // with explicit tagging the form is always constructed.
         for (int i = 0; i < seq.length; i++) {
             DerValue opt = seq[i];
 
@@ -201,7 +201,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Verify that that the current time is within the validity period.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired.
      * @exception CertificateNotYetValidException if the certificate is not
      *                yet valid.
@@ -214,12 +214,12 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Verify that that the passed time is within the validity period.
-     * 
+     *
      * @exception CertificateExpiredException if the certificate has expired
      *                with respect to the <code>Date</code> supplied.
      * @exception CertificateNotYetValidException if the certificate is not
      *                yet valid with respect to the <code>Date</code> supplied.
-     * 
+     *
      */
     public void valid(Date now)
             throws CertificateNotYetValidException, CertificateExpiredException {
@@ -240,7 +240,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -257,7 +257,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception CertificateException on decoding errors.
      */
@@ -267,7 +267,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Set the attribute value.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      */
     public void set(String name, Object obj)
@@ -288,7 +288,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Get the attribute value.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      */
     public Object get(String name) throws CertificateException {
@@ -304,7 +304,7 @@ public class PrivateKeyUsageExtension extends Extension
 
     /**
      * Delete the attribute value.
-     * 
+     *
      * @exception CertificateException on attribute handling errors.
      */
     public void delete(String name) throws CertificateException {

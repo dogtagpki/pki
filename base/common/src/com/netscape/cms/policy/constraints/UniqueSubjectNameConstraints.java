@@ -47,22 +47,22 @@ import com.netscape.cms.policy.APolicyRule;
  * Checks the uniqueness of the subject name. This policy
  * can only be used (installed) in Certificate Authority
  * subsystem.
- * 
+ *
  * This policy can perform pre-agent-approval checking or
  * post-agent-approval checking based on configuration
  * setting.
- * 
+ *
  * In some situations, user may want to have 2 certificates with
  * the same subject name. For example, one key for encryption,
  * and one for signing. This policy does not deal with this case
  * directly. But it can be easily extended to do that.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -103,13 +103,13 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.implName=UniqueSubjectName ca.Policy.rule.<ruleName>.enable=true
      * ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enablePreAgentApprovalChecking=true
      * ca.Policy.rule.<ruleName>.enableKeyUsageExtensionChecking=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -146,7 +146,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -195,15 +195,15 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                     if (status.equals(ICertRecord.STATUS_REVOKED)
                             || status.equals(ICertRecord.STATUS_EXPIRED)
                             || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-                        // accept this only if we have a REVOKED, 
+                        // accept this only if we have a REVOKED,
                         // EXPIRED or REVOKED_EXPIRED certificate
                         continue;
 
                     }
                     // you already have an VALID or INVALID (not yet valid) certificate
                     if (mKeyUsageExtensionChecking && agentApproved(req)) {
-                        // This request is agent approved which 
-                        // means all requested extensions are finalized 
+                        // This request is agent approved which
+                        // means all requested extensions are finalized
                         // to the request,
                         // We will accept duplicated subject name with
                         // different keyUsage extension if
@@ -285,7 +285,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -300,7 +300,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

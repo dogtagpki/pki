@@ -45,7 +45,7 @@ public class LongHolder implements java.io.Serializable {
     /**
      * Constructs a new <code>LongHolder</code> with a
      * specific initial value.
-     * 
+     *
      * @param l Initial long value.
      */
     public LongHolder(long l) {

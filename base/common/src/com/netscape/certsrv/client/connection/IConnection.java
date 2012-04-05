@@ -22,7 +22,7 @@ import java.net.SocketException;
 
 /**
  * Interface for all connection objects.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IConnection {

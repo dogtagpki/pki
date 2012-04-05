@@ -39,7 +39,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * TODO: review this It provides: + registration of LDAP/JAVA mapping classes with the DBSubsystem + creation of
  * RequestQueue storage in the database + retrieval of existing RequestQueue objects from the database
  * <p>
- * 
+ *
  * @author thayes
  * @version $Revision$, $Date$
  */
@@ -91,7 +91,7 @@ public class RequestSubsystem
         RequestQueue rq = new RequestQueue(name, increment, p, s, n, pendingNotifier);
 
         // can't do this here because the service depends on getting rq
-        // (to get request) and since this method hasn't returned it's rq is null. 
+        // (to get request) and since this method hasn't returned it's rq is null.
         //rq.recover();
 
         return rq;
@@ -105,7 +105,7 @@ public class RequestSubsystem
     /**
      * Implements ISubsystem.getId
      * <p>
-     * 
+     *
      * @see ISubsystem#getId
      */
     public String getId() {
@@ -127,7 +127,7 @@ public class RequestSubsystem
     /**
      * Implements ISubsystem.startup
      * <p>
-     * 
+     *
      * @see ISubsystem#startup
      */
     public void startup()

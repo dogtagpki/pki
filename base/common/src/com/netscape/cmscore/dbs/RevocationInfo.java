@@ -30,7 +30,7 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
  * object is written as an attribute of certificate record
  * which essentially signifies a revocation act.
  * <P>
- * 
+ *
  * @author galperin
  * @version $Revision$, $Date$
  */
@@ -52,7 +52,7 @@ public class RevocationInfo implements IRevocationInfo, Serializable {
     /**
      * Constructs revocation info used by revocation
      * request implementation.
-     * 
+     *
      * @param reason if not null contains CRL entry extension
      *            that specifies revocation reason
      * @see CRLReasonExtension

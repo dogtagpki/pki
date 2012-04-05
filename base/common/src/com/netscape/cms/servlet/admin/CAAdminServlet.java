@@ -48,7 +48,7 @@ import com.netscape.cmsutil.util.Utils;
  * Authority. This servlet is responsible to serve CA
  * administrative operations such as configuration parameter
  * updates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CAAdminServlet extends AdminServlet {
@@ -514,12 +514,12 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Add CRL issuing points configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions,
      * frequency, CRL format)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -670,12 +670,12 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Set CRL issuing points configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions,
      * frequency, CRL format)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -831,12 +831,12 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Delete CRL issuing points configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions,
      * frequency, CRL format)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -974,12 +974,12 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Delete CRL extensions configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions,
      * frequency, CRL format)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1193,12 +1193,12 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Set CRL configuration
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions,
      * frequency, CRL format)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1472,11 +1472,11 @@ public class CAAdminServlet extends AdminServlet {
         String value = "false";
 
         /*
-         ISubsystem eeGateway = 
+         ISubsystem eeGateway =
          SubsystemRegistry.getInstance().get("eeGateway");
          if (eeGateway != null) {
          IConfigStore eeConfig = eeGateway.getConfigStore();
-         if (eeConfig != null) 
+         if (eeConfig != null)
          value = eeConfig.getString("enabled", "true");
          String ocspValue = "true";
          ocspValue = eeConfig.getString("enableOCSP", "true");
@@ -1529,7 +1529,7 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         /*
-         ISubsystem eeGateway = 
+         ISubsystem eeGateway =
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 
@@ -1547,7 +1547,7 @@ public class CAAdminServlet extends AdminServlet {
                 /*
                  if (eeConfig != null) {
                  if (((EEGateway)eeGateway).isEnabled() &&
-                 value.equals("false") || 
+                 value.equals("false") ||
                  !((EEGateway)eeGateway).isEnabled() &&
                  value.equals("true")) {
                  restart=true;;

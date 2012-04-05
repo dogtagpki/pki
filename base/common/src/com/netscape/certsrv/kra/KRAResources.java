@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for KRA subsystem.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class KRAResources extends ListResourceBundle {

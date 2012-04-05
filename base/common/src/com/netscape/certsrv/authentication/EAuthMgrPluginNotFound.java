@@ -29,7 +29,7 @@ public class EAuthMgrPluginNotFound extends EAuthException {
 
     /**
      * Constructs a exception for a missing authentication manager plugin
-     * 
+     *
      * @param errorString error for a missing authentication manager plugin
      */
     public EAuthMgrPluginNotFound(String errorString) {

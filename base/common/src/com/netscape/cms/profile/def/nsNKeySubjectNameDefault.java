@@ -45,7 +45,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates server-side configurable subject name
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class nsNKeySubjectNameDefault extends EnrollDefault {

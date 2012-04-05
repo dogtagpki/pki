@@ -92,7 +92,7 @@ import com.netscape.cmscore.util.Debug;
  * parameter minUpdateInterval can be used to prevent CRL
  * from being updated too often
  * <P>
- * 
+ *
  * @author awnuk
  * @author lhsiao
  * @author galperin
@@ -415,7 +415,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Initializes a CRL issuing point config.
      * <P>
-     * 
+     *
      * @param ca reference to CertificateAuthority instance which
      *            owns this issuing point.
      * @param id string id of this CRL issuing point.
@@ -697,10 +697,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mAutoUpdateInterval < mMinUpdateInterval)
             mAutoUpdateInterval = mMinUpdateInterval;
 
-        // get next update grace period 
+        // get next update grace period
         mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
 
-        // Get V2 or V1 CRL 
+        // Get V2 or V1 CRL
         mAllowExtensions = config.getBoolean(Constants.PR_EXTENSIONS, false);
 
         mIncludeExpiredCerts = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS, false);
@@ -718,13 +718,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         String algorithm = config.getString(Constants.PR_SIGNING_ALGORITHM, null);
 
         if (algorithm != null) {
-            // make sure this algorithm is acceptable to CA. 
+            // make sure this algorithm is acceptable to CA.
             mCA.getCRLSigningUnit().checkSigningAlgorithmFromName(algorithm);
             mSigningAlgorithm = algorithm;
         }
 
         mPublishOnStart = config.getBoolean(PROP_PUBLISH_ON_START, false);
-        // if publish dn is null then certificate will be published to 
+        // if publish dn is null then certificate will be published to
         // CA's entry in the directory.
         mPublishDN = config.getString(PROP_PUBLISH_DN, null);
 
@@ -771,7 +771,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             return;
         } catch (EBaseException e) {
             // CRL was never set.
-            // fall to the following.. 
+            // fall to the following..
         }
 
         if (crlRecord != null) {
@@ -892,7 +892,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         if (crlRecord == null) {
-            // no crl was ever created, or crl in db is corrupted. 
+            // no crl was ever created, or crl in db is corrupted.
             // create new one.
             try {
                 crlRecord = new CRLIssuingPointRecord(mId, BigInteger.ZERO, Long.valueOf(-1),
@@ -1248,7 +1248,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns internal id of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return internal id of this CRL issuing point
      */
     public String getId() {
@@ -1258,7 +1258,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns internal description of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return internal description of this CRL issuing point
      */
     public String getDescription() {
@@ -1267,7 +1267,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Sets internal description of this CRL issuing point.
-     * 
+     *
      * @param description description for this CRL issuing point.
      */
     public void setDescription(String description) {
@@ -1278,7 +1278,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Returns DN of the directory entry where CRLs.from this issuing point
      * are published.
      * <P>
-     * 
+     *
      * @return DN of the directory entry where CRLs are published.
      */
     public String getPublishDN() {
@@ -1288,7 +1288,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns signing algorithm.
      * <P>
-     * 
+     *
      * @return SigningAlgorithm.
      */
     public String getSigningAlgorithm() {
@@ -1302,7 +1302,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current CRL generation schema for this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current CRL generation schema for this CRL issuing point
      */
     public int getCRLSchema() {
@@ -1312,7 +1312,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current CRL number of this CRL issuing point
      */
     public BigInteger getCRLNumber() {
@@ -1322,7 +1322,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current delta CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current delta CRL number of this CRL issuing point
      */
     public BigInteger getDeltaCRLNumber() {
@@ -1332,7 +1332,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns next CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return next CRL number of this CRL issuing point
      */
     public BigInteger getNextCRLNumber() {
@@ -1342,7 +1342,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns number of entries in the CRL
      * <P>
-     * 
+     *
      * @return number of entries in the CRL
      */
     public long getCRLSize() {
@@ -1352,7 +1352,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns number of entries in delta CRL
      * <P>
-     * 
+     *
      * @return number of entries in delta CRL
      */
     public long getDeltaCRLSize() {
@@ -1362,7 +1362,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns last update time
      * <P>
-     * 
+     *
      * @return last CRL update time
      */
     public Date getLastUpdate() {
@@ -1372,7 +1372,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns next update time
      * <P>
-     * 
+     *
      * @return next CRL update time
      */
     public Date getNextUpdate() {
@@ -1382,7 +1382,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns next update time
      * <P>
-     * 
+     *
      * @return next CRL update time
      */
     public Date getNextDeltaUpdate() {
@@ -1392,7 +1392,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns all the revoked certificates from the CRL cache.
      * <P>
-     * 
+     *
      * @return set of all the revoked certificates or null if there are none.
      */
     public Set<RevokedCertificate> getRevokedCertificates(int start, int end) {
@@ -1407,7 +1407,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns certificate authority.
      * <P>
-     * 
+     *
      * @return certificate authority
      */
     public ISubsystem getCertificateAuthority() {
@@ -1488,7 +1488,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Finds next update time expressed as delay or time of the next update.
-     * 
+     *
      * @param fromLastUpdate if true, function returns delay to the next update time
      *            otherwise returns the next update time.
      * @param delta if true, function returns the next update time for delta CRL,
@@ -1756,7 +1756,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             Debug.printStackTrace(e);
                         }
                     }
-                    // put this here to prevent continuous loop if internal 
+                    // put this here to prevent continuous loop if internal
                     // db is down.
                     if (mDoLastAutoUpdate)
                         mDoLastAutoUpdate = false;
@@ -1784,8 +1784,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private void updateCRL() throws EBaseException {
         /*
-        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 && 
-            (System.currentTimeMillis() - mLastUpdate.getTime() < 
+        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
+            (System.currentTimeMillis() - mLastUpdate.getTime() <
                 mMinUpdateInterval)) {
             // log or alternatively throw an Exception
             return;
@@ -1852,7 +1852,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * This does not include expired certs.
      * <i>Override this method to make a CRL other than the
      * full/complete CRL.</i>
-     * 
+     *
      * @return Enumeration of CertRecords to put into CRL.
      * @exception EBaseException if an error occured in the database.
      */
@@ -2793,8 +2793,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /*
      *  The Session Context is a Hashtable, but without type information.
-     *  Suppress the warnings generated by adding to the session context   
-     *   
+     *  Suppress the warnings generated by adding to the session context
+     *
      */
     protected void publishCRL(X509CRLImpl x509crl, boolean isDeltaCRL)
             throws EBaseException {

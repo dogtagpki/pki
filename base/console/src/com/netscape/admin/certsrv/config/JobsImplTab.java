@@ -43,19 +43,19 @@ public class JobsImplTab extends CMSBaseUGTab {
     private static final String IMPL_NAME = JobsImplDataModel.IMPL_NAME;
     private static final String IMPL_CLASS = JobsImplDataModel.IMPL_CLASS;
     private static final String IMPL_DESC = JobsImplDataModel.IMPL_DESC;
-    
+
     private static final String PANEL_NAME = "JOBSIMPL";
     private static final String DIALOG_PREFIX = "JOBSREGISTERDIALOG";
-  
+
     private AdminConnection mConnection;
     private String mDestination;
-    
+
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
     protected JobsImplDataModel mDataModel;   //table model
     protected JobsRegisterDialog mEditor=null;      //keep single copy
     protected ViewDialog mViewer=null;      //keep single copy
-    
+
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String HELPINDEX = "jobsscheduler-certsrv-jobplugin-help";
 
@@ -106,13 +106,13 @@ public class JobsImplTab extends CMSBaseUGTab {
             if(mTable.getSelectedRow()< 0)
                 return;
             NameValuePairs obj = (NameValuePairs)
-                    mDataModel.getObjectValueAt(mTable.getSelectedRow());    
+                    mDataModel.getObjectValueAt(mTable.getSelectedRow());
             if (mViewer==null)
                 mViewer = new ViewDialog(mModel.getFrame());
             mViewer.showDialog(obj.get(IMPL_NAME),
                                obj.get(IMPL_CLASS),
                                obj.get(IMPL_DESC));
-        }        
+        }
         if (e.getSource().equals(mHelp)) {
             helpCallback();
         }
@@ -124,7 +124,7 @@ public class JobsImplTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================
@@ -133,8 +133,8 @@ public class JobsImplTab extends CMSBaseUGTab {
     public void refresh() {
 
         mDataModel.removeAllRows();
-        update();       
-        
+        update();
+
         setButtons();
         mTable.invalidate();
         mTable.validate();
@@ -218,7 +218,7 @@ public class JobsImplTab extends CMSBaseUGTab {
 
     //set buttons
     private void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
         //Debug.println("setButtons() - "+mTable.getSelectionModel().isSelectionEmpty());
@@ -227,24 +227,24 @@ public class JobsImplTab extends CMSBaseUGTab {
             mView.setEnabled(false);
             return;
         }
-        
+
         if(mDataModel.getRowCount()<=0) {
             mDelete.setEnabled(false);
             mView.setEnabled(false);
             return;
         }
-        
+
         mDelete.setEnabled(true);
-        mView.setEnabled(true);        
-        
+        mView.setEnabled(true);
+
     }
-    
+
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
     private void update() {
         //send request and parse data
-        
+
         mModel.progressStart();
         NameValuePairs response;
         try {
@@ -283,18 +283,18 @@ public class JobsImplTab extends CMSBaseUGTab {
 			}
             data.put(entry,obj);
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
             mDataModel.processData(data.get(vals[y]));
         }
-        
+
         data.clear();
-        
+
         if (mDataModel.getRowCount() >0)
             mTable.setRowSelectionInterval(0,0);
-            
+
         mModel.progressStop();
     }
 

@@ -23,7 +23,7 @@ import netscape.security.x509.X509CertImpl;
 
 /**
  * class storing verified certificates.
- * 
+ *
  * @version $Revision$, $Date$
  */
 

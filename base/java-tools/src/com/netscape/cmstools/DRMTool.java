@@ -70,29 +70,29 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * The DRMTool class is a utility program designed to operate on an LDIF file
  * to perform one or more of the following tasks:
- * 
+ *
  * <PRE>
  *     (A) Use a new storage key (e. g. - a 2048-bit key to replace a
  *         1024-bit key) to rewrap the existing triple DES symmetric key
  *         that was used to wrap a user's private key.
- * 
+ *
  *         STARTING INVENTORY:
- * 
+ *
  *             (1) a DRMTOOL configuration file containing DRM LDIF record
  *                 types and the processing status of their associated fields
- * 
+ *
  *             (2) an LDIF file containing 'exported' DRM data
  *                 (referred to as the "source" DRM)
- * 
+ *
  *                 NOTE:  If this LDIF file contains data that was originally
  *                        from a DRM instance that was prior to RHCS 8, it
  *                        must have previously undergone the appropriate
  *                        migration steps.
- * 
+ *
  *             (3) the NSS security databases (e. g. - cert8.db, key3.db,
  *                 and secmod.db) associated with the data contained in
  *                 the source LDIF file
- * 
+ *
  *                 NOTE:  If the storage key was located on an HSM, then the
  *                        HSM must be available to the machine on which the
  *                        DRMTool is being executed (since the RSA private
@@ -101,302 +101,302 @@ import com.netscape.cmsutil.util.Utils;
  *                        password may be required to unlock access to
  *                        this key (e. g. - which may be located in
  *                        the source DRM's 'password.conf' file).
- * 
+ *
  *             (4) a file containing the ASCII BASE-64 storage certificate
  *                 from the DRM instance for which the output LDIF file is
  *                 intended (referred to as the "target")
- * 
+ *
  *         ENDING INVENTORY:
- * 
+ *
  *             (1) all items listed in the STARTING INVENTORY (unchanged)
- * 
+ *
  *             (2) a log file containing information suitable for audit
  *                 purposes
- * 
+ *
  *             (3) an LDIF file containing the revised data suitable for
  *                 'import' into a new DRM (referred to as the "target" DRM)
- * 
+ *
  *         DRMTool PARAMETERS:
- * 
+ *
  *             (1) the name of the DRMTOOL configuration file containing
  *                 DRM LDIF record types and the processing status of their
  *                 associated fields
- * 
+ *
  *             (2) the name of the input LDIF file containing data which was
  *                 'exported' from the source DRM instance
- * 
+ *
  *             (3) the name of the output LDIF file intended to contain the
  *                 revised data suitable for 'import' to a target DRM instance
- * 
+ *
  *             (4) the name of the log file that may be used for auditing
  *                 purposes
- * 
+ *
  *             (5) the path to the security databases that were used by
  *                 the source DRM instance
- * 
+ *
  *             (6) the name of the token that was used by
  *                 the source DRM instance
- * 
+ *
  *             (7) the name of the storage certificate that was used by
  *                 the source DRM instance
- * 
+ *
  *             (8) the name of the file containing the ASCII BASE-64 storage
  *                 certificate from the target DRM instance for which the
  *                 output LDIF file is intended
- * 
+ *
  *             (9) OPTIONALLY, the name of a file which ONLY contains the
  *                 password needed to access the source DRM instance's
  *                 security databases
- * 
+ *
  *            (10) OPTIONALLY, choose to change the specified source DRM naming
  *                 context to the specified target DRM naming context
- * 
+ *
  *            (11) OPTIONALLY, choose to ONLY process CA enrollment requests,
  *                 CA recovery requests, CA key records, TPS netkeyKeygen
  *                 enrollment requests, TPS recovery requests, and
  *                 TPS key records
- * 
+ *
  *         DATA FIELDS AFFECTED (using default config file values):
- * 
+ *
  *             (1) CA DRM enrollment request
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) extdata-requestnotes
- * 
+ *
  *             (2) CA DRM key record
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) privateKeyData
- * 
+ *
  *             (3) CA DRM recovery request
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) extdata-requestnotes (NEW)
- * 
+ *
  *             (4) TPS DRM netkeyKeygen (enrollment) request
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) extdata-requestnotes (NEW)
- * 
+ *
  *             (5) TPS DRM key record
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) privateKeyData
- * 
+ *
  *             (6) TPS DRM recovery request
- * 
+ *
  *                 (a) dateOfModify
  *                 (b) extdata-requestnotes (NEW)
- * 
+ *
  *     (B) Specify an ID offset to append to existing numeric data
  *         (e. g. - to renumber data for use in DRM consolidation efforts).
- * 
+ *
  *         STARTING INVENTORY:
- * 
+ *
  *             (1) a DRMTOOL configuration file containing DRM LDIF record
  *                 types and the processing status of their associated fields
- * 
+ *
  *             (2) an LDIF file containing 'exported' DRM data
  *                 (referred to as the "source" DRM)
- * 
+ *
  *                 NOTE:  If this LDIF file contains data that was originally
  *                        from a DRM instance that was prior to RHCS 8, it
  *                        must have previously undergone the appropriate
  *                        migration steps.
- * 
+ *
  *         ENDING INVENTORY:
- * 
+ *
  *             (1) all items listed in the STARTING INVENTORY (unchanged)
- * 
+ *
  *             (2) a log file containing information suitable for audit
  *                 purposes
- * 
+ *
  *             (3) an LDIF file containing the revised data suitable for
  *                 'import' into a new DRM (referred to as the "target" DRM)
- * 
+ *
  *         DRMTool PARAMETERS:
- * 
+ *
  *             (1) the name of the DRMTOOL configuration file containing
  *                 DRM LDIF record types and the processing status of their
  *                 associated fields
- * 
+ *
  *             (2) the name of the input LDIF file containing data which was
  *                 'exported' from the source DRM instance
- * 
+ *
  *             (3) the name of the output LDIF file intended to contain the
  *                 revised data suitable for 'import' to a target DRM instance
- * 
+ *
  *             (4) the name of the log file that may be used for auditing
  *                 purposes
- * 
+ *
  *             (5) a large numeric ID offset (mask) to be appended to existing
  *                 numeric data in the source DRM instance's LDIF file
- * 
+ *
  *             (6) OPTIONALLY, choose to change the specified source DRM naming
  *                 context to the specified target DRM naming context
- * 
+ *
  *             (7) OPTIONALLY, choose to ONLY process CA enrollment requests,
  *                 CA recovery requests, CA key records, TPS netkeyKeygen
  *                 enrollment requests, TPS recovery requests, and
  *                 TPS key records
- * 
+ *
  *         DATA FIELDS AFFECTED (using default config file values):
- * 
+ *
  *             (1) CA DRM enrollment request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-keyrecord
  *                 (d) extdata-requestnotes
  *                 (e) requestId
- * 
+ *
  *             (2) CA DRM key record
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) serialno
- * 
+ *
  *             (3) CA DRM recovery request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-requestid
  *                 (d) extdata-requestnotes (NEW)
  *                 (e) extdata-serialnumber
  *                 (f) requestId
- * 
+ *
  *             (4) TPS DRM netkeyKeygen (enrollment) request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-keyrecord
  *                 (d) extdata-requestid
  *                 (e) extdata-requestnotes (NEW)
  *                 (f) requestId
- * 
+ *
  *             (5) TPS DRM key record
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) serialno
- * 
+ *
  *             (6) TPS DRM recovery request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-requestid
  *                 (d) extdata-requestnotes (NEW)
  *                 (e) extdata-serialnumber
  *                 (f) requestId
- * 
+ *
  *     (C) Specify an ID offset to be removed from existing numeric data
  *         (e. g. - to undo renumbering used in DRM consolidation efforts).
- * 
+ *
  *         STARTING INVENTORY:
- * 
+ *
  *             (1) a DRMTOOL configuration file containing DRM LDIF record
  *                 types and the processing status of their associated fields
- * 
+ *
  *             (2) an LDIF file containing 'exported' DRM data
  *                 (referred to as the "source" DRM)
- * 
+ *
  *                 NOTE:  If this LDIF file contains data that was originally
  *                        from a DRM instance that was prior to RHCS 8, it
  *                        must have previously undergone the appropriate
  *                        migration steps.
- * 
+ *
  *         ENDING INVENTORY:
- * 
+ *
  *             (1) all items listed in the STARTING INVENTORY (unchanged)
- * 
+ *
  *             (2) a log file containing information suitable for audit
  *                 purposes
- * 
+ *
  *             (3) an LDIF file containing the revised data suitable for
  *                 'import' into a new DRM (referred to as the "target" DRM)
- * 
+ *
  *         DRMTool PARAMETERS:
- * 
+ *
  *             (1) the name of the DRMTOOL configuration file containing
  *                 DRM LDIF record types and the processing status of their
  *                 associated fields
- * 
+ *
  *             (2) the name of the input LDIF file containing data which was
  *                 'exported' from the source DRM instance
- * 
+ *
  *             (3) the name of the output LDIF file intended to contain the
  *                 revised data suitable for 'import' to a target DRM instance
- * 
+ *
  *             (4) the name of the log file that may be used for auditing
  *                 purposes
- * 
+ *
  *             (5) a large numeric ID offset (mask) to be removed from existing
  *                 numeric data in the source DRM instance's LDIF file
- * 
+ *
  *             (6) OPTIONALLY, choose to change the specified source DRM naming
  *                 context to the specified target DRM naming context
- * 
+ *
  *             (7) OPTIONALLY, choose to ONLY process CA enrollment requests,
  *                 CA recovery requests, CA key records, TPS netkeyKeygen
  *                 enrollment requests, TPS recovery requests, and
  *                 TPS key records
- * 
+ *
  *         DATA FIELDS AFFECTED (using default config file values):
- * 
+ *
  *             (1) CA DRM enrollment request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-keyrecord
  *                 (d) extdata-requestnotes
  *                 (e) requestId
- * 
+ *
  *             (2) CA DRM key record
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) serialno
- * 
+ *
  *             (3) CA DRM recovery request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-requestid
  *                 (d) extdata-requestnotes (NEW)
  *                 (e) extdata-serialnumber
  *                 (f) requestId
- * 
+ *
  *             (4) TPS DRM netkeyKeygen (enrollment) request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-keyrecord
  *                 (d) extdata-requestid
  *                 (e) extdata-requestnotes (NEW)
  *                 (f) requestId
- * 
+ *
  *             (5) TPS DRM key record
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) serialno
- * 
+ *
  *             (6) TPS DRM recovery request
- * 
+ *
  *                 (a) cn
  *                 (b) dateOfModify
  *                 (c) extdata-requestid
  *                 (d) extdata-requestnotes (NEW)
  *                 (e) extdata-serialnumber
  *                 (f) requestId
- * 
+ *
  * </PRE>
- * 
+ *
  * <P>
  * DRMTool may be invoked as follows:
- * 
+ *
  * <PRE>
- * 
+ *
  *    DRMTool
  *    -drmtool_config_file &lt;path + drmtool config file&gt;
  *    -source_ldif_file &lt;path + source ldif file&gt;
@@ -412,86 +412,86 @@ import com.netscape.cmsutil.util.Utils;
  *    [-source_drm_naming_context '&lt;original source DRM naming context&gt;']
  *    [-target_drm_naming_context '&lt;renamed target DRM naming context&gt;']
  *    [-process_requests_and_key_records_only]
- * 
+ *
  *    where the following options are 'Mandatory':
- * 
+ *
  *    -drmtool_config_file &lt;path + drmtool config file&gt;
  *    -source_ldif_file &lt;path + source ldif file&gt;
  *    -target_ldif_file &lt;path + target ldif file&gt;
  *    -log_file &lt;path + log file&gt;
- * 
+ *
  *    AND at least ONE of the following are a 'Mandatory' set of options:
- * 
+ *
  *        (a) options for using a new storage key for rewrapping:
- * 
+ *
  *            [-source_pki_security_database_path
  *             &lt;path to PKI source database&gt;]
  *            [-source_storage_token_name '&lt;source token&gt;']
  *            [-source_storage_certificate_nickname '&lt;source nickname&gt;']
  *            [-target_storage_certificate_file
  *             &lt;path to target certificate file&gt;]
- * 
+ *
  *            AND OPTIONALLY, specify the name of a file which ONLY contains
  *            the password needed to access the source DRM instance's
  *            security databases:
- * 
+ *
  *            [-source_pki_security_database_pwdfile
  *             &lt;path to PKI password file&gt;]
- * 
+ *
  *            AND OPTIONALLY, rename source DRM naming context --> target
  *            DRM naming context:
- * 
+ *
  *            [-source_drm_naming_context '&lt;source DRM naming context&gt;']
  *            [-target_drm_naming_context '&lt;target DRM naming context&gt;']
- * 
+ *
  *            AND OPTIONALLY, process requests and key records ONLY:
- * 
+ *
  *            [-process_requests_and_key_records_only]
- * 
+ *
  *        (b) option for appending the specified numeric ID offset
  *            to existing numerical data:
- * 
+ *
  *            [-append_id_offset &lt;numeric offset&gt;]
- * 
+ *
  *            AND OPTIONALLY, rename source DRM naming context --> target
  *            DRM naming context:
- * 
+ *
  *            [-source_drm_naming_context '&lt;source DRM naming context&gt;']
  *            [-target_drm_naming_context '&lt;target DRM naming context&gt;']
- * 
+ *
  *            AND OPTIONALLY, process requests and key records ONLY:
- * 
+ *
  *            [-process_requests_and_key_records_only]
- * 
+ *
  *        (c) option for removing the specified numeric ID offset
  *            from existing numerical data:
- * 
+ *
  *            AND OPTIONALLY, rename source DRM naming context --> target
  *            DRM naming context:
- * 
+ *
  *            [-source_drm_naming_context '&lt;source DRM naming context&gt;']
  *            [-target_drm_naming_context '&lt;target DRM naming context&gt;']
- * 
+ *
  *            [-remove_id_offset &lt;numeric offset&gt;]
- * 
+ *
  *            AND OPTIONALLY, process requests and key records ONLY:
- * 
+ *
  *            [-process_requests_and_key_records_only]
- * 
+ *
  *        (d) (a) rewrap AND (b) append ID offset
  *            [AND OPTIONALLY, rename source DRM naming context --> target
  *            DRM naming context]
  *            [AND OPTIONALLY process requests and key records ONLY]
- * 
+ *
  *        (e) (a) rewrap AND (c) remove ID offset
  *            [AND OPTIONALLY, rename source DRM naming context --> target
  *            DRM naming context]
  *            [AND OPTIONALLY process requests and key records ONLY]
- * 
+ *
  *        NOTE:  Options (b) and (c) are mutually exclusive!
- * 
+ *
  * </PRE>
- * 
+ *
  * @author mharmsen
  * @version $Revision$, $Date$
  */
@@ -993,7 +993,7 @@ public class DRMTool {
     /**
      * This method is used to get the current date and time.
      * <P>
-     * 
+     *
      * @param pattern string containing desired format of date and time
      * @return a formatted string containing the current date and time
      */
@@ -1322,7 +1322,7 @@ public class DRMTool {
     /**
      * This method opens a new log file for writing.
      * <P>
-     * 
+     *
      * @param logfile string containing the name of the log file to be opened
      */
     private static void open_log(String logfile) {
@@ -1344,7 +1344,7 @@ public class DRMTool {
     /**
      * This method closes the specified log file.
      * <P>
-     * 
+     *
      * @param logfile string containing the name of the log file to be closed
      */
     private static void close_log(String logfile) {
@@ -1355,7 +1355,7 @@ public class DRMTool {
      * This method writes the specified message to the log file, and also
      * to 'stderr' if the boolean flag is set to 'true'.
      * <P>
-     * 
+     *
      * @param msg string containing the message to be written to the log file
      * @param stderr boolean which also writes the message to 'stderr' if 'true'
      */
@@ -1377,10 +1377,10 @@ public class DRMTool {
 
     /**
      * Helper method to determine if two arrays contain the same values.
-     * 
+     *
      * This method is based upon code from 'com.netscape.kra.StorageKeyUnit'.
      * <P>
-     * 
+     *
      * @param bytes first array of bytes
      * @param ints second array of bytes
      * @return true if the two arrays are identical
@@ -1406,10 +1406,10 @@ public class DRMTool {
     /**
      * This method is used to obtain the private RSA storage key from
      * the "source" DRM instance's security databases.
-     * 
+     *
      * This method is based upon code from 'com.netscape.kra.StorageKeyUnit'.
      * <P>
-     * 
+     *
      * @return the private RSA storage key from the "source" DRM
      */
     private static PrivateKey getPrivateKey() {
@@ -1439,11 +1439,11 @@ public class DRMTool {
      * This method gets the public key from the certificate stored
      * in the "target" DRM storage certificate file. It also obtains
      * the keysize of this RSA key.
-     * 
+     *
      * This method is based upon code from
      * 'com.netscape.cmstools.PrettyPrintCert'.
      * <P>
-     * 
+     *
      * @return the public RSA storage key from the "target" DRM
      */
     private static PublicKey getPublicKey() {
@@ -1567,7 +1567,7 @@ public class DRMTool {
      * the public RSA storage key from the certificate stored in
      * the "target" DRM storage certificate file.
      * <P>
-     * 
+     *
      * @return true if successfully able to obtain both keys
      */
     private static boolean obtain_RSA_rewrapping_keys() {
@@ -1797,16 +1797,16 @@ public class DRMTool {
      * "mStorageUnit.decryptInternalPrivate( byte wrappedKeyData[] )" and
      * "mStorageUnit.encryptInternalPrivate( byte priKey[] )", where
      * "wrappedKeyData" uses the following structure:
-     * 
+     *
      * SEQUENCE {
      * encryptedSession OCTET STRING,
      * encryptedPrivate OCTET STRING
      * }
-     * 
+     *
      * This method is based upon code from
      * 'com.netscape.kra.EncryptionUnit'.
      * <P>
-     * 
+     *
      * @return a byte[] containing the rewrappedKeyData
      */
     private static byte[] rewrap_wrapped_key_data(byte[] wrappedKeyData)
@@ -1969,7 +1969,7 @@ public class DRMTool {
      * Helper method used to remove all EOLs ('\n' and '\r')
      * from the passed in string.
      * <P>
-     * 
+     *
      * @param data consisting of a string containing EOLs
      * @return a string consisting of a string with no EOLs
      */
@@ -1994,7 +1994,7 @@ public class DRMTool {
      * into a string containing formatted data suitable as an entry for
      * an LDIF file.
      * <P>
-     * 
+     *
      * @param length the length of the first line of data
      * @param data a string containing unformatted data
      * @return formatted data consisting of data formatted for an LDIF record
@@ -2040,24 +2040,24 @@ public class DRMTool {
     /**
      * Helper method which converts an "indexed" BigInteger into
      * its String representation.
-     * 
+     *
      * <PRE>
-     * 
+     *
      *     NOTE:  Indexed data means that the numeric data
      *            is stored with a prepended length
      *            (e. g. - record '73' is stored as '0273').
-     * 
+     *
      *            Indexed data is currently limited to '99' digits
      *            (an index of '00' is invalid).  See
      *            'com.netscape.cmscore.dbs.BigIntegerMapper.java'
      *            for details.
-     * 
+     *
      * </PRE>
-     * 
+     *
      * This method is based upon code from
      * 'com.netscape.cmscore.dbs.BigIntegerMapper'.
      * <P>
-     * 
+     *
      * @param i an "indexed " BigInteger
      * @return the string representation of the "indexed" BigInteger
      */
@@ -2076,22 +2076,22 @@ public class DRMTool {
     /**
      * Helper method which converts the string representation of an
      * "indexed" integer into a BigInteger.
-     * 
+     *
      * <PRE>
      *     NOTE:  Indexed data means that the numeric data
      *            is stored with a prepended length
      *            (e. g. - record '73' is stored as '0273').
-     * 
+     *
      *            Indexed data is currently limited to '99' digits
      *            (an index of '00' is invalid).  See
      *            'com.netscape.cmscore.dbs.BigIntegerMapper.java'
      *            for details.
      * </PRE>
-     * 
+     *
      * This method is based upon code from
      * 'com.netscape.cmscore.dbs.BigIntegerMapper'.
      * <P>
-     * 
+     *
      * @param i the string representation of the "indexed" integer
      * @return an "indexed " BigInteger
      */
@@ -2106,9 +2106,9 @@ public class DRMTool {
      * This method accepts an "attribute", its "delimiter", a string
      * representation of numeric data, and a flag indicating whether
      * or not the string representation is "indexed".
-     * 
+     *
      * An "attribute" consists of one of the following values:
-     * 
+     *
      * <PRE>
      *     DRM_LDIF_CN = "cn:";
      *     DRM_LDIF_DN_EMBEDDED_CN_DATA = "dn: cn";
@@ -2117,20 +2117,20 @@ public class DRMTool {
      *     DRM_LDIF_EXTDATA_SERIAL_NUMBER = "extdata-serialnumber:";
      *     DRM_LDIF_REQUEST_ID = "requestId:";
      *     DRM_LDIF_SERIAL_NO = "serialno:";
-     * 
-     * 
+     *
+     *
      *     NOTE:  Indexed data means that the numeric data
      *            is stored with a prepended length
      *            (e. g. - record '73' is stored as '0273').
-     * 
+     *
      *            Indexed data is currently limited to '99' digits
      *            (an index of '00' is invalid).  See
      *            'com.netscape.cmscore.dbs.BigIntegerMapper.java'
      *            for details.
      * </PRE>
-     * 
+     *
      * <P>
-     * 
+     *
      * @param attribute the string representation of the "name"
      * @param delimiter the separator between the attribute and its contents
      * @param source_line the string containing the "name" and "value"
@@ -2269,7 +2269,7 @@ public class DRMTool {
     /**
      * Helper method which composes the output line for DRM_LDIF_CN.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -2344,7 +2344,7 @@ public class DRMTool {
     /**
      * Helper method which composes the output line for DRM_LDIF_DATE_OF_MODIFY.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -2443,7 +2443,7 @@ public class DRMTool {
     /**
      * Helper method which composes the output line for DRM_LDIF_DN.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -2685,7 +2685,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_KEY_RECORD.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -2728,7 +2728,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_REQUEST_ID.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -2776,7 +2776,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_REQUEST_NOTES.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3315,7 +3315,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_REQUEST_NOTES.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param previous_line the string representation of the previous input line
      * @param writer the PrintWriter used to output this new LDIF line
@@ -3629,7 +3629,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_SERIAL_NUMBER.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3663,7 +3663,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_PRIVATE_KEY_DATA.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3849,7 +3849,7 @@ public class DRMTool {
     /**
      * Helper method which composes the output line for DRM_LDIF_REQUEST_ID.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3900,7 +3900,7 @@ public class DRMTool {
     /**
      * Helper method which composes the output line for DRM_LDIF_SERIAL_NO.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3949,7 +3949,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_AUTH_TOKEN_USER.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -3996,7 +3996,7 @@ public class DRMTool {
      * Helper method which composes the output line for
      * DRM_LDIF_EXTDATA_AUTH_TOKEN_USER_DN.
      * <P>
-     * 
+     *
      * @param record_type the string representation of the input record type
      * @param line the string representation of the input line
      * @return the composed output line
@@ -4043,7 +4043,7 @@ public class DRMTool {
      * This method performs the actual parsing of the "source" LDIF file
      * and produces the "target" LDIF file.
      * <P>
-     * 
+     *
      * @return true if the "target" LDIF file is successfully created
      */
     private static boolean convert_source_ldif_to_target_ldif() {
@@ -4305,7 +4305,7 @@ public class DRMTool {
      * This method performs the actual parsing of the DRMTOOL config file
      * and initializes how the DRM Record Fields should be processed.
      * <P>
-     * 
+     *
      * @return true if the DRMTOOL config file is successfully processed
      */
     private static boolean process_drmtool_config_file() {
@@ -4414,7 +4414,7 @@ public class DRMTool {
     /**
      * The main DRMTool method.
      * <P>
-     * 
+     *
      * @param args DRMTool options
      */
     public static void main(String[] args) {

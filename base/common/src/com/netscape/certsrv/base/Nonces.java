@@ -24,7 +24,7 @@ import java.util.Vector;
 /**
  * This class manages nonces sometimes used to control request state flow.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Nonces {

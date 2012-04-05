@@ -49,7 +49,7 @@ public class CMSBaseResourceModel extends ResourceModel {
      *==========================================================*/
 
     private CMSResourcePage mPage;          // physical page representation
-	protected ConsoleInfo mConsoleInfo;     // console info 
+	protected ConsoleInfo mConsoleInfo;     // console info
 	protected CMSServerInfo mServerInfo;    // server info
 	protected IResourceObject[] mSelection; // selected objects
 	protected Vector mSelectionListeners;   // listener list
@@ -85,9 +85,9 @@ public class CMSBaseResourceModel extends ResourceModel {
      * @param page CMSResourcePage instance
      */
     public void setResourcePage(CMSResourcePage page) {
-        mPage = page;    
+        mPage = page;
     }
-    
+
     public CMSResourcePage getResourcePage() {
         return mPage;
     }
@@ -215,24 +215,24 @@ public class CMSBaseResourceModel extends ResourceModel {
      * for setting up the subtrees.
      */
     public void addSubSystemNode(CMSResourceObject node) {
-        ((CMSResourceObject)getRoot()).add(node);    
+        ((CMSResourceObject)getRoot()).add(node);
     }
-    
+
     /**
      * Register the nick name of the resource object, so other sub system
      * can look up and retrieve the corresponding resource object.
      */
     public void registerNickName(String nickName, CMSResourceObject node) {
-        mNickNameRegistry.put(nickName, node);    
+        mNickNameRegistry.put(nickName, node);
     }
-    
+
     /**
      * Retrieve the resource obejct associated with this nickname
      */
     public CMSResourceObject getByNickName(String nickName) {
         return (CMSResourceObject) mNickNameRegistry.get(nickName);
     }
-    
+
 	/**
 	 * Start the zipping status bar
 	 */
@@ -245,12 +245,12 @@ public class CMSBaseResourceModel extends ResourceModel {
      */
     public void progressStop() {
         mPage.progressStop();
-    }	    
-    
+    }
+
     /*==========================================================
 	 * priotected methods
      *==========================================================*/
-    
+
     protected void init() {
         CMSResourceObject root = new CMSResourceObject();
 		root.setName(mResource.getString(CMSAdminResources.CERT_SERVER_NAME)+":" + mServerInfo.getPort());

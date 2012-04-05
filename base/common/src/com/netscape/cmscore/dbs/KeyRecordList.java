@@ -28,7 +28,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 /**
  * A class represents a list of key records.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

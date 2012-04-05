@@ -47,7 +47,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * Configure the CA to respond to OCSP requests for a CA
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class AddCAServlet extends CMSServlet {
@@ -80,7 +80,7 @@ public class AddCAServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "addCA.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -105,7 +105,7 @@ public class AddCAServlet extends CMSServlet {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED used when an add CA request to the OCSP
      * Responder is processed
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)

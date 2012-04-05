@@ -40,10 +40,10 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
     protected InstallWizardInfo mWizardInfo;
     protected JComboBox mSSLNicknameBox;
     private static final String PANELNAME = "CLONETKSKEYCERTWIZARD";
-    private static final String TKSHELPINDEX = 
+    private static final String TKSHELPINDEX =
       "install-tkscertclone-wizard-help";
 
-    
+
     WICloneTKSKeyCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -86,7 +86,7 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
                 mSSLNicknameBox.addItem(s1);
         }
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

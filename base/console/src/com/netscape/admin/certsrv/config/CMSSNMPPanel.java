@@ -52,7 +52,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
     private JLabel mOrgnLabel;
     private JLabel mLocLabel;
     private JLabel mContactLabel;
-    private static final String HELPINDEX = 
+    private static final String HELPINDEX =
      "configuration-system-snmp-help";
 
     public CMSSNMPPanel(CMSTabPanel parent) {
@@ -93,7 +93,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
         mOffB = makeJButton("OFF");
         JButton[] bArray = {mOnB, mOffB};
         JPanel buttonPanel = CMSAdminUtil.makeJButtonPanel(bArray);
-        
+
         GridBagLayout gb1 = new GridBagLayout();
         snmpInfo.setLayout(gb1);
 
@@ -140,7 +140,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
         gbc.gridheight = gbc.REMAINDER;
         gb1.setConstraints(buttonPanel, gbc);
         snmpInfo.add(buttonPanel);
-        
+
         refresh();
     }
 
@@ -208,7 +208,7 @@ public class CMSSNMPPanel extends CMSBaseTab {
                 enableTextField(true, mActiveColor);
             } else {
                 enableTextField(false, getBackground());
-            }   
+            }
         }
     }
 

@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
  * TokenKeyRecoveryServlet
  * handles "key recovery service" requests from the
  * netkey TPS
- * 
+ *
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -63,7 +63,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     /**
      * Constructs TokenKeyRecovery servlet.
-     * 
+     *
      */
     public TokenKeyRecoveryServlet() {
         super();
@@ -83,7 +83,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     /**
      * Returns serlvet information.
-     * 
+     *
      * @return name of this servlet
      */
     public String getServletInfo() {
@@ -92,7 +92,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     * 
+     *
      * @param s The URL to decode
      */
     protected String URLdecode(String s) {
@@ -127,7 +127,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      *                            wrapped with DRM transport key
      *  cert - the user cert corresponding to the key to be recovered
      *
-     * operations: 
+     * operations:
      *  1. unwrap des key with transport key, then url decode it
      *  2. retrieve user private key
      *  3. wrap user priv key with des key
@@ -269,7 +269,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         }
     }
 
-    /* 
+    /*
      *   For TokenKeyRecovery
      *
      *   input:

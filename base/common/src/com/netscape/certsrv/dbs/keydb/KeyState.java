@@ -23,7 +23,7 @@ import java.io.Serializable;
  * A class represents key state. This object is to
  * encapsulate the life cycle of a key.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public final class KeyState implements Serializable {
@@ -50,7 +50,7 @@ public final class KeyState implements Serializable {
 
     /**
      * Checks if the given object equals to this object.
-     * 
+     *
      * @param other object to be compared
      * @return true if both objects are the same
      */
@@ -65,7 +65,7 @@ public final class KeyState implements Serializable {
 
     /**
      * Returns the hash code.
-     * 
+     *
      * @return hash code
      */
     public int hashCode() {
@@ -74,7 +74,7 @@ public final class KeyState implements Serializable {
 
     /**
      * Return the string-representation of this object.
-     * 
+     *
      * @return string value
      */
     public String toString() {
@@ -90,7 +90,7 @@ public final class KeyState implements Serializable {
 
     /**
      * Converts a string into a key state object.
-     * 
+     *
      * @param state state in string-representation
      * @return key state object
      */

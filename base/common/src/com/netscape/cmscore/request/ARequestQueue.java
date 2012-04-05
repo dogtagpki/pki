@@ -76,7 +76,7 @@ import com.netscape.certsrv.request.RequestStatus;
  * <p>
  * This class also implements the locking operations specified by the IRequestQueue interface.
  * <p>
- * 
+ *
  * @author thayes
  * @version $Revision$ $Date$
  */
@@ -94,7 +94,7 @@ public abstract class ARequestQueue
      * This method must be implemented by the specialized class to generate a new id from data in the persistant store.
      * This id is used to create a new request object.
      * <p>
-     * 
+     *
      * @return
      *         a new RequestId object.
      * @exception EBaseException
@@ -112,7 +112,7 @@ public abstract class ARequestQueue
      * The implementation of this object can use the createRequest member function to create a new instance of an
      * IRequest, and use the setRequestStatus, setCreationTime and setModificationTime functions to set those values.
      * <p>
-     * 
+     *
      * @param id
      *            the id of the request to read.
      * @return
@@ -132,7 +132,7 @@ public abstract class ARequestQueue
      * <p>
      * This function is called when a new request immediately after creating a new request.
      * <p>
-     * 
+     *
      * @param request
      *            the request to add.
      * @exception EBaseException
@@ -147,7 +147,7 @@ public abstract class ARequestQueue
      * <p>
      * Currently there are no hints for what has changed, so the entire request should be updated.
      * <p>
-     * 
+     *
      * @param request
      * @exception EBaseException
      *                TODO: this is not implemented yet
@@ -164,7 +164,7 @@ public abstract class ARequestQueue
      * <p>
      * TODO: return IRequestList -or- just use listRequests as the basic engine.
      * <p>
-     * 
+     *
      * @return
      *         an Enumeration that generates RequestId objects.
      */
@@ -173,7 +173,7 @@ public abstract class ARequestQueue
     /**
      * protected access for setting the current state of a request.
      * <p>
-     * 
+     *
      * @param request
      *            The request to be modified.
      * @param status
@@ -188,7 +188,7 @@ public abstract class ARequestQueue
     /**
      * protected access for setting the modification time of a request.
      * <p>
-     * 
+     *
      * @param request
      *            The request to be modified.
      * @param date
@@ -203,7 +203,7 @@ public abstract class ARequestQueue
     /**
      * protected access for setting the creation time of a request.
      * <p>
-     * 
+     *
      * @param request
      *            The request to be modified.
      * @param date
@@ -218,7 +218,7 @@ public abstract class ARequestQueue
     /**
      * protected access for creating a new Request object
      * <p>
-     * 
+     *
      * @param id
      *            The identifier for the new request
      * @return
@@ -246,7 +246,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.newRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#newRequest
      */
     public IRequest newRequest(String requestType)
@@ -282,18 +282,18 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.cloneRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#cloneRequest
      */
     public IRequest cloneRequest(IRequest r)
             throws EBaseException {
-        // 1. check for valid state. (Are any invalid ?) 
+        // 1. check for valid state. (Are any invalid ?)
         RequestStatus rs = r.getRequestStatus();
 
         if (rs == RequestStatus.BEGIN)
             throw new EBaseException("Invalid Status");
 
-        // 2. create new request 
+        // 2. create new request
         String reqType = r.getRequestType();
         IRequest clone = newRequest(reqType);
 
@@ -313,7 +313,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.findRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#findRequest
      */
     public IRequest findRequest(RequestId id)
@@ -342,7 +342,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.processRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#processRequest
      */
     public final void processRequest(IRequest r)
@@ -373,7 +373,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.markRequestPending
      * <p>
-     * 
+     *
      * @see IRequestQueue#markRequestPending
      */
     public final void markRequestPending(IRequest r)
@@ -397,7 +397,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.cloneAndMarkPending
      * <p>
-     * 
+     *
      * @see IRequestQueue#cloneAndMarkPending
      */
     public IRequest cloneAndMarkPending(IRequest r)
@@ -411,7 +411,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.approveRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#approveRequest
      */
     public final void approveRequest(IRequest r)
@@ -455,7 +455,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.rejectRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#rejectRequest
      */
     public final void rejectRequest(IRequest r)
@@ -477,7 +477,7 @@ public abstract class ARequestQueue
     /**
      * Implments IRequestQueue.cancelRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#cancelRequest
      */
     public final void cancelRequest(IRequest r)
@@ -509,7 +509,7 @@ public abstract class ARequestQueue
      * Should be overridden by the specialized class if a more efficient method is available for implementing this
      * operation.
      * <P>
-     * 
+     *
      * @see IRequestQueue#listRequests
      */
     public IRequestList listRequests() {
@@ -522,7 +522,7 @@ public abstract class ARequestQueue
      * Should be overridden by the specialized class if a more efficient method is available for implementing this
      * operation.
      * <P>
-     * 
+     *
      * @see IRequestQueue#listRequestsByStatus
      */
     public IRequestList listRequestsByStatus(RequestStatus s) {
@@ -532,7 +532,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.releaseRequest
      * <p>
-     * 
+     *
      * @see IRequestQueue#releaseRequest
      */
     public final void releaseRequest(IRequest request) {
@@ -733,7 +733,7 @@ public abstract class ARequestQueue
  } catch (InterruptedException e) {
  };
  }
- } 
+ }
 
  public synchronized void unlock(RequestId id) {
  mHashtable.remove(id);
@@ -742,7 +742,7 @@ public abstract class ARequestQueue
  }
 
  // instance variables
- Hashtable mHashtable = new Hashtable(); 
+ Hashtable mHashtable = new Hashtable();
  }
  */
 
@@ -859,7 +859,7 @@ class Request
      * This function used to check that the keys obeyed LDAP attribute name
      * syntax rules. Keys are being encoded now, so it is changed to just
      * filter out null and empty string keys.
-     * 
+     *
      * @param key The key to check
      * @return false if invalid
      */

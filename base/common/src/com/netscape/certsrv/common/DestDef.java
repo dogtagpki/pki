@@ -21,7 +21,7 @@ package com.netscape.certsrv.common;
  * This interface defines all the operation destination
  * used in the administration protocol between the
  * console and the server.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface DestDef {

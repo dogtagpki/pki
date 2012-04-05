@@ -42,7 +42,7 @@ import com.netscape.cmscore.usrgrp.User;
  * Maps a SSL client authenticate certificate to a user (agent) entry in the
  * internal database.
  * <P>
- * 
+ *
  * @author lhsiao
  * @author cfu
  * @version $Revision$, $Date$
@@ -80,7 +80,7 @@ public class CertUserDBAuthentication implements IAuthManager {
      * initializes the CertUserDBAuthentication auth manager
      * <p>
      * called by AuthSubsystem init() method, when initializing all available authentication managers.
-     * 
+     *
      * @param owner - The authentication subsystem that hosts this
      *            auth manager
      * @param config - The configuration store used by the
@@ -129,11 +129,11 @@ public class CertUserDBAuthentication implements IAuthManager {
      * authenticates user(agent) by certificate
      * <p>
      * called by other subsystems or their servlets to authenticate users (agents)
-     * 
+     *
      * @param authCred - authentication credential that contains
      *            an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
-     * 
+     *
      * @exception com.netscape.certsrv.base.EAuthsException any
      *                authentication failure or insufficient credentials
      * @see com.netscape.certsrv.authentication.AuthToken
@@ -183,7 +183,7 @@ public class CertUserDBAuthentication implements IAuthManager {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
-        // any unexpected error occurs like internal db down, 
+        // any unexpected error occurs like internal db down,
         // UGSubsystem only returns null for user.
         if (user == null) {
             CMS.debug("Authentication: cannot map certificate to user");
@@ -211,7 +211,7 @@ public class CertUserDBAuthentication implements IAuthManager {
      * the servlets that handle agent operations to authenticate its
      * users. It calls this method to know which are the
      * required credentials from the user (e.g. Javascript form data)
-     * 
+     *
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -224,7 +224,7 @@ public class CertUserDBAuthentication implements IAuthManager {
      * the Certificate Server Console to display the table for
      * configuration purposes. CertUserDBAuthentication is currently not
      * exposed in this case, so this method is not to be used.
-     * 
+     *
      * @return configuration parameter names in Hashtable of Vectors
      *         where each hashtable entry's key is the substore name, value is a
      *         Vector of parameter names. If no substore, the parameter name
@@ -243,7 +243,7 @@ public class CertUserDBAuthentication implements IAuthManager {
     /**
      * gets the configuretion substore used by this authentication
      * manager
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {

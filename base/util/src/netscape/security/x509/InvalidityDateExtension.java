@@ -32,12 +32,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRL Invalidity Date Extension.
- * 
+ *
  * <p>
  * This CRL entry extension, if present, provides the date on which it is known or suspected that the private key was
  * compromised or that the certificate otherwise became invalid. Invalidity date may be earlier than the revocation
  * date.
- * 
+ *
  * @see Extension
  * @see CertAttrSet
  */
@@ -82,7 +82,7 @@ public class InvalidityDateExtension extends Extension
     /**
      * Create a InvalidityDateExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param dateOfInvalidity the value to be set for the extension.
      */
     public InvalidityDateExtension(Date dateOfInvalidity)
@@ -96,7 +96,7 @@ public class InvalidityDateExtension extends Extension
     /**
      * Create a InvalidityDateExtension with the date.
      * The criticality is set to false.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param dateOfInvalidity the value to be set for the extension.
      */
@@ -110,7 +110,7 @@ public class InvalidityDateExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -196,7 +196,7 @@ public class InvalidityDateExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -206,7 +206,7 @@ public class InvalidityDateExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

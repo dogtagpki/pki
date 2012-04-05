@@ -69,8 +69,8 @@ public class ProfilePolicySelectionDialog extends JDialog
                         String profileId,
                         String prefix,
                         JFrame parent,
-                        AdminConnection conn, 
-                        String dest) 
+                        AdminConnection conn,
+                        String dest)
     {
         this(defSetId, profileId, prefix, parent, conn, dest, null, null);
     }
@@ -78,9 +78,9 @@ public class ProfilePolicySelectionDialog extends JDialog
     public ProfilePolicySelectionDialog(
                         String defSetId,
 			String profileId,
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest, String extraDest)
 	{
 		this(defSetId,	profileId, prefix,
@@ -100,18 +100,18 @@ public class ProfilePolicySelectionDialog extends JDialog
                         CMSPluginInstanceTab pluginType) {
         this(defSetId, profileId, prefix, parent, conn, dest, null, pluginType);
     }
-       
+
     /*==========================================================
      * constructors
      *==========================================================*/
     public ProfilePolicySelectionDialog(
 			String defSetId,
 			String profileId,
-			String prefix, 
-			JFrame parent, 
-			AdminConnection conn, 
+			String prefix,
+			JFrame parent,
+			AdminConnection conn,
 			String dest, String extraDest,
-			CMSPluginInstanceTab pluginType) 
+			CMSPluginInstanceTab pluginType)
 	{
         super(parent,true);
 	mDefSetId = defSetId;
@@ -198,7 +198,7 @@ public class ProfilePolicySelectionDialog extends JDialog
             String id = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
             response.add(Constants.PR_POLICY_IMPL_NAME,id);
 */
-			ProfilePolicyNewDialog dialog = 
+			ProfilePolicyNewDialog dialog =
 				new ProfilePolicyNewDialog(
                                         mDefSetId,
 					response,
@@ -213,8 +213,8 @@ public class ProfilePolicySelectionDialog extends JDialog
             String defaultName = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
             String conName = ((JLabel)mConstraintModel.elementAt(mConstraintList.getSelectedIndex())).getText();
 
-            
-		String namex = mProfileId + ";" + getID(defaultName, mDefaultData) + 
+
+		String namex = mProfileId + ";" + getID(defaultName, mDefaultData) +
             ";" + getID(conName, mConstraintData);
             dialog.showDialog(response,namex);
 
@@ -263,8 +263,8 @@ public class ProfilePolicySelectionDialog extends JDialog
         GridBagConstraints gbc = new GridBagConstraints();
         center.setLayout(gb);
 
-        // default content panel 
-        mDefaultLabel = CMSAdminUtil.makeJLabel(mResource, mPrefix, 
+        // default content panel
+        mDefaultLabel = CMSAdminUtil.makeJLabel(mResource, mPrefix,
            "DEFAULTNAME", null);
         center.add(mDefaultLabel);
 
@@ -279,7 +279,7 @@ public class ProfilePolicySelectionDialog extends JDialog
         center.add(content);
 
 	// constraint content panel
-        mConstraintLabel = CMSAdminUtil.makeJLabel(mResource, mPrefix, 
+        mConstraintLabel = CMSAdminUtil.makeJLabel(mResource, mPrefix,
            "CONSTRAINTNAME", null);
         center.add(mConstraintLabel);
 
@@ -408,10 +408,10 @@ public class ProfilePolicySelectionDialog extends JDialog
                 return;
             String name = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
             NameValuePairs response=null;
-         
+
             try {
-                response = mConnection.read(mDestination, 
-                  ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES, 
+                response = mConnection.read(mDestination,
+                  ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES,
                   getID(name, mDefaultData), new NameValuePairs());
                 Debug.println(response.toString());
             } catch (Exception ex) {
@@ -424,7 +424,7 @@ public class ProfilePolicySelectionDialog extends JDialog
             mConstraintList.invalidate();
             mConstraintList.validate();
             repaint();
-        } 
+        }
     }
 
     //=================================================
@@ -432,7 +432,7 @@ public class ProfilePolicySelectionDialog extends JDialog
     //=================================================
 
     //save order information to the server
-    protected boolean update(String scope, DefaultListModel model, 
+    protected boolean update(String scope, DefaultListModel model,
       Hashtable data) {
 
         NameValuePairs response;
@@ -471,18 +471,18 @@ public class ProfilePolicySelectionDialog extends JDialog
             data.put(name, friendlyName);
 			Debug.println("PluginSelectionDialog::update() - adding '"+vals[i-1]+"'");
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
 			try {
-            model.addElement(new JLabel(vals[y], 
+            model.addElement(new JLabel(vals[y],
               CMSAdminUtil.getImage(mImageName), JLabel.LEFT));
 			}
 			catch (Exception ex) {
 				Debug.println("PluginSelectionDialog could not get image for '"+
 					mImageName+"'. Adding without image");
-            model.addElement(new JLabel(vals[y], 
+            model.addElement(new JLabel(vals[y],
               JLabel.LEFT));
 			}
         }
@@ -492,15 +492,15 @@ public class ProfilePolicySelectionDialog extends JDialog
     protected NameValuePairs getDefaultConfig() throws EAdminException {
         String name = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
         NameValuePairs response;
-        response = mConnection.read(mDestination, 
-          ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES, getID(name.trim(), mDefaultData), 
+        response = mConnection.read(mDestination,
+          ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES, getID(name.trim(), mDefaultData),
           new NameValuePairs());
 
         Debug.println(response.toString());
 
         return response;
     }
-    
+
     private String getID(String name, Hashtable t) {
         Enumeration keys = t.keys();
         while (keys.hasMoreElements()) {

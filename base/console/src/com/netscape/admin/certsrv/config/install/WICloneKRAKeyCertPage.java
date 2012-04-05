@@ -41,10 +41,10 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
     protected InstallWizardInfo mWizardInfo;
     protected JComboBox mKRANicknameBox, mStorageNicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONEKRAKEYCERTWIZARD";
-    private static final String KRAHELPINDEX = 
+    private static final String KRAHELPINDEX =
       "install-kracertclone-wizard-help";
 
-    
+
     WICloneKRAKeyCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -117,7 +117,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
                 mKRANicknameBox.addItem(s1);
         }
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -196,7 +196,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_TEXT_HEADING_LABEL"));
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(heading, gbc);
@@ -208,7 +208,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(kraNicknameLbl, gbc);
- 
+
         CMSAdminUtil.resetGBC(gbc);
         mKRANicknameBox = new JComboBox();
         gbc.anchor = gbc.NORTHWEST;

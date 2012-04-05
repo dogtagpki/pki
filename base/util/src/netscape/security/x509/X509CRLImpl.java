@@ -51,7 +51,7 @@ import netscape.security.util.ObjectIdentifier;
  * An implmentation for X509 CRL (Certificate Revocation List).
  * <p>
  * The X.509 v2 CRL format is described below in ASN.1:
- * 
+ *
  * <pre>
  * </pre>
  * <p>
@@ -62,7 +62,7 @@ import netscape.security.util.ObjectIdentifier;
  * &lt;draft-ietf-pkix-ipki-part1-06.txt&gt;.
  * <p>
  * The ASN.1 definition of <code>tbsCertList</code> is:
- * 
+ *
  * <pre>
  * TBSCertList  ::=  SEQUENCE  {
  *     version                 Version OPTIONAL,
@@ -81,7 +81,7 @@ import netscape.security.util.ObjectIdentifier;
  *                                  -- if present, must be v2
  *     }
  * </pre>
- * 
+ *
  * @author Hemma Prafullchandra
  * @version 1.8
  * @see X509CRL
@@ -115,7 +115,7 @@ public class X509CRLImpl extends X509CRL {
      * need to examine and use CRL contents. Note that the buffer
      * must include only one CRL, and no "garbage" may be left at
      * the end.
-     * 
+     *
      * @param crlData the encoded bytes, with no trailing padding.
      * @exception CRLException on parsing errors.
      * @exception X509ExtensionException on extension handling errors.
@@ -148,7 +148,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Unmarshals an X.509 CRL from an input stream. Only one CRL
      * is expected at the end of the input stream.
-     * 
+     *
      * @param inStrm an input stream holding at least one CRL
      * @exception CRLException on parsing errors.
      * @exception X509ExtensionException on extension handling errors.
@@ -167,7 +167,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Initial CRL constructor, no revoked certs, and no extensions.
-     * 
+     *
      * @param issuer the name of the CA issuing this CRL.
      * @param thisUpdate the Date of this issue.
      * @param nextUpdate the Date of the next CRL.
@@ -180,12 +180,12 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * CRL constructor, revoked certs, no extensions.
-     * 
+     *
      * @param issuer the name of the CA issuing this CRL.
      * @param thisUpdate the Date of this issue.
      * @param nextUpdate the Date of the next CRL.
      * @param badCerts the array of revoked certificates.
-     * 
+     *
      * @exception CRLException on parsing/construction errors.
      * @exception X509ExtensionException on extension handling errors.
      */
@@ -204,13 +204,13 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * CRL constructor, revoked certs and extensions.
-     * 
+     *
      * @param issuer the name of the CA issuing this CRL.
      * @param thisUpdate the Date of this issue.
      * @param nextUpdate the Date of the next CRL.
      * @param badCerts the array of revoked certificates.
      * @param crlExts the CRL extensions.
-     * 
+     *
      * @exception CRLException on parsing/construction errors.
      * @exception X509ExtensionException on extension handling errors.
      */
@@ -241,7 +241,7 @@ public class X509CRLImpl extends X509CRL {
      * This will be used by code that constructs CRL and uses
      * encodeInfo() in order to sign it using external means
      * (other than sign() method)
-     * 
+     *
      * @param issuer the name of the CA issuing this CRL.
      * @param sigAlg signing algorithm id
      * @param thisUpdate the Date of this issue.
@@ -258,14 +258,14 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * CRL constructor, revoked certs and extensions.
-     * 
+     *
      * @param issuer the name of the CA issuing this CRL.
      * @param sigAlg signing algorithm id
      * @param thisUpdate the Date of this issue.
      * @param nextUpdate the Date of the next CRL.
      * @param badCerts the hashtable of revoked certificates.
      * @param crlExts the CRL extensions.
-     * 
+     *
      * @exception CRLException on parsing/construction errors.
      * @exception X509ExtensionException on extension handling errors.
      */
@@ -286,7 +286,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Returns the ASN.1 DER encoded form of this CRL.
-     * 
+     *
      * @exception CRLException if an encoding error occurs.
      */
     public byte[] getEncoded() throws CRLException {
@@ -299,7 +299,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Returns true if signedCRL was set.
-     * 
+     *
      * @param byte array of containing signed CRL.
      */
     public boolean setSignedCRL(byte[] crl) {
@@ -319,7 +319,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Encodes the "to-be-signed" CRL to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write to.
      * @exception CRLException on encoding errors.
      * @exception X509ExtensionException on extension encoding errors.
@@ -363,9 +363,9 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Verifies that this CRL was signed using the
      * private key that corresponds to the specified public key.
-     * 
+     *
      * @param key the PublicKey used to carry out the verification.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -384,10 +384,10 @@ public class X509CRLImpl extends X509CRL {
      * private key that corresponds to the specified public key,
      * and that the signature verification was computed by
      * the given provider.
-     * 
+     *
      * @param key the PublicKey used to carry out the verification.
      * @param sigProvider the name of the signature provider.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -431,10 +431,10 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Encodes an X.509 CRL, and signs it using the key
      * passed.
-     * 
+     *
      * @param key the private key used for signing.
      * @param algorithm the name of the signature algorithm used.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -452,11 +452,11 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Encodes an X.509 CRL, and signs it using the key
      * passed.
-     * 
+     *
      * @param key the private key used for signing.
      * @param algorithm the name of the signature algorithm used.
      * @param provider the name of the provider.
-     * 
+     *
      * @exception NoSuchAlgorithmException on unsupported signature
      *                algorithms.
      * @exception InvalidKeyException on incorrect key.
@@ -510,7 +510,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Returns a printable string of this CRL.
-     * 
+     *
      * @return value of this CRL in a printable form.
      */
     public String toString() {
@@ -545,7 +545,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Checks whether the given serial number is on this CRL.
-     * 
+     *
      * @param serialNumber the number to check for.
      * @return true if the given serial number is on this CRL,
      *         false otherwise.
@@ -569,13 +569,13 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets the version number from the CRL.
      * The ASN.1 definition for this is:
-     * 
+     *
      * <pre>
      * Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
      *             -- v3 does not apply to CRLs but appears for consistency
      *             -- with definition of Version for certs
      * </pre>
-     * 
+     *
      * @return the version number.
      */
     public int getVersion() {
@@ -588,29 +588,29 @@ public class X509CRLImpl extends X509CRL {
      * issued the CRL). The issuer name field contains an
      * X.500 distinguished name (DN).
      * The ASN.1 definition for this is:
-     * 
+     *
      * <pre>
      * issuer    Name
-     * 
+     *
      * Name ::= CHOICE { RDNSequence }
      * RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
      * RelativeDistinguishedName ::=
      *     SET OF AttributeValueAssertion
-     * 
+     *
      * AttributeValueAssertion ::= SEQUENCE {
      *                               AttributeType,
      *                               AttributeValue }
      * AttributeType ::= OBJECT IDENTIFIER
      * AttributeValue ::= ANY
      * </pre>
-     * 
+     *
      * The Name describes a hierarchical name composed of attributes,
      * such as country name, and corresponding values, such as US.
      * The type of the component AttributeValue is determined by the
      * AttributeType; in general it will be a directoryString.
      * A directoryString is usually one of PrintableString,
      * TeletexString or UniversalString.
-     * 
+     *
      * @return the issuer name.
      */
     public Principal getIssuerDN() {
@@ -620,7 +620,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets the thisUpdate date from the CRL.
      * The ASN.1 definition for this is:
-     * 
+     *
      * @return the thisUpdate date from the CRL.
      */
     public Date getThisUpdate() {
@@ -629,7 +629,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Gets the nextUpdate date from the CRL.
-     * 
+     *
      * @return the nextUpdate date from the CRL, or null if
      *         not present.
      */
@@ -642,7 +642,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Get the revoked certificate from the CRL by the serial
      * number provided.
-     * 
+     *
      * @return the revoked certificate or null if there is
      *         no entry in the CRL marked with the provided serial number.
      * @see RevokedCertificate
@@ -658,7 +658,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets all the revoked certificates from the CRL.
      * A Set of RevokedCertificate.
-     * 
+     *
      * @return all the revoked certificates or null if there are
      *         none.
      * @see RevokedCertificate
@@ -691,7 +691,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets the DER encoded CRL information, the <code>tbsCertList</code> from this CRL.
      * This can be used to verify the signature independently.
-     * 
+     *
      * @return the DER encoded CRL information.
      * @exception CRLException on parsing errors.
      * @exception X509ExtensionException on extension parsing errors.
@@ -707,7 +707,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Gets the raw Signature bits from the CRL.
-     * 
+     *
      * @return the signature.
      */
     public byte[] getSignature() {
@@ -720,7 +720,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Returns true if signature was set.
-     * 
+     *
      * @param byte array of containing CRL signature.
      */
     public boolean setSignature(byte[] crlSignature) {
@@ -737,7 +737,7 @@ public class X509CRLImpl extends X509CRL {
      * Gets the signature algorithm name for the CRL
      * signature algorithm. For example, the string "SHA1withDSA".
      * The ASN.1 definition for this is:
-     * 
+     *
      * <pre>
      * AlgorithmIdentifier  ::=  SEQUENCE  {
      *     algorithm               OBJECT IDENTIFIER,
@@ -746,7 +746,7 @@ public class X509CRLImpl extends X509CRL {
      *                             -- registered for use with the
      *                             -- algorithm object identifier value
      * </pre>
-     * 
+     *
      * @return the signature algorithm name.
      */
     public String getSigAlgName() {
@@ -762,7 +762,7 @@ public class X509CRLImpl extends X509CRL {
      * &lt;positive whole number&gt;.&lt;positive whole number&gt;.&lt;...&gt;
      * For example, the string "1.2.840.10040.4.3" identifies the SHA-1
      * with DSA signature algorithm, as per the PKIX part I.
-     * 
+     *
      * @return the signature algorithm oid string.
      */
     public String getSigAlgOID() {
@@ -777,7 +777,7 @@ public class X509CRLImpl extends X509CRL {
      * CRL's signature algorithm. In most cases, the signature
      * algorithm parameters are null, the parameters are usually
      * supplied with the Public Key.
-     * 
+     *
      * @return the DER encoded signature algorithm parameters, or
      *         null if no parameters are present.
      */
@@ -794,7 +794,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets a Set of the extension(s) marked CRITICAL in the
      * CRL by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         CRL that are marked critical.
      */
@@ -815,7 +815,7 @@ public class X509CRLImpl extends X509CRL {
     /**
      * Gets a Set of the extension(s) marked NON-CRITICAL in the
      * CRL by OID strings.
-     * 
+     *
      * @return a set of the extension oid strings in the
      *         CRL that are NOT marked critical.
      */
@@ -839,7 +839,7 @@ public class X509CRLImpl extends X509CRL {
      * represented by a set of positive whole number separated
      * by ".", that means,<br>
      * &lt;positive whole number&gt;.&lt;positive whole number&gt;.&lt;...&gt;
-     * 
+     *
      * @param oid the Object Identifier value for the extension.
      * @return the der encoded octet string of the extension value.
      */
@@ -932,7 +932,7 @@ public class X509CRLImpl extends X509CRL {
 
     /**
      * Returns extensions for this impl.
-     * 
+     *
      * @param extn CRLExtensions
      */
     public CRLExtensions getExtensions() {

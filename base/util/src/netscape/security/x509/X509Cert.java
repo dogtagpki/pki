@@ -41,7 +41,7 @@ import netscape.security.util.DerValue;
 /**
  * @author David Brownell
  * @version 1.5
- * 
+ *
  * @see CertAndKeyGen
  * @deprecated Use the new X509Certificate class.
  *             This class is only restored for backwards compatibility.
@@ -71,7 +71,7 @@ public class X509Cert implements Certificate, Serializable {
      * must include only a certificate, and no "garbage" may be left at
      * the end. If you need to ignore data at the end of a certificate,
      * use another constructor.
-     * 
+     *
      * @param cert the encoded bytes, with no terminatu (CONSUMED)
      * @exception IOException when the certificate is improperly encoded.
      */
@@ -90,11 +90,11 @@ public class X509Cert implements Certificate, Serializable {
      * encoded bytes. This form of constructor is used by agents which
      * need to examine and use certificate contents. That is, this is
      * one of the most commonly used constructors.
-     * 
+     *
      * @param buf the buffer holding the encoded bytes
      * @param offset the offset in the buffer where the bytes begin
      * @param len how many bytes of certificate exist
-     * 
+     *
      * @exception IOException when the certificate is improperly encoded.
      */
     public X509Cert(
@@ -114,7 +114,7 @@ public class X509Cert implements Certificate, Serializable {
      * Unmarshal a certificate from its encoded form, parsing a DER value.
      * This form of constructor is used by agents which need to examine
      * and use certificate contents.
-     * 
+     *
      * @param derVal the der value containing the encoded cert.
      * @exception IOException when the certificate is improperly encoded.
      */
@@ -131,25 +131,25 @@ public class X509Cert implements Certificate, Serializable {
      * which later <a href="#signAndEncode">signs and encodes</a> the
      * certificate. Also, self-signed certificates serve as CA certificates,
      * and are sometimes used as certificate requests.
-     * 
+     *
      * <P>
      * Until the certificate has been signed and encoded, some of the mandatory fields in the certificate will not be
      * available via accessor functions: the serial number, issuer name and signing algorithm, and of course the signed
      * certificate. The fields passed to this constructor are available, and must be non-null.
-     * 
+     *
      * <P>
      * Note that the public key being signed is generally independent of the signature algorithm being used. So for
      * example Diffie-Hellman keys (which do not support signatures) can be placed in X.509 certificates when some other
      * signature algorithm (e.g. DSS/DSA, or one of the RSA based algorithms) is used.
-     * 
+     *
      * @see CertAndKeyGen
-     * 
+     *
      * @param subjectName the X.500 distinguished name being certified
      * @param subjectPublicKey the public key being certified. This
      *            must be an "X509Key" implementing the "PublicKey" interface.
      * @param notBefore the first time the certificate is valid
      * @param notAfter the last time the certificate is valid
-     * 
+     *
      * @exception CertException if the public key is inappropriate
      */
     public X509Cert(
@@ -174,7 +174,7 @@ public class X509Cert implements Certificate, Serializable {
 
     /**
      * Decode an X.509 certificate from an input stream.
-     * 
+     *
      * @param in an input stream holding at least one certificate
      * @exception IOException when the certificate is improperly encoded.
      */
@@ -189,7 +189,7 @@ public class X509Cert implements Certificate, Serializable {
 
     /**
      * Appends the certificate to an output stream.
-     * 
+     *
      * @param out an input stream to which the certificate is appended.
      * @exception IOException when appending fails.
      */
@@ -201,7 +201,7 @@ public class X509Cert implements Certificate, Serializable {
      * Compares two certificates. This is false if the
      * certificates are not both X.509 certs, otherwise it
      * compares them as binary data.
-     * 
+     *
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
@@ -215,7 +215,7 @@ public class X509Cert implements Certificate, Serializable {
     /**
      * Compares two certificates, returning false if any data
      * differs between the two.
-     * 
+     *
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
@@ -255,13 +255,13 @@ public class X509Cert implements Certificate, Serializable {
      * was not signed using the verification key provided. Successfully
      * verifying a certificate does <em>not</em> indicate that one should
      * trust the entity which it represents.
-     * 
+     *
      * <P>
      * <em>Note that since this class represents only a single X.509
      * certificate, it cannot know anything about the certificate chain
      * which is used to provide the verification key and to establish trust.
      * Other code must manage and use those cert chains.
-     * 
+     *
      * <P>For now, you must walk the cert chain being used to verify any
      * given cert.  Start at the root, which is a self-signed certificate;
      * verify it using the key inside the certificate.  Then use that to
@@ -271,7 +271,7 @@ public class X509Cert implements Certificate, Serializable {
      * if any of the verification operations for its certificate chain
      * were unsuccessful.
      * </em>
-     * 
+     *
      * @param issuerPublicKey the public key of the issuing CA
      * @exception CertException when the certificate is not valid.
      */
@@ -327,15 +327,15 @@ public class X509Cert implements Certificate, Serializable {
      * passed (associating a signature algorithm and an X.500 name).
      * This operation is used to implement the certificate generation
      * functionality of a certificate authority.
-     * 
+     *
      * @see #getSignedCert
      * @see #getSigner
      * @see CertAndKeyGen
-     * 
+     *
      * @param serial the serial number of the certificate (non-null)
      * @param issuer the certificate issuer (CA) (non-null)
      * @return the signed certificate, as returned by getSignedCert
-     * 
+     *
      * @exception IOException if any of the data could not be encoded,
      *                or when any mandatory data was omitted
      * @exception SignatureException on signing failures
@@ -375,7 +375,7 @@ public class X509Cert implements Certificate, Serializable {
      * Returns an X500Signer that may be used to create signatures. Those
      * signature may in turn be verified using this certificate (or a
      * copy of it).
-     * 
+     *
      * <P>
      * <em><b>NOTE:</b>  If the private key is by itself capable of
      * creating signatures, this fact may not be recognized at this time.
@@ -383,13 +383,13 @@ public class X509Cert implements Certificate, Serializable {
      * parameters from higher in the certificate chain is not supportable
      * without using an X509CertChain API, and there is no current support
      * for other sources of algorithm parameters.</em>
-     * 
+     *
      * @param algorithm the signature algorithm to be used. Note that a
      *            given public/private key pair may support several such algorithms.
      * @param privateKey the private key used to create the signature,
      *            which must correspond to the public key in this certificate
      * @return the Signer object
-     * 
+     *
      * @exception NoSuchAlgorithmException if the signature
      *                algorithm is not supported
      * @exception InvalidKeyException if either the key in the certificate,
@@ -426,7 +426,7 @@ public class X509Cert implements Certificate, Serializable {
      * Returns a signature object that may be used to verify signatures
      * created using a specified signature algorithm and the public key
      * contained in this certificate.
-     * 
+     *
      * <P>
      * <em><b>NOTE:</b>  If the public key in this certificate is not by
      * itself capable of verifying signatures, this may not be recognized
@@ -434,7 +434,7 @@ public class X509Cert implements Certificate, Serializable {
      * their algorithm parameters from higher in the certificate chain
      * is not supportable without using an X509CertChain API, and there
      * is no current support for other sources of algorithm parameters.</em>
-     * 
+     *
      * @param algorithm the algorithm of the signature to be verified
      * @return the Signature object
      * @exception NoSuchAlgorithmException if the signature
@@ -512,7 +512,7 @@ public class X509Cert implements Certificate, Serializable {
      * to perform a public key operation. Those keys need to be augmented
      * by algorithm parameters, which the certificate generation policy
      * chose not to place in the certificate.
-     * 
+     *
      * <P>
      * Two such public key algorithms are: DSS/DSA, where algorithm parameters could be acquired from a CA certificate
      * in the chain of issuers; and Diffie-Hellman, with a similar solution although the CA then needs both a
@@ -576,7 +576,7 @@ public class X509Cert implements Certificate, Serializable {
 
     /**
      * Returns a printable representation of the certificate.
-     * 
+     *
      * @param detailed true iff lots of detail is requested
      */
     public String toString(boolean detailed) {
@@ -664,7 +664,7 @@ public class X509Cert implements Certificate, Serializable {
 
         in = seq[0].data;
 
-        /* 
+        /*
         * Version -- this is optional (default zero). If it's there it's
         * the first field and is specially tagged.
         *
@@ -801,7 +801,7 @@ public class X509Cert implements Certificate, Serializable {
      */
     private byte[] sign(X500Signer issuer, byte data[])
             throws IOException, SignatureException {
-        /* 
+        /*
          * Encode the to-be-signed data, then the algorithm used
          * to create the signature.
          */

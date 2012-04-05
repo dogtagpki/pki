@@ -61,4 +61,4 @@ public class RuleConfigDialog extends CMSBaseConfigDialog
         init(nvp,parent,conn,dest);
     }
 
-}    
+}

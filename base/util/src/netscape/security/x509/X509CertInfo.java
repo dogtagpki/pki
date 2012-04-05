@@ -36,25 +36,25 @@ import netscape.security.util.DerValue;
 
 /**
  * The X509CertInfo class represents X.509 certificate information.
- * 
+ *
  * <P>
  * X.509 certificates have several base data elements, including:
  * <UL>
- * 
+ *
  * <LI>The <em>Subject Name</em>, an X.500 Distinguished Name for the entity (subject) for which the certificate was
  * issued.
- * 
+ *
  * <LI>The <em>Subject Public Key</em>, the public key of the subject. This is one of the most important parts of the
  * certificate.
- * 
+ *
  * <LI>The <em>Validity Period</em>, a time period (e.g. six months) within which the certificate is valid (unless
  * revoked).
- * 
+ *
  * <LI>The <em>Issuer Name</em>, an X.500 Distinguished Name for the Certificate Authority (CA) which issued the
  * certificate.
- * 
+ *
  * <LI>A <em>Serial Number</em> assigned by the CA, for use in certificate revocation and other applications.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.16
@@ -146,7 +146,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * must include only a certificate, and no "garbage" may be left at
      * the end. If you need to ignore data at the end of a certificate,
      * use another constructor.
-     * 
+     *
      * @param cert the encoded bytes, with no trailing data.
      * @exception CertificateParsingException on parsing errors.
      */
@@ -164,7 +164,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Unmarshal a certificate from its encoded form, parsing a DER value.
      * This form of constructor is used by agents which need to examine
      * and use certificate contents.
-     * 
+     *
      * @param derVal the der value containing the encoded cert.
      * @exception CertificateParsingException on parsing errors.
      */
@@ -178,7 +178,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Decode an X.509 certificate from an input stream.
-     * 
+     *
      * @param in an input stream holding at least one certificate
      * @exception CertificateParsingException on decoding errors.
      * @exception IOException on other errors.
@@ -192,7 +192,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Appends the certificate to an output stream.
-     * 
+     *
      * @param out an output stream to which the certificate is appended.
      * @exception CertificateException on encoding errors.
      * @exception IOException on other errors.
@@ -204,7 +204,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Appends the certificate to an output stream.
-     * 
+     *
      * @param out An output stream to which the certificate is appended.
      * @param ignoreCache Whether to ignore the internal cache when encoding.
      *            (the cache can easily become out of date).
@@ -248,7 +248,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Returns the encoded certificate info.
-     * 
+     *
      * @exception CertificateEncodingException on encoding information errors.
      */
     public byte[] getEncodedInfo() throws CertificateEncodingException {
@@ -276,7 +276,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Compares two X509CertInfo objects. This is false if the
      * certificates are not both X.509 certs, otherwise it
      * compares them as binary data.
-     * 
+     *
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
@@ -291,7 +291,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     /**
      * Compares two certificates, returning false if any data
      * differs between the two.
-     * 
+     *
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
@@ -383,7 +383,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the certificate attribute.
-     * 
+     *
      * @param name the name of the Certificate attribute.
      * @param val the value of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
@@ -486,7 +486,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Delete the certificate attribute.
-     * 
+     *
      * @param name the name of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
@@ -579,9 +579,9 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Get the certificate attribute.
-     * 
+     *
      * @param name the name of the Certificate attribute.
-     * 
+     *
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
@@ -817,7 +817,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the version number of the certificate.
-     * 
+     *
      * @param val the Object class value for the Extensions
      * @exception CertificateException on invalid data.
      */
@@ -830,7 +830,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the serial number of the certificate.
-     * 
+     *
      * @param val the Object class value for the CertificateSerialNumber
      * @exception CertificateException on invalid data.
      */
@@ -843,7 +843,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the algorithm id of the certificate.
-     * 
+     *
      * @param val the Object class value for the AlgorithmId
      * @exception CertificateException on invalid data.
      */
@@ -857,7 +857,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the issuer name of the certificate.
-     * 
+     *
      * @param val the Object class value for the issuer
      * @exception CertificateException on invalid data.
      */
@@ -871,7 +871,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the validity interval of the certificate.
-     * 
+     *
      * @param val the Object class value for the CertificateValidity
      * @exception CertificateException on invalid data.
      */
@@ -885,7 +885,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the subject name of the certificate.
-     * 
+     *
      * @param val the Object class value for the Subject
      * @exception CertificateException on invalid data.
      */
@@ -899,7 +899,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the public key in the certificate.
-     * 
+     *
      * @param val the Object class value for the PublicKey
      * @exception CertificateException on invalid data.
      */
@@ -913,7 +913,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the Issuer Unique Identity in the certificate.
-     * 
+     *
      * @param val the Object class value for the IssuerUniqueId
      * @exception CertificateException
      */
@@ -930,7 +930,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the Subject Unique Identity in the certificate.
-     * 
+     *
      * @param val the Object class value for the SubjectUniqueId
      * @exception CertificateException
      */
@@ -947,7 +947,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the extensions in the certificate.
-     * 
+     *
      * @param val the Object class value for the Extensions
      * @exception CertificateException
      */

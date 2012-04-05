@@ -30,11 +30,11 @@ import netscape.security.util.DerValue;
 
 /**
  * This class represents the Basic Constraints Extension.
- * 
+ *
  * <p>
  * The basic constraints extension identifies whether the subject of the certificate is a CA and how deep a
  * certification path may exist through that CA.
- * 
+ *
  * <pre>
  * The ASN.1 syntax for this extension is:
  * BasicConstraints ::= SEQUENCE {
@@ -42,7 +42,7 @@ import netscape.security.util.DerValue;
  *     pathLenConstraint INTEGER (0..MAX) OPTIONAL
  * }
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -88,7 +88,7 @@ public class BasicConstraintsExtension extends Extension
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param ca true, if the subject of the Certificate is a CA.
      * @param len specifies the depth of the certification path.
      */
@@ -106,7 +106,7 @@ public class BasicConstraintsExtension extends Extension
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param ca true, if the subject of the Certificate is a CA.
      * @param len specifies the depth of the certification path.
      */
@@ -120,7 +120,7 @@ public class BasicConstraintsExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param extension the DER encoded value of the extension.
      * @exception IOException on error.
      */
@@ -193,7 +193,7 @@ public class BasicConstraintsExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -203,7 +203,7 @@ public class BasicConstraintsExtension extends Extension
 
     /**
      * Encode this extension value to the output stream.
-     * 
+     *
      * @param out the DerOutputStream to encode the extension to.
      */
     public void encode(OutputStream out) throws IOException {

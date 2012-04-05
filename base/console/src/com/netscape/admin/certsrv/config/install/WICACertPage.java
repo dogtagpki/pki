@@ -39,7 +39,7 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "CACERTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WICACertPage() {
         super(PANELNAME);
         init();
@@ -50,7 +50,7 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public boolean initializePanel(WizardInfo info) {
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -94,12 +94,12 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
         mSubordinateBtn = makeJRadioButton("SUBORDINATE", false);
         CMSAdminUtil.resetGBC(gbc);
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(0,COMPONENT_SPACE, COMPONENT_SPACE, 
+        gbc.insets = new Insets(0,COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mSubordinateBtn, gbc);
 
-        JTextArea desc1 = createTextArea( 
+        JTextArea desc1 = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
             "CACERTWIZARD_TEXT_HEADING1_LABEL"), 80), 2, 80);
         CMSAdminUtil.resetGBC(gbc);
@@ -132,7 +132,7 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(0, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(mUrlBtn, gbc);
-      
+
         mUrlText = makeJTextField(30);
         CMSAdminUtil.resetGBC(gbc);
         gbc.gridwidth = gbc.REMAINDER;

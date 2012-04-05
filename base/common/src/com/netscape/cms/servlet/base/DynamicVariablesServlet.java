@@ -43,7 +43,7 @@ import com.netscape.certsrv.base.IConfigStore;
  * <p>
  * This allows the requestor (browser) to make decisions about what to present in the UI, depending on how CMS is
  * configured
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DynamicVariablesServlet extends CMSServlet {
@@ -137,7 +137,7 @@ public class DynamicVariablesServlet extends CMSServlet {
      * <li>clacrlurl() - the URL to get the CRL from, in the case of a Clone CA. This is defined in the CMS
      * configuration parameter 'cloning.cloneMasterCrlUrl'
      * </ul>
-     * 
+     *
      * @see javax.servlet.Servlet#init(ServletConfig)
      */
 

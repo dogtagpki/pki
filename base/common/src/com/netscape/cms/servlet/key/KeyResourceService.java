@@ -37,10 +37,10 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 
 /**
  * @author alee
- * 
+ *
  */
 public class KeyResourceService extends CMSResourceService implements KeyResource{
-    
+
     /**
      * Used to retrieve a key
      * @param data
@@ -64,15 +64,15 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
         }
         return keyData;
     }
-    
+
     // retrieval - used to test integration with a browser
     public KeyData retrieveKey(MultivaluedMap<String, String> form) {
         RecoveryRequestData data = new RecoveryRequestData(form);
         return retrieveKey(data);
     }
-    
+
     private KeyId validateRequest(RecoveryRequestData data) {
-        
+
         // confirm request exists
         RequestId reqId = data.getRequestId();
         if (reqId == null) {
@@ -100,24 +100,24 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
             // request not found
             throw new WebApplicationException(Response.Status.GONE);
         }
-        
+
         //confirm request is of the right type
         String type = reqInfo.getRequestType();
         if (!type.equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) {
             // log error
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        
-        //confirm that agent is originator of request, else throw 401 
+
+        //confirm that agent is originator of request, else throw 401
         //  TO-DO
-        
+
         // confirm request is in approved state
         String status = reqInfo.getRequestStatus();
         if (!status.equals(RequestStatus.APPROVED.toString())) {
             // log error
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-        
+
         return reqInfo.getKeyId();
     }
 

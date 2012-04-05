@@ -27,7 +27,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * A class represents a IP address acls evaluator.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class IPAddressAccessEvaluator implements IAccessEvaluator {
@@ -49,7 +49,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
-     * 
+     *
      * @return type for this acl evaluator: ipaddress
      */
     public String getType() {
@@ -58,7 +58,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
-     * 
+     *
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -75,7 +75,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Gets the IP address from session context
-     * 
+     *
      * @param authToken authentication token
      * @param type must be "ipaddress"
      * @param op must be "=" or "!="
@@ -89,7 +89,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
     /**
      * evaluates uid in SessionContext to see if it has membership in
      * group value
-     * 
+     *
      * @param type must be "group"
      * @param op must be "="
      * @param value the group name

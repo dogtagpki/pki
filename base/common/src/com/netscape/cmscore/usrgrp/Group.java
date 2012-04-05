@@ -27,7 +27,7 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
 
 /**
  * A class represents a group.
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */

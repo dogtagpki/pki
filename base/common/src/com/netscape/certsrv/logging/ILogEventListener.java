@@ -37,14 +37,14 @@ import com.netscape.certsrv.common.NameValuePairs;
  * of the logged event. The listener will then proceed to
  * process the event accordingly which will result in a log
  * message existing in some file.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ILogEventListener extends EventListener {
 
     /**
      * The event notification method: Logs event.
-     * 
+     *
      * @param event The log event to be processed.
      */
     public void log(ILogEvent event) throws ELogException;
@@ -62,14 +62,14 @@ public interface ILogEventListener extends EventListener {
 
     /**
      * Get the configuration store for the log event listener.
-     * 
+     *
      * @return The configuration store of this log event listener.
      */
     public IConfigStore getConfigStore();
 
     /**
      * Initialize this log listener
-     * 
+     *
      * @param owner The subsystem.
      * @param config Configuration store for this log listener.
      * @exception initialization error.
@@ -87,7 +87,7 @@ public interface ILogEventListener extends EventListener {
      * Retrieve last "maxLine" number of system logs with log level >"level"
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
-     * 
+     *
      * @param req a Hashtable containing the required information such as
      *            log entry, log level, log source, and log name.
      * @return NameValue pair list of log messages.
@@ -100,35 +100,35 @@ public interface ILogEventListener extends EventListener {
 
     /**
      * Retrieve list of log files.
-     * 
+     *
      */
     public NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException;
 
     /**
      * Returns implementation name.
-     * 
+     *
      * @return String name of event listener implementation.
      */
     public String getImplName();
 
     /**
      * Returns the description of this log event listener.
-     * 
+     *
      * @return String with listener description.
      */
     public String getDescription();
 
     /**
      * Return list of default config parameters for this log event listener.
-     * 
+     *
      * @return Vector of default parameters.
      */
     public Vector<String> getDefaultParams();
 
     /**
      * Return list of instance config parameters for this log event listener.
-     * 
+     *
      * @return Vector of instance parameters.
      */
     public Vector<String> getInstanceParams();

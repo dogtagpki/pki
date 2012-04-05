@@ -29,7 +29,7 @@ public class EInvalidCredentials extends EAuthException {
 
     /**
      * Constructs an Invalid Credentials exception.
-     * 
+     *
      * @param errorString Detailed error message.
      */
     public EInvalidCredentials(String errorString) {

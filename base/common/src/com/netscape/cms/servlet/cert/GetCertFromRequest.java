@@ -54,7 +54,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
 /**
  * Gets a issued certificate from a request id.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetCertFromRequest extends CMSServlet {
@@ -82,7 +82,7 @@ public class GetCertFromRequest extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template files
      * "displayCertFromRequest.template" and "ImportCert.template"
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -134,7 +134,7 @@ public class GetCertFromRequest extends CMSServlet {
      * <ul>
      * <li>http.param requestId The request ID to search on
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
@@ -206,7 +206,7 @@ public class GetCertFromRequest extends CMSServlet {
             }
         }
 
-        if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) || 
+        if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) ||
                 (r.getRequestType().equals(IRequest.RENEWAL_REQUEST)))) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_REQUEST_NOT_ENROLLMENT_1", requestId));

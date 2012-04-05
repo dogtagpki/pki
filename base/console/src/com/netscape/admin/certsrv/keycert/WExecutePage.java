@@ -36,7 +36,7 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
     private static final String HELPINDEX =
       "configuration-keycert-wizard-selfsignedcert-help";
     private JTextArea desc;
-    
+
     WExecutePage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -57,34 +57,34 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
-//          !wizardInfo.isNewKey() && 
+//          !wizardInfo.isNewKey() &&
           ((wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT) &&
           wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))
 		  ||
-		  (wizardInfo.getCertType().equals(Constants.PR_OCSP_SIGNING_CERT) && 
+		  (wizardInfo.getCertType().equals(Constants.PR_OCSP_SIGNING_CERT) &&
 		   wizardInfo.isSSLCertLocalCA())
 		  ||
-		  (wizardInfo.getCertType().equals(Constants.PR_SERVER_CERT) && 
+		  (wizardInfo.getCertType().equals(Constants.PR_SERVER_CERT) &&
 		   wizardInfo.isSSLCertLocalCA())
 		  ||
-		  (wizardInfo.getCertType().equals(Constants.PR_SERVER_CERT_RADM) && 
+		  (wizardInfo.getCertType().equals(Constants.PR_SERVER_CERT_RADM) &&
 		   wizardInfo.isSSLCertLocalCA()))) {
-          
+
             setBorder(makeTitledBorder(PANELNAME));
 
             if (wizardInfo.isNewKey()) {
                 String str = mResource.getString(
                   "EXECUTEWIZARD_TEXT_NEWKEY_LABEL");
                 desc.setText(str);
-            } else { 
+            } else {
                 String str = mResource.getString(
                   "EXECUTEWIZARD_TEXT_OLDKEY_LABEL");
                 desc.setText(str);
             }
             return true;
         }
-            
-        return false; 
+
+        return false;
     }
 
     public boolean validatePanel() {
@@ -98,7 +98,7 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
         CMSServerInfo serverInfo = wizardInfo.getServerInfo();
 
         String dir = "";
-        if (wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT)) 
+        if (wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT))
 			dir = "prevCACert.txt";
 		else if (wizardInfo.getCertType().equals(Constants.PR_OCSP_SIGNING_CERT))
 			dir = "prevOCSPCert.txt";
@@ -110,7 +110,7 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
         NameValuePairs nvps = wizardInfo.getNameValuePairs();
 
         if (wizardInfo.isNewKey()) {
-            if (wizardInfo.getHashType() != null) 
+            if (wizardInfo.getHashType() != null)
                 nvps.put(ConfigConstants.PR_HASH_TYPE, wizardInfo.getHashType());
             if (wizardInfo.getSignedByType() != null)
                 nvps.put(ConfigConstants.PR_SIGNEDBY_TYPE, wizardInfo.getSignedByType());
@@ -126,7 +126,7 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
             endProgressStatus();
             return false;
         }
- 
+
         endProgressStatus();
         return true;
     }

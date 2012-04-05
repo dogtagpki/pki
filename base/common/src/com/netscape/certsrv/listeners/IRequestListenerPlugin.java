@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.IConfigStore;
  * This interface represents a plug-in listener. Implement this class to
  * add the listener to an ARequestNotifier of a subsystem.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRequestListenerPlugin {
@@ -32,7 +32,7 @@ public interface IRequestListenerPlugin {
     /**
      * get the registered class name set in the init() method.
      * <P>
-     * 
+     *
      * @return the Name.
      */
     public String getName();
@@ -40,7 +40,7 @@ public interface IRequestListenerPlugin {
     /**
      * get the plugin implementaion name set in the init() method.
      * <P>
-     * 
+     *
      * @return the plugin implementation name.
      */
     public String getImplName();
@@ -48,7 +48,7 @@ public interface IRequestListenerPlugin {
     /**
      * the subsystem call this method to initialize the plug-in.
      * <P>
-     * 
+     *
      * @param name the registered class name of the plug-in.
      * @param implName the implemetnation name of the plug-in.
      * @param config the configuration store where the.
@@ -66,7 +66,7 @@ public interface IRequestListenerPlugin {
     /**
      * get the configuration parameters of the plug-in.
      * <P>
-     * 
+     *
      * @return the configuration parameters.
      * @exception EBaseException throws base exception in the certificate server.
      */
@@ -77,7 +77,7 @@ public interface IRequestListenerPlugin {
      * get the configuration store of the plugin where the
      * configuration parameters of the plug-in are stored.
      * <P>
-     * 
+     *
      * @return the configuration store.
      */
 

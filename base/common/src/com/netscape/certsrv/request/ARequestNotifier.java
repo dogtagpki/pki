@@ -32,7 +32,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
  * which notifies all registered request listeners.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ARequestNotifier implements IRequestNotifier {
@@ -106,18 +106,18 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Registers a request listener.
-     * 
+     *
      * @param listener listener to be registered
      */
     public void registerListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
-        // to register twice and call twice ? 
+        // to register twice and call twice ?
         mListeners.put(listener.getClass().getName(), listener);
     }
 
     /**
      * Registers a request listener.
-     * 
+     *
      * @param name listener name
      * @param listener listener to be registered
      */
@@ -127,18 +127,18 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Removes listener from the list of registered listeners.
-     * 
+     *
      * @param listener listener to be removed from the list
      */
     public void removeListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
-        // to register twice and call twice ? 
+        // to register twice and call twice ?
         mListeners.remove(listener.getClass().getName());
     }
 
     /**
      * Gets list of listener names.
-     * 
+     *
      * @return enumeration of listener names
      */
     public Enumeration<String> getListenerNames() {
@@ -147,7 +147,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Removes listener from the list of registered listeners.
-     * 
+     *
      * @param name listener name to be removed from the list
      */
     public void removeListener(String name) {
@@ -156,7 +156,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Gets listener from the list of registered listeners.
-     * 
+     *
      * @param name listener name
      * @return listener
      */
@@ -166,7 +166,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Gets list of listeners.
-     * 
+     *
      * @return enumeration of listeners
      */
     public Enumeration<IRequestListener> getListeners() {
@@ -196,7 +196,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Gets request from publishing queue.
-     * 
+     *
      * @return request
      */
     public synchronized IRequest getRequest() {
@@ -232,7 +232,7 @@ public class ARequestNotifier implements IRequestNotifier {
                     if (!(requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
                             requestType.equals(IRequest.RENEWAL_REQUEST) ||
                             requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                            requestType.equals(IRequest.CMCREVOKE_REQUEST) || 
+                            requestType.equals(IRequest.CMCREVOKE_REQUEST) ||
                             requestType.equals(IRequest.UNREVOCATION_REQUEST))) {
                         continue;
                     }
@@ -287,7 +287,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Gets number of requests in publishing queue.
-     * 
+     *
      * @return number of requests in publishing queue
      */
     public int getNumberOfRequests() {
@@ -296,7 +296,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Checks if publishing queue is enabled.
-     * 
+     *
      * @return true if publishing queue is enabled, false otherwise
      */
     public boolean isPublishingQueueEnabled() {
@@ -305,7 +305,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Removes a notifier thread from the pool of publishing queue threads.
-     * 
+     *
      * @param notifierThread Thread
      */
     public void removeNotifierThread(Thread notifierThread) {
@@ -320,7 +320,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Notifies all registered listeners about request.
-     * 
+     *
      * @param r request
      */
     public void notify(IRequest r) {
@@ -345,7 +345,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
                 /*
                  CMS.getLogger().log(
-                 ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_FAILURE, 
+                 ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_FAILURE,
                  "Could not run listeners for request " + r.getRequestId() +
                  ". Error " + e + ";" + e.getMessage());
                  */
@@ -355,7 +355,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Checks for available publishing connections
-     * 
+     *
      * @return true if there are available publishing connections, false otherwise
      */
     private boolean checkAvailablePublishingConnections() {
@@ -390,7 +390,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Checks if more publishing threads can be added.
-     * 
+     *
      * @return true if more publishing threads can be added, false otherwise
      */
     private boolean morePublishingThreads() {
@@ -417,7 +417,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Notifies all registered listeners about request.
-     * 
+     *
      * @param r request
      */
     public synchronized void addToNotify(IRequest r) {
@@ -449,7 +449,7 @@ public class ARequestNotifier implements IRequestNotifier {
 
     /**
      * Recovers publishing queue.
-     * 
+     *
      * @param id request request
      */
     public void recoverPublishingQueue(String id) {
@@ -490,7 +490,7 @@ class RunListeners implements Runnable {
 
     /**
      * RunListeners class constructor.
-     * 
+     *
      * @param r request
      * @param listeners list of listeners
      */
@@ -501,7 +501,7 @@ class RunListeners implements Runnable {
 
     /**
      * RunListeners class constructor.
-     * 
+     *
      * @param r request
      * @param listeners list of listeners
      */

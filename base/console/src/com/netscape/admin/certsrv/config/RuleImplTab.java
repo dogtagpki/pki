@@ -43,19 +43,19 @@ public class RuleImplTab extends CMSBaseUGTab {
     private static final String IMPL_NAME = RuleImplDataModel.IMPL_NAME;
     private static final String IMPL_CLASS = RuleImplDataModel.IMPL_CLASS;
     private static final String IMPL_DESC = RuleImplDataModel.IMPL_DESC;
-    
+
     private static final String PANEL_NAME = "RULEIMPL";
     private static final String DIALOG_PREFIX = "RULEREGISTERDIALOG";
-  
+
     private AdminConnection mConnection;
     private String mDestination;
-    
+
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
     protected RuleImplDataModel mDataModel;   //table model
     protected RuleRegisterDialog mEditor=null;      //keep single copy
     protected ViewDialog mViewer=null;      //keep single copy
-    
+
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String RAHELPINDEX = "configuration-ra-ruleplugin-help";
     private final static String CAHELPINDEX = "configuration-ca-ruleplugin-help";
@@ -111,13 +111,13 @@ public class RuleImplTab extends CMSBaseUGTab {
             if(mTable.getSelectedRow()< 0)
                 return;
             NameValuePairs obj = (NameValuePairs)
-                    mDataModel.getObjectValueAt(mTable.getSelectedRow());    
+                    mDataModel.getObjectValueAt(mTable.getSelectedRow());
             if (mViewer==null)
                 mViewer = new ViewDialog(mModel.getFrame());
             mViewer.showDialog(obj.get(IMPL_NAME),
                                obj.get(IMPL_CLASS),
                                obj.get(IMPL_DESC));
-        }        
+        }
         if (e.getSource().equals(mHelp)) {
             helpCallback();
         }
@@ -129,7 +129,7 @@ public class RuleImplTab extends CMSBaseUGTab {
     }
 
     public void mouseReleased(MouseEvent e) {
-        setButtons();    
+        setButtons();
     }
 
     /*==========================================================
@@ -138,8 +138,8 @@ public class RuleImplTab extends CMSBaseUGTab {
     public void refresh() {
 
         mDataModel.removeAllRows();
-        update();       
-        
+        update();
+
         setButtons();
         mTable.invalidate();
         mTable.validate();
@@ -223,7 +223,7 @@ public class RuleImplTab extends CMSBaseUGTab {
 
     //set buttons
     private void setButtons() {
-        
+
         //enable and diable buttons accordingly
         //Debug.println("setButtons() - "+mTable.getSelectedRow());
         //Debug.println("setButtons() - "+mTable.getSelectionModel().isSelectionEmpty());
@@ -232,24 +232,24 @@ public class RuleImplTab extends CMSBaseUGTab {
             mView.setEnabled(false);
             return;
         }
-        
+
         if(mDataModel.getRowCount()<=0) {
             mDelete.setEnabled(false);
             mView.setEnabled(false);
             return;
         }
-        
+
         mDelete.setEnabled(true);
-        mView.setEnabled(true);        
-        
+        mView.setEnabled(true);
+
     }
-    
+
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
     private void update() {
         //send request and parse data
-        
+
         mModel.progressStart();
         NameValuePairs response;
         try {
@@ -280,18 +280,18 @@ public class RuleImplTab extends CMSBaseUGTab {
             obj.put(IMPL_DESC, value.substring(x + 1));
             data.put(entry,obj);
         }
-        
+
         CMSAdminUtil.bubbleSort(vals);
-        
+
         for (int y=0; y< vals.length ; y++) {
             mDataModel.processData(data.get(vals[y]));
         }
-        
+
         data.clear();
-        
+
         if (mDataModel.getRowCount() >0)
             mTable.setRowSelectionInterval(0,0);
-            
+
         mModel.progressStop();
     }
 

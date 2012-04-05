@@ -40,7 +40,7 @@ class WOtherCertRequest1Page extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "CACERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WOtherCertRequest1Page() {
         super(PANELNAME);
         init();
@@ -59,7 +59,7 @@ class WOtherCertRequest1Page extends WizardBasePanel implements IWizardPanel {
         if (type.equals(Constants.PR_CA_SIGNING_CERT))
             return false;
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

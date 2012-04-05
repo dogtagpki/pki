@@ -31,7 +31,7 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
  * '$' is used preceeding a token name. A token name should not be a
  * substring of any other token name
  * <p>
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */

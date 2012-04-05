@@ -43,7 +43,7 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a issuing distribution point extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSIssuingDistributionPointExtension

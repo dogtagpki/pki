@@ -55,11 +55,11 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 /**
  * A class represents the database subsystem that manages
  * the backend data storage.
- * 
+ *
  * This subsystem maintains multiple sessions that allows
  * operations to be performed, and provide a registry
  * where all the schema information is stored.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -170,7 +170,7 @@ public class DBSubsystem implements IDBSubsystem {
     /**
      * This method is used for unit tests. It allows the underlying instance
      * to be stubbed out.
-     * 
+     *
      * @param dbSubsystem The stubbed out subsystem to override with.
      */
     public static void setInstance(IDBSubsystem dbSubsystem) {
@@ -242,7 +242,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets minimum serial number limit in config file
-     * 
+     *
      * @param repo repo identifier
      * @return min serial number
      */
@@ -252,7 +252,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets maximum serial number limit in config file
-     * 
+     *
      * @param repo repo identifier
      * @return max serial number
      */
@@ -262,7 +262,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets minimum serial number limit in next range in config file
-     * 
+     *
      * @param repo repo identifier
      * @return min serial number in next range
      */
@@ -277,7 +277,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets maximum serial number limit in next range in config file
-     * 
+     *
      * @param repo repo identifier
      * @return max serial number in next range
      */
@@ -292,7 +292,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets low water mark limit in config file
-     * 
+     *
      * @param repo repo identifier
      * @return low water mark
      */
@@ -302,7 +302,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Gets range increment for next range in config file
-     * 
+     *
      * @param repo repo identifier
      * @return range increment
      */
@@ -312,7 +312,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Sets maximum serial number limit in config file
-     * 
+     *
      * @param repo repo identifier
      * @param serial max serial number
      * @exception EBaseException failed to set
@@ -333,7 +333,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Sets minimum serial number limit in config file
-     * 
+     *
      * @param repo repo identifier
      * @param serial min serial number
      * @exception EBaseException failed to set
@@ -354,7 +354,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Sets maximum serial number limit for next range in config file
-     * 
+     *
      * @param repo repo identifier
      * @param serial max serial number for next range
      * @exception EBaseException failed to set
@@ -381,7 +381,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     /**
      * Sets minimum serial number limit for next range in config file
-     * 
+     *
      * @param repo repo identifier
      * @param serial min serial number for next range
      * @exception EBaseException failed to set
@@ -410,7 +410,7 @@ public class DBSubsystem implements IDBSubsystem {
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
      * this range to the current instance by creating a pkiRange object.
-     * 
+     *
      * @param repo repo identifier
      * @return start of next range
      */
@@ -429,8 +429,8 @@ public class DBSubsystem implements IDBSubsystem {
 
             BigInteger nextRangeNo = new BigInteger(nextRange);
             BigInteger incrementNo = new BigInteger((String) h.get(PROP_INCREMENT));
-            // To make sure attrNextRange always increments, first delete the current value and then 
-            // increment.  Two operations in the same transaction 
+            // To make sure attrNextRange always increments, first delete the current value and then
+            // increment.  Two operations in the same transaction
             LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, nextRangeNo.add(incrementNo).toString());
             LDAPModification[] mods = {
                     new LDAPModification(LDAPModification.DELETE, attr),
@@ -472,7 +472,7 @@ public class DBSubsystem implements IDBSubsystem {
      * If so, delete the conflict entry and remove the next range.
      * When the next number is requested, if the number of certs is still
      * below the low water mark, then a new range will be requested.
-     * 
+     *
      * @param repo repo identifier
      * @return true if range conflict, false otherwise
      */

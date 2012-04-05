@@ -27,7 +27,7 @@ import java.io.OutputStream;
  * does so with impunity, since it's not intended to be exposed to the
  * anyone who could violate the "typed value stream" DER model and hence
  * corrupt the input stream of DER values.
- * 
+ *
  * @version 1.11
  * @author David Brownell
  */

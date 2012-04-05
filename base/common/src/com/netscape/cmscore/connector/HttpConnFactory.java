@@ -37,7 +37,7 @@ public class HttpConnFactory {
     private ILogger mLogger = CMS.getLogger();
 
     private int mNumConns = 0; // number of available conns in array
-    private int mTotal = 0; // total num conns 
+    private int mTotal = 0; // total num conns
     private IHttpConnection mMasterConn = null; // master connection object.
     private IHttpConnection mConns[];
     private IAuthority mSource = null;
@@ -59,7 +59,7 @@ public class HttpConnFactory {
 
     /**
      * Constructor for HttpConnFactory
-     * 
+     *
      * @param minConns minimum number of connections to have available
      * @param maxConns max number of connections to have available. This is
      * @param serverInfo server connection info - host, port, etc.
@@ -79,7 +79,7 @@ public class HttpConnFactory {
     /**
      * initialize parameters obtained from either constructor or
      * config store
-     * 
+     *
      * @param minConns minimum number of connection handls to have available.
      * @param maxConns maximum total number of connections to ever have.
      * @param connInfo ldap connection info.
@@ -177,7 +177,7 @@ public class HttpConnFactory {
      * returnConn() method.
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * IHttpConnection c = null;
      * try {
@@ -204,7 +204,7 @@ public class HttpConnFactory {
      * Returns null if maximum number of connections reached.
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * IHttpConnnection c = null;
      * try {
@@ -260,7 +260,7 @@ public class HttpConnFactory {
      * This is mandatory after a getConn().
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,
-     * 
+     *
      * <pre>
      * IHttpConnection c = null;
      * try {

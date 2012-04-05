@@ -25,9 +25,9 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the PolicyQualifiers.
- * 
+ *
  * policyQualifiers ::= SEQUENCE SIZE (1..MAX) OF PolicyQualifierInfo
- * 
+ *
  * @author Thomas Kwan
  */
 public class PolicyQualifiers implements java.io.Serializable {
@@ -40,7 +40,7 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Create a PolicyQualifiers with the ObjectIdentifier.
-     * 
+     *
      * @param id the ObjectIdentifier for the policy id.
      */
     public PolicyQualifiers() {
@@ -48,7 +48,7 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Create the object from its Der encoded value.
-     * 
+     *
      * @param val the DER encoded value for the same.
      */
     public PolicyQualifiers(DerValue val) throws IOException {
@@ -90,7 +90,7 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Write the PolicyQualifiers to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

@@ -30,7 +30,7 @@ import com.netscape.certsrv.security.KeyCertData;
 
 /**
  * SSL server certificate
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -93,7 +93,7 @@ public class SSLSelfSignedCert extends CertificateInfo {
      return sAlg;
      }
      String alg = (String)mProperties.get(Constants.PR_KEY_TYPE);
-     
+
      if (alg.equals("RSA"))
      return SignatureAlgorithm.RSASignatureWithMD5Digest;
      else

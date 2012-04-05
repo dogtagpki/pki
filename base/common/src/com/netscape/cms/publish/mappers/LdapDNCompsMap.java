@@ -55,7 +55,7 @@ import com.netscape.certsrv.publish.ILdapPlugin;
  * If the baseDN is null and none of the DN comps matched, it is an error.
  * If none of the DN comps and filter comps matched, it is an error.
  * If just the filter comps is null, a base search is performed.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapDNCompsMap
@@ -71,14 +71,14 @@ public class LdapDNCompsMap
 
     /**
      * Constructor.
-     * 
+     *
      * The DN comps are used to form a LDAP entry to begin a subtree search.
      * The filter comps are used to form a search filter for the subtree.
      * If none of the DN comps matched, baseDN is used for the subtree.
      * If the baseDN is null and none of the DN comps matched, it is an error.
      * If none of the DN comps and filter comps matched, it is an error.
      * If just the filter comps is null, a base search is performed.
-     * 
+     *
      * @param baseDN The base DN.
      * @param dnComps Components to form the LDAP base dn for search.
      * @param filterComps Components to form the LDAP search filter.
@@ -209,7 +209,7 @@ public class LdapDNCompsMap
      * If the formed DN is null and baseDN is null an error is thrown.
      * If the filter is null a base search is performed.
      * If both are null an error is thrown.
-     * 
+     *
      * @param conn the LDAP connection.
      * @param x500name the dn to map.
      * @param obj the object
@@ -234,8 +234,8 @@ public class LdapDNCompsMap
                 // if (filter == null) {
                 //	log(ILogger.LL_FAILURE, "No dn and filter formed");
                 //	throw new ELdapException(
-                //		LdapResources.NO_DN_AND_FILTER_COMPS, 
-                //		x500name.toString()); 
+                //		LdapResources.NO_DN_AND_FILTER_COMPS,
+                //		x500name.toString());
                 // }
                 if (mBaseDN == null) {
                     log(ILogger.LL_FAILURE,
@@ -302,7 +302,7 @@ public class LdapDNCompsMap
 
     /**
      * form a dn and filter from component in the cert subject name
-     * 
+     *
      * @param subjName subject name
      */
     public String[] formDNandFilter(X500Name subjName)
@@ -359,7 +359,7 @@ public class LdapDNCompsMap
                     }
                 }
 
-                // XXX should be an error when string is null? 
+                // XXX should be an error when string is null?
                 // return to caller to decide.
                 if (dnRdns.size() != 0) {
                     dnStr = new X500Name(dnRdns).toLdapDNString();
@@ -417,7 +417,7 @@ public class LdapDNCompsMap
      * arrays of objectidentifiers.
      * The string is expected to be comma separated AVA attribute names.
      * For example, "uid,cn,o,ou". Attribute names are case insensitive.
-     * 
+     *
      * @param val the string specifying the comps
      * @exception ELdapException if any error occurs.
      */

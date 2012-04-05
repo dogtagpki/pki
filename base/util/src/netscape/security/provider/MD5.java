@@ -24,7 +24,7 @@ import java.security.MessageDigestSpi;
  * The MD5 class is used to compute an MD5 message digest over a given
  * buffer of bytes. It is an implementation of the RSA Data Security Inc
  * MD5 algorithim as described in internet RFC 1321.
- * 
+ *
  * @version 1.24 97/12/10
  * @author Chuck McManis
  * @author Benjamin Renaud

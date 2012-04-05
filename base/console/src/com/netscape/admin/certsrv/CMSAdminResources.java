@@ -86,7 +86,7 @@ public class CMSAdminResources extends ResourceBundle {
     public static final String IMAGE_ACLOBJECT = "aclobj.gif";
     public static final String IMAGE_ACL = "acl.gif";
     public static final String IMAGE_ACLPLUGIN = "aclplugin.gif";
-    
+
     //dialog icons
     public static final String IMAGE_INFO_ICON = "messagel.gif";
     public static final String IMAGE_ERROR_ICON = "error.gif";
@@ -137,25 +137,25 @@ public class CMSAdminResources extends ResourceBundle {
     public final static String MENU_NEW_EXTENSION = "NEW_EXTENSION";
     public final static String MENU_NEW_POLICY = "NEW_POLICY";
     public final static String MENU_PERMISSION = "PERMISSION";
-    public final static String MENU_CONFIGURE_SERVER = "Configure Server"; 
-    public final static String MENU_CONFIGURE_SERVER_DESC = "Configure the Server"; 
-    public final static String MENU_START_SERVER = "Start Server"; 
-    public final static String MENU_START_SERVER_DESC = "Start the Server"; 
-    public final static String MENU_REMOVE_SERVER = "Remove Server"; 
-    public final static String MENU_REMOVE_SERVER_DESC = "Remove the Server"; 
+    public final static String MENU_CONFIGURE_SERVER = "Configure Server";
+    public final static String MENU_CONFIGURE_SERVER_DESC = "Configure the Server";
+    public final static String MENU_START_SERVER = "Start Server";
+    public final static String MENU_START_SERVER_DESC = "Start the Server";
+    public final static String MENU_REMOVE_SERVER = "Remove Server";
+    public final static String MENU_REMOVE_SERVER_DESC = "Remove the Server";
     public final static String MENU_STOP_SERVER = "Stop Server";
     public final static String MENU_STOP_SERVER_DESC = "Stop the Server";
     public final static String MENU_RESTART_SERVER = "Restart Server";
     public final static String MENU_RESTART_SERVER_DESC = "Restart the Server";
 
 
-    public final static String PROP_FILE = 
+    public final static String PROP_FILE =
 	"CMSAdminRS";
 
     public CMSAdminResources()
     {
 	mResourceSet = new ThisResourceSet(PROP_FILE);
-  	mResourceBundle = mResourceSet.getThisBundle(PROP_FILE, 
+	mResourceBundle = mResourceSet.getThisBundle(PROP_FILE,
 		Locale.getDefault());
     }
 

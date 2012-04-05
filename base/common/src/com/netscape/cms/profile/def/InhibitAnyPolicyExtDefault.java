@@ -35,7 +35,7 @@ import com.netscape.certsrv.request.IRequest;
 
 /**
  * This class implements an inhibit Any-Policy extension
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {

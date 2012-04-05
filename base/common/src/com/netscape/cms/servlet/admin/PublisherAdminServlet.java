@@ -71,7 +71,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
  * A class representing an publishing servlet for the
  * Publishing subsystem. This servlet is responsible
  * to serve configuration requests for the Publishing subsystem.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PublisherAdminServlet extends AdminServlet {
@@ -138,7 +138,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // for the rest					
+        // for the rest
         try {
             super.authenticate(req);
 
@@ -571,7 +571,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         commit(true);
 
-        /* Do a "PUT" of the new pw to the watchdog" 
+        /* Do a "PUT" of the new pw to the watchdog"
          ** do not remove - cfu
         if (pwd != null)
             CMS.putPasswordCache(PW_TAG_CA_LDAP_PUBLISHING, pwd);
@@ -921,7 +921,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             CMS.debug("PublisherAdminServlet: testSetLDAPDest(): authInfo null");
             */
         }
-        //params.add(Constants.PR_SAVE_OK, 
+        //params.add(Constants.PR_SAVE_OK,
         //		   "\n \nConfiguration changes are now committed.");
 
         mProcessor.shutdown();
@@ -1322,7 +1322,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
-        // being used. 
+        // being used.
         mProcessor.getMapperInsts().remove(id);
 
         // remove the configuration.
@@ -2014,7 +2014,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
-        // being used. 
+        // being used.
         mProcessor.getRuleInsts().remove(id);
 
         // remove the configuration.
@@ -2140,7 +2140,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // get plugin for implementation 
+        // get plugin for implementation
         RulePlugin plugin =
                 (RulePlugin) mProcessor.getRulePlugins().get(implname);
 
@@ -2152,7 +2152,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // save old instance substore params in case new one fails. 
+        // save old instance substore params in case new one fails.
 
         ILdapRule oldinst =
                 (ILdapRule) mProcessor.getRuleInsts().get((Object) id);
@@ -2666,7 +2666,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
-        // being used. 
+        // being used.
         mProcessor.getPublisherInsts().remove(id);
 
         // remove the configuration.
@@ -2818,7 +2818,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // get plugin for implementation 
+        // get plugin for implementation
         PublisherPlugin plugin =
                 (PublisherPlugin) mProcessor.getPublisherPlugins().get(implname);
 
@@ -2831,7 +2831,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // save old instance substore params in case new one fails. 
+        // save old instance substore params in case new one fails.
 
         ILdapPublisher oldinst = mProcessor.getPublisherInstance(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();

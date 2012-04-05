@@ -41,7 +41,7 @@ import com.netscape.certsrv.request.IRequest;
  * checked in the order to find the first matched publishing rule as the
  * mapping rule to (un)publish the object.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPublishRuleSet {
@@ -50,7 +50,7 @@ public interface IPublishRuleSet {
     /**
      * Returns the name of the publishing rule set.
      * <P>
-     * 
+     *
      * @return The name of the publishing rule set.
      */
     String getName();
@@ -58,7 +58,7 @@ public interface IPublishRuleSet {
     /**
      * Returns the no of publishing rules in a set.
      * <P>
-     * 
+     *
      * @return the no of publishing rules.
      */
     int count();
@@ -66,7 +66,7 @@ public interface IPublishRuleSet {
     /**
      * Add a publishing rule
      * <P>
-     * 
+     *
      * @param aliasName The name of the publishing rule to be added.
      * @param rule rule The publishing rule to be added.
      */
@@ -74,7 +74,7 @@ public interface IPublishRuleSet {
 
     /**
      * Removes a publishing rule identified by the given name.
-     * 
+     *
      * @param ruleName The name of the publishing rule to be removed.
      */
     void removeRule(String ruleName);
@@ -82,7 +82,7 @@ public interface IPublishRuleSet {
     /**
      * Get the publishing rule identified by a given name.
      * <P>
-     * 
+     *
      * @param ruleName The name of the publishing rule to be return.
      * @return The publishing rule identified by the given name or null if none exists.
      */
@@ -91,7 +91,7 @@ public interface IPublishRuleSet {
     /**
      * Get the publishing rule identified by a corresponding request.
      * <P>
-     * 
+     *
      * @param req The request from which rule will be identified.
      * @return The publishing rule or null if none exists.
      */
@@ -100,7 +100,7 @@ public interface IPublishRuleSet {
     /**
      * Get an enumeration of publishing rules.
      * <P>
-     * 
+     *
      * @return An enumeration of publishing rules.
      */
     Enumeration<ILdapRule> getRules();
@@ -112,7 +112,7 @@ public interface IPublishRuleSet {
      * Use the mapper to find the dn of the LDAP entry and use the publisher
      * to publish the object in the request.
      * <P>
-     * 
+     *
      * @param conn The Ldap connection
      * @param req The request to apply policies on.
      * @exception ELdapException publish failed due to Ldap error.

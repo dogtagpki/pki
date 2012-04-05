@@ -52,7 +52,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Decode the CRL and display it to the requester.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayCRL extends CMSServlet {
@@ -79,7 +79,7 @@ public class DisplayCRL extends CMSServlet {
     /**
      * Initialize the servlet. This servlet uses the 'displayCRL.template' file to
      * to render the response to the client.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -103,7 +103,7 @@ public class DisplayCRL extends CMSServlet {
      * <li>http.param pageStart which page to start displaying from
      * <li>http.param pageSize number of entries to show per page
      * </ul>
-     * 
+     *
      * @param cmsReq the Request to service.
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

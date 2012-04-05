@@ -31,19 +31,19 @@ import netscape.security.x509.X509Key;
 
 /**
  * An X.509 public key for the RSA Algorithm.
- * 
+ *
  * @author galperin
- * 
+ *
  * @version $Revision$, $Date$
- * 
+ *
  */
 
 public final class RSAPublicKey extends X509Key implements Serializable {
 
     /* XXX This currently understands only PKCS#1 RSA Encryption OID
        and parameter format
-       Later we may consider adding X509v3 OID for RSA keys. Besides 
-       different OID it also has a parameter equal to modulus size 
+       Later we may consider adding X509v3 OID for RSA keys. Besides
+       different OID it also has a parameter equal to modulus size
        in bits (redundant!)
        */
 
@@ -59,7 +59,7 @@ public final class RSAPublicKey extends X509Key implements Serializable {
     private BigInt publicExponent;
 
     /*
-     * Keep this constructor for backwards compatibility with JDK1.1. 
+     * Keep this constructor for backwards compatibility with JDK1.1.
      */
     public RSAPublicKey() {
     }
@@ -97,7 +97,7 @@ public final class RSAPublicKey extends X509Key implements Serializable {
     /**
      * Get key size as number of bits in modulus
      * (Always rounded up to a multiple of 8)
-     * 
+     *
      */
     public int getKeySize() {
         return this.modulus.byteLength() * 8;
@@ -105,7 +105,7 @@ public final class RSAPublicKey extends X509Key implements Serializable {
 
     /**
      * Get the raw public exponent
-     * 
+     *
      */
     public BigInt getPublicExponent() {
         return this.publicExponent;
@@ -113,7 +113,7 @@ public final class RSAPublicKey extends X509Key implements Serializable {
 
     /**
      * Get the raw modulus
-     * 
+     *
      */
     public BigInt getModulus() {
         return this.modulus;

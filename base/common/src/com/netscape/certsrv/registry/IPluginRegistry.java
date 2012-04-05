@@ -25,10 +25,10 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * This represents the registry subsystem that manages
  * mulitple types of plugin information.
- * 
+ *
  * The plugin information includes id, name,
  * classname, and description.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IPluginRegistry extends ISubsystem {
@@ -37,21 +37,21 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Returns handle to the registry configuration file.
-     * 
+     *
      * @return configuration store of registry subsystem
      */
     public IConfigStore getFileConfigStore();
 
     /**
      * Returns all type names.
-     * 
+     *
      * @return a list of String-based names
      */
     public Enumeration<String> getTypeNames();
 
     /**
      * Returns a list of plugin identifiers of the given type.
-     * 
+     *
      * @param type plugin type
      * @return a list of plugin IDs
      */
@@ -59,7 +59,7 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Retrieves the plugin information.
-     * 
+     *
      * @param type plugin type
      * @param id plugin id
      * @return plugin info
@@ -68,7 +68,7 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Adds plugin info.
-     * 
+     *
      * @param type plugin type
      * @param id plugin id
      * @param info plugin info

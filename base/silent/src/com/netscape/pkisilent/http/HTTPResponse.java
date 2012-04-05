@@ -60,7 +60,7 @@ public class HTTPResponse {
 
     /**
      * Creates a new HTTP response with the provided status code.
-     * 
+     *
      * @param statusCode The HTTP status code for this response.
      * @param protocolVersion The protocol and version for this response.
      * @param responseMessage The message associated with this response.
@@ -84,7 +84,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the status code for this HTTP response.
-     * 
+     *
      * @return The status code for this HTTP response.
      */
     public int getStatusCode() {
@@ -93,7 +93,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the protocol version for this HTTP response.
-     * 
+     *
      * @return The protocol version for this HTTP response.
      */
     public String getProtocolVersion() {
@@ -102,7 +102,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the response message for this HTTP response.
-     * 
+     *
      * @return The response message for this HTTP response.
      */
     public String getResponseMessage() {
@@ -113,7 +113,7 @@ public class HTTPResponse {
      * Retrieves the value of the header with the specified name. If the
      * specified header has more than one value, then only the first will be
      * retrieved.
-     * 
+     *
      * @return The value of the header with the specified name, or <CODE>null</CODE> if no such header is available.
      */
     public String getHeader(String headerName) {
@@ -130,7 +130,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the set of values for the specified header.
-     * 
+     *
      * @return The set of values for the specified header.
      */
     public String[] getHeaderValues(String headerName) {
@@ -150,7 +150,7 @@ public class HTTPResponse {
 
     /**
      * Adds a header with the given name and value to this response.
-     * 
+     *
      * @param headerName The name of the header to add to this response.
      * @param headerValue The value of the header to add to this response.
      */
@@ -174,7 +174,7 @@ public class HTTPResponse {
     /**
      * Retrieves a two-dimensional array containing the header data for this
      * response, with each element being an array containing a name/value pair.
-     * 
+     *
      * @return A two-dimensional array containing the header data for this
      *         response.
      */
@@ -191,7 +191,7 @@ public class HTTPResponse {
     /**
      * Retrieves the raw data included in this HTTP response. If the response did
      * not include any data, an empty array will be returned.
-     * 
+     *
      * @return The raw data included in this HTTP response.
      */
     public byte[] getResponseData() {
@@ -255,7 +255,7 @@ public class HTTPResponse {
 
     /**
      * Sets the actual data associated with this response.
-     * 
+     *
      * @param responseData The actual data associated with this response.
      */
     public void setResponseData(byte[] responseData) {
@@ -268,7 +268,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the content length associated with this response.
-     * 
+     *
      * @return The content length associated with this response, or -1 if no
      *         content length is available.
      */
@@ -278,7 +278,7 @@ public class HTTPResponse {
 
     /**
      * Retrieves the content type associated with this response.
-     * 
+     *
      * @return The content type associated with this response, or <CODE>null</CODE> if no content type is available.
      */
     public String getContentType() {
@@ -288,7 +288,7 @@ public class HTTPResponse {
     /**
      * Retrieves an array containing the values of the cookies that should be set
      * based on the information in this response.
-     * 
+     *
      * @return An array containing the values of the cookies that should be set
      *         based on the information in this response.
      */

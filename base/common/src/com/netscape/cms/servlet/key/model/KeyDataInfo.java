@@ -16,11 +16,11 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 /**
- * 
+ *
  */
 package com.netscape.cms.servlet.key.model;
 
- 
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,13 +35,13 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 @XmlRootElement(name="SecurityDataInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyDataInfo {
-    
+
     @XmlElement
     protected String keyURL;
 
     @XmlElement
     protected String clientID;
-    
+
     public KeyDataInfo() {
         // required for JAXB (defaults)
     }

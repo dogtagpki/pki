@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Converts characters in ASN.1 PrintableString character set to PrintableString
  * bytes.
- * 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */

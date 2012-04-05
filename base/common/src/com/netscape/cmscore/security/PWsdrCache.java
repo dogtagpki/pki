@@ -44,7 +44,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 
-/* 
+/*
  * A class for managing passwords in the SDR password cache
  *
  * @author Christina Fu

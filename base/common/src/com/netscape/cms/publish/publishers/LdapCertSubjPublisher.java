@@ -47,7 +47,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
  * Interface for mapping a X509 certificate to a LDAP entry
  * Publishes a certificate as binary and its subject name.
  * there is one subject name value for each certificate.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LdapCertSubjPublisher implements ILdapPublisher {
@@ -136,7 +136,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
      * Adds the cert to the multi-valued certificate attribute as a
      * DER encoded binary blob. Does not check if cert already exists.
      * Then adds the subject name of the cert to the subject name attribute.
-     * 
+     *
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
@@ -298,7 +298,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
                 return;
             }
 
-            // delete cert if there. 
+            // delete cert if there.
             LDAPModificationSet modSet = new LDAPModificationSet();
 
             if (hasCert) {

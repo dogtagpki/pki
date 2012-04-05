@@ -34,7 +34,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class defines the Certificate Policies Extension.
- * 
+ *
  * <p>
  * The certificate policies extension conatins a sequence of policy information terms, each of which consists of an
  * object identifier (OID) and optional qualifiers. These policy information terms indicate the policy under which the
@@ -42,11 +42,11 @@ import com.netscape.cmsutil.util.Utils;
  * requirements are expected to have a list of those policies which they will accept and to compare the policy OIDs in
  * the certificate to that list. If this extension is critical, the path validation software must be able to interpret
  * this extension, or must reject the certificate.
- * 
+ *
  * <pre>
  * CertificatePolicies ::= SEQUENECE OF PolicyInformation
  * </pre>
- * 
+ *
  * @author Christine Ho
  * @see Extension
  * @see CertAttrSet
@@ -69,7 +69,7 @@ public class CertificatePoliciesExtension extends Extension
     public static final String NAME = "CertificatePolicies";
     public static final String INFOS = "infos";
 
-    // Private data members 
+    // Private data members
     private Vector<CertificatePolicyInfo> mInfos;
 
     // Encode this extension value
@@ -93,7 +93,7 @@ public class CertificatePoliciesExtension extends Extension
 
     /**
      * Create a CertificatePolicies with the Vector of CertificatePolicyInfo.
-     * 
+     *
      * @param infos the Vector of CertificatePolicyInfo.
      */
     public CertificatePoliciesExtension(Vector<CertificatePolicyInfo> infos) throws IOException {
@@ -114,7 +114,7 @@ public class CertificatePoliciesExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -157,7 +157,7 @@ public class CertificatePoliciesExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     * 
+     *
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -174,7 +174,7 @@ public class CertificatePoliciesExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -253,7 +253,7 @@ public class CertificatePoliciesExtension extends Extension
 
         /**
          * From ASN.1 dump
-         * 
+         *
          * 0 30 133: SEQUENCE {
          * 3 30 45: . SEQUENCE {
          * 5 06 3: . . OBJECT IDENTIFIER '1 2 3 5'

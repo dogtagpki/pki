@@ -21,7 +21,7 @@ import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
 
 /**
- * Subject DN page for SSL server certificate 
+ * Subject DN page for SSL server certificate
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
@@ -64,7 +64,7 @@ class WIServerCertDNPage extends WICertDNPage {
             CComp = wizardInfo.getRACComp();
         }
 */
-        
+
         String OUComp = wizardInfo.getOUComponent();
         String OComp = wizardInfo.getOComponent();
         String LComp = wizardInfo.getLComponent();
@@ -94,7 +94,7 @@ class WIServerCertDNPage extends WICertDNPage {
         wizardInfo.setSSLSubjectName(str);
         populateDN(str);
 
-        if (wizardInfo.isSSLCertLocalCA()) 
+        if (wizardInfo.isSSLCertLocalCA())
             mHelpIndex = LOCALHELPINDEX;
         else
             mHelpIndex = REMOTEHELPINDEX;

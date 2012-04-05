@@ -69,10 +69,10 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Display detailed information about a certificate
- * 
+ *
  * The template 'displayBySerial.template' is used to
  * render the response for this servlet.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayBySerial extends CMSServlet {
@@ -98,7 +98,7 @@ public class DisplayBySerial extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -118,7 +118,7 @@ public class DisplayBySerial extends CMSServlet {
         if (mOutputTemplatePath != null)
             mForm1Path = mOutputTemplatePath;
 
-        // override success and error templates to null - 
+        // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
     }
@@ -353,11 +353,11 @@ public class DisplayBySerial extends CMSServlet {
 
             /*
              String scheme = req.getScheme();
-             if (scheme.equals("http") && connectionIsSSL(req)) 
+             if (scheme.equals("http") && connectionIsSSL(req))
              scheme = "https";
              String requestURI = req.getRequestURI();
              int i = requestURI.indexOf('?');
-             String newRequestURI = 
+             String newRequestURI =
              (i > -1)? requestURI.substring(0, i): requestURI;
              header.addStringValue("serviceURL", scheme +"://"+
              req.getServerName() + ":"+
@@ -384,7 +384,7 @@ public class DisplayBySerial extends CMSServlet {
 
             /*
              String userAgent = req.getHeader("user-agent");
-             String agent = 
+             String agent =
              (userAgent != null)? UserInfo.getUserAgent(userAgent): "";
              */
             // Now formulate a PKCS#7 blob
@@ -428,7 +428,7 @@ public class DisplayBySerial extends CMSServlet {
                 p7Str = Utils.base64encode(p7Bytes);
                 header.addStringValue("pkcs7ChainBase64", p7Str);
             } catch (Exception e) {
-                //p7Str = "PKCS#7 B64 Encoding error - " + e.toString() 
+                //p7Str = "PKCS#7 B64 Encoding error - " + e.toString()
                 //+ "; Please contact your administrator";
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()));

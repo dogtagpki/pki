@@ -35,7 +35,7 @@ class WIntroPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "INTROKEYCERTWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-introduction-help";
-    
+
     WIntroPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -51,7 +51,7 @@ class WIntroPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         setBorder(makeTitledBorder(PANELNAME));
-        return true; 
+        return true;
     }
 
     public boolean isLastPage() {

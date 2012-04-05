@@ -24,7 +24,7 @@ import com.netscape.certsrv.base.IArgBlock;
 
 /**
  * Holds template parameters
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSTemplateParams {

@@ -30,14 +30,14 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * CertStatus ::= CHOICE {
  *  good                [0]     IMPLICIT NULL,
  *  revoked             [1]     IMPLICIT RevokedInfo,
  *  unknown             [2]     IMPLICIT UnknownInfo }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class GoodInfo implements CertStatus {

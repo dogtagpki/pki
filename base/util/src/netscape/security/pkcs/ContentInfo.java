@@ -26,7 +26,7 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * A ContentInfo type, as defined in PKCS#7.
- * 
+ *
  * @version 1.12
  * @author Benjamin Renaud
  */

@@ -30,7 +30,7 @@ import com.netscape.certsrv.security.KeyCertData;
 
 /**
  * Subsystem certificate.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */

@@ -27,12 +27,12 @@ import com.netscape.certsrv.base.EBaseException;
  * Class that can be used to form general names from configuration file.
  * Used by policies and extension commands.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -40,7 +40,7 @@ public interface IGeneralNameConfig {
 
     /**
      * Forms a general name from string.
-     * 
+     *
      * @param value general name in string
      * @return general name object
      * @exception EBaseException failed to form general name
@@ -50,7 +50,7 @@ public interface IGeneralNameConfig {
 
     /**
      * Forms general names from the given value.
-     * 
+     *
      * @param value general name in string
      * @return a vector of general names
      * @exception EBaseException failed to form general name
@@ -60,7 +60,7 @@ public interface IGeneralNameConfig {
 
     /**
      * Retrieves the instance parameters.
-     * 
+     *
      * @param params parameters
      */
     public void getInstanceParams(Vector<String> params);

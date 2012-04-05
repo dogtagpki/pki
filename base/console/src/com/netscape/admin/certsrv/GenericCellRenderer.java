@@ -49,7 +49,7 @@ public class GenericCellRenderer
     static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);
     static Color WHITECOLOR = Color.white;
     static Color BLACKCOLOR = Color.black;
-    
+
     /*==========================================================
      * constructors
      *==========================================================*/
@@ -78,11 +78,11 @@ public class GenericCellRenderer
 						   int row, int column) {
         TableModel model = table.getModel();
         if(value == null) {
-            
-            value = model.getValueAt(row, column);                
+
+            value = model.getValueAt(row, column);
         }
         Vector v = (Vector)(((CMSContentTableModel)model).getObjectValueAt(row));
-        this.value.setValue(value, v);       
+        this.value.setValue(value, v);
         component.setBackground(isSelected ? HIGHLIGHTCOLOR : WHITECOLOR);
         component.setForeground(isSelected ? WHITECOLOR : BLACKCOLOR);
         return component;
@@ -102,7 +102,7 @@ public class GenericCellRenderer
                     mLabel.setFont(temp.getFont());
                 }
                 component = mLabel;
-                
+
                 StringBuffer buf = new StringBuffer();
                 for(int i=0; i< ((String)x).length(); i++)
                     buf.append("*");
@@ -129,7 +129,7 @@ public class GenericCellRenderer
             } else if (type.equals(Constants.COMBOTYPE)) {
                 String[] items = (String[])v.elementAt(1);
 
-                if (mComboBox == null) 
+                if (mComboBox == null)
                     mComboBox = new JComboBox(items);
                 else {
                     mComboBox.removeAllItems();
@@ -146,7 +146,7 @@ public class GenericCellRenderer
                     mComboBox.setSelectedItem(str);
             }
         }
-        
+
     }
 }
 

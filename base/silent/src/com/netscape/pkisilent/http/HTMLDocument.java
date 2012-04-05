@@ -103,7 +103,7 @@ public class HTMLDocument {
 
     /**
      * Creates a new HTML document using the provided data.
-     * 
+     *
      * @param documentURL The URL for this document.
      * @param htmlData The actual data contained in the HTML document.
      */
@@ -169,7 +169,7 @@ public class HTMLDocument {
 
     /**
      * Actually parses the HTML document and extracts useful elements from it.
-     * 
+     *
      * @return <CODE>true</CODE> if the page could be parsed successfully, or <CODE>false</CODE> if not.
      */
     public boolean parse() {
@@ -456,9 +456,9 @@ public class HTMLDocument {
      * Converts the provided URI to a URL. The provided URI may be a URL already,
      * or it may also be an absolute path on the server or a path relative to the
      * base URL.
-     * 
+     *
      * @param uri The URI to convert to a URL.
-     * 
+     *
      * @return The URL based on the provided URI.
      */
     private String uriToURL(String uri) {
@@ -479,7 +479,7 @@ public class HTMLDocument {
 
     /**
      * Retrieves the URL of this HTML document.
-     * 
+     *
      * @return The URL of this HTML document.
      */
     public String getDocumentURL() {
@@ -488,7 +488,7 @@ public class HTMLDocument {
 
     /**
      * Retrieves the original HTML data used to create this document.
-     * 
+     *
      * @return The orginal HTML data used to create this document.
      */
     public String getHTMLData() {
@@ -497,7 +497,7 @@ public class HTMLDocument {
 
     /**
      * Retrieves the contents of the HTML document with all tags removed.
-     * 
+     *
      * @return The contents of the HTML document with all tags removed, or <CODE>null</CODE> if a problem occurs while
      *         trying to parse the
      *         HTML.
@@ -517,7 +517,7 @@ public class HTMLDocument {
      * that reference files that would normally be downloaded as part of
      * retrieving a page in a browser. This includes images and external style
      * sheets.
-     * 
+     *
      * @return An array containing a set of URLs to files associated with the
      *         HTML document, or <CODE>null</CODE> if a problem occurs while
      *         trying to parse the HTML.
@@ -537,7 +537,7 @@ public class HTMLDocument {
     /**
      * Retrieves an array containing a set of URLs parsed from the HTML document
      * that are in the form of links to other content.
-     * 
+     *
      * @return An array containing a set of URLs parsed from the HTML document
      *         that are in the form of links to other content, or <CODE>null</CODE> if a problem occurs while trying to
      *         parse the
@@ -558,7 +558,7 @@ public class HTMLDocument {
     /**
      * Retrieves an array containing a set of URLs parsed from the HTML document
      * that reference images used in the document.
-     * 
+     *
      * @return An array containing a set of URLs parsed from the HTML document
      *         that reference images used in the document.
      */
@@ -577,7 +577,7 @@ public class HTMLDocument {
     /**
      * Retrieves an array containing a set of URLs parsed from the HTML document
      * that reference frames used in the document.
-     * 
+     *
      * @return An array containing a set of URLs parsed from the HTML document
      *         that reference frames used in the document.
      */

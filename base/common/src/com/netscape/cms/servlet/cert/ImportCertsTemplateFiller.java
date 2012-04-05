@@ -60,24 +60,24 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Set up HTTP response to import certificate into browsers
- * 
+ *
  * The result must have been populate with the set of certificates
  * to return.
- * 
+ *
  * <pre>
  * inputs: certtype.
- * outputs: 
+ * outputs:
  * 	- cert type from http input (if any)
- *      - CA chain 
+ *      - CA chain
  * 	- authority name (RM, CM, DRM)
  *      - scheme:host:port of server.
- *  array of one or more 
+ *  array of one or more
  *      - cert serial number
  *      - cert pretty print
  * 	- cert in base 64 encoding.
  * 	- cmmf blob to import
  * </pre>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
@@ -118,7 +118,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, fixed);
 
-        // set host name and port. 
+        // set host name and port.
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         String host = httpReq.getServerName();
         int port = httpReq.getServerPort();
@@ -169,14 +169,14 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         if (replyTo != null)
             fixed.set("replyTo", replyTo);
 
-        // set user + CA cert chain and pkcs7 for MSIE. 
+        // set user + CA cert chain and pkcs7 for MSIE.
         X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
         int m = 1, n = 0;
 
         for (; n < cacerts.length; m++, n++)
             userChain[m] = (X509CertImpl) cacerts[n];
 
-        // certs. 
+        // certs.
         X509CertImpl[] certs = (X509CertImpl[]) cmsReq.getResult();
 
         // expose CRMF request id
@@ -190,7 +190,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             fixed.set(CRMF_REQID, crmfReqId);
         }
 
-        // set CA certs in cmmf, initialize CertRepContent 
+        // set CA certs in cmmf, initialize CertRepContent
         // note cartman can't trust ca certs yet but it'll import them.
         // also set cert nickname for cartman.
         CertRepContent certRepContent = null;
@@ -212,7 +212,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                 fixed.set(CERT_NICKNAME, certnickname);
         }
 
-        // make pkcs7 for MSIE 
+        // make pkcs7 for MSIE
         if (CMSServlet.clientIsMSIE(cmsReq.getHttpReq()) &&
                 (certType == null || certType.equals("client"))) {
             userChain[0] = certs[0];
@@ -308,7 +308,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                 p7Str = CMS.BtoA(p7Bytes);
                 repeat.addStringValue("pkcs7ChainBase64", p7Str);
             } catch (Exception ex) {
-                //p7Str = "PKCS#7 B64 Encoding error - " + ex.toString() 
+                //p7Str = "PKCS#7 B64 Encoding error - " + ex.toString()
                 //+ "; Please contact your administrator";
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));

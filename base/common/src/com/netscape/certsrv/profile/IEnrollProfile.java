@@ -28,7 +28,7 @@ import com.netscape.certsrv.request.IRequest;
  * This interface also defines a set of enrollment specific attribute names that can be used to retrieve values from an
  * enrollment request.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IEnrollProfile extends IProfile {
@@ -149,7 +149,7 @@ public interface IEnrollProfile extends IProfile {
 
     /**
      * Set Default X509CertInfo in the request.
-     * 
+     *
      * @param request profile-based certificate request.
      * @exception EProfileException failed to set the X509CertInfo.
      */

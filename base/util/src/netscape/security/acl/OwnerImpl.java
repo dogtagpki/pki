@@ -28,7 +28,7 @@ import java.util.Enumeration;
  * Class implementing the Owner interface. The
  * initial owner principal is configured as
  * part of the constructor.
- * 
+ *
  * @author Satish Dharmaraj
  */
 public class OwnerImpl implements Owner {
@@ -45,7 +45,7 @@ public class OwnerImpl implements Owner {
      * The caller principal must be a part of the owners list of the ACL in
      * order to invoke this method. The initial owner is configured
      * at ACL construction time.
-     * 
+     *
      * @param caller the principal who is invoking this method.
      * @param owner The owner that should be added to the owners list.
      * @return true if success, false if already an owner.
@@ -66,7 +66,7 @@ public class OwnerImpl implements Owner {
      * raised.
      * The caller principal must be a part of the owners list of the ACL in
      * order to invoke this method.
-     * 
+     *
      * @param caller the principal who is invoking this method.
      * @param owner The owner to be removed from the owners list.
      * @return true if the owner is removed, false if the owner is not part
@@ -95,7 +95,7 @@ public class OwnerImpl implements Owner {
 
     /**
      * returns if the given principal belongs to the owner list.
-     * 
+     *
      * @param owner The owner to check if part of the owners list
      * @return true if the passed principal is in the owner list, false if not.
      */

@@ -31,7 +31,7 @@ import com.netscape.certsrv.common.*;
 class WIDisplaySSLCertPage extends WIDisplayCertPage {
     private static final String PANELNAME = "INSTALLDISPLAYSSLCERTWIZARD";
     private static final String HELPINDEX = "install-sslcert-display-wizard-help";
-    
+
     WIDisplaySSLCertPage(JDialog parent) {
         super(PANELNAME);
         mHelpIndex = HELPINDEX;
@@ -63,7 +63,7 @@ class WIDisplaySSLCertPage extends WIDisplayCertPage {
               ConfigConstants.TRUE);
             return true;
         }
-    
+
         return false;
     }
 }

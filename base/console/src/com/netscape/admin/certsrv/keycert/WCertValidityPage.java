@@ -40,7 +40,7 @@ class WCertValidityPage extends WBaseValidityPage implements IWizardPanel {
     private String mCertType = "";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-validityperiod-help";
-    
+
     WCertValidityPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -81,7 +81,7 @@ class WCertValidityPage extends WBaseValidityPage implements IWizardPanel {
             title = mResource.getString("CERTVALIDWIZARD_BORDER_SERVER_LABEL");
         setBorder(new TitledBorder(title));
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {

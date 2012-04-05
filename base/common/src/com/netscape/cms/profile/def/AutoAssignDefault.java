@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This class implements an enrollment default policy
  * that automatically assign request to agent.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AutoAssignDefault extends EnrollDefault {

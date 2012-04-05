@@ -119,7 +119,7 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  * A class represents a Certificate Authority that is
  * responsible for certificate specific operations.
  * <P>
- * 
+ *
  * @author lhsiao
  * @version $Revision$, $Date$
  */
@@ -132,7 +132,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     protected IConfigStore mConfig = null;
     protected ILogger mLogger = CMS.getLogger();
     protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
-    protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl. 
+    protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
     protected SigningUnit mCRLSigningUnit;
@@ -286,7 +286,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Initializes this CA subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this CA
@@ -299,7 +299,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             mOwner = owner;
             mConfig = config;
 
-            // init cert & crl database. 
+            // init cert & crl database.
             initCaDatabases();
 
             // init signing unit & CA cert.
@@ -374,8 +374,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             // rely on this subsystem, so it has to be initialized)
             initPublish();
 
-            // Initialize CRL issuing points. 
-            // note CRL framework depends on DBS, CRYPTO and PUBLISHING 
+            // Initialize CRL issuing points.
+            // note CRL framework depends on DBS, CRYPTO and PUBLISHING
             // being functional.
             initCRL();
 
@@ -624,7 +624,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Retrieves certificate repository.
      * <P>
-     * 
+     *
      * @return certificate repository
      */
     public ICertificateRepository getCertificateRepository() {
@@ -634,7 +634,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Retrieves replica repository.
      * <P>
-     * 
+     *
      * @return replica repository
      */
     public IReplicaIDRepository getReplicaRepository() {
@@ -655,7 +655,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Retrieves the CRL issuing point by id.
      * <P>
-     * 
+     *
      * @param id string id of the CRL issuing point
      * @return CRL issuing point
      */
@@ -666,7 +666,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Enumerates CRL issuing points
      * <P>
-     * 
+     *
      * @return security service
      */
     public Enumeration<ICRLIssuingPoint> getCRLIssuingPoints() {
@@ -855,7 +855,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Returns X500 name of the Certificate Authority
      * <P>
-     * 
+     *
      * @return CA name
      */
     public X500Name getX500Name() {
@@ -873,7 +873,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Returns nickname of CA's signing cert.
      * <p>
-     * 
+     *
      * @return CA signing cert nickname.
      */
     public String getNickname() {
@@ -883,7 +883,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Returns nickname of OCSP's signing cert.
      * <p>
-     * 
+     *
      * @return OCSP signing cert nickname.
      */
     public String getOCSPNickname() {
@@ -893,7 +893,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Returns default signing unit used by this CA
      * <P>
-     * 
+     *
      * @return request identifier
      */
     public ISigningUnit getSigningUnit() {
@@ -917,12 +917,12 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * If no algorithm is specified the CA's default signing algorithm
      * is used.
      * <P>
-     * 
+     *
      * @param crl the CRL to be signed.
      * @param algname the algorithm name to use. This is a JCA name such
      *            as MD5withRSA, etc. If set to null the default signing algorithm
      *            is used.
-     * 
+     *
      * @return the signed CRL
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
@@ -991,7 +991,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * Signs the given certificate info using specified signing algorithm
      * If no algorithm is specified the CA's default algorithm is used.
      * <P>
-     * 
+     *
      * @param certInfo the certificate info to be signed.
      * @param algname the signing algorithm to use. These are names defined
      *            in JCA, such as MD5withRSA, etc. If null the CA's default
@@ -1078,7 +1078,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * Sign a byte array using the specified algorithm.
      * If algorithm is null the CA's default algorithm is used.
      * <p>
-     * 
+     *
      * @param data the data to be signed in a byte array.
      * @param algname the algorithm to use.
      * @return the signature in a byte array.
@@ -1090,7 +1090,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     /**
      * logs a message in the CA area.
-     * 
+     *
      * @param level the debug level.
      * @param msg the message to debug.
      */
@@ -1101,7 +1101,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     /**
      * Retrieves certificate chains of this CA.
-     * 
+     *
      * @return this CA's cert chain.
      */
     public CertificateChain getCACertChain() {
@@ -1161,7 +1161,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     //////////
-    // Initialization routines. 
+    // Initialization routines.
     //
 
     /**
@@ -1351,7 +1351,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         try {
             mDefaultCertVersion = new CertificateVersion(version - 1);
         } catch (IOException e) {
-            // should never occur. 
+            // should never occur.
         }
 
         int validity_in_days = mConfig.getInteger(PROP_DEF_VALIDITY, 2 * 365);

@@ -38,7 +38,7 @@ class WIRACertValidityPage extends WICertValidityPage {
     private static final String PANELNAME = "INSTALLRACERTVALIDWIZARD";
     private static final String RAHELPINDEX = "install-racert-validity-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakracert-validity-wizard-help";
-   
+
     WIRACertValidityPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;

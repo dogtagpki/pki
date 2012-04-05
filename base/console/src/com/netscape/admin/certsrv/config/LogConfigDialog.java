@@ -46,7 +46,7 @@ public class LogConfigDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public LogConfigDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);

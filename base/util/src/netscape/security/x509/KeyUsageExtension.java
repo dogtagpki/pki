@@ -30,12 +30,12 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Key Usage Extension.
- * 
+ *
  * <p>
  * This extension, if present, defines the purpose (e.g., encipherment, signature, certificate signing) of the key
  * contained in the certificate. The usage restriction might be employed when a multipurpose key is to be restricted
  * (e.g., when an RSA key should be used only for signing or only for key encipherment).
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -106,7 +106,7 @@ public class KeyUsageExtension extends Extension
 
     /**
      * Check if bit is set.
-     * 
+     *
      * @param position the position in the bit string to check.
      */
     private boolean isSet(int position) {
@@ -131,7 +131,7 @@ public class KeyUsageExtension extends Extension
     /**
      * Create a KeyUsageExtension with the passed bit settings. The criticality
      * is set to true.
-     * 
+     *
      * @param bitString the bits to be set for the extension.
      */
     public KeyUsageExtension(boolean critical, byte[] bitString) throws IOException {
@@ -153,7 +153,7 @@ public class KeyUsageExtension extends Extension
     /**
      * Create a KeyUsageExtension with the passed bit settings. The criticality
      * is set to true.
-     * 
+     *
      * @param bitString the bits to be set for the extension.
      */
     public KeyUsageExtension(boolean critical, boolean[] bitString) throws IOException {
@@ -173,7 +173,7 @@ public class KeyUsageExtension extends Extension
     /**
      * Create a KeyUsageExtension with the passed bit settings. The criticality
      * is set to true.
-     * 
+     *
      * @param bitString the bits to be set for the extension.
      */
     public KeyUsageExtension(BitArray bitString) throws IOException {
@@ -185,7 +185,7 @@ public class KeyUsageExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     * 
+     *
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -356,7 +356,7 @@ public class KeyUsageExtension extends Extension
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -366,7 +366,7 @@ public class KeyUsageExtension extends Extension
 
     /**
      * Write the extension to the DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

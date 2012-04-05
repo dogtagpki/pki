@@ -55,8 +55,8 @@ class WICACertSubmitPage extends WICertSubmitPage implements IWizardPanel {
 
         if (wizardInfo.isCloning() && wizardInfo.isCACloningDone())
             return false;
-        
-        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE, 
+
+        wizardInfo.put(Constants.PR_CERTIFICATE_TYPE,
           Constants.PR_CA_SIGNING_CERT);
         if (!wizardInfo.isCAInstalled() || wizardInfo.isMigrationEnable() ||
             wizardInfo.isSelfSignedCACertDone() || wizardInfo.isCACertRequestDone() ||

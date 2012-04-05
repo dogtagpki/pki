@@ -47,12 +47,12 @@ import com.netscape.cms.policy.APolicyRule;
  * Adds the Policy Mappings extension to a (CA) certificate.
  * Filtering of CA certificates is done through predicates.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -84,21 +84,21 @@ public class PolicyMappingsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
+     *
      * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName=
      * ca.Policy.rule.<ruleName>.enable=true
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         mConfig = config;
 
-        // XXX should do do this ? 
-        // if CA does not allow subordinate CAs by way of basic constraints, 
-        // this policy always rejects 
+        // XXX should do do this ?
+        // if CA does not allow subordinate CAs by way of basic constraints,
+        // this policy always rejects
         /*****
          * ICertAuthority certAuthority = (ICertAuthority)
          * ((IPolicyProcessor)owner).getAuthority();
@@ -129,7 +129,7 @@ public class PolicyMappingsExt extends APolicyRule
                         "value must be greater than or equal to 1"));
         }
 
-        // init Policy Mappings, check values if enabled. 
+        // init Policy Mappings, check values if enabled.
         mPolicyMaps = new PolicyMap[mNumPolicyMappings];
         for (int i = 0; i < mNumPolicyMappings; i++) {
             String subtreeName = PROP_POLICYMAP + i;
@@ -161,7 +161,7 @@ public class PolicyMappingsExt extends APolicyRule
             }
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
                 PROP_NUM_POLICYMAPPINGS + "=" + mNumPolicyMappings);
@@ -172,15 +172,15 @@ public class PolicyMappingsExt extends APolicyRule
 
     /**
      * Adds policy mappings Extension to a (CA) certificate.
-     * 
+     *
      * If a policy mappings Extension is already there, accept it if
      * it's been approved by agent, else replace it.
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        // if extension hasn't been properly configured reject requests until 
+        // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
         if (mPolicyMappingsExtension == null) {
             //setError(req, PolicyResources.EXTENSION_NOT_INITED_1, NAME);
@@ -221,7 +221,7 @@ public class PolicyMappingsExt extends APolicyRule
                             extensions.get(PolicyMappingsExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
 
             if (policyMappingsExt != null) {
@@ -258,7 +258,7 @@ public class PolicyMappingsExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -286,7 +286,7 @@ public class PolicyMappingsExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {
@@ -338,7 +338,7 @@ class PolicyMap {
 
     /**
      * forms policy map parameters.
-     * 
+     *
      * @param name name of this policy map, for example policyMap0
      * @param config parent's config from where we find this configuration.
      * @param enabled whether policy was enabled.

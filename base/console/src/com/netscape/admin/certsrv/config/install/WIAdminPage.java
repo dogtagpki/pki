@@ -36,12 +36,12 @@ import com.netscape.management.client.console.*;
  */
 class WIAdminPage extends WizardBasePanel implements IWizardPanel {
     private JCheckBox mEnable;
-    private JTextField mIDText, mFullNameText, mPasswordText, 
+    private JTextField mIDText, mFullNameText, mPasswordText,
       mPasswordAgainText;
     private static final String PANELNAME = "ADMININSTALLWIZARD";
     private static final String HELPINDEX =
       "install-administrator-configuration-wizard-help";
-    
+
     WIAdminPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -68,12 +68,12 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
             return false;
         if (wizardInfo.isAdministratorDone())
            return false;
-        mIDText.setText(wizardInfo.getCertAdminUid()); 
+        mIDText.setText(wizardInfo.getCertAdminUid());
         mFullNameText.setText(wizardInfo.getCertAdminName());
 
         setBorder(makeTitledBorder(PANELNAME));
-       
-        return true; 
+
+        return true;
     }
 
     public boolean validatePanel() {
@@ -83,22 +83,22 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
             setErrorMessage("BLANKPASSWD");
             return false;
         }
-        
+
         if (!password.equals(passwordAgain)) {
             setErrorMessage("NOTSAMEPASSWD");
             return false;
         }
- 
+
         if (mIDText.getText().trim().equals("")) {
             setErrorMessage("BLANKADMINID");
             return false;
         }
- 
-        if (mFullNameText.getText().trim().equals("")) { 
+
+        if (mFullNameText.getText().trim().equals("")) {
             setErrorMessage("BLANKADMINNAME");
             return false;
         }
- 
+
         return true;
     }
 
@@ -111,9 +111,9 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
         rawData = rawData+"&"+ConfigConstants.PR_CERT_ADMINNAME+"="+mFullNameText.getText();
         rawData = rawData+"&"+ConfigConstants.PR_CERT_ADMINPASSWD+"="+mPasswordAgainText.getText();
         if (mEnable.isSelected()) {
-            rawData = rawData+"&"+ConfigConstants.PR_ENABLE+"=true"; 
+            rawData = rawData+"&"+ConfigConstants.PR_ENABLE+"=true";
         } else {
-            rawData = rawData+"&"+ConfigConstants.PR_ENABLE+"=false"; 
+            rawData = rawData+"&"+ConfigConstants.PR_ENABLE+"=false";
         }
         if (wizardInfo.getInternalDBPasswd() != null)
             rawData = rawData+"&"+ConfigConstants.PR_DB_PWD+"="+wizardInfo.getInternalDBPasswd();
@@ -155,7 +155,7 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(desc, gbc);
-          
+
         CMSAdminUtil.resetGBC(gbc);
         JLabel idLbl = makeJLabel("ADMINID");
         gbc.anchor = gbc.NORTHEAST;
@@ -163,7 +163,7 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.fill = gbc.NONE;
         add(idLbl, gbc);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mIDText = makeJTextField(30);
         gbc.anchor = gbc.NORTHWEST;

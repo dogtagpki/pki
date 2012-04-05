@@ -24,7 +24,7 @@ import com.netscape.certsrv.request.ARequestNotifier;
  * A class represents a KRA request queue notify. This
  * object will be invoked by the request subsystem
  * when a request is requested for processing.
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

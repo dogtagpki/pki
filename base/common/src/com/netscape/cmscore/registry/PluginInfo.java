@@ -24,7 +24,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 /**
  * The plugin information includes id, name,
  * classname, and description.
- * 
+ *
  * @author thomask
  */
 public class PluginInfo implements IPluginInfo {

@@ -38,7 +38,7 @@ class WWarningExecute1Page extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "WARNINGEXECUTE1WIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    
+
     WWarningExecute1Page() {
         super(PANELNAME);
         init();
@@ -51,12 +51,12 @@ class WWarningExecute1Page extends WizardBasePanel implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
-          wizardInfo.isNewKey() && 
+          wizardInfo.isNewKey() &&
           wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT) &&
           wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
         return true;
-            
-        return false; 
+
+        return false;
     }
 
     public boolean validatePanel() {

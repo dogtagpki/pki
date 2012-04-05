@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.Plugin;
 /**
  * This class represents a registered logger plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LogPlugin extends Plugin {

@@ -54,7 +54,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     private CertSetupWizardInfo wizardInfo;
     private static final String HELPINDEX =
       "configuration-keycert-wizard-key-help";
-    
+
     WKeyPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -79,7 +79,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
         String title = "";
         String certType = wizardInfo.getCertType();
-        if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
+        if (certType.equals(Constants.PR_CA_SIGNING_CERT))
             title = mResource.getString("KEYWIZARD_BORDER_CASIGNING_LABEL");
         else if (certType.equals(Constants.PR_RA_SIGNING_CERT))
             title = mResource.getString("KEYWIZARD_BORDER_RASIGNING_LABEL");
@@ -92,7 +92,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             title = mResource.getString("KEYWIZARD_BORDER_SERVER_LABEL");
         else if (certType.equals(Constants.PR_OTHER_CERT))
             title = mResource.getString("KEYWIZARD_BORDER_OTHER_LABEL");
-          
+
         setBorder(new TitledBorder(title));
         if (certType.equals(Constants.PR_OTHER_CERT)) {
             mNicknamePanel.setVisible(true);
@@ -101,7 +101,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             if (mNicknameBox.getItemCount() <= 0) {
                 String str = wizardInfo.getNicknames();
                 StringTokenizer tokenizer1 = new StringTokenizer(str, ",");
-                while (tokenizer1.hasMoreTokens()) { 
+                while (tokenizer1.hasMoreTokens()) {
                     mNicknameBox.addItem((String)tokenizer1.nextToken());
                 }
             }
@@ -179,7 +179,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         CMSAdminUtil.repaintComp(mNicknameLbl);
         CMSAdminUtil.repaintComp(mNicknameBox);
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -208,7 +208,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             if (str.equals("")) {
                 setErrorMessage("BLANKCURVE");
                 return false;
-            } 
+            }
         }*/
 
         return true;
@@ -232,11 +232,11 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
             if (val.equals("Custom")) {
                 if (mKeyCurveBox.isVisible()) { // ECC
-                    wizardInfo.addEntry(Constants.PR_KEY_CURVENAME, 
+                    wizardInfo.addEntry(Constants.PR_KEY_CURVENAME,
                       mKeyCurveText.getText().trim());
                     nvps.put(Constants.PR_KEY_CURVENAME, mKeyCurveText.getText().trim());
                 } else {
-                    wizardInfo.addEntry(Constants.PR_KEY_LENGTH, 
+                    wizardInfo.addEntry(Constants.PR_KEY_LENGTH,
                       mKeyLengthText.getText().trim());
                     nvps.put(Constants.PR_KEY_LENGTH, mKeyLengthText.getText().trim());
                 }
@@ -249,7 +249,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                     nvps.put(Constants.PR_KEY_LENGTH, val.trim());
                 }
             }
-     
+
             if (mKeyTypeBox.isVisible()) {
                 wizardInfo.addEntry(Constants.PR_KEY_TYPE,
                   (String)mKeyTypeBox.getSelectedItem());
@@ -285,13 +285,13 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                     nvps.put(Constants.PR_NICKNAME, nicknameStr);
                     response = connection.process(
                       DestDef.DEST_SERVER_ADMIN,
-                      ScopeDef.SC_SUBJECT_NAME, 
+                      ScopeDef.SC_SUBJECT_NAME,
                       wizardInfo.getCertType(), nvps);
                     wizardInfo.addEntry(Constants.PR_NICKNAME, nicknameStr);
                 } else {
                     response = connection.read(
                       DestDef.DEST_SERVER_ADMIN,
-                      ScopeDef.SC_SUBJECT_NAME, 
+                      ScopeDef.SC_SUBJECT_NAME,
                       wizardInfo.getCertType(), nvps);
                 }
 
@@ -301,13 +301,13 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
             if (mNewKeyBtn.isSelected()) {
                 String tokenName = (String)mTokenBox.getSelectedItem();
-                if (tokenName.equals("internal")) 
+                if (tokenName.equals("internal"))
                     tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
                 nvps.clear();
                 nvps.put(Constants.PR_TOKEN_NAME, tokenName);
                 response = connection.process(DestDef.DEST_SERVER_ADMIN,
                   ScopeDef.SC_TOKEN_STATUS, Constants.RS_ID_CONFIG, nvps);
-                
+
                 String value = response.get(Constants.PR_LOGGED_IN);
                 wizardInfo.addEntry(Constants.PR_LOGGED_IN, value);
                 wizardInfo.addEntry(Constants.PR_TOKEN_NAME, tokenName);
@@ -342,7 +342,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel, gbc);
-        
+
         JTextArea selectTokenLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_SELECTTOKEN_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
@@ -350,7 +350,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,0);
         panel.add(selectTokenLbl, gbc);
- 
+
         mTokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.CENTER;
@@ -386,7 +386,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.gridwidth = gbc.REMAINDER;
         add(createKeyLbl, gbc);
 
-        mExistingKeyBtn = makeJRadioButton("OLDKEY", true);  
+        mExistingKeyBtn = makeJRadioButton("OLDKEY", true);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;
@@ -403,7 +403,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.anchor = gbc.NORTHWEST;
         gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
-          COMPONENT_SPACE, COMPONENT_SPACE);        
+          COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.fill = gbc.BOTH;
         gbc.weightx = 1.0;
         add(mNicknamePanel, gbc);
@@ -704,18 +704,18 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
     public void itemStateChanged(ItemEvent e) {
         if (e.getSource().equals(mKeyLengthBox) ||
-          e.getSource().equals(mKeyCurveBox)    || 
+          e.getSource().equals(mKeyCurveBox)    ||
           e.getSource().equals(mDSAKeyLengthBox)) {
             enableKeyLengthFields();
-        } else if (e.getSource().equals(mKeyTypeBox) || 
+        } else if (e.getSource().equals(mKeyTypeBox) ||
           e.getSource().equals(mDSAKeyTypeBox)) {
             String type = "";
             if (mKeyTypeBox.isVisible())
                 type = (String)mKeyTypeBox.getSelectedItem();
             else if (mDSAKeyTypeBox.isVisible())
                 type = (String)mDSAKeyTypeBox.getSelectedItem();
-            
-            setLengthCurveFields(type);    
+
+            setLengthCurveFields(type);
             enableKeyLengthFields();
             CMSAdminUtil.repaintComp(this);
         }
@@ -723,10 +723,10 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
     private void enableKeyLengthFields() {
         String value = "";
-        
+
         if (mKeyLengthBox.isVisible())
             value = (String)mKeyLengthBox.getSelectedItem();
-        else if (mKeyCurveBox.isVisible()) 
+        else if (mKeyCurveBox.isVisible())
             value = (String)mKeyCurveBox.getSelectedItem();
         else
             value = (String)mDSAKeyLengthBox.getSelectedItem();
@@ -750,7 +750,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         }
     }
 
-    protected void enableFields(JComponent comp1, JTextComponent comp2, 
+    protected void enableFields(JComponent comp1, JTextComponent comp2,
       boolean enable, Color color) {
         if (comp1 != null) {
             comp1.setEnabled(enable);

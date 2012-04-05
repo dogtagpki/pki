@@ -57,7 +57,7 @@ public class PanelMapperConfigDialog extends JDialog
     private AdminConnection mConn;
     private JButton mOK, mCancel, mHelp;
     private JComboBox mSelection;
-    
+
     private static final String CAHELPINDEX =
       "configuration-ldappublish-camapper-dbox-help";
     private static final String RAHELPINDEX =
@@ -97,7 +97,7 @@ public class PanelMapperConfigDialog extends JDialog
         mScope = scope;
         Debug.println("MapperConfigDialog: showDialog() - mapper: "+
             mRuleName+" dest: "+mDest+" scope: "+mScope);
-        
+
         if (!refresh(name))
             return;
 
@@ -127,7 +127,7 @@ public class PanelMapperConfigDialog extends JDialog
                     mTable.setValueAt(str, row, col);
                 }
             }
-            
+
             try {
                 saveConfiguration();
             } catch (EAdminException e) {
@@ -136,7 +136,7 @@ public class PanelMapperConfigDialog extends JDialog
                     e.toString(), CMSAdminUtil.ERROR_MESSAGE);
                 return;
             }
-            
+
             mIsOK = true;
             this.dispose();
         }
@@ -164,37 +164,37 @@ public class PanelMapperConfigDialog extends JDialog
             }
         }
     }
-    
+
     /*==========================================================
      * private methods
      *==========================================================*/
-    
+
     private void saveEdit() {
-        
+
         //save any current edit component
         Component component = mTable.getEditorComponent();
-        
+
     }
-    
-    //setup and refresh the UI components 
+
+    //setup and refresh the UI components
     private boolean refresh(String mapperName) {
-        
+
         //get mapper listing
         if (!getMapperListing(mapperName))
             return false;
-            
+
         //setup UI
         if (! setupConfigUI(mapperName))
             return false;
-            
+
         return true;
     }
-    
-    //retrieve the mapper class listing and update 
+
+    //retrieve the mapper class listing and update
     //the selection UI
     private boolean getMapperListing(String mapperName) {
         NameValuePairs response;
-        
+
         try {
             response = getMapperList();
         }catch (EAdminException e) {
@@ -202,22 +202,22 @@ public class PanelMapperConfigDialog extends JDialog
                 e.toString(), CMSAdminUtil.ERROR_MESSAGE);
             return false;
         }
-        
+
         Debug.println("MapperList: "+response.toString());
         mSelection.removeAllItems();
-        
+
         for (String name : response.keySet()) {
             mSelection.addItem(name.trim());
         }
-        
+
         mSelection.setSelectedItem(mapperName);
         return true;
     }
-    
+
     //retrieve the config parameters for the mapper
     //and update the config UI
     private boolean setupConfigUI(String mapperName) {
-        
+
         try {
             mData = getConfiguration(mapperName);
         }catch (EAdminException e) {
@@ -228,7 +228,7 @@ public class PanelMapperConfigDialog extends JDialog
         Debug.println("MapperConfigDialog: showDialog() config: "+mData.toString());
 
         mDataModel.removeAllRows();
-        
+
         for (String entry : mData.keySet()) {
             entry = entry.trim();
             if (!entry.equals(Constants.PR_MAPPER)) {
@@ -243,7 +243,7 @@ public class PanelMapperConfigDialog extends JDialog
        mTable.repaint();
        return true;
     }
-    
+
     private void setDisplay() {
         getContentPane().setLayout(new BorderLayout());
         JPanel center = new JPanel();
@@ -311,7 +311,7 @@ public class PanelMapperConfigDialog extends JDialog
         mScrollPane.setBackground(Color.white);
         //setLabelCellRenderer(mTable,1);
         setCellEditor(mTable,1);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
         gbc.gridwidth = gbc.REMAINDER;
@@ -330,41 +330,41 @@ public class PanelMapperConfigDialog extends JDialog
     //Set the index column's cellrender as label cell
     private void setLabelCellRenderer(JTable table, int index) {
         table.getColumnModel().getColumn(index).setCellRenderer(
-            new DefaultTableCellRenderer());   
+            new DefaultTableCellRenderer());
     }
-    
+
     //set the index column's cell editor
     private void setCellEditor(JTable table, int index) {
         table.getColumnModel().getColumn(index).setCellEditor(
-            new DefaultCellEditor(new JTextField()));   
+            new DefaultCellEditor(new JTextField()));
     }
-    
+
     //retrieve the mapper listing from the server side
-    private NameValuePairs getMapperList() 
-        throws EAdminException 
+    private NameValuePairs getMapperList()
+        throws EAdminException
     {
-        return mConn.search(mDest, getMapperScope(), 
+        return mConn.search(mDest, getMapperScope(),
                             new NameValuePairs());
     }
-    
+
     //retrieve the configuration parameters for specific
     //mapper class
-    private NameValuePairs getConfiguration(String mapper) 
-        throws EAdminException 
+    private NameValuePairs getConfiguration(String mapper)
+        throws EAdminException
     {
-       return mConn.read(mDest, getMapperScope(), 
+       return mConn.read(mDest, getMapperScope(),
                          mapper, new NameValuePairs());
     }
-    
+
     //get the mapper scope
     private String getMapperScope() {
-        
+
         if (mScope.equals(ScopeDef.SC_CACERT))
             return ScopeDef.SC_CAMAPPER;
         else
             return ScopeDef.SC_USERMAPPER;
     }
-    
+
     //save the configuration settings for the mapper
     private void saveConfiguration() throws EAdminException {
         NameValuePairs nvp = getData();
@@ -380,12 +380,12 @@ public class PanelMapperConfigDialog extends JDialog
         }
         return response;
     }
-    
+
     /**
      * Add a label and a textfield to a panel, assumed to be using
      * GridBagLayout.
      */
-    private static void addEntryField(JPanel panel, JComponent label, 
+    private static void addEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = gbc.NONE;
         gbc.weightx = 0.0;
@@ -405,5 +405,5 @@ public class PanelMapperConfigDialog extends JDialog
                                 CMSAdminUtil.COMPONENT_SPACE,
                                 0,CMSAdminUtil.COMPONENT_SPACE);
         panel.add( field, gbc );
-    }    
+    }
 }

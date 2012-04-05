@@ -31,7 +31,7 @@ public interface ScopeDef {
     public final static String SC_GROUPS = "groups";
     public final static String SC_USERS = "users";
     public final static String SC_USER_CERTS = "certs";
-    
+
     public final static String SC_SNMP = "snmp";
     public final static String SC_SMTP = "smtp";
     public final static String SC_SUBSYSTEM = "subsystem";
@@ -39,7 +39,7 @@ public interface ScopeDef {
     public final static String SC_GATEWAY = "gateway";
     public final static String SC_ADMIN = "admin";
     public final static String SC_NETWORK = "network";
-    
+
     // profile
     public final static String SC_PROFILE_IMPLS = "profile";
     public final static String SC_PROFILE_RULES = "rules";
@@ -83,7 +83,7 @@ public interface ScopeDef {
     public final static String SC_LOG_CONTENT = "log_content";
     public final static String SC_AUDITLOG_CONTENT = "transactionsLog_content";
     public final static String SC_ERRORLOG_CONTENT = "errorLog_content";
-    public final static String SC_SYSTEMLOG_CONTENT = "systemLog_content";    
+    public final static String SC_SYSTEMLOG_CONTENT = "systemLog_content";
 
     //LDAP publishing
     public final static String SC_LDAP = "ldap";
@@ -109,7 +109,7 @@ public interface ScopeDef {
     public final static String SC_RECOVERY = "recovery";
     public final static String SC_AGENT_PWD = "agentPwd";
     public final static String SC_MNSCHEME = "mnScheme";
-    
+
     //stat
     public final static String  SC_STAT = "stat";
 
@@ -119,10 +119,10 @@ public interface ScopeDef {
     public final static String SC_PKIGW = "pkigw";
     public final static String SC_SERVLET = "servlet";
     public final static String SC_CONNECTOR = "connector";
-    
+
     //tasks
     public final static String SC_TASKS = "tasks";
-    
+
     //authentication
     public final static String SC_AUTH = "auths";
     public final static String SC_AUTHTYPE = "authType";
@@ -139,7 +139,7 @@ public interface ScopeDef {
     public final static String SC_NOTIFICATION_REQ_COMP = "notificationREQC";
     public final static String SC_NOTIFICATION_REV_COMP = "notificationREVC";
     public final static String SC_NOTIFICATION_RIQ = "notificationRIQ";
-    
+
     // acl
     public final static String SC_ACL_IMPLS = "impl";
     public final static String SC_ACL = "acls";

@@ -32,7 +32,7 @@ import com.netscape.management.client.util.*;
 class WIDisplayOCSPCertPage extends WIDisplayCertPage {
     private static final String PANELNAME = "INSTALLDISPLAYOCSPCERTWIZARD";
     private static final String OCSPHELPINDEX = "install-ocspcert-display-wizard-help";
-    
+
     WIDisplayOCSPCertPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -64,7 +64,7 @@ class WIDisplayOCSPCertPage extends WIDisplayCertPage {
               ConfigConstants.TRUE);
             return true;
         }
-    
+
         return false;
     }
 }

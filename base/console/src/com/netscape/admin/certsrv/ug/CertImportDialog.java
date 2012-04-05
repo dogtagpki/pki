@@ -105,12 +105,12 @@ public class CertImportDialog extends JDialog
 
     //=== ACTIONLISTENER =====================
 	public void actionPerformed(ActionEvent evt) {
-	    
+
         if (evt.getSource().equals(mPaste)) {
            mTextArea.paste();
            return;
         }
-        
+
 	    if (evt.getSource().equals(mCancel)) {
             this.hide();
         }
@@ -229,7 +229,7 @@ public class CertImportDialog extends JDialog
         gbc.weightx=1.0;
         gb3.setConstraints(mPaste, gbc);
         content.add(mPaste);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         mTextArea = new JTextArea("",40,70);
         Font f = new Font("Monospaced", Font.PLAIN, 12);
@@ -241,7 +241,7 @@ public class CertImportDialog extends JDialog
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPanel.setAlignmentX(LEFT_ALIGNMENT);
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
-        scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder()); 
+        scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 	scrollPanel.setPreferredSize(new Dimension(300, 500));
         gbc.fill = gbc.BOTH;
         gbc.gridwidth =  gbc.REMAINDER;

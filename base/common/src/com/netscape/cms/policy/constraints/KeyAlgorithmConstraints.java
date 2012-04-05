@@ -41,12 +41,12 @@ import com.netscape.cms.policy.APolicyRule;
  * honor only the keys generated using one of the permitted algorithms
  * such as RSA, DSA or DH.
  * <P>
- * 
+ *
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -86,11 +86,11 @@ public class KeyAlgorithmConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints
      * ra.Policy.rule.<ruleName>.algorithms=RSA,DSA ra.Policy.rule.<ruleName>.enable=true
      * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
+     *
      * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
@@ -151,7 +151,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -197,7 +197,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getInstanceParams() {
@@ -216,7 +216,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector<String> getDefaultParams() {

@@ -34,7 +34,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the Extensions attribute for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.11
@@ -107,7 +107,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the Extension from.
      * @exception IOException on decoding errors.
      */
@@ -125,7 +125,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Decode the extensions from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -144,7 +144,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Encode the extensions in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @exception CertificateException on encoding errors.
      * @exception IOException on errors.
@@ -170,7 +170,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Set the attribute value.
-     * 
+     *
      * @param name the extension name used in the cache.
      * @param obj the object to set.
      * @exception IOException if the object could not be cached.
@@ -182,7 +182,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Get the attribute value.
-     * 
+     *
      * @param name the extension name used in the lookup.
      * @exception IOException if named extension is not found.
      */
@@ -196,7 +196,7 @@ public class Extensions extends Vector<Extension>
 
     /**
      * Delete the attribute value.
-     * 
+     *
      * @param name the extension name used in the lookup.
      * @exception IOException if named extension is not found.
      */

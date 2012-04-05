@@ -58,7 +58,7 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements a OCSP client for testing.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class OCSPClient {
@@ -92,7 +92,7 @@ public class OCSPClient {
              throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA");
 
-        // calculate issuer key hash 
+        // calculate issuer key hash
         X509CertImpl x509Cert = new X509CertImpl(caCert.getEncoded());
         X509Key x509key = (X509Key) x509Cert.getPublicKey();
         byte issuerKeyHash[] = md.digest(x509key.getKey());
@@ -118,7 +118,7 @@ public class OCSPClient {
                byte request_data[], String output) throws Exception {
         Socket socket = new Socket(host, port);
 
-        // send request 
+        // send request
         System.out.println("URI: " + uri);
 
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -156,12 +156,12 @@ public class OCSPClient {
                         hack = true;
                     }
                 }
-            } // while 
+            } // while
         } catch (IOException e) {
         }
         fof.close();
 
-        // parse OCSPResponse 
+        // parse OCSPResponse
         BufferedInputStream fis =
                 new BufferedInputStream(
                         new FileInputStream(output));

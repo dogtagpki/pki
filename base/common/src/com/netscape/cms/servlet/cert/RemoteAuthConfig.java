@@ -53,7 +53,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Allow agent to turn on/off authentication managers
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RemoteAuthConfig extends CMSServlet {
@@ -85,7 +85,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Initializes the servlet.
-     * 
+     *
      * Presence of "auths.enableRemoteConfiguration=true" in CMS.cfg
      * enables remote configuration for authentication plugins.
      * List of remotely set instances can be found in CMS.cfg

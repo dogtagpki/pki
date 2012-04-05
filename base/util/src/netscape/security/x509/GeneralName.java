@@ -26,7 +26,7 @@ import netscape.security.util.DerValue;
  * This class implements the ASN.1 GeneralName object class.
  * <p>
  * The ASN.1 syntax for this is:
- * 
+ *
  * <pre>
  * GeneralName ::= CHOICE {
  *    otherName                       [0]     OtherName,
@@ -40,7 +40,7 @@ import netscape.security.util.DerValue;
  *    registeredID                    [8]     OBJECT IDENTIFIER
  * }
  * </pre>
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -56,7 +56,7 @@ public class GeneralName implements GeneralNameInterface {
 
     /**
      * Default constructor for the class.
-     * 
+     *
      * @param name the selected CHOICE from the list.
      */
     public GeneralName(GeneralNameInterface name) {
@@ -65,15 +65,15 @@ public class GeneralName implements GeneralNameInterface {
 
     /**
      * Create the object from its DER encoded value.
-     * 
+     *
      * @param encName the DER encoded GeneralName.
      */
     public GeneralName(DerValue encName) throws IOException {
         short tag = (byte) (encName.tag & 0x1f);
 
-        // NB. this is always encoded with the IMPLICIT tag 
-        // The checks only make sense if we assume implicit tagging, 
-        // with explicit tagging the form is always constructed. 
+        // NB. this is always encoded with the IMPLICIT tag
+        // The checks only make sense if we assume implicit tagging,
+        // with explicit tagging the form is always constructed.
         switch (tag) {
         case GeneralNameInterface.NAME_RFC822:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
@@ -167,7 +167,7 @@ public class GeneralName implements GeneralNameInterface {
 
     /**
      * Encode the name to the specified DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to encode the the GeneralName to.
      * @exception IOException on encoding errors.
      */

@@ -23,7 +23,7 @@ import java.util.Vector;
 /**
  * A statistics transaction.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

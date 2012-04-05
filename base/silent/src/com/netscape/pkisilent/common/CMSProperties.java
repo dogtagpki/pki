@@ -22,10 +22,10 @@ package com.netscape.pkisilent.common;
  * @(#)Properties.java	1.60 00/02/02
  *
  * Copyright 1995-2000 Sun Microsystems, Inc. All Rights Reserved.
- * 
- * This software is the proprietary information of Sun Microsystems, Inc.  
+ *
+ * This software is the proprietary information of Sun Microsystems, Inc.
  * Use is subject to license terms.
- * 
+ *
  */
 
 import java.io.BufferedReader;
@@ -61,10 +61,10 @@ import java.util.Hashtable;
  * href="http://java.sun.com/docs/books/jls/html/3.doc.html#100850">Unicode escapes</a> are used; however, only a single
  * 'u' character is allowed in an escape sequence. The native2ascii tool can be used to convert property files to and
  * from other character encodings.
- * 
+ *
  * @see <a href="../../../tooldocs/solaris/native2ascii.html">native2ascii tool for Solaris</a>
  * @see <a href="../../../tooldocs/win32/native2ascii.html">native2ascii tool for Windows</a>
- * 
+ *
  * @author Arthur van Hoff
  * @author Michael McCloskey
  * @version 1.60, 02/02/00
@@ -81,7 +81,7 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * A property list that contains default values for any keys not
      * found in this property list.
-     * 
+     *
      * @serial
      */
     protected CMSProperties defaults;
@@ -95,7 +95,7 @@ class CMSProperties extends Hashtable<String, String> {
 
     /**
      * Creates an empty property list with the specified defaults.
-     * 
+     *
      * @param defaults the defaults.
      */
     public CMSProperties(CMSProperties defaults) {
@@ -106,7 +106,7 @@ class CMSProperties extends Hashtable<String, String> {
      * Calls the hashtable method <code>put</code>. Provided for
      * parallelism with the <tt>getProperty</tt> method. Enforces use of
      * strings for property keys and values.
-     * 
+     *
      * @param key the key to be placed into this property list.
      * @param value the value corresponding to <tt>key</tt>.
      * @see #getProperty
@@ -152,43 +152,43 @@ class CMSProperties extends Hashtable<String, String> {
      * As an example, each of the following four lines specifies the key <code>"Truth"</code> and the associated element
      * value <code>"Beauty"</code>:
      * <p>
-     * 
+     *
      * <pre>
      * Truth = Beauty
      * Truth:Beauty
      * Truth			:Beauty
      * </pre>
-     * 
+     *
      * As another example, the following three lines specify a single property:
      * <p>
-     * 
+     *
      * <pre>
      * fruits				apple, banana, pear, \
      *                                  cantaloupe, watermelon, \
      *                                  kiwi, mango
      * </pre>
-     * 
+     *
      * The key is <code>"fruits"</code> and the associated element is:
      * <p>
-     * 
+     *
      * <pre>
      * &quot;apple, banana, pear, cantaloupe, watermelon,kiwi, mango&quot;
      * </pre>
-     * 
+     *
      * Note that a space appears before each <code>\</code> so that a space will appear after each comma in the final
      * result; the <code>\</code>, line terminator, and leading whitespace on the continuation line are merely discarded
      * and are <i>not</i> replaced by one or more other characters.
      * <p>
      * As a third example, the line:
      * <p>
-     * 
+     *
      * <pre>
      * cheeses
      * </pre>
-     * 
+     *
      * specifies that the key is <code>"cheeses"</code> and the associated element is the empty string.
      * <p>
-     * 
+     *
      * @param inStream the input stream.
      * @exception IOException if an error occurred when reading from the
      *                input stream.
@@ -456,12 +456,12 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * Calls the <code>store(OutputStream out, String header)</code> method
      * and suppresses IOExceptions that were thrown.
-     * 
+     *
      * @deprecated This method does not throw an IOException if an I/O error
      *             occurs while saving the property list. As of the Java 2 platform v1.2, the preferred
      *             way to save a properties list is via the <code>store(OutputStream out,
      * String header)</code> method.
-     * 
+     *
      * @param out an output stream.
      * @param header a description of the property list.
      * @exception ClassCastException if this <code>Properties</code> object
@@ -503,7 +503,7 @@ class CMSProperties extends Hashtable<String, String> {
      * <p>
      * After the entries have been written, the output stream is flushed. The output stream remains open after this
      * method returns.
-     * 
+     *
      * @param out an output stream.
      * @param header a description of the property list.
      * @exception IOException if writing this property list to the specified
@@ -545,7 +545,7 @@ class CMSProperties extends Hashtable<String, String> {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns <code>null</code> if the property is not
      * found.
-     * 
+     *
      * @param key the property key.
      * @return the value in this property list with the specified key value.
      * @see #setProperty
@@ -565,10 +565,10 @@ class CMSProperties extends Hashtable<String, String> {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns the
      * default value argument if the property is not found.
-     * 
+     *
      * @param key the hashtable key.
      * @param defaultValue a default value.
-     * 
+     *
      * @return the value in this property list with the specified key value.
      * @see #setProperty
      * @see #defaults
@@ -582,7 +582,7 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * Returns an enumeration of all the keys in this property list, including
      * the keys in the default property list.
-     * 
+     *
      * @return an enumeration of all the keys in this property list, including
      *         the keys in the default property list.
      * @see java.util.Enumeration
@@ -598,7 +598,7 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * Prints this property list out to the specified output stream.
      * This method is useful for debugging.
-     * 
+     *
      * @param out an output stream.
      */
     public void list(PrintStream out) {
@@ -620,7 +620,7 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * Prints this property list out to the specified output stream.
      * This method is useful for debugging.
-     * 
+     *
      * @param out an output stream.
      * @since JDK1.1
      */
@@ -648,7 +648,7 @@ class CMSProperties extends Hashtable<String, String> {
 
     /**
      * Enumerates all key/value pairs in the specified hastable.
-     * 
+     *
      * @param h the hashtable
      */
     private synchronized void enumerate(Hashtable<String, String> h) {
@@ -664,7 +664,7 @@ class CMSProperties extends Hashtable<String, String> {
 
     /**
      * Convert a nibble to a hex character
-     * 
+     *
      * @param nibble the nibble to convert.
      */
     private static char toHex(int nibble) {

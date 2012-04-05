@@ -33,30 +33,30 @@ import com.netscape.cms.profile.common.ProfilePolicy;
  * a list of input policies, default policies, constraint
  * policies and output policies.
  * <p>
- * 
+ *
  * The input policy is for building the enrollment page.
  * <p>
- * 
+ *
  * The default policy is for populating user-supplied and system-supplied values into the request.
  * <p>
- * 
+ *
  * The constraint policy is for validating the request before processing.
  * <p>
- * 
+ *
  * The output policy is for building the result page.
  * <p>
- * 
+ *
  * Each profile can have multiple policy set. Each set is composed of zero or more default policies and zero or more
  * constraint policies.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfile {
 
     /**
      * Initializes this profile.
-     * 
+     *
      * @param owner profile subsystem
      * @param config configuration store for this profile
      * @exception EBaseException failed to initialize
@@ -68,21 +68,21 @@ public interface IProfile {
      * Retrieves the request queue that is associated with
      * this profile. The request queue is for creating
      * new requests.
-     * 
+     *
      * @return request queue
      */
     public IRequestQueue getRequestQueue();
 
     /**
      * Sets id of this profile.
-     * 
+     *
      * @param id profile identifier
      */
     public void setId(String id);
 
     /**
      * Returns the identifier of this profile.
-     * 
+     *
      * @return profile id
      */
     public String getId();
@@ -91,7 +91,7 @@ public interface IProfile {
      * Retrieves a localized string that represents
      * requestor's distinguished name. This string
      * displayed in the request listing user interface.
-     * 
+     *
      * @param request request
      * @return distringuished name of the request owner
      */
@@ -99,14 +99,14 @@ public interface IProfile {
 
     /**
      * Retrieves the configuration store of this profile.
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
      * Retrieves the instance id of the authenticator for this profile.
-     * 
+     *
      * @return authenticator instance id
      */
     public String getAuthenticatorId();
@@ -115,14 +115,14 @@ public interface IProfile {
 
     /**
      * Sets the instance id of the authenticator for this profile.
-     * 
+     *
      * @param id authenticator instance id
      */
     public void setAuthenticatorId(String id);
 
     /**
      * Retrieves the associated authenticator instance.
-     * 
+     *
      * @return profile authenticator instance.
      *         if no associated authenticator, null is returned
      * @exception EProfileException failed to retrieve
@@ -132,14 +132,14 @@ public interface IProfile {
 
     /**
      * Retrieves a list of input policy IDs.
-     * 
+     *
      * @return input policy id list
      */
     public Enumeration<String> getProfileInputIds();
 
     /**
      * Retrieves input policy by id.
-     * 
+     *
      * @param id input policy id
      * @return input policy instance
      */
@@ -147,14 +147,14 @@ public interface IProfile {
 
     /**
      * Retrieves a list of output policy IDs.
-     * 
+     *
      * @return output policy id list
      */
     public Enumeration<String> getProfileOutputIds();
 
     /**
      * Retrieves output policy by id.
-     * 
+     *
      * @param id output policy id
      * @return output policy instance
      */
@@ -165,14 +165,14 @@ public interface IProfile {
      * End-user profile will be displayed to the end user.
      * Non end-user profile mainly is for registration
      * manager.
-     * 
+     *
      * @return end-user profile or not
      */
     public boolean isVisible();
 
     /**
      * Sets this profile end-user profile or not.
-     * 
+     *
      * @param v end-user profile or not
      */
     public void setVisible(boolean v);
@@ -180,7 +180,7 @@ public interface IProfile {
     /**
      * Retrieves the user id of the person who
      * approves this profile.
-     * 
+     *
      * @return user id of the approver of this profile
      */
     public String getApprovedBy();
@@ -197,7 +197,7 @@ public interface IProfile {
 
     /**
      * Returns the profile name.
-     * 
+     *
      * @param locale end-user locale
      * @param name profile name
      */
@@ -205,7 +205,7 @@ public interface IProfile {
 
     /**
      * Retrieves the profile name.
-     * 
+     *
      * @param locale end-user locale
      * @return localized profile name
      */
@@ -213,7 +213,7 @@ public interface IProfile {
 
     /**
      * Returns the profile description.
-     * 
+     *
      * @param locale end-user locale
      * @param desc profile description
      */
@@ -221,7 +221,7 @@ public interface IProfile {
 
     /**
      * Retrieves the profile description.
-     * 
+     *
      * @param locale end-user locale
      * @return localized profile description
      */
@@ -231,21 +231,21 @@ public interface IProfile {
      * Retrieves profile context. The context stores
      * information about the requestor before the
      * actual request is created.
-     * 
+     *
      * @return profile context.
      */
     public IProfileContext createContext();
 
     /**
      * Returns the profile policy set identifiers.
-     * 
+     *
      * @return a list of policy set id
      */
     public Enumeration<String> getProfilePolicySetIds();
 
     /**
      * Creates a profile policy.
-     * 
+     *
      * @param setId id of the policy set that owns this policy
      * @param id policy id
      * @param defaultClassId id of the registered default implementation
@@ -259,7 +259,7 @@ public interface IProfile {
 
     /**
      * Deletes input policy by id.
-     * 
+     *
      * @param inputId id of the input policy
      * @exception EProfileException failed to delete
      */
@@ -267,7 +267,7 @@ public interface IProfile {
 
     /**
      * Deletes output policy by id.
-     * 
+     *
      * @param outputId id of the output policy
      * @exception EProfileException failed to delete
      */
@@ -275,7 +275,7 @@ public interface IProfile {
 
     /**
      * Creates a input policy.
-     * 
+     *
      * @param id input policy id
      * @param inputClassId id of the registered input implementation
      * @param nvp default parameters
@@ -288,7 +288,7 @@ public interface IProfile {
 
     /**
      * Creates a output policy.
-     * 
+     *
      * @param id output policy id
      * @param outputClassId id of the registered output implementation
      * @param nvp default parameters
@@ -300,7 +300,7 @@ public interface IProfile {
 
     /**
      * Deletes a policy.
-     * 
+     *
      * @param setId id of the policy set
      * @param policyId id of policy to delete
      * @exception EProfileException failed to delete
@@ -310,7 +310,7 @@ public interface IProfile {
 
     /**
      * Retrieves a policy.
-     * 
+     *
      * @param setId set id
      * @param id policy id
      * @return profile policy
@@ -319,7 +319,7 @@ public interface IProfile {
 
     /**
      * Retrieves all the policy id within a set.
-     * 
+     *
      * @param setId set id
      * @return a list of policy id
      */
@@ -329,7 +329,7 @@ public interface IProfile {
      * Retrieves a default set id for the given request.
      * It is the profile's responsibility to return
      * an appropriate set id for the request.
-     * 
+     *
      * @param req request
      * @return policy set id
      */
@@ -337,7 +337,7 @@ public interface IProfile {
 
     /**
      * Returns a list of profile policies.
-     * 
+     *
      * @param setId set id
      * @return a list of policies
      */
@@ -347,7 +347,7 @@ public interface IProfile {
      * Creates one or more requests. Normally, only one request will
      * be created. In case of CRMF request, multiple requests may be
      * created for one submission.
-     * 
+     *
      * @param ctx profile context
      * @param locale user locale
      * @return a list of requests
@@ -358,7 +358,7 @@ public interface IProfile {
 
     /**
      * Populates user-supplied input values into the requests.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
@@ -369,7 +369,7 @@ public interface IProfile {
     /**
      * Passes the request to the set of default policies that
      * populate the profile information against the profile.
-     * 
+     *
      * @param request request
      * @exception EProfileException failed to populate default values
      */
@@ -379,7 +379,7 @@ public interface IProfile {
     /**
      * Passes the request to the set of constraint policies
      * that validate the request against the profile.
-     * 
+     *
      * @param request request
      * @exception ERejectException validation violation
      */
@@ -388,7 +388,7 @@ public interface IProfile {
 
     /**
      * Process a request after validation.
-     * 
+     *
      * @param request request to be processed
      * @exception EProfileException failed to process
      */
@@ -397,7 +397,7 @@ public interface IProfile {
 
     /**
      * Handles end-user request submission.
-     * 
+     *
      * @param token authentication token
      * @param request request to be processed
      * @exception EDeferException defer request

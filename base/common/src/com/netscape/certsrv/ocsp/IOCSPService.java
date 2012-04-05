@@ -24,7 +24,7 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
 /**
  * This class represents the servlet that serves the Online Certificate
  * Status Protocol (OCSP) requests.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IOCSPService {
@@ -32,7 +32,7 @@ public interface IOCSPService {
      * This method validates the information associated with the specified
      * OCSP request and returns an OCSP response.
      * <P>
-     * 
+     *
      * @param r an OCSP request
      * @return OCSPResponse the OCSP response associated with the specified
      *         OCSP request
@@ -44,7 +44,7 @@ public interface IOCSPService {
 
     /**
      * Returns the in-memory count of the processed OCSP requests.
-     * 
+     *
      * @return number of processed OCSP requests in memory
      */
     public long getNumOCSPRequest();
@@ -52,7 +52,7 @@ public interface IOCSPService {
     /**
      * Returns the in-memory time (in mini-second) of
      * the processed time for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPRequestTotalTime();
@@ -60,7 +60,7 @@ public interface IOCSPService {
     /**
      * Returns the in-memory time (in mini-second) of
      * the signing time for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalSignTime();
@@ -70,7 +70,7 @@ public interface IOCSPService {
     /**
      * Returns the total data signed
      * for OCSP requests.
-     * 
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalData();

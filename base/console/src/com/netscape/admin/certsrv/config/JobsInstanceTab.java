@@ -42,7 +42,7 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "JOBSRULE";
-    
+
     private final static String HELPINDEX = "jobsscheduler-certsrv-jobrules-help";
 
 
@@ -56,7 +56,7 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
         mDataModel = new JobsRuleDataModel();
 		mScope = ScopeDef.SC_JOBS_INSTANCE;
 		RULE_NAME = JobsRuleDataModel.RULE_NAME;
-	  	RULE_STAT = JobsRuleDataModel.RULE_STAT;  
+		RULE_STAT = JobsRuleDataModel.RULE_STAT;
 
         mHelpToken = HELPINDEX;
     }
@@ -67,7 +67,7 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
 			JFrame parent,
 			AdminConnection conn,
 			String dest
-			) 
+			)
 	{
 
 		return new JobsConfigDialog(nvp,
@@ -81,7 +81,7 @@ public class JobsInstanceTab extends CMSPluginInstanceTab {
 			AdminConnection conn,
 			String dest,
 			CMSPluginInstanceTab pluginType
-			) 
+			)
 	{
 		return new JobsPluginSelectionDialog(parent,conn,dest,pluginType);
 	}

@@ -32,10 +32,10 @@ package com.netscape.certsrv.selftests;
  * This class implements an invalid self test exception.
  * EInvalidSelfTestExceptions are derived from ESelfTestExceptions
  * in order to allow users to easily do self tests without try-catch clauses.
- * 
+ *
  * EInvalidSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EInvalidSelfTestException
@@ -72,7 +72,7 @@ public class EInvalidSelfTestException
     /**
      * Constructs an "invalid" self test exception.
      * <P>
-     * 
+     *
      * @param instanceName invalid "instanceName" exception details
      */
     public EInvalidSelfTestException(String instanceName) {
@@ -94,7 +94,7 @@ public class EInvalidSelfTestException
      * Constructs a "invalid" self test exception where the value is always
      * invalid from a name/value pair
      * <P>
-     * 
+     *
      * @param instanceName invalid "instanceName" exception details
      * @param instanceValue invalid "instanceValue" exception details
      */
@@ -125,7 +125,7 @@ public class EInvalidSelfTestException
      * invalid from a substore.parameter/value pair; (the value passed in may
      * be null).
      * <P>
-     * 
+     *
      * @param instanceStore invalid "instanceStore" exception details
      * @param instanceParameter invalid "instanceParameter" exception details
      * @param instanceValue invalid "instanceValue" exception details
@@ -163,7 +163,7 @@ public class EInvalidSelfTestException
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     * 
+     *
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -173,7 +173,7 @@ public class EInvalidSelfTestException
     /**
      * Returns the store associated with this self test.
      * <P>
-     * 
+     *
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -183,7 +183,7 @@ public class EInvalidSelfTestException
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     * 
+     *
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -193,7 +193,7 @@ public class EInvalidSelfTestException
     /**
      * Returns the value associated with this self test.
      * <P>
-     * 
+     *
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {

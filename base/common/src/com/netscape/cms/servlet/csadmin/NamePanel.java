@@ -165,7 +165,7 @@ public class NamePanel extends WizardPanelBase {
         CMS.debug("NamePanel: display()");
         context.put("title", "Subject Names");
 
-        // update session id 
+        // update session id
         String session_id = request.getParameter("session_id");
         if (session_id != null) {
             CMS.debug("NamePanel setting session id.");
@@ -337,7 +337,7 @@ public class NamePanel extends WizardPanelBase {
         } // while
     }
 
-    /* 
+    /*
      * update some parameters for clones
      */
     public void updateCloneConfig(IConfigStore config)
@@ -868,7 +868,7 @@ public class NamePanel extends WizardPanelBase {
                     System.err.println("Exception caught: " + e.toString());
                 }
 
-            } // while 
+            } // while
             if (hasErr == false) {
                 config.putBoolean("preop.NamePanel.done", true);
                 config.commit(false);

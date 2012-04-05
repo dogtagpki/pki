@@ -53,7 +53,7 @@ public class UserDataModel extends CMSContentTableModel {
         v.addElement(new JLabel(uid,
               CMSAdminUtil.getImage(CMSAdminResources.IMAGE_USER),
               JLabel.LEFT));
-        v.addElement(name);    
+        v.addElement(name);
 
         addRow(v,uid);
     }

@@ -95,7 +95,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         //gbc.weighty = 1.0;
         gb.setConstraints(adminPanel, gbc);
        // mCenterPanel.add(adminPanel);
-        
+
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTH;
         gbc.gridwidth = gbc.REMAINDER;

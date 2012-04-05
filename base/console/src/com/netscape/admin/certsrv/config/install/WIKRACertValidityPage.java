@@ -39,7 +39,7 @@ class WIKRACertValidityPage extends WICertValidityPage {
     private static final String KRAHELPINDEX = "install-kracert-validity-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakracert-validity-wizard-help";
     private static final String CAKRAHELPINDEX = "install-cakra-kracert-validity-wizard-help";
-   
+
     WIKRACertValidityPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;

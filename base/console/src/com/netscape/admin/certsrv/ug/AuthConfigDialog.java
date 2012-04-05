@@ -84,8 +84,8 @@ public class AuthConfigDialog extends CMSBaseConfigDialog
 
 		Debug.println("Returning instance name "+instanceName);
 		return instanceName;
-		
+
 	}
 
-	
+
 }

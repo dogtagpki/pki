@@ -19,8 +19,8 @@ package netscape.security.x509;
 
 /**
  * Represent the enumerated type used in CRLReason Extension of CRL entry.
- * 
- * 
+ *
+ *
  * @author galperin
  * @version $Revision$, $Date$
  */
@@ -45,7 +45,7 @@ public final class RevocationReason {
 
     /**
      * Create a RevocationReason with the passed integer value.
-     * 
+     *
      * @param reason integer value of the enumeration alternative.
      */
     private RevocationReason(int reason) {

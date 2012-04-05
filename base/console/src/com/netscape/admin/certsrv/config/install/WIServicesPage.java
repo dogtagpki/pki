@@ -50,7 +50,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
       "install-services-configuration-wizard-help";
 
     private String mClonedSubsystem = null;
-    
+
     WIServicesPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
@@ -116,19 +116,19 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
                 mOCSPCheckBox.setSelected(true);
            }
            else
-                mOCSPCheckBox.setEnabled(false); 
+                mOCSPCheckBox.setEnabled(false);
 
         }
 
-        
+
         Debug.println("WIServicesPage: initializePanel.");
-        Debug.println("WIServicesPage: mClonedSubsystem " + mClonedSubsystem); 
+        Debug.println("WIServicesPage: mClonedSubsystem " + mClonedSubsystem);
 
 
         if (wizardInfo.isServicesDone())
             return false;
 
-        setBorder(makeTitledBorder(PANELNAME));        
+        setBorder(makeTitledBorder(PANELNAME));
         String subsystemList = wizardInfo.getSubsystems();
         if (subsystemList == null || subsystemList.equals("")) {
             if (!mRACheckBox.isSelected() && mClonedSubsystem == null)
@@ -169,7 +169,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
             start = end+1;
         } while( start < subsystemList.length() );
 
-        return true; 
+        return true;
     }
 
     public boolean validatePanel() {
@@ -261,7 +261,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
           ConfigConstants.FALSE;
         wizardInfo.enableRemoteDRM(ConfigConstants.FALSE);
         startProgressStatus();
-        
+
         //CMSMessageBox dlg = new CMSMessageBox(mAdminFrame, "CGITASK", "CREATESUB");
         boolean ready = send(rawData, wizardInfo);
         //dlg.setVisible(false);
@@ -341,7 +341,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mServiceLbl, gbc);
-        
+
         mCACheckBox = makeJRadioButton("CA");
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
@@ -387,7 +387,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.gridwidth = gbc.REMAINDER;
         add(mTKSCheckBox, gbc);
-        
+
        JLabel dummy = new JLabel(" ");
        CMSAdminUtil.resetGBC(gbc);
        gbc.anchor = gbc.NORTHWEST;
@@ -407,7 +407,7 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
             wizardInfo.setInstalledCA(ConfigConstants.FALSE);
         if (mRACheckBox.isSelected())
             wizardInfo.setInstalledRA(ConfigConstants.TRUE);
-        else 
+        else
             wizardInfo.setInstalledRA(ConfigConstants.FALSE);
         if (mKRACheckBox.isSelected())
             wizardInfo.setInstalledKRA(ConfigConstants.TRUE);

@@ -32,7 +32,7 @@ import com.netscape.cmscore.util.Debug;
 /**
  * Implements a policy set per IPolicySet interface. This class
  * uses a vector of ordered policies to enforce priority.
- * 
+ *
  * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
@@ -50,7 +50,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the name of the rule set.
      * <P>
-     * 
+     *
      * @return The name of the rule set.
      */
     public String getName() {
@@ -60,7 +60,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the no of rules in a set.
      * <P>
-     * 
+     *
      * @return the no of rules.
      */
     public int count() {
@@ -70,7 +70,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Add a policy rule.
      * <P>
-     * 
+     *
      * @param ruleName The name of the rule to be added.
      * @param rule The rule to be added.
      */
@@ -88,7 +88,7 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Remplaces a policy rule identified by the given name.
-     * 
+     *
      * @param name The name of the rule to be replaced.
      * @param rule The rule to be replaced.
      */
@@ -106,7 +106,7 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Removes a policy rule identified by the given name.
-     * 
+     *
      * @param name The name of the rule to be removed.
      */
     public void removeRule(String ruleName) {
@@ -122,7 +122,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the rule identified by a given name.
      * <P>
-     * 
+     *
      * @param name The name of the rule to be return.
      * @return The rule identified by the given name or null if none exists.
      */
@@ -137,7 +137,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns an enumeration of rules.
      * <P>
-     * 
+     *
      * @return An enumeration of rules.
      */
     public Enumeration<IPolicyRule> getRules() {
@@ -147,7 +147,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Apply policies on a given request from a rule set.
      * The rules may modify the request.
-     * 
+     *
      * @param req The request to apply policies on.
      * @return the PolicyResult.
      */
@@ -161,7 +161,7 @@ public class PolicySet implements IPolicySet {
         // if atleast one of the policies returns a REJECTED, we need to
         // return that status. If none of the policies REJECTED
         // the request, but atleast one of them DEFERRED the request, we
-        // need to return DEFERRED. 
+        // need to return DEFERRED.
         boolean rejected = false;
         boolean deferred = false;
         int size = mRules.size();
@@ -235,7 +235,7 @@ public class PolicySet implements IPolicySet {
                         ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name,
                                 ex.toString()));
-                // treat as rejected to prevent request from going into 
+                // treat as rejected to prevent request from going into
                 // a weird state. request queue doesn't handle this case.
                 rejected = true;
                 ((IPolicyRule) rule).setError(

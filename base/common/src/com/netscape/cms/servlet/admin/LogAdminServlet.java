@@ -49,7 +49,7 @@ import com.netscape.certsrv.logging.LogPlugin;
  * subsystem. This servlet is responsible to serve
  * logging administrative operation such as configuration
  * parameter updates and log retriever.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class LogAdminServlet extends AdminServlet {
@@ -407,11 +407,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Add log plug-in
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -680,11 +680,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Add log instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1072,11 +1072,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Delete log instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1146,7 +1146,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // only remove from memory
             // cannot shutdown because we don't keep track of whether it's
-            // being used. 
+            // being used.
             mSys.getLogInsts().remove(id);
 
             // remove the configuration.
@@ -1234,11 +1234,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Delete log plug-in
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1415,7 +1415,7 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Modify log instance
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE used when log file name (including any path changes) for
@@ -1424,7 +1424,7 @@ public class LogAdminServlet extends AdminServlet {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE used when log expiration time change is attempted
      * (authorization should not allow, but make sure it's written after the attempt)
      * </ul>
-     * 
+     *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1716,7 +1716,7 @@ public class LogAdminServlet extends AdminServlet {
                                                     newExpirationTime = val;
                                                     if (!val.equals(origVal.trim())) {
                                                         if (id.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                                                            AUTHZ_RES_NAME = 
+                                                            AUTHZ_RES_NAME =
                                                                     "certServer.log.configuration.signedAudit.expirationTime";
                                                         }
                                                         mOp = "modify";
@@ -2284,10 +2284,10 @@ public class LogAdminServlet extends AdminServlet {
 
     /**
      * Signed Audit Check Log Path
-     * 
+     *
      * This method is called to extract the log file path.
      * <P>
-     * 
+     *
      * @param req http servlet request
      * @return a string containing the log file path
      */

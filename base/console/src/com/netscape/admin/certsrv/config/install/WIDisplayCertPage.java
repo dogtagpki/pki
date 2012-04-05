@@ -42,7 +42,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
     private JTextField mCertNameField;
     protected String mPanelName;
     protected String mHelpIndex;
-    
+
     WIDisplayCertPage(String panelName) {
         super(panelName);
         mPanelName = panelName;
@@ -80,7 +80,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 					certType);
 	  }
 	}
-	if ((tokenName != null) && 
+	if ((tokenName != null) &&
 		!(tokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN_NAME))) {
 		Debug.println("tokenName="+tokenName);
         	mCertNameField.setText(tokenName+":"+wizardInfo.getNickname());
@@ -88,7 +88,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 		Debug.println("tokenName=null");
         	mCertNameField.setText(wizardInfo.getNickname());
 	}
-        return true; 
+        return true;
     }
 
     private String reformat(String content, String certOrder) {
@@ -140,7 +140,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
             } else
                 setErrorMessage(str);
         }
-        
+
         return ready;
     }
 

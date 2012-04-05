@@ -46,7 +46,7 @@ public class MapperConfigDialog extends CMSBaseConfigDialog
      *==========================================================*/
     public MapperConfigDialog(NameValuePairs nvp,
 				JFrame parent,
-				AdminConnection conn, 
+				AdminConnection conn,
 				String dest) {
 
         super(parent, dest);
@@ -61,4 +61,4 @@ public class MapperConfigDialog extends CMSBaseConfigDialog
 		init(nvp,parent,conn,dest);
     }
 
-}    
+}

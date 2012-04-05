@@ -119,7 +119,7 @@ public class CAService implements ICAService, IService {
     public CAService(ICertificateAuthority ca) {
         mCA = ca;
 
-        // init services. 
+        // init services.
         mServants.put(
                 IRequest.ENROLLMENT_REQUEST,
                 new serviceIssue(this));
@@ -170,11 +170,11 @@ public class CAService implements ICAService, IService {
         try {
             // MOVED TO com.netscape.certsrv.apps.CMS
             //			java.security.Security.addProvider(new netscape.security.provider.CMS());
-            //			java.security.Provider pr = java.security.Security.getProvider("CMS");			
+            //			java.security.Provider pr = java.security.Security.getProvider("CMS");
             //			if (pr != null) {
             //				;
-            //			}			
-            //			else 
+            //			}
+            //			else
             //				Debug.trace("Something is wrong in CMS install !");
             java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
 
@@ -282,20 +282,20 @@ public class CAService implements ICAService, IService {
             RemoteAuthority remauthority =
                     new RemoteAuthority(host, port, uri, timeout);
 
-            // Change end 
+            // Change end
             if (nickname == null)
                 nickname = mCA.getNickname();
             // Changed by beomsuk
-            //connector = 
+            //connector =
             //	new HttpConnector(mCA, nickname, remauthority, resendInterval);
             if (timeout == 0)
                 connector = new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config);
             else
                 connector =
                         new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config, timeout);
-            // Change end			
+            // Change end
 
-            // log(ILogger.LL_INFO, "remote authority "+ 
+            // log(ILogger.LL_INFO, "remote authority "+
             //	host+":"+port+" "+uri+" inited");
         }
         return connector;
@@ -346,19 +346,19 @@ public class CAService implements ICAService, IService {
 
         // This function is called only from ConnectorServlet
 
-        // serialize to request queue	
+        // serialize to request queue
     }
 
     /**
      * method interface for IService
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive
      * request is made. This is an option in a cert enrollment request detected by an RA or a CA, so, if selected, it
      * should be logged immediately following the certificate request.
      * </ul>
-     * 
+     *
      * @param request a certificate enrollment request from an RA or CA
      * @return true or false
      */
@@ -635,7 +635,7 @@ public class CAService implements ICAService, IService {
                     certi.get(X509CertInfo.KEY) == null) {
 
                 mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_MISSING_ATTR"));
-                // XXX how do you reject a request in the service object ? 
+                // XXX how do you reject a request in the service object ?
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_REQD_FIELDS_IN_CERTISSUE"));
             }
@@ -647,8 +647,8 @@ public class CAService implements ICAService, IService {
             }
 
             // set default validity if not set.
-            // validity would normally be set by policies or by 
-            // agent or by authentication module. 
+            // validity would normally be set by policies or by
+            // agent or by authentication module.
             CertificateValidity validity = (CertificateValidity)
                     certi.get(X509CertInfo.VALIDITY);
             Date begin = null, end = null;
@@ -673,7 +673,7 @@ public class CAService implements ICAService, IService {
 
             /*
              * For non-CA certs, check if validity exceeds CA time.
-             * If so, set to CA's not after  if default validity 
+             * If so, set to CA's not after  if default validity
              * exceeds ca's not after.
              */
 
@@ -787,12 +787,12 @@ public class CAService implements ICAService, IService {
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
             } catch (CertificateException e) {
-                // not possible 
+                // not possible
                 mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
             } catch (IOException e) {
-                // not possible. 
+                // not possible.
                 mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
@@ -868,8 +868,8 @@ public class CAService implements ICAService, IService {
             boolean renewal, BigInteger oldSerialNo, String crmfReqId,
             String challengePassword, String profileId) throws EBaseException {
         // now store in repository.
-        // if renewal, set the old serial number in the new cert, 
-        // set the new serial number in the old cert. 
+        // if renewal, set the old serial number in the new cert,
+        // set the new serial number in the old cert.
 
         CMS.debug("In storeX509Cert");
         try {
@@ -1131,10 +1131,10 @@ public class CAService implements ICAService, IService {
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -1154,11 +1154,11 @@ public class CAService implements ICAService, IService {
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
@@ -1190,11 +1190,11 @@ public class CAService implements ICAService, IService {
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
@@ -1244,7 +1244,7 @@ class serviceIssue implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
-        // XXX This is ugly. should associate attributes with 
+        // XXX This is ugly. should associate attributes with
         // request types, not policy.
         // XXX how do we know what to look for in request ?
 
@@ -1256,7 +1256,7 @@ class serviceIssue implements IServant {
 
     public boolean serviceX509(IRequest request)
             throws EBaseException {
-        // XXX This is ugly. should associate attributes with 
+        // XXX This is ugly. should associate attributes with
         // request types, not policy.
         // XXX how do we know what to look for in request ?
         X509CertInfo certinfos[] =
@@ -1293,14 +1293,14 @@ class serviceIssue implements IServant {
                 e.printStackTrace();
                 mCA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString()));
-                ex = e; // save to throw later. 
+                ex = e; // save to throw later.
                 break;
             }
         }
         if (ex != null) {
             for (int j = 0; j < i; j++) {
-                // delete the stored cert records from the database. 
-                // we issue all or nothing. 
+                // delete the stored cert records from the database.
+                // we issue all or nothing.
                 BigInteger serialNo =
                         ((X509Certificate) certs[i]).getSerialNumber();
 
@@ -1400,7 +1400,7 @@ class serviceRenewal implements IServant {
                     continue;
                 }
 
-                // check if cert has been revoked. 
+                // check if cert has been revoked.
                 String certStatus = certRecord.getStatus();
 
                 if (certStatus.equals(ICertRecord.STATUS_REVOKED) ||
@@ -1425,7 +1425,7 @@ class serviceRenewal implements IServant {
                                 mCA.getCertificateRepository().getX509Certificate(serial);
 
                         if (cert == null) {
-                            // something wrong 
+                            // something wrong
                             mCA.log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSCORE_CA_MISSING_RENEWED", serial.toString()));
                             svcerrors[i] = new ECAException(
@@ -1571,8 +1571,8 @@ class serviceCheckChallenge implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
-        // note: some request attributes used below are set in 
-        // authentication/ChallengePhraseAuthentication.java :( 
+        // note: some request attributes used below are set in
+        // authentication/ChallengePhraseAuthentication.java :(
         BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
         String pwd = request.getExtDataInString(
                 CAService.CHALLENGE_PHRASE);
@@ -1681,14 +1681,14 @@ class serviceRevoke implements IServant {
             throws EBaseException {
         boolean sendStatus = true;
         // XXX Need to think passing as array.
-        // XXX every implemented according to servlet. 
+        // XXX every implemented according to servlet.
         RevokedCertImpl crlentries[] =
                 request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
         if (crlentries == null ||
                 crlentries.length == 0 ||
                 crlentries[0] == null) {
-            // XXX should this be an error ? 
+            // XXX should this be an error ?
             mCA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_CA_CRL_NOT_FOUND", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_REVREQ"));
@@ -1992,7 +1992,7 @@ class serviceCert4Crl implements IServant {
     public boolean service(IRequest request)
             throws EBaseException {
         // XXX Need to think passing as array.
-        // XXX every implemented according to servlet. 
+        // XXX every implemented according to servlet.
         BigInteger revokedCertIds[] = request.getExtDataInBigIntegerArray(
                 IRequest.REVOKED_CERT_RECORDS);
         if (revokedCertIds == null ||
@@ -2012,7 +2012,7 @@ class serviceCert4Crl implements IServant {
         if (revokedCertRecs == null ||
                 revokedCertRecs.length == 0 ||
                 revokedCertRecs[0] == null) {
-            // XXX should this be an error ? 
+            // XXX should this be an error ?
             mCA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_CLAREQ"));

@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.ISubsystem;
 
 /**
  * Interface for handling cross certs
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICrossCertPairSubsystem extends ISubsystem {
@@ -37,7 +37,7 @@ public interface ICrossCertPairSubsystem extends ISubsystem {
      * if matches up a pair, then publish to publishing directory
      * otherwise, leave in internal ldap db and wait for it's matching
      * pair
-     * 
+     *
      * @param certBytes binary byte array of the cert
      * @exception EBaseException when certBytes conversion to X509
      *                certificate fails
@@ -46,14 +46,14 @@ public interface ICrossCertPairSubsystem extends ISubsystem {
 
     /**
      * publish all cert pairs, if publisher is on
-     * 
+     *
      * @exception EBaseException when publishing fails
      */
     public void publishCertPairs() throws EBaseException;
 
     /**
      * convert byte array to X509Certificate
-     * 
+     *
      * @return X509Certificate the X509Certificate class
      *         representation of the certificate byte array
      * @exception CertificateException when conversion fails

@@ -40,7 +40,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "OCSPSTORESRULE";
-    
+
     private final static String OCSPHELPINDEX = "configuration-ocsp-storeinstances-help";
 
 
@@ -53,9 +53,9 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
         mConnection = model.getServerInfo().getAdmin();
         mDataModel = new OCSPStoresRuleDataModel();
         mScope = ScopeDef.SC_OCSPSTORES_RULES;
-        RULE_NAME = OCSPStoresRuleDataModel.RULE_NAME; 
+        RULE_NAME = OCSPStoresRuleDataModel.RULE_NAME;
         RULE_IMPL = OCSPStoresRuleDataModel.RULE_IMPL;
-        RULE_STAT = OCSPStoresRuleDataModel.RULE_STAT;  
+        RULE_STAT = OCSPStoresRuleDataModel.RULE_STAT;
         mHelpToken = OCSPHELPINDEX;
     }
 
@@ -64,7 +64,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
             NameValuePairs nvp,
             JFrame parent,
             AdminConnection conn,
-            String dest) 
+            String dest)
     {
         return new OCSPStoresConfigDialog(nvp, parent, conn, dest);
     }
@@ -73,7 +73,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
             JFrame parent,
             AdminConnection conn,
             String dest,
-            CMSPluginInstanceTab pluginType) 
+            CMSPluginInstanceTab pluginType)
     {
         return new OCSPStoresPluginSelectionDialog(parent, conn, dest, pluginType);
     }
@@ -108,7 +108,7 @@ public class OCSPStoresInstanceTab extends CMSPluginInstanceTab {
         mModel.progressStart();
         //get entry name
         NameValuePairs data = (NameValuePairs)
-            mDataModel.getObjectValueAt(mTable.getSelectedRow()); 
+            mDataModel.getObjectValueAt(mTable.getSelectedRow());
         NameValuePairs nvps = new NameValuePairs();
 
         //send comment to server for the removal of user

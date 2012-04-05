@@ -36,7 +36,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * on each Tuesday (e.g. * 7 * * 2) will result in the execution of the job thread only once every 5 minutes during that
  * hour. <b>The inteval value is recommended at 1 minute, setting it otherwise has the potential of forever missing the
  * beat</b>. Use with caution.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IJobsScheduler extends ISubsystem {
@@ -91,14 +91,14 @@ public interface IJobsScheduler extends ISubsystem {
 
     /**
      * Retrieves all the job implementations.
-     * 
+     *
      * @return a Hashtable of available job plugin implementations
      */
     public Hashtable<String, JobPlugin> getPlugins();
 
     /**
      * Retrieves all the job instances.
-     * 
+     *
      * @return a Hashtable of job instances
      */
     public Hashtable<String, IJob> getInstances();
@@ -107,7 +107,7 @@ public interface IJobsScheduler extends ISubsystem {
      * Retrieves the configuration parameters of the given
      * implementation. It is used to return to the Console for
      * configuration
-     * 
+     *
      * @param implName the pulubin implementation name
      * @return a String array of required configuration parameters of
      *         the given implementation.
@@ -120,7 +120,7 @@ public interface IJobsScheduler extends ISubsystem {
 
     /**
      * Writes a message to the system log.
-     * 
+     *
      * @param level an integer representing the log message level.
      *            Depending on the configuration set by the administrator, this
      *            value is a determining factor for whether this message will be
@@ -134,7 +134,7 @@ public interface IJobsScheduler extends ISubsystem {
 
     /**
      * Sets daemon's wakeup interval.
-     * 
+     *
      * @param minutes time in minutes that is to be the frequency of
      *            JobsScheduler wakeup call.
      */
@@ -151,7 +151,7 @@ public interface IJobsScheduler extends ISubsystem {
      * specifies the rule of frequency that this job should be
      * executed (e.g. every Sunday at midnight). This method is
      * called by each job at initialization time.
-     * 
+     *
      * @param cs the string that represents the cron. See IJobCron
      *            for detail of the format.
      * @return IJobCron an IJobCron

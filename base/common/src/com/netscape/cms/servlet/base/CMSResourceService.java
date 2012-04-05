@@ -32,9 +32,9 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
 
 /**
  * Base class for CMS RESTful resources
- * 
+ *
  * @author alee
- * 
+ *
  */
 public class CMSResourceService {
 

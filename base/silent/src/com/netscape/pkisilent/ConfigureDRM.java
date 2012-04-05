@@ -78,7 +78,7 @@ public class ConfigureDRM {
     public static String client_certdb_dir = null;
     public static String client_certdb_pwd = null;
 
-    // Login Panel 
+    // Login Panel
     public static String pin = null;
 
     public static String domain_name = null;
@@ -159,7 +159,7 @@ public class ConfigureDRM {
     public static String backup_pwd = null;
     public static String backup_fname = null;
 
-    // cert subject names 
+    // cert subject names
     public static String drm_transport_cert_subject_name = null;
     public static String drm_subsystem_cert_subject_name = null;
     public static String drm_storage_cert_subject_name = null;
@@ -777,7 +777,7 @@ public class ConfigureDRM {
         hr = hc.sslConnect(sd_hostname, sd_admin_port, admin_uri, query_string);
 
         // get response data
-        // String cert_to_import = 
+        // String cert_to_import =
         //     new sun.misc.BASE64Encoder().encode(hr.getResponseData());
         String cert_to_import =
                 Utils.base64encode(hr.getResponseData());
@@ -1013,7 +1013,7 @@ public class ConfigureDRM {
         StringHolder x_admin_email = new StringHolder();
         StringHolder x_admin_password = new StringHolder();
 
-        // ldap 
+        // ldap
         StringHolder x_ldap_host = new StringHolder();
         StringHolder x_ldap_port = new StringHolder();
         StringHolder x_bind_dn = new StringHolder();
