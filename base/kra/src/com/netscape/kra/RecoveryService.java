@@ -377,10 +377,9 @@ public class RecoveryService implements IService {
     public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean isRSA)
             throws EBaseException {
 
-        if (!isRSA) {
-            CMS.debug("RecoverService: recoverKey: currently, non-RSA keys are not supported when allowEncDecrypt_ is false");
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "key type not supported"));
-        }
+        CMS.debug("RecoverService: recoverKey: key to recover is RSA? "+
+            isRSA); 
+
         try {
             if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])

@@ -281,6 +281,16 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
+     * Retrieves the metaInfo.
+     * <P>
+     *
+     * @return metaInfo
+     */
+    public MetaInfo getMetaInfo() {
+        return mMetaInfo;
+    }
+
+    /**
      * Sets key size.
      * <P>
      */
@@ -341,10 +351,6 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      */
     public String getAlgorithm() {
         return mAlgorithm;
-    }
-
-    public MetaInfo getMetaInfo() {
-        return mMetaInfo;
     }
 
     /**
