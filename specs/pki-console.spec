@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}3%{?prerel}%{?dist}
+Release:          %{?relprefix}4%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -30,11 +30,11 @@ BuildRequires:    junit4
 %endif
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
-BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-util >= 9.0.15
 %else
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-util
 %endif
 
@@ -44,10 +44,10 @@ Requires:         ldapjdk
 Requires:         pki-console-theme >= 9.0.0
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 1.7.5-10
-Requires:         jss >= 4.2.6-19.1
+Requires:         jss >= 4.2.6-24
 %else
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
+Requires:         jss >= 4.2.6-24
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
@@ -96,6 +96,9 @@ cd build
 
 
 %changelog
+* Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.4.a1
+- Bug 745278 - [RFE] ECC encryption keys cannot be archived
+
 * Wed Mar 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
 - Corrected 'junit' dependency check
 

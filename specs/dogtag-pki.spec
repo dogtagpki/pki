@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}4%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -20,7 +20,7 @@ BuildArch:        noarch
 %if 0%{?fedora} >= 17
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
-%define jss_version                4.2.6-21
+%define jss_version                4.2.6-24
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -33,7 +33,7 @@ BuildArch:        noarch
 %if 0%{?fedora} >= 16
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
-%define jss_version                4.2.6-19.1
+%define jss_version                4.2.6-24
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -45,7 +45,7 @@ BuildArch:        noarch
 %else
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
-%define jss_version                4.2.6-17
+%define jss_version                4.2.6-24
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -184,6 +184,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.4.a1
+- Bug 745278 - [RFE] ECC encryption keys cannot be archived
+
 * Wed Feb 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.3.a1
 - Removed dependency on OSUtil.
 

@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}13%{?prerel}%{?dist}
+Release:          %{?relprefix}14%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -49,13 +49,13 @@ BuildRequires:    junit4
 %endif
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    tomcatjss >= 6.0.0
 %else
 BuildRequires:    jpackage-utils
@@ -201,10 +201,10 @@ Requires:         java >= 1:1.6.0
 Requires:         nss
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-19.1
+Requires:         jss >= 4.2.6-24
 %else
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
+Requires:         jss >= 4.2.6-24
 %endif
 
 Provides:         symkey = %{version}-%{release}
@@ -248,11 +248,11 @@ Requires:         ldapjdk
 Requires:         apache-commons-codec
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-19.1
+Requires:         jss >= 4.2.6-24
 %else
 %if 0%{?fedora} >= 15
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
+Requires:         jss >= 4.2.6-24
 %else
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
@@ -357,13 +357,13 @@ Requires:         resteasy >= 2.3.2-1
 %if 0%{?fedora} >= 16
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
-Requires:         jss >= 4.2.6-19.1
+Requires:         jss >= 4.2.6-24
 Requires:         tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
-Requires:         jss >= 4.2.6-17
+Requires:         jss >= 4.2.6-24
 Requires:         tomcatjss >= 6.0.0
 %else
 %if 0%{?fedora} >= 14
@@ -1324,6 +1324,9 @@ fi
 
 
 %changelog
+* Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.14.a1
+- Bug 745278 - [RFE] ECC encryption keys cannot be archived
+
 * Fri Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
 - Replaced candlepin-deps with resteasy
 
