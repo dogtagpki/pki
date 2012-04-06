@@ -129,8 +129,8 @@ function displayKeyRecord(rec)
 	document.write(renderDetailsButton(rec.serialNumber));
 	document.write('</td>');
 	document.write('<td align=left colspan=2><font size="-1" face="PrimasSans BT, Verdana, sans-serif">' +
-		renderOidName(rec.keyAlgorithm) + (rec.keyLength != null ? 
-		" with "+ rec.keyLength + "-bit key" : "")+ '</font></td>');
+    renderOidName(rec.keyAlgorithm) + (((rec.keyLength != null) && (rec.keyLength >= 0)) ?
+        " with "+ rec.keyLength + "-bit key" : ((rec.EllipticCurve != null)? " with " + rec.EllipticCurve:""))+ '</font></td>');
 	document.write('<td align=left colspan=2><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' +
 		rec.ownerName + '</font></td>');
 	document.write('</tr>');
