@@ -34,7 +34,7 @@ public class EAuthzException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String AUTHZ_RESOURCES = AuthzResources.class.getName();
+    private static final String AUTHZ_RESOURCES = "com.netscape.certsrv.authorization.AuthzResources";
 
     /**
      * Constructs a authz exception

@@ -34,7 +34,7 @@ public class EAuthException extends EBaseException {
     /**
      * Resource class name
      */
-    private static final String AUTH_RESOURCES = AuthResources.class.getName();
+    private static final String AUTH_RESOURCES = "com.netscape.certsrv.authentication.AuthResources";
 
     /**
      * Constructs an authentication exception

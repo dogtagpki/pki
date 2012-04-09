@@ -34,7 +34,7 @@ public class EUsrGrpException extends EBaseException {
     /**
      * Identity resource class name.
      */
-    private static final String USRGRP_RESOURCES = UsrGrpResources.class.getName();
+    private static final String USRGRP_RESOURCES = "com.netscape.certsrv.usrgrp.UsrGrpResources";
 
     /**
      * Constructs a usr/grp management exception

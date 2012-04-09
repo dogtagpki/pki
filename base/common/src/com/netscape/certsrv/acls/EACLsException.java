@@ -41,7 +41,7 @@ public class EACLsException extends EBaseException {
     /**
      * resource class name
      */
-    private static final String ACL_RESOURCES = ACLsResources.class.getName();
+    private static final String ACL_RESOURCES = "com.netscape.certsrv.acls.ACLsResources";
 
     /**
      * Constructs an acls exception.

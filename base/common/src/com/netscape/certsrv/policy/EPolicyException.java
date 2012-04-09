@@ -48,7 +48,7 @@ public class EPolicyException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String POLICY_RESOURCES = PolicyResources.class.getName();
+    private static final String POLICY_RESOURCES = "com.netscape.certsrv.policy.PolicyResources";
 
     /**
      * Constructs a base exception.

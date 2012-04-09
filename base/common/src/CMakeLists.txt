@@ -107,7 +107,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/usrgrp/IUser.java
     com/netscape/certsrv/usrgrp/IUGSubsystem.java
     com/netscape/certsrv/usrgrp/IIdEvaluator.java
-    com/netscape/certsrv/usrgrp/UsrGrpResources.java
     com/netscape/certsrv/usrgrp/IUserConstants.java
     com/netscape/certsrv/usrgrp/IUsrGrp.java
     com/netscape/certsrv/pattern/Pattern.java
@@ -145,7 +144,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/policy/IGeneralNamesAsConstraintsConfig.java
     com/netscape/certsrv/policy/IExpression.java
     com/netscape/certsrv/policy/EPolicyException.java
-    com/netscape/certsrv/policy/PolicyResources.java
     com/netscape/certsrv/policy/IGeneralNamesConfig.java
     com/netscape/certsrv/policy/IPolicySet.java
     com/netscape/certsrv/policy/IPolicyProcessor.java
@@ -160,7 +158,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/policy/IRenewalPolicy.java
     com/netscape/certsrv/policy/IPolicyRule.java
     com/netscape/certsrv/acls/IACL.java
-    com/netscape/certsrv/acls/ACLsResources.java
     com/netscape/certsrv/acls/EACLsException.java
     com/netscape/certsrv/acls/ACL.java
     com/netscape/certsrv/acls/IACLEntry.java
@@ -257,7 +254,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/authentication/EAuthException.java
     com/netscape/certsrv/authentication/IAuthSubsystem.java
     com/netscape/certsrv/authentication/IAuthCredentials.java
-    com/netscape/certsrv/authentication/AuthResources.java
     com/netscape/certsrv/authentication/EFormSubjectDN.java
     com/netscape/certsrv/authorization/AuthzManagerProxy.java
     com/netscape/certsrv/authorization/IAuthzManager.java
@@ -265,7 +261,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/authorization/AuthzMgrPlugin.java
     com/netscape/certsrv/authorization/AuthzToken.java
     com/netscape/certsrv/authorization/IAuthzSubsystem.java
-    com/netscape/certsrv/authorization/AuthzResources.java
     com/netscape/certsrv/authorization/EAuthzUnknownOperation.java
     com/netscape/certsrv/authorization/EAuthzAccessDenied.java
     com/netscape/certsrv/authorization/EAuthzException.java
