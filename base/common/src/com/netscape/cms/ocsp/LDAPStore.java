@@ -83,7 +83,6 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final int DEF_REFRESH_IN_SEC = 60 * 60 * 24;
     private static final String PROP_BASE_DN = "baseDN";
     private static final String PROP_BY_NAME = "byName";
-    private static final String PROP_CONN_INFO = "connInfo";
     private static final String PROP_CRL_ATTR = "crlAttr";
     private static final String DEF_CRL_ATTR = "certificateRevocationList;binary";
     private static final String PROP_CA_CERT_ATTR = "caCertAttr";

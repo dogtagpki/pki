@@ -63,7 +63,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     private ILogger mLogger = CMS.getLogger();
     private IConfigStore mConfig = null;
     private boolean mInited = false;
-    private boolean mRevokeCert;
 
     public LdapEncryptCertPublisher() {
     }
@@ -113,7 +112,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             return;
         mConfig = config;
         mCertAttr = mConfig.getString("certAttr", LDAP_USERCERT_ATTR);
-        mRevokeCert = mConfig.getBoolean(PROP_REVOKE_CERT, true);
         mInited = true;
     }
 

@@ -91,7 +91,6 @@ public class ExtPrettyPrint {
      *==========================================================*/
     private Extension mExt = null;
     private ResourceBundle mResource = null;
-    private ResourceBundle resource = null;
     private PrettyPrintFormat pp = null;
     private int mIndentSize = 0;
 

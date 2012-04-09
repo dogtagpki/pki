@@ -55,7 +55,9 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertRequestPanel extends WizardPanelBase {
     private Vector<Cert> mCerts = null;
-    private WizardServlet mServlet = null;
+
+    @SuppressWarnings("unused")
+    private WizardServlet mServlet;
 
     public CertRequestPanel() {
     }

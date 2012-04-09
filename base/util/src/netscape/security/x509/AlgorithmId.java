@@ -57,9 +57,6 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /** use serialVersionUID from JDK 1.1. for interoperability */
     private static final long serialVersionUID = 7205873507486557157L;
 
-    /* Are we debugging? */
-    private static boolean debug = false;
-
     /**
      * The object identitifer being used for this algorithm.
      */

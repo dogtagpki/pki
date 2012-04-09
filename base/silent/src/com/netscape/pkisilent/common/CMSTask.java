@@ -33,7 +33,6 @@ import com.netscape.pkisilent.argparser.StringHolder;
 public class CMSTask {
 
     private static String operation;
-    private static String debug;
     private static String serverRoot;
     private Process p = null;
 

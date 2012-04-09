@@ -35,7 +35,6 @@ import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -78,10 +77,6 @@ public class AgentCertAuthentication implements IAuthManager,
 
     private IUGSubsystem mUGSub = null;
     private ICertUserLocator mCULocator = null;
-    private ILogger mLogger = CMS.getLogger();
-
-    private IConfigStore mRevocationChecking = null;
-    private String mRequestor = null;
 
     public AgentCertAuthentication() {
     }

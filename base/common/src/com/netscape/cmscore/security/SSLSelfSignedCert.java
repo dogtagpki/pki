@@ -37,7 +37,6 @@ import com.netscape.certsrv.security.KeyCertData;
 public class SSLSelfSignedCert extends CertificateInfo {
     public static final String SUBJECT_NAME =
             "CN=SSL, O=Netscape Communications, C=US";
-    private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public SSLSelfSignedCert(KeyCertData properties) {
         this(properties, null);
@@ -45,11 +44,6 @@ public class SSLSelfSignedCert extends CertificateInfo {
 
     public SSLSelfSignedCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-
-        if ((tmp != null) &&
-                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
-            mTokenname = tmp;
         mProperties.remove(Constants.PR_AKI);
 
         // 020599: This SSL server bit has to be turned on. Otherwise, it

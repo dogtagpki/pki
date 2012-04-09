@@ -37,7 +37,6 @@ import com.netscape.certsrv.security.KeyCertData;
 public class RASigningCert extends CertificateInfo {
     public static final String SUBJECT_NAME =
             "CN=Registration Authority, O=Netscape Communications, C=US";
-    private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public RASigningCert(KeyCertData properties) {
         this(properties, null);
@@ -45,11 +44,6 @@ public class RASigningCert extends CertificateInfo {
 
     public RASigningCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-
-        if ((tmp != null) &&
-                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
-            mTokenname = tmp;
         try {
             if (mProperties.get(Constants.PR_AKI) == null) {
                 mProperties.put(Constants.PR_AKI, Constants.FALSE);

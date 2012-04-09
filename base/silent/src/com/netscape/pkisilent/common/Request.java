@@ -52,9 +52,35 @@ public class Request extends TestClient {
 
     // Cert Detail variables
 
-    private String csrRequestorName, csrRequestorPhone, csrRequestorEmail, subject, subjectdn, reqStatus, certType;
-    private String requestType, requestID, sslclient, clientcert, servercert, emailcert, objectsigningcert, sslcacert,
-            objectsigningcacert, emailcacert, sigAlgo, totalRecord, validitylength, trustedManager;
+    private String csrRequestorName;
+    private String csrRequestorPhone;
+    private String csrRequestorEmail;
+    private String subject;
+    private String subjectdn;
+    private String reqStatus;
+    @SuppressWarnings("unused")
+    private String certType;
+    @SuppressWarnings("unused")
+    private String requestType;
+    private String requestID;
+    @SuppressWarnings("unused")
+    private String sslclient;
+    private String clientcert;
+    private String servercert;
+    private String emailcert;
+    private String objectsigningcert;
+    @SuppressWarnings("unused")
+    private String sslcacert;
+    @SuppressWarnings("unused")
+    private String objectsigningcacert;
+    @SuppressWarnings("unused")
+    private String emailcacert;
+    private String sigAlgo;
+    @SuppressWarnings("unused")
+    private String totalRecord;
+    @SuppressWarnings("unused")
+    private String validitylength;
+    private String trustedManager;
 
     private int totalNumApproved = 0;
 

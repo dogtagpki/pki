@@ -58,11 +58,9 @@ public class GetPk12 extends CMSServlet {
 
     private final static String TPL_FILE = "finishRecovery.template";
 
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_ERROR = "errorDetails";
 
     private com.netscape.certsrv.kra.IKeyService mService = null;
-    private final static String OUT_STATUS = "status";
 
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";

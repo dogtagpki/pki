@@ -41,8 +41,6 @@ public class GetStatus extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -2852842030221659847L;
-    private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
 
     public GetStatus() {
         super();

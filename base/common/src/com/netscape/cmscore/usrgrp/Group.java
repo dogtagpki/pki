@@ -36,7 +36,8 @@ public class Group implements IGroup {
      *
      */
     private static final long serialVersionUID = -1264387079578766750L;
-    private IUsrGrp mBase = null;
+    @SuppressWarnings("unused")
+    private IUsrGrp mBase;
     private String mName = null;
     private Vector<String> mMembers = new Vector<String>();
     private String mDescription = null;

@@ -26,8 +26,6 @@ import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 
 public class RequestTransfer {
 
-    private static final String DOT = ".";
-
     private static String[] transferAttributes = {
             IRequest.HTTP_PARAMS,
             IRequest.AGENT_PARAMS,

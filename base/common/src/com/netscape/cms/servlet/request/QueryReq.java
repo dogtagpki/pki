@@ -18,10 +18,10 @@
 package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
-import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -56,7 +56,6 @@ public class QueryReq extends CMSServlet {
      */
     private static final long serialVersionUID = -8729364426329835378L;
     // constants
-    private final static String INFO = "QueryReq";
     private final static String IN_SHOW_ALL = "showAll";
     private final static String IN_SHOW_WAITING = "showWaiting";
     private final static String IN_SHOW_IN_SERVICE = "showInService";
@@ -66,35 +65,17 @@ public class QueryReq extends CMSServlet {
     private final static String IN_SHOW_COMPLETED = "showCompleted";
     private final static String IN_MAXCOUNT = "maxCount";
     private final static String IN_TOTALCOUNT = "totalRecordCount";
-    private final static String ON = "on";
     private final static String PROP_PARSER = "parser";
 
     private final static String TPL_FILE = "queryReq.template";
 
-    private final static String OUT_SERVICE_URL = "serviceURL";
-    private final static String OUT_OP = "op";
-    private final static String OUT_MAXCOUNT = IN_MAXCOUNT;
     private final static String OUT_TOTALCOUNT = IN_TOTALCOUNT;
     private final static String OUT_CURRENTCOUNT = "currentRecordCount";
-    private final static String OUT_SENTINEL_DOWN = "querySentinelDown";
-    private final static String OUT_SHOW_COMPLETED = IN_SHOW_COMPLETED;
-    private final static String OUT_SEQNUM = "seqNum";
-    private final static String OUT_STATUS = "status";
-    private final static String OUT_CREATE_ON = "createdOn";
-    private final static String OUT_UPDATE_ON = "updatedOn";
-    private final static String OUT_UPDATE_BY = "updatedBy";
     private final static String OUT_REQUESTING_USER = "requestingUser";
     //keeps track of where to begin if page down
     private final static String OUT_FIRST_ENTRY_ON_PAGE = "firstEntryOnPage";
     //keeps track of where to begin if page up
     private final static String OUT_LAST_ENTRY_ON_PAGE = "lastEntryOnPage";
-    private final static String OUT_SUBJECT = "subject";
-    private final static String OUT_REQUEST_TYPE = "requestType";
-    private final static String OUT_COMMENTS = "requestorComments";
-    private final static String OUT_SERIALNO = "serialNumber";
-    private final static String OUT_OWNER_NAME = "ownerName";
-    private final static String OUT_PUBLIC_KEY_INFO =
-            "subjectPublicKeyInfo";
     private final static String OUT_ERROR = "error";
     private final static String OUT_AUTHORITY_ID = "authorityid";
 

@@ -64,7 +64,6 @@ public class AuthAdminServlet extends AdminServlet {
 
     private final static String PW_PASSWORD_CACHE_ADD =
             "PASSWORD_CACHE_ADD";
-    private final static String VIEW = ";" + Constants.VIEW;
     private final static String EDIT = ";" + Constants.EDIT;
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_AUTH =

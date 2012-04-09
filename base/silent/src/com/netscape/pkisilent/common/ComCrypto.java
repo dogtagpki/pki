@@ -57,6 +57,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
+
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -67,7 +68,9 @@ import com.netscape.cmsutil.util.Utils;
 public class ComCrypto {
 
     private String cdir, certnickname, keysize, keytype, tokenpwd;
-    private String certpackage, pkcs10request;
+    @SuppressWarnings("unused")
+    private String certpackage;
+    private String pkcs10request;
     private boolean debug = true;
     private boolean DBlogin = false;
     private boolean generaterequest = false;
@@ -82,7 +85,6 @@ public class ComCrypto {
     public static CryptoManager manager;
     public static CryptoToken token;
     private CryptoStore store;
-    private Password pass1 = null, pass2 = null;
 
     private String bstr = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private String blob, Blob1 = null;

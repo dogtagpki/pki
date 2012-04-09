@@ -63,7 +63,6 @@ public class RegisterUser extends CMSServlet {
      */
     private static final long serialVersionUID = -699307373400031138L;
     private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
     private String mGroupName = null;
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =

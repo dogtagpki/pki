@@ -20,7 +20,6 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class VendorSpecificAttribute extends Attribute {
-    private byte _value[] = null;
     private String _id = null;
     private String _str = null;
 
@@ -29,7 +28,6 @@ public class VendorSpecificAttribute extends Attribute {
         _t = VENDOR_SPECIFIC;
         _id = new String(value, 2, 4);
         _str = new String(value, 6, value.length - 6);
-        _value = value;
     }
 
     public String getId() {

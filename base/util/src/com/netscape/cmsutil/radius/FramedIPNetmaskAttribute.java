@@ -20,7 +20,6 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class FramedIPNetmaskAttribute extends Attribute {
-    private byte _value[] = null;
     private byte _mask[] = new byte[4];
 
     public FramedIPNetmaskAttribute(byte value[]) {
@@ -30,7 +29,6 @@ public class FramedIPNetmaskAttribute extends Attribute {
         _mask[1] = value[3];
         _mask[2] = value[4];
         _mask[3] = value[5];
-        _value = value;
     }
 
     public byte[] getValue() throws IOException {

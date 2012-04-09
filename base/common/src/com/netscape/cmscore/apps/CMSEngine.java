@@ -188,7 +188,8 @@ public class CMSEngine implements ICMSEngine {
     private int pid;
 
     private IConfigStore mConfig = null;
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
     private long mStartupTime = 0;
     private boolean isStarted = false;
     private StringBuffer mWarning = new StringBuffer();
@@ -239,6 +240,7 @@ public class CMSEngine implements ICMSEngine {
 
     private static final int IP = 0;
     private static final int PORT = 1;
+    @SuppressWarnings("unused")
     private static final int HOST = 2;
     private static final int AGENT = 0;
     private static final int ADMIN = 1;

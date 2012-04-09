@@ -305,14 +305,6 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
         }
     }
 
-    /* Test vectors from the DSA specs. */
-
-    private static int[] testXSeed = { 0xbd029bbe, 0x7f51960b, 0xcf9edb2b,
-                       0x61f06f0f, 0xeb5a38b6 };
-
-    private int[] x_t = { 0x67452301, 0xefcdab89, 0x98badcfe,
-              0x10325476, 0xc3d2e1f0 };
-
     /**
      * Generate the private key component of the key pair using the
      * provided source of random bits. This method uses the random but

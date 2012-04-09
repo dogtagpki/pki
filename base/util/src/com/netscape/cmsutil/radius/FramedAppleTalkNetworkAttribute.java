@@ -20,13 +20,11 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class FramedAppleTalkNetworkAttribute extends Attribute {
-    private byte _value[] = null;
     private int _type = 0;
 
     public FramedAppleTalkNetworkAttribute(byte value[]) {
         super();
         _t = FRAMED_APPLETALK_NETWORK;
-        _value = value;
         _type = value[5] & 0xFF;
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);

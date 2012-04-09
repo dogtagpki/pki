@@ -79,23 +79,6 @@ public class DBSubsystem implements IDBSubsystem {
     private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
 
-    private static final String PEOPLE_DN = "ou=people";
-    private static final String GROUPS_DN = "ou=groups";
-    private static final String REQUESTS_DN = "ou=requests";
-    private static final String XCERTS_DN = "cn=crossCerts";
-    private static final String BASEDN = "o=netscapeCertificateServer";
-    private static final String DEFAULT_DATABASE = "userRoot";
-    private static final String AT_OC = "objectclass";
-    private static final String AT_O = "o";
-    private static final String AT_OU = "ou";
-    private static final String CA_DN = "ou=ca";
-    private static final String CR_DN = "ou=certificateRepository, ou=ca";
-    private static final String CRL_DN = "ou=crlIssuingPoints, ou=ca";
-    private static final String CA_REQUESTS_DN = "ou=ca, ou=requests";
-    private static final String KRA_DN = "ou=kra";
-    private static final String KR_DN = "ou=keyRepository, ou=kra";
-    private static final String KRA_REQUESTS_DN = "ou=kra, ou=requests";
-    private static final String REPLICA_DN = "ou=replica";
     private static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY =
             "enableSerialNumberRecovery";
     // This value is only equal to the next Serial number that the CA's

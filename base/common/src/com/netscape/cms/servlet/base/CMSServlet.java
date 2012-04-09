@@ -129,7 +129,6 @@ public abstract class CMSServlet extends HttpServlet {
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
-    private final static String FAILED = "1";
     private final static String HDR_LANG = "accept-language";
 
     // final error message - if error and exception templates don't work

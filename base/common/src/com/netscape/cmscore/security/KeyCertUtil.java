@@ -125,10 +125,6 @@ import com.netscape.cmsutil.util.Utils;
 public class KeyCertUtil {
 
     public static final String CA_SIGNINGCERT_NICKNAME = "caSigningCert";
-    private static final int MAX_DOMESTIC_SSL_KEY_LEN = 4096;
-    private static final int MAX_EXPORT_SSL_KEY_LEN = 512;
-    private static final int MIN_DSA_KEY_LEN = 512;
-    private static final int MAX_DSA_KEY_LEN = 1024;
 
     public static void checkCertificateExt(String ext) throws EBaseException {
         byte[] b = null;

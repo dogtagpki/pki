@@ -60,9 +60,6 @@ public class GetInfo extends CMSServlet {
      */
     private static final long serialVersionUID = 1909881831730252799L;
 
-    private final static String INFO = "GetInfo";
-
-    private String mFormPath = null;
     private ICertificateAuthority mCA = null;
 
     /**
@@ -80,7 +77,6 @@ public class GetInfo extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        mFormPath = "";
         if (mAuthority instanceof ICertificateAuthority)
             mCA = (ICertificateAuthority) mAuthority;
 

@@ -32,13 +32,11 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -70,9 +68,6 @@ public class TokenAuthentication implements IAuthManager,
     private String mImplName = null;
     private IConfigStore mConfig = null;
 
-    private IUGSubsystem mUGSub = null;
-    private ILogger mLogger = CMS.getLogger();
-
     public TokenAuthentication() {
     }
 
@@ -90,8 +85,6 @@ public class TokenAuthentication implements IAuthManager,
         mName = name;
         mImplName = implName;
         mConfig = config;
-
-        mUGSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
     }
 
     /**

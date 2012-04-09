@@ -92,7 +92,6 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     private String mProfileId = null;
     private String mProfileSubId = null;
-    private String mReqType = null;
     private String mAuthorityId = null;
 
     private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {

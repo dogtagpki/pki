@@ -37,7 +37,6 @@ import com.netscape.certsrv.security.KeyCertData;
 public class KRATransportCert extends CertificateInfo {
     public static final String SUBJECT_NAME =
             "CN=Data Recovery Manager, O=Netscape Communications, C=US";
-    private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public KRATransportCert(KeyCertData properties) {
         this(properties, null);
@@ -45,11 +44,6 @@ public class KRATransportCert extends CertificateInfo {
 
     public KRATransportCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-
-        if ((tmp != null) &&
-                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
-            mTokenname = tmp;
         mProperties.put(Constants.PR_AKI, Constants.TRUE);
     }
 

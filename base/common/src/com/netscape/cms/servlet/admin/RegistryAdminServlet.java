@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -52,11 +51,8 @@ public class RegistryAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "RegistryAdminServlet";
-    private final static String PW_PASSWORD_CACHE_ADD =
-            "PASSWORD_CACHE_ADD";
 
     public final static String PROP_PREDICATE = "predicate";
-    private IAuthority mAuthority = null;
     private IPluginRegistry mRegistry = null;
 
     // These will be moved to PolicyResources
@@ -85,10 +81,6 @@ public class RegistryAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        String authority = config.getInitParameter(PROP_AUTHORITY);
-
-        if (authority != null)
-            mAuthority = (IAuthority) CMS.getSubsystem(authority);
         mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     }
 

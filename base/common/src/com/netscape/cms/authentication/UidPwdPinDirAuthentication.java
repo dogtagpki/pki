@@ -133,9 +133,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     protected MessageDigest mSHADigest = null;
     protected MessageDigest mMD5Digest = null;
 
-    private String mBindDN = null;
-    private String mBindPassword = null;
-
     private ILdapConnFactory removePinLdapFactory = null;
     private LDAPConnection removePinLdapConnection = null;
     private IConfigStore removePinLdapConfigStore = null;

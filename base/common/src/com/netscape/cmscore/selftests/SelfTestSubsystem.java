@@ -74,7 +74,8 @@ public class SelfTestSubsystem
     // SelfTestSubsystem parameters //
     //////////////////////////////////
 
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
     private IConfigStore mConfig = null;
     private ILogEventListener mLogger = null;
     private ILogger mErrorLogger = CMS.getLogger();

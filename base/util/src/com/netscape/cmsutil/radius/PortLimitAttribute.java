@@ -22,12 +22,9 @@ import java.io.IOException;
 public class PortLimitAttribute extends Attribute {
     private int _port = 0;
 
-    private byte _value[] = null;
-
     public PortLimitAttribute(byte value[]) {
         super();
         _t = FRAMED_IP_ADDRESS;
-        _value = value;
         _port = value[5] & 0xFF;
         _port |= ((value[4] << 8) & 0xFF00);
         _port |= ((value[3] << 16) & 0xFF0000);

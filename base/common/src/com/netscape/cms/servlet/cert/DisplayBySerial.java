@@ -81,7 +81,6 @@ public class DisplayBySerial extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -4143700762995036597L;
-    private final static String INFO = "DisplayBySerial";
     private final static String TPL_FILE1 = "displayBySerial.template";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");
 

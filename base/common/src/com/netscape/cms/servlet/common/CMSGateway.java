@@ -49,7 +49,6 @@ public class CMSGateway {
     public final static String PROP_CMSGATEWAY = "cmsgateway";
     private final static String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
 
-    private final static String PROP_SERVER_XML = "server.xml";
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 

@@ -151,7 +151,6 @@ public class CRSPKIMessage {
     private SignedData sd;
 
     // In the signed data, we have:
-    private int sdv; // Version
     private ContentInfo data; // The data to be digested
     private EnvelopedData sded; // Enveloped data inside of signed data
     private byte[] signerCertBytes;
@@ -160,7 +159,6 @@ public class CRSPKIMessage {
     private SET sis; // set of SignerInfos
     private SignerInfo si; // First SignerInfo
     private AlgorithmIdentifier digestAlgorithmId = null;
-    private int siv; // Version
     private SET aa; // Authenticated Attributes
     private SET aa_old; // Authenticated Attributes
     private IssuerAndSerialNumber sgnIASN; // Signer's Issuer Name and Serialnum
@@ -179,18 +177,18 @@ public class CRSPKIMessage {
     private int riv; // Version
     private AlgorithmIdentifier riAlgid; // alg that the bulk key is wrapped with
     private byte[] riKey; // bulk key, wrapped with above algorithm
-    private byte[] cKey; // * 'clear', unwrapped key (not in ASN.1) *
     private IssuerAndSerialNumber rcpIASN; // Recipient's Issuer Name and Serial Number
 
     private EncryptedContentInfo eci;
     private byte[] iv; // initialization vector for above key
     private byte[] ec; // encrypted content (P10, in case of request)
-    private byte[] cc; // * 'clear' content (not in ASN.1) *
     private String encryptionAlgorithm = null;
 
     // For the CertRep, the enveloped content is another signed Data:
     private SignedData crsd;
+    @SuppressWarnings("unused")
     private int rsdVersion;
+    @SuppressWarnings("unused")
     private byte[] rsdCert; // certificate to send in response
 
     private PKCS10 myP10;

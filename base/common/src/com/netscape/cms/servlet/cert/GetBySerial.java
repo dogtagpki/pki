@@ -69,8 +69,6 @@ public class GetBySerial extends CMSServlet {
      */
     private static final long serialVersionUID = -2276677839178370838L;
 
-    private final static String INFO = "GetBySerial";
-
     private final static String IMPORT_CERT_TEMPLATE = "ImportCert.template";
     private String mImportTemplate = null;
     private String mIETemplate = null;

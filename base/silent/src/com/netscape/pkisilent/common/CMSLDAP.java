@@ -41,7 +41,7 @@ import netscape.ldap.LDAPv2;
 
 public class CMSLDAP {
 
-    private String HOST, DN, BASEDN, PASSWORD;
+    private String HOST, DN, PASSWORD;
     private int PORT;
 
     private LDAPConnection conn = new LDAPConnection();

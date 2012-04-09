@@ -27,7 +27,6 @@ public class FramedProtocolAttribute extends Attribute {
     public static final int XYLOGICS = 5;
     public static final int X_75 = 6;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public FramedProtocolAttribute(byte value[]) {
@@ -37,7 +36,6 @@ public class FramedProtocolAttribute extends Attribute {
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);
         _type |= ((value[2] << 24) & 0xFF000000);
-        _value = value;
     }
 
     public int getType() {

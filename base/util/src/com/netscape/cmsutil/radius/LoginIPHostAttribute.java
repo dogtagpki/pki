@@ -23,7 +23,6 @@ public class LoginIPHostAttribute extends Attribute {
     public static final int NAS_ALLOW_SELECT = 0xFFFFFFFF;
     public static final int NAS_SELECT = 0;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public LoginIPHostAttribute(byte value[]) {
@@ -33,7 +32,6 @@ public class LoginIPHostAttribute extends Attribute {
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);
         _type |= ((value[2] << 24) & 0xFF000000);
-        _value = value;
     }
 
     public int getType() {

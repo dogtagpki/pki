@@ -40,7 +40,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -50,19 +49,14 @@ import com.netscape.cms.profile.common.EnrollProfile;
  */
 public class SubsystemGroupUpdater implements IProfileUpdater {
 
-    private IProfile mProfile = null;
-    private EnrollProfile mEnrollProfile = null;
+    @SuppressWarnings("unused")
+    private IProfile mProfile;
     private IConfigStore mConfig = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private Vector<String> mConfigNames = new Vector<String>();
-    private Vector<String> mValueNames = new Vector<String>();
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
             "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
-    private final static String SIGNED_AUDIT_PASSWORD_VALUE = "********";
-    private final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
-    private final static String SIGNED_AUDIT_NAME_VALUE_DELIMITER = ";;";
-    private final static String SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER = "+";
 
     public SubsystemGroupUpdater() {
     }
@@ -71,7 +65,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             throws EProfileException {
         mConfig = config;
         mProfile = profile;
-        mEnrollProfile = (EnrollProfile) profile;
     }
 
     public Enumeration<String> getConfigNames() {

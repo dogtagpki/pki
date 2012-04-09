@@ -63,6 +63,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class CRMFProcessor extends PKIProcessor {
 
+    @SuppressWarnings("unused")
     private CMSRequest mRequest;
 
     private boolean enforcePop = false;

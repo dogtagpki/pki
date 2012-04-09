@@ -49,7 +49,8 @@ public class CMSExtensionsMap implements ISubsystem {
 
     private Hashtable<String, ICMSExtension> mName2Ext = new Hashtable<String, ICMSExtension>();
     private Hashtable<String, ICMSExtension> mOID2Ext = new Hashtable<String, ICMSExtension>();
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
     private IConfigStore mConfig = null;
 
     /**

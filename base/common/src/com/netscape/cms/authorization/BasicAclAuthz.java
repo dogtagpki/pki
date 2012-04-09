@@ -47,14 +47,13 @@ public class BasicAclAuthz extends AAclAuthz
     private String mImplName = null;
 
     /* configuration store */
+    @SuppressWarnings("unused")
     private IConfigStore mConfig;
 
     /* the system logger */
     private ILogger mLogger = null;
 
     protected static final String PROP_BASEDN = "basedn";
-
-    private static boolean needsFlush = false;
 
     static {
         mExtendedPluginInfo.add("nothing for now");
@@ -174,10 +173,7 @@ public class BasicAclAuthz extends AAclAuthz
         try {
             super.updateACLs(id, rights, strACLs, desc);
             //            flushResourceACLs();
-            needsFlush = false;
         } catch (EACLsException ex) {
-            // flushing failed, set flag
-            needsFlush = true;
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
 

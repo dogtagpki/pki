@@ -117,7 +117,6 @@ public class HashEnrollServlet extends CMSServlet {
     private static final String CLIENT_ISSUER = "clientIssuer";
     public static final String TPL_ERROR_FILE = "/ra/GenErrorHashDirEnroll.template";
 
-    private boolean mAuthTokenOverride = true;
     private String mEnrollSuccessTemplate = null;
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
@@ -139,7 +138,7 @@ public class HashEnrollServlet extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
         try {
             mEnrollSuccessTemplate = sc.getInitParameter(
-                        CMSServlet.PROP_SUCCESS_TEMPLATE);
+                    CMSServlet.PROP_SUCCESS_TEMPLATE);
             if (mEnrollSuccessTemplate == null)
                 mEnrollSuccessTemplate = ENROLL_SUCCESS_TEMPLATE;
             String fillername =
@@ -334,7 +333,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         try {
             authzToken = authorize(mAclMethod, token,
-                        mAuthzResourceName, "import");
+                    mAuthzResourceName, "import");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -442,12 +441,9 @@ public class HashEnrollServlet extends CMSServlet {
 
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert(sslClientCert) ==
-                        false) ||
-                        ((CMS.isSigningCert(sslClientCert) ==
-                            true) &&
-                        (CMS.isEncryptionCert(sslClientCert) ==
-                            true))) {
+                if ((CMS.isSigningCert(sslClientCert) == false) ||
+                        ((CMS.isSigningCert(sslClientCert) == true) &&
+                        (CMS.isEncryptionCert(sslClientCert) == true))) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
@@ -478,7 +474,7 @@ public class HashEnrollServlet extends CMSServlet {
                                 + "))(certStatus=VALID))";
                 ICertRecordList list =
                         mCa.getCertificateRepository().findCertRecordsInList(filter,
-                        null, 10);
+                                null, 10);
                 int size = list.getSize();
                 Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
                 boolean gotEncCert = false;
@@ -547,12 +543,9 @@ public class HashEnrollServlet extends CMSServlet {
             } else if (certauthEnrollType.equals(CERT_AUTH_ENCRYPTION)) {
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert(sslClientCert) ==
-                        false) ||
-                        ((CMS.isSigningCert(sslClientCert) ==
-                            true) &&
-                        (CMS.isEncryptionCert(sslClientCert) ==
-                            true))) {
+                if ((CMS.isSigningCert(sslClientCert) == false) ||
+                        ((CMS.isSigningCert(sslClientCert) == true) &&
+                        (CMS.isEncryptionCert(sslClientCert) == true))) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));

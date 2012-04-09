@@ -96,7 +96,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private static final String PARAM_LOCK = "lock";
     private static final String PARAM_PK12 = "pk12";
     private static final String PARAM_ERROR = "error";
-    private static final String PARAM_AGENT = "agent";
 
     private final static String KEY_RESP_NAME = "keyRepository";
     private static final String PROP_REPLICAID_DN = "dbs.replicadn";

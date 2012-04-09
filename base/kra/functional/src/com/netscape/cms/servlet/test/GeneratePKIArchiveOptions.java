@@ -38,7 +38,6 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
-@SuppressWarnings("deprecation")
 public class GeneratePKIArchiveOptions {
 
     public static void usage(Options options) {

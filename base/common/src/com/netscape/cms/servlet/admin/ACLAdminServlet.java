@@ -39,7 +39,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 
 /**
  * Manage Access Control List configuration
@@ -52,22 +51,12 @@ public class ACLAdminServlet extends AdminServlet {
      *
      */
     private static final long serialVersionUID = -322237202045924779L;
-    private IUGSubsystem mUG = null;
-    private static final String PROP_ACLS = "acls";
     private static final String PROP_EVAL = "accessEvaluator";
     private final static String INFO = "ACLAdminServlet";
     private IAuthzManager mAuthzMgr = null;
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ACL =
             "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
-
-    /**
-     * Constructs servlet.
-     */
-    public ACLAdminServlet() {
-        super();
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
-    }
 
     /**
      * initialize the servlet.

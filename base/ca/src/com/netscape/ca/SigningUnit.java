@@ -77,7 +77,8 @@ public final class SigningUnit implements ISigningUnit {
     private ILogger mLogger = CMS.getLogger();
     private IConfigStore mConfig;
 
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
 
     private String mDefSigningAlgname = null;
     private SignatureAlgorithm mDefSigningAlgorithm = null;

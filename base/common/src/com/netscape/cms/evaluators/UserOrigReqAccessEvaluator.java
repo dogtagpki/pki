@@ -21,7 +21,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Utils;
 
@@ -38,7 +37,6 @@ import com.netscape.cmsutil.util.Utils;
 public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
     private String mType = "user_origreq";
     private String mDescription = "user origreq matching evaluator";
-    private ILogger mLogger = CMS.getLogger();
 
     private final static String ANYBODY = "anybody";
     private final static String EVERYBODY = "everybody";

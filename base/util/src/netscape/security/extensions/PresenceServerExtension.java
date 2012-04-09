@@ -39,7 +39,6 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
      */
     private static final long serialVersionUID = -6333109673043357921L;
     private boolean mCritical;
-    private String mOID = null;
     private int mVersion = 0;
     private String mStreetAddress = null;
     private String mTelephoneNumber = null;

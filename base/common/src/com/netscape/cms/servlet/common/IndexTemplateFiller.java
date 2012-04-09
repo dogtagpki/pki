@@ -37,15 +37,12 @@ import com.netscape.certsrv.base.ISubsystem;
  */
 public class IndexTemplateFiller implements ICMSTemplateFiller {
 
-    private final static String INFO = "index";
-
     // input parameters
 
     // output parameters
     private final static String OUT_TYPE = "type";
     private final static String OUT_ID = "id";
     private final static String OUT_TOTAL_COUNT = "totalCount";
-    private final static String OUT_ERROR = "errorDetails";
 
     public IndexTemplateFiller() {
     }

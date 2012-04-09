@@ -59,9 +59,6 @@ public class PasswordCache {
      */
     public static final String PROP_PWC_NICKNAME = "sso_key";
     public static final String PW_TAG_INTERNAL_LDAP_DB = "Internal LDAP Database";
-    private static final String WRONG_NUM_ARGS = "Error: wrong number of arguments";
-    private static final String CERTDB = "cert8.db";
-    private static final String KEYDB = "key3.db";
 
     private static void usage() {
         System.out.println(

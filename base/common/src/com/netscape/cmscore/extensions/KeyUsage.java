@@ -31,21 +31,18 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
 public class KeyUsage implements ICMSExtension {
     private final static String NAME = "KeyUsageExtension";
     private final static ObjectIdentifier OID = PKIXExtensions.KeyUsage_Id;
 
-    private IConfigStore mConfig = null;
+    @SuppressWarnings("unused")
+    private IConfigStore mConfig;
     private boolean mSetDefault = false;
-
-    private ILogger mLogger;
 
     public KeyUsage(boolean setDefault) {
         mSetDefault = setDefault;
-        mLogger = CMS.getLogger();
     }
 
     public void init(ISubsystem owner, IConfigStore config)

@@ -49,10 +49,6 @@ public class ProfileListServlet extends ProfileServlet {
      */
     private static final long serialVersionUID = -5118812083812548395L;
 
-    private static final String PROP_AUTHORITY_ID = "authorityId";
-
-    private String mAuthorityId = null;
-
     public ProfileListServlet() {
         super();
     }
@@ -65,7 +61,6 @@ public class ProfileListServlet extends ProfileServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
     }
 
     /**

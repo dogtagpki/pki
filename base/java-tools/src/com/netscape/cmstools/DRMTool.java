@@ -507,7 +507,6 @@ public class DRMTool {
     private static final String COMMA = ",";
     private static final String DOT = ".";
     private static final String EQUAL_SIGN = "=";
-    private static final String HASH = "#";
     private static final String LEFT_BRACE = "[";
     private static final String NEWLINE = "\n";
     private static final String PLUS = "+";
@@ -862,7 +861,6 @@ public class DRMTool {
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
-    private static final String X509_INFO = "x509.INFO";
 
     // Constants:  DRM LDIF Record Fields
     private static final String DRM_LDIF_ARCHIVED_BY = "archivedBy:";
@@ -925,7 +923,6 @@ public class DRMTool {
     private static String mDateOfModify = null;
 
     // Variables: Command-Line Options
-    private static boolean mMandatoryFlag = false;
     private static boolean mRewrapFlag = false;
     private static boolean mPwdfileFlag = false;
     private static boolean mAppendIdOffsetFlag = false;
@@ -4582,9 +4579,6 @@ public class DRMTool {
                 printUsage();
                 System.exit(0);
             }
-
-            // Mark the 'Mandatory' flag true
-            mMandatoryFlag = true;
         }
 
         // Check to see that if the 'Rewrap' command-line options were

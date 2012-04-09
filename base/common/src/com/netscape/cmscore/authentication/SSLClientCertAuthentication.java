@@ -67,7 +67,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig = null;
-    private String mRequestor = null;
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -256,7 +255,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
             if (ra != null) {
                 queue = ra.getRequestQueue();
-                mRequestor = IRequest.REQUESTOR_RA;
             }
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,

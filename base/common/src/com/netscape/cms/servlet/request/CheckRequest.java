@@ -21,12 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -92,13 +92,10 @@ public class CheckRequest extends CMSServlet {
     private static final long serialVersionUID = 2791195859767119636L;
     // constants
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
-    private final static String INFO = "CheckRequest";
     private final static String REQ_ID = "requestId";
-    private final static String REQ_TYPE = "requestType";
     private final static String STATUS = "status";
     private final static String CREATE_ON = "createdOn";
     private final static String UPDATE_ON = "updatedOn";
-    private final static String UPDATE_BY = "updatedBy";
 
     private final static String TPL_FILE = "requestStatus.template";
 

@@ -63,16 +63,11 @@ public class LogAdminServlet extends AdminServlet {
 
     private ILogSubsystem mSys = null;
 
-    private final static String VIEW = ";" + Constants.VIEW;
-    private final static String EDIT = ";" + Constants.EDIT;
-
     private final static String SIGNED_AUDIT_LOG_TYPE = "SignedAudit";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT =
             "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
     private final static String LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE =
             "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
-    private final static String LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE =
-            "LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE_4";
 
     /**
      * Constructs Log servlet.

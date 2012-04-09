@@ -53,6 +53,7 @@ public class CMSFileLoader {
     private int mClearSize = CLEAR_SIZE;
 
     // whether to cache templates and forms only.
+    @SuppressWarnings("unused")
     private boolean mCacheTemplatesOnly = true;
 
     public CMSFileLoader() {

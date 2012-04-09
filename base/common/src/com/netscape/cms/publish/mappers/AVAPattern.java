@@ -38,7 +38,6 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.GeneralNameInterface;
 import netscape.security.x509.GeneralNames;
-import netscape.security.x509.LdapV3DNStrConverter;
 import netscape.security.x509.OIDMap;
 import netscape.security.x509.SubjectAlternativeNameExtension;
 import netscape.security.x509.X500Name;
@@ -102,11 +101,6 @@ class AVAPattern {
             "URIName",
             "IPAddress",
             "OIDName" };
-
-    private static final char[] endChars = new char[] { '+', ',' };
-
-    private static final LdapV3DNStrConverter mLdapDNStrConverter =
-            new LdapV3DNStrConverter();
 
     /* the list of request attributes needed by this AVA  */
     protected String[] mReqAttrs = null;

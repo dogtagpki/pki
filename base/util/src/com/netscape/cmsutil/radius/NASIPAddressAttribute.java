@@ -22,12 +22,10 @@ import java.net.InetAddress;
 
 public class NASIPAddressAttribute extends Attribute {
     private InetAddress _ip = null;
-    private byte _value[] = null;
 
     public NASIPAddressAttribute(byte value[]) {
         super();
         _t = NAS_IP_ADDRESS;
-        _value = value;
     }
 
     public NASIPAddressAttribute(InetAddress ip) {

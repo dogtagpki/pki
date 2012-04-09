@@ -277,7 +277,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private Date mLastUpdate;
     private Date mLastFullUpdate;
-    private long mLastScheduledUpdate = 0;
 
     /**
      * Next scheduled CRL update date
@@ -1904,7 +1903,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 Debug.trace("recoverCRLCache  size=" + list.getSize() + "  index=" + list.getCurrentIndex());
             }
 
-            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mAllowExtensions);
             boolean includeCert = true;
 
             int s = list.getSize() - list.getCurrentIndex();
@@ -2117,7 +2116,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert,
                                String requestId) {
 
-        CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
+        CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mAllowExtensions);
         boolean includeCert = true;
         if (cp != null)
             includeCert = cp.checkRevokedCertExtensions(revokedCert.getExtensions());
@@ -2405,7 +2404,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
-            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mAllowExtensions);
             processRevokedCerts(cp);
 
             if (statsSub != null) {
@@ -2956,17 +2955,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 class CertRecProcessor implements IElementProcessor {
     private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = null;
     private boolean mAllowExtensions = false;
-    private ILogger mLogger;
     private CRLIssuingPoint mIP = null;
 
     private boolean mIssuingDistPointAttempted = false;
     private boolean mIssuingDistPointEnabled = false;
     private BitArray mOnlySomeReasons = null;
 
-    public CertRecProcessor(Hashtable<BigInteger, RevokedCertificate> crlCerts, CRLIssuingPoint ip, ILogger logger,
+    public CertRecProcessor(Hashtable<BigInteger, RevokedCertificate> crlCerts, CRLIssuingPoint ip,
             boolean allowExtensions) {
         mCRLCerts = crlCerts;
-        mLogger = logger;
         mIP = ip;
         mAllowExtensions = allowExtensions;
         mIssuingDistPointAttempted = false;

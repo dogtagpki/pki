@@ -47,7 +47,6 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
     public static final String VAL_SKIP_CERTS = "skipCerts";
 
     private static final String SKIP_CERTS = "Skip Certs";
-    private static final String GN_PATTERN = "Pattern";
 
     public InhibitAnyPolicyExtDefault() {
         super();

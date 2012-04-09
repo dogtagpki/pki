@@ -83,11 +83,6 @@ public class RollingLogFile extends LogFile {
     private Thread mRolloverThread = null;
 
     /**
-     * The incrementing backup number for the log file names
-     */
-    private int mFileNumber = 1;
-
-    /**
      * The amount of time before a backed up log is removed in milliseconds
      */
     protected long mExpirationTime = 0;
@@ -211,13 +206,11 @@ public class RollingLogFile extends LogFile {
     }
 
     /**
-     * Rotate the log file to a backup file with a incrementing integer
-     * extension
+     * Rotate the log file to a backup file with timestamp
      **/
     public synchronized void rotate()
             throws IOException {
 
-        //File backupFile = new File(mFileName + "." + mFileNumber);
         File backupFile = new File(mFileName + "." + mLogFileDateFormat.format(mDate));
 
         // close, backup, and reopen the log file zeroizing its contents
@@ -273,7 +266,6 @@ public class RollingLogFile extends LogFile {
                      + backupFile.toString());
         }
         super.open(); // will reset mBytesWritten
-        mFileNumber++;
     }
 
     /**

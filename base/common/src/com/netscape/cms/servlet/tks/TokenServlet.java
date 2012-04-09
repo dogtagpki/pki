@@ -44,7 +44,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.symkey.SessionKey;
@@ -66,13 +65,8 @@ public class TokenServlet extends CMSServlet {
     protected static final String TRANSPORT_KEY_NAME = "sharedSecret";
     private final static String INFO = "TokenServlet";
     public static int ERROR = 1;
-    private ITKSAuthority mTKS = null;
-    private String mSelectedToken = null;
-    private String mNewSelectedToken = null;
     String mKeyNickName = null;
     String mNewKeyNickName = null;
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_DRM =
-            "LOGGING_SIGNED_AUDIT_CONFIG_DRM_3";
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
 
     private final static String LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST =
@@ -177,9 +171,6 @@ public class TokenServlet extends CMSServlet {
             }
             CMS.debug("keySet selected: " + keySet);
 
-            mNewSelectedToken = null;
-
-            mSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot");
             String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
             String temp = req.getParameter("KeyInfo"); //#xx#xx
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
@@ -190,9 +181,7 @@ public class TokenServlet extends CMSServlet {
                 while (st.hasMoreTokens()) {
 
                     String currentToken = st.nextToken();
-                    if (tokenNumber == 0)
-                        mSelectedToken = currentToken;
-                    else if (tokenNumber == 1)
+                    if (tokenNumber == 1)
                         mKeyNickName = currentToken;
                     tokenNumber++;
 
@@ -208,9 +197,7 @@ public class TokenServlet extends CMSServlet {
                     int tokenNumber = 0;
                     while (st.hasMoreTokens()) {
                         String currentToken = st.nextToken();
-                        if (tokenNumber == 0)
-                            mNewSelectedToken = currentToken;
-                        else if (tokenNumber == 1)
+                        if (tokenNumber == 1)
                             mNewKeyNickName = currentToken;
                         tokenNumber++;
 
@@ -1314,7 +1301,6 @@ public class TokenServlet extends CMSServlet {
         }
 
         String temp = req.getParameter("card_challenge");
-        mSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot");
         setDefaultSlotAndKeyName(req);
         if (temp != null) {
             processComputeSessionKey(req, resp);

@@ -62,7 +62,6 @@ public class Monitor extends CMSServlet {
      */
     private static final long serialVersionUID = -8492837942132357692L;
     private final static String TPL_FILE = "monitor.template";
-    private final static String INFO = "Monitor";
 
     private ICertificateRepository mCertDB = null;
     private IRequestQueue mQueue = null;

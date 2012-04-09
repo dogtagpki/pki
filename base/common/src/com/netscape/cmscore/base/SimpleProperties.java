@@ -92,8 +92,6 @@ public class SimpleProperties extends Hashtable<String, String> {
 
     private static final String strictKeyValueSeparators = "=:";
 
-    private static final String specialSaveChars = "=: \t\r\n\f#!";
-
     private static final String whiteSpaceChars = " \t\r\n\f";
 
     /**
@@ -455,9 +453,4 @@ public class SimpleProperties extends Hashtable<String, String> {
             h.put(key, get(key));
         }
     }
-
-    /** A table of hex digits */
-    private static final char[] hexDigit = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-        };
 }

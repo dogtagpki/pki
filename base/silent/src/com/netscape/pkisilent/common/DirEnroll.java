@@ -38,13 +38,12 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 public class DirEnroll extends TestClient {
 
-    private int i;
     private String Authenticator = "UserDir";
     private int port;
+    @SuppressWarnings("unused")
     private long elapsedTime;
 
     private String importcert = "false";
-    private boolean impStatus = false;
 
     // Constructors
 
@@ -323,11 +322,7 @@ public class DirEnroll extends TestClient {
                         baseCert = baseCert.substring(n);
                         String tmp = baseCert.substring(0, baseCert.length() - 2);
 
-                        if (importCert(tmp)) {
-                            impStatus = true;
-                        }
-                    } else {
-                        impStatus = true;
+                        importCert(tmp);
                     }
                 }
 

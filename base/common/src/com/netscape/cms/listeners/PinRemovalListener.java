@@ -33,7 +33,6 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.RequestId;
 
 /**
  * This represnets a listener that removes pin from LDAP directory.
@@ -56,7 +55,6 @@ public class PinRemovalListener implements IRequestListener {
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
-    private RequestId mReqId = null;
     private ILdapConnFactory mConnFactory = null;
     private LDAPConnection mRemovePinLdapConnection = null;
 
@@ -110,8 +108,6 @@ public class PinRemovalListener implements IRequestListener {
     public void accept(IRequest r) {
         if (mEnabled != true)
             return;
-
-        mReqId = r.getRequestId();
 
         String rs = r.getRequestStatus().toString();
 

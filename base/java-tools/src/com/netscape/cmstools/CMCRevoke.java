@@ -69,8 +69,6 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class CMCRevoke {
     public static final int ARGC = 7;
-    private static final String CERTDB = "cert8.db";
-    private static final String KEYDB = "key3.db";
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null,

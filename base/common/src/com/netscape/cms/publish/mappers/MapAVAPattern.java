@@ -121,7 +121,6 @@ class MapAVAPattern {
             "URIName",
             "IPAddress",
             "OIDName" };
-    private static final char[] endChars = new char[] { '+', ',' };
 
     private static final LdapV3DNStrConverter mLdapDNStrConverter =
             new LdapV3DNStrConverter();

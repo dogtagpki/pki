@@ -26,6 +26,7 @@ package com.netscape.certsrv.base;
  */
 public abstract class ASubsystem implements ISubsystem {
 
+    @SuppressWarnings("unused")
     private ISubsystem mParent;
     private IConfigStore mCfg;
     private String mId;

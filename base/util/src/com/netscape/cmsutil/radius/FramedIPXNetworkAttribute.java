@@ -20,7 +20,6 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class FramedIPXNetworkAttribute extends Attribute {
-    private byte _value[] = null;
     private byte _net[] = new byte[4];
 
     public FramedIPXNetworkAttribute(byte value[]) {
@@ -30,7 +29,6 @@ public class FramedIPXNetworkAttribute extends Attribute {
         _net[1] = value[3];
         _net[2] = value[4];
         _net[3] = value[5];
-        _value = value;
     }
 
     public byte[] getValue() throws IOException {

@@ -77,7 +77,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -93,9 +92,7 @@ public class ProcessCertReq extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 812464895240811318L;
-    private final static String INFO = "processReq";
     private final static String SEQNUM = "seqNum";
-    private final static String TO_DO = "toDo";
     private final static String TPL_FILE = "processCertReq.template";
 
     private IRequestQueue mQueue = null;
@@ -108,9 +105,7 @@ public class ProcessCertReq extends CMSServlet {
     private final static String REQ_COMPLETED_TEMPLATE = "ra/RequestCompleted.template";
     private final static String PROP_REQ_COMPLETED_TEMPLATE = "requestCompletedTemplate";
     private final static String PROP_EXTRA_AGENT_PARAMS = "extraAgentParams";
-    private static ICMSTemplateFiller REQ_COMPLETED_FILLER = new RAReqCompletedFiller();
     private String mReqCompletedTemplate = null;
-    private final static String CERT_TYPE = "certType";
 
     private String auditServiceID = ILogger.UNIDENTIFIED;
     private final static String AGENT_CA_CLONE_ENROLLMENT_SERVLET =

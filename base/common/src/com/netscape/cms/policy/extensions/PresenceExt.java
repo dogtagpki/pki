@@ -42,7 +42,8 @@ import com.netscape.cms.policy.APolicyRule;
  */
 public class PresenceExt extends APolicyRule {
     private static Vector<String> mDefParams = new Vector<String>();
-    private IConfigStore mConfig = null;
+    @SuppressWarnings("unused")
+    private IConfigStore mConfig;
     private String mOID = null;
     private boolean mCritical;
     private int mVersion = 0;

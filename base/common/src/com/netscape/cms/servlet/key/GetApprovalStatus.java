@@ -59,9 +59,6 @@ public class GetApprovalStatus extends CMSServlet {
     private final static String TPL_FILE = "getApprovalStatus.template";
     private final static String TPL_FINISH = "finishRecovery.template";
 
-    private final static String IN_DELIVERY = "p12Delivery";
-
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_ERROR = "errorDetails";
     private final static String OUT_STATUS = "status";
 

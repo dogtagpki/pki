@@ -171,8 +171,6 @@ public class CRSEnrollment extends HttpServlet {
 
     private static final String PROP_SUBSTORENAME = "substorename";
     private static final String PROP_AUTHORITY = "authority";
-    private static final String PROP_CRS = "crs";
-    private static final String PROP_CRSCA = "casubsystem";
     private static final String PROP_CRSAUTHMGR = "authName";
     private static final String PROP_APPENDDN = "appendDN";
     private static final String PROP_CREATEENTRY = "createEntry";
@@ -1938,7 +1936,9 @@ public class CRSEnrollment extends HttpServlet {
         private Enumeration<?> externalTokens = null;
         private org.mozilla.jss.crypto.X509Certificate signingCert;
         private org.mozilla.jss.crypto.PrivateKey signingCertPrivKey;
-        private int signingCertKeySize = 0;
+
+        @SuppressWarnings("unused")
+        private int signingCertKeySize;
 
         class CryptoContextException extends Exception {
             /**

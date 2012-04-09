@@ -55,7 +55,6 @@ public class CertPrettyPrint {
      * variables
      *==========================================================*/
     private X509CertImpl mX509Cert = null;
-    private Certificate mCert = null;
     private PrettyPrintFormat pp = null;
     private byte[] mCert_b = null;
 

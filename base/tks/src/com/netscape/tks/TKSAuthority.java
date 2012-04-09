@@ -29,6 +29,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 public class TKSAuthority implements IAuthority, ISubsystem {
     protected ILogger mLogger = CMS.getLogger();
     private String mNickname = null;
+    @SuppressWarnings("unused")
     private ISubsystem mOwner;
     private IConfigStore mConfig = null;
     protected String mId = null;

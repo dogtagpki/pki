@@ -32,7 +32,6 @@ public class ServiceTypeAttribute extends Attribute {
     public static final int CALL_CHECK = 10;
     public static final int CALLBACK_ADMINISTRATIVE = 11;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public ServiceTypeAttribute(byte value[]) {
@@ -42,7 +41,6 @@ public class ServiceTypeAttribute extends Attribute {
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);
         _type |= ((value[2] << 24) & 0xFF000000);
-        _value = value;
     }
 
     public int getType() {

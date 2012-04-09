@@ -130,8 +130,6 @@ class AVAPattern {
     public static final String TYPE_RDN = "$rdn";
     public static final String TYPE_CONSTANT = "constant";
 
-    private static final char[] endChars = new char[] { '+', ',' };
-
     private static final LdapV3DNStrConverter mLdapDNStrConverter =
             new LdapV3DNStrConverter();
 

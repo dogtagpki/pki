@@ -38,17 +38,12 @@ public class HttpConnFactory {
 
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns
-    private IHttpConnection mMasterConn = null; // master connection object.
     private IHttpConnection mConns[];
-    private IAuthority mSource = null;
+    @SuppressWarnings("unused")
+    private IAuthority mSource;
     private IRemoteAuthority mDest = null;
     private String mNickname = "";
     private int mTimeout = 0;
-
-    /**
-     * default value for the above at init time.
-     */
-    private boolean mDefErrorIfDown = false;
 
     /**
      * Constructor for initializing from the config store.

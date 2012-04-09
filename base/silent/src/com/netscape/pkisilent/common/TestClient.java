@@ -48,7 +48,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
     public String query;
     public boolean debug = false;
     // Certificate nicknames to be used by Test Clients
-    private int i;
     private String testConfigFile;
 
     public String caAgentCertName = "ca-agent";
@@ -62,6 +61,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
     private String admDN = "admin";
     private String admDNPW = "admin";
     private String TmpDir;
+    @SuppressWarnings("unused")
     private String TestLogFile;
     private String startupTests, cleanupTests;
 

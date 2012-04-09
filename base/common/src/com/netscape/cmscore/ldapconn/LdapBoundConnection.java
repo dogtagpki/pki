@@ -43,7 +43,8 @@ public class LdapBoundConnection extends LDAPConnection {
     private static final long serialVersionUID = -2242077674357271559L;
     // LDAPConnection calls authenticate so must set this for first
     // authenticate call.
-    private boolean mAuthenticated = false;
+    @SuppressWarnings("unused")
+    private boolean mAuthenticated;
 
     /**
      * Instantiates a connection to a ldap server, secure or non-secure

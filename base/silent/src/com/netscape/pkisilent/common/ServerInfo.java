@@ -42,7 +42,6 @@ public class ServerInfo {
     public static CMSProperties CMSprops = null;
 
     // Private variables
-    private int i;
     public String CMSConfigFile, AdminConfigFile;
 
     public ServerInfo() {

@@ -37,7 +37,6 @@ import com.netscape.certsrv.security.KeyCertData;
 public class SSLCert extends CertificateInfo {
     public static final String SUBJECT_NAME =
             "CN=SSL, O=Netscape Communications, C=US";
-    private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public SSLCert(KeyCertData properties) {
         this(properties, null);
@@ -45,11 +44,6 @@ public class SSLCert extends CertificateInfo {
 
     public SSLCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
-
-        if ((tmp != null) &&
-                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
-            mTokenname = tmp;
         try {
             if (mProperties.get(Constants.PR_AKI) == null) {
                 mProperties.put(Constants.PR_AKI, Constants.FALSE);

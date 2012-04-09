@@ -92,15 +92,9 @@ public class CertReqParser extends ReqParser {
 
     private static final String EXT_PRETTYPRINT = "ext_prettyprint";
 
-    private static final String DOT = ".";
     private static final String LB = "[";
     private static final String RB = "]";
     private static final String EQ = " = ";
-
-    private static final String HTTP_PARAMS_COUNTER = IRequest.HTTP_PARAMS + LB + "httpParamsCount++" + RB;
-    private static final String HTTP_HEADERS_COUNTER = IRequest.HTTP_HEADERS + LB + "httpHeadersCount++" + RB;
-    private static final String AUTH_TOKEN_COUNTER = IRequest.AUTH_TOKEN + LB + "authTokenCount++" + RB;
-    private static final String SERVER_ATTRS_COUNTER = IRequest.SERVER_ATTRS + LB + "serverAttrsCount++" + RB;
 
     /**
      * Fills in certificate specific request attributes.

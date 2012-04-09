@@ -21,8 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
-import java.security.cert.CertificateException;
 import java.security.PublicKey;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -37,15 +37,11 @@ import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import org.mozilla.jss.pkcs11.PK11ParameterSpec;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
@@ -57,8 +53,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.ProofOfArchival;
@@ -73,7 +69,6 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
-import com.netscape.kra.ArchiveOptions;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 
@@ -106,15 +101,10 @@ public class EnrollmentService implements IService {
     private IStorageKeyUnit mStorageUnit = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
 
     /**
      * Constructs request processor.
@@ -151,12 +141,10 @@ public class EnrollmentService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
-        CryptoManager cm = null;
         IConfigStore config = null;
         Boolean allowEncDecrypt_archival = false;
 
         try {
-            cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
         } catch (Exception e) {
@@ -307,7 +295,7 @@ public class EnrollmentService implements IService {
                         opts.getSymmAlgOID(),
                         opts.getSymmAlgParams(),
                         opts.getEncValue(),
-                        (PublicKey) pubkey);
+                        pubkey);
             } // !allowEncDecrypt_archival
 
             /* Bugscape #54948 - verify public and private key before archiving key */
@@ -398,19 +386,6 @@ public class EnrollmentService implements IService {
                     privateKeyData, owner,
                     publicKey.getAlgorithmId().getOID().toString(), agentId);
 
-            if (rec == null) {
-
-                auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
-
-                audit(auditMessage);
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
-            }
-
             if (keyAlg.equals("RSA")) {
                 try {
                     RSAPublicKey rsaPublicKey = new RSAPublicKey(publicKeyData);
@@ -458,7 +433,7 @@ public class EnrollmentService implements IService {
                     oidDescription);
 
                 rec.set(IKeyRecord.ATTR_META_INFO, metaInfo);
-                // key size does not apply to EC; 
+                // key size does not apply to EC;
                 rec.setKeySize(-1);
             }
 

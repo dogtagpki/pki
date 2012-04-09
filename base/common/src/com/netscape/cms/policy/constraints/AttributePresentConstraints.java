@@ -30,7 +30,6 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -40,7 +39,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.policy.IEnrollmentPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.policy.APolicyRule;
 
 /**
@@ -63,13 +61,10 @@ public class AttributePresentConstraints extends APolicyRule
     protected String mName = null;
     protected String mImplName = null;
 
-    private boolean mEnabled = false;
     private ILogger mLogger = CMS.getLogger();
 
-    private ICertAuthority mSub = null;
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
-    private RequestId mReqId = null;
     private ILdapConnFactory mConnFactory = null;
     private LDAPConnection mCheckAttrLdapConnection = null;
 
@@ -270,8 +265,6 @@ public class AttributePresentConstraints extends APolicyRule
 
     public PolicyResult apply(IRequest r) {
         PolicyResult res = PolicyResult.ACCEPTED;
-
-        mReqId = r.getRequestId();
 
         String requestType = r.getRequestType();
 

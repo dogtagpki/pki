@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,7 +57,6 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
     private TextArea mTextArea = null;
     private JScrollPane mThreads = null;
     private JTable mThreadTable = null;
-    private JButton mGC = null;
     private ThreadTableModel mThreadModel = null;
 
     /**

@@ -43,7 +43,6 @@ public class TokenAuthenticate extends CMSServlet {
      */
     private static final long serialVersionUID = -9098593390260940853L;
     private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
 
     public TokenAuthenticate() {
         super();

@@ -79,8 +79,6 @@ public class CMCEnroll {
     public static final String PR_REQUEST_PKCS10 = "PKCS10";
 
     public static final int ARGC = 4;
-    private static final String CERTDB = "cert8.db";
-    private static final String KEYDB = "key3.db";
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 

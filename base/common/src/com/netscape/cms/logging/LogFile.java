@@ -685,8 +685,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         return mFileName;
     }
 
-    private boolean firstOpen = true;
-
     /**
      * Record that the signed audit log has been signed
      * <P>

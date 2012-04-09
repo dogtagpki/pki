@@ -20,14 +20,12 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class FramedRouteAttribute extends Attribute {
-    private byte _value[] = null;
     private String _str = null;
 
     public FramedRouteAttribute(byte value[]) {
         super();
         _t = FRAMED_ROUTE;
         _str = new String(value, 2, value.length - 2);
-        _value = value;
     }
 
     public String getString() {

@@ -61,7 +61,6 @@ public class LdapCaCertPublisher
     private ILogger mLogger = CMS.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
-    private String mcrlIssuingPointId;
 
     /**
      * constructor constructs default values.

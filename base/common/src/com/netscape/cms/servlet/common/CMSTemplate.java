@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.util.Date;
 import java.util.Enumeration;
 
 import javax.servlet.ServletOutputStream;
@@ -54,11 +53,6 @@ public class CMSTemplate extends CMSFile {
     /*==========================================================
      * variables
      *==========================================================*/
-
-    /* private variables */
-    private String mTemplateFileName = "";
-    private ILogger mLogger = CMS.getLogger();
-    private long mTimeStamp;
 
     /* public vaiables */
     public String mPreOutput;
@@ -119,11 +113,6 @@ public class CMSTemplate extends CMSFile {
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_TEMPLATE_NO_CONTENT_1", mAbsPath));
         }
-
-        /* time stamp */
-        Date now = CMS.getCurrentDate();
-
-        mTimeStamp = now.getTime();
 
         /* if template file, find template tag substring and set
          * pre/post output string

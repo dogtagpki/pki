@@ -20,14 +20,12 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class LoginLATNodeAttribute extends Attribute {
-    private byte _value[] = null;
     private String _str = null;
 
     public LoginLATNodeAttribute(byte value[]) {
         super();
         _t = LOGIN_LAT_NODE;
         _str = new String(value, 2, value.length - 2);
-        _value = value;
     }
 
     public String getString() {

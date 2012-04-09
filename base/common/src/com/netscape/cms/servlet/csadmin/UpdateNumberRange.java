@@ -51,7 +51,6 @@ public class UpdateNumberRange extends CMSServlet {
      */
     private static final long serialVersionUID = -1584171713024263331L;
     private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER =
             "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";

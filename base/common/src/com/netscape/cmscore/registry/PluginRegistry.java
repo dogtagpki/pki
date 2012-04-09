@@ -41,7 +41,8 @@ public class PluginRegistry implements IPluginRegistry {
 
     private IConfigStore mConfig = null;
     private IConfigStore mFileConfig = null;
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
     private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
             new Hashtable<String, Hashtable<String, IPluginInfo>>();
 

@@ -100,8 +100,6 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private final static String PROP_DB = "dbs";
     private final static String PROP_SMTP = "smtp";
-    private final static String PROP_RADM = "radm";
-    private final static String PROP_GATEWAY = "cmsgateway";
     private final static String PROP_INTERNAL_DB = "internaldb";
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();

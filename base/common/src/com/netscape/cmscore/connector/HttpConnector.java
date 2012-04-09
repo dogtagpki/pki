@@ -45,6 +45,7 @@ public class HttpConnector implements IConnector {
     protected IHttpConnection mConn = null;
     private Thread mResendThread = null;
     private IResender mResender = null;
+    @SuppressWarnings("unused")
     private int mTimeout;
 
     private HttpConnFactory mConnFactory = null;

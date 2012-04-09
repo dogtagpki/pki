@@ -38,9 +38,9 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 public class UserEnroll extends TestClient {
 
-    private int i;
     private String requestorName, requestorEmail, requestorPhone, requestorComments, requestId, certType, ssl_client;
     private int port;
+    @SuppressWarnings("unused")
     private long elapsedTime;
 
     // Constructor

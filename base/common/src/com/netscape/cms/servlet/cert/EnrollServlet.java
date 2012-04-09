@@ -112,7 +112,6 @@ public class EnrollServlet extends CMSServlet {
     private static final String CERT_AUTH_SINGLE = "single";
     private static final String CLIENT_ISSUER = "clientIssuer";
 
-    private boolean mAuthTokenOverride = true;
     private String mEnrollSuccessTemplate = null;
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
@@ -1698,7 +1697,8 @@ public class EnrollServlet extends CMSServlet {
     // key usage extension always ends up being digital signature only
     // and for rsa-ex ends up having no bits set.
 
-    private boolean mIsTestBed = false;
+    @SuppressWarnings("unused")
+    private boolean mIsTestBed;
 
     private void init_testbed_hack(IConfigStore config)
             throws EBaseException {

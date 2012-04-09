@@ -191,7 +191,6 @@ public class RenewalNotificationJob
     private long mPreMS = 0;
     private int mPostDays = 0;
     private long mPostMS = 0;
-    private int mMaxNotifyCount = 1;
     private String[] mProfileId = null;
 
     /**

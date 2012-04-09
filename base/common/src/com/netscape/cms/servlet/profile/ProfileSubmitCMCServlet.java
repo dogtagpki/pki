@@ -77,22 +77,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     private static final long serialVersionUID = -8017841111435988197L;
     private static final String ARG_AUTH_TOKEN = "auth_token";
     private static final String PROP_PROFILE_ID = "profileId";
-    private static final String PROP_AUTHORITY_ID = "authorityId";
 
-    private String mOutputTemplateClassName = null;
     private String mProfileId = null;
     private String mProfileSubId = null;
-    private String mReqType = null;
-    private String mAuthorityId = null;
-    private String requestBinary = null;
     private String requestB64 = null;
 
-    private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
-
-    /* 0 */"automated profile cert request rejection:  "
-            + "indeterminate reason for inability to process "
-            + "cert request due to an EBaseException"
-        };
     private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
@@ -111,9 +100,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
         mProfileId = sc.getInitParameter(PROP_PROFILE_ID);
-        mOutputTemplateClassName = sc.getInitParameter("outputTemplateClass");
         mRenderResult = false;
     }
 

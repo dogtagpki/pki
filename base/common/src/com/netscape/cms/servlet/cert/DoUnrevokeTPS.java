@@ -64,12 +64,10 @@ public class DoUnrevokeTPS extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -6245049221697655642L;
-    private final static String INFO = "DoUnrevoke";
-    private final static String TPL_FILE = "unrevocationResult.template";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
 
-    private ICertificateRepository mCertDB = null;
-    private String mFormPath = null;
+    @SuppressWarnings("unused")
+    private ICertificateRepository mCertDB;
+
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;
     private String errorString = "error=";
@@ -93,7 +91,6 @@ public class DoUnrevokeTPS extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
         }

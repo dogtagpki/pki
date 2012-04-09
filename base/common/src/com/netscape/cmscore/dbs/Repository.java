@@ -51,7 +51,6 @@ public abstract class Repository implements IRepository {
 
     private static final BigInteger BI_ONE = new BigInteger("1");
     private BigInteger BI_INCREMENT = null;
-    private static final BigInteger BI_ZERO = new BigInteger("0");
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
     // the serialNo attribute stored in db

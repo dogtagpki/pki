@@ -40,7 +40,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
@@ -75,9 +74,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private String mImplName = null;
     private IConfigStore mConfig = null;
 
-    private ICertUserLocator mCULocator = null;
     private ILogger mLogger = CMS.getLogger();
-    private String mRequestor = null;
     private MessageDigest mSHADigest = null;
 
     // request attributes hacks
@@ -390,7 +387,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
             if (ra != null) {
                 queue = ra.getRequestQueue();
-                mRequestor = IRequest.REQUESTOR_RA;
             }
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,

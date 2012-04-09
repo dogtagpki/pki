@@ -20,14 +20,12 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class CallingStationIdAttribute extends Attribute {
-    private byte _value[] = null;
     private String _str = null;
 
     public CallingStationIdAttribute(byte value[]) {
         super();
         _t = CALLING_STATION_ID;
         _str = new String(value, 2, value.length - 2);
-        _value = value;
     }
 
     public String getString() {

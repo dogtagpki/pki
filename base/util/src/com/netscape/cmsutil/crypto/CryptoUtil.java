@@ -1215,7 +1215,6 @@ public class CryptoUtil {
         return certs;
     }
 
-    @SuppressWarnings("deprecation")
     public static String unwrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase)
             throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NotInitializedException, TokenException,
@@ -1244,7 +1243,6 @@ public class CryptoUtil {
         return unwrappedData;
     }
 
-    @SuppressWarnings("deprecation")
     public static String unwrapUsingSymmetricKey(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
             SymmetricKey recoveryKey, EncryptionAlgorithm alg) throws NoSuchAlgorithmException, TokenException,
             BadPaddingException,
@@ -1258,7 +1256,6 @@ public class CryptoUtil {
         return unwrappedS;
     }
 
-    @SuppressWarnings("deprecation")
     public static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
             EncryptionAlgorithm alg)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
@@ -1289,7 +1286,6 @@ public class CryptoUtil {
         return session_data;
     }
 
-    @SuppressWarnings("deprecation")
     public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
             SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, IVParameterSpec IV) throws TokenException,
             CharConversionException,

@@ -53,14 +53,7 @@ public class GrantAsyncRecovery extends CMSServlet {
     private final static String INFO = "grantAsyncRecovery";
     private final static String TPL_FILE = "grantAsyncRecovery.template";
 
-    private final static String IN_SERIALNO = "serialNumber";
-    private final static String IN_REQ_ID = "reqID";
-    private final static String IN_UID = "uid";
-    private final static String IN_CERT = "cert";
-
     private final static String OUT_OP = "op";
-    private final static String OUT_SERIALNO = IN_SERIALNO;
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_SERVICE_URL = "serviceURL";
     private final static String OUT_ERROR = "errorDetails";
 

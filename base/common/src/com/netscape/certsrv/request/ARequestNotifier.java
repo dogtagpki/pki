@@ -45,7 +45,6 @@ public class ARequestNotifier implements IRequestNotifier {
     private ICertificateAuthority mCA = null;
     private boolean mIsPublishingQueueEnabled = false;
     private int mPublishingQueuePriority = 0;
-    private int mMaxPublishingQueuePageSize = 1;
     private IRequestQueue mRequestQueue = null;
     private String mPublishingStatus = null;
     private int mSavePublishingStatus = 0;

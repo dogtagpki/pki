@@ -29,7 +29,8 @@ import com.netscape.certsrv.request.ARequestNotifier;
  * @version $Revision$, $Date$
  */
 public class KRANotify extends ARequestNotifier {
-    private IKeyRecoveryAuthority mKRA = null;
+    @SuppressWarnings("unused")
+    private IKeyRecoveryAuthority mKRA;
 
     /**
      * default constructor

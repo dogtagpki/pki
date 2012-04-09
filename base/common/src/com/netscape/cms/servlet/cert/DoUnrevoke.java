@@ -67,11 +67,11 @@ public class DoUnrevoke extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -7978703730006036625L;
-    private final static String INFO = "DoUnrevoke";
     private final static String TPL_FILE = "unrevocationResult.template";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
 
-    private ICertificateRepository mCertDB = null;
+    @SuppressWarnings("unused")
+    private ICertificateRepository mCertDB;
+
     private String mFormPath = null;
     private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;

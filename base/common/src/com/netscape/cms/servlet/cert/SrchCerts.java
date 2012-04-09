@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Date;
@@ -72,8 +71,6 @@ public class SrchCerts extends CMSServlet {
      */
     private static final long serialVersionUID = -5876805830088921643L;
     private final static String TPL_FILE = "srchCert.template";
-    private final static String INFO = "SrchCerts";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";
 
     private final static String CURRENT_TIME = "currentTime";

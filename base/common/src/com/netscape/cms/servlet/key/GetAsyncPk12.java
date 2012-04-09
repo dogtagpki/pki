@@ -59,11 +59,9 @@ public class GetAsyncPk12 extends CMSServlet {
 
     private final static String IN_PASSWORD = "p12Password";
     private final static String IN_PASSWORD_AGAIN = "p12PasswordAgain";
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_ERROR = "errorDetails";
 
     private com.netscape.certsrv.kra.IKeyService mService = null;
-    private final static String OUT_STATUS = "status";
 
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";

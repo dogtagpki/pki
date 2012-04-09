@@ -71,7 +71,6 @@ public class SrchKeyForRecovery extends CMSServlet {
     private final static String OUT_MAXCOUNT = IN_MAXCOUNT;
     private final static String OUT_SENTINEL = IN_SENTINEL;
     private final static String OUT_OP = "op";
-    private final static String OUT_ERROR = "errorDetails";
     private final static String OUT_ARCHIVER = "archiverName";
     private final static String OUT_SERVICE_URL = "serviceURL";
     private final static String OUT_TOTAL_COUNT = "totalRecordCount";

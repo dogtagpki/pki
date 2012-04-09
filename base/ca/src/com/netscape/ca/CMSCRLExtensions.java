@@ -65,7 +65,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     private ICRLIssuingPoint mCRLIssuingPoint = null;
 
-    private IConfigStore mConfig = null;
+    @SuppressWarnings("unused")
+    private IConfigStore mConfig;
     private IConfigStore mCRLExtConfig = null;
 
     private Vector<String> mCRLExtensionNames = new Vector<String>();

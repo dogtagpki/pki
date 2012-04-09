@@ -42,11 +42,12 @@ import org.mozilla.jss.util.Password;
 public class Con2Agent implements SSLClientCertificateSelectionCallback,
         SSLCertificateApprovalCallback {
 
-    private int i, port;
-    private String host, certdir, certnickname, tokenpwd, certname, query;
+    private int port;
+    @SuppressWarnings("unused")
+    private String certname;
+    private String host, certdir, certnickname, tokenpwd, query;
     private String ACTIONURL;
 
-    private BufferedReader stdin = null;
     private StringBuffer stdout = new StringBuffer();
 
     public Con2Agent() {

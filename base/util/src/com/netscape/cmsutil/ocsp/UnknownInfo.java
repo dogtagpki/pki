@@ -66,8 +66,6 @@ public class UnknownInfo implements CertStatus {
      */
     public static class Template implements ASN1Template {
 
-        private SEQUENCE.Template seqt;
-
         public Template() {
             //                     seqt = new SEQUENCE.Template();
             //                    seqt.addElement(new NULL.Template() );

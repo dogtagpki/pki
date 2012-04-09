@@ -42,8 +42,6 @@ import java.security.SignatureException;
  */
 public final class X500Signer {
 
-    private static final long serialVersionUID = -3148659822293810158L;
-
     private Signature sig;
     private X500Name agent; // XXX should be X509CertChain
     private AlgorithmId algid;

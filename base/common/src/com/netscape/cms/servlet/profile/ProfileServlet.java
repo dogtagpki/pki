@@ -128,7 +128,6 @@ public class ProfileServlet extends CMSServlet {
     public final static String ARG_OUTPUT_VAL = "outputVal";
 
     private static final String PROP_TEMPLATE = "templatePath";
-    private static final String PROP_AUTH_MGR_ID = "authMgrId";
     private final static String PROP_AUTHMGR = "AuthMgr";
     private final static String PROP_CLIENTAUTH = "GetClientCert";
     private static final String PROP_PROFILE_SUB_ID = "profileSubId";
@@ -146,7 +145,6 @@ public class ProfileServlet extends CMSServlet {
     private final static String HDR_LANG = "accept-language";
 
     private String mTemplate = null;
-    private String mAuthMgrId = null;
 
     protected String mId = null;
     protected String mGetClientCert = "false";

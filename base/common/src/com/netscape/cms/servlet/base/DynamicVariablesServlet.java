@@ -71,25 +71,24 @@ public class DynamicVariablesServlet extends CMSServlet {
 
     private static final String VAR_HTTP_STRING = "http()";
     private static final Integer VAR_HTTP = Integer.valueOf(3);
-    private String VAR_HTTP_VALUE = null;
 
     private static final String VAR_AUTHMGRS_STRING = "authmgrs()";
     private static final Integer VAR_AUTHMGRS = Integer.valueOf(4);
-    private String VAR_AUTHMGRS_VALUE = null;
 
     private static final String VAR_CLA_CRL_URL_STRING = "clacrlurl()";
     private static final Integer VAR_CLA_CRL_URL = Integer.valueOf(6);
-    private String VAR_CLA_CRL_URL_VALUE = null;
 
     private String mAuthMgrCacheString = "";
     private long mAuthMgrCacheTime = 0;
     private final int AUTHMGRCACHE = 10; //number of seconds to cache list of
     // authmanagers for
     private Hashtable<Integer, String> dynvars = null;
+    @SuppressWarnings("unused")
     private String mGetClientCert = "false";
     private String mAuthMgr = null;
 
-    private ServletConfig mServletCfg = null;
+    @SuppressWarnings("unused")
+    private ServletConfig mServletCfg;
     private ServletContext mServletCtx = null;
     private static String mCrlurl = "";
     static {

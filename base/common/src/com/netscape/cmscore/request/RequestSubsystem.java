@@ -139,7 +139,6 @@ public class RequestSubsystem
     }
 
     public void shutdown() {
-        mRequestQueue = null;
 
         if (mLogger != null) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
@@ -179,9 +178,9 @@ public class RequestSubsystem
     // Instance variables
 
     private IConfigStore mConfig;
+    @SuppressWarnings("unused")
     private ISubsystem mParent;
     private String mId = IRequestSubsystem.SUB_ID;
-    private IRequestQueue mRequestQueue;
 
     protected ILogger mLogger;
 }

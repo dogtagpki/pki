@@ -54,9 +54,6 @@ public class ValidityConstraint extends EnrollConstraint {
     public static final String CONFIG_CHECK_NOT_AFTER = "notAfterCheck";
     public final static long SECS_IN_MS = 1000L;
 
-    private Date mDefNotBefore = null;
-    private Date mDefNotAfter = null;
-
     public ValidityConstraint() {
         super();
         addConfigName(CONFIG_RANGE);

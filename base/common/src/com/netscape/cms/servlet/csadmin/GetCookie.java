@@ -52,7 +52,6 @@ public class GetCookie extends CMSServlet {
      */
     private static final long serialVersionUID = 2466968231929541707L;
     private static Random mRandom = null;
-    private final static int SESSION_MAX_AGE = 3600;
     private String mErrorFormPath = null;
     private String mFormPath = null;
 

@@ -18,8 +18,8 @@
 package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.math.BigInteger;
+import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -61,20 +61,15 @@ public class ProcessReq extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -6941843162486565610L;
-    private final static String INFO = "processReq";
     private final static String SEQNUM = "seqNum";
     private final static String DO_ASSIGN = "doAssign";
     private final static String TPL_FILE = "processReq.template";
-    private final static String OUT_ERROR = "errorDetails";
     private final static String PROP_PARSER = "parser";
 
     private IRequestQueue mQueue = null;
     private String mFormPath = null;
     private IReqParser mParser = null;
     private String[] mSigningAlgorithms = null;
-
-    private static String[] DEF_SIGNING_ALGORITHMS = new String[]
-        { "SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "SHA1withDSA", "MD5withRSA", "MD2withRSA" };
 
     /**
      * Process request.

@@ -110,15 +110,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public static final String ID = "jss";
 
     private static final String CONFIG_DIR = "configDir";
-    private static final String CERTPREFIX_ALIAS = "certPrefix";
-    private static final String KEYPREFIX_ALIAS = "keyPrefix";
-    private static final String CONFIGDIR_ALIAS = "configDir";
-    private static final String SECMODNAME_ALIAS = "secmodName";
     private static final String PROP_ENABLE = "enable";
-    private static final String PROP_OCSP_ENABLE = "ocspcheck.enable";
     private static final String PASSWORD_ALIAS = "password";
     private static final String mId = ID;
-    private IConfigStore mSSLSubStore;
     protected IConfigStore mConfig = null;
     private boolean mInited = false;
     private ILogger mLogger = null;

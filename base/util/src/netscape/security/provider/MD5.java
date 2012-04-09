@@ -35,8 +35,6 @@ public final class MD5 extends MessageDigestSpi implements Cloneable {
     /** contains the computed message digest */
     private byte[] digestBits;
 
-    private String algorithm;
-
     private int state[];
     private long count; // bit count AND buffer[] index aid
     private byte buffer[];

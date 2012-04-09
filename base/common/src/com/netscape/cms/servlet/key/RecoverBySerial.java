@@ -73,7 +73,6 @@ public class RecoverBySerial extends CMSServlet {
 
     private final static String OUT_OP = "op";
     private final static String OUT_SERIALNO = IN_SERIALNO;
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_SERVICE_URL = "serviceURL";
     private final static String OUT_ERROR = "errorDetails";
 

@@ -47,14 +47,6 @@ public class IndexServlet extends CMSServlet {
 
     private final static String INFO = "indexServlet";
 
-    // input parameters
-
-    // output parameters
-    private final static String OUT_TYPE = "type";
-    private final static String OUT_ID = "id";
-    private final static String OUT_TOTAL_COUNT = "totalCount";
-    private final static String OUT_ERROR = "errorDetails";
-
     private String mTemplateName = null;
 
     public IndexServlet() {

@@ -20,7 +20,6 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class CHAPPasswordAttribute extends Attribute {
-    private byte _value[] = null;
     private int _ident = 0;
     private String _str = null;
 
@@ -33,7 +32,6 @@ public class CHAPPasswordAttribute extends Attribute {
         _t = CHAP_PASSWORD;
         _ident = value[2];
         _str = new String(value, 2, 16);
-        _value = value;
     }
 
     public int getIdent() {

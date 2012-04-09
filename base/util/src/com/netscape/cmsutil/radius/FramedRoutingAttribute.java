@@ -25,7 +25,6 @@ public class FramedRoutingAttribute extends Attribute {
     public static final int LISTEN_FOR_ROUTING_PACKETS = 2;
     public static final int SEND_AND_LISTEN = 3;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public FramedRoutingAttribute(byte value[]) {
@@ -35,7 +34,6 @@ public class FramedRoutingAttribute extends Attribute {
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);
         _type |= ((value[2] << 24) & 0xFF000000);
-        _value = value;
     }
 
     public int getType() {

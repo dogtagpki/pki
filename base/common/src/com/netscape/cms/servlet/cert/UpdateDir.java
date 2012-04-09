@@ -68,7 +68,6 @@ public class UpdateDir extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 3063889978908136789L;
-    private final static String INFO = "UpdateDir";
     private final static String TPL_FILE = "updateDir.template";
     private final static int UPDATE_ALL = 0;
     private final static int UPDATE_CRL = 1;

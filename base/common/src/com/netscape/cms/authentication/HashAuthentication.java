@@ -55,12 +55,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     protected static String[] mRequiredCreds = { CRED_UID,
             CRED_PAGEID, CRED_FINGERPRINT, CRED_HOST };
     public static final long DEFAULT_TIMEOUT = 600000;
-    private boolean mEnable = false;
-    private long mTimeout = DEFAULT_TIMEOUT; // in milliseconds
-    private String mSecret;
-    private int mPageID;
-    private String mHost;
-    private long mLastLogin = 0;
+
     private MessageDigest mSHADigest = null;
     private Hashtable<String, IAuthToken> mData = null;
     private IConfigStore mConfig;

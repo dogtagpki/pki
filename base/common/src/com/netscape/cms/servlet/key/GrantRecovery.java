@@ -55,16 +55,7 @@ public class GrantRecovery extends CMSServlet {
     private final static String INFO = "grantRecovery";
     private final static String TPL_FILE = "grantRecovery.template";
 
-    private final static String IN_SERIALNO = "serialNumber";
-    private final static String IN_UID = "uid";
-    private final static String IN_PWD = "pwd";
-    private final static String IN_PASSWORD = "p12Password";
-    private final static String IN_DELIVERY = "p12Delivery";
-    private final static String IN_CERT = "cert";
-
     private final static String OUT_OP = "op";
-    private final static String OUT_SERIALNO = IN_SERIALNO;
-    private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_SERVICE_URL = "serviceURL";
     private final static String OUT_ERROR = "errorDetails";
 

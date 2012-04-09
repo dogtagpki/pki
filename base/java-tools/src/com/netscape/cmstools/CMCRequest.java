@@ -97,8 +97,6 @@ public class CMCRequest {
     public static final String PR_REQUEST_CRMF = "CRMF";
 
     public static final int ARGC = 1;
-    private static final String CERTDB = "cert8.db";
-    private static final String KEYDB = "key3.db";
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 

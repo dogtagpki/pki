@@ -20,14 +20,12 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class LoginLATPortAttribute extends Attribute {
-    private byte _value[] = null;
     private String _str = null;
 
     public LoginLATPortAttribute(byte value[]) {
         super();
         _t = PROXY_STATE;
         _str = new String(value, 2, value.length - 2);
-        _value = value;
     }
 
     public String getString() {

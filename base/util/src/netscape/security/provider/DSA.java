@@ -55,6 +55,7 @@ public final class DSA extends Signature {
     private static boolean debug = false;
 
     /* The parameter object */
+    @SuppressWarnings("unused")
     private DSAParams params;
 
     /* algorithm parameters */

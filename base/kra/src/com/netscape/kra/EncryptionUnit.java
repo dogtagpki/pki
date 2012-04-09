@@ -54,7 +54,6 @@ import com.netscape.cmscore.util.Debug;
  * @author thomask
  * @version $Revision$, $Date$
  */
-@SuppressWarnings("deprecation")
 public abstract class EncryptionUnit implements IEncryptionUnit {
 
     /* Establish one constant IV for base class, to be used for

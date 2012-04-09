@@ -29,7 +29,6 @@ public class LoginServiceAttribute extends Attribute {
     public static final int X25_T3POS = 6;
     public static final int TCP_CLEAR_QUIET = 8;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public LoginServiceAttribute(byte value[]) {
@@ -39,7 +38,6 @@ public class LoginServiceAttribute extends Attribute {
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);
         _type |= ((value[2] << 24) & 0xFF000000);
-        _value = value;
     }
 
     public int getType() {

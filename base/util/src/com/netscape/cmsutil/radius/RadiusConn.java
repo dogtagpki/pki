@@ -39,7 +39,8 @@ public class RadiusConn {
 
     public static String OPTION_DEBUG = "OPTION_DEBUG";
 
-    private Properties _options = null;
+    @SuppressWarnings("unused")
+    private Properties _options;
     private boolean _traceOn = true;
     private String _host[] = new String[2];
     private int _port[] = new int[2];

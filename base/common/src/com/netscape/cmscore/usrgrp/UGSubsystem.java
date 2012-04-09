@@ -64,7 +64,6 @@ import com.netscape.cmscore.util.Debug;
 public final class UGSubsystem implements IUGSubsystem {
 
     public static final String ID = "usrgrp";
-    private ICertUserLocator mCertUserLocator = null;
     private String mId = ID;
 
     protected static final String OBJECTCLASS_ATTR = "objectclass";
@@ -81,9 +80,6 @@ public final class UGSubsystem implements IUGSubsystem {
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
-    private static final String PROP_IMPL = "impl";
-    private static final String PROP_CLASS = "class";
-    private static final String PROP_PASSWORD_CHECKER = "PasswordChecker";
 
     private ILogger mLogger = null;
 

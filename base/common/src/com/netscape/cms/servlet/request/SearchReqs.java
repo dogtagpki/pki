@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.Locale;
 
@@ -59,19 +58,11 @@ public class SearchReqs extends CMSServlet {
      */
     private static final long serialVersionUID = 2449481964851735051L;
     private final static String TPL_FILE = "queryReq.template";
-    private final static String INFO = "QueryReq";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";
     private final static String PROP_PARSER = "parser";
     private final static String CURRENT_TIME = "currentTime";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
-    private final static String OUT_AUTHORITY_ID = "authorityid";
-    private final static String OUT_REQUESTING_USER = "requestingUser";
-    private final static String OUT_SEQNUM_FROM = "seqNumFrom";
-    private final static String OUT_MAXCOUNT = "maxCount";
     private final static String OUT_TOTALCOUNT = "totalRecordCount";
     private final static String OUT_CURRENTCOUNT = "currentRecordCount";
-    private final static String OUT_SENTINEL = "querySentinel";
-    private final static String OUT_ERROR = "error";
     private final static int MAX_RESULTS = 1000;
 
     private IRequestQueue mQueue = null;

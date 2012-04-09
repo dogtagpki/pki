@@ -83,14 +83,9 @@ public class PublisherAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "PublisherAdminServlet";
-    private final static String PW_TAG_CA_LDAP_PUBLISHING =
-            "CA LDAP Publishing";
     public final static String NOMAPPER = "<NONE>";
     private IPublisherProcessor mProcessor = null;
     private IAuthority mAuth = null;
-
-    private final static String VIEW = ";" + Constants.VIEW;
-    private final static String EDIT = ";" + Constants.EDIT;
 
     public PublisherAdminServlet() {
         super();

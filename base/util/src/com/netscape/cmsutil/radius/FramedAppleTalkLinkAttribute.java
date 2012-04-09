@@ -22,13 +22,11 @@ import java.io.IOException;
 public class FramedAppleTalkLinkAttribute extends Attribute {
     public static int UN_NUMBERED = 0;
 
-    private byte _value[] = null;
     private int _type = 0;
 
     public FramedAppleTalkLinkAttribute(byte value[]) {
         super();
         _t = FRAMED_APPLETALK_LINK;
-        _value = value;
         _type = value[5] & 0xFF;
         _type |= ((value[4] << 8) & 0xFF00);
         _type |= ((value[3] << 16) & 0xFF0000);

@@ -77,9 +77,10 @@ public class CertificateRepository extends Repository
     private String mBaseDN;
     private String mRequestBaseDN;
     private boolean mConsistencyCheck = false;
-    private boolean mSkipIfInconsistent = false;
 
-    private int mCertStatusUpdateInterval = 0;
+    @SuppressWarnings("unused")
+    private boolean mSkipIfInconsistent;
+
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private int mTransitMaxRecords = 1000000;

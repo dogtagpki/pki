@@ -42,7 +42,6 @@ public class CheckIdentity extends CMSServlet {
      */
     private static final long serialVersionUID = 1647682040815275807L;
     private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
 
     public CheckIdentity() {
         super();

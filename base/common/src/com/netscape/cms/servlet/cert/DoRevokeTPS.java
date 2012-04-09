@@ -19,11 +19,11 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
-import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -73,7 +73,6 @@ public class DoRevokeTPS extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -2980600514636454836L;
-    private final static String INFO = "DoRevoke";
     private final static String TPL_FILE = "revocationResult.template";
 
     private ICertificateRepository mCertDB = null;

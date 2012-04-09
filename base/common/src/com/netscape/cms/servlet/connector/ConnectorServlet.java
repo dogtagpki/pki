@@ -94,8 +94,6 @@ public class ConnectorServlet extends CMSServlet {
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
-    private final static String SIGNED_AUDIT_PROTECTION_METHOD_UNKNOWN =
-            "unknown";
     private final static String LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS =
             "LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS_5";
     private final static String LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST =

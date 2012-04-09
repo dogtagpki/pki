@@ -38,16 +38,15 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 public class checkRequest extends TestClient {
 
-    private int i;
     private String certfile, importcert = "false", certnickname, serialNumber, ldapformat;
 
     private String requestId;
     private String reqStatus = "false";
     private String pkcsCert, baseCert, ACTION_STRING, issuer, subject, AUTH = "ca";
     private int port;
-    private boolean impStatus = false;
     private int type = 1;
 
+    @SuppressWarnings("unused")
     private long elapsedTime;
 
     private String host;
@@ -437,8 +436,6 @@ public class checkRequest extends TestClient {
             port = x.intValue();
 
             GregorianCalendar begin = new GregorianCalendar();
-
-            impStatus = false;
 
             // SSLSocket socket = new SSLSocket(host,port);
             SSLSocket socket = new SSLSocket(host, port, null, 0, this, null);

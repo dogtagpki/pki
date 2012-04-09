@@ -71,7 +71,6 @@ public class CertUserDBAuthentication implements IAuthManager {
 
     private boolean mRevocationCheckingEnabled = false;
     private IConfigStore mRevocationChecking = null;
-    private String mRequestor = null;
 
     public CertUserDBAuthentication() {
     }

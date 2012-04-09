@@ -43,7 +43,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
     private static final String PROP_ENABLE_BY = "enableBy";
 
     private IConfigStore mConfig = null;
-    private ISubsystem mOwner = null;
+    @SuppressWarnings("unused")
+    private ISubsystem mOwner;
     private Vector<String> mProfileIds = new Vector<String>();
     private Hashtable<String, IProfile> mProfiles = new Hashtable<String, IProfile>();
     private Hashtable<String, String> mProfileClassIds = new Hashtable<String, String>();

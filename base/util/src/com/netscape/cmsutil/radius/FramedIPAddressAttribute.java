@@ -20,7 +20,6 @@ package com.netscape.cmsutil.radius;
 import java.io.IOException;
 
 public class FramedIPAddressAttribute extends Attribute {
-    private byte _value[] = null;
     private byte _addr[] = new byte[4];
 
     public FramedIPAddressAttribute(byte value[]) {
@@ -30,7 +29,6 @@ public class FramedIPAddressAttribute extends Attribute {
         _addr[1] = value[3];
         _addr[2] = value[4];
         _addr[3] = value[5];
-        _value = value;
     }
 
     public byte[] getValue() throws IOException {

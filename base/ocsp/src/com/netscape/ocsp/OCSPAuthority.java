@@ -76,7 +76,6 @@ import com.netscape.cmsutil.ocsp.ResponseData;
  */
 public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, IAuthority {
 
-    private long mServedRequests = 0;
     private long mServedTime = 0;
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
@@ -361,7 +360,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         OCSPResponse response = mDefStore.validate(request);
         long endTime = (CMS.getCurrentDate()).getTime();
 
-        mServedRequests++;
         mServedTime = mServedTime + (endTime - startTime);
         return response;
     }

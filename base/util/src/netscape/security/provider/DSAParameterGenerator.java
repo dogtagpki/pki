@@ -54,7 +54,6 @@ public class DSAParameterGenerator extends AlgorithmParameterGeneratorSpi {
     private SecureRandom random;
 
     // useful constants
-    private static final BigInteger ZERO = BigInteger.valueOf(0);
     private static final BigInteger ONE = BigInteger.valueOf(1);
     private static final BigInteger TWO = BigInteger.valueOf(2);
 
