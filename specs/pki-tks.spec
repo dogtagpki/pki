@@ -1,6 +1,6 @@
 Name:             pki-tks
 Version:          9.0.10
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,13 +21,13 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-common >= 9.0.15
 BuildRequires:    pki-util >= 9.0.15
 BuildRequires:    systemd-units
 %else
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-common
 BuildRequires:    pki-util
 %endif
@@ -254,6 +254,9 @@ fi
 
 
 %changelog
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.10-2
+- Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
+
 * Fri Mar 16 2012 Ade Lee <alee@redhat.com> 9.0.10-1
 - BZ 802396 - Change location of TOMCAT_LOG to match tomcat6 changes
 

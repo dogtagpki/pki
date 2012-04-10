@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.19
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -28,14 +28,14 @@ BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    osutil >= 2.0.2
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    osutil >= 2.0.1
 BuildRequires:    tomcatjss >= 6.0.0
 %else
@@ -749,6 +749,9 @@ fi
 
 
 %changelog
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.19-2
+- Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
+
 * Fri Mar 16 2012 Ade Lee <alee@redhat.com> 9.0.19-1
 - BZ 802396 - Change location of TOMCAT_LOG to match tomcat6 changes
 - Corrected patch selected for selinux f17 rules

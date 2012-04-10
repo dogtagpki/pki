@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          9.0.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -18,11 +18,11 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
-BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-util >= 9.0.15
 %else
 BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-util
 %endif
 
@@ -32,10 +32,10 @@ Requires:         ldapjdk
 Requires:         pki-console-theme >= 9.0.0
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 1.7.5-10
-Requires:         jss >= 4.2.6-19.1
+Requires:         jss >= 4.2.6-24
 %else
 Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
+Requires:         jss >= 4.2.6-24
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
@@ -84,6 +84,9 @@ cd build
 
 
 %changelog
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.5-2
+- Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
+
 * Thu Sep 22 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - Bugzilla Bug #734590 - Refactor JNI libraries for Fedora 16+ . . . (mharmsen)
 - Bugzilla Bug #699809 - Convert CS to use systemd (alee)

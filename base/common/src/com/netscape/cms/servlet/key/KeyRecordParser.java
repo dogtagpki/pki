@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.key;
 
 import com.netscape.cms.servlet.common.*;
 import com.netscape.cms.servlet.base.*;
+import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 
 import java.io.*;
 import java.util.*;
@@ -52,6 +53,7 @@ public class KeyRecordParser {
     public final static String OUT_KEY_ALGORITHM = "keyAlgorithm";
     public final static String OUT_PUBLIC_KEY = "publicKey";
     public final static String OUT_KEY_LEN = "keyLength";
+    public final static String OUT_KEY_EC_CURVE = "EllipticCurve";
     public final static String OUT_ARCHIVED_BY = "archivedBy";
     public final static String OUT_ARCHIVED_ON = "archivedOn";
     public final static String OUT_RECOVERED_BY = "recoveredBy";
@@ -86,6 +88,16 @@ public class KeyRecordParser {
         } else {
             rarg.addIntegerValue(OUT_KEY_LEN, keySize.intValue());
         }
+
+        // handles EC
+        MetaInfo metaInfo = rec.getMetaInfo();
+        if (metaInfo != null) {
+            String curve = (String)metaInfo.get(OUT_KEY_EC_CURVE);
+            if (curve != null) {
+                rarg.addStringValue(OUT_KEY_EC_CURVE, curve);
+            }
+        }
+
         rarg.addStringValue(OUT_ARCHIVED_BY,
             rec.getArchivedBy());
         rarg.addLongValue(OUT_ARCHIVED_ON,

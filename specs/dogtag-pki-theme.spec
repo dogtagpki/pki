@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          9.0.11
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -350,6 +350,9 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.11-2
+- Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
+
 * Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.11-1
 - Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
   with DOGTAG_9_BRANCH SVN repository . . .

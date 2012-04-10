@@ -1,6 +1,6 @@
 Name:           dogtag-pki-kra-ui
 Version:        9.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Dogtag Certificate System - Data Recovery Authority User Interface
 URL:            http://pki.fedoraproject.org/
 License:        GPLv2
@@ -57,5 +57,8 @@ rm -rf %{buildroot}
 %{_datadir}/pki/
 
 %changelog
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.0-2
+- Bugzilla bug 745278 - [RFE] ECC encryption keys cannot be archived
+
 * Fri Nov 19 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Updated Dogtag 1.3.x --> Dogtag 2.0.0 --> Dogtag 9.0.0.

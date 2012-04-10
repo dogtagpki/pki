@@ -100,11 +100,17 @@ if (result.header.errorDetails != null) {
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyAlgorithm + '</font></td>');
 	document.writeln('</tr>');
 
-	document.writeln('<tr>');
-	document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key length:</font></td>');
-	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyLength + '</font></td>');
-	document.writeln('</tr>');
-
+    if ((result.header.EllipticCurve != null))  {
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Elliptic Key Curve:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.EllipticCurve + '</font></td>');
+        document.writeln('</tr>');
+    } else {
+        document.writeln('<tr>');
+        document.write('<td align=right><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key length:</font></td>');
+        document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + result.header.keyLength + '</font></td>');
+        document.writeln('</tr>');
+    }
 
 	document.write("</table>");
 	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');

@@ -371,6 +371,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
            PrivateKey.Type keytype = null;
             String alg = pubKey.getAlgorithm();
+            CMS.debug("EncryptionUnit.unwrap alg ="+ alg);
             if (alg.equals("DSA")) {
                 keytype = PrivateKey.DSA;
             } else if (alg.equals("EC")) {
@@ -385,21 +386,26 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         } catch (TokenException e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            CMS.debug("EncryptionUnit.unwrap "+ e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            CMS.debug("EncryptionUnit.unwrap "+ e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            CMS.debug("EncryptionUnit.unwrap "+ e.toString());
             return null;
         } catch (InvalidKeyException e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            CMS.debug("EncryptionUnit.unwrap "+ e.toString());
             return null;
         } catch (Exception e) {
             CMS.debug("EncryptionUnit.unwrap : Exception:"+e.toString());
+            CMS.debug("EncryptionUnit.unwrap "+ e.toString());
             return null;
         }
     }

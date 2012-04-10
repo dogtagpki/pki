@@ -500,14 +500,14 @@ public class SizePanel extends WizardPanelBase {
               CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
               pair = CryptoUtil.generateECCKeyPair(token, curveName,
                     null,
-                    ECDH_usages_mask);
+                    ECDH_usages_mask, false, -1, -1);
           } else {
               if (ct.equals("sslserver")) {
                 CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
               }
               pair = CryptoUtil.generateECCKeyPair(token, curveName,
                     null,
-                    usages_mask);
+                    usages_mask, false, -1, -1);
           }
 
           // XXX - store curve , w

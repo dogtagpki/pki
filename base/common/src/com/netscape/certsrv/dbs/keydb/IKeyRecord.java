@@ -87,6 +87,13 @@ public interface IKeyRecord {
     public Integer getKeySize() throws EBaseException; 
 
     /**
+     * Retrieves meta info.
+     *
+     * @return MetaInfo 
+     */
+    public MetaInfo getMetaInfo(); 
+
+    /**
      * Retrieves archiver identifier.
      *
      * @return archiver uid
