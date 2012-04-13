@@ -14,6 +14,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
 	<classpathentry kind="src" path="base/kra/functional/src"/>
+	<classpathentry kind="src" path="base/common/functional/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
@@ -39,5 +40,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xml-commons-apis.jar"/>
 	<classpathentry kind="lib" path="/usr/share/tomcat6/lib/catalina.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/istack-commons-runtime.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

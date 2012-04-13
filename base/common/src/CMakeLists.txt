@@ -76,6 +76,13 @@ find_file(RESTEASY_JAXRS_JAR
         /usr/share/java/resteasy
 )
 
+find_file(HTTPCLIENT_JAR
+    NAMES
+        httpclient.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
 set(pki-certsrv_java_SRCS
     com/netscape/certsrv/apps/ICommandQueue.java
     com/netscape/certsrv/apps/CMS.java
@@ -647,6 +654,19 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/csadmin/DownloadPKCS12.java
     com/netscape/cms/servlet/csadmin/SavePKCS12Panel.java
     com/netscape/cms/servlet/csadmin/NamePanel.java
+    com/netscape/cms/servlet/csadmin/ConfigurationUtils.java
+    com/netscape/cms/servlet/csadmin/SystemConfigurationResource.java
+    com/netscape/cms/servlet/csadmin/SystemConfigurationResourceService.java
+    com/netscape/cms/servlet/csadmin/ConfigurationRESTClient.java
+    com/netscape/cms/servlet/csadmin/ConfigurationErrorInterceptor.java
+    com/netscape/cms/servlet/csadmin/model/CertData.java
+    com/netscape/cms/servlet/csadmin/model/ConfigurationData.java
+    com/netscape/cms/servlet/csadmin/model/ConfigurationResponseData.java
+    com/netscape/cms/servlet/csadmin/model/DomainInfo.java
+    com/netscape/cms/servlet/csadmin/model/InstallToken.java
+    com/netscape/cms/servlet/csadmin/model/InstallTokenRequest.java
+    com/netscape/cms/servlet/csadmin/model/SecurityDomainHost.java
+    com/netscape/cms/servlet/csadmin/model/SecurityDomainHostList.java
     com/netscape/cms/servlet/wizard/WizardServlet.java
     com/netscape/cms/servlet/wizard/IWizardPanel.java
     com/netscape/cms/servlet/processors/PKCS10Processor.java
@@ -1042,7 +1062,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${HTTPCLIENT_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 

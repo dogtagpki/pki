@@ -1900,6 +1900,28 @@
                          <param-value> /agent/ca/doRevoke       </param-value> </init-param>
    </servlet>
 
+   <context-param>
+      <param-name>resteasy.scan</param-name>
+      <param-value>true</param-value>
+   </context-param>
+
+   <context-param>
+      <param-name>resteasy.servlet.mapping.prefix</param-name>
+      <param-value>/pki</param-value>
+   </context-param>
+
+   <context-param>
+      <param-name>resteasy.resource.method-interceptors</param-name>
+      <param-value>
+         org.jboss.resteasy.core.ResourceMethodSecurityInterceptor
+      </param-value>
+   </context-param>
+
+   <servlet>
+      <servlet-name>Resteasy</servlet-name>
+      <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+   </servlet>
+   
 [PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT]
    <filter-mapping>
       <filter-name>   AgentRequestFilter          </filter-name>
@@ -1942,6 +1964,11 @@
    </filter-mapping>
 [PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT]
 
+   <servlet-mapping>
+      <servlet-name>Resteasy</servlet-name>
+      <url-pattern>/pki/*</url-pattern>
+   </servlet-mapping>
+   
    <servlet-mapping>
       <servlet-name>  caacl  </servlet-name>
       <url-pattern>   /acl  </url-pattern>

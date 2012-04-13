@@ -194,7 +194,9 @@ public class CertUtil {
             return certReqs;
         } catch (Throwable e) {
             CMS.debug(e);
-            context.put("errorString", e.toString());
+            if (context != null) {
+                context.put("errorString", e.toString());
+            }
             CMS.debug("CertUtil getPKCS10: " + e.toString());
             throw new IOException(e.toString());
         }
@@ -453,8 +455,9 @@ public class CertUtil {
         }
 
         if (cr == null) {
-            context.put("errorString",
-                    "Ceritifcate Authority is not ready to serve.");
+            if (context != null) {
+                context.put("errorString", "Ceritifcate Authority is not ready to serve.");
+            }
             throw new IOException("Ceritifcate Authority is not ready to serve.");
         }
 

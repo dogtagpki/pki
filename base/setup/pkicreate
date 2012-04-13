@@ -203,6 +203,7 @@ my $apache_commons_lang_jar_base_name     = "apache-commons-lang.jar";
 my $jakarta_commons_lang_jar_base_name    = "jakarta-commons-lang.jar";
 my $xml_commons_apis_jar_base_name        = "xml-commons-apis.jar";
 my $xml_commons_resolver_jar_base_name    = "xml-commons-resolver.jar";
+my $httpclient_jar_base_name              = "httpclient.jar";
 
 my $conf_base_name                = "conf";                   # CA, KRA, OCSP, TKS,
 my $catalina_properties_base_name = "catalina.properties";    # CA, KRA, OCSP, TKS
@@ -494,6 +495,8 @@ my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
 my $commons_lang_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
 my $commons_logging_jar_file_path                = undef;  # CA, KRA, OCSP, TKS
 my $commons_logging_jar_symlink_path             = undef;  # CA, KRA, OCSP, TKS
+my $httpclient_jar_file_path                     = undef;  # CA, KRA, OCSP, TKS
+my $httpclient_jar_symlink_path                  = undef;  # CA, KRA, OCSP, TKS
 my $jss_jar_file_path                            = undef;  # CA, KRA, OCSP, TKS
 my $jss_jar_symlink_path                         = undef;  # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_file_path                        = undef;  # CA, KRA, OCSP, TKS
@@ -1890,6 +1893,11 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
+        if (!defined($httpclient_jar_file_path = find_jar($httpclient_jar_base_name))) {
+            emit("could not find jar: $httpclient_jar_base_name", "error");
+            return 0;
+        }
+
         if (!defined($jettison_jar_file_path = find_jar($jettison_jar_base_name))) {
             emit("could not find jar: $jettison_jar_base_name", "error");
             return 0;
@@ -1963,7 +1971,8 @@ sub initialize_subdirectory_paths
                                                      . "/" . $resteasy_jettison_provider_jar_base_name;
         $jettison_jar_symlink_path                   = $webinf_lib_instance_path
                                                      . "/" . $jettison_jar_base_name;
-
+        $httpclient_jar_symlink_path                 = $webinf_lib_instance_path
+                                                     . "/" . $httpclient_jar_base_name;
 
         $webapps_root_instance_path        = $webapps_instance_path
                                            . "/"
@@ -3000,6 +3009,9 @@ sub process_pki_files_and_symlinks
         return 0 if !create_symlink($jettison_jar_symlink_path, $jettison_jar_file_path,
                                     $pki_user, $pki_group);
 
+        # create instance symlink to "httpclient.jar"
+        return 0 if !create_symlink($httpclient_jar_symlink_path, $httpclient_jar_file_path,
+                                    $pki_user, $pki_group);
 
     }
 

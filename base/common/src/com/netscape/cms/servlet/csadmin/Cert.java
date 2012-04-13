@@ -33,6 +33,7 @@ public class Cert {
     private boolean mEnable = true;
     private boolean mSigningRequired = false;
     private String mSubsystem = "";
+    private String certChain = "";
 
     public Cert(String tokenName, String nickName, String certTag) {
         mTokenname = tokenName;
@@ -175,5 +176,13 @@ public class Cert {
 
     public void setCustomCurvename(String curve) {
         mCustomCurvename = curve;
+    }
+
+    public String getCertChain() {
+        return certChain;
+    }
+
+    public void setCertChain(String certChain) {
+        this.certChain = certChain;
     }
 }
