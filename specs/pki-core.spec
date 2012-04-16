@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.19
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -49,7 +49,7 @@ BuildRequires:    tomcatjss >= 2.0.0
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
 Patch0:	          %{name}-selinux-Dogtag-9-f16.patch
-Patch1:	          %{name}-selinux-Dogtag-9-f17.patch
+Patch1:	          %{name}-selinux-Dogtag-9-f17-1.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -749,6 +749,9 @@ fi
 
 
 %changelog
+* Mon Apr 16 2012 Ade Lee <alee@redhat.com> 9.0.19-3
+- Bugzilla Bug #813075 - selinux denial for file size access
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.19-2
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 
