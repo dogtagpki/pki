@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}14%{?prerel}%{?dist}
+Release:          %{?relprefix}15%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -67,7 +67,7 @@ BuildRequires:    tomcatjss >= 2.0.0
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 Patch0:	          %{name}-selinux-f16.patch
-Patch1:	          %{name}-selinux-f17.patch
+Patch1:	          %{name}-selinux-f17-1.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -1324,6 +1324,9 @@ fi
 
 
 %changelog
+* Mon Apr 16 2012 Ade Lee <alee@redhat.com> 10.0.0-0.15.a1
+- BZ 813075 - selinux denial for file size access
+
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.14.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 
