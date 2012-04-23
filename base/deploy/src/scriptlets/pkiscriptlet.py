@@ -15,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2011 Red Hat, Inc.
+# Copyright (C) 2012 Red Hat, Inc.
 # All rights reserved.
 #
 
@@ -44,4 +44,3 @@ class AbstractBasePkiScriptlet(object):
         """Retrieve data from the specified PKI dictionary and
            use it to destroy an existing PKI instance."""
         return
-

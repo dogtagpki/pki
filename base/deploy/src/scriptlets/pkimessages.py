@@ -15,22 +15,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2011 Red Hat, Inc.
+# Copyright (C) 2012 Red Hat, Inc.
 # All rights reserved.
 #
 
 # PKI Deployment Engine Messages
-PKI_CUSTOM_APACHE_INSTANCE_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, the 'instance', 'http_port', and "\
-                               "'https_port' must ALL be specified!"
-PKI_CUSTOM_TOMCAT_INSTANCE_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, the 'instance', 'http_port', "\
-                               "'https_port', and 'ajp_port' must ALL be "\
-                               "specified!"
-PKI_CUSTOM_TOMCAT_AJP_PORT_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, ONLY the 'instance', "\
-                               "'http_port', and 'https_port' MUST be "\
-                               "specified; NO 'ajp_port' should be requested!"
 PKI_DICTIONARY_COMMON ="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI COMMON DICTIONARY\n"\
@@ -47,14 +36,57 @@ PKI_DICTIONARY_WEB_SERVER="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI WEB SERVER DICTIONARY\n"\
 "====================================================="
+
+
+# PKI Deployment Log Messages
+PKI_VERBOSITY=\
+"VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL\n"\
+"=======================================================================\n"\
+"  NONE             error|warning               error|warning|info\n"\
+"  -v               error|warning|info          error|warning|info\n"\
+"  -vv              error|warning|info          error|warning|info|debug\n"\
+"  -vvv             error|warning|info|debug    error|warning|info|debug\n"\
+" "
+
+# PKI Deployment Error Messages
+PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
+PKI_CUSTOM_APACHE_INSTANCE_1 = "When a custom '%s' subsystem is being "\
+                               "deployed, the 'instance', 'http_port', and "\
+                               "'https_port' must ALL be specified!"
+PKI_CUSTOM_TOMCAT_INSTANCE_1 = "When a custom '%s' subsystem is being "\
+                               "deployed, the 'instance', 'http_port', "\
+                               "'https_port', and 'ajp_port' must ALL be "\
+                               "specified!"
+PKI_CUSTOM_TOMCAT_AJP_PORT_1 = "When a custom '%s' subsystem is being "\
+                               "deployed, ONLY the 'instance', "\
+                               "'http_port', and 'https_port' MUST be "\
+                               "specified; NO 'ajp_port' should be requested!"
 PKI_DIRECTORY_ALREADY_EXISTS_1 = "Directory '%s' already exists!"
 PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = "Directory '%s' already "\
                                                  "exists BUT it is NOT a "\
                                                  "directory!"
 PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 = "Directory '%s' is either "\
                                              "missing or is NOT a directory!"
+PKI_FILE_ALREADY_EXISTS_1 = "File '%s' already exists!"
+PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 = "File '%s' already "\
+                                       "exists BUT it is NOT a "\
+                                       "file!"
 PKI_FILE_MISSING_OR_NOT_A_FILE_1 = "File '%s' is either missing "\
                                    "or is NOT a regular file!"
+PKI_FILE_NOT_A_WAR_FILE_1 = "File '%s' is NOT a war file!"
+
+PKI_IOERROR_1 = "IOError:  %s!"
+PKI_KEYERROR_1 = "KeyError:  %s!"
+PKI_LARGEZIPFILE_ERROR_1 = "zipfile.LargeZipFile:  %s!"
+PKI_MANIFEST_MESSAGE_1 = "generating manifest file called '%s'"
+PKI_OSERROR_1 = "OSError:  %s!"
+PKI_SHUTIL_ERROR_1 = "shutil.Error:  %s!"
+PKI_SYMLINK_ALREADY_EXISTS_1 = "Symlink '%s' already exists!"
+PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 = "Symlink '%s' already "\
+                                             "exists BUT it is NOT a "\
+                                             "symlink!"
+PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1 = "Symlink '%s' is either missing "\
+                                         "or is NOT a symbolic link!"
 PKI_UNABLE_TO_PARSE_1 = "'Could not parse:  '%s'"
 PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 = "Could not create log directory '%s'!"
 PKI_VERBOSITY_LEVELS_MESSAGE = "Only up to 3 levels of verbosity are supported!"
@@ -64,23 +96,77 @@ PKI_VERBOSITY_LEVELS_MESSAGE = "Only up to 3 levels of verbosity are supported!"
 PKIDESTROY_BEGIN_MESSAGE_2 = "BEGIN destroying subsystem '%s' of "\
                              "instance '%s' . . ."
 PKIDESTROY_END_MESSAGE_2 = "END destroying subsystem '%s' of "\
-                           "instance '%s'."
+                           "instance '%s'"
 PKIRESPAWN_BEGIN_MESSAGE_2 = "BEGIN respawning subsystem '%s' of "\
                              "instance '%s' . . ."
 PKIRESPAWN_END_MESSAGE_2 = "END respawning subsystem '%s' of "\
-                           "instance '%s'."
+                           "instance '%s'"
 PKISPAWN_BEGIN_MESSAGE_2 = "BEGIN spawning subsystem '%s' of "\
                            "instance '%s' . . ."
 PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
-                         "instance '%s'."
+                         "instance '%s'"
+
+
+# PKI Deployment "Helper" Messages
+PKIHELPER_APACHE_INSTANCES_2 = "instance '%s' contains '%d' Apache PKI subsystems"
+PKIHELPER_CHMOD_2 = "chmod %o %s"
+PKIHELPER_CHOWN_3 = "chown %s:%s %s"
+PKIHELPER_CHOWN_H_3 = "chown -h %s:%s %s"
+PKIHELPER_CP_P_2 = "cp -p %s %s"
+PKIHELPER_CP_RP_2 = "cp -rp %s %s"
+PKIHELPER_DANGLING_SYMLINK_2 = "Dangling symlink '%s'-->'%s'"
+PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
+PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
+PKIHELPER_GID_2 = "GID of '%s' is %s"
+PKIHELPER_GROUP_1 = "retrieving GID for '%s' . . ."
+PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
+PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
+PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
+PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
+PKIHELPER_LINK_S_2 = "ln -s %s %s"
+PKIHELPER_MKDIR_1 = "mkdir -p %s"
+PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
+PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
+PKIHELPER_MODIFY_SYMLINK_1 = "modifying '%s'"
+PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2 = "instance '%s' contains '%d' PKI subsystems"
+PKIHELPER_RM_F_1 = "rm -f %s"
+PKIHELPER_RM_RF_1 = "rm -rf %s"
+PKIHELPER_RMDIR_1 = "rmdir %s"
+PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
+PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' Tomcat PKI subsystems"
+PKIHELPER_TOUCH_1 = "touch %s"
+PKIHELPER_UID_2 = "UID of '%s' is %s"
+PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 
 
 # PKI Deployment "Scriptlet" Messages
-INSTANCE_DESTROY_1 = "    depopulating '%s'"
-INSTANCE_RESPAWN_1 = "    repopulating '%s'"
-INSTANCE_SPAWN_1 = "    populating '%s'"
-INSTANCE_SPAWN_MKDIR_1 = "        mkdir '%s'"
-SECURITY_DATABASES_DESTROY_1 = "    removing '%s'"
-SECURITY_DATABASES_RESPAWN_1 = "    regenerating '%s'"
-SECURITY_DATABASES_SPAWN_1 = "    generating '%s'"
-
+CONFIGURATION_DESTROY_1 = "unconfiguring '%s'"
+CONFIGURATION_RESPAWN_1 = "reconfiguring '%s'"
+CONFIGURATION_SPAWN_1 = "configuring '%s'"
+FINALIZATION_DESTROY_1 = "finalizing '%s'"
+FINALIZATION_RESPAWN_1 = "finalizing '%s'"
+FINALIZATION_SPAWN_1 = "finalizing '%s'"
+INITIALIZATION_DESTROY_1 = "initializing '%s'"
+INITIALIZATION_RESPAWN_1 = "initializing '%s'"
+INITIALIZATION_SPAWN_1 = "initializing '%s'"
+INSTANCE_DESTROY_1 = "depopulating '%s'"
+INSTANCE_RESPAWN_1 = "repopulating '%s'"
+INSTANCE_SPAWN_1 = "populating '%s'"
+RESIDUAL_DESTROY_1 = "depopulating '%s'"
+RESIDUAL_RESPAWN_1 = "repopulating '%s'"
+RESIDUAL_SPAWN_1 = "populating '%s'"
+SECURITY_DATABASES_DESTROY_1 = "removing '%s'"
+SECURITY_DATABASES_RESPAWN_1 = "regenerating '%s'"
+SECURITY_DATABASES_SPAWN_1 = "generating '%s'"
+SLOT_ASSIGNMENT_DESTROY_1 = "unassigning slots for '%s'"
+SLOT_ASSIGNMENT_RESPAWN_1 = "reassigning slots for '%s'"
+SLOT_ASSIGNMENT_SPAWN_1 = "assigning slots for '%s'"
+SUBSYSTEM_DESTROY_1 = "depopulating '%s'"
+SUBSYSTEM_RESPAWN_1 = "repopulating '%s'"
+SUBSYSTEM_SPAWN_1 = "populating '%s'"
+WAR_EXPLOSION_DESTROY_1 = "removing '%s'"
+WAR_EXPLOSION_RESPAWN_1 = "redeploying '%s'"
+WAR_EXPLOSION_SPAWN_1 = "deploying '%s'"
+WEBSERVER_DESTROY_1 = "depopulating '%s'"
+WEBSERVER_RESPAWN_1 = "repopulating '%s'"
+WEBSERVER_SPAWN_1 = "populating '%s'"

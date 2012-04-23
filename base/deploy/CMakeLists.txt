@@ -1,5 +1,26 @@
 project(deploy)
 
+set(PKI_SUBSYSTEMS
+    ca
+    kra
+    ocsp
+    ra
+    tks
+    tps
+)
+
+set(TOMCAT_SUBSYSTEMS
+    ca
+    kra
+    ocsp
+    tks
+)
+
+set(APACHE_SUBSYSTEMS
+    ra
+    tps
+)
+
 install(
     FILES
         src/pkispawn
@@ -34,13 +55,22 @@ execute_process(
 )
 install(
     FILES
-        src/scriptlets/instance.py
+        src/scriptlets/configuration.py
+        src/scriptlets/finalization.py
+        src/scriptlets/initialization.py
+        src/scriptlets/instance_layout.py
         src/scriptlets/pkiconfig.py
         src/scriptlets/pkihelper.py
-        src/scriptlets/pkimessages.py
         src/scriptlets/pkilogging.py
+        src/scriptlets/pkimanifest.py
+        src/scriptlets/pkimessages.py
+        src/scriptlets/pkiparser.py
         src/scriptlets/pkiscriptlet.py
         src/scriptlets/security_databases.py
+        src/scriptlets/slot_assignment.py
+        src/scriptlets/subsystem_layout.py
+        src/scriptlets/war_explosion.py
+        src/scriptlets/webserver_layout.py
     DESTINATION
         ${PYTHON_SITE_PACKAGES}/pki/deployment
     PERMISSIONS
@@ -67,60 +97,114 @@ install(
 #install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
 #install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
 
-# install subsystem directories for pkispawn
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/ca)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/kra)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/ocsp)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/ra)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/tks)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/tps)")
+# install subsystem directories for pkispawn and pkidestroy
+foreach(PKI_SUBSYSTEM ${PKI_SUBSYSTEMS})
+    install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${PKI_SUBSYSTEM})")
+    install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${PKI_SUBSYSTEM})")
+endforeach(PKI_SUBSYSTEM ${PKI_SUBSYSTEMS})
 
-# install subsystem directories for pkidestroy
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/ca)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/kra)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/ocsp)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/ra)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/tks)")
-install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/tps)")
+# generate and install shared ordered 'scriptlet' symbolic links
+# for CA, KRA, OCSP, and TKS for pkispawn
+foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/initialization.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/000_initialization\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/010_instance_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webserver_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/020_webserver_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/subsystem_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/030_subsystem_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/040_war_explosion\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/050_security_databases\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_assignment.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/060_slot_assignment\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/configuration.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/070_configuration\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/finalization.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/999_finalization\")"
+    )
+endforeach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
 
-# generate and install symbolic links for pkispawn CA
-install(
-    CODE
-        "execute_process(
-            COMMAND
-                ${CMAKE_COMMAND} -E create_symlink
-                \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance.py\"
-                \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/ca/0010_instance\")"
-)
-install(
-    CODE
-        "execute_process(
-            COMMAND
-                ${CMAKE_COMMAND} -E create_symlink
-                    \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
-                    \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/ca/0020_security_databases\")"
-)
+# generate and install shared ordered 'scriptlet' symbolic links
+# for RA, and TPS for pkispawn
 
-# generate and install symbolic links for pkispawn KRA
+# generate and install shared ordered 'scriptlet' symbolic links
+# for CA, KRA, OCSP, and TKS for pkidestroy
+foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/initialization.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/000_initialization\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/configuration.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/930_configuration\")"
+    )
+#   install(CODE "execute_process(COMMAND
+#       ${CMAKE_COMMAND} -E create_symlink
+#       \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_assignment.py\"
+#       \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_slot_assignment\")"
+#   )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/950_security_databases\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/960_war_explosion\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/subsystem_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/970_subsystem_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webserver_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/980_webserver_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/990_instance_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/finalization.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/999_finalization\")"
+    )
+endforeach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
 
-# generate and install symbolic links for pkispawn OCSP
-
-# generate and install symbolic links for pkispawn RA
-
-# generate and install symbolic links for pkispawn TKS
-
-# generate and install symbolic links for pkispawn TPS
-
-
-# generate and install symbolic links for pkidestroy CA
-
-# generate and install symbolic links for pkidestroy KRA
-
-# generate and install symbolic links for pkidestroy OCSP
-
-# generate and install symbolic links for pkidestroy RA
-
-# generate and install symbolic links for pkidestroy TKS
-
-# generate and install symbolic links for pkidestroy TPS
-
+# generate and install shared ordered 'scriptlet' symbolic links
+# for RA, and TPS for pkidestroy

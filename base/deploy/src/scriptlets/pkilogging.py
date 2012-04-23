@@ -15,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2011 Red Hat, Inc.
+# Copyright (C) 2012 Red Hat, Inc.
 # All rights reserved.
 #
 
@@ -31,16 +31,36 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, logger):
             os.makedirs(log_dir)
         except OSError:
             return OSError
+
+    # Establish 'file' logger using 'basicConfig()'
+    logging.LoggerAdapter(logging.getLogger(''), {'indent' : ''})
     logging.basicConfig(level=log_level,
                         format='%(asctime)s %(name)-12s ' +\
-                               '%(levelname)-8s %(message)s',
+                               '%(levelname)-8s ' +\
+                               '%(indent)s%(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=log_dir + "/" + log_name,
                         filemode='w')
-    console = logging.StreamHandler()
-    console.setLevel(console_log_level)
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-    return logging.getLogger(logger)
 
+    # Establish 'console' logger
+    console = logging.StreamHandler()
+    logging.LoggerAdapter(console, {'indent' : ''})
+    console.setLevel(console_log_level)
+    console_format = logging.Formatter('%(name)-12s: ' +\
+                                       '%(levelname)-8s ' +\
+                                       '%(indent)s%(message)s')
+    console.setFormatter(console_format)
+    logging.getLogger('').addHandler(console)
+
+    # Establish 'file' logger
+#   file = logging.FileHandler(log_dir + "/" + log_name, 'w')
+#   logging.LoggerAdapter(file, {'indent' : ''})
+#   file.setLevel(log_level)
+#   file_format = logging.Formatter('%(asctime)s %(name)-12s: ' +\
+#                                   '%(levelname)-8s ' +\
+#                                   '%(indent)s%(message)s',
+#                                   '%Y-%m-%d %H:%M:%S')
+#   file.setFormatter(file_format)
+#   logging.getLogger('').addHandler(file)
+
+    return logging.getLogger(logger)

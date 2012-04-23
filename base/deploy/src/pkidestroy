@@ -23,15 +23,16 @@
 import sys
 if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print "Python version %s.%s.%s is too old." % sys.version_info[:3]
-    print "Please upgrade to at least Python 2.7.0." 
+    print "Please upgrade to at least Python 2.7.0."
     sys.exit(1)
 try:
     import argparse
     import logging
     import os
     import pprint
+    from time import strftime as date
     from pki.deployment import pkiconfig as config
-    from pki.deployment import pkihelper
+    from pki.deployment import pkiparser as parse
     from pki.deployment import pkilogging
     from pki.deployment import pkimessages as log
 except ImportError:
@@ -52,23 +53,34 @@ def main(argv):
     if not os.geteuid() == 0:
         sys.exit("'%s' must be run as root!" % argv[0])
 
+    # Set the umask
+    os.umask(config.PKI_DEPLOYMENT_DEFAULT_UMASK)
+
+    # Generate a timestamp
+    config.pki_timestamp = date('%Y%m%d%H%M%S')
+
     # Initialize 'pretty print' for objects
     pp = pprint.PrettyPrinter(indent=4)
 
     # Read and process command-line arguments.
-    pkihelper.process_command_line_arguments(argv)
+    parse.process_command_line_arguments(argv)
 
     # Enable 'pkidestroy' logging.
-    config.pki_log_dir = config.pki_root_prefix +\
-                         config.PKIDESTROY_LOG_PATH
-    config.pki_log_name = config.PKIDESTROY_LOG_PREFIX +\
-                          config.pki_subsystem.lower() +\
-                          config.PKIDESTROY_LOG_SUFFIX
+    if not config.pki_dry_run_flag:
+        config.pki_log_dir = config.pki_root_prefix +\
+                             "/var/log"
+        config.pki_log_name = "pki" + "-" +\
+                              config.pki_subsystem.lower() +\
+                              "-" + "destroy" + "." +\
+                              config.pki_timestamp + "." + "log"
+    else:
+        config.pki_log_dir = "/dev"
+        config.pki_log_name = "null"
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,
                                       config.pki_log_level,
                                       config.pki_console_log_level,
-                                      config.PKIDESTROY_LOGGER)
+                                      "pkidestroy")
     if rv != OSError:
         config.pki_log = rv
     else:
@@ -76,17 +88,24 @@ def main(argv):
         sys.exit(1)
 
     # Read the specified PKI configuration file.
-    rv = pkihelper.read_pki_configuration_file()
+    rv = parse.read_pki_configuration_file()
     if rv != 0:
-        config.pki_log.error(PKI_UNABLE_TO_PARSE_1, rv)
+        config.pki_log.error(PKI_UNABLE_TO_PARSE_1, rv,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
     else:
-        config.pki_log.debug(log.PKI_DICTIONARY_COMMON)
-        config.pki_log.debug(pp.pformat(config.pki_common_dict))
-        config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER)
-        config.pki_log.debug(pp.pformat(config.pki_web_server_dict))
-        config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM)
-        config.pki_log.debug(pp.pformat(config.pki_subsystem_dict))
+        config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        config.pki_log.debug(pp.pformat(config.pki_common_dict),
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        config.pki_log.debug(pp.pformat(config.pki_web_server_dict),
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        config.pki_log.debug(pp.pformat(config.pki_subsystem_dict),
+                             extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Override PKI configuration file values with 'custom' command-line values.
     if not config.pki_instance_name is None:
@@ -101,51 +120,56 @@ def main(argv):
     if not config.pki_ajp_port is None:
         config.pki_web_server_dict['pki_ajp_port'] =\
             config.pki_ajp_port
-    config.pki_log.debug(log.PKI_DICTIONARY_COMMON)
-    config.pki_log.debug(pp.pformat(config.pki_common_dict))
-    config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER)
-    config.pki_log.debug(pp.pformat(config.pki_web_server_dict))
-    config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM)
-    config.pki_log.debug(pp.pformat(config.pki_subsystem_dict))
+    config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pp.pformat(config.pki_common_dict),
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pp.pformat(config.pki_web_server_dict),
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pp.pformat(config.pki_subsystem_dict),
+                         extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
-    pkihelper.create_pki_master_dictionary()
-    config.pki_log.debug(log.PKI_DICTIONARY_MASTER)
-    config.pki_log.debug(pp.pformat(config.pki_master_dict))
+    parse.compose_pki_master_dictionary()
+    config.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
+                                                config.pki_log_name
+    config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pp.pformat(config.pki_master_dict),
+                         extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Remove the specified PKI subsystem.
-    pki_scriptlets_path = config.pki_root_prefix +\
-                          config.PKIDESTROY_PATH +\
+    pki_scriptlets_path = "/usr/share/pki/deployment/destroy" +\
                           "/" + config.pki_subsystem.lower()
     if not os.path.exists(pki_scriptlets_path) or\
        not os.path.isdir(pki_scriptlets_path):
         config.pki_log.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                             pki_scriptlets_path)
+                             pki_scriptlets_path,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
     pki_subsystem_scriptlets = os.listdir(pki_scriptlets_path)
     pki_subsystem_scriptlets.sort()
 
     # Process the various "scriptlets" for the specified PKI subsystem.
     rv = 0
-    config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
-                        config.pki_subsystem,
-                        config.pki_master_dict['pki_instance_name'])
     for pki_scriptlet in pki_subsystem_scriptlets:
-        scriptlet = __import__(config.PKI_DEPLOYMENT_SCRIPTLETS_MODULE +\
-                               '.' + pki_scriptlet[5:],
-                               fromlist = [pki_scriptlet[5:]])
+        scriptlet = __import__("pki.deployment" +\
+                               "." + pki_scriptlet[4:],
+                               fromlist = [pki_scriptlet[4:]])
         instance = scriptlet.PkiScriptlet()
         rv = instance.destroy()
         if rv != 0:
             sys.exit(1)
-    config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
-                        config.pki_subsystem,
-                        config.pki_master_dict['pki_instance_name'])
-    config.pki_log.debug(log.PKI_DICTIONARY_MASTER)
-    config.pki_log.debug(pp.pformat(config.pki_master_dict))
+    config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pp.pformat(config.pki_master_dict),
+                         extra=config.PKI_INDENTATION_LEVEL_0)
 
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
     main(sys.argv)
-

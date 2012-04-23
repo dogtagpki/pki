@@ -26,26 +26,26 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Security Database Classes
+# PKI Deployment Instance Population Classes
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
-        config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
+        config.pki_log.info(log.CONFIGURATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info("NOT YET IMPLEMENTED",
                             extra=config.PKI_INDENTATION_LEVEL_2)
         return self.rv
 
     def respawn(self):
-        config.pki_log.info(log.SECURITY_DATABASES_RESPAWN_1, __name__,
+        config.pki_log.info(log.CONFIGURATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info("NOT YET IMPLEMENTED",
                             extra=config.PKI_INDENTATION_LEVEL_2)
         return self.rv
 
     def destroy(self):
-        config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
+        config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info("NOT YET IMPLEMENTED",
                             extra=config.PKI_INDENTATION_LEVEL_2)

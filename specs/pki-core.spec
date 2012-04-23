@@ -63,6 +63,12 @@ BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    tomcatjss >= 2.0.0
 %endif
 %endif
+# Add the following build-time requirements to support the "pki-deploy" package
+BuildRequires:    pki-common-theme
+BuildRequires:    pki-ca-theme
+BuildRequires:    pki-kra-theme
+BuildRequires:    pki-ocsp-theme
+BuildRequires:    pki-tks-theme
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -761,8 +767,8 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
 # Create symlink to the pki-jndi-realm jar
-mkdir -p %{buildroot}%{_javadir}/tomcat6
-ln -s -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
+%{__mkdir_p} %{buildroot}%{_javadir}/tomcat6
+%{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
@@ -785,6 +791,21 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
   done                                                                       \
 fi                                                                           \
 )
+
+# Create PKI subsystem "war" files
+for subsystem in ca kra ocsp tks; do
+    echo "Constructing '${subsystem}.war' . . ."
+    %{__mkdir_p} %{buildroot}%{_datadir}/pki/${subsystem}/war
+    %{__cp} -r %{_datadir}/pki/common-ui/admin %{buildroot}%{_datadir}/pki/${subsystem}/war
+    %{__cp} -r %{_datadir}/pki/common-ui/css %{buildroot}%{_datadir}/pki/${subsystem}/war
+    %{__cp} -r %{_datadir}/pki/common-ui/img %{buildroot}%{_datadir}/pki/${subsystem}/war
+    %{__cp} -r %{_datadir}/pki/${subsystem}-ui/webapps/${subsystem}/* %{buildroot}%{_datadir}/pki/${subsystem}/war
+    %{__cp} -r %{buildroot}%{_datadir}/pki/${subsystem}/webapps/${subsystem}/WEB-INF %{buildroot}%{_datadir}/pki/${subsystem}/war
+    cd %{buildroot}%{_datadir}/pki/${subsystem}/war
+    jar -cvMf ../${subsystem}.war *
+    %{__rm} -rf %{buildroot}%{_datadir}/pki/${subsystem}/war/*
+    %{__mv} ../${subsystem}.war %{buildroot}%{_datadir}/pki/${subsystem}/war
+done
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -1216,8 +1237,9 @@ fi
 %{_datadir}/pki/ca/emails/
 %dir %{_datadir}/pki/ca/profiles
 %{_datadir}/pki/ca/profiles/ca/
-%{_datadir}/pki/ca/webapps/
 %{_datadir}/pki/ca/setup/
+%{_datadir}/pki/ca/war/
+%{_datadir}/pki/ca/webapps/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
 %if 0%{?fedora} >= 15
@@ -1245,6 +1267,7 @@ fi
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
+%{_datadir}/pki/kra/war/
 %{_datadir}/pki/kra/webapps/
 %dir %{_localstatedir}/lock/pki/kra
 %dir %{_localstatedir}/run/pki/kra
@@ -1273,6 +1296,7 @@ fi
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
+%{_datadir}/pki/ocsp/war/
 %{_datadir}/pki/ocsp/webapps/
 %dir %{_localstatedir}/lock/pki/ocsp
 %dir %{_localstatedir}/run/pki/ocsp
@@ -1301,6 +1325,7 @@ fi
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
+%{_datadir}/pki/tks/war/
 %{_datadir}/pki/tks/webapps/
 %dir %{_localstatedir}/lock/pki/tks
 %dir %{_localstatedir}/run/pki/tks
