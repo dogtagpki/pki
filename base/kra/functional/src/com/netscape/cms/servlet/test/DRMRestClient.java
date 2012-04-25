@@ -2,6 +2,7 @@ package com.netscape.cms.servlet.test;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,16 +12,18 @@ import java.util.Enumeration;
 import java.util.Iterator;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -53,7 +56,6 @@ public class DRMRestClient {
 
             //For now lets just accept the server cert. This is a test tool, being
             // pointed at a well know kra instance.
-
 
             if (servercert != null) {
                 System.out.println("Peer cert details: " +
@@ -94,50 +96,77 @@ public class DRMRestClient {
         }
     }
 
-    private  class JSSProtocolSocketFactory implements ProtocolSocketFactory {
+    private class JSSProtocolSocketFactory implements SchemeSocketFactory, LayeredSchemeSocketFactory {
 
         @Override
-        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+        public Socket createSocket(HttpParams params)
+                throws IOException {
 
-            SSLSocket sock = createJSSSocket(host,port, null, 0, null);
-            return sock;
+            return null;
+
         }
 
         @Override
-        public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException,
+        public Socket connectSocket(Socket sock,
+                InetSocketAddress remoteAddress,
+                InetSocketAddress localAddress,
+                HttpParams params)
+                throws IOException,
+                UnknownHostException,
+                ConnectTimeoutException {
+
+            SSLSocket socket;
+
+            String hostName = null;
+            int port = 0;
+            if (remoteAddress != null) {
+                hostName = remoteAddress.getHostName();
+                port = remoteAddress.getPort();
+
+            }
+
+            int localPort = 0;
+            InetAddress localAddr = null;
+
+            if (localAddress != null) {
+                localPort = localAddress.getPort();
+                localAddr = localAddress.getAddress();
+            }
+
+            if (sock == null) {
+                socket = new SSLSocket(InetAddress.getByName(hostName),
+                        port,
+                        localAddr,
+                        localPort,
+                        new ServerCertApprovalCB(),
+                        null);
+
+            } else {
+                socket = new SSLSocket(sock, hostName, new ServerCertApprovalCB(), null);
+            }
+
+            if (socket != null && clientCertNickname != null) {
+                socket.setClientCertNickname(clientCertNickname);
+            }
+
+            return socket;
+        }
+
+        @Override
+        public boolean isSecure(Socket sock) {
+            //We only use this factory in the case of SSL Connections
+            return true;
+        }
+
+        @Override
+        public Socket createLayeredSocket(Socket arg0, String arg1, int arg2, boolean arg3) throws IOException,
                 UnknownHostException {
-
-            SSLSocket sock = createJSSSocket(host,port, clientHost, clientPort, null);
-            return sock;
+            //This method implementation is required to get SSL working.
+            return null;
         }
 
-        @Override
-        public Socket createSocket(String host, int port, InetAddress localAddress, int localPort, HttpConnectionParams params)
-                throws IOException, UnknownHostException, ConnectTimeoutException {
-
-           SSLSocket sock = createJSSSocket(host, port, localAddress, localPort, null);
-           return sock;
-        }
     }
 
-    private SSLSocket createJSSSocket(String host, int port, InetAddress localAddress,
-            int localPort, SSLClientCertificateSelectionCallback clientCertSelectionCallback)
-            throws IOException, UnknownHostException, ConnectTimeoutException {
-
-        SSLSocket sock = new SSLSocket(InetAddress.getByName(host),
-                port,
-                localAddress,
-                localPort,
-                new ServerCertApprovalCB(),
-                null);
-
-        if(sock != null && clientCertNickname != null) {
-            sock.setClientCertNickname(clientCertNickname);
-        }
-
-        return  sock;
-
-    }
     private KeyResource keyClient;
     private KeysResource keysClient;
     private KeyRequestsResource keyRequestsClient;
@@ -152,23 +181,23 @@ public class DRMRestClient {
         // a valid CryptoManager and CryptoToken
         // optional clientCertNickname is provided for use if required.
 
-
         URI uri = new URI(baseUri);
 
         String protocol = uri.getScheme();
         int port = uri.getPort();
 
-        clientCertNickname = null;
-        if(protocol != null && protocol.equals("https")) {
-            if (clientCertNick != null) {
-                clientCertNickname = clientCertNick;
-            }
+        clientCertNickname = clientCertNick;
+        HttpClient httpclient = new DefaultHttpClient();
+        if (protocol != null && protocol.equals("https")) {
 
-            Protocol.registerProtocol("https",
-                new Protocol(protocol, new JSSProtocolSocketFactory(), port));
+            Scheme scheme = new Scheme("https", port, new JSSProtocolSocketFactory());
+
+            // Register for port 443 our SSLSocketFactory to the ConnectionManager
+            httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
+
         }
 
-        ClientExecutor executor = new ApacheHttpClient4Executor();
+        ClientExecutor executor = new ApacheHttpClient4Executor(httpclient);
 
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.addClientErrorInterceptor(new DRMErrorInterceptor());
@@ -183,7 +212,8 @@ public class DRMRestClient {
 
     public String getTransportCert() {
         @SuppressWarnings("unchecked")
-        ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient.getTransportCert();
+        ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient
+                .getTransportCert();
         CertificateData certData = response.getEntity();
         String transportCert = certData.getB64();
         return transportCert;
@@ -192,7 +222,7 @@ public class DRMRestClient {
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
         KeyRequestInfos infos = keyRequestsClient.listRequests(
                 requestState, requestType, null, new RequestId(0), 100, 100, 10
-        );
+                );
         Collection<KeyRequestInfo> list = infos.getRequests();
         return list;
     }
