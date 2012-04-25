@@ -384,10 +384,16 @@ public class PKIJNDIRealm extends JNDIRealm {
             if (isEntryNegative) {
                 allowed = !allowed;
             }
+            
+            // Our current ACLs require that every entry passes for
+            // the entire ACL to pass.
+            // For some reason the original code allows the negative acls (deny)
+            // to be evaluated first or second based on configuration. Here, simply
+            // traverse the list as is.
 
-            //ToDo:
-            // Handle the more than one entry case.
-            // What to do if one of them fails.
+            if (!allowed) {
+                break;
+            }
         }
 
         return allowed;

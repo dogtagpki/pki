@@ -1093,6 +1093,7 @@ set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle ja
 # build pki jndi realm
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore/realm)
 add_jar(pki-jndi-realm ${pki-jndi-realm_SRCS})
+add_dependencies(pki-jndi-realm pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore pki-cmsbundle)
 install_jar(pki-jndi-realm ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_JNDI_REALM_JAR ${pki-jndi-realm_JAR_FILE} CACHE INTERNAL "pki-jndi-realm jar file")
 
