@@ -93,18 +93,16 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             Context context) {
         context.put("title", "Subsystem Type");
         IConfigStore config = CMS.getConfigStore();
-        String session_id = request.getParameter("session_id");
-        if (session_id != null) {
-            CMS.debug("CreateSubsystemPanel setting session id.");
-            CMS.setConfigSDSessionId(session_id);
-        }
 
-        String errorString = "";
+        try {
+            String session_id = request.getParameter("session_id");
+            if (session_id != null) {
+                CMS.debug("CreateSubsystemPanel setting session id.");
+                CMS.setConfigSDSessionId(session_id);
+            }
 
-        if (isPanelDone()) {
-            try {
+            if (isPanelDone()) {
                 String s = config.getString("preop.subsystem.select");
-
                 if (s.equals("new")) {
                     context.put("check_newsubsystem", "checked");
                     context.put("check_clonesubsystem", "");
@@ -112,26 +110,14 @@ public class CreateSubsystemPanel extends WizardPanelBase {
                     context.put("check_newsubsystem", "");
                     context.put("check_clonesubsystem", "checked");
                 }
-                context.put("subsystemName",
-                        config.getString("preop.subsystem.name"));
-            } catch (Exception e) {
-                CMS.debug(e.toString());
+                context.put("subsystemName", config.getString("preop.subsystem.name"));
+            } else {
+                context.put("check_newsubsystem", "checked");
+                context.put("check_clonesubsystem", "");
+                context.put("subsystemName", config.getString("preop.system.fullname"));
             }
-        } else {
-            context.put("check_newsubsystem", "checked");
-            context.put("check_clonesubsystem", "");
-            try {
-                context.put("subsystemName",
-                        config.getString("preop.system.fullname"));
-            } catch (Exception e) {
-                CMS.debug(e.toString());
-            }
-        }
 
-        String cstype = "";
-
-        try {
-            cstype = config.getString("cs.type", "");
+            String cstype = config.getString("cs.type", "");
             context.put("cstype", cstype);
             context.put("wizardname", config.getString("preop.wizard.name"));
             context.put("systemname", config.getString("preop.system.name"));
@@ -141,35 +127,48 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             context.put("https_agent_port", CMS.getAgentPort());
             context.put("https_ee_port", CMS.getEESSLPort());
             context.put("https_admin_port", CMS.getAdminPort());
-        } catch (EBaseException e) {
-        }
 
-        Vector<String> v = getUrlListFromSecurityDomain(config, cstype, "SecurePort");
-
-        StringBuffer list = new StringBuffer();
-        int size = v.size();
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                list.append(v.elementAt(i));
-            } else {
-                list.append(v.elementAt(i));
-                list.append(",");
+            String domainType = config.getString("preop.securitydomain.select");
+            Vector<String> v = null;
+            if (!domainType.equals("new")) {
+                try {
+                    v = ConfigurationUtils.getUrlListFromSecurityDomain(config, cstype, "SecurePort");
+                } catch (Exception e) {
+                    // note: this is OK for a new master ca in a new domain
+                    CMS.debug("Exception thrown when obtaining URL List from security domain:" + e);
+                    e.printStackTrace();
+                }
             }
-        }
 
-        try {
+            if (v == null) {
+                v = new Vector<String>();
+            }
+
+            StringBuffer list = new StringBuffer();
+            int size = v.size();
+            for (int i = 0; i < size; i++) {
+                if (i == size - 1) {
+                    list.append(v.elementAt(i));
+                } else {
+                    list.append(v.elementAt(i));
+                    list.append(",");
+                }
+            }
+
             config.putString("preop.master.list", list.toString());
             config.commit(false);
+
+            if (list.length() == 0)
+                context.put("disableClone", "true");
+
+            context.put("panel", "admin/console/config/createsubsystempanel.vm");
+            context.put("urls", v);
+            context.put("errorString", "");
         } catch (Exception e) {
-            errorString = "Internal error, cs.type is missing from CS.cfg";
+            e.printStackTrace();
+            context.put("errorString", e.toString());
+            CMS.debug("CreateSubsystemPanel: Exception thrown: " + e);
         }
-
-        if (list.length() == 0)
-            context.put("disableClone", "true");
-
-        context.put("panel", "admin/console/config/createsubsystempanel.vm");
-        context.put("errorString", errorString);
-        context.put("urls", v);
     }
 
     /**
@@ -186,7 +185,6 @@ public class CreateSubsystemPanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-        String errorString = "";
         IConfigStore config = CMS.getConfigStore();
         String select = HttpInput.getID(request, "choice");
 
@@ -196,43 +194,30 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             throw new IOException("choice not found");
         }
 
-        config.putString("preop.subsystem.name",
-                HttpInput.getName(request, "subsystemName"));
-        if (select.equals("newsubsystem")) {
-            config.putString("preop.subsystem.select", "new");
-            config.putString("subsystem.select", "New");
-        } else if (select.equals("clonesubsystem")) {
-            String cstype = "";
-            try {
-                cstype = config.getString("cs.type", "");
-            } catch (Exception e) {
-            }
+        try {
+            config.putString("preop.subsystem.name", HttpInput.getName(request, "subsystemName"));
 
-            cstype = toLowerCaseSubsystemType(cstype);
+            if (select.equals("newsubsystem")) {
+                config.putString("preop.subsystem.select", "new");
+                config.putString("subsystem.select", "New");
+            } else if (select.equals("clonesubsystem")) {
+                config.putString("preop.subsystem.select", "clone");
+                config.putString("subsystem.select", "Clone");
 
-            config.putString("preop.subsystem.select", "clone");
-            config.putString("subsystem.select", "Clone");
+                String lists = config.getString("preop.cert.list", "");
+                StringTokenizer t = new StringTokenizer(lists, ",");
+                while (t.hasMoreTokens()) {
+                    String tag = t.nextToken();
+                    if (tag.equals("sslserver"))
+                        config.putBoolean(PCERT_PREFIX + tag + ".enable", true);
+                    else
+                        config.putBoolean(PCERT_PREFIX + tag + ".enable", false);
+                }
 
-            String lists = "";
-            try {
-                lists = config.getString("preop.cert.list", "");
-            } catch (Exception ee) {
-            }
+                // get the master CA
+                String index = request.getParameter("urls");
+                String url = "";
 
-            StringTokenizer t = new StringTokenizer(lists, ",");
-            while (t.hasMoreTokens()) {
-                String tag = t.nextToken();
-                if (tag.equals("sslserver"))
-                    config.putBoolean(PCERT_PREFIX + tag + ".enable", true);
-                else
-                    config.putBoolean(PCERT_PREFIX + tag + ".enable", false);
-            }
-
-            // get the master CA
-            String index = request.getParameter("urls");
-            String url = "";
-
-            try {
                 int x = Integer.parseInt(index);
                 String list = config.getString("preop.master.list", "");
                 StringTokenizer tokenizer = new StringTokenizer(list, ",");
@@ -240,55 +225,45 @@ public class CreateSubsystemPanel extends WizardPanelBase {
 
                 while (tokenizer.hasMoreTokens()) {
                     url = tokenizer.nextToken();
-                    if (counter == x) {
-                        break;
-                    }
+                    if (counter == x) break;
                     counter++;
                 }
-            } catch (Exception e) {
+
+                url = url.substring(url.indexOf("http"));
+
+                URL u = new URL(url);
+                String host = u.getHost();
+                int https_ee_port = u.getPort();
+
+                String domainXML = config.getString("preop.domainXML");
+
+                // check URI and update preop.master port entries
+                boolean validUri = ConfigurationUtils.isValidCloneURI(domainXML, host, https_ee_port);
+                if (!validUri) {
+                    throw new IOException("Invalid clone URI provided.  Does not match the available subsystems in " +
+                            "the security domain");
+                }
+
+                ConfigurationUtils.importCertChain(host, https_ee_port, "/ca/ee/ca/getCertChain", "clone");
+            } else {
+                CMS.debug("CreateSubsystemPanel: invalid choice " + select);
+                context.put("updateStatus", "failure");
+                throw new IOException("invalid choice " + select);
             }
 
-            url = url.substring(url.indexOf("http"));
-
-            URL u = new URL(url);
-            String host = u.getHost();
-            int https_ee_port = u.getPort();
-
-            String https_admin_port = getSecurityDomainAdminPort(config,
-                                                                  host,
-                                                                  String.valueOf(https_ee_port),
-                                                                  cstype);
-
-            config.putString("preop.master.hostname", host);
-            config.putInteger("preop.master.httpsport", https_ee_port);
-            config.putString("preop.master.httpsadminport", https_admin_port);
-
-            ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-            if (cstype.equals("ca")) {
-                updateCertChainUsingSecureEEPort(config, "clone", host, https_ee_port,
-                                 true, context, certApprovalCallback);
-            }
-
-            getTokenInfo(config, cstype, host, https_ee_port, true, context,
-                    certApprovalCallback);
-        } else {
-            CMS.debug("CreateSubsystemPanel: invalid choice " + select);
-            errorString = "Invalid choice";
-            context.put("updateStatus", "failure");
-            throw new IOException("invalid choice " + select);
-        }
-
-        try {
             config.commit(false);
-        } catch (EBaseException e) {
+        } catch (Exception e) {
+            CMS.debug("CreateSubsystemPanel: Exception thrown : " + e);
+            context.put("errorString", e.toString());
+            context.put("updateStatus", "failure");
+            throw new IOException(e);
         }
 
-        context.put("errorString", errorString);
         context.put("updateStatus", "success");
     }
 
     /**
-     * If validiate() returns false, this method will be called.
+     * If validate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,

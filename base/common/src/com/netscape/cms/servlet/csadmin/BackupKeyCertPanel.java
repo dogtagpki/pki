@@ -17,14 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.CharConversionException;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
-import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -32,33 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.context.Context;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.ASN1Value;
-import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.Cipher;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
-import org.mozilla.jss.crypto.PBEAlgorithm;
-import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs12.AuthenticatedSafes;
-import org.mozilla.jss.pkcs12.CertBag;
-import org.mozilla.jss.pkcs12.PFX;
-import org.mozilla.jss.pkcs12.PasswordConverter;
-import org.mozilla.jss.pkcs12.SafeBag;
-import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
-import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -66,7 +32,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.PropertySet;
 import com.netscape.certsrv.util.HttpInput;
 import com.netscape.cms.servlet.wizard.WizardServlet;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class BackupKeyCertPanel extends WizardPanelBase {
 
@@ -199,20 +164,25 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
 
-        String select = HttpInput.getID(request, "choice");
-        if (select.equals("backupkey")) {
-            CMS.debug("BackupKeyCertPanel update: backup");
-            config.putBoolean("preop.backupkeys.enable", true);
-            backupKeysCerts(request);
-        } else {
-            CMS.debug("BackupKeyCertPanel update: no backup");
-            config.putBoolean("preop.backupkeys.enable", false);
-        }
-
-        config.putBoolean("preop.backupkeycert.done", true);
         try {
-            config.commit(false);
-        } catch (EBaseException e) {
+            String select = HttpInput.getID(request, "choice");
+            String pwd = request.getParameter("__pwd");
+            if (select.equals("backupkey")) {
+                CMS.debug("BackupKeyCertPanel update: backup");
+                config.putBoolean("preop.backupkeys.enable", true);
+                ConfigurationUtils.backupKeys(pwd, null);
+            } else {
+                CMS.debug("BackupKeyCertPanel update: no backup");
+                config.putBoolean("preop.backupkeys.enable", false);
+            }
+
+            config.putBoolean("preop.backupkeycert.done", true);
+                config.commit(false);
+        } catch (Exception e) {
+            CMS.debug("BackupKeyertPanel: update(): Exception thrown " + e);
+            e.printStackTrace();
+            context.put("updateStatus", "failure");
+            throw new IOException(e);
         }
         context.put("updateStatus", "success");
     }
@@ -241,210 +211,5 @@ public class BackupKeyCertPanel extends WizardPanelBase {
         context.put("pwdagain", "");
         context.put("title", "Export Keys and Certificates");
         context.put("panel", "admin/console/config/backupkeycertpanel.vm");
-    }
-
-    public void backupKeysCerts(HttpServletRequest request)
-            throws IOException {
-        CMS.debug("BackupKeyCertPanel backupKeysCerts: start");
-        IConfigStore cs = CMS.getConfigStore();
-        String certlist = "";
-        try {
-            certlist = cs.getString("preop.cert.list");
-        } catch (Exception e) {
-        }
-
-        StringTokenizer st = new StringTokenizer(certlist, ",");
-        CryptoManager cm = null;
-        try {
-            cm = CryptoManager.getInstance();
-        } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel::backupKeysCerts() - "
-                     + "Exception=" + e.toString());
-            throw new IOException(e.toString());
-        }
-
-        String pwd = request.getParameter("__pwd");
-        Password pass = new org.mozilla.jss.util.Password(pwd.toCharArray());
-        SEQUENCE encSafeContents = new SEQUENCE();
-        SEQUENCE safeContents = new SEQUENCE();
-        while (st.hasMoreTokens()) {
-            String t = st.nextToken();
-            if (t.equals("sslserver"))
-                continue;
-            String nickname = "";
-            String modname = "";
-            try {
-                nickname = cs.getString("preop.cert." + t + ".nickname");
-                modname = cs.getString("preop.module.token");
-            } catch (Exception e) {
-            }
-            if (!modname.equals("Internal Key Storage Token"))
-                nickname = modname + ":" + nickname;
-
-            X509Certificate x509cert = null;
-            byte localKeyId[] = null;
-            try {
-                x509cert = cm.findCertByNickname(nickname);
-                localKeyId = addCertBag(x509cert, nickname, safeContents);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel: Exception=" + e.toString());
-                throw new IOException("Failed to create pkcs12 file.");
-            }
-
-            try {
-                PrivateKey pkey = cm.findPrivKeyByCert(x509cert);
-                addKeyBag(pkey, x509cert, pass, localKeyId, encSafeContents);
-            } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel: Exception=" + e.toString());
-                throw new IOException("Failed to create pkcs12 file.");
-            }
-        } //while loop
-
-        X509Certificate[] cacerts = cm.getCACerts();
-
-        for (int i = 0; i < cacerts.length; i++) {
-            //String nickname = cacerts[i].getSubjectDN().toString();
-            String nickname = null;
-            try {
-                addCertBag(cacerts[i], nickname, safeContents);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel backKeysCerts: Exception=" + e.toString());
-                throw new IOException("Failed to create pkcs12 file.");
-            }
-        }
-
-        try {
-            AuthenticatedSafes authSafes = new AuthenticatedSafes();
-            authSafes.addSafeContents(safeContents);
-            authSafes.addSafeContents(encSafeContents);
-            PFX pfx = new PFX(authSafes);
-            pfx.computeMacData(pass, null, 5);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            pfx.encode(bos);
-            byte[] output = bos.toByteArray();
-            cs.putString("preop.pkcs12", CryptoUtil.byte2string(output));
-            pass.clear();
-            cs.commit(false);
-        } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel backupKeysCerts: Exception=" + e.toString());
-        }
-    }
-
-    private void addKeyBag(PrivateKey pkey, X509Certificate x509cert,
-            Password pass, byte[] localKeyId, SEQUENCE safeContents)
-            throws IOException {
-        try {
-            PasswordConverter passConverter = new PasswordConverter();
-
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-            byte salt[] = random.generateSeed(4); // 4 bytes salt
-            byte[] priData = getEncodedKey(pkey);
-
-            PrivateKeyInfo pki = (PrivateKeyInfo)
-                    ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
-            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                    pass, salt, 1, passConverter, pki);
-            SET keyAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(), localKeyId);
-            SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
-                    key, keyAttrs);
-            safeContents.addElement(keyBag);
-        } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel getKeyBag: Exception=" + e.toString());
-            throw new IOException("Failed to create pk12 file.");
-        }
-    }
-
-    private byte[] addCertBag(X509Certificate x509cert, String nickname,
-            SEQUENCE safeContents) throws IOException {
-        byte[] localKeyId = null;
-        try {
-            ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-            localKeyId = createLocalKeyId(x509cert);
-            SET certAttrs = null;
-            if (nickname != null)
-                certAttrs = createBagAttrs(nickname, localKeyId);
-            SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-                    new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
-            safeContents.addElement(certBag);
-        } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel addCertBag: " + e.toString());
-            throw new IOException("Failed to create pk12 file.");
-        }
-
-        return localKeyId;
-    }
-
-    private byte[] getEncodedKey(PrivateKey pkey) {
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = cm.getInternalKeyStorageToken();
-            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-            SymmetricKey sk = kg.generate();
-            KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-            IVParameterSpec param = new IVParameterSpec(iv);
-            wrapper.initWrap(sk, param);
-            byte[] enckey = wrapper.wrap(pkey);
-            Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-            c.initDecrypt(sk, param);
-            byte[] recovered = c.doFinal(enckey);
-            return recovered;
-        } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel getEncodedKey: Exception=" + e.toString());
-        }
-
-        return null;
-    }
-
-    private byte[] createLocalKeyId(X509Certificate cert)
-            throws IOException {
-        try {
-            // SHA1 hash of the X509Cert der encoding
-            byte certDer[] = cert.getEncoded();
-
-            MessageDigest md = MessageDigest.getInstance("SHA");
-
-            md.update(certDer);
-            return md.digest();
-        } catch (CertificateEncodingException e) {
-            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: " + e.toString());
-            throw new IOException("Failed to encode certificate.");
-        } catch (NoSuchAlgorithmException e) {
-            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: " + e.toString());
-            throw new IOException("No such algorithm supported.");
-        }
-    }
-
-    private SET createBagAttrs(String nickName, byte localKeyId[])
-            throws IOException {
-        try {
-            SET attrs = new SET();
-            SEQUENCE nickNameAttr = new SEQUENCE();
-
-            nickNameAttr.addElement(SafeBag.FRIENDLY_NAME);
-            SET nickNameSet = new SET();
-
-            nickNameSet.addElement(new BMPString(nickName));
-            nickNameAttr.addElement(nickNameSet);
-            attrs.addElement(nickNameAttr);
-            SEQUENCE localKeyAttr = new SEQUENCE();
-
-            localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
-            SET localKeySet = new SET();
-
-            localKeySet.addElement(new OCTET_STRING(localKeyId));
-            localKeyAttr.addElement(localKeySet);
-            attrs.addElement(localKeyAttr);
-            return attrs;
-        } catch (CharConversionException e) {
-            CMS.debug("BackupKeyCertPanel createBagAttrs: Exception=" + e.toString());
-            throw new IOException("Failed to create PKCS12 file.");
-        }
     }
 }

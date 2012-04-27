@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -177,7 +176,7 @@ public class GetCookie extends CMSServlet {
 
         if (authToken != null) {
             String uid = authToken.getInString("uid");
-            String groupname = getGroupName(uid, subsystem);
+            String groupname = ConfigurationUtils.getGroupName(uid, subsystem);
 
             if (groupname != null) {
 
@@ -267,32 +266,6 @@ public class GetCookie extends CMSServlet {
                 audit(auditMessage);
             }
         }
-    }
-
-    private String getGroupName(String uid, String subsystemname) {
-        IUGSubsystem subsystem =
-                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-        if (subsystem.isMemberOf(uid, "Enterprise CA Administrators") &&
-                subsystemname.equals("CA")) {
-            return "Enterprise CA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise KRA Administrators") &&
-                subsystemname.equals("KRA")) {
-            return "Enterprise KRA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise OCSP Administrators") &&
-                subsystemname.equals("OCSP")) {
-            return "Enterprise OCSP Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise TKS Administrators") &&
-                subsystemname.equals("TKS")) {
-            return "Enterprise TKS Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise RA Administrators") &&
-                subsystemname.equals("RA")) {
-            return "Enterprise RA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise TPS Administrators") &&
-                subsystemname.equals("TPS")) {
-            return "Enterprise TPS Administrators";
-        }
-
-        return null;
     }
 
     /**

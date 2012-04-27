@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -30,16 +29,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.pkcs.PKCS10;
 import netscape.security.util.CertPrettyPrint;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 import org.apache.velocity.context.Context;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -100,49 +92,6 @@ public class CertRequestPanel extends WizardPanelBase {
             return false;
         else
             return true;
-    }
-
-    private boolean findCertificate(String tokenname, String nickname)
-            throws IOException {
-        IConfigStore cs = CMS.getConfigStore();
-        CryptoManager cm = null;
-        try {
-            cm = CryptoManager.getInstance();
-        } catch (Exception e) {
-        }
-
-        String fullnickname = nickname;
-
-        boolean hardware = false;
-        if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")) {
-            hardware = true;
-            fullnickname = tokenname + ":" + nickname;
-        }
-
-        try {
-            X509Certificate cert = cm.findCertByNickname(fullnickname);
-            if (cert == null)
-                return false;
-            try {
-                @SuppressWarnings("unused")
-                boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
-                return true;
-            } catch (Exception ee) {
-                if (hardware) {
-                    CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname: "
-                            + fullnickname + " has been found on HSM. Please remove it before proceeding.");
-                    throw new IOException("The certificate with the same nickname: "
-                            + fullnickname + " has been found on HSM. Please remove it before proceeding.");
-                }
-                return true;
-            }
-        } catch (IOException e) {
-            CMS.debug("CertRequestPanel findCertificate: throw exception:" + e.toString());
-            throw e;
-        } catch (Exception e) {
-            CMS.debug("CertRequestPanel findCertificate: Exception=" + e.toString());
-            return false;
-        }
     }
 
     public void cleanUp() throws IOException {
@@ -208,14 +157,14 @@ public class CertRequestPanel extends WizardPanelBase {
             if (t.equals("sslserver"))
                 continue;
 
-            if (findCertificate(tokenname, nickname)) {
-                try {
+            try {
+                if (ConfigurationUtils.findCertificate(tokenname, nickname)) {
                     CMS.debug("CertRequestPanel cleanup: deleting certificate (" + nickname + ").");
-                    deleteCert(tokenname, nickname);
-                } catch (Exception e) {
-                    CMS.debug("CertRequestPanel cleanup: failed to delete certificate ("
-                            + nickname + "). Exception: " + e.toString());
+                    ConfigurationUtils.deleteCert(tokenname, nickname);
                 }
+            } catch (Exception e) {
+                CMS.debug("CertRequestPanel cleanup: failed to delete certificate ("
+                        + nickname + "). Exception: " + e.toString());
             }
         }
 
@@ -249,17 +198,14 @@ public class CertRequestPanel extends WizardPanelBase {
             Context context, String certTag, Cert cert) {
         try {
 
-            String subsystem = config.getString(
-                    PCERT_PREFIX + certTag + ".subsystem");
-
+            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
             String certs = config.getString(subsystem + "." + certTag + ".cert", "");
 
             if (cert != null) {
                 String certf = certs;
 
-                CMS.debug(
-                        "CertRequestPanel getCert: certTag=" + certTag
-                                + " cert=" + certs);
+                CMS.debug("CertRequestPanel getCert: certTag=" + certTag + " cert=" + certs);
+
                 //get and set formated cert
                 if (!certs.startsWith("...")) {
                     certf = CryptoUtil.certFormat(certs);
@@ -289,94 +235,6 @@ public class CertRequestPanel extends WizardPanelBase {
         } // try
     }
 
-    public X509Key getECCX509Key(IConfigStore config, String certTag)
-                     throws Exception {
-        X509Key pubk = null;
-        String pubKeyEncoded = config.getString(
-                    PCERT_PREFIX + certTag + ".pubkey.encoded");
-        pubk = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-        return pubk;
-    }
-
-    public X509Key getRSAX509Key(IConfigStore config, String certTag)
-                     throws Exception {
-        X509Key pubk = null;
-
-        String pubKeyModulus = config.getString(
-                    PCERT_PREFIX + certTag + ".pubkey.modulus");
-        String pubKeyPublicExponent = config.getString(
-                    PCERT_PREFIX + certTag + ".pubkey.exponent");
-        pubk = CryptoUtil.getPublicX509Key(
-                   CryptoUtil.string2byte(pubKeyModulus),
-                   CryptoUtil.string2byte(pubKeyPublicExponent));
-        return pubk;
-    }
-
-    public void handleCertRequest(IConfigStore config,
-            Context context, String certTag, Cert cert) {
-        try {
-            // get public key
-            String pubKeyType = config.getString(
-                    PCERT_PREFIX + certTag + ".keytype");
-            String algorithm = config.getString(
-                    PCERT_PREFIX + certTag + ".keyalgorithm");
-            X509Key pubk = null;
-            if (pubKeyType.equals("rsa")) {
-                pubk = getRSAX509Key(config, certTag);
-            } else if (pubKeyType.equals("ecc")) {
-                pubk = getECCX509Key(config, certTag);
-            } else {
-                CMS.debug("CertRequestPanel::handleCertRequest() - "
-                         + "pubKeyType " + pubKeyType + " is unsupported!");
-                return;
-            }
-
-            CMS.debug("CertRequestPanel: tag=" + certTag);
-            if (pubk != null) {
-                CMS.debug("CertRequestPanel: got public key");
-            } else {
-                CMS.debug("CertRequestPanel: error getting public key null");
-                return;
-            }
-
-            // get private key
-            String privKeyID = config.getString(
-                    PCERT_PREFIX + certTag + ".privkey.id");
-            CMS.debug("CertRequestPanel: privKeyID=" + privKeyID);
-            byte[] keyIDb = CryptoUtil.string2byte(privKeyID);
-
-            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
-
-            if (privk != null) {
-                CMS.debug("CertRequestPanel: got private key");
-            } else {
-                CMS.debug("CertRequestPanel: error getting private key null");
-            }
-
-            // construct cert request
-            String caDN = config.getString(PCERT_PREFIX + certTag + ".dn");
-
-            cert.setDN(caDN);
-            PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk,
-                    privk, algorithm);
-
-            CMS.debug("CertRequestPanel: created cert request");
-            byte[] certReqb = certReq.toByteArray();
-            String certReqs = CryptoUtil.base64Encode(certReqb);
-            String certReqf = CryptoUtil.reqFormat(certReqs);
-
-            String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-            config.putString(subsystem + "." + certTag + ".certreq", certReqs);
-            config.commit(false);
-            cert.setRequest(certReqf);
-        } catch (Exception e) {
-            CMS.debug("CertRequestPanel::handleCertRequest" + e.toString());
-            CMS.debug(e);
-        } // try
-
-    }
-
     /**
      * Display the panel.
      */
@@ -399,20 +257,16 @@ public class CertRequestPanel extends WizardPanelBase {
                 String certTag = st.nextToken();
 
                 try {
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-                    String nickname = config.getString(
-                            subsystem + "." + certTag + ".nickname");
-                    String tokenname = config.getString(
-                            subsystem + "." + certTag + ".tokenname");
+                    String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
+                    String nickname = config.getString(subsystem + "." + certTag + ".nickname");
+                    String tokenname = config.getString(subsystem + "." + certTag + ".tokenname");
+
                     Cert c = new Cert(tokenname, nickname, certTag);
+                    ConfigurationUtils.handleCertRequest(config, certTag, c);
 
-                    handleCertRequest(config, context, certTag, c);
-
-                    String type = config.getString(
-                            PCERT_PREFIX + certTag + ".type");
-
+                    String type = config.getString(PCERT_PREFIX + certTag + ".type");
                     c.setType(type);
+
                     boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
                     c.setEnable(enable);
                     getCert(config, context, certTag, c);
@@ -420,15 +274,12 @@ public class CertRequestPanel extends WizardPanelBase {
                     c.setSubsystem(subsystem);
                     mCerts.addElement(c);
                 } catch (Exception e) {
-                    CMS.debug(
-                            "CertRequestPanel:display() Exception caught: "
-                                    + e.toString() + " for certTag " + certTag);
+                    CMS.debug("CertRequestPanel:display() Exception caught: " + e.toString() +
+                            " for certTag " + certTag);
                 }
             }
         } catch (Exception e) {
-            CMS.debug(
-                    "CertRequestPanel:display() Exception caught: "
-                            + e.toString());
+            CMS.debug("CertRequestPanel:display() Exception caught: " + e.toString());
             System.err.println("Exception caught: " + e.toString());
 
         } // try
@@ -448,37 +299,6 @@ public class CertRequestPanel extends WizardPanelBase {
             Context context) throws IOException {
     }
 
-    private boolean findBootstrapServerCert() {
-        IConfigStore cs = CMS.getConfigStore();
-        try {
-            String instanceID = cs.getString("instanceId", "");
-            String nickname = "Server-Cert cert-" + instanceID;
-
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate cert = cm.findCertByNickname(nickname);
-            Principal issuerDN = cert.getIssuerDN();
-            Principal subjectDN = cert.getSubjectDN();
-            if (issuerDN.equals(subjectDN))
-                return true;
-        } catch (Exception e) {
-            CMS.debug("CertRequestPanel findBootstrapServerCert Exception=" + e.toString());
-        }
-
-        return false;
-    }
-
-    private void deleteBootstrapServerCert() {
-        IConfigStore cs = CMS.getConfigStore();
-        try {
-            String instanceID = cs.getString("instanceId", "");
-            String nickname = "Server-Cert cert-" + instanceID;
-
-            deleteCert("Internal Key Storage Token", nickname);
-        } catch (Exception e) {
-            CMS.debug("CertRequestPanel deleteBootstrapServerCert Exception=" + e.toString());
-        }
-    }
-
     /**
      * Commit parameter changes
      */
@@ -494,253 +314,37 @@ public class CertRequestPanel extends WizardPanelBase {
             return;
         }
 
-        try {
-            Enumeration<Cert> c = mCerts.elements();
+        Enumeration<Cert> c = mCerts.elements();
+        while (c.hasMoreElements()) {
+            Cert cert = c.nextElement();
+            if (hasErr) continue;
 
-            String tokenname = "";
+            int ret=0;
             try {
-                tokenname = config.getString("preop.module.token", "");
+                cert.setCert(HttpInput.getCert(request, cert.getCertTag()));
+                cert.setCertChain(HttpInput.getCertChain(request, cert.getCertTag() + "_cc"));
+
+                ret = ConfigurationUtils.handleCerts(cert);
+                ConfigurationUtils.setCertPermissions(cert.getCertTag());
             } catch (Exception e) {
+                CMS.debug("Exception in configuring system certificate " + cert.getCertTag() + ": " + e);
+                e.printStackTrace();
+                hasErr = true;
             }
-
-            while (c.hasMoreElements()) {
-                Cert cert = c.nextElement();
-                String certTag = cert.getCertTag();
-                String subsystem = cert.getSubsystem();
-                boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
-                if (!enable)
-                    continue;
-
-                if (hasErr)
-                    continue;
-
-                String nickname = cert.getNickname();
-
-                CMS.debug(
-                        "CertRequestPanel: update() for cert tag "
-                                + cert.getCertTag());
-                // String b64 = config.getString(CERT_PREFIX+ certTag +".cert", "");
-                String b64 = HttpInput.getCert(request, certTag);
-
-                if (cert.getType().equals("local")
-                        && b64.equals(
-                                "...certificate be generated internally...")) {
-
-                    String pubKeyType = config.getString(
-                            PCERT_PREFIX + certTag + ".keytype");
-                    X509Key x509key = null;
-                    if (pubKeyType.equals("rsa")) {
-                        x509key = getRSAX509Key(config, certTag);
-                    } else if (pubKeyType.equals("ecc")) {
-                        x509key = getECCX509Key(config, certTag);
-                    }
-
-                    if (findCertificate(tokenname, nickname)) {
-                        if (!certTag.equals("sslserver"))
-                            continue;
-                    }
-                    X509CertImpl impl = CertUtil.createLocalCert(config, x509key,
-                            PCERT_PREFIX, certTag, cert.getType(), context);
-
-                    if (impl != null) {
-                        byte[] certb = impl.getEncoded();
-                        String certs = CryptoUtil.base64Encode(certb);
-
-                        cert.setCert(certs);
-                        config.putString(subsystem + "." + certTag + ".cert", certs);
-                        /* import certificate */
-                        CMS.debug(
-                                "CertRequestPanel configCert: nickname="
-                                        + nickname);
-
-                        try {
-                            if (certTag.equals("sslserver") && findBootstrapServerCert())
-                                deleteBootstrapServerCert();
-                            if (findCertificate(tokenname, nickname))
-                                deleteCert(tokenname, nickname);
-                            if (certTag.equals("signing") && subsystem.equals("ca"))
-                                CryptoUtil.importUserCertificate(impl, nickname);
-                            else
-                                CryptoUtil.importUserCertificate(impl, nickname, false);
-                            CMS.debug(
-                                    "CertRequestPanel configCert: cert imported for certTag "
-                                            + certTag);
-                        } catch (Exception ee) {
-                            CMS.debug(
-                                    "CertRequestPanel configCert: import certificate for certTag="
-                                            + certTag + " Exception: "
-                                            + ee.toString());
-                            CMS.debug("ok");
-                            //                            hasErr = true;
-                        }
-                    }
-                } else if (cert.getType().equals("remote")) {
-                    if (b64 != null && b64.length() > 0
-                            && !b64.startsWith("...")) {
-                        String b64chain = HttpInput.getCertChain(request, certTag + "_cc");
-                        CMS.debug(
-                                "CertRequestPanel: in update() process remote...import cert");
-
-                        String input = HttpInput.getCert(request, cert.getCertTag());
-
-                        if (input != null) {
-                            try {
-                                if (certTag.equals("sslserver") && findBootstrapServerCert())
-                                    deleteBootstrapServerCert();
-                                if (findCertificate(tokenname, nickname)) {
-                                    deleteCert(tokenname, nickname);
-                                }
-                            } catch (Exception e) {
-                                CMS.debug("CertRequestPanel update (remote): deleteCert Exception=" + e.toString());
-                            }
-                            input = CryptoUtil.stripCertBrackets(input.trim());
-                            String certs = CryptoUtil.normalizeCertStr(input);
-                            byte[] certb = CryptoUtil.base64Decode(certs);
-
-                            config.putString(subsystem + "." + certTag + ".cert",
-                                    certs);
-                            try {
-                                CryptoManager cm = CryptoManager.getInstance();
-                                X509Certificate x509cert = cm.importCertPackage(
-                                        certb, nickname);
-
-                                CryptoUtil.trustCertByNickname(nickname);
-                                X509Certificate[] certchains = cm.buildCertificateChain(
-                                        x509cert);
-                                X509Certificate leaf = null;
-
-                                if (certchains != null) {
-                                    CMS.debug(
-                                            "CertRequestPanel certchains length="
-                                                    + certchains.length);
-                                    leaf = certchains[certchains.length - 1];
-                                }
-
-                                if (leaf == null) {
-                                    CMS.debug("CertRequestPanel::update() - "
-                                             + "leaf is null!");
-                                    throw new IOException("leaf is null");
-                                }
-
-                                if (/*(certchains.length <= 1) &&*/
-                                (b64chain != null && b64chain.length() != 0)) {
-                                    CMS.debug("CertRequestPanel: cert might not have contained chain...calling importCertificateChain: "
-                                            + b64chain);
-                                    try {
-                                        CryptoUtil.importCertificateChain(
-                                                CryptoUtil.normalizeCertAndReq(b64chain));
-                                    } catch (Exception e) {
-                                        CMS.debug("CertRequestPanel: importCertChain: Exception: " + e.toString());
-                                    }
-                                }
-
-                                InternalCertificate icert = (InternalCertificate) leaf;
-
-                                icert.setSSLTrust(
-                                        InternalCertificate.TRUSTED_CA
-                                                | InternalCertificate.TRUSTED_CLIENT_CA
-                                                | InternalCertificate.VALID_CA);
-                                CMS.debug(
-                                        "CertRequestPanel configCert: import certificate successfully, certTag="
-                                                + certTag);
-                            } catch (Exception ee) {
-                                CMS.debug(
-                                        "CertRequestPanel configCert: import certificate for certTag="
-                                                + certTag + " Exception: "
-                                                + ee.toString());
-                                CMS.debug("ok");
-                                //                                hasErr=true;
-                            }
-                        } else {
-                            CMS.debug("CertRequestPanel: in update() input null");
-                            hasErr = true;
-                        }
-                    } else {
-                        CMS.debug("CertRequestPanel: in update() b64 not set");
-                        hasErr = true;
-                    }
-
-                } else {
-                    b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                    String certs = CryptoUtil.normalizeCertStr(b64);
-                    byte[] certb = CryptoUtil.base64Decode(certs);
-                    X509CertImpl impl = new X509CertImpl(certb);
-                    try {
-                        if (certTag.equals("sslserver") && findBootstrapServerCert())
-                            deleteBootstrapServerCert();
-                        if (findCertificate(tokenname, nickname)) {
-                            deleteCert(tokenname, nickname);
-                        }
-                    } catch (Exception ee) {
-                        CMS.debug("CertRequestPanel update: deleteCert Exception=" + ee.toString());
-                    }
-
-                    try {
-                        if (certTag.equals("signing") && subsystem.equals("ca"))
-                            CryptoUtil.importUserCertificate(impl, nickname);
-                        else
-                            CryptoUtil.importUserCertificate(impl, nickname, false);
-                    } catch (Exception ee) {
-                        CMS.debug("CertRequestPanel: Failed to import user certificate." + ee.toString());
-                        hasErr = true;
-                    }
-                }
-
-                //update requests in request queue for local certs to allow renewal
-                if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
-                    CertUtil.updateLocalRequest(config, certTag, cert.getRequest(), "pkcs10", null);
-                }
-
-                if (certTag.equals("signing") && subsystem.equals("ca")) {
-                    String NickName = nickname;
-                    if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
-                        NickName = tokenname + ":" + nickname;
-
-                    CMS.debug("CertRequestPanel update: set trust on CA signing cert " + NickName);
-                    CryptoUtil.trustCertByNickname(NickName);
-                    CMS.reinit(ICertificateAuthority.ID);
-                }
-            } //while loop
-
-            if (hasErr == false) {
-                config.putBoolean("preop.CertRequestPanel.done", true);
+            if (ret != 0) {
+                CMS.debug("System certificates not configured " +  cert.getCertTag());
             }
-            config.commit(false);
-        } catch (Exception e) {
-            CMS.debug("CertRequestPanel: Exception caught: " + e.toString());
-            System.err.println("Exception caught: " + e.toString());
         }
+        // end new
 
-        //reset the attribute of the user certificate to u,u,u
-        String certlist = "";
-        try {
-            certlist = config.getString("preop.cert.list", "");
-            StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
-            CryptoManager cm = CryptoManager.getInstance();
-            while (tokenizer.hasMoreTokens()) {
-                String tag = tokenizer.nextToken();
-                if (tag.equals("signing"))
-                    continue;
-                String nickname = config.getString("preop.cert." + tag + ".nickname", "");
-                String tokenname = config.getString("preop.module.token", "");
-                if (!tokenname.equals("Internal Key Storage Token"))
-                    nickname = tokenname + ":" + nickname;
-                X509Certificate c = cm.findCertByNickname(nickname);
-                if (c instanceof InternalCertificate) {
-                    InternalCertificate ic = (InternalCertificate) c;
-                    ic.setSSLTrust(InternalCertificate.USER);
-                    ic.setEmailTrust(InternalCertificate.USER);
-                    if (tag.equals("audit_signing")) {
-                        ic.setObjectSigningTrust(InternalCertificate.USER
-                                | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
-                    } else {
-                        ic.setObjectSigningTrust(InternalCertificate.USER);
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
         if (!hasErr) {
+            try {
+                config.putBoolean("preop.CertRequestPanel.done", true);
+                config.commit(false);
+            } catch (EBaseException e) {
+                e.printStackTrace();
+                CMS.debug("Unable to commit changes to CS,cfg: " +e);
+            }
             context.put("updateStatus", "success");
         } else {
             context.put("updateStatus", "failure");
@@ -748,7 +352,7 @@ public class CertRequestPanel extends WizardPanelBase {
     }
 
     /**
-     * If validiate() returns false, this method will be called.
+     * If validate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,

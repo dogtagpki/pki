@@ -17,57 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.net.URLEncoder;
-import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPException;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.apache.velocity.context.Context;
-import org.mozilla.jss.asn1.SEQUENCE;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.property.PropertySet;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.util.HttpInput;
 import com.netscape.cms.servlet.wizard.WizardServlet;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.http.HttpClient;
-import com.netscape.cmsutil.http.HttpRequest;
-import com.netscape.cmsutil.http.HttpResponse;
-import com.netscape.cmsutil.http.JssSSLSocketFactory;
-import com.netscape.cmsutil.xml.XMLObject;
 
 public class AdminPanel extends WizardPanelBase {
 
     private static final String ADMIN_UID = "admin";
-    private final static String CERT_TAG = "admin";
 
     public AdminPanel() {
     }
@@ -243,383 +215,80 @@ public class AdminPanel extends WizardPanelBase {
     /**
      * Commit parameter changes
      */
-    public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+    public void update(HttpServletRequest request, HttpServletResponse response, Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
         context.put("info", "");
         context.put("import", "true");
 
-        String type = "";
-        String subsystemtype = "";
-        String selected_hierarchy = "";
-        try {
-            type = config.getString(PRE_CA_TYPE, "");
-            subsystemtype = config.getString("cs.type", "");
-            selected_hierarchy = config.getString("preop.hierarchy.select", "");
-        } catch (Exception e) {
-        }
-
-        ISubsystem ca = CMS.getSubsystem("ca");
-
-        if (ca == null) {
-            context.put("ca", "false");
-        } else {
-            context.put("ca", "true");
-        }
-        context.put("caType", type);
         String uid = HttpInput.getUID(request, "uid");
         String email = HttpInput.getEmail(request, "email");
         String name = HttpInput.getName(request, "name");
+        String pwd = HttpInput.getPassword(request, "__pwd");
+        String cert_request_type = HttpInput.getID(request, "cert_request_type");
+        String subject = request.getParameter("subject");
+        String cert_request = HttpInput.getCertRequest(request, "cert_request");
+        String profileId = HttpInput.getID(request, "profileId");
 
-        CMS.debug("AdminPanel update: email address = " + email);
-
-        config.putString("preop.admin.uid", uid);
-        config.putString("preop.admin.email", email);
-        config.putString("preop.admin.name", name);
         try {
-            createAdmin(request);
-        } catch (IOException e) {
-            context.put("errorString", "Failed to create administrator.");
-            context.put("updateStatus", "failure");
-            throw e;
-        }
+            String type = config.getString(PRE_CA_TYPE, "");
+            String subsystemtype = config.getString("cs.type", "");
+            String selected_hierarchy = config.getString("preop.hierarchy.select", "");
 
-        // REMINDER:  This panel is NOT used by "clones"
-        if (ca != null) {
-            if (selected_hierarchy.equals("root")) {
-                CMS.debug("AdminPanel update:  "
-                         + "Root CA subsystem");
+            ISubsystem ca = CMS.getSubsystem("ca");
+
+            if (ca == null) {
+                context.put("ca", "false");
             } else {
-                CMS.debug("AdminPanel update:  "
-                         + "Subordinate CA subsystem");
+                context.put("ca", "true");
             }
+            context.put("caType", type);
 
-            try {
-                createAdminCertificate(request, response, context);
-            } catch (IOException e) {
-                CMS.debug("AdminPanel update: Exception: " + e.toString());
-                context.put("errorString",
-                        "Failed to create administrator certificate.");
-                context.put("updateStatus", "failure");
-                throw e;
-            }
-        } else {
-            String ca_hostname = null;
-            int ca_port = -1;
+            config.putString("preop.admin.uid", uid);
+            config.putString("preop.admin.email", email);
+            config.putString("preop.admin.name", name);
+            ConfigurationUtils.createAdmin(uid, email, name, pwd);
 
-            // REMINDER:  This panel is NOT used by "clones"
-            CMS.debug("AdminPanel update:  "
-                         + subsystemtype
-                         + " subsystem");
+            if (ca != null) {
+                if (selected_hierarchy.equals("root")) {
+                    CMS.debug("AdminPanel update:  " + "Root CA subsystem");
+                } else {
+                    CMS.debug("AdminPanel update:  " + "Subordinate CA subsystem");
+                }
 
-            if (type.equals("sdca")) {
-                try {
+                ConfigurationUtils.createAdminCertificate(cert_request,
+                        cert_request_type, subject);
+            } else {
+                String ca_hostname = null;
+                int ca_port = -1;
+
+                CMS.debug("AdminPanel update:  " + subsystemtype + " subsystem");
+
+                if (type.equals("sdca")) {
                     ca_hostname = config.getString("preop.ca.hostname");
                     ca_port = config.getInteger("preop.ca.httpsport");
-                } catch (Exception e) {
-                }
-            } else {
-                try {
+                } else {
                     ca_hostname = config.getString("securitydomain.host", "");
                     ca_port = config.getInteger("securitydomain.httpseeport");
-                } catch (Exception e) {
                 }
+
+                ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
+                        profileId, cert_request_type, cert_request, subject);
             }
 
-            submitRequest(ca_hostname, ca_port, request, response, context);
-        }
-
-        try {
             CMS.reinit(IUGSubsystem.ID);
-        } catch (Exception e) {
-            CMS.debug("AdminPanel update: " + e.toString());
-        }
-
-        try {
             config.commit(false);
         } catch (Exception e) {
+            CMS.debug("AdminPanel update(): Exception thrown " + e);
+            e.printStackTrace();
+            context.put("updateStatus", "failure");
+            throw new IOException("Error when adding admin user" + e);
         }
 
         context.put("updateStatus", "success");
-
-    }
-
-    private void createAdmin(HttpServletRequest request) throws IOException {
-        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-        IConfigStore config = CMS.getConfigStore();
-        String groupName = null;
-
-        try {
-            groupName = config.getString(PRE_CONF_AGENT_GROUP,
-                    "Certificate Manager Agents");
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createAdmin: " + e.toString());
-        }
-
-        IUser user = null;
-        String uid = HttpInput.getUID(request, "uid");
-
-        try {
-            user = system.createUser(uid);
-            String email = HttpInput.getEmail(request, "email");
-            String name = HttpInput.getName(request, "name");
-            String pwd = HttpInput.getPassword(request, "__pwd");
-
-            user.setEmail(email);
-            user.setPassword(pwd);
-            user.setFullName(name);
-            user.setUserType("adminType");
-            user.setState("1");
-            user.setPhone("");
-            system.addUser(user);
-        } catch (LDAPException e) {
-            CMS.debug("AdminPanel createAdmin: addUser " + e.toString());
-            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                throw new IOException(e.toString());
-            }
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createAdmin: addUser " + e.toString());
-            throw new IOException(e.toString());
-        }
-
-        IGroup group = null;
-
-        try {
-            group = system.getGroupFromName(groupName);
-            if (!group.isMember(uid)) {
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-            group = system.getGroupFromName("Administrators");
-            if (!group.isMember(uid)) {
-                group.addMemberName(uid);
-                system.modifyGroup(group);
-            }
-
-            String select = config.getString("securitydomain.select", "");
-            if (select.equals("new")) {
-                group = system.getGroupFromName("Security Domain Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise CA Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise KRA Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise RA Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise TKS Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise OCSP Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-
-                group = system.getGroupFromName("Enterprise TPS Administrators");
-                if (!group.isMember(uid)) {
-                    group.addMemberName(uid);
-                    system.modifyGroup(group);
-                }
-            }
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createAdmin: modifyGroup " + e.toString());
-            throw new IOException(e.toString());
-        }
-    }
-
-    private void submitRequest(String ca_hostname, int ca_port, HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
-        IConfigStore config = CMS.getConfigStore();
-
-        String profileId = HttpInput.getID(request, "profileId");
-        if (profileId == null) {
-            try {
-                profileId = config.getString("preop.admincert.profile", "caAdminCert");
-            } catch (Exception e) {
-            }
-        }
-
-        String cert_request_type = HttpInput.getID(request, "cert_request_type");
-        String cert_request = HttpInput.getCertRequest(request, "cert_request");
-        cert_request = URLEncoder.encode(cert_request, "UTF-8");
-        String session_id = CMS.getConfigSDSessionId();
-        String subjectDN = HttpInput.getString(request, "subject");
-
-        String content =
-                "profileId="
-                        + profileId + "&cert_request_type=" + cert_request_type + "&cert_request=" + cert_request
-                        + "&xmlOutput=true&sessionID=" + session_id + "&subject=" + subjectDN;
-
-        HttpClient httpclient = new HttpClient();
-        String c = null;
-
-        try {
-            JssSSLSocketFactory factory = new JssSSLSocketFactory();
-
-            httpclient = new HttpClient(factory);
-            httpclient.connect(ca_hostname, ca_port);
-            HttpRequest httprequest = new HttpRequest();
-            httprequest.setMethod(HttpRequest.POST);
-            httprequest.setURI("/ca/ee/ca/profileSubmit");
-            httprequest.setHeader("user-agent", "HTTPTool/1.0");
-
-            httprequest.setHeader("content-length", "" + content.length());
-            httprequest.setHeader("content-type",
-                    "application/x-www-form-urlencoded");
-            httprequest.setContent(content);
-            HttpResponse httpresponse = httpclient.send(httprequest);
-
-            c = httpresponse.getContent();
-            CMS.debug("AdminPanel submitRequest: content=" + c);
-
-            // retrieve the request Id ad admin certificate
-            if (c != null) {
-                try {
-                    ByteArrayInputStream bis = new ByteArrayInputStream(
-                            c.getBytes());
-                    XMLObject parser = null;
-
-                    try {
-                        parser = new XMLObject(bis);
-                    } catch (Exception e) {
-                        CMS.debug("AdminPanel::submitRequest() - "
-                                 + "Exception=" + e.toString());
-                        throw new IOException(e.toString());
-                    }
-                    String status = parser.getValue("Status");
-
-                    CMS.debug("AdminPanel update: status=" + status);
-                    if (status.equals("2")) {
-                        //relogin to the security domain
-                        reloginSecurityDomain(response);
-                        return;
-                    } else if (!status.equals("0")) {
-                        String error = parser.getValue("Error");
-
-                        context.put("errorString", error);
-                        throw new IOException(error);
-                    }
-
-                    IConfigStore cs = CMS.getConfigStore();
-                    String id = parser.getValue("Id");
-
-                    cs.putString("preop.admincert.requestId.0", id);
-                    String serial = parser.getValue("serialno");
-
-                    cs.putString("preop.admincert.serialno.0", serial);
-                    String b64 = parser.getValue("b64");
-                    String instanceRoot = cs.getString("instanceRoot", "");
-                    String dir = instanceRoot + File.separator + "conf"
-                            + File.separator + "admin.b64";
-
-                    cs.putString("preop.admincert.b64", dir);
-                    PrintStream ps = new PrintStream(new FileOutputStream(dir));
-
-                    ps.println(b64);
-                    ps.flush();
-                    ps.close();
-                } catch (IOException ee) {
-                    context.put("errorString", ee.toString());
-                    throw ee;
-                } catch (Exception ee) {
-                    context.put("errorString", ee.toString());
-                    throw new IOException(ee.toString());
-                }
-            }
-        } catch (Exception e) {
-            CMS.debug("AdminPanel submitRequest: " + e.toString());
-        }
-    }
-
-    private void createAdminCertificate(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
-        String cert_request = HttpInput.getCertRequest(request, "cert_request");
-
-        String cert_request_type = HttpInput.getID(request, "cert_request_type");
-        IConfigStore cs = CMS.getConfigStore();
-
-        if (cs == null) {
-            CMS.debug("AdminPanel::createAdminCertificate() - cs is null!");
-            throw new IOException("cs is null");
-        }
-
-        String subject = "";
-        X509Key x509key = null;
-        if (cert_request_type.equals("crmf")) {
-            try {
-                byte[] b = CMS.AtoB(cert_request);
-                SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(b);
-                subject = CryptoUtil.getSubjectName(crmfMsgs);
-                x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
-            } catch (Exception e) {
-                CMS.debug(
-                        "AdminPanel createAdminCertificate: Exception="
-                                + e.toString());
-            }
-            // this request is from IE. The VBScript has problem of generating
-            // certificate request if the subject name has E and UID components.
-            // For now, we always hardcoded the subject DN to be cn=NAME in
-            // the IE browser.
-        } else if (cert_request_type.equals("pkcs10")) {
-            try {
-                byte[] b = CMS.AtoB(cert_request);
-                PKCS10 pkcs10 = new PKCS10(b);
-                subject = request.getParameter("subject");
-                x509key = pkcs10.getSubjectPublicKeyInfo();
-            } catch (Exception e) {
-                CMS.debug("AdminPanel createAdminCertificate: Exception="
-                        + e.toString());
-            }
-        }
-
-        if (x509key == null) {
-            CMS.debug("AdminPanel::createAdminCertificate() - x509key is null!");
-            throw new IOException("x509key is null");
-        }
-
-        try {
-            cs.putString(PCERT_PREFIX + CERT_TAG + ".dn", subject);
-            String caType = cs.getString(PCERT_PREFIX + CERT_TAG + ".type", "local");
-            X509CertImpl impl = CertUtil.createLocalCert(cs, x509key,
-                    PCERT_PREFIX, CERT_TAG, caType, context);
-
-            // update the locally created request for renewal
-            CertUtil.updateLocalRequest(cs, CERT_TAG, cert_request, cert_request_type, subject);
-
-            ISubsystem ca = CMS.getSubsystem("ca");
-            if (ca != null) {
-                createPKCS7(impl);
-            }
-            cs.putString("preop.admincert.serialno.0",
-                    impl.getSerialNumber().toString(16));
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createAdminCertificate: Exception="
-                    + e.toString());
-        }
     }
 
     /**
-     * If validiate() returns false, this method will be called.
+     * If validate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
@@ -659,32 +328,5 @@ public class AdminPanel extends WizardPanelBase {
         }
 
         return false;
-    }
-
-    private void createPKCS7(X509CertImpl cert) {
-        try {
-            IConfigStore cs = CMS.getConfigStore();
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
-            CertificateChain cachain = ca.getCACertChain();
-            X509Certificate[] cacerts = cachain.getChain();
-            X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-            int m = 1, n = 0;
-
-            for (; n < cacerts.length; m++, n++) {
-                userChain[m] = (X509CertImpl) cacerts[n];
-            }
-
-            userChain[0] = cert;
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                    new ContentInfo(new byte[0]), userChain, new SignerInfo[0]);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-            p7.encodeSignedData(bos);
-            byte[] p7Bytes = bos.toByteArray();
-            String p7Str = CMS.BtoA(p7Bytes);
-            cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createPKCS7: Failed to create pkcs7 file. Exception: " + e.toString());
-        }
     }
 }

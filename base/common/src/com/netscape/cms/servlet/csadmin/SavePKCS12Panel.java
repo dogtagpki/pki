@@ -107,7 +107,7 @@ public class SavePKCS12Panel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-        subsystemtype = toLowerCaseSubsystemType(subsystemtype);
+        subsystemtype = subsystemtype.toLowerCase();
 
         context.put("panel", "admin/console/config/savepkcs12panel.vm");
         context.put("subsystemtype", subsystemtype);

@@ -17,11 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -30,14 +27,14 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.velocity.context.Context;
+import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -46,7 +43,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.property.PropertySet;
 import com.netscape.certsrv.util.HttpInput;
 import com.netscape.cms.servlet.wizard.WizardServlet;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class NamePanel extends WizardPanelBase {
     private Vector<Cert> mCerts = null;
@@ -148,14 +144,6 @@ public class NamePanel extends WizardPanelBase {
         return false;
     }
 
-    public String capitalize(String s) {
-        if (s.length() == 0) {
-            return s;
-        } else {
-            return s.substring(0, 1).toUpperCase() + s.substring(1);
-        }
-    }
-
     /**
      * Display the panel.
      */
@@ -179,11 +167,13 @@ public class NamePanel extends WizardPanelBase {
         String select = "";
         String hselect = "";
         String cstype = "";
+        String domainType = "";
         try {
             //if CA, at the hierarchy panel, was it root or subord?
             hselect = config.getString("preop.hierarchy.select", "");
             select = config.getString("preop.subsystem.select", "");
             cstype = config.getString("cs.type", "");
+            domainType = config.getString("preop.securitydomain.select", "");
             context.put("select", select);
             if (cstype.equals("CA") && hselect.equals("root")) {
                 CMS.debug("NamePanel ca is root");
@@ -287,8 +277,20 @@ public class NamePanel extends WizardPanelBase {
         }
 
         CMS.debug("NamePanel: Ready to get SSL EE HTTPS urls");
-        Vector<String> v = getUrlListFromSecurityDomain(config, "CA", "SecurePort");
+        Vector<String> v = null;
+        if (!domainType.equals("new")) {
+            try {
+                v = ConfigurationUtils.getUrlListFromSecurityDomain(config, "CA", "SecurePort");
+            } catch (Exception e) {
+                CMS.debug("NamePanel: display(): Exception thrown in getUrlListFromSecurityDomain " + e);
+                e.printStackTrace();
+            }
+        }
+        if (v == null) {
+            v = new Vector<String>();
+        }
         v.addElement("External CA");
+
         StringBuffer list = new StringBuffer();
         int size = v.size();
 
@@ -337,297 +339,6 @@ public class NamePanel extends WizardPanelBase {
         } // while
     }
 
-    /*
-     * update some parameters for clones
-     */
-    public void updateCloneConfig(IConfigStore config)
-            throws EBaseException, IOException {
-        String cstype = config.getString("cs.type", null);
-        cstype = toLowerCaseSubsystemType(cstype);
-        if (cstype.equals("kra")) {
-            String token = config.getString(PRE_CONF_CA_TOKEN);
-            if (!token.equals("Internal Key Storage Token")) {
-                CMS.debug("NamePanel: updating configuration for KRA clone with hardware token");
-                String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
-                String storageNickname = getNickname(config, "storage");
-                String transportNickname = getNickname(config, "transport");
-
-                config.putString(subsystem + ".storageUnit.hardware", token);
-                config.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
-                config.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
-                config.commit(false);
-            } else { // software token
-                // parameters already set
-            }
-        }
-
-        // audit signing cert
-        String audit_nn = config.getString(cstype + ".audit_signing" + ".nickname", "");
-        String audit_tk = config.getString(cstype + ".audit_signing" + ".tokenname", "");
-        if (!audit_tk.equals("Internal Key Storage Token") && !audit_tk.equals("")) {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                    audit_tk + ":" + audit_nn);
-        } else {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                    audit_nn);
-        }
-    }
-
-    /*
-     * get some of the "preop" parameters to persisting parameters
-     */
-    public void updateConfig(IConfigStore config, String certTag)
-            throws EBaseException, IOException {
-        String token = config.getString(PRE_CONF_CA_TOKEN);
-        String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-        CMS.debug("NamePanel: subsystem " + subsystem);
-        String nickname = getNickname(config, certTag);
-
-        CMS.debug("NamePanel: updateConfig() for certTag " + certTag);
-        // XXX these two are used throughout the CA so have to write them
-        // should change the entire system to use the uniformed names later
-        if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
-            CMS.debug("NamePanel: setting signing nickname=" + nickname);
-            config.putString(subsystem + "." + certTag + ".cacertnickname", nickname);
-            config.putString(subsystem + "." + certTag + ".certnickname", nickname);
-        }
-
-        // if KRA, hardware token needs param "kra.storageUnit.hardware" in CS.cfg
-        String cstype = config.getString("cs.type", null);
-        cstype = toLowerCaseSubsystemType(cstype);
-        if (cstype.equals("kra")) {
-            if (!token.equals("Internal Key Storage Token")) {
-                if (certTag.equals("storage")) {
-                    config.putString(subsystem + ".storageUnit.hardware", token);
-                    config.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
-                } else if (certTag.equals("transport")) {
-                    config.putString(subsystem + ".transportUnit.nickName", token + ":" + nickname);
-                }
-            } else { // software token
-                if (certTag.equals("storage")) {
-                    config.putString(subsystem + ".storageUnit.nickName", nickname);
-                } else if (certTag.equals("transport")) {
-                    config.putString(subsystem + ".transportUnit.nickName", nickname);
-                }
-            }
-        }
-
-        String serverCertNickname = nickname;
-        String path = CMS.getConfigStore().getString("instanceRoot", "");
-        if (certTag.equals("sslserver")) {
-            if (!token.equals("Internal Key Storage Token")) {
-                serverCertNickname = token + ":" + nickname;
-            }
-            PrintStream ps = new PrintStream(new FileOutputStream(path + "/conf/serverCertNick.conf"));
-            ps.println(serverCertNickname);
-            ps.close();
-        }
-
-        config.putString(subsystem + "." + certTag + ".nickname", nickname);
-        config.putString(subsystem + "." + certTag + ".tokenname", token);
-        if (certTag.equals("audit_signing")) {
-            if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
-                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                        token + ":" + nickname);
-            } else {
-                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                        nickname);
-            }
-        }
-        /*
-        config.putString(CERT_PREFIX + certTag + ".defaultSigningAlgorithm",
-                "SHA1withRSA");
-         */
-
-        // for system certs verification
-        if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
-            config.putString(subsystem + ".cert." + certTag + ".nickname",
-                    token + ":" + nickname);
-        } else {
-            config.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
-        }
-
-        config.commit(false);
-        CMS.debug("NamePanel: updateConfig() done");
-    }
-
-    /**
-     * create and sign a cert locally (handles both "selfsign" and "local")
-     */
-    public void configCert(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context, Cert certObj) throws IOException {
-        CMS.debug("NamePanel: configCert called");
-
-        IConfigStore config = CMS.getConfigStore();
-        String caType = certObj.getType();
-        CMS.debug("NamePanel: in configCert caType is " + caType);
-        X509CertImpl cert = null;
-        String certTag = certObj.getCertTag();
-
-        try {
-            updateConfig(config, certTag);
-            if (caType.equals("remote")) {
-                String v = config.getString("preop.ca.type", "");
-
-                CMS.debug("NamePanel configCert: remote CA");
-                String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX,
-                        certObj, context);
-                certObj.setRequest(pkcs10);
-                String subsystem = config.getString(
-                        PCERT_PREFIX + certTag + ".subsystem");
-                config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
-                String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
-                String session_id = CMS.getConfigSDSessionId();
-                String sd_hostname = "";
-                int sd_ee_port = -1;
-                try {
-                    sd_hostname = config.getString("securitydomain.host", "");
-                    sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
-                } catch (Exception ee) {
-                    CMS.debug("NamePanel: configCert() exception caught:" + ee.toString());
-                }
-                String sysType = config.getString("cs.type", "");
-                String machineName = config.getString("machineName", "");
-                String securePort = config.getString("service.securePort", "");
-                if (certTag.equals("subsystem")) {
-                    String content =
-                            "requestor_name="
-                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
-                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                    + "&xmlOutput=true&sessionID=" + session_id;
-                    cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
-                            content, response, this);
-                    if (cert == null) {
-                        throw new IOException("Error: remote certificate is null");
-                    }
-                } else if (v.equals("sdca")) {
-                    String ca_hostname = "";
-                    int ca_port = -1;
-                    try {
-                        ca_hostname = config.getString("preop.ca.hostname", "");
-                        ca_port = config.getInteger("preop.ca.httpsport", -1);
-                    } catch (Exception ee) {
-                    }
-
-                    String content =
-                            "requestor_name="
-                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
-                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                    + "&xmlOutput=true&sessionID=" + session_id;
-                    cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
-                            content, response, this);
-                    if (cert == null) {
-                        throw new IOException("Error: remote certificate is null");
-                    }
-                } else if (v.equals("otherca")) {
-                    config.putString(subsystem + "." + certTag + ".cert",
-                            "...paste certificate here...");
-                } else {
-                    CMS.debug("NamePanel: no preop.ca.type is provided");
-                }
-            } else { // not remote CA, ie, self-signed or local
-                ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
-
-                if (ca == null) {
-                    String s = PCERT_PREFIX + certTag + ".type";
-
-                    CMS.debug(
-                            "The value for " + s
-                                    + " should be remote, nothing else.");
-                    throw new IOException(
-                            "The value for " + s + " should be remote");
-                }
-
-                String pubKeyType = config.getString(
-                        PCERT_PREFIX + certTag + ".keytype");
-                if (pubKeyType.equals("rsa")) {
-
-                    String pubKeyModulus = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.modulus");
-                    String pubKeyPublicExponent = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.exponent");
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-
-                    if (certTag.equals("signing")) {
-                        X509Key x509key = CryptoUtil.getPublicX509Key(
-                                CryptoUtil.string2byte(pubKeyModulus),
-                                CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                        cert = CertUtil.createLocalCert(config, x509key,
-                                PCERT_PREFIX, certTag, caType, context);
-                    } else {
-                        String cacert = config.getString("ca.signing.cert", "");
-
-                        if (cacert.equals("") || cacert.startsWith("...")) {
-                            certObj.setCert(
-                                    "...certificate be generated internally...");
-                            config.putString(subsystem + "." + certTag + ".cert",
-                                    "...certificate be generated internally...");
-                        } else {
-                            X509Key x509key = CryptoUtil.getPublicX509Key(
-                                    CryptoUtil.string2byte(pubKeyModulus),
-                                    CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                            cert = CertUtil.createLocalCert(config, x509key,
-                                    PCERT_PREFIX, certTag, caType, context);
-                        }
-                    }
-                } else if (pubKeyType.equals("ecc")) {
-                    String pubKeyEncoded = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.encoded");
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-
-                    if (certTag.equals("signing")) {
-
-                        X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-                        cert = CertUtil.createLocalCert(config, x509key,
-                                PCERT_PREFIX, certTag, caType, context);
-                    } else {
-                        String cacert = config.getString("ca.signing.cert", "");
-
-                        if (cacert.equals("") || cacert.startsWith("...")) {
-                            certObj.setCert(
-                                    "...certificate be generated internally...");
-                            config.putString(subsystem + "." + certTag + ".cert",
-                                    "...certificate be generated internally...");
-                        } else {
-                            X509Key x509key = CryptoUtil.getPublicX509ECCKey(
-                                    CryptoUtil.string2byte(pubKeyEncoded));
-
-                            cert = CertUtil.createLocalCert(config, x509key,
-                                    PCERT_PREFIX, certTag, caType, context);
-                        }
-                    }
-                } else {
-                    // invalid key type
-                    CMS.debug("Invalid key type " + pubKeyType);
-                }
-                if (cert != null) {
-                    if (certTag.equals("subsystem"))
-                        CertUtil.addUserCertificate(cert);
-                }
-            } // done self-signed or local
-
-            if (cert != null) {
-                byte[] certb = cert.getEncoded();
-                String certs = CryptoUtil.base64Encode(certb);
-
-                // certObj.setCert(certs);
-                String subsystem = config.getString(
-                        PCERT_PREFIX + certTag + ".subsystem");
-                config.putString(subsystem + "." + certTag + ".cert", certs);
-            }
-            config.commit(false);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            CMS.debug("NamePanel configCert() exception caught:" + e.toString());
-        }
-    }
-
     public void configCertWithTag(HttpServletRequest request,
             HttpServletResponse response,
             Context context, String tag) throws IOException {
@@ -638,8 +349,7 @@ public class NamePanel extends WizardPanelBase {
         while (c.hasMoreElements()) {
             Cert cert = c.nextElement();
             String ct = cert.getCertTag();
-            CMS.debug("NamePanel: configCertWithTag ct=" + ct +
-                        " tag=" + tag);
+            CMS.debug("NamePanel: configCertWithTag ct=" + ct + " tag=" + tag);
             if (ct.equals(tag)) {
                 try {
                     String nickname = HttpInput.getNickname(request, ct + "_nick");
@@ -659,7 +369,7 @@ public class NamePanel extends WizardPanelBase {
                             + ct + ": " + e.toString());
                 }
 
-                configCert(request, response, context, cert);
+                ConfigurationUtils.configCert(request, response, context, cert, this);
                 CMS.debug("NamePanel: configCertWithTag done with tag=" + tag);
                 return;
             }
@@ -737,7 +447,6 @@ public class NamePanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context) throws IOException {
         CMS.debug("NamePanel: in update()");
-        boolean hasErr = false;
 
         if (inputChanged(request)) {
             mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
@@ -747,12 +456,11 @@ public class NamePanel extends WizardPanelBase {
         }
 
         IConfigStore config = CMS.getConfigStore();
-
-        String hselect = "";
         ISubsystem subsystem = CMS.getSubsystem(ICertificateAuthority.ID);
+
         try {
             //if CA, at the hierarchy panel, was it root or subord?
-            hselect = config.getString("preop.hierarchy.select", "");
+            String hselect = config.getString("preop.hierarchy.select", "");
             String cstype = config.getString("preop.subsystem.select", "");
             if (cstype.equals("clone")) {
                 CMS.debug("NamePanel: clone configuration detected");
@@ -765,65 +473,63 @@ public class NamePanel extends WizardPanelBase {
                     config.putString("preop.ca.url", url);
 
                     URL urlx = new URL(url);
-                    updateCloneSDCAInfo(request, context, urlx.getHost(),
-                            Integer.toString(urlx.getPort()));
+                    updateCloneSDCAInfo(request, context, urlx.getHost(), urlx.getPort());
 
                 }
-                updateCloneConfig(config);
+                ConfigurationUtils.updateCloneConfig();
                 CMS.debug("NamePanel: clone configuration done");
                 context.put("updateStatus", "success");
                 return;
             }
-        } catch (Exception e) {
-            CMS.debug("NamePanel: configCertWithTag failure - " + e);
-            context.put("updateStatus", "failure");
-            return;
-        }
 
-        //if no hselect, then not CA
-        if (hselect.equals("") || hselect.equals("join")) {
-            String url = getURL(request, config);
+            //if no hselect, then not CA
+            if (hselect.equals("") || hselect.equals("join")) {
+                String url = getURL(request, config);
 
-            URL urlx = null;
+                URL urlx = null;
 
-            if (url.equals("External CA")) {
-                CMS.debug("NamePanel: external CA selected");
-                config.putString("preop.ca.type", "otherca");
-                if (subsystem != null) {
-                    config.putString(PCERT_PREFIX + "signing.type", "remote");
+                if (url.equals("External CA")) {
+                    CMS.debug("NamePanel: external CA selected");
+                    config.putString("preop.ca.type", "otherca");
+                    if (subsystem != null) {
+                        config.putString(PCERT_PREFIX + "signing.type", "remote");
+                    }
+
+                    config.putString("preop.ca.pkcs7", "");
+                    config.putInteger("preop.ca.certchain.size", 0);
+                    context.put("check_otherca", "checked");
+                    CMS.debug("NamePanel: update: this is the external CA.");
+                } else {
+                    CMS.debug("NamePanel: local CA selected");
+                    url = url.substring(url.indexOf("https"));
+                    config.putString("preop.ca.url", url);
+
+                    urlx = new URL(url);
+                    String host = urlx.getHost();
+                    int port = urlx.getPort();
+                    String domainXML = config.getString("preop.domainXML");
+                    int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                            host, port, "CA", "SecurePort", "SecureAdminPort");
+
+                    config.putString("preop.ca.type", "sdca");
+                    config.putString("preop.ca.hostname", host);
+                    config.putInteger("preop.ca.httpsport", port);
+                    config.putInteger("preop.ca.httpsadminport", admin_port);
+
+                    context.put("check_sdca", "checked");
+                    context.put("sdcaHostname", host);
+                    context.put("sdHttpPort", port);
+
+                    ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
+
+                    if (subsystem != null) {
+                        config.putString(PCERT_PREFIX + "signing.type", "remote");
+                        config.putString(PCERT_PREFIX + "signing.profile", "caInstallCACert");
+                    }
                 }
-
-                config.putString("preop.ca.pkcs7", "");
-                config.putInteger("preop.ca.certchain.size", 0);
-                context.put("check_otherca", "checked");
-                CMS.debug("NamePanel: update: this is the external CA.");
-            } else {
-                CMS.debug("NamePanel: local CA selected");
-                // parse URL (CA1 - https://...)
-                url = url.substring(url.indexOf("https"));
-                config.putString("preop.ca.url", url);
-
-                urlx = new URL(url);
-                config.putString("preop.ca.type", "sdca");
-                CMS.debug("NamePanel: update: this is a CA in the security domain.");
-                context.put("check_sdca", "checked");
-                sdca(request, context, urlx.getHost(),
-                        Integer.toString(urlx.getPort()));
-                if (subsystem != null) {
-                    config.putString(PCERT_PREFIX + "signing.type", "remote");
-                    config.putString(PCERT_PREFIX + "signing.profile",
-                            "caInstallCACert");
-                }
-            }
-
-            try {
                 config.commit(false);
-            } catch (Exception e) {
+
             }
-
-        }
-
-        try {
 
             Enumeration<Cert> c = mCerts.elements();
 
@@ -855,47 +561,28 @@ public class NamePanel extends WizardPanelBase {
                 // commit here in case it changes
                 config.commit(false);
 
-                try {
-                    configCert(request, response, context, cert);
-                    config.putBoolean("preop.cert." + cert.getCertTag() + ".done",
-                            true);
-                    config.commit(false);
-                } catch (Exception e) {
-                    CMS.debug(
-                            "NamePanel: update() exception caught:"
-                                    + e.toString());
-                    hasErr = true;
-                    System.err.println("Exception caught: " + e.toString());
-                }
+                ConfigurationUtils.configCert(request, response, context, cert, this);
+                config.putBoolean("preop.cert." + cert.getCertTag() + ".done", true);
+                config.commit(false);
 
             } // while
-            if (hasErr == false) {
-                config.putBoolean("preop.NamePanel.done", true);
-                config.commit(false);
-            }
 
-        } catch (Exception e) {
-            CMS.debug("NamePanel: Exception caught: " + e.toString());
-            System.err.println("Exception caught: " + e.toString());
-        }// try
-
-        try {
+            config.putBoolean("preop.NamePanel.done", true);
             config.commit(false);
         } catch (Exception e) {
-        }
-
-        if (!hasErr) {
-            context.put("updateStatus", "success");
-        } else {
+            CMS.debug("NamPanel - update(): Exception thrown : " + e);
+            e.printStackTrace();
             context.put("updateStatus", "failure");
+            throw new IOException(e);
         }
+        context.put("updateStatus", "success");
+
         CMS.debug("NamePanel: update() done");
     }
 
-    private void updateCloneSDCAInfo(HttpServletRequest request, Context context, String hostname, String httpsPortStr)
-            throws IOException {
-        CMS.debug("NamePanel updateCloneSDCAInfo: selected CA hostname=" + hostname + " port=" + httpsPortStr);
-        String https_admin_port = "";
+    private void updateCloneSDCAInfo(HttpServletRequest request, Context context, String hostname, int httpsPort)
+            throws IOException, EPropertyNotFound, EBaseException, SAXException, ParserConfigurationException {
+        CMS.debug("NamePanel updateCloneSDCAInfo: selected CA hostname=" + hostname + " port=" + httpsPort);
         IConfigStore config = CMS.getConfigStore();
 
         if (hostname == null || hostname.length() == 0) {
@@ -905,71 +592,13 @@ public class NamePanel extends WizardPanelBase {
 
         // Retrieve the associated HTTPS Admin port so that it
         // may be stored for use with ImportAdminCertPanel
-        https_admin_port = getSecurityDomainAdminPort(config,
-                                                       hostname,
-                                                       httpsPortStr,
-                                                       "CA");
-
-        try {
-            Integer.parseInt(httpsPortStr); // check for errors
-        } catch (Exception e) {
-            CMS.debug(
-                    "NamePanel update: Https port is not valid. Exception: "
-                            + e.toString());
-            throw new IOException("Https Port is not valid.");
-        }
+        String domainXML = config.getString("preop.domainXML");
+        int https_admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                hostname, httpsPort, "CA", "SecurePort", "SecureAdminPort");
 
         config.putString("preop.ca.hostname", hostname);
-        config.putString("preop.ca.httpsport", httpsPortStr);
-        config.putString("preop.ca.httpsadminport", https_admin_port);
-    }
-
-    private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr)
-            throws IOException {
-        CMS.debug("NamePanel update: this is the CA in the security domain.");
-        CMS.debug("NamePanel update: selected CA hostname=" + hostname + " port=" + httpsPortStr);
-        String https_admin_port = "";
-        IConfigStore config = CMS.getConfigStore();
-
-        context.put("sdcaHostname", hostname);
-        context.put("sdHttpPort", httpsPortStr);
-
-        if (hostname == null || hostname.length() == 0) {
-            context.put("errorString", "Hostname is null");
-            throw new IOException("Hostname is null");
-        }
-
-        // Retrieve the associated HTTPS Admin port so that it
-        // may be stored for use with ImportAdminCertPanel
-        https_admin_port = getSecurityDomainAdminPort(config,
-                                                       hostname,
-                                                       httpsPortStr,
-                                                       "CA");
-
-        int httpsport = -1;
-
-        try {
-            httpsport = Integer.parseInt(httpsPortStr);
-        } catch (Exception e) {
-            CMS.debug(
-                    "NamePanel update: Https port is not valid. Exception: "
-                            + e.toString());
-            throw new IOException("Https Port is not valid.");
-        }
-
-        config.putString("preop.ca.hostname", hostname);
-        config.putString("preop.ca.httpsport", httpsPortStr);
-        config.putString("preop.ca.httpsadminport", https_admin_port);
-        ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        updateCertChainUsingSecureEEPort(config, "ca", hostname,
-                                          httpsport, true, context,
-                                          certApprovalCallback);
-        try {
-            CMS.debug("Importing CA chain");
-            importCertChain("ca");
-        } catch (Exception e1) {
-            CMS.debug("Failed in importing CA chain");
-        }
+        config.putInteger("preop.ca.httpsport", httpsPort);
+        config.putInteger("preop.ca.httpsadminport", https_admin_port);
     }
 
     public void initParams(HttpServletRequest request, Context context)

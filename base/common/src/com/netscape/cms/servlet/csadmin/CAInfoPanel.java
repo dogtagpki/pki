@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.cert.CertificateEncodingException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -147,14 +149,18 @@ public class CAInfoPanel extends WizardPanelBase {
         String cstype = "CA";
         String portType = "SecurePort";
 
-        /*
-                try {
-                    cstype = cs.getString("cs.type", "");
-                } catch (EBaseException e) {}
-        */
-
         CMS.debug("CAInfoPanel: Ready to get url");
-        Vector<String> v = getUrlListFromSecurityDomain(cs, cstype, portType);
+        Vector<String> v = null;
+        try {
+            v = ConfigurationUtils.getUrlListFromSecurityDomain(cs, cstype, portType);
+        } catch (Exception e) {
+            CMS.debug("CAInfoPanel display(): errors in getting URL list from security domain" + e);
+            e.printStackTrace();
+        }
+        if (v == null) {
+            v = new Vector<String>();
+        }
+
         v.addElement("External CA");
         StringBuffer list = new StringBuffer();
         int size = v.size();
@@ -198,31 +204,20 @@ public class CAInfoPanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-
-        /*
-         String select = request.getParameter("choice");
-         if (select == null) {
-         CMS.debug("CAInfoPanel: choice not found");
-         throw new IOException("choice not found");
-         }
-         */
         IConfigStore config = CMS.getConfigStore();
 
         try {
             String subsystemselect = config.getString("preop.subsystem.select", "");
             if (subsystemselect.equals("clone"))
                 return;
-        } catch (Exception e) {
-        }
 
-        String select = null;
-        String index = request.getParameter("urls");
-        String url = "";
-        if (index.startsWith("http")) {
-            // user may submit url directlry
-            url = index;
-        } else {
-            try {
+            String select = null;
+            String index = request.getParameter("urls");
+            String url = "";
+            if (index.startsWith("http")) {
+                // user may submit url directly
+                url = index;
+            } else {
                 int x = Integer.parseInt(index);
                 String list = config.getString("preop.ca.list", "");
                 StringTokenizer tokenizer = new StringTokenizer(list, ",");
@@ -235,54 +230,55 @@ public class CAInfoPanel extends WizardPanelBase {
                     }
                     counter++;
                 }
-            } catch (Exception e) {
             }
-        }
 
-        URL urlx = null;
+            URL urlx = null;
 
-        if (url.equals("External CA")) {
-            select = "otherca";
-            config.putString("preop.ca.pkcs7", "");
-            config.putInteger("preop.ca.certchain.size", 0);
-        } else {
-            select = "sdca";
+            if (url.equals("External CA")) {
+                select = "otherca";
+                config.putString("preop.ca.pkcs7", "");
+                config.putInteger("preop.ca.certchain.size", 0);
+            } else {
+                select = "sdca";
 
-            // parse URL (CA1 - https://...)
-            url = url.substring(url.indexOf("https"));
-            urlx = new URL(url);
-        }
-
-        ISubsystem subsystem = CMS.getSubsystem(ICertificateAuthority.ID);
-
-        if (select.equals("sdca")) {
-            config.putString("preop.ca.type", "sdca");
-            CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
-            context.put("check_sdca", "checked");
-            sdca(request, context, urlx.getHost(),
-                    Integer.toString(urlx.getPort()));
-            if (subsystem != null) {
-                config.putString(PCERT_PREFIX + "signing.type", "remote");
-                config.putString(PCERT_PREFIX + "signing.profile",
-                        "caInstallCACert");
+                // parse URL (CA1 - https://...)
+                url = url.substring(url.indexOf("https"));
+                urlx = new URL(url);
             }
-        } else if (select.equals("otherca")) {
-            config.putString("preop.ca.type", "otherca");
-            context.put("check_otherca", "checked");
-            if (subsystem != null) {
-                config.putString(PCERT_PREFIX + "signing.type", "remote");
-            }
-            CMS.debug("CAInfoPanel update: this is the other CA.");
-        }
 
-        try {
+            ISubsystem subsystem = CMS.getSubsystem(ICertificateAuthority.ID);
+
+            if (select.equals("sdca")) {
+                config.putString("preop.ca.type", "sdca");
+                CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
+                context.put("check_sdca", "checked");
+                sdca(request, context, urlx.getHost(),
+                        Integer.toString(urlx.getPort()));
+                if (subsystem != null) {
+                    config.putString(PCERT_PREFIX + "signing.type", "remote");
+                    config.putString(PCERT_PREFIX + "signing.profile",
+                            "caInstallCACert");
+                }
+            } else if (select.equals("otherca")) {
+                config.putString("preop.ca.type", "otherca");
+                context.put("check_otherca", "checked");
+                if (subsystem != null) {
+                    config.putString(PCERT_PREFIX + "signing.type", "remote");
+                }
+                CMS.debug("CAInfoPanel update: this is the other CA.");
+            }
+
             config.commit(false);
         } catch (Exception e) {
+            CMS.debug("CAInfoPanel update(): Exception thrown " + e);
+            e.printStackTrace();
+            context.put("updateStatus", "failure");
         }
+        context.put("updateStatus", "success");
     }
 
     private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr)
-            throws IOException {
+            throws IOException, CertificateEncodingException, EBaseException {
         CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
         IConfigStore config = CMS.getConfigStore();
 
@@ -295,13 +291,10 @@ public class CAInfoPanel extends WizardPanelBase {
         }
 
         int httpsport = -1;
-
         try {
             httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
-            CMS.debug(
-                    "CAInfoPanel update: Https port is not valid. Exception: "
-                            + e.toString());
+            CMS.debug("CAInfoPanel update: Https port is not valid. Exception: " + e.toString());
             throw new IOException("Http Port is not valid.");
         }
 
@@ -314,7 +307,7 @@ public class CAInfoPanel extends WizardPanelBase {
     }
 
     /**
-     * If validiate() returns false, this method will be called.
+     * If validate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,

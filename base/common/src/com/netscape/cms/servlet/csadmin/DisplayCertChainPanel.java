@@ -115,59 +115,51 @@ public class DisplayCertChainPanel extends WizardPanelBase {
     public void display(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
-        CMS.debug("DisplayCertChainPanel: display");
-
-        // update session id
-        String session_id = request.getParameter("session_id");
-        if (session_id != null) {
-            CMS.debug("DisplayCertChainPanel setting session id.");
-            CMS.setConfigSDSessionId(session_id);
-        }
-
-        String type = getId();
-
-        IConfigStore cs = CMS.getConfigStore();
-        String certChainConfigName = "preop." + type + ".certchain.size";
-        String certchain_size = "";
-
         try {
-            certchain_size = cs.getString(certChainConfigName, "");
-        } catch (Exception e) {
-        }
+            CMS.debug("DisplayCertChainPanel: display");
 
-        int size = 0;
-        Vector<String> v = new Vector<String>();
-
-        if (!certchain_size.equals("")) {
-            try {
-                size = Integer.parseInt(certchain_size);
-            } catch (Exception e) {
+            // update session id
+            String session_id = request.getParameter("session_id");
+            if (session_id != null) {
+                CMS.debug("DisplayCertChainPanel setting session id.");
+                CMS.setConfigSDSessionId(session_id);
             }
-            for (int i = 0; i < size; i++) {
-                certChainConfigName = "preop." + type + ".certchain." + i;
-                try {
+
+            String type = getId();
+            IConfigStore cs = CMS.getConfigStore();
+            String certChainConfigName = "preop." + type + ".certchain.size";
+            String certchain_size = cs.getString(certChainConfigName, "");
+            int size = 0;
+            Vector<String> v = new Vector<String>();
+
+            if (!certchain_size.equals("")) {
+                size = Integer.parseInt(certchain_size);
+                for (int i = 0; i < size; i++) {
+                    certChainConfigName = "preop." + type + ".certchain." + i;
                     String c = cs.getString(certChainConfigName, "");
                     byte[] b_c = CryptoUtil.base64Decode(c);
-                    CertPrettyPrint pp = new CertPrettyPrint(
-                            new X509CertImpl(b_c));
+                    CertPrettyPrint pp = new CertPrettyPrint(new X509CertImpl(b_c));
 
                     v.addElement(pp.toString(Locale.getDefault()));
-                } catch (Exception e) {
                 }
             }
-        }
 
-        if (getId().equals("securitydomain")) {
-            context.put("panelid", "securitydomain");
-            context.put("panelname", "Security Domain Trust Verification");
-        } else {
-            context.put("panelid", "other");
-            context.put("panelname", "Subsystem Trust Verification");
+            if (getId().equals("securitydomain")) {
+                context.put("panelid", "securitydomain");
+                context.put("panelname", "Security Domain Trust Verification");
+            } else {
+                context.put("panelid", "other");
+                context.put("panelname", "Subsystem Trust Verification");
+            }
+            context.put("title", "Display Certificate Chain");
+            context.put("panel", "admin/console/config/displaycertchainpanel.vm");
+            context.put("errorString", "");
+            context.put("certchain", v);
+        } catch (Exception e) {
+            CMS.debug("DisplayCertPanel: Exception thrown: " + e.toString());
+            e.printStackTrace();
+            context.put("errorString", e.toString());
         }
-        context.put("title", "Display Certificate Chain");
-        context.put("panel", "admin/console/config/displaycertchainpanel.vm");
-        context.put("errorString", "");
-        context.put("certchain", v);
     }
 
     /**
@@ -184,7 +176,6 @@ public class DisplayCertChainPanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-        importCertChain(getId());
 
         if (getId().equals("securitydomain")) {
             int panel = getPanelNo() + 1;
@@ -195,35 +186,34 @@ public class DisplayCertChainPanel extends WizardPanelBase {
                 String cs_hostname = cs.getString("machineName", "");
                 int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
                 String subsystem = cs.getString("cs.type", "");
-                String urlVal =
-                        "https://"
-                                + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem)
-                                + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
+                String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + subsystem.toLowerCase()
+                        + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
                 String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
-                String sdurl =
-                        "https://"
-                                + sd_hostname + ":" + sd_port + "/ca/admin/ca/securityDomainLogin?url=" + encodedValue;
+                String sdurl = "https://" + sd_hostname + ":" + sd_port + "/ca/admin/ca/securityDomainLogin?url="
+                        + encodedValue;
                 response.sendRedirect(sdurl);
 
                 // The user previously specified the CA Security Domain's
                 // SSL Admin port in the "Security Domain Panel";
                 // now retrieve this specified CA Security Domain's
                 // non-SSL EE, SSL Agent, and SSL EE ports:
-                cs.putString("securitydomain.httpport",
-                              getSecurityDomainPort(cs, "UnSecurePort"));
-                cs.putString("securitydomain.httpsagentport",
-                              getSecurityDomainPort(cs, "SecureAgentPort"));
-                cs.putString("securitydomain.httpseeport",
-                              getSecurityDomainPort(cs, "SecurePort"));
-            } catch (Exception ee) {
-                CMS.debug("DisplayCertChainPanel Exception=" + ee.toString());
+                String domainXML = ConfigurationUtils.getDomainXML(sd_hostname, sd_port, true);
+                ConfigurationUtils.getSecurityDomainPorts(domainXML, sd_hostname, sd_port);
+                cs.putString("preop.domainXML", domainXML);
+                cs.commit(false);
+            } catch (Exception e) {
+                CMS.debug("DisplayCertChainPanel Exception=" + e.toString());
+                e.printStackTrace();
+                context.put("errorString", e.toString());
+                context.put("updateStatus", "failure");
+                throw new IOException(e);
             }
         }
         context.put("updateStatus", "success");
     }
 
     /**
-     * If validiate() returns false, this method will be called.
+     * If validate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,

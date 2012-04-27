@@ -677,7 +677,7 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Errors in updating nxt serial number ranges in DB: " + e);
+                throw new CMSException("Errors in updating next serial number ranges in DB: " + e);
             }
         }
 

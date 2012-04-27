@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -94,7 +95,7 @@ public class ConfigurationRESTClient {
             return false;
         }
     }
-    
+
     private class JSSProtocolSocketFactory implements SchemeSocketFactory, LayeredSchemeSocketFactory {
         @Override
         public Socket createSocket(HttpParams params)
@@ -158,32 +159,32 @@ public class ConfigurationRESTClient {
 
 
         URI uri = new URI(baseUri);
-        
+
         String protocol = uri.getScheme();
         int port = uri.getPort();
- 
+
         clientCertNickname = null;
         HttpClient httpclient = new DefaultHttpClient();
         if(protocol != null && protocol.equals("https")) {
             if (clientCertNick != null) {
                 clientCertNickname = clientCertNick;
             }
- 
+
             Scheme scheme = new Scheme("https",port, new JSSProtocolSocketFactory());
-           
+
             // Register for port 443 our SSLSocketFactory to the ConnectionManager
             httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
-           
+
         }
-       
-       
+
+
         ClientExecutor executor = new ApacheHttpClient4Executor(httpclient);
-        
+
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.addClientErrorInterceptor(new ConfigurationErrorInterceptor());
         configClient = ProxyFactory.create(SystemConfigurationResource.class, uri, executor, providerFactory);
     }
-    
+
     public ConfigurationResponseData configure(ConfigurationData data) {
         ConfigurationResponseData response = configClient.configure(data);
         return response;

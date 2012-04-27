@@ -167,7 +167,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             cstype = config.getString("cs.type", "");
         } catch (Exception e) {
         }
-        cstype = toLowerCaseSubsystemType(cstype);
+        cstype = cstype.toLowerCase();
 
         if (subsystemtype.equals("clone")) {
             CMS.debug("AdminAuthenticatePanel: this is the clone subsystem");
