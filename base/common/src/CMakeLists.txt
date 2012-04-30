@@ -592,7 +592,6 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/DisplayHtmlServlet.java
     com/netscape/cms/servlet/base/model/Link.java
     com/netscape/cms/servlet/csadmin/BaseServlet.java
-    com/netscape/cms/servlet/csadmin/ConfigCertReqServlet.java
     com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java
     com/netscape/cms/servlet/csadmin/ConfigHSMLoginPanel.java
     com/netscape/cms/servlet/csadmin/SizePanel.java
@@ -604,17 +603,10 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/csadmin/CheckIdentity.java
     com/netscape/cms/servlet/csadmin/UpdateNumberRange.java
     com/netscape/cms/servlet/csadmin/ConfigCertApprovalCallback.java
-    com/netscape/cms/servlet/csadmin/AgentAuthenticatePanel.java
-    com/netscape/cms/servlet/csadmin/ConfigRootCAServlet.java
-    com/netscape/cms/servlet/csadmin/ConfigJoinServlet.java
     com/netscape/cms/servlet/csadmin/AuthenticatePanel.java
-    com/netscape/cms/servlet/csadmin/ConfigCloneServlet.java
     com/netscape/cms/servlet/csadmin/ImportCAChainPanel.java
-    com/netscape/cms/servlet/csadmin/DisplayServlet.java
     com/netscape/cms/servlet/csadmin/DatabasePanel.java
     com/netscape/cms/servlet/csadmin/WelcomePanel.java
-    com/netscape/cms/servlet/csadmin/DatabaseServlet.java
-    com/netscape/cms/servlet/csadmin/CAInfoPanel.java
     com/netscape/cms/servlet/csadmin/GetTransportCert.java
     com/netscape/cms/servlet/csadmin/ImportTransportCert.java
     com/netscape/cms/servlet/csadmin/SessionTimer.java
@@ -625,11 +617,8 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/csadmin/BackupKeyCertPanel.java
     com/netscape/cms/servlet/csadmin/TokenAuthenticate.java
     com/netscape/cms/servlet/csadmin/SecurityDomainLogin.java
-    com/netscape/cms/servlet/csadmin/ConfigDatabaseServlet.java
-    com/netscape/cms/servlet/csadmin/ConfigBaseServlet.java
     com/netscape/cms/servlet/csadmin/CertUtil.java
     com/netscape/cms/servlet/csadmin/SecurityDomainPanel.java
-    com/netscape/cms/servlet/csadmin/ConfigImportCertServlet.java
     com/netscape/cms/servlet/csadmin/SecurityDomainSessionTable.java
     com/netscape/cms/servlet/csadmin/GetCertChain.java
     com/netscape/cms/servlet/csadmin/CreateSubsystemPanel.java
@@ -637,18 +626,13 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/csadmin/UpdateOCSPConfig.java
     com/netscape/cms/servlet/csadmin/GetDomainXML.java
     com/netscape/cms/servlet/csadmin/LDAPSecurityDomainSessionTable.java
-    com/netscape/cms/servlet/csadmin/AdminAuthenticatePanel.java
-    com/netscape/cms/servlet/csadmin/ModuleServlet.java
     com/netscape/cms/servlet/csadmin/GetCookie.java
     com/netscape/cms/servlet/csadmin/CertRequestPanel.java
     com/netscape/cms/servlet/csadmin/RegisterUser.java
     com/netscape/cms/servlet/csadmin/GetSubsystemCert.java
-    com/netscape/cms/servlet/csadmin/CertPrettyPrintPanel.java
-    com/netscape/cms/servlet/csadmin/WelcomeServlet.java
     com/netscape/cms/servlet/csadmin/LoginServlet.java
     com/netscape/cms/servlet/csadmin/AdminPanel.java
     com/netscape/cms/servlet/csadmin/RestoreKeyCertPanel.java
-    com/netscape/cms/servlet/csadmin/ConfigHSMServlet.java
     com/netscape/cms/servlet/csadmin/MainPageServlet.java
     com/netscape/cms/servlet/csadmin/HierarchyPanel.java
     com/netscape/cms/servlet/csadmin/DownloadPKCS12.java

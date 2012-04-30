@@ -121,6 +121,7 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -1942,6 +1943,42 @@ public class ConfigurationUtils {
                 config.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
             }
         }
+    }
+
+    public static int getSubsystemCount(String hostname, int https_admin_port,
+            boolean https, String type) throws IOException, SAXException, ParserConfigurationException {
+        CMS.debug("getSubsystemCount start");
+        String c = getDomainXML(hostname, https_admin_port, true);
+        if (c != null) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+            XMLObject obj = new XMLObject(bis);
+            String containerName = type + "List";
+            Node n = obj.getContainer(containerName);
+            NodeList nlist = n.getChildNodes();
+            String countS = "";
+            for (int i = 0; i < nlist.getLength(); i++) {
+                Element nn = (Element) nlist.item(i);
+                String tagname = nn.getTagName();
+                if (tagname.equals("SubsystemCount")) {
+                    NodeList nlist1 = nn.getChildNodes();
+                    Node nn1 = nlist1.item(0);
+                    countS = nn1.getNodeValue();
+                    break;
+                }
+            }
+            CMS.debug("getSubsystemCount: SubsystemCount=" + countS);
+            int num = 0;
+
+            if (countS != null && !countS.equals("")) {
+                try {
+                    num = Integer.parseInt(countS);
+                } catch (Exception ee) {
+                }
+            }
+
+            return num;
+        }
+        return -1;
     }
 
     public static void configCert(HttpServletRequest request, HttpServletResponse response,

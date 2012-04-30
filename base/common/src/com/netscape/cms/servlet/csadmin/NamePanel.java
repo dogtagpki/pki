@@ -199,7 +199,7 @@ public class NamePanel extends WizardPanelBase {
             if (domaintype.equals("existing")) {
                 host = config.getString("securitydomain.host", "");
                 sd_admin_port = config.getInteger("securitydomain.httpsadminport", -1);
-                count = getSubsystemCount(host, sd_admin_port, true, cstype);
+                count = ConfigurationUtils.getSubsystemCount(host, sd_admin_port, true, cstype);
             }
 
             while (st.hasMoreTokens()) {
