@@ -18,73 +18,65 @@
 
 package com.netscape.cms.servlet.request;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSResourceService;
-import com.netscape.cms.servlet.request.model.KeyRequestDAO;
-import com.netscape.cms.servlet.request.model.KeyRequestInfos;
+import com.netscape.cms.servlet.request.model.CertRequestDAO;
+import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-
 /**
  * @author alee
  *
  */
-public class KeyRequestsResourceService extends CMSResourceService implements KeyRequestsResource{
+public class CertRequestsResourceService extends CMSResourceService implements CertRequestsResource {
 
     /**
-     * Used to generate list of key requests based on the search parameters
+     * Used to generate list of cert requests based on the search parameters
      */
-    public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
+    public CertRequestInfos listRequests(String requestState, String requestType,
             RequestId start, int pageSize, int maxResults, int maxTime) {
         // auth and authz
 
         // get ldap filter
-        String filter = createSearchFilter(requestState, requestType, clientID);
+        String filter = createSearchFilter(requestState, requestType);
         CMS.debug("listRequests: filter is " + filter);
 
         // get start marker
         if (start == null) {
-            start = new RequestId(KeyRequestsResource.DEFAULT_START);
+            start = new RequestId(CertRequestsResource.DEFAULT_START);
         }
 
-        KeyRequestDAO reqDAO = new KeyRequestDAO();
-        KeyRequestInfos requests;
+        CertRequestDAO reqDAO = new CertRequestDAO();
+        CertRequestInfos requests;
         try {
-            requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
+            requests =  reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
             CMS.debug("listRequests: error in obtaining request results" + e);
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new CMSException("Error listing cert requests!");
         }
         return requests;
     }
 
-    private String createSearchFilter(String requestState, String requestType, String clientID) {
+    private String createSearchFilter(String requestState, String requestType) {
         String filter = "";
         int matches = 0;
 
-        if ((requestState == null) && (requestType == null) && (clientID == null)) {
+        if ((requestState == null) && (requestType == null)) {
             filter = "(requeststate=*)";
             return filter;
         }
 
         if (requestState != null) {
             filter += "(requeststate=" + LDAPUtil.escapeFilter(requestState) + ")";
-            matches ++;
+            matches++;
         }
 
         if (requestType != null) {
             filter += "(requesttype=" + LDAPUtil.escapeFilter(requestType) + ")";
-            matches ++;
-        }
-
-        if (clientID != null) {
-            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
-            matches ++;
+            matches++;
         }
 
         if (matches > 1) {

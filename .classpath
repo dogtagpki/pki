@@ -15,6 +15,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
 	<classpathentry kind="src" path="base/kra/functional/src"/>
 	<classpathentry kind="src" path="base/common/functional/src"/>
+	<classpathentry kind="src" path="base/ca/functional/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>

@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request.model;
 
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -31,54 +30,34 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestList;
-import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.model.Link;
 import com.netscape.cms.servlet.key.KeyResource;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 
 /**
  * @author alee
  *
  */
-public class KeyRequestDAO {
-    private IRequestQueue queue;
-    private IKeyRecoveryAuthority kra;
+public class KeyRequestDAO extends CMSRequestDAO {
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
-
-    private String[] vlvFilters = {
-            "(requeststate=*)", "(requesttype=enrollment)",
-            "(requesttype=recovery)", "(requeststate=canceled)",
-            "(&(requeststate=canceled)(requesttype=enrollment))",
-            "(&(requeststate=canceled)(requesttype=recovery))",
-            "(requeststate=rejected)",
-            "(&(requeststate=rejected)(requesttype=enrollment))",
-            "(&(requeststate=rejected)(requesttype=recovery))",
-            "(requeststate=complete)",
-            "(&(requeststate=complete)(requesttype=enrollment))",
-            "(&(requeststate=complete)(requesttype=recovery))"
-    };
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public KeyRequestDAO() {
-        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
-        queue = kra.getRequestQueue();
+        super("kra");
     }
 
     /**
      * Finds list of requests matching the specified search filter.
      *
      * If the filter corresponds to a VLV search, then that search is executed and the pageSize
-     * and start parameters are used.  Otherwise, the maxResults and maxTime parameters are
+     * and start parameters are used. Otherwise, the maxResults and maxTime parameters are
      * used in the regularly indexed search.
      *
      * @param filter - ldap search filter
@@ -90,80 +69,39 @@ public class KeyRequestDAO {
      * @return collection of key request info
      * @throws EBaseException
      */
+    @SuppressWarnings("unchecked")
     public KeyRequestInfos listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
-        List <KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();
-        List <Link> links = new ArrayList<Link>();
-        int totalSize = 0;
-        int current = 0;
 
-        if (isVLVSearch(filter)) {
-            IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
-                                                                         pageSize +1 , "requestId");
-            totalSize = vlvlist.getSize();
-            current = vlvlist.getCurrentIndex();
-
-            int numRecords = (totalSize > (current + pageSize)) ? pageSize :
-                totalSize - current;
-
-            for (int i=0; i < numRecords; i++) {
-                IRequest request = vlvlist.getElementAt(i);
-                list.add(createKeyRequestInfo(request, uriInfo));
-            }
-        } else {
-            // The non-vlv requests are indexed, but are not paginated.
-            // We should think about whether they should be, or if we need to
-            // limit the number of results returned.
-            IRequestList requests = queue.listRequestsByFilter(filter, maxResults, maxTime);
-
-            if (requests == null) {
-                return null;
-            }
-            while (requests.hasMoreElements()) {
-                RequestId rid = requests.nextElement();
-                IRequest request = queue.findRequest(rid);
-                if (request != null) {
-                    list.add(createKeyRequestInfo(request, uriInfo));
-                }
-            }
-        }
-
-        // builder for vlv links
-        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
-        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        if (params.containsKey("requestState")) {
-            builder.queryParam("requestState", params.getFirst("requestState"));
-        }
-        if (params.containsKey("requestType")) {
-            builder.queryParam("requestType", params.getFirst("requestType"));
-        }
-        builder.queryParam("start", "{start}");
-        builder.queryParam("pageSize", "{pageSize}");
-
-        // next link
-        if (totalSize > current + pageSize) {
-            int next = current + pageSize + 1;
-            URI nextUri = builder.clone().build(next,pageSize);
-            Link nextLink = new Link("next", nextUri.toString(), "application/xml");
-            links.add(nextLink);
-        }
-
-        // previous link
-        if (current >0) {
-            int previous = current - pageSize;
-            URI previousUri = builder.clone().build(previous,pageSize);
-            Link previousLink = new Link("previous", previousUri.toString(), "application/xml");
-            links.add(previousLink);
-        }
-
+        CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         KeyRequestInfos ret = new KeyRequestInfos();
+
+        if (cmsInfos == null) {
+            ret.setRequests(null);
+            ret.setLinks(null);
+            return ret;
+        }
+
+        List<KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();
+        ;
+        Collection<? extends CMSRequestInfo> cmsList = cmsInfos.getRequests();
+
+        // We absolutely know 100% that this list is a list
+        // of KeyRequestInfo objects. This is because the method
+        // createCMSRequestInfo. Is the only one adding to it
+
+        list = (List<KeyRequestInfo>) cmsList;
+
+        ret.setLinks(cmsInfos.getLinks());
         ret.setRequests(list);
-        ret.setLinks(links);
+
         return ret;
+
     }
 
     /**
      * Gets info for a specific request
+     *
      * @param id
      * @return info for specific request
      * @throws EBaseException
@@ -176,8 +114,10 @@ public class KeyRequestDAO {
         KeyRequestInfo info = createKeyRequestInfo(request, uriInfo);
         return info;
     }
+
     /**
      * Submits an archival request and processes it.
+     *
      * @param data
      * @return info for the request submitted.
      * @throws EBaseException
@@ -205,8 +145,10 @@ public class KeyRequestDAO {
 
         return createKeyRequestInfo(request, uriInfo);
     }
+
     /**
      * Submits a key recovery request.
+     *
      * @param data
      * @return info on the recovery request created
      * @throws EBaseException
@@ -224,9 +166,10 @@ public class KeyRequestDAO {
         KeyId keyId = data.getKeyId();
 
         Hashtable<String, Object> requestParams;
-        requestParams = kra.createVolatileRequest(request.getRequestId());
 
-        if(requestParams == null) {
+        requestParams = ((IKeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
+
+        if (requestParams == null) {
             throw new EBaseException("Can not create Volatile params in submitRequest!");
         }
 
@@ -269,7 +212,7 @@ public class KeyRequestDAO {
         queue.updateRequest(request);
     }
 
-    public KeyRequestInfo createKeyRequestInfo(IRequest request, UriInfo uriInfo) {
+    private KeyRequestInfo createKeyRequestInfo(IRequest request, UriInfo uriInfo) {
         KeyRequestInfo ret = new KeyRequestInfo();
 
         ret.setRequestType(request.getRequestType());
@@ -292,13 +235,11 @@ public class KeyRequestDAO {
         return ret;
     }
 
-    private boolean isVLVSearch(String filter) {
-        for (int i=0; i < vlvFilters.length; i++) {
-            if (vlvFilters[i].equalsIgnoreCase(filter)) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public KeyRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
+
+        return createKeyRequestInfo(request, uriInfo);
+
     }
 
     //We only care if the key exists or not
@@ -306,19 +247,19 @@ public class KeyRequestDAO {
         boolean ret = false;
         String state = "active";
 
-        KeyDAO  keys = new KeyDAO();
+        KeyDAO keys = new KeyDAO();
 
         KeyDataInfos existingKeys;
         String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_ID + "=" + clientId + ")"
-                    + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
+                + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
         try {
-            existingKeys =  keys.listKeys(filter, 1, 10,  uriInfo);
+            existingKeys = keys.listKeys(filter, 1, 10, uriInfo);
 
-            if(existingKeys != null && existingKeys.getKeyInfos().size() > 0) {
+            if (existingKeys != null && existingKeys.getKeyInfos().size() > 0) {
                 ret = true;
             }
         } catch (EBaseException e) {
-            ret= false;
+            ret = false;
         }
 
         return ret;

@@ -16,45 +16,63 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+/**
+ *
+ */
 package com.netscape.cms.servlet.request.model;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestIdAdapter;
 
-@XmlRootElement(name = "SecurityDataRequestInfo")
+/**
+ * @author alee
+ *
+ */
+@XmlRootElement(name = "CertRetrievalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRequestInfo extends CMSRequestInfo {
+public class CertRetrievalRequestData {
+
+    private static final String CERT_ID = "certId";
 
     @XmlElement
-    protected String keyURL;
+    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    protected CertId certId;
 
-    public KeyRequestInfo() {
-        // required to be here for JAXB (defaults)
+    @XmlElement
+    @XmlJavaTypeAdapter(RequestIdAdapter.class)
+    protected RequestId requestId;
+
+    public CertRetrievalRequestData() {
+        // required for JAXB (defaults)
+    }
+
+    public CertRetrievalRequestData(MultivaluedMap<String, String> form) {
+        if (form.containsKey(CERT_ID)) {
+            certId = new CertId(form.getFirst(CERT_ID));
+        }
     }
 
     /**
-     * @return the keyURL
+     * @return the CertId
      */
-    public String getKeyURL() {
-        return keyURL;
+    public CertId getCertId() {
+        return certId;
     }
 
     /**
-     * @return the key ID in the keyURL
+     * @param CertId the CertId to set
      */
-    public KeyId getKeyId() {
-        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
-        return new KeyId(id);
+    public void setCertId(CertId certId) {
+        this.certId = certId;
     }
 
-    /**
-     * @param keyURL the keyURL to set
-     */
-    public void setKeyURL(String keyURL) {
-        this.keyURL = keyURL;
-    }
 }

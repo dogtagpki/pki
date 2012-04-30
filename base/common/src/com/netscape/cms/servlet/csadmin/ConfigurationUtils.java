@@ -1412,7 +1412,7 @@ public class ConfigurationUtils {
         return dir.delete();
     }
 
-    public static void populateIndexes() throws EPropertyNotFound, EBaseException, IOException, LDAPException {
+    public static void populateIndexes() throws Exception {
         CMS.debug("populateIndexes(): start");
         IConfigStore cs = CMS.getConfigStore();
 

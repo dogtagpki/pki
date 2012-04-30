@@ -45,18 +45,58 @@ public class LDAPUtil {
      * @param string string to escape
      * @return escaped string
      */
-    public static String escape(String string) {
+    public static String escapeFilter(String string) {
         StringBuilder sb = new StringBuilder();
         for (char c : string.toCharArray()) {
             if (SPECIAL_CHARS.indexOf(c) >= 0) {
                 sb.append('\\');
-                if (c < 0x10) sb.append('0'); // make sure it's 2-digit
+                if (c < 0x10)
+                    sb.append('0'); // make sure it's 2-digit
                 sb.append(Integer.toHexString(c));
             } else {
                 sb.append(c);
             }
         }
         return sb.toString();
+    }
+
+    public static String escapeDN(String v, boolean doubleEscape) {
+        StringBuffer result = new StringBuffer();
+
+        // Do we need to escape any characters
+        for (int i = 0; i < v.length(); i++) {
+            int c = v.charAt(i);
+            if (c == ',' || c == '=' || c == '+' || c == '<' ||
+                    c == '>' || c == '#' || c == ';' || c == '\r' ||
+                    c == '\n' || c == '\\' || c == '"') {
+                if ((c == 0x5c) && ((i + 1) < v.length())) {
+                    int nextC = v.charAt(i + 1);
+                    if ((c == 0x5c) && (nextC == ',' || nextC == '=' || nextC == '+' ||
+                            nextC == '<' || nextC == '>' || nextC == '#' ||
+                            nextC == ';' || nextC == '\r' || nextC == '\n' ||
+                            nextC == '\\' || nextC == '"')) {
+                        if (doubleEscape)
+                            result.append('\\');
+                    } else {
+                        result.append('\\');
+                        if (doubleEscape)
+                            result.append('\\');
+                    }
+                } else {
+                    result.append('\\');
+                    if (doubleEscape)
+                        result.append('\\');
+                }
+            }
+            if (c == '\r') {
+                result.append("0D");
+            } else if (c == '\n') {
+                result.append("0A");
+            } else {
+                result.append((char) c);
+            }
+        }
+        return result.toString();
     }
 
     public static void importLDIF(LDAPConnection conn, String filename, ArrayList<String> errors) throws IOException {

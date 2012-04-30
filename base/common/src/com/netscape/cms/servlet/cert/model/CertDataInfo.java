@@ -15,46 +15,53 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-
-package com.netscape.cms.servlet.request.model;
+/**
+ *
+ */
+package com.netscape.cms.servlet.cert.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.dbs.certdb.CertId;
 
-@XmlRootElement(name = "SecurityDataRequestInfo")
+/**
+ * @author alee
+ *
+ */
+@XmlRootElement(name = "CertDataInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRequestInfo extends CMSRequestInfo {
+public class CertDataInfo {
 
     @XmlElement
-    protected String keyURL;
+    protected String certURL;
 
-    public KeyRequestInfo() {
-        // required to be here for JAXB (defaults)
+    public CertDataInfo() {
+        // required for JAXB (defaults)
     }
 
     /**
-     * @return the keyURL
+     * @return the CertURL
      */
-    public String getKeyURL() {
-        return keyURL;
+    public String getCertURL() {
+        return certURL;
     }
 
     /**
-     * @return the key ID in the keyURL
+     * @param CertURL the certURL to set
      */
-    public KeyId getKeyId() {
-        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
-        return new KeyId(id);
+    public void setCertURL(String certURL) {
+        this.certURL = certURL;
     }
 
     /**
-     * @param keyURL the keyURL to set
+     * @return the Cert ID in the CertURL
      */
-    public void setKeyURL(String keyURL) {
-        this.keyURL = keyURL;
+    public CertId getCertId() {
+        String id = certURL.substring(certURL.lastIndexOf("/") + 1);
+        return new CertId(id);
     }
+
 }

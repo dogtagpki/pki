@@ -67,12 +67,12 @@ public class KeysResourceService extends CMSResourceService implements KeysResou
         }
 
         if (status != null) {
-            filter += "(status=" + LDAPUtil.escape(status) + ")";
+            filter += "(status=" + LDAPUtil.escapeFilter(status) + ")";
             matches ++;
         }
 
         if (clientID != null) {
-            filter += "(clientID=" + LDAPUtil.escape(clientID) + ")";
+            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
             matches ++;
         }
 

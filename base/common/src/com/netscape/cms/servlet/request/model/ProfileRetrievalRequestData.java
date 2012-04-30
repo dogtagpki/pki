@@ -16,45 +16,52 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+/**
+ *
+ */
 package com.netscape.cms.servlet.request.model;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
-
-@XmlRootElement(name = "SecurityDataRequestInfo")
+/**
+ * @author alee
+ *
+ */
+@XmlRootElement(name = "ProfileRetrievalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRequestInfo extends CMSRequestInfo {
+public class ProfileRetrievalRequestData {
+
+    private static final String PROFILE_ID = "profileId";
 
     @XmlElement
-    protected String keyURL;
+    protected String profileId;
 
-    public KeyRequestInfo() {
-        // required to be here for JAXB (defaults)
+    public ProfileRetrievalRequestData() {
+        // required for JAXB (defaults)
+    }
+
+    public ProfileRetrievalRequestData(MultivaluedMap<String, String> form) {
+        if (form.containsKey(PROFILE_ID)) {
+            profileId = form.getFirst(PROFILE_ID);
+        }
     }
 
     /**
-     * @return the keyURL
+     * @return the ProfileId
      */
-    public String getKeyURL() {
-        return keyURL;
+    public String getProfileId() {
+        return profileId;
     }
 
     /**
-     * @return the key ID in the keyURL
+     * @param ProfileId the ProfileId to set
      */
-    public KeyId getKeyId() {
-        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
-        return new KeyId(id);
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
     }
 
-    /**
-     * @param keyURL the keyURL to set
-     */
-    public void setKeyURL(String keyURL) {
-        this.keyURL = keyURL;
-    }
 }

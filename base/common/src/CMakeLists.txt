@@ -223,6 +223,8 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/dbs/certdb/ICertificateRepository.java
     com/netscape/certsrv/dbs/certdb/IRevocationInfo.java
     com/netscape/certsrv/dbs/certdb/ICertRecord.java
+    com/netscape/certsrv/dbs/certdb/CertId.java
+    com/netscape/certsrv/dbs/certdb/CertIdAdapter.java
     com/netscape/certsrv/dbs/DBResources.java
     com/netscape/certsrv/dbs/IDBSearchResults.java
     com/netscape/certsrv/dbs/IFilterConverter.java
@@ -536,7 +538,16 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/cert/CMCRevReqServlet.java
     com/netscape/cms/servlet/cert/GetBySerial.java
     com/netscape/cms/servlet/cert/DisplayCRL.java
+    com/netscape/cms/servlet/cert/CertNotFoundException.java
+    com/netscape/cms/servlet/cert/CertResource.java
+    com/netscape/cms/servlet/cert/CertResourceService.java
+    com/netscape/cms/servlet/cert/CertsResource.java
+    com/netscape/cms/servlet/cert/CertsResourceService.java
     com/netscape/cms/servlet/cert/model/CertificateData.java
+    com/netscape/cms/servlet/cert/model/CertDAO.java
+    com/netscape/cms/servlet/cert/model/CertDataInfo.java
+    com/netscape/cms/servlet/cert/model/CertDataInfos.java
+    com/netscape/cms/servlet/cert/model/CertSearchData.java
     com/netscape/cms/servlet/admin/OCSPAdminServlet.java
     com/netscape/cms/servlet/admin/CMSAdminServlet.java
     com/netscape/cms/servlet/admin/JobsAdminServlet.java
@@ -582,6 +593,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/UserInfo.java
     com/netscape/cms/servlet/base/PortsServlet.java
     com/netscape/cms/servlet/base/CMSException.java
+    com/netscape/cms/servlet/base/BadRequestException.java
     com/netscape/cms/servlet/base/CMSResourceService.java
     com/netscape/cms/servlet/base/CMSServlet.java
     com/netscape/cms/servlet/base/CMSStartServlet.java
@@ -673,11 +685,24 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/KeyRequestResourceService.java
     com/netscape/cms/servlet/request/KeyRequestsResource.java
     com/netscape/cms/servlet/request/KeyRequestsResourceService.java
+    com/netscape/cms/servlet/request/CertRequestResource.java
+    com/netscape/cms/servlet/request/CertRequestResourceService.java
+    com/netscape/cms/servlet/request/CertRequestsResource.java
+    com/netscape/cms/servlet/request/CertRequestsResourceService.java
     com/netscape/cms/servlet/request/model/ArchivalRequestData.java
+    com/netscape/cms/servlet/request/model/CMSRequestDAO.java
+    com/netscape/cms/servlet/request/model/CMSRequestInfo.java
+    com/netscape/cms/servlet/request/model/CMSRequestInfos.java
     com/netscape/cms/servlet/request/model/KeyRequestDAO.java
     com/netscape/cms/servlet/request/model/KeyRequestInfo.java
     com/netscape/cms/servlet/request/model/KeyRequestInfos.java
     com/netscape/cms/servlet/request/model/RecoveryRequestData.java
+    com/netscape/cms/servlet/request/model/CertRequestDAO.java
+    com/netscape/cms/servlet/request/model/CertRequestInfo.java
+    com/netscape/cms/servlet/request/model/CertRequestInfos.java
+    com/netscape/cms/servlet/request/model/CertRetrievalRequestData.java
+    com/netscape/cms/servlet/request/model/EnrollmentRequestData.java 
+    com/netscape/cms/servlet/request/model/ProfileRetrievalRequestData.java
     com/netscape/cms/servlet/tks/TokenServlet.java
     com/netscape/cms/servlet/connector/CloneServlet.java
     com/netscape/cms/servlet/connector/TokenKeyRecoveryServlet.java
@@ -699,6 +724,16 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/profile/ProfileReviewServlet.java
     com/netscape/cms/servlet/profile/SSLClientCertProvider.java
     com/netscape/cms/servlet/profile/ProfileServlet.java
+    com/netscape/cms/servlet/profile/ProfileNotFoundException.java
+    com/netscape/cms/servlet/profile/ProfileResource.java
+    com/netscape/cms/servlet/profile/ProfileResourceService.java
+    com/netscape/cms/servlet/profile/ProfilesResource.java
+    com/netscape/cms/servlet/profile/ProfilesResourceService.java
+    com/netscape/cms/servlet/profile/model/ProfileDAO.java
+    com/netscape/cms/servlet/profile/model/ProfileData.java
+    com/netscape/cms/servlet/profile/model/ProfileDataInfo.java
+    com/netscape/cms/servlet/profile/model/ProfileDataInfos.java
+    com/netscape/cms/servlet/profile/model/ProfileInput.java
     com/netscape/cms/authentication/AgentCertAuthentication.java
     com/netscape/cms/authentication/PortalEnroll.java
     com/netscape/cms/authentication/UdnPwdDirAuthentication.java

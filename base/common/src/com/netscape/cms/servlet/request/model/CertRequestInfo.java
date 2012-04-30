@@ -23,38 +23,59 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.dbs.certdb.CertId;
 
-@XmlRootElement(name = "SecurityDataRequestInfo")
+@XmlRootElement(name = "CertRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRequestInfo extends CMSRequestInfo {
+public class CertRequestInfo extends CMSRequestInfo {
 
     @XmlElement
-    protected String keyURL;
+    protected String certURL;
 
-    public KeyRequestInfo() {
+    @XmlElement
+    protected String certRequestType;
+
+    public CertRequestInfo() {
         // required to be here for JAXB (defaults)
     }
 
     /**
-     * @return the keyURL
+     * @param certRequestType to set
      */
-    public String getKeyURL() {
-        return keyURL;
+
+    public void setCertRequestType(String certRequestType) {
+        this.certRequestType = certRequestType;
     }
 
     /**
-     * @return the key ID in the keyURL
+     * @return the certRequestType
      */
-    public KeyId getKeyId() {
-        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
-        return new KeyId(id);
+
+    public String getCertRequestType() {
+        return certRequestType;
     }
 
     /**
-     * @param keyURL the keyURL to set
+     * @set the certURL
      */
-    public void setKeyURL(String keyURL) {
-        this.keyURL = keyURL;
+    public void setCertURL(String certURL) {
+        this.certURL = certURL;
     }
+
+    /**
+     * @return the certURL
+     */
+    public String getCertURL() {
+        return certURL;
+    }
+
+    /**
+     * @return the certId
+     */
+
+    public CertId getCertId() {
+        String id = certURL.substring(certURL.lastIndexOf("/") + 1);
+        return new CertId(id);
+    }
+
 }
