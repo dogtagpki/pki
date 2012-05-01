@@ -141,7 +141,11 @@ Since a security module may consist of slots for one or more tokens, the user mu
       <input type=radio name="choice" value="$token.getNickName()">
     #end
   </td>
-  <td></td>
+  <td>
+	#if (!$token.isLoggedIn())
+<a href="wizard?p=$subpanelno&amp;SecToken=$token.getNickName()">Login</a>
+	#end
+  </td>
 </tr>
 #end
 #end
