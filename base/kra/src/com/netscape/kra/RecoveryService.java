@@ -20,12 +20,14 @@ package com.netscape.kra;
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.Random;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
@@ -477,11 +479,20 @@ public class RecoveryService implements IService {
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
                     PasswordConverter();
-            byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
+            Random ran = new SecureRandom();
+            byte[] salt = new byte[20];
+            ran.nextBytes(salt);
 
             ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
                     PBEAlgorithm.PBE_SHA1_DES3_CBC,
                     pass, salt, 1, passConverter, priKey, ct);
+            CMS.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
+            if (key == null) {
+                CMS.debug("RecoverService: createPFX() key null");
+                throw new EBaseException("EncryptedPrivateKeyInfo.createPBE() failed");
+            } else {
+                CMS.debug("RecoverService: createPFX() key not null");
+            }
 
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),
@@ -519,8 +530,11 @@ public class RecoveryService implements IService {
 
             // put final PKCS12 into volatile request
             params.put(ATTR_PKCS12, fos.toByteArray());
+            CMS.debug("RecoverService: createPFX() completed.");
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
+            CMS.debug("RecoverService: createPFX() exception caught:"+
+                e.toString());
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
         }
 
