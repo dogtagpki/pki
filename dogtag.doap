@@ -1,0 +1,97 @@
+<Project>
+  <name>Dogtag Certificate System</name>
+  <shortname>Dogtag</shortname>
+  <shortdesc>The Dogtag Certificate System is an enterprise-class
+  open source Certificate Authority (CA)</shortdesc>
+  <description>The Dogtag Certificate System is an enterprise-class
+  open source Certificate Authority (CA). It is a full-featured
+  system, and has been hardened by real-world deployments. It
+  supports all aspects of certificate life cycle management,
+  including key archival, OCSP and smart card management,
+  generation and publishing of Certificate Revocation Lists, SCEP,
+  and much more.</description>
+  <homepage rdf:resource="http://pki.fedoraproject.org" />
+  <created>2008-03-19</created>
+  <wiki rdf:resource="http://pki.fedoraproject.org/wiki/PKI_Main_Page" />
+  <download-page rdf:resource="http://pki.fedoraproject.org/wiki/PKI_Download" />
+  <bug-database rdf:resource="https://bugzilla.redhat.com/" />
+  <mailing-list>pki-devel@redhat.com</mailing-list>
+  <mailing-list>pki-announce@redhat.com</mailing-list>
+  <mailing-list>pki-users@redhat.com</mailing-list>
+  <os>Linux</os>
+  <programming-language>Java</programming-language>
+  <programming-language>C</programming-language>
+  <programming-language>C++</programming-language>
+  <programming-language>Perl</programming-language>
+  <programming-language>Python</programming-language>
+  <license rdf:resource="http://usefulinc.com/doap/licenses/gpl" />
+  <release>
+    <version>
+      <name>trunk</name>
+      <created>2008-03-19</created>
+      <revision>10.0</revision>
+    </version>
+  </release>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Matthew Harmsen</foaf:name>
+      <foaf:homepage rdf:resource="mharmsen.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      4206d7171f218ea79f08aec14597570886eb5090</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </maintainer>
+  <developer>
+    <foaf:Person>
+      <foaf:name>Ade Lee</foaf:name>
+      <foaf:homepage rdf:resource="vakwetu.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      2bf7490c45f75f9e4d8f8c939c49b4f54aee6d82</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </developer>
+  <developer>
+    <foaf:Person>
+      <foaf:name>Andrew Wnuk</foaf:name>
+      <foaf:homepage rdf:resource="awnuk.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      5cd3ceaf9ffa8a57f3fda9dde43fa4491305eb53</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </developer>
+  <developer>
+    <foaf:Person>
+      <foaf:name>Christina Fu</foaf:name>
+      <foaf:homepage rdf:resource="http://www.linkedin.com/pub/christina-fu/2/18a/71" />
+      <foaf:mbox_sha1sum>
+      05b98b89c19f06db63a2cc41d0312c3c5693170e</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </developer>
+  <developer>
+    <foaf:Person>
+      <foaf:name>Endi Dewata</foaf:name>
+      <foaf:homepage rdf:resource="edewata.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      916f01948863cb8f5b823f1c94f6db6301b1b581</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </developer>
+  <developer>
+    <foaf:Person>
+      <foaf:name>Jack Magne</foaf:name>
+      <foaf:homepage rdf:resource="jmagne.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      8941740983b43239c6e88da9b9aeb12bd0d6d51a</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </developer>
+  <documenter>
+    <foaf:Person>
+      <foaf:name>Deon Lackey</foaf:name>
+      <foaf:homepage rdf:resource="elladeon.fedorapeople.org" />
+      <foaf:mbox_sha1sum>
+      3056f3a5f1dfcb26ba512a9fc5021b49b3c77095</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </documenter>
+  <repository>
+    <ArchRepository>
+      <module>pki.git</module>
+      <location rdf:resource="git://git.fedorahosted.org/git/pki.git" />
+    </ArchRepository>
+  </repository>
+</Project>
