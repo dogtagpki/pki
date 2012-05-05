@@ -38,6 +38,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" does NOT yet
+        # exist for this "instance"
+        util.instance.verify_subsystem_does_not_exist()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
@@ -50,6 +53,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" currently EXISTS
+        # for this "instance"
+        util.instance.verify_subsystem_exists()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
@@ -62,6 +68,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" currently EXISTS
+        # for this "instance"
+        util.instance.verify_subsystem_exists()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])

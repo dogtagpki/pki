@@ -28,6 +28,10 @@ PKI_DICTIONARY_MASTER="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI MASTER DICTIONARY\n"\
 "====================================================="
+PKI_DICTIONARY_SLOTS="\n"\
+"=====================================================\n"\
+"    DISPLAY CONTENTS OF PKI SLOTS DICTIONARY\n"\
+"====================================================="
 PKI_DICTIONARY_SUBSYSTEM="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI SUBSYSTEM DICTIONARY\n"\
@@ -74,6 +78,14 @@ PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 = "File '%s' already "\
 PKI_FILE_MISSING_OR_NOT_A_FILE_1 = "File '%s' is either missing "\
                                    "or is NOT a regular file!"
 PKI_FILE_NOT_A_WAR_FILE_1 = "File '%s' is NOT a war file!"
+PKI_SECURITY_DATABASES_ALREADY_EXIST_3 = "Security databases '%s', '%s', "\
+                                         "and/or '%s' already exist!"
+PKI_SECURITY_DATABASES_DO_NOT_EXIST_3 = "Security databases '%s', '%s', "\
+                                        "and/or '%s' do NOT exist!"
+PKI_SUBSYSTEM_ALREADY_EXISTS_2 = "PKI subsystem '%s' for instance '%s' "\
+                                 "already exists!"
+PKI_SUBSYSTEM_DOES_NOT_EXIST_2 = "PKI subsystem '%s' for instance '%s' "\
+                                 "does NOT exist!"
 
 PKI_IOERROR_1 = "IOError:  %s!"
 PKI_KEYERROR_1 = "KeyError:  %s!"
@@ -81,6 +93,7 @@ PKI_LARGEZIPFILE_ERROR_1 = "zipfile.LargeZipFile:  %s!"
 PKI_MANIFEST_MESSAGE_1 = "generating manifest file called '%s'"
 PKI_OSERROR_1 = "OSError:  %s!"
 PKI_SHUTIL_ERROR_1 = "shutil.Error:  %s!"
+PKI_SUBPROCESS_ERROR_1 = "subprocess.CalledProcessError:  %s!"
 PKI_SYMLINK_ALREADY_EXISTS_1 = "Symlink '%s' already exists!"
 PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 = "Symlink '%s' already "\
                                              "exists BUT it is NOT a "\
@@ -108,12 +121,32 @@ PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
 
 
 # PKI Deployment "Helper" Messages
-PKIHELPER_APACHE_INSTANCES_2 = "instance '%s' contains '%d' Apache PKI subsystems"
+PKIHELPER_APACHE_INSTANCES_2 = "instance '%s' contains '%d' "\
+                               "Apache PKI subsystems"
+PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = "certutil:  Missing "\
+                                         "'-c issuer-name' option!"
+PKIHELPER_CERTUTIL_MISSING_NICKNAME = "certutil:  Missing "\
+                                      "'-n nickname' option!"
+PKIHELPER_CERTUTIL_MISSING_NOISE_FILE = "certutil:  Missing "\
+                                        "'-z noise-file' option!"
+PKIHELPER_CERTUTIL_MISSING_PATH = "certutil:  Missing '-d path' option!"
+PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER = "certutil:  Missing "\
+                                           "'-m serial-number' option!"
+PKIHELPER_CERTUTIL_MISSING_SUBJECT = "certutil:  Missing '-s subject' option!"
+PKIHELPER_CERTUTIL_MISSING_TOKEN = "certutil:  Missing '-h token' option!"
+PKIHELPER_CERTUTIL_MISSING_TRUSTARGS = "certutil:  Missing "\
+                                       "'-t trustargs' option!"
+PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD = "certutil:  Missing "\
+                                             "'-v months-valid' option!"
+PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1 = "executing '%s'"
 PKIHELPER_CHMOD_2 = "chmod %o %s"
 PKIHELPER_CHOWN_3 = "chown %s:%s %s"
 PKIHELPER_CHOWN_H_3 = "chown -h %s:%s %s"
+PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2 = "copying '%s' --> '%s' "\
+                                          "with slot substitution"
 PKIHELPER_CP_P_2 = "cp -p %s %s"
 PKIHELPER_CP_RP_2 = "cp -rp %s %s"
+PKIHELPER_CREATE_SECURITY_DATABASES_1 = "executing '%s'"
 PKIHELPER_DANGLING_SYMLINK_2 = "Dangling symlink '%s'-->'%s'"
 PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
 PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
@@ -124,16 +157,24 @@ PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
 PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
 PKIHELPER_LINK_S_2 = "ln -s %s %s"
+PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = "applying in-place "\
+                                      "slot substitutions on '%s'"
 PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
 PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
 PKIHELPER_MODIFY_SYMLINK_1 = "modifying '%s'"
-PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2 = "instance '%s' contains '%d' PKI subsystems"
+PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
+                         "filling it with '%d' random bytes"
+PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
+PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2 = "instance '%s' contains '%d' "\
+                                      "PKI subsystems"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
 PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
-PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' Tomcat PKI subsystems"
+PKIHELPER_SLOT_SUBSTITUTION_2 = "slot substitution: '%s' ==> '%s'"
+PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' "\
+                               "Tomcat PKI subsystems"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."

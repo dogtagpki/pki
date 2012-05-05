@@ -27,6 +27,7 @@ import logging
 PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS = 00770
 PKI_DEPLOYMENT_DEFAULT_EXE_PERMISSIONS = 00770
 PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS = 00660
+PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS = 00600
 PKI_DEPLOYMENT_DEFAULT_SGID_DIR_PERMISSIONS = 02770
 PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS = 00777
 PKI_DEPLOYMENT_DEFAULT_UMASK = 00002
@@ -52,15 +53,21 @@ PKI_INDENTATION_LEVEL_4 = {'indent' : '............... '}
 #        in the configuration file (the value in the default configuration file
 #        should always match the 'default' instance name specified below).
 PKI_DEPLOYMENT_REGISTRY_ROOT = "/etc/sysconfig/pki"
-PKI_DEPLOYMENT_DEFAULT_INSTANCE_NAME = "instance"
+PKI_DEPLOYMENT_DEFAULT_INSTANCE_NAME = "default"
 PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = "pkideployment.cfg"
+PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
+    "/usr/share/pki/deployment/config/pkislots.cfg"
 
 # NOTE: Top-level "/etc/pki" is owned by the "filesystem" package!
 PKI_SHARED_CONFIGURATION_ROOT = "/etc/pki"
 
 
 # PKI Deployment Global Variables
+pki_install_time = None
 pki_timestamp = None
+pki_hostname = None
+pki_pin = None
+pki_one_time_pin = None
 
 
 # PKI Deployment "Mandatory" Command-Line Variables
@@ -92,3 +99,4 @@ pki_common_dict = None
 pki_web_server_dict = None
 pki_subsystem_dict = None
 pki_master_dict = None
+pki_slots_dict = None

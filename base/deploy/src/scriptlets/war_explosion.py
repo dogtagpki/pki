@@ -36,16 +36,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.WAR_EXPLOSION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             # deploy war file
-            util.directory.create(master['pki_webapps_subsystem_path'])
+            util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
             util.war.explode(master['pki_war'],
-                             master['pki_webapps_subsystem_path'])
+                             master['pki_tomcat_webapps_subsystem_path'])
             # establish convenience symbolic links
-            util.symlink.create(master['pki_webapps_webinf_classes_path'],
-                master['pki_webapps_subsystem_webinf_classes_link'])
-            util.symlink.create(master['pki_webapps_webinf_lib_path'],
-                master['pki_webapps_subsystem_webinf_lib_link'])
+            util.symlink.create(master['pki_tomcat_webapps_webinf_classes_path'],
+                master['pki_tomcat_webapps_subsystem_webinf_classes_link'])
+            util.symlink.create(master['pki_tomcat_webapps_webinf_lib_path'],
+                master['pki_tomcat_webapps_subsystem_webinf_lib_link'])
             # set ownerships, permissions, and acls
-            util.directory.set_mode(master['pki_webapps_subsystem_path'])
+            util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
 
     def respawn(self):
@@ -53,17 +53,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.WAR_EXPLOSION_RESPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             # redeploy war file
-            util.directory.modify(master['pki_webapps_subsystem_path'])
+            util.directory.modify(master['pki_tomcat_webapps_subsystem_path'])
             util.war.explode(master['pki_war'],
-                             master['pki_webapps_subsystem_path'])
+                             master['pki_tomcat_webapps_subsystem_path'])
             # update ownerships, permissions, and acls
             # NOTE:  This includes existing convenience symbolic links
-            util.directory.set_mode(master['pki_webapps_subsystem_path'])
+            util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
 
     def destroy(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             config.pki_log.info(log.WAR_EXPLOSION_DESTROY_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            util.directory.delete(master['pki_webapps_subsystem_path'])
+            util.directory.delete(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv

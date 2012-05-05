@@ -44,6 +44,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         filename = master['pki_root_prefix'] +\
                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
                    master['pki_instance_name'] + "/" +\
+                   master['pki_web_server'].lower() + "/" +\
                    master['pki_subsystem'].lower() +"/" +\
                    "spawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"
@@ -77,6 +78,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         filename = master['pki_root_prefix'] +\
                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
                    master['pki_instance_name'] + "/" +\
+                   master['pki_web_server'].lower() + "/" +\
                    master['pki_subsystem'].lower() +"/" +\
                    "respawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"

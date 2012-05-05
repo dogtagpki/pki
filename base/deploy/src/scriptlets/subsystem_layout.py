@@ -36,29 +36,38 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance-based subsystem base
         util.directory.create(master['pki_subsystem_path'])
-        if master['pki_subsystem'] == "CA":
-            util.directory.copy(master['pki_source_emails'],
-                                master['pki_subsystem_emails_path'])
-            util.directory.copy(master['pki_source_profiles'],
-                                master['pki_subsystem_profiles_path'])
         # establish instance-based subsystem logs
         util.directory.create(master['pki_subsystem_log_path'])
         if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             util.directory.create(master['pki_subsystem_signed_audit_log_path'])
         # establish instance-based subsystem configuration
-        util.directory.copy(master['pki_source_conf'],
-                            master['pki_subsystem_configuration_path'])
+        util.directory.create(master['pki_subsystem_configuration_path'])
+        # util.directory.copy(master['pki_source_conf_path'],
+        #                     master['pki_subsystem_configuration_path'])
         # establish instance-based subsystem registry
         util.directory.create(master['pki_subsystem_registry_path'])
-        # establish convenience symbolic links
-        util.symlink.create(master['pki_database_path'],
+        # establish instance-based Apache/Tomcat specific subsystems
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # establish instance-based Tomcat PKI subsystem base
+            if master['pki_subsystem'] == "CA":
+                util.directory.copy(master['pki_source_emails'],
+                                    master['pki_subsystem_emails_path'])
+                util.directory.copy(master['pki_source_profiles'],
+                                    master['pki_subsystem_profiles_path'])
+            # establish instance-based Tomcat PKI subsystem logs
+            # establish instance-based Tomcat PKI subsystem configuration
+            # establish instance-based Tomcat PKI subsystem registry
+            # establish instance-based Tomcat PKI subsystem convenience
+            # symbolic links
+            util.symlink.create(master['pki_tomcat_webapps_path'],
+                                master['pki_subsystem_tomcat_webapps_link'])
+        # establish instance-based subsystem convenience symbolic links
+        util.symlink.create(master['pki_webserver_database_link'],
                             master['pki_subsystem_database_link'])
         util.symlink.create(master['pki_subsystem_configuration_path'],
-                            master['pki_subsystem_configuration_link'])
+                            master['pki_subsystem_conf_link'])
         util.symlink.create(master['pki_subsystem_log_path'],
                             master['pki_subsystem_logs_link'])
-        util.symlink.create(master['pki_webapps_path'],
-                            master['pki_subsystem_webapps_link'])
         return self.rv
 
     def respawn(self):
@@ -66,28 +75,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # update instance-based subsystem base
         util.directory.modify(master['pki_subsystem_path'])
-        if master['pki_subsystem'] == "CA":
-            util.directory.copy(master['pki_source_emails'],
-                                master['pki_subsystem_emails_path'],
-                                overwrite_flag=True)
-            util.directory.copy(master['pki_source_profiles'],
-                                master['pki_subsystem_profiles_path'],
-                                overwrite_flag=True)
         # update instance-based subsystem logs
         util.directory.modify(master['pki_subsystem_log_path'])
         if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             util.directory.modify(master['pki_subsystem_signed_audit_log_path'])
         # update instance-based subsystem configuration
-        util.directory.copy(master['pki_source_conf'],
-                            master['pki_subsystem_configuration_path'],
-                            overwrite_flag=True)
+        util.directory.modify(master['pki_subsystem_configuration_path'])
+        # util.directory.copy(master['pki_source_conf_path'],
+        #                     master['pki_subsystem_configuration_path'])
+        #                     overwrite_flag=True)
         # update instance-based subsystem registry
         util.directory.modify(master['pki_subsystem_registry_path'])
-        # update convenience symbolic links
+        # establish instance-based Apache/Tomcat specific subsystems
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # update instance-based Tomcat PKI subsystem base
+            if master['pki_subsystem'] == "CA":
+                util.directory.copy(master['pki_source_emails'],
+                                    master['pki_subsystem_emails_path'],
+                                    overwrite_flag=True)
+                util.directory.copy(master['pki_source_profiles'],
+                                    master['pki_subsystem_profiles_path'],
+                                    overwrite_flag=True)
+            # update instance-based Tomcat PKI subsystem logs
+            # update instance-based Tomcat PKI subsystem configuration
+            # update instance-based Tomcat PKI subsystem registry
+            # update instance-based Tomcat PKI subsystem convenience
+            # symbolic links
+            util.symlink.modify(master['pki_subsystem_tomcat_webapps_link'])
+        # update instance-based subsystem convenience symbolic links
         util.symlink.modify(master['pki_subsystem_database_link'])
-        util.symlink.modify(master['pki_subsystem_configuration_link'])
+        util.symlink.modify(master['pki_subsystem_conf_link'])
         util.symlink.modify(master['pki_subsystem_logs_link'])
-        util.symlink.modify(master['pki_subsystem_webapps_link'])
         return self.rv
 
     def destroy(self):
@@ -95,10 +113,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # remove instance-based subsystem base
         if master['pki_subsystem'] == "CA":
-            util.directory.delete(master['pki_subsystem_profiles_path'])
             util.directory.delete(master['pki_subsystem_emails_path'])
+            util.directory.delete(master['pki_subsystem_profiles_path'])
         util.directory.delete(master['pki_subsystem_path'])
         # remove instance-based subsystem logs
+        if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
+            util.directory.delete(master['pki_subsystem_signed_audit_log_path'])
         util.directory.delete(master['pki_subsystem_log_path'])
         # remove instance-based subsystem configuration
         util.directory.delete(master['pki_subsystem_configuration_path'])

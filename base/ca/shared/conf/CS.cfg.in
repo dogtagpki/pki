@@ -741,7 +741,7 @@ cmsgateway._003=## re-enroll for a new Admin Certificate:
 cmsgateway._004=##
 cmsgateway._005=##   (1) Become 'root'
 cmsgateway._006=##   (2) Type:  'service [PKI_INSTANCE_ID] stop'
-cmsgateway._007=##   (3) Edit '[PKI_INSTANCE_ROOT]/[PKI_INSTANCE_ID]/conf/CS.cfg'
+cmsgateway._007=##   (3) Edit '[PKI_CFG_PATH_NAME]'
 cmsgateway._008=##       and set the following name-value pairs (if necessary):
 cmsgateway._009=##
 cmsgateway._010=##           ca.Policy.enable=true

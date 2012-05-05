@@ -35,85 +35,118 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.WEBSERVER_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance-based webserver base
-        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-            util.directory.create(master['pki_apache_path'])
-        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            util.directory.create(master['pki_tomcat_path'])
-            util.directory.create(master['pki_common_path'])
-            util.directory.create(master['pki_common_lib_path'])
-            util.directory.create(master['pki_conf_path'])
-            util.directory.create(master['pki_webapps_path'])
-            util.directory.create(master['pki_webapps_root_path'])
-            util.directory.create(master['pki_webapps_root_webinf_path'])
-            util.directory.create(master['pki_webapps_webinf_path'])
-            util.directory.create(master['pki_webapps_webinf_classes_path'])
-            util.directory.create(master['pki_webapps_webinf_lib_path'])
+        util.directory.create(master['pki_webserver_path'])
+        # establish instance-based webserver logs
+        util.directory.create(master['pki_webserver_log_path'])
         # establish instance-based webserver configuration
-        util.directory.create(master['pki_database_path'])
-        # establish convenience symbolic links
-        util.symlink.create(master['pki_database_path'],
-                            master['pki_instance_database_link'])
-        util.symlink.create(master['pki_tomcat_bin_path'],
-                            master['pki_tomcat_bin_link'])
-        util.symlink.create(master['pki_tomcat_lib_path'],
-                            master['pki_tomcat_lib_link'])
-        util.symlink.create(master['pki_instance_log_path'],
-                            master['pki_tomcat_logs_link'])
+        util.directory.create(master['pki_webserver_configuration_path'])
+        # establish instance-based webserver registry
+        util.directory.create(master['pki_webserver_registry_path'])
+        # establish instance-based Apache/Tomcat specific webserver
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # establish instance-based Tomcat webserver base
+            util.directory.create(master['pki_tomcat_common_path'])
+            util.directory.create(master['pki_tomcat_common_lib_path'])
+            util.directory.create(master['pki_tomcat_webapps_path'])
+            util.directory.create(master['pki_tomcat_webapps_root_path'])
+            util.directory.create(master['pki_tomcat_webapps_root_webinf_path'])
+            util.file.copy(master['pki_source_webapps_root_web_xml'],
+                           master['pki_tomcat_webapps_root_webinf_web_xml'],
+                           overwrite_flag=True)
+            util.directory.create(master['pki_tomcat_webapps_webinf_path'])
+            util.directory.create(\
+                master['pki_tomcat_webapps_webinf_classes_path'])
+            util.directory.create(master['pki_tomcat_webapps_webinf_lib_path'])
+            # establish instance-based Tomcat webserver logs
+            # establish instance-based Tomcat webserver configuration
+            # establish instance-based Tomcat webserver registry
+            # establish instance-based Tomcat webserver convenience
+            # symbolic links
+            util.symlink.create(master['pki_tomcat_bin_path'],
+                                master['pki_tomcat_bin_link'])
+            util.symlink.create(master['pki_tomcat_lib_path'],
+                                master['pki_tomcat_lib_link'])
+            util.symlink.create(master['pki_tomcat_systemd'],
+                                master['pki_webserver_systemd_link'])
+        # establish instance-based webserver convenience symbolic links
+        util.symlink.create(master['pki_instance_database_link'],
+                            master['pki_webserver_database_link'])
+        util.symlink.create(master['pki_webserver_configuration_path'],
+                            master['pki_webserver_conf_link'])
+        util.symlink.create(master['pki_webserver_log_path'],
+                            master['pki_webserver_logs_link'])
         return self.rv
 
     def respawn(self):
         config.pki_log.info(log.WEBSERVER_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # update instance-based webserver base
-        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-            util.directory.modify(master['pki_apache_path'])
-        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            util.directory.modify(master['pki_tomcat_path'])
-            util.directory.modify(master['pki_common_path'])
-            util.directory.modify(master['pki_common_lib_path'])
-            util.directory.modify(master['pki_conf_path'])
-            util.directory.modify(master['pki_webapps_path'])
-            util.directory.modify(master['pki_webapps_root_path'])
-            util.directory.modify(master['pki_webapps_root_webinf_path'])
-            util.directory.modify(master['pki_webapps_webinf_path'])
-            util.directory.modify(master['pki_webapps_webinf_classes_path'])
-            util.directory.modify(master['pki_webapps_webinf_lib_path'])
+        util.directory.modify(master['pki_webserver_path'])
+        # update instance-based webserver logs
+        util.directory.modify(master['pki_webserver_log_path'])
         # update instance-based webserver configuration
-        util.directory.modify(master['pki_database_path'])
-        # update convenience symbolic links
-        util.symlink.modify(master['pki_instance_database_link'])
-        util.symlink.modify(master['pki_tomcat_bin_link'])
-        util.symlink.modify(master['pki_tomcat_lib_link'])
-        util.symlink.modify(master['pki_tomcat_logs_link'])
+        util.directory.modify(master['pki_webserver_configuration_path'])
+        # update instance-based webserver registry
+        util.directory.modify(master['pki_webserver_registry_path'])
+        # update instance-based Apache/Tomcat specific webserver
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # update instance-based Tomcat webserver base
+            util.directory.modify(master['pki_tomcat_common_path'])
+            util.directory.modify(master['pki_tomcat_common_lib_path'])
+            util.directory.modify(master['pki_tomcat_webapps_path'])
+            util.directory.modify(master['pki_tomcat_webapps_root_path'])
+            util.directory.modify(master['pki_tomcat_webapps_root_webinf_path'])
+            util.file.copy(master['pki_source_webapps_root_web_xml'],
+                           master['pki_tomcat_webapps_root_webinf_web_xml'],
+                           overwrite_flag=True)
+            util.directory.modify(master['pki_tomcat_webapps_webinf_path'])
+            util.directory.modify(\
+                master['pki_tomcat_webapps_webinf_classes_path'])
+            util.directory.modify(master['pki_tomcat_webapps_webinf_lib_path'])
+            # update instance-based Tomcat webserver logs
+            # update instance-based Tomcat webserver configuration
+            # update instance-based Tomcat webserver registry
+            # update instance-based Tomcat webserver convenience symbolic links
+            util.symlink.modify(master['pki_tomcat_bin_link'])
+            util.symlink.modify(master['pki_tomcat_lib_link'])
+        # update instance-based webserver convenience symbolic links
+        util.symlink.modify(master['pki_webserver_database_link'])
+        util.symlink.modify(master['pki_webserver_conf_link'])
+        util.symlink.modify(master['pki_webserver_logs_link'])
         return self.rv
 
     def destroy(self):
         config.pki_log.info(log.WEBSERVER_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # remove instance-based webserver base
-        if not config.pki_dry_run_flag and\
-           master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-           util.instance.apache_instances(master['pki_instance_path']) == 0:
-            util.directory.delete(master['pki_apache_path'])
-        elif master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-             util.instance.apache_instances(master['pki_instance_path']) == 1:
-            # always display correct information (even during dry_run)
-            util.directory.delete(master['pki_apache_path'])
-        if not config.pki_dry_run_flag and\
-           master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-           util.instance.tomcat_instances(master['pki_instance_path']) == 0:
-            util.directory.delete(master['pki_tomcat_path'])
-        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-             util.instance.tomcat_instances(master['pki_instance_path']) == 1:
-            # always display correct information (even during dry_run)
-            util.directory.delete(master['pki_tomcat_path'])
-        # remove instance-based webserver configuration
-        if not config.pki_dry_run_flag and\
-           util.instance.pki_subsystem_instances(\
-               master['pki_instance_path']) == 0:
-            util.directory.delete(master['pki_database_path'])
-        elif util.instance.pki_subsystem_instances(\
-            master['pki_instance_path']) == 1:
-            # always display correct information (even during dry_run)
-            util.directory.delete(master['pki_database_path'])
+        if not config.pki_dry_run_flag:
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 0:
+                # remove instance-based webserver base
+                util.directory.delete(master['pki_webserver_path'])
+                # remove instance-based webserver logs
+                # remove instance-based webserver configuration
+                # remove instance-based webserver registry
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 0:
+                # remove instance-based webserver base
+                util.directory.delete(master['pki_webserver_path'])
+                # remove instance-based webserver logs
+                # remove instance-based webserver configuration
+                # remove instance-based webserver registry
+        else:
+            # ALWAYS display correct information (even during dry_run)
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 1:
+                # remove instance-based webserver base
+                util.directory.delete(master['pki_webserver_path'])
+                # remove instance-based webserver logs
+                # remove instance-based webserver configuration
+                # remove instance-based webserver registry
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 1:
+                # remove instance-based webserver base
+                util.directory.delete(master['pki_webserver_path'])
+                # remove instance-based webserver logs
+                # remove instance-based webserver configuration
+                # remove instance-based webserver registry
         return self.rv

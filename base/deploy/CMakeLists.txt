@@ -36,6 +36,7 @@ install(
 install(
     FILES
         config/pkideployment.cfg
+        config/pkislots.cfg
     DESTINATION
         ${DATA_INSTALL_DIR}/deployment/config
     PERMISSIONS
@@ -67,7 +68,7 @@ install(
         src/scriptlets/pkiparser.py
         src/scriptlets/pkiscriptlet.py
         src/scriptlets/security_databases.py
-        src/scriptlets/slot_assignment.py
+        src/scriptlets/slot_substitution.py
         src/scriptlets/subsystem_layout.py
         src/scriptlets/war_explosion.py
         src/scriptlets/webserver_layout.py
@@ -133,13 +134,13 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/050_security_databases\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_substitution.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/050_slot_substitution\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_assignment.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/060_slot_assignment\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/060_security_databases\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
@@ -171,23 +172,23 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
 #   install(CODE "execute_process(COMMAND
 #       ${CMAKE_COMMAND} -E create_symlink
-#       \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_assignment.py\"
-#       \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_slot_assignment\")"
+#       \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_substitution.py\"
+#       \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_slot_substitution\")"
 #   )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/950_security_databases\")"
-    )
-    install(CODE "execute_process(COMMAND
-        ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/960_war_explosion\")"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/950_war_explosion\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/subsystem_layout.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/970_subsystem_layout\")"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/960_subsystem_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/security_databases.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/970_security_databases\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink

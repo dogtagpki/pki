@@ -30,6 +30,10 @@ try:
     import logging
     import os
     import pprint
+    import random
+    import socket
+    import string
+    import time
     from time import strftime as date
     from pki.deployment import pkiconfig as config
     from pki.deployment import pkiparser as parse
@@ -56,8 +60,27 @@ def main(argv):
     # Set the umask
     os.umask(config.PKI_DEPLOYMENT_DEFAULT_UMASK)
 
+    # Set installation time
+    ticks = time.time()
+    config.pki_install_time = time.asctime(time.localtime(ticks))
+
     # Generate a timestamp
-    config.pki_timestamp = date('%Y%m%d%H%M%S')
+    config.pki_timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
+    config.pki_certificate_timestamp =\
+        date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
+
+    # Retrieve hostname
+    config.pki_hostname = socket.gethostname()
+
+    # Generate a random 'pin' for use as the security database password
+    pin_low  = 100000000000
+    pin_high = 999999999999
+    config.pki_pin = random.randint(pin_low, pin_high)
+
+    # Generate a one-time pin to be used prior to configuration
+    config.pki_one_time_pin =\
+        ''.join(random.choice(string.ascii_letters + string.digits)\
+        for x in range(20))
 
     # Initialize 'pretty print' for objects
     pp = pprint.PrettyPrinter(indent=4)
