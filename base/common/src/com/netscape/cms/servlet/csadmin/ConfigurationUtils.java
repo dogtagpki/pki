@@ -1591,7 +1591,27 @@ public class ConfigurationUtils {
             throws LDAPException {
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
-        String dn = "cn=" + bindUser + ",ou=csusers,cn=config";
+
+        // for older subsystems, the container ou=csusers, cn=config may not yet exist
+        String dn = "ou=csusers, cn=config";
+        try {
+            attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectclass", "top"));
+            attrs.add(new LDAPAttribute("objectclass", "organizationalUnit"));
+            attrs.add(new LDAPAttribute("ou", "csusers"));
+            entry = new LDAPEntry(dn, attrs);
+            conn.add(entry);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                CMS.debug("createReplicationManager: containing ou already exists");
+            } else {
+                CMS.debug("createReplicationManager: Failed to create containing ou. Exception: "
+                        + e.toString());
+                throw e;
+            }
+        }
+
+        dn = "cn=" + bindUser + ",ou=csusers,cn=config";
         try {
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
