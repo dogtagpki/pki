@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.19
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -749,6 +749,9 @@ fi
 
 
 %changelog
+* Mon May 7 2012 Ade Lee <alee@redhat.com> 9.0.19-4
+- Bugzilla Bug #819111 - non-existent container breaks replication
+
 * Mon Apr 16 2012 Ade Lee <alee@redhat.com> 9.0.19-3
 - Bugzilla Bug #813075 - selinux denial for file size access
 
