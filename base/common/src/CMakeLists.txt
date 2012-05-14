@@ -83,6 +83,13 @@ find_file(HTTPCLIENT_JAR
         /usr/share/java/httpcomponents
 )
 
+find_file(HTTPCORE_JAR
+    NAMES
+        httpcore.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
 set(pki-certsrv_java_SRCS
     com/netscape/certsrv/apps/ICommandQueue.java
     com/netscape/certsrv/apps/CMS.java
@@ -1081,7 +1088,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${HTTPCLIENT_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
