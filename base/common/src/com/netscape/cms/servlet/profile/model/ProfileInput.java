@@ -30,12 +30,17 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class ProfileInput {
 
+    public ProfileInput() {
+        // required for jaxb
+    }
+
     @XmlElement
     public String getInputId() {
         return inputId;
     }
 
     private String inputId;
+
     @XmlJavaTypeAdapter(InputAttrsAdapter.class)
     public Map<String, String> InputAttrs = new LinkedHashMap<String, String>();
 

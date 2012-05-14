@@ -31,6 +31,10 @@ public class RequestId {
 
     protected BigInteger value;
 
+    public RequestId() {
+        // required for jaxb
+    }
+
     /**
      * Creates a new RequestId from its string representation.
      * <p>

@@ -251,6 +251,7 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/base/IAttrSet.java
     com/netscape/certsrv/base/ICRLPrettyPrint.java
     com/netscape/certsrv/base/ICertPrettyPrint.java
+    com/netscape/certsrv/base/BadRequestDataException.java
     com/netscape/certsrv/dbs/IDBRegistry.java
     com/netscape/certsrv/dbs/IDBAttrMapper.java
     com/netscape/certsrv/dbs/IElementProcessor.java
@@ -614,6 +615,10 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/cert/CertResourceService.java
     com/netscape/cms/servlet/cert/CertsResource.java
     com/netscape/cms/servlet/cert/CertsResourceService.java
+    com/netscape/cms/servlet/cert/RequestProcessor.java
+    com/netscape/cms/servlet/cert/CertProcessor.java
+    com/netscape/cms/servlet/cert/EnrollmentProcessor.java
+    com/netscape/cms/servlet/cert/RenewalProcessor.java
     com/netscape/cms/servlet/cert/model/CertificateData.java
     com/netscape/cms/servlet/cert/model/CertDAO.java
     com/netscape/cms/servlet/cert/model/CertDataInfo.java
@@ -746,6 +751,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/processors/CRMFProcessor.java
     com/netscape/cms/servlet/processors/IPKIProcessor.java
     com/netscape/cms/servlet/processors/CMCProcessor.java
+    com/netscape/cms/servlet/processors/Processor.java
     com/netscape/cms/servlet/request/ProcessReq.java
     com/netscape/cms/servlet/request/CheckRequest.java
     com/netscape/cms/servlet/request/IReqParser.java
@@ -776,8 +782,12 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/model/CertRequestInfo.java
     com/netscape/cms/servlet/request/model/CertRequestInfos.java
     com/netscape/cms/servlet/request/model/CertRetrievalRequestData.java
+    com/netscape/cms/servlet/request/model/AgentEnrollmentRequestData.java 
     com/netscape/cms/servlet/request/model/EnrollmentRequestData.java 
     com/netscape/cms/servlet/request/model/ProfileRetrievalRequestData.java
+    com/netscape/cms/servlet/request/model/AgentEnrollmentRequestDataFactory.java
+    com/netscape/cms/servlet/request/model/CertRequestInfoFactory.java
+    com/netscape/cms/servlet/request/model/EnrollmentRequestDataFactory.java
     com/netscape/cms/servlet/tks/TokenServlet.java
     com/netscape/cms/servlet/connector/CloneServlet.java
     com/netscape/cms/servlet/connector/TokenKeyRecoveryServlet.java
@@ -809,6 +819,17 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/profile/model/ProfileDataInfo.java
     com/netscape/cms/servlet/profile/model/ProfileDataInfos.java
     com/netscape/cms/servlet/profile/model/ProfileInput.java
+    com/netscape/cms/servlet/profile/model/ProfileAttribute.java
+    com/netscape/cms/servlet/profile/model/PolicyConstraint.java
+    com/netscape/cms/servlet/profile/model/PolicyConstraintValue.java
+    com/netscape/cms/servlet/profile/model/PolicyDefault.java
+    com/netscape/cms/servlet/profile/model/ProfileInput.java
+    com/netscape/cms/servlet/profile/model/ProfilePolicy.java
+    com/netscape/cms/servlet/profile/model/ProfilePolicySet.java
+    com/netscape/cms/servlet/profile/model/PolicyConstraintFactory.java
+    com/netscape/cms/servlet/profile/model/PolicyDefaultFactory.java
+    com/netscape/cms/servlet/profile/model/ProfileInputFactory.java
+    com/netscape/cms/servlet/profile/model/ProfileOutputFactory.java
     com/netscape/cms/authentication/AgentCertAuthentication.java
     com/netscape/cms/authentication/PortalEnroll.java
     com/netscape/cms/authentication/UdnPwdDirAuthentication.java

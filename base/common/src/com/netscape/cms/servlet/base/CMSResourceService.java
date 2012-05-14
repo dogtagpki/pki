@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
@@ -61,6 +62,9 @@ public class CMSResourceService {
 
     @Context
     protected Request request;
+
+    @Context
+    protected HttpServletRequest servletRequest;
 
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();

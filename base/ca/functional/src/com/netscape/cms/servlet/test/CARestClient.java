@@ -36,6 +36,7 @@ import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 import com.netscape.cms.servlet.request.CertRequestResource;
 import com.netscape.cms.servlet.request.CertRequestsResource;
+import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
@@ -104,7 +105,7 @@ public class CARestClient extends CMSRestClient {
 
     }
 
-    public CertRequestInfo enrollCertificate(EnrollmentRequestData data) {
+    public CertRequestInfos enrollCertificate(EnrollmentRequestData data) {
 
         if (data == null) {
             return null;
@@ -113,11 +114,41 @@ public class CARestClient extends CMSRestClient {
     }
 
     public CertRequestInfo getRequest(RequestId id) {
-
         if (id == null) {
             return null;
         }
         return certRequestClient.getRequestInfo(id);
+    }
+
+    public AgentEnrollmentRequestData reviewRequest(RequestId id) {
+        if (id == null) {
+            return null;
+        }
+        return certRequestClient.reviewRequest(id);
+    }
+
+    public void approveRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.approveRequest(id, data);
+    }
+
+    public void rejectRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.rejectRequest(id, data);
+    }
+
+    public void cancelRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.cancelRequest(id, data);
+    }
+
+    public void updateRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.updateRequest(id, data);
+    }
+
+    public void validateRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.validateRequest(id, data);
+    }
+
+    public void unassignRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestClient.unassignRequest(id, data);
     }
 
 }

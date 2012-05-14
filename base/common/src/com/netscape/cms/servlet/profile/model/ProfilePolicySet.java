@@ -12,57 +12,39 @@
 //with this program; if not, write to the Free Software Foundation, Inc.,
 //51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-//(C) 2011 Red Hat, Inc.
+//(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-
 package com.netscape.cms.servlet.profile.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author alee
- *
- */
-@XmlRootElement(name = "ProfileDataInfo")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProfileDataInfo {
-
+public class ProfilePolicySet {
     @XmlElement
-    protected String profileURL;
+    protected List<ProfilePolicy> policies = new ArrayList<ProfilePolicy>();
 
-    @XmlElement
-    protected String profileId;
-
-    public ProfileDataInfo() {
-        // required for JAXB (defaults)
+    public List<ProfilePolicy> getPolicies() {
+        return policies;
     }
 
-    /**
-     * @return the profileURL
-     */
-    public String getProfileURL() {
-        return profileURL;
+    public void setPolicies(List<ProfilePolicy> policies) {
+        this.policies = policies;
     }
 
-    /**
-     * @param keyURL the profileURL to set
-     */
-    public void setProfileURL(String profileURL) {
-        this.profileURL = profileURL;
+    public void addPolicy(ProfilePolicy policy) {
+        policies.add(policy);
     }
 
-    public void setProfileId(String profileId) {
-        this.profileId = profileId;
-    }
-
-    /**
-     * @return the profile ID in the profileURL
-     */
-    public String getProfileId() {
-        return profileId;
+    public void removePolicy(ProfilePolicy policy) {
+        policies.remove(policy);
     }
 
 }

@@ -20,8 +20,8 @@ package com.netscape.cms.servlet.common;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 
 /**
@@ -52,9 +52,9 @@ public class AuthCredentials implements IAuthCredentials {
      * @param cred credential
      * @exception com.netscape.certsrv.base.EBaseException NullPointerException
      */
-    public void set(String name, Object cred) throws EBaseException {
+    public void set(String name, Object cred) throws EAuthException {
         if (cred == null) {
-            throw new EBaseException("AuthCredentials.set()");
+            throw new EAuthException("AuthCredentials.set()");
         }
 
         authCreds.put(name, cred);

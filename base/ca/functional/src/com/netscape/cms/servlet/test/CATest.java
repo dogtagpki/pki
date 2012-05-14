@@ -45,7 +45,9 @@ import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
 import com.netscape.cms.servlet.request.RequestNotFoundException;
+import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
+import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 
 public class CATest {
@@ -203,44 +205,20 @@ public class CATest {
 
         //Initiate a Certificate Enrollment
 
-        EnrollmentRequestData data = new EnrollmentRequestData();
-        data.setProfileId("caUserCert");
-        data.setIsRenewal(false);
+        EnrollmentRequestData data = createUserCertEnrollment();
+        enrollAndApproveCertRequest(client, data);
 
-        //Simulate a "caUserCert" Profile enrollment
+        // submit a RA authenticated user cert request
+        EnrollmentRequestData rdata = createRAUserCertEnrollment();
+        enrollCertRequest(client, rdata);
 
-        ProfileInput certReq = data.addInput("Key Generation");
-        certReq.setInputAttr("cert_request_type", "crmf");
-        certReq.setInputAttr(
-                "cert_request",
-                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz");
+        // now try a manually approved server cert
+        EnrollmentRequestData serverData = createServerCertEnrollment();
+        enrollAndApproveCertRequest(client,serverData);
 
-        ProfileInput subjectName = data.addInput("Subject Name");
-        subjectName.setInputAttr("sn_uid", "jmagne");
-        subjectName.setInputAttr("sn_e", "jmagne@redhat.com");
-        subjectName.setInputAttr("sn_c", "US");
-        subjectName.setInputAttr("sn_ou", "Development");
-        subjectName.setInputAttr("sn_ou1", "IPA");
-        subjectName.setInputAttr("sn_ou2", "Dogtag");
-        subjectName.setInputAttr("sn_ou3", "CA");
-        subjectName.setInputAttr("sn_cn", "Common");
-        subjectName.setInputAttr("sn_o", "RedHat");
-
-        ProfileInput submitter = data.addInput("Requestor Information");
-        submitter.setInputAttr("requestor_name", "admin");
-        submitter.setInputAttr("requestor_email", "admin@redhat.com");
-        submitter.setInputAttr("requestor_phone", "650-555-5555");
-
-        CertRequestInfo reqInfo = null;
-
-        try {
-            reqInfo = client.enrollCertificate(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log(e.toString());
-        }
-
-        printRequestInfo(reqInfo);
+        // submit using an agent approval profile
+        serverData.setProfileId("caAgentServerCert");
+        enrollCertRequest(client, serverData);
 
         //Perform a sample certificate search with advanced search terms
 
@@ -291,6 +269,120 @@ public class CATest {
 
         printProfileData(pData);
 
+    }
+
+    private static void enrollAndApproveCertRequest(CARestClient client, EnrollmentRequestData data) {
+        CertRequestInfos reqInfo = null;
+        try {
+            reqInfo = client.enrollCertificate(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log(e.toString());
+        }
+
+        for (CertRequestInfo info : reqInfo.getRequests()) {
+            printRequestInfo(info);
+
+            AgentEnrollmentRequestData reviewData = client.reviewRequest(info.getRequestId());
+            log(reviewData.toString());
+
+            reviewData.setRequestNotes("This is an approval message");
+            client.approveRequest(reviewData.getRequestId(), reviewData);
+        }
+    }
+
+    private static void enrollCertRequest(CARestClient client, EnrollmentRequestData data) {
+        CertRequestInfos reqInfo = null;
+        try {
+            reqInfo = client.enrollCertificate(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log(e.toString());
+        }
+
+        for (CertRequestInfo info : reqInfo.getRequests()) {
+            printRequestInfo(info);
+        }
+    }
+
+    private static EnrollmentRequestData createUserCertEnrollment() {
+        EnrollmentRequestData data = new EnrollmentRequestData();
+        data.setProfileId("caUserCert");
+        data.setIsRenewal(false);
+
+        //Simulate a "caUserCert" Profile enrollment
+
+        ProfileInput certReq = data.createInput("Key Generation");
+        certReq.setInputAttr("cert_request_type", "crmf");
+        certReq.setInputAttr(
+                "cert_request",
+                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz");
+
+        ProfileInput subjectName = data.createInput("Subject Name");
+        subjectName.setInputAttr("sn_uid", "jmagne");
+        subjectName.setInputAttr("sn_e", "jmagne@redhat.com");
+        subjectName.setInputAttr("sn_c", "US");
+        subjectName.setInputAttr("sn_ou", "Development");
+        subjectName.setInputAttr("sn_ou1", "IPA");
+        subjectName.setInputAttr("sn_ou2", "Dogtag");
+        subjectName.setInputAttr("sn_ou3", "CA");
+        subjectName.setInputAttr("sn_cn", "Common");
+        subjectName.setInputAttr("sn_o", "RedHat");
+
+        ProfileInput submitter = data.createInput("Requestor Information");
+        submitter.setInputAttr("requestor_name", "admin");
+        submitter.setInputAttr("requestor_email", "admin@redhat.com");
+        submitter.setInputAttr("requestor_phone", "650-555-5555");
+        return data;
+    }
+
+    private static EnrollmentRequestData createRAUserCertEnrollment() {
+        EnrollmentRequestData data = new EnrollmentRequestData();
+        data.setProfileId("caDualRAuserCert");
+        data.setIsRenewal(false);
+
+        //Simulate a "caUserCert" Profile enrollment
+
+        ProfileInput certReq = data.createInput("Key Generation");
+        certReq.setInputAttr("cert_request_type", "crmf");
+        certReq.setInputAttr(
+                "cert_request",
+                "MIIB5DCCAeAwggFGAgQTosnaMIIBB4ABAqVOMEwxETAPBgNVBAMTCGFsZWUgcmEzMR4wHAYJKoZIhvcNAQkBFg9hbGVlQHJlZGhhdC5jb20xFzAVBgoJkiaJk/IsZAEBEwdhbGVlcmEzpoGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkQh3k+1323YgQD+oA9yzftqxbGQlsbz0f2OEeOL5h0uhg/qPlSNMjRN3mAeuaNyF0n/Bdxv4699gRTsyEaVJu7HX+kauSCZv+J0tvHiYuHQz1/TSscU9TNLyQjgXVKQFHEdjZa2cQNdmMDUFWrftAK6BFnsP3Tu712qZPAuBH9QIDAQABqRAwDgYDVR0PAQH/BAQDAgXgMDMwFQYJKwYBBQUHBQEBDAhyZWdUb2tlbjAaBgkrBgEFBQcFAQIMDWF1dGhlbnRpY2F0b3KhgZMwDQYJKoZIhvcNAQEFBQADgYEATNi3vMxn9KMto999sR4ik851jqbb6L0GL1KKgQ/hjIAACQb2H+0OpqeZ2+DcGd+oAQn1YZe8aPoFu+HOWjHlY1E2tm7TI1B6JpCL3TMag3mYryROX7l7LFEa1P730aGOWJF874bG8UWisU190zhCBQUqUjsd9DwaP42qM0gnzas=");
+
+        ProfileInput subjectName = data.createInput("Subject Name");
+        subjectName.setInputAttr("sn_uid", "aleera3");
+        subjectName.setInputAttr("sn_e", "alee@redhat.com");
+        subjectName.setInputAttr("sn_cn", "alee ra3");
+
+        ProfileInput submitter = data.createInput("Requestor Information");
+        submitter.setInputAttr("requestor_name", "admin");
+        submitter.setInputAttr("requestor_email", "admin@redhat.com");
+        submitter.setInputAttr("requestor_phone", "650-555-1234");
+        return data;
+    }
+
+    private static EnrollmentRequestData createServerCertEnrollment() {
+        EnrollmentRequestData data = new EnrollmentRequestData();
+        data.setProfileId("caServerCert");
+        data.setIsRenewal(false);
+
+        //Simulate a "caUserCert" Profile enrollment
+
+        ProfileInput certReq = data.createInput("Key Generation");
+        certReq.setInputAttr("cert_request_type", "pkcs10");
+        certReq.setInputAttr(
+                "cert_request",
+                "MIIBZjCB0AIBADAnMQ8wDQYDVQQKEwZyZWRoYXQxFDASBgNVBAMTC2FsZWUtd29ya3BjMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJtuKg9osJEBUwz8LoMQwwm1m7D97NNJEmvEhvBMet+VCtbd/erAFMoVXEgSKks/XFK2ViTeZYpp0A2pe4bm4yxowZm0b6von9BKGQ0jNtLemoOkGRWC/PP+fYP16aH62xu4z8MH1pBubdlAEp3Ppnr93aB1lzQaPVmcR3B4OWhwIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAgZhZOe0LqQD5iywAO7sY0PANVGzzdcmoLZJjjASY3kU5E3K8u3FKh24WJxcWzdC+/FysDkJixJb7xGUm697QwZvGxmAIQH4yIebWJ2KLHQQgRJytjVYySrRo2Fuo/dm2zzf3+o8WBuD2eMsEjsZfuKxhz7EahvyC2y/CuTBA08s="
+        );
+        ProfileInput subjectName = data.createInput("Subject Name");
+        subjectName.setInputAttr("sn_cn", "alee-workpc");
+        subjectName.setInputAttr("sn_o", "redhat");
+
+        ProfileInput submitter = data.createInput("Requestor Information");
+        submitter.setInputAttr("requestor_name", "admin");
+        submitter.setInputAttr("requestor_email", "admin@redhat.com");
+        submitter.setInputAttr("requestor_phone", "650-555-5555");
+        return data;
     }
 
     private static void printProfileInfos(ProfileDataInfos pInfos) {
@@ -451,11 +543,11 @@ public class CATest {
         }
 
         log("CertRequestURL: " + info.getRequestURL());
-        log("CertId: " +         info.getCertId());
+        log("CertId: " + ((info.getCertId() != null) ? info.getCertId() : ""));
         log("RequestType: " + info.getCertRequestType());
         log("Status:        " + info.getRequestStatus());
         log("Type:          " + info.getRequestType());
-        log("CertURL: "     + info.getCertURL() + "\n");
+        log("CertURL: " + ((info.getCertURL() != null) ? info.getCertURL(): "") + "\n");
     }
 
     private static void log(String string) {

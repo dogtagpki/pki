@@ -17,27 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request.model;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
-
-import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.cert.CertResource;
-import com.netscape.cms.servlet.request.CertRequestResource;
+import com.netscape.cms.servlet.cert.EnrollmentProcessor;
+import com.netscape.cms.servlet.cert.RenewalProcessor;
+import com.netscape.cms.servlet.cert.RequestProcessor;
+import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.request.RequestNotFoundException;
 
 /**
  * @author alee
@@ -46,16 +50,22 @@ import com.netscape.cms.servlet.request.CertRequestResource;
 public class CertRequestDAO extends CMSRequestDAO {
     private IRequestQueue queue;
     private ICertificateAuthority ca;
+    IProfileSubsystem ps;
+    private Nonces nonces = null;
+    private Random random = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
-    private static final String REQ_COMPLETE = "complete";
+    public static final String REQ_COMPLETE = "complete";
 
     public CertRequestDAO() {
-
         super("ca");
         ca = (ICertificateAuthority) CMS.getSubsystem("ca");
         queue = ca.getRequestQueue();
-
+        if (ca.noncesEnabled()) {
+            random = new Random();
+            nonces = ca.getNonces();
+        }
+        ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     }
 
     /**
@@ -122,86 +132,87 @@ public class CertRequestDAO extends CMSRequestDAO {
     }
 
     /**
+     * Gets info for a specific request
+     *
+     * @param id
+     * @return info for specific request
+     * @throws EBaseException
+     */
+    public AgentEnrollmentRequestData reviewRequest(HttpServletRequest servletRequest, RequestId id,
+            UriInfo uriInfo, Locale locale) throws EBaseException {
+        IRequest request = queue.findRequest(id);
+        if (request == null) {
+            return null;
+        }
+        String profileId = request.getExtDataInString("profileId");
+        IProfile profile = ps.getProfile(profileId);
+
+        AgentEnrollmentRequestData info = AgentEnrollmentRequestDataFactory.create(request, profile, uriInfo, locale);
+        if (ca.noncesEnabled()) {
+            addNonce(info, servletRequest);
+        }
+        return info;
+    }
+
+
+    private void addNonce(AgentEnrollmentRequestData info, HttpServletRequest servletRequest) throws EBaseException {
+        if (nonces != null) {
+            long n = random.nextLong();
+            long m = nonces.addNonce(n, Processor.getSSLClientCertificate(servletRequest));
+            if ((n + m) != 0) {
+                info.setNonce(Long.toString(m));
+            }
+        }
+    }
+
+    /**
      * Submits an enrollment request and processes it.
      *
      * @param data
      * @return info for the request submitted.
      * @throws EBaseException
+     * @throws ServletException
      */
-    public CertRequestInfo submitRequest(EnrollmentRequestData data, UriInfo uriInfo) throws EBaseException {
-
-        //TODO perform actual profile request.
-
-        throw new EBaseException("Not implemented.");
-    }
-
-    public void approveRequest(RequestId id) throws EBaseException {
-        IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.APPROVED);
-        queue.updateRequest(request);
-    }
-
-    public void rejectRequest(RequestId id) throws EBaseException {
-        IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.CANCELED);
-        queue.updateRequest(request);
-    }
-
-    public void cancelRequest(RequestId id) throws EBaseException {
-        IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.REJECTED);
-        queue.updateRequest(request);
-    }
-
-    private CertRequestInfo createCertRequestInfo(IRequest request, UriInfo uriInfo) {
-        CertRequestInfo ret = new CertRequestInfo();
-
-        String requestType = request.getRequestType();
-        String requestStatus = request.getRequestStatus().toString();
-
-        ret.setRequestType(requestType);
-        ret.setRequestStatus(requestStatus);
-
-        ret.setCertRequestType(request.getExtDataInString("cert_request_type"));
-
-        Path certRequestPath = CertRequestResource.class.getAnnotation(Path.class);
-        RequestId rid = request.getRequestId();
-
-        UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path(certRequestPath.value() + "/" + rid);
-        ret.setRequestURL(reqBuilder.build().toString());
-
-        //Get Cert info if issued.
-
-        String serialNoStr = null;
-
-        if ((requestType != null) && (requestStatus != null)) {
-            if (requestStatus.equals(REQ_COMPLETE)) {
-                X509CertImpl impl[] = new X509CertImpl[1];
-                impl[0] = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-
-                BigInteger serialNo;
-                if (impl[0] != null) {
-                    serialNo = impl[0].getSerialNumber();
-                    serialNoStr = serialNo.toString();
-                }
-            }
-
+    public CertRequestInfos submitRequest(EnrollmentRequestData data, HttpServletRequest request, UriInfo uriInfo,
+            Locale locale) throws EBaseException {
+        HashMap<String, Object> results = null;
+        if (data.getIsRenewal()) {
+            RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
+            results = processor.processRenewal(data, request);
+        } else {
+            EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
+            results = processor.processEnrollment(data, request);
         }
 
-        if (serialNoStr != null && !serialNoStr.equals("")) {
-            Path certPath = CertResource.class.getAnnotation(Path.class);
-            UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
-            certBuilder.path(certPath.value() + "/" + serialNoStr);
-            ret.setCertURL(certBuilder.build().toString());
+        CertRequestInfos ret = new CertRequestInfos();
+        ArrayList<CertRequestInfo> infos = new ArrayList<CertRequestInfo>();
+        IRequest reqs[] = (IRequest[]) results.get(Processor.ARG_REQUESTS);
+        for (IRequest req : reqs) {
+            CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
+            infos.add(info);
         }
+        // TODO - what happens if the errorCode is internal error ?
+        ret.setRequests(infos);
+        ret.setLinks(null);
 
         return ret;
     }
 
+    public void changeRequestState(RequestId id, HttpServletRequest request, AgentEnrollmentRequestData data,
+            Locale locale, String op) throws EBaseException {
+        IRequest ireq = queue.findRequest(id);
+        if (ireq == null) {
+            throw new RequestNotFoundException(id);
+        }
+
+        RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
+        processor.processRequest(request, data, ireq, op);
+    }
+
+
     @Override
     public CertRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
-        return createCertRequestInfo(request, uriInfo);
+        return CertRequestInfoFactory.create(request, uriInfo);
     }
 
 }

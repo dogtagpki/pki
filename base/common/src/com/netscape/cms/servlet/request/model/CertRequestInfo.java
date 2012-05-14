@@ -74,6 +74,7 @@ public class CertRequestInfo extends CMSRequestInfo {
      */
 
     public CertId getCertId() {
+        if (certURL == null) return null;
         String id = certURL.substring(certURL.lastIndexOf("/") + 1);
         return new CertId(id);
     }

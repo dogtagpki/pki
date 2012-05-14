@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -158,6 +159,9 @@ public class ProfileServlet extends CMSServlet {
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
+    // stats
+    protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
+
     public ProfileServlet() {
         super();
     }
@@ -291,6 +295,55 @@ public class ProfileServlet extends CMSServlet {
         }
     }
 
+    public void outputTemplate(boolean isXML, HttpServletResponse response, ArgSet args)
+            throws EBaseException {
+        if (isXML) {
+            response.setContentType("text/xml");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            outputThisAsXML(bos, args);
+            try {
+                response.setContentLength(bos.size());
+                bos.writeTo(response.getOutputStream());
+            } catch (Exception e) {
+                CMS.debug("outputTemplate error " + e);
+            }
+            return;
+        }
+        startTiming("output_template");
+
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(mTemplate));
+
+            response.setContentType("text/html; charset=UTF-8");
+
+            PrintWriter writer = response.getWriter();
+
+            // output template
+            String line = null;
+
+            do {
+                line = reader.readLine();
+                if (line != null) {
+                    if (line.indexOf("<CMS_TEMPLATE>") == -1) {
+                        writer.println(line);
+                    } else {
+                        // output javascript parameters
+                        writer.println("<script type=\"text/javascript\">");
+                        outputData(writer, args);
+                        writer.println("</script>");
+                    }
+                }
+            } while (line != null);
+            reader.close();
+        } catch (IOException e) {
+            CMS.debug(e);
+            throw new EBaseException(e.toString());
+        } finally {
+            endTiming("output_template");
+        }
+    }
+
     protected void outputArgList(PrintWriter writer, String name, ArgList list)
             throws IOException {
 
@@ -319,6 +372,22 @@ public class ProfileServlet extends CMSServlet {
                 writer.println(name + "Set[" + i + "] = " + h_name + ";");
             }
         }
+    }
+
+    public void startTiming(String event) {
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        if (statsSub != null) {
+            statsSub.startTiming(event, true);
+        }
+        statEvents.add(event);
+    }
+
+    public void endTiming(String event) {
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        if (statsSub != null) {
+            statsSub.endTiming(event);
+        }
+        statEvents.remove(event);
     }
 
     protected String escapeJavaScriptString(String v) {

@@ -117,6 +117,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     public final static String PROP_ID = "ID";
     public final static String PROP_AUTHORITY = "authority";
+    public final static String PROP_AUTHORITYID = "authorityId";
     public final static String PROP_AUTHMGR = "AuthMgr";
     public final static String PROP_CLIENTAUTH = "GetClientCert";
     public final static String PROP_RESOURCEID = "resourceID";
@@ -291,6 +292,9 @@ public abstract class CMSServlet extends HttpServlet {
         mOutputTemplatePath = sc.getInitParameter("templatePath");
 
         String authority = sc.getInitParameter(PROP_AUTHORITY);
+        if (authority == null) {
+            authority = sc.getInitParameter(PROP_AUTHORITYID);
+        }
 
         if (authority != null)
             mAuthority = (IAuthority)

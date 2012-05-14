@@ -41,6 +41,7 @@ public class ProfileData {
 
     @XmlElement
     protected String id;
+
     @XmlElement
     protected String name;
 

@@ -103,4 +103,46 @@ public class ServletUtils {
             authz.authzMgrAccessInit(aclMethod, acl);
         }
     }
+
+    public static String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
+        String srcType = AUTHZ_SRC_LDAP;
+        IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+
+        try {
+            IConfigStore authzConfig = CMS.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
+            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
+        } catch (EBaseException e) {
+            CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+        }
+
+        String aclMethod = null;
+
+        if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
+            CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+            try {
+                aclMethod = authzMgr;
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if (aclMethod != null && aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
+                if (aclInfo != null) {
+                    addACLInfo(authz, aclMethod, aclInfo);
+                    CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+                } else {
+                    CMS.debug(CMS.getLogMessage(
+                            "ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, id,
+                            AUTHZ_MGR_LDAP));
+                }
+            } else {
+                CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                        PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
+            }
+        } else {
+            aclMethod = AUTHZ_MGR_LDAP;
+            CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
+        }
+
+        return aclMethod;
+    }
 }

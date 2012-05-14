@@ -19,18 +19,29 @@ package com.netscape.certsrv.property;
 
 import java.util.Locale;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
 /**
  * This interface represents a property descriptor. A descriptor
  * includes information that describe a property.
  *
  * @version $Revision$, $Date$
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Descriptor implements IDescriptor {
 
     protected String mSyntax = null;
     protected String mConstraint = null;
     protected String mDescription = null;
     protected String mDef = null;
+
+    public Descriptor() {
+        // required for JAX-B
+    }
 
     /**
      * Constructs a descriptor.
@@ -89,5 +100,11 @@ public class Descriptor implements IDescriptor {
      */
     public String getDescription(Locale locale) {
         return mDescription;
+    }
+
+    @Override
+    public String toString() {
+        return "Descriptor [mSyntax=" + mSyntax + ", mConstraint=" + mConstraint + ", mDescription=" + mDescription
+                + ", mDef=" + mDef + "]";
     }
 }
