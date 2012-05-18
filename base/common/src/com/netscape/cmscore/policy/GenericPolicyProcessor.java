@@ -316,8 +316,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             try {
                 rule = (IPolicyRule)
                         Class.forName(classpath).newInstance();
-                if (rule instanceof IPolicyRule)
-                    rule.setInstanceName(instanceName);
+                rule.setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
                 mAuthority.log(ILogger.LL_FAILURE,

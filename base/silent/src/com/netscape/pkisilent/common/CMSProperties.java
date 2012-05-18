@@ -553,11 +553,10 @@ class CMSProperties extends Hashtable<String, String> {
      */
     public String getProperty(String key) {
         String oval = super.get(key);
-        String sval = (oval instanceof String) ? oval : null;
 
-        return ((sval == null) && (defaults != null))
+        return ((oval == null) && (defaults != null))
                 ? defaults.getProperty(key)
-                : sval;
+                : oval;
     }
 
     /**

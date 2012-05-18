@@ -159,9 +159,9 @@ public class X509Cert implements Certificate, Serializable {
             Date notAfter) throws CertException {
         subject = subjectName;
 
-        if (!(subjectPublicKey instanceof PublicKey))
+        if (subjectPublicKey == null)
             throw new CertException(CertException.err_INVALID_PUBLIC_KEY,
-                    "Doesn't implement PublicKey interface");
+                    "Public Key is NULL");
 
         /*
          * The X509 cert API requires X509 keys, else things break.
@@ -402,11 +402,11 @@ public class X509Cert implements Certificate, Serializable {
         String algorithm;
         Signature sig;
 
-        if (privateKey instanceof Key) {
+        if (privateKey != null) {
             Key key = privateKey;
             algorithm = key.getAlgorithm();
         } else {
-            throw new InvalidKeyException("private key not a key!");
+            throw new InvalidKeyException("Private Key is NULL");
         }
 
         sig = Signature.getInstance(algorithmId.getName());

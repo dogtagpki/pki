@@ -50,16 +50,16 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.PBEParameter;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.request.IService;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
@@ -301,9 +301,8 @@ public class SecurityDataRecoveryService implements IService {
                     InvalidKeyException, InvalidAlgorithmParameterException, TokenException,
                     CharConversionException {
 
-        if (!(keyGenAlg instanceof PBEAlgorithm)) {
-            throw new NoSuchAlgorithmException("Key generation algorithm" +
-                    " is not a PBE algorithm");
+        if (keyGenAlg == null) {
+            throw new NoSuchAlgorithmException("Key generation algorithm  is NULL");
         }
         PBEAlgorithm pbeAlg = keyGenAlg;
 

@@ -271,8 +271,7 @@ class LdapRenewalListener implements IRequestListener {
             return;
         }
 
-        if (certs[0] instanceof X509CertImpl)
-            acceptX509(r, certs);
+        acceptX509(r, certs);
     }
 
     public void acceptX509(IRequest r, Certificate[] certs) {
@@ -333,8 +332,7 @@ class LdapRevocationListener implements IRequestListener {
             return;
         }
 
-        if (certs[0] instanceof X509CertImpl)
-            acceptX509(r, certs);
+        acceptX509(r, certs);
     }
 
     public void acceptX509(IRequest r, Certificate[] revcerts) {
@@ -445,8 +443,7 @@ class LdapUnrevocationListener implements IRequestListener {
             return;
         }
 
-        if (certs[0] instanceof X509CertImpl)
-            acceptX509(r, certs);
+        acceptX509(r, certs);
     }
 
     public void acceptX509(IRequest r, Certificate[] certs) {
