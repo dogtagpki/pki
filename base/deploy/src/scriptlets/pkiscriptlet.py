@@ -23,7 +23,7 @@
 import abc
 
 
-# PKI Deployment Classes
+# PKI Deployment Abstract Base PKI Scriptlet
 class AbstractBasePkiScriptlet(object):
     __metaclass__ = abc.ABCMeta
 

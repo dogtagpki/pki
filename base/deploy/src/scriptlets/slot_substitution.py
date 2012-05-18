@@ -28,7 +28,7 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Instance Population Classes
+# PKI Deployment Slot Substitution Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 

@@ -27,7 +27,7 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Instance Population Classes
+# PKI Deployment Subsystem Layout Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
@@ -62,7 +62,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.symlink.create(master['pki_tomcat_webapps_path'],
                                 master['pki_subsystem_tomcat_webapps_link'])
         # establish instance-based subsystem convenience symbolic links
-        util.symlink.create(master['pki_webserver_database_link'],
+        util.symlink.create(master['pki_instance_database_link'],
                             master['pki_subsystem_database_link'])
         util.symlink.create(master['pki_subsystem_configuration_path'],
                             master['pki_subsystem_conf_link'])

@@ -56,12 +56,15 @@ execute_process(
 )
 install(
     FILES
+        src/scriptlets/configuration.jy
         src/scriptlets/configuration.py
         src/scriptlets/finalization.py
+        src/scriptlets/infrastructure_layout.py
         src/scriptlets/initialization.py
         src/scriptlets/instance_layout.py
         src/scriptlets/pkiconfig.py
         src/scriptlets/pkihelper.py
+        src/scriptlets/pkijython.py
         src/scriptlets/pkilogging.py
         src/scriptlets/pkimanifest.py
         src/scriptlets/pkimessages.py
@@ -71,7 +74,6 @@ install(
         src/scriptlets/slot_substitution.py
         src/scriptlets/subsystem_layout.py
         src/scriptlets/war_explosion.py
-        src/scriptlets/webserver_layout.py
     DESTINATION
         ${PYTHON_SITE_PACKAGES}/pki/deployment
     PERMISSIONS
@@ -114,13 +116,13 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/010_instance_layout\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/infrastructure_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/010_infrastructure_layout\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webserver_layout.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/020_webserver_layout\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/020_instance_layout\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
@@ -170,16 +172,16 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/configuration.py\"
         \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/930_configuration\")"
     )
-#   install(CODE "execute_process(COMMAND
-#       ${CMAKE_COMMAND} -E create_symlink
-#       \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_substitution.py\"
-#       \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_slot_substitution\")"
-#   )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/950_war_explosion\")"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_war_explosion\")"
     )
+#   install(CODE "execute_process(COMMAND
+#       ${CMAKE_COMMAND} -E create_symlink
+#       \"${PYTHON_SITE_PACKAGES}/pki/deployment/slot_substitution.py\"
+#       \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/950_slot_substitution\")"
+#   )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/subsystem_layout.py\"
@@ -192,13 +194,13 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webserver_layout.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/980_webserver_layout\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/980_instance_layout\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/990_instance_layout\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/infrastructure_layout.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/990_infrastructure_layout\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink

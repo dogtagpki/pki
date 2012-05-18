@@ -27,7 +27,7 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Security Database Classes
+# PKI Deployment Security Databases Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
@@ -36,11 +36,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
             util.password.create_password_conf(
-                master['pki_shared_password_conf'])
+                master['pki_shared_password_conf'],
+                master['pki_pin'])
             util.file.modify(master['pki_shared_password_conf'])
             util.certutil.create_security_databases(
                 master['pki_database_path'],
-                master['pki_shared_password_conf'])
+                master['pki_cert_database'],
+                master['pki_key_database'],
+                master['pki_secmod_database'],
+                password_file=master['pki_shared_password_conf'])
             util.file.modify(master['pki_cert_database'], perms=\
                 config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
             util.file.modify(master['pki_key_database'], perms=\
@@ -49,6 +53,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
             rv = util.certutil.verify_certificate_exists(
                      master['pki_database_path'],
+                     master['pki_cert_database'],
+                     master['pki_key_database'],
+                     master['pki_secmod_database'],
                      master['pki_self_signed_token'],
                      master['pki_self_signed_nickname'],
                      password_file=master['pki_shared_password_conf'])
@@ -58,6 +65,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     master['pki_self_signed_noise_bytes'])
                 util.certutil.generate_self_signed_certificate(
                     master['pki_database_path'],
+                    master['pki_cert_database'],
+                    master['pki_key_database'],
+                    master['pki_secmod_database'],
                     master['pki_self_signed_token'],
                     master['pki_self_signed_nickname'],
                     master['pki_self_signed_subject'],
@@ -70,12 +80,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.file.delete(master['pki_self_signed_noise_file'])
         else:
             util.password.create_password_conf(
-                master['pki_shared_password_conf'])
+                master['pki_shared_password_conf'],
+                master['pki_pin'])
             util.certutil.create_security_databases(
                 master['pki_database_path'],
-                master['pki_shared_password_conf'])
+                master['pki_cert_database'],
+                master['pki_key_database'],
+                master['pki_secmod_database'],
+                password_file=master['pki_shared_password_conf'])
             rv = util.certutil.verify_certificate_exists(
                      master['pki_database_path'],
+                     master['pki_cert_database'],
+                     master['pki_key_database'],
+                     master['pki_secmod_database'],
                      master['pki_self_signed_token'],
                      master['pki_self_signed_nickname'],
                      password_file=master['pki_shared_password_conf'])
@@ -85,6 +102,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     master['pki_self_signed_noise_bytes'])
                 util.certutil.generate_self_signed_certificate(
                     master['pki_database_path'],
+                    master['pki_cert_database'],
+                    master['pki_key_database'],
+                    master['pki_secmod_database'],
                     master['pki_self_signed_token'],
                     master['pki_self_signed_nickname'],
                     master['pki_self_signed_subject'],
@@ -112,16 +132,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
-            if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_subsystem_instances() == 0:
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 0:
+                util.file.delete(master['pki_cert_database'])
+                util.file.delete(master['pki_key_database'])
+                util.file.delete(master['pki_secmod_database'])
+                util.file.delete(master['pki_shared_password_conf'])
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 0:
                 util.file.delete(master['pki_cert_database'])
                 util.file.delete(master['pki_key_database'])
                 util.file.delete(master['pki_secmod_database'])
                 util.file.delete(master['pki_shared_password_conf'])
         else:
             # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_subsystem_instances() == 1:
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 1:
+                util.file.delete(master['pki_cert_database'])
+                util.file.delete(master['pki_key_database'])
+                util.file.delete(master['pki_secmod_database'])
+                util.file.delete(master['pki_shared_password_conf'])
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 1:
                 util.file.delete(master['pki_cert_database'])
                 util.file.delete(master['pki_key_database'])
                 util.file.delete(master['pki_secmod_database'])

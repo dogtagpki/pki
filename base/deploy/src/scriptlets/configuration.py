@@ -22,31 +22,66 @@
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
+import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Instance Population Classes
+# PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
         config.pki_log.info(log.CONFIGURATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        config.pki_log.info("NOT YET IMPLEMENTED",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+        if not config.pki_dry_run_flag:
+            util.directory.create(master['pki_client_path'], uid=0, gid=0)
+            util.password.create_password_conf(
+                master['pki_client_password_conf'],
+                master['pki_client_pin'])
+            util.directory.create(master['pki_client_database_path'],
+                                  uid=0, gid=0)
+            util.certutil.create_security_databases(
+                master['pki_client_database_path'],
+                master['pki_client_cert_database'],
+                master['pki_client_key_database'],
+                master['pki_client_secmod_database'],
+                password_file=master['pki_client_password_conf'])
+        else:
+            util.password.create_password_conf(
+                master['pki_client_password_conf'],
+                master['pki_client_pin'])
+            util.certutil.create_security_databases(
+                master['pki_client_database_path'],
+                master['pki_client_cert_database'],
+                master['pki_client_key_database'],
+                master['pki_client_secmod_database'],
+                password_file=master['pki_client_password_conf'])
+        # Pass control to the Java servlet via Jython 2.2 'configuration.jy'
+        util.jython.invoke(master['pki_jython_configuration_scriptlet'])
         return self.rv
 
     def respawn(self):
         config.pki_log.info(log.CONFIGURATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        config.pki_log.info("NOT YET IMPLEMENTED",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
         return self.rv
 
     def destroy(self):
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        config.pki_log.info("NOT YET IMPLEMENTED",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+        if not config.pki_dry_run_flag:
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 0:
+                util.directory.delete(master['pki_client_path'])
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 0:
+                util.directory.delete(master['pki_client_path'])
+        else:
+            # ALWAYS display correct information (even during dry_run)
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 1:
+                util.directory.delete(master['pki_client_path'])
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 1:
+                util.directory.delete(master['pki_client_path'])
         return self.rv

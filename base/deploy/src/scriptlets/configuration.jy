@@ -1,0 +1,70 @@
+#!/usr/bin/jython
+
+# System Python Imports
+import os
+import pickle
+import sys
+
+
+# PKI Python Imports
+import pkijython as jyutil
+import pkiconfig as config
+from pkiconfig import pki_master_jython_dict as master
+import pkimessages as log
+
+
+# System Java Imports
+from java.lang import System as javasystem
+
+
+def main(argv):
+    # Establish 'master' as the PKI jython dictionary
+    master = dict()
+
+    # import the master dictionary from 'pkispawn'
+    master = pickle.loads(argv[1])
+
+    # IMPORTANT:  Unfortunately, 'jython 2.2' does NOT support logging!
+    #
+    #             Until, and unless, 'jython 2.5' or later is used,
+    #             debugging will basically be limited to using 'print'
+    #             since creating a logging mechanism for 'jython 2.2'
+    #             would not make sense at this point in time, although
+    #             a 'customized' manual log process could be created.
+    #
+    #             Regardless of 'jython' version, the log file generated
+    #             by this standalone 'jython' process would be unique and
+    #             separate to the log file generated for the PKI
+    #             deployment scriptlets 'python' process, as they exist
+    #             as two separate processes (until and unless 'jython 2.7'
+    #             could be used to completely replace 'python 2.7',
+    #             in which case a single process could be executed
+    #             end-to-end from installation through configuration).
+    #
+    if master['pki_jython_log_level'] >= config.PKI_JYTHON_DEBUG_LOG_LEVEL:
+        # javasystem.out.println("Hello")
+        print "%s %s" %\
+              (log.PKI_JYTHON_INDENTATION_2, sys.path)
+        print "%s %s" %\
+              (log.PKI_JYTHON_INDENTATION_2,
+               javasystem.getProperties()['java.class.path'])
+        for key in master:
+            print "%s '%s' = '%s'" %\
+                  (log.PKI_JYTHON_INDENTATION_2, key, master[key])
+
+    # Initialize token
+    jyutil.security_databases.initialize_token(
+        master['pki_client_database_path'],
+        master['pki_dry_run_flag'],
+        master['pki_jython_log_level'])
+
+    # Log into token
+    jyutil.security_databases.log_into_token(
+        master['pki_client_database_path'],
+        master['pki_client_password_conf'],
+        master['pki_dry_run_flag'],
+        master['pki_jython_log_level'])
+
+
+if __name__ == "__main__":
+    main(sys.argv)

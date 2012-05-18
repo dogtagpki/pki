@@ -123,6 +123,8 @@ PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
 # PKI Deployment "Helper" Messages
 PKIHELPER_APACHE_INSTANCES_2 = "instance '%s' contains '%d' "\
                                "Apache PKI subsystems"
+PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = "applying in-place "\
+                                      "slot substitutions on '%s'"
 PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = "certutil:  Missing "\
                                          "'-c issuer-name' option!"
 PKIHELPER_CERTUTIL_MISSING_NICKNAME = "certutil:  Missing "\
@@ -152,13 +154,13 @@ PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
 PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
 PKIHELPER_GID_2 = "GID of '%s' is %s"
 PKIHELPER_GROUP_1 = "retrieving GID for '%s' . . ."
+PKIHELPER_INVOKE_JYTHON_3 = "executing 'export %s;"\
+                            "jython %s %s <master_dictionary>'"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
 PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
 PKIHELPER_LINK_S_2 = "ln -s %s %s"
-PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = "applying in-place "\
-                                      "slot substitutions on '%s'"
 PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
 PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
@@ -180,7 +182,21 @@ PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 
 
+# PKI Deployment Jython "Scriptlet" Messages
+# (MUST contain NO embedded formats since Jython 2.2 does not support logging!)
+PKI_JYTHON_INDENTATION_0 = "pkispawn    : JYTHON  "
+PKI_JYTHON_INDENTATION_1 = "pkispawn    : JYTHON   ..."
+PKI_JYTHON_INDENTATION_2 = "pkispawn    : JYTHON   ......."
+PKI_JYTHON_INDENTATION_3 = "pkispawn    : JYTHON   ..........."
+PKI_JYTHON_INDENTATION_4 = "pkispawn    : JYTHON   ..............."
+PKI_JYTHON_INITIALIZING_TOKEN = "initializing token located in"
+PKI_JYTHON_LOG_INTO_TOKEN = "logging into token located in"
+
+
 # PKI Deployment "Scriptlet" Messages
+ADMIN_DOMAIN_DESTROY_1 = "depopulating '%s'"
+ADMIN_DOMAIN_RESPAWN_1 = "repopulating '%s'"
+ADMIN_DOMAIN_SPAWN_1 = "populating '%s'"
 CONFIGURATION_DESTROY_1 = "unconfiguring '%s'"
 CONFIGURATION_RESPAWN_1 = "reconfiguring '%s'"
 CONFIGURATION_SPAWN_1 = "configuring '%s'"
@@ -208,6 +224,3 @@ SUBSYSTEM_SPAWN_1 = "populating '%s'"
 WAR_EXPLOSION_DESTROY_1 = "removing '%s'"
 WAR_EXPLOSION_RESPAWN_1 = "redeploying '%s'"
 WAR_EXPLOSION_SPAWN_1 = "deploying '%s'"
-WEBSERVER_DESTROY_1 = "depopulating '%s'"
-WEBSERVER_RESPAWN_1 = "repopulating '%s'"
-WEBSERVER_SPAWN_1 = "populating '%s'"

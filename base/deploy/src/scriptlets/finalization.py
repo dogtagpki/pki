@@ -28,7 +28,7 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Instance Population Classes
+# PKI Deployment Finalization Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
@@ -43,8 +43,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Save a timestamped copy of the installation manifest file
         filename = master['pki_root_prefix'] +\
                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                   master['pki_instance_name'] + "/" +\
-                   master['pki_web_server'].lower() + "/" +\
+                   master['pki_instance_id'] + "/" +\
                    master['pki_subsystem'].lower() +"/" +\
                    "spawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"
@@ -59,7 +58,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Log final process messages
         config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         if not config.pki_dry_run_flag:
             util.file.modify(master['pki_spawn_log'], silent=True)
@@ -77,8 +76,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Save a timestamped copy of the updated manifest file
         filename = master['pki_root_prefix'] +\
                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                   master['pki_instance_name'] + "/" +\
-                   master['pki_web_server'].lower() + "/" +\
+                   master['pki_instance_id'] + "/" +\
                    master['pki_subsystem'].lower() +"/" +\
                    "respawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"
@@ -93,7 +91,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Log final process messages
         config.pki_log.info(log.PKIRESPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         if not config.pki_dry_run_flag:
             util.file.modify(master['pki_respawn_log'], silent=True)
@@ -104,7 +102,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         if not config.pki_dry_run_flag:
             util.file.modify(master['pki_destroy_log'], silent=True)

@@ -27,14 +27,14 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment Instance Population Classes
+# PKI Deployment Initialization Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
         config.pki_log.info(log.PKISPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -49,7 +49,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.PKIRESPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -64,7 +64,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_name'],
+                            master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

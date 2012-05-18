@@ -33,6 +33,7 @@ try:
     import random
     import socket
     import string
+    import struct
     import time
     from time import strftime as date
     from pki.deployment import pkiconfig as config
@@ -69,13 +70,17 @@ def main(argv):
     config.pki_certificate_timestamp =\
         date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
 
+    # Obtain the architecture bit-size
+    config.pki_architecture = struct.calcsize("P") * 8
+
     # Retrieve hostname
     config.pki_hostname = socket.gethostname()
 
-    # Generate a random 'pin' for use as the security database password
+    # Generate random 'pin's for use as security database passwords
     pin_low  = 100000000000
     pin_high = 999999999999
     config.pki_pin = random.randint(pin_low, pin_high)
+    config.pki_client_pin = random.randint(pin_low, pin_high)
 
     # Generate a one-time pin to be used prior to configuration
     config.pki_one_time_pin =\
@@ -149,6 +154,9 @@ def main(argv):
                              extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Override PKI configuration file values with 'custom' command-line values.
+    if not config.pki_admin_domain_name is None:
+        config.pki_common_dict['pki_admin_domain_name'] =\
+            config.pki_admin_domain_name
     if not config.pki_instance_name is None:
         config.pki_common_dict['pki_instance_name'] =\
             config.pki_instance_name

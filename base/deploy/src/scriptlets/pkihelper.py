@@ -25,6 +25,7 @@ import errno
 import sys
 import os
 import fileinput
+import pickle
 import random
 import shutil
 import string
@@ -174,27 +175,27 @@ class instance:
     def apache_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_webserver_path']) or\
-               not os.path.isdir(master['pki_webserver_path']):
+            if not os.path.exists(master['pki_instance_path']) or\
+               not os.path.isdir(master['pki_instance_path']):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_webserver_path'],
+                    master['pki_instance_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
             # count number of PKI subsystems present
-            # within the specfied Apache instance
+            # within the specified Apache instance
             for subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                path = master['pki_webserver_path'] + "/" + subsystem.lower()
+                path = master['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
                 config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                     master['pki_webserver_path'], rv - 1,
+                                     master['pki_instance_path'], rv - 1,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                     master['pki_webserver_path'],
+                                     master['pki_instance_path'],
                                      rv, extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -205,27 +206,29 @@ class instance:
     def pki_subsystem_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_instance_path']) or\
-               not os.path.isdir(master['pki_instance_path']):
+            if not os.path.exists(master['pki_path']) or\
+               not os.path.isdir(master['pki_path']):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_instance_path'],
+                    master['pki_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
-            # count total number of Apache PKI subsystems present
-            # within the specfied PKI instance
-            for apache_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                apache_path = master['pki_instance_path'] + "/" + "apache" +\
-                              "/" + apache_subsystem.lower()
-                if os.path.exists(apache_path) and os.path.isdir(apache_path):
-                    rv = rv + 1
-            # count total number of Tomcat PKI subsystems present
-            # within the specfied PKI instance
-            for tomcat_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                tomcat_path = master['pki_instance_path'] + "/" + "tomcat" +\
-                              "/" + tomcat_subsystem.lower()
-                if os.path.exists(tomcat_path) and os.path.isdir(tomcat_path):
-                    rv = rv + 1
+            # Since ALL directories within the top-level PKI infrastructure
+            # SHOULD represent PKI instances, look for all possible
+            # PKI instances within the top-level PKI infrastructure
+            for instance in os.listdir(master['pki_path']):
+                if os.path.isdir(os.path.join(master['pki_path'],instance))\
+                   and not\
+                   os.path.islink(os.path.join(master['pki_path'],instance)):
+                    dir = os.path.join(master['pki_path'],instance)
+                    # Since ANY directory within this PKI instance COULD
+                    # be a PKI subsystem, look for all possible
+                    # PKI subsystems within this PKI instance
+                    for name in os.listdir(dir):
+                        if os.path.isdir(os.path.join(dir,name)) and\
+                           not os.path.islink(os.path.join(dir,name)):
+                            if name.upper() in config.PKI_SUBSYSTEMS:
+                                rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
                 config.pki_log.debug(log.PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2,
@@ -244,27 +247,27 @@ class instance:
     def tomcat_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_webserver_path']) or\
-               not os.path.isdir(master['pki_webserver_path']):
+            if not os.path.exists(master['pki_instance_path']) or\
+               not os.path.isdir(master['pki_instance_path']):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_webserver_path'],
+                    master['pki_instance_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
             # count number of PKI subsystems present
-            # within the specfied Tomcat instance
+            # within the specified Tomcat instance
             for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                path = master['pki_webserver_path'] + "/" + subsystem.lower()
+                path = master['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
                 config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
-                                     master['pki_webserver_path'], rv - 1,
+                                     master['pki_instance_path'], rv - 1,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
-                                     master['pki_webserver_path'],
+                                     master['pki_instance_path'],
                                      rv, extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -277,7 +280,7 @@ class instance:
             if not os.path.exists(master['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
                                      master['pki_subsystem'],
-                                     master['pki_instance_name'],
+                                     master['pki_instance_id'],
                                      extra=config.PKI_INDENTATION_LEVEL_1)
                 sys.exit(1)
         except OSError as exc:
@@ -290,7 +293,7 @@ class instance:
             if os.path.exists(master['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
                                      master['pki_subsystem'],
-                                     master['pki_instance_name'],
+                                     master['pki_instance_id'],
                                      extra=config.PKI_INDENTATION_LEVEL_1)
                 sys.exit(1)
         except OSError as exc:
@@ -1292,7 +1295,8 @@ class war:
 
 # PKI Deployment Password Class
 class password:
-    def create_password_conf(self, path, overwrite_flag=False):
+    def create_password_conf(self, path, pin, overwrite_flag=False,
+                             critical_failure=True):
         try:
             if not config.pki_dry_run_flag:
                 if os.path.exists(path):
@@ -1304,11 +1308,11 @@ class password:
                         with open(path, "wt") as fd:
                             if master['pki_subsystem'] in\
                                config.PKI_APACHE_SUBSYSTEMS:
-                                fd.write("internal" + ":" +\
-                                         str(master['pki_pin']))
+                                fd.write(master['pki_self_signed_token'] +\
+                                         ":" + str(pin))
                             else:
-                                fd.write("internal" + "=" +\
-                                         str(master['pki_pin']))
+                                fd.write(master['pki_self_signed_token'] +\
+                                         "=" + str(pin))
                         fd.closed
                 else:
                     config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
@@ -1317,11 +1321,11 @@ class password:
                     with open(path, "wt") as fd:
                         if master['pki_subsystem'] in\
                            config.PKI_APACHE_SUBSYSTEMS:
-                            fd.write("internal" + ":" +\
-                                     str(master['pki_pin']))
+                            fd.write(master['pki_self_signed_token'] +\
+                                     ":" + str(pin))
                         else:
-                            fd.write("internal" + "=" +\
-                                     str(master['pki_pin']))
+                            fd.write(master['pki_self_signed_token'] +\
+                                     "=" + str(pin))
                     fd.closed
             else:
                 if not os.path.exists(path) or overwrite_flag:
@@ -1337,7 +1341,9 @@ class password:
 
 # PKI Deployment NSS 'certutil' Class
 class certutil:
-    def create_security_databases(self, path, password_file=None, prefix=None,
+    def create_security_databases(self, path, pki_cert_database,
+                                  pki_key_database, pki_secmod_database,
+                                  password_file=None, prefix=None,
                                   critical_failure=True):
         try:
             # Compose this "certutil" command
@@ -1360,15 +1366,15 @@ class certutil:
                         log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if os.path.exists(master['pki_cert_database']) or\
-                   os.path.exists(master['pki_key_database']) or\
-                   os.path.exists(master['pki_secmod_database']):
+                if os.path.exists(pki_cert_database) or\
+                   os.path.exists(pki_key_database) or\
+                   os.path.exists(pki_secmod_database):
                     # Simply notify user that the security databases exist
                     config.pki_log.info(
                         log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
-                        master['pki_cert_database'],
-                        master['pki_key_database'],
-                        master['pki_secmod_database'],
+                        pki_cert_database,
+                        pki_key_database,
+                        pki_secmod_database,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                 else:
                     if password_file != None:
@@ -1387,15 +1393,15 @@ class certutil:
                     # Execute this "certutil" command
                     subprocess.call(command, shell=True)
             else:
-                if os.path.exists(master['pki_cert_database']) or\
-                   os.path.exists(master['pki_key_database']) or\
-                   os.path.exists(master['pki_secmod_database']):
+                if os.path.exists(pki_cert_database) or\
+                   os.path.exists(pki_key_database) or\
+                   os.path.exists(pki_secmod_database):
                     # Simply notify user that the security databases exist
                     config.pki_log.info(
                         log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
-                        master['pki_cert_database'],
-                        master['pki_key_database'],
-                        master['pki_secmod_database'],
+                        pki_cert_database,
+                        pki_key_database,
+                        pki_secmod_database,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                 else:
                     # Display this "certutil" command
@@ -1415,8 +1421,10 @@ class certutil:
                 sys.exit(1)
         return
 
-    def verify_certificate_exists(self, path, token, nickname,
-                                  password_file=None):
+    def verify_certificate_exists(self, path, pki_cert_database,
+                                  pki_key_database, pki_secmod_database,
+                                  token, nickname, password_file=None,
+                                  silent=True):
         rv = 0
         try:
             # Compose this "certutil" command
@@ -1448,7 +1456,8 @@ class certutil:
             #   OPTIONALLY specify a password file
             if password_file != None:
                 command = command + " " + "-f" + " " + password_file
-            #   Always execute this command silently
+            #   By default, execute this command silently
+            if silent != False:
                 command = command + " > /dev/null 2>&1"
             if not config.pki_dry_run_flag:
                 if not os.path.exists(path):
@@ -1456,15 +1465,15 @@ class certutil:
                         log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not os.path.exists(master['pki_cert_database']) or\
-                   not os.path.exists(master['pki_key_database']) or\
-                   not os.path.exists(master['pki_secmod_database']):
+                if not os.path.exists(pki_cert_database) or\
+                   not os.path.exists(pki_key_database) or\
+                   not os.path.exists(pki_secmod_database):
                     # NSS security databases MUST exist!
                     config.pki_log.error(
                         log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                        master['pki_cert_database'],
-                        master['pki_key_database'],
-                        master['pki_secmod_database'],
+                        pki_cert_database,
+                        pki_key_database,
+                        pki_secmod_database,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
                 if password_file != None:
@@ -1477,9 +1486,9 @@ class certutil:
                         sys.exit(1)
             else:
                 # Check for first time through as dry_run
-                if not os.path.exists(master['pki_cert_database']) or\
-                   not os.path.exists(master['pki_key_database']) or\
-                   not os.path.exists(master['pki_secmod_database']):
+                if not os.path.exists(pki_cert_database) or\
+                   not os.path.exists(pki_key_database) or\
+                   not os.path.exists(pki_secmod_database):
                     return False
             # Execute this "certutil" command
             subprocess.check_call(command, shell=True)
@@ -1492,7 +1501,9 @@ class certutil:
                 sys.exit(1)
         return True
 
-    def generate_self_signed_certificate(self, path, token, nickname,
+    def generate_self_signed_certificate(self, path, pki_cert_database,
+                                         pki_key_database, pki_secmod_database,
+                                         token, nickname,
                                          subject, serial_number,
                                          validity_period, issuer_name,
                                          trustargs, noise_file,
@@ -1591,15 +1602,15 @@ class certutil:
                         log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not os.path.exists(master['pki_cert_database']) or\
-                   not os.path.exists(master['pki_key_database']) or\
-                   not os.path.exists(master['pki_secmod_database']):
+                if not os.path.exists(pki_cert_database) or\
+                   not os.path.exists(pki_key_database) or\
+                   not os.path.exists(pki_secmod_database):
                     # NSS security databases MUST exist!
                     config.pki_log.error(
                         log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                        master['pki_cert_database'],
-                        master['pki_key_database'],
-                        master['pki_secmod_database'],
+                        pki_cert_database,
+                        pki_key_database,
+                        pki_secmod_database,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
                 if not os.path.exists(noise_file):
@@ -1631,6 +1642,43 @@ class certutil:
         return
 
 
+# PKI Deployment 'jython' Class
+class jython:
+    def invoke(self, scriptlet, critical_failure=True):
+        try:
+            # From 'http://www.jython.org/archive/22/userfaq.html':
+            # Setting this to false will allow Jython to provide access to
+            # non-public fields, methods, and constructors of Java objects.
+            property = "-Dpython.security.respectJavaAccessibility=false"
+            # comment the next line out to use the "property" defined above
+            property = ""
+            # Compose this "jython" command
+            data = pickle.dumps(master)
+            ld_library_path = "LD_LIBRARY_PATH"
+            if master['pki_architecture'] == 64:
+                ld_library_path = ld_library_path + "=" +\
+                                  "/usr/lib64/jss:/usr/lib64:/lib64:" +\
+                                  "/usr/lib/jss:/usr/lib:/lib"
+            else:
+                ld_library_path = ld_library_path + "=" +\
+                                  "/usr/lib/jss:/usr/lib:/lib"
+            command = "export" + " " + ld_library_path + ";" + "jython" + " " +\
+                      property + " " + scriptlet + " " + "\"" + data + "\""
+            # Display this "jython" command
+            config.pki_log.info(
+                log.PKIHELPER_INVOKE_JYTHON_3,
+                ld_library_path, property, scriptlet,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Invoke this "jython" command
+            subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+
 # PKI Deployment Helper Class Instances
 identity = identity()
 instance = instance()
@@ -1640,3 +1688,4 @@ symlink = symlink()
 war = war()
 password = password()
 certutil = certutil()
+jython = jython()
