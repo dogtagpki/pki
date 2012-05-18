@@ -194,7 +194,7 @@ public class KeyUsage implements ICMSExtension {
             try {
                 byte[] value = extension.getExtensionValue();
 
-                ext = new KeyUsageExtension(new Boolean(true), value);
+                ext = new KeyUsageExtension(Boolean.valueOf(true), value);
             } catch (IOException e) {
                 return null;
             }

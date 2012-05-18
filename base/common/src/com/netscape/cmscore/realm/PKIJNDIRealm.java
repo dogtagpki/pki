@@ -3,16 +3,9 @@ package com.netscape.cmscore.realm;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Principal;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.Principal;
-
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
-import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.catalina.realm.JNDIRealm;
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -23,12 +16,18 @@ import java.util.Vector;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.realm.JNDIRealm;
 
 /*
  *  Self contained PKI JNDI Real that overrides the standard JNDI Realm
@@ -384,7 +383,7 @@ public class PKIJNDIRealm extends JNDIRealm {
             if (isEntryNegative) {
                 allowed = !allowed;
             }
-            
+
             // Our current ACLs require that every entry passes for
             // the entire ACL to pass.
             // For some reason the original code allows the negative acls (deny)
@@ -496,7 +495,7 @@ public class PKIJNDIRealm extends JNDIRealm {
             if (orIndex == -1 && andIndex == -1) {
                 boolean passed = evaluateExpression(principal, s.trim());
 
-                v.addElement(Boolean.valueOf(passed));
+                v.addElement(passed);
                 break;
 
                 // || first
@@ -504,7 +503,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 String s1 = s.substring(0, orIndex);
                 boolean passed = evaluateExpression(principal, s1.trim());
 
-                v.addElement(new Boolean(passed));
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("||");
                 s = s.substring(orIndex + 2);
                 // && first
@@ -512,7 +511,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 String s1 = s.substring(0, andIndex);
                 boolean passed = evaluateExpression(principal, s1.trim());
 
-                v.addElement(new Boolean(passed));
+                v.addElement(passed);
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
             }

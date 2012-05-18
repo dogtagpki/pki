@@ -314,7 +314,7 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
 
         @SuppressWarnings("unused")
         PresenceServerExtension ext2 = new PresenceServerExtension(
-                new Boolean(false), ext1.getExtensionValue());
+                Boolean.valueOf(false), ext1.getExtensionValue());
 
     }
 }

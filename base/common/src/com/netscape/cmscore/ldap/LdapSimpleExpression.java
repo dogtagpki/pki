@@ -309,7 +309,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         if (!(mVal.equalsIgnoreCase("true") || mVal.equalsIgnoreCase("false")))
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
                     mVal));
-        storedVal = new Boolean(mVal);
+        storedVal = Boolean.valueOf(mVal);
         switch (mOp) {
         case OP_EQUAL:
             result = (givenVal.equals(storedVal));

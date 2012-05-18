@@ -270,7 +270,7 @@ public class SimpleExpression implements IExpression {
         if (!(mVal.equalsIgnoreCase("true") || mVal.equalsIgnoreCase("false")))
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_ATTR_VALUE",
                         mVal));
-        storedVal = new Boolean(mVal);
+        storedVal = Boolean.valueOf(mVal);
         switch (mOp) {
         case OP_EQUAL:
             result = (givenVal.equals(storedVal));

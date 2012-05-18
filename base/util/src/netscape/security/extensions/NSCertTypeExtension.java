@@ -274,7 +274,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
      * Get the attribute value.
      */
     public Object get(String name) throws CertificateException {
-        return new Boolean(isSet(getPosition(name)));
+        return Boolean.valueOf(isSet(getPosition(name)));
     }
 
     /**

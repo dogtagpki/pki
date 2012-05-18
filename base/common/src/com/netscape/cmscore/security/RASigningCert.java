@@ -101,7 +101,7 @@ public class RASigningCert extends CertificateInfo {
     protected KeyUsageExtension getKeyUsageExtension() throws IOException {
         KeyUsageExtension extension = new KeyUsageExtension();
 
-        extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, new Boolean(true));
+        extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, Boolean.valueOf(true));
         return extension;
     }
 }

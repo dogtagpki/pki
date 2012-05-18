@@ -70,7 +70,7 @@ public class CRLExtensions extends Vector<Extension> {
             for (int i = 0; i < extLen; i++) {
                 Array.setByte(value, i, extData[i]);
             }
-            Object[] passed = new Object[] { new Boolean(ext.isCritical()),
+            Object[] passed = new Object[] { Boolean.valueOf(ext.isCritical()),
                                                         value };
             CertAttrSet crlExt = (CertAttrSet) cons.newInstance(passed);
             map.put(crlExt.getName(), (Extension) crlExt);

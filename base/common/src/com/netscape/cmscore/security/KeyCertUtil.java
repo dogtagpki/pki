@@ -909,49 +909,49 @@ public class KeyCertUtil {
         String sslClient = properties.getSSLClientBit();
 
         if ((sslClient != null) && (sslClient.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.SSL_CLIENT, new Boolean(true));
+            ns.set(NSCertTypeExtension.SSL_CLIENT, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String sslServer = properties.getSSLServerBit();
 
         if ((sslServer != null) && (sslServer.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.SSL_SERVER, new Boolean(true));
+            ns.set(NSCertTypeExtension.SSL_SERVER, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String sslMail = properties.getSSLMailBit();
 
         if ((sslMail != null) && (sslMail.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.EMAIL, new Boolean(true));
+            ns.set(NSCertTypeExtension.EMAIL, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String sslCA = properties.getSSLCABit();
 
         if ((sslCA != null) && (sslCA.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.SSL_CA, new Boolean(true));
+            ns.set(NSCertTypeExtension.SSL_CA, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String objectSigning = properties.getObjectSigningBit();
 
         if ((objectSigning != null) && (objectSigning.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.OBJECT_SIGNING, new Boolean(true));
+            ns.set(NSCertTypeExtension.OBJECT_SIGNING, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String mailCA = properties.getMailCABit();
 
         if ((mailCA != null) && (mailCA.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.EMAIL_CA, new Boolean(true));
+            ns.set(NSCertTypeExtension.EMAIL_CA, Boolean.valueOf(true));
             anyExt = true;
         }
 
         String objectSigningCA = properties.getObjectSigningCABit();
 
         if ((objectSigningCA != null) && (objectSigningCA.equals(Constants.TRUE))) {
-            ns.set(NSCertTypeExtension.OBJECT_SIGNING_CA, new Boolean(true));
+            ns.set(NSCertTypeExtension.OBJECT_SIGNING_CA, Boolean.valueOf(true));
             anyExt = true;
         }
         if (anyExt)

@@ -592,11 +592,7 @@ public class ArgBlock implements IArgBlock {
      * @return value
      */
     public Object addBooleanValue(String n, boolean v) {
-        if (v) {
-            return mArgs.put(n, new Boolean("true"));
-        } else {
-            return mArgs.put(n, new Boolean("false"));
-        }
+        return mArgs.put(n, Boolean.valueOf(v));
     }
 
     /**

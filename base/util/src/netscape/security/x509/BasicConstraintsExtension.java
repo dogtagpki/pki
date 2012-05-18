@@ -251,7 +251,7 @@ public class BasicConstraintsExtension extends Extension
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(IS_CA)) {
-            return (new Boolean(ca));
+            return (Boolean.valueOf(ca));
         } else if (name.equalsIgnoreCase(PATH_LEN)) {
             return (Integer.valueOf(pathLen));
         } else {

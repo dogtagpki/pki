@@ -161,23 +161,23 @@ public class ReasonFlags {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(UNUSED)) {
-            return new Boolean(isSet(0));
+            return Boolean.valueOf(isSet(0));
         } else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
-            return new Boolean(isSet(1));
+            return Boolean.valueOf(isSet(1));
         } else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
-            return new Boolean(isSet(2));
+            return Boolean.valueOf(isSet(2));
         } else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
-            return new Boolean(isSet(3));
+            return Boolean.valueOf(isSet(3));
         } else if (name.equalsIgnoreCase(SUPERSEDED)) {
-            return new Boolean(isSet(4));
+            return Boolean.valueOf(isSet(4));
         } else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
-            return new Boolean(isSet(5));
+            return Boolean.valueOf(isSet(5));
         } else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
-            return new Boolean(isSet(6));
+            return Boolean.valueOf(isSet(6));
         } else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
-            return new Boolean(isSet(7));
+            return Boolean.valueOf(isSet(7));
         } else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
-            return new Boolean(isSet(8));
+            return Boolean.valueOf(isSet(8));
         } else {
             throw new IOException("Name not recognized by ReasonFlags");
         }

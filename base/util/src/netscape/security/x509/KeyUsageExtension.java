@@ -261,23 +261,23 @@ public class KeyUsageExtension extends Extension
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(DIGITAL_SIGNATURE)) {
-            return new Boolean(isSet(0));
+            return Boolean.valueOf(isSet(0));
         } else if (name.equalsIgnoreCase(NON_REPUDIATION)) {
-            return new Boolean(isSet(1));
+            return Boolean.valueOf(isSet(1));
         } else if (name.equalsIgnoreCase(KEY_ENCIPHERMENT)) {
-            return new Boolean(isSet(2));
+            return Boolean.valueOf(isSet(2));
         } else if (name.equalsIgnoreCase(DATA_ENCIPHERMENT)) {
-            return new Boolean(isSet(3));
+            return Boolean.valueOf(isSet(3));
         } else if (name.equalsIgnoreCase(KEY_AGREEMENT)) {
-            return new Boolean(isSet(4));
+            return Boolean.valueOf(isSet(4));
         } else if (name.equalsIgnoreCase(KEY_CERTSIGN)) {
-            return new Boolean(isSet(5));
+            return Boolean.valueOf(isSet(5));
         } else if (name.equalsIgnoreCase(CRL_SIGN)) {
-            return new Boolean(isSet(6));
+            return Boolean.valueOf(isSet(6));
         } else if (name.equalsIgnoreCase(ENCIPHER_ONLY)) {
-            return new Boolean(isSet(7));
+            return Boolean.valueOf(isSet(7));
         } else if (name.equalsIgnoreCase(DECIPHER_ONLY)) {
-            return new Boolean(isSet(8));
+            return Boolean.valueOf(isSet(8));
         } else {
             throw new IOException("Attribute name not recognized by"
                                 + " CertAttrSet:KeyUsage.");

@@ -86,7 +86,7 @@ public class CertificateExtensions extends Vector<Extension>
             for (int i = 0; i < extLen; i++) {
                 Array.setByte(value, i, extData[i]);
             }
-            Object[] passed = new Object[] { new Boolean(ext.isCritical()),
+            Object[] passed = new Object[] { Boolean.valueOf(ext.isCritical()),
                     value };
             CertAttrSet certExt = cons.newInstance(passed);
             if (certExt != null && certExt.getName() != null) {

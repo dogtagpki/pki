@@ -105,9 +105,9 @@ public class SSLSelfSignedCert extends CertificateInfo {
     protected KeyUsageExtension getKeyUsageExtension() throws IOException {
         KeyUsageExtension extension = new KeyUsageExtension();
 
-        extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, new Boolean(true));
-        //extension.set(KeyUsageExtension.NON_REPUDIATION, new Boolean(true));
-        extension.set(KeyUsageExtension.KEY_ENCIPHERMENT, new Boolean(true));
+        extension.set(KeyUsageExtension.DIGITAL_SIGNATURE, Boolean.valueOf(true));
+        //extension.set(KeyUsageExtension.NON_REPUDIATION, Boolean.valueOf(true));
+        extension.set(KeyUsageExtension.KEY_ENCIPHERMENT, Boolean.valueOf(true));
         return extension;
     }
 }

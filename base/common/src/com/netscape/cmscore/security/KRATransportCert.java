@@ -95,7 +95,7 @@ public class KRATransportCert extends CertificateInfo {
     protected KeyUsageExtension getKeyUsageExtension() throws IOException {
         KeyUsageExtension extension = new KeyUsageExtension();
 
-        extension.set(KeyUsageExtension.KEY_ENCIPHERMENT, new Boolean(true));
+        extension.set(KeyUsageExtension.KEY_ENCIPHERMENT,Boolean.valueOf(true));
         return extension;
     }
 }

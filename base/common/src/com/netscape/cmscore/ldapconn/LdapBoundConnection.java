@@ -67,7 +67,7 @@ public class LdapBoundConnection extends LDAPConnection {
 
         boolean followReferrals = connInfo.getFollowReferrals();
 
-        setOption(LDAPv2.REFERRALS, new Boolean(followReferrals));
+        setOption(LDAPv2.REFERRALS,Boolean.valueOf(followReferrals));
         if (followReferrals &&
                 authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             LDAPRebind rebindInfo =

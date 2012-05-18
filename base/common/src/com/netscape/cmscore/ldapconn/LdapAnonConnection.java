@@ -46,7 +46,7 @@ public class LdapAnonConnection extends LDAPConnection {
         // rebind info is also anonymous.
         boolean followReferrals = connInfo.getFollowReferrals();
 
-        setOption(LDAPv2.REFERRALS, new Boolean(followReferrals));
+        setOption(LDAPv2.REFERRALS, Boolean.valueOf(followReferrals));
 
         super.connect(connInfo.getVersion(),
                 connInfo.getHost(), connInfo.getPort(), null, null);
