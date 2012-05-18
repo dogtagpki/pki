@@ -1877,7 +1877,7 @@ public class ArgParser {
             ObjectHolder ndescHolder = new ObjectHolder();
             Record rec = getRecord(args[idx], ndescHolder);
             if (rec == null || (rec.convertCode == 'h' && !helpOptionsEnabled)) { // didn't match
-                unmatchedArg = new String(args[idx]);
+                unmatchedArg = args[idx];
                 return idx + 1;
             }
             NameDesc ndesc = (NameDesc) ndescHolder.value;

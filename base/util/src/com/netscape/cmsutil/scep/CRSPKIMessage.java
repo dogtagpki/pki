@@ -855,10 +855,10 @@ public class CRSPKIMessage {
 
             } else if (oid.equals(CRS_PKISTATUS)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                pkiStatus = new String(ps.toString());
+                pkiStatus = ps.toString();
             } else if (oid.equals(CRS_FAILINFO)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                failInfo = new String(ps.toString());
+                failInfo = ps.toString();
             } else if (oid.equals(CRS_SENDERNONCE)) {
                 OCTET_STRING oss = (OCTET_STRING) ost.decode(new ByteArrayInputStream(f.getEncoded()));
 
@@ -869,7 +869,7 @@ public class CRSPKIMessage {
                 recipientNonce = osr.toByteArray();
             } else if (oid.equals(CRS_TRANSID)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                transactionID = new String(ps.toString());
+                transactionID = ps.toString();
             }
 
         }

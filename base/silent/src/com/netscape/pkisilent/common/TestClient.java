@@ -453,16 +453,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
     }
 
     /**
-     * returns a String representation of an interger
-     */
-    public String getString(int m) {
-        Integer x = new Integer(m);
-        String s = x.toString();
-
-        return s;
-    }
-
-    /**
      * returns FreePort in this machine . Takes a parmater portnumber. For example getFreePort("4026").
      */
     public String getFreePort(String s) {
@@ -477,21 +467,19 @@ public class TestClient implements SSLCertificateApprovalCallback {
             p = ss1.getLocalPort();
             System.out.println("Obtained Free Port = " + p);
             ss1.close();
-            return (getString(p));
         } catch (Exception e) {
             System.out.println("Unable to get Free Port");
             e.printStackTrace();
             p = 0;
-            return (getString(p));
         }
-
+        return (String.valueOf(p));
         // This following method doesn't Always get a free port.
         // while (st) {
         // if(isSocketUnused(host,p) )
         // st=false;
         // p++;
         // }
-        // return (getString(p));
+        // return (String.valueOf(p));
 
     }
 
@@ -708,7 +696,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          {System.out.println("CRMFClient : could not submit  request");}
 
 
-         checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),t.getString(CrmfClient.getRequestId()),"false");
+         checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),String.valueOf(CrmfClient.getRequestId()),"false");
          cr.checkRequestStatus();
          System.out.println("Serial num " + cr.getSerialNumber());
          System.out.println("cert pack " + cr.getCert());
@@ -861,7 +849,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          Request re = new Request (s.GetHostName(),s.GetAgentPort(),s.GetCertAuthority());
          re.setAgentCertName(t.GetAdminCertName());
          re.ListPendingRequests("2","70");
-         re.ApproveRequests(t.getString(ue.getRequestId()));
+         re.ApproveRequests(String.valueOf(ue.getRequestId()));
          */
 
         /*
@@ -872,7 +860,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
          /*
          // check request status and Revoke cert
-         checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),t.getString(ue.getRequestId()),"false");
+         checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),String.valueOf(ue.getRequestId()),"false");
          checkRequest cr = new checkRequest(s.GetHostName(),s.GetEESSLPort(),"1","false");
 
          cr.checkRequestStatus();
@@ -893,7 +881,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          /*
 
          /*
-         Revoke rr = new Revoke (s.GetHostName(),s.GetAgentPort(),s.GetCertAuthority(),t.getString(cr.getSerialNumber()));
+         Revoke rr = new Revoke (s.GetHostName(),s.GetAgentPort(),s.GetCertAuthority(),String.valueOf(cr.getSerialNumber()));
          rr.revokeCerts();
          */
 

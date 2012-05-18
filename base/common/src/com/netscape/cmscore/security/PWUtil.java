@@ -26,7 +26,7 @@ public class PWUtil {
                     throws PasswordCallback.GiveUpException {
 
         StringBuffer buf = new StringBuffer();
-        String passwordString = new String();
+        String passwordString = "";
         int c;
 
         try {

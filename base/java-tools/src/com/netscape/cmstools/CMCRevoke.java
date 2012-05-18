@@ -82,7 +82,7 @@ public class CMCRevoke {
         if (s.startsWith("\"") && s.endsWith("\""))
             return s.substring(1, s.length() - 2);
         else if (s.startsWith("\'") && s.endsWith("\'"))
-            return new String(s.substring(1, s.length() - 2));
+            return s.substring(1, s.length() - 2);
         else
             return s;
     }
@@ -140,7 +140,7 @@ public class CMCRevoke {
             }
             // optional parameter
             if (cValue == null)
-                cValue = new String();
+                cValue = "";
             if (dValue == null
                     || nValue == null || iValue == null || sValue == null || mValue == null || hValue == null)
                 bWrongParam = true;
@@ -280,7 +280,7 @@ public class CMCRevoke {
         SignerIdentifier si = null;
         ContentInfo fullEnrollmentReq = null;
         String tokenname = "internal";
-        String asciiBASE64Blob = new String();
+        String asciiBASE64Blob = "";
 
         try {
 

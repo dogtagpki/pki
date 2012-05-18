@@ -1005,8 +1005,8 @@ public class CMCRequest {
                 //     blob into a String() object throwing away any
                 //     headers beginning with HEADER and any trailers beginning
                 //     with TRAILER
-                String asciiBASE64BlobChunk = new String();
-                String asciiBASE64Blob = new String();
+                String asciiBASE64BlobChunk = "";
+                String asciiBASE64Blob = "";
 
                 try {
                     while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {

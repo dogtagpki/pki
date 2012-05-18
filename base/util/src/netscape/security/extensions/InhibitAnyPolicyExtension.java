@@ -110,7 +110,7 @@ public class InhibitAnyPolicyExtension
             presentation += "Criticality=false";
         }
         if (extensionValue != null) {
-            String extByteValue = new String(" skipCerts=" + mSkipCerts);
+            String extByteValue = " skipCerts=" + mSkipCerts;
 
             presentation += extByteValue;
         }

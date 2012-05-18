@@ -239,9 +239,9 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetSetExtDataIntegerArray() {
         Integer[] data = new Integer[] {
-                new Integer(5),
-                new Integer(23),
-                new Integer(12)
+                Integer.valueOf(5),
+                Integer.valueOf(23),
+                Integer.valueOf(12)
         };
         assertTrue(request.setExtData("topkey1", data));
         Integer[] retval = request.getExtDataInIntegerArray("topkey1");

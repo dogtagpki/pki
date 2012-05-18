@@ -591,7 +591,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     return null;
                 } else {
                     if (t > t0) {
-                        listedTimes.addElement(new Integer(k * t));
+                        listedTimes.addElement(Integer.valueOf(k * t));
                         t0 = t;
                     } else {
                         return null;

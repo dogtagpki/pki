@@ -43,7 +43,7 @@ public class EmailTemplate implements IEmailTemplate {
      *==========================================================*/
 
     /* private variables */
-    private String mTemplateFile = new String();
+    private String mTemplateFile = "";
     private ILogger mLogger = CMS.getLogger();
 
     /* public vaiables */
@@ -59,6 +59,7 @@ public class EmailTemplate implements IEmailTemplate {
      * @param templateFile File name of the template including the full path and
      *            file extension
      */
+
     public EmailTemplate(String templatePath) {
         mTemplateFile = templatePath;
     }

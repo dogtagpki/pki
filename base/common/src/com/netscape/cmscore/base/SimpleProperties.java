@@ -191,7 +191,8 @@ public class SimpleProperties extends Hashtable<String, String> {
                             if (whiteSpaceChars.indexOf(nextLine.charAt(startIndex)) == -1)
                                 break;
                         nextLine = nextLine.substring(startIndex, nextLine.length());
-                        line = new String(loppedLine + nextLine);
+
+                        line = loppedLine + nextLine;
                     }
                     // Find start of key
                     int len = line.length();

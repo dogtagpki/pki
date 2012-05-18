@@ -96,18 +96,17 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
     }
 
     public String toString() {
-        String presentation = "oid=" + OID + " ";
+        String presentation = "oid=" + ExtendedKeyUsageExtension.OID + " ";
 
         if (critical) {
             presentation += "critical=true";
         }
         if (extensionValue != null) {
-            String extByteValue = new String(" val=");
-
+            StringBuffer extByteValue = new StringBuffer(" val=");
             for (int i = 0; i < extensionValue.length; i++) {
-                extByteValue += (extensionValue[i] + " ");
+                extByteValue.append(extensionValue[i] + " ");
             }
-            presentation += extByteValue;
+            presentation += extByteValue.toString();
         }
         return presentation;
     }

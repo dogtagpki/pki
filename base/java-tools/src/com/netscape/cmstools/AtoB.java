@@ -60,8 +60,8 @@ public class AtoB {
     public static void main(String argv[]) {
 
         BufferedReader inputBlob = null;
-        String asciiBASE64BlobChunk = new String();
-        String asciiBASE64Blob = new String();
+        String asciiBASE64BlobChunk = "";
+        String asciiBASE64Blob = "";
         byte binaryBASE64Blob[] = null;
         FileOutputStream outputBlob = null;
 

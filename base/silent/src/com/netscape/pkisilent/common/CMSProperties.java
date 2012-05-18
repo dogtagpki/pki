@@ -215,7 +215,7 @@ class CMSProperties extends Hashtable<String, String> {
                         String nextLine = in.readLine();
 
                         if (nextLine == null) {
-                            nextLine = new String("");
+                            nextLine = "";
                         }
                         String loppedLine = line.substring(0, line.length() - 1);
                         // Advance beyond whitespace on new line
@@ -229,7 +229,7 @@ class CMSProperties extends Hashtable<String, String> {
                         }
                         nextLine = nextLine.substring(startIndex,
                                 nextLine.length());
-                        line = new String(loppedLine + nextLine);
+                        line = loppedLine + nextLine;
                     }
 
                     // Find start of key

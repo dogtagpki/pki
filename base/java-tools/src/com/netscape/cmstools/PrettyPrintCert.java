@@ -27,14 +27,14 @@ import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import com.netscape.cmsutil.util.Utils;
-
 import netscape.security.util.CertPrettyPrint;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.RDN;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
+
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * The PrettyPrintCert class is a utility program designed to "pretty print"
@@ -79,13 +79,13 @@ public class PrettyPrintCert {
     public static void main(String argv[]) {
 
         BufferedReader inputCert = null;
-        String encodedBASE64CertChunk = new String();
-        String encodedBASE64Cert = new String();
+        String encodedBASE64CertChunk = "";
+        String encodedBASE64Cert = "";
         byte decodedBASE64Cert[] = null;
         X509CertImpl cert = null;
         Locale aLocale = null;
         CertPrettyPrint certDetails = null;
-        String pp = new String();
+        String pp = "";
         FileOutputStream outputCert = null;
         boolean mSimpleInfo = false;
         String inputfile = null;

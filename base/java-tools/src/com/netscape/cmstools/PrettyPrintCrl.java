@@ -28,8 +28,6 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import com.netscape.cmsutil.util.Utils;
-
 import netscape.security.util.CrlPrettyPrint;
 import netscape.security.x509.DeltaCRLIndicatorExtension;
 import netscape.security.x509.HoldInstructionExtension;
@@ -38,6 +36,8 @@ import netscape.security.x509.IssuingDistributionPointExtension;
 import netscape.security.x509.OIDMap;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509ExtensionException;
+
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * The PrettyPrintCrl class is a utility program designed to "pretty print"
@@ -72,13 +72,13 @@ public class PrettyPrintCrl {
     public static void main(String argv[]) {
 
         BufferedReader inputCrl = null;
-        String encodedBASE64CrlChunk = new String();
-        String encodedBASE64Crl = new String();
+        String encodedBASE64CrlChunk = "";
+        String encodedBASE64Crl = "";
         byte decodedBASE64Crl[] = null;
         X509CRLImpl crl = null;
         Locale aLocale = null;
         CrlPrettyPrint CrlDetails = null;
-        String pp = new String();
+        String pp = "";
         FileOutputStream outputCrl = null;
 
         // (1) Check that at least one argument was submitted to the program
