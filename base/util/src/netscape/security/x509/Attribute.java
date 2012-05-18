@@ -214,14 +214,15 @@ public final class Attribute implements Serializable, DerEncoder {
      */
     public String toString() {
         String theoid = "Attribute: " + oid + "\n";
-        String values = "Values: ";
+        StringBuffer values = new StringBuffer();
+        values.append("Values: ");
         Enumeration<String> n = valueSet.elements();
         if (n.hasMoreElements()) {
-            values += n.nextElement();
+            values.append(n.nextElement());
             while (n.hasMoreElements())
-                values += "," + n.nextElement();
+                values.append("," + n.nextElement());
         }
-        return theoid + values + "\n";
+        return theoid + values.toString() + "\n";
     }
 
     //========== PRIVATE METHODS ==================================

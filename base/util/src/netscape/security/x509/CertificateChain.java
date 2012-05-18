@@ -123,13 +123,15 @@ public class CertificateChain implements Serializable {
      * Converts the certificate chain to a readable string.
      */
     public String toString() {
+
         String s = "[\n";
         if (mChain == null)
             return "[empty]";
+        StringBuffer tempBuffer = new StringBuffer();
         for (int i = 0; i < mChain.length; i++) {
-            s += mChain[i].toString();
+            tempBuffer.append(mChain[i].toString());
         }
-        s += "]\n";
+        s += tempBuffer.toString() + "]\n";
         return s;
     }
 

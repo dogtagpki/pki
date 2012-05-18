@@ -125,7 +125,7 @@ public class TokenKeyRecoveryService implements IService {
     }
 
     public static String normalizeCertStr(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\\') {
@@ -139,9 +139,9 @@ public class TokenKeyRecoveryService implements IService {
             } else if (s.charAt(i) == ' ') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     private static String base64Encode(byte[] bytes) throws IOException {

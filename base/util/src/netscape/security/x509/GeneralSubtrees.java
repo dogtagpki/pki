@@ -75,15 +75,15 @@ public class GeneralSubtrees {
 
     public String toPrint(int indent) {
 
-        String s = "";
+        StringBuffer s = new StringBuffer();
         GeneralSubtree element;
 
         for (Enumeration<GeneralSubtree> e = trees.elements(); e.hasMoreElements();) {
             element = e.nextElement();
-            s = s + pp.indent(indent + 4) + element.toPrint(indent) + "\n";
+            s.append(pp.indent(indent + 4) + element.toPrint(indent) + System.getProperty("line.separator"));
         }
 
-        return (s);
+        return (s.toString());
     }
 
     /**

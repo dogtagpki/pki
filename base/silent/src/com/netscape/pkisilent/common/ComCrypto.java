@@ -291,11 +291,11 @@ public class ComCrypto {
 
     public String normalize(String s) {
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
-                val += '\n';
+                val.append('\n');
                 i++;
                 continue;
             } else if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'r')) {
@@ -304,9 +304,9 @@ public class ComCrypto {
             } else if (s.charAt(i) == '"') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     /**
@@ -315,11 +315,11 @@ public class ComCrypto {
 
     public String normalizeForLDAP(String s) {
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
-                val += '\n' + " ";
+                val.append(System.getProperty("line.separator") + " ");
                 i++;
                 continue;
             } else if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'r')) {
@@ -328,9 +328,9 @@ public class ComCrypto {
             } else if (s.charAt(i) == '"') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     /**
@@ -339,20 +339,20 @@ public class ComCrypto {
 
     public String pkcs7Convertcert(String s) {
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         int len = s.length();
 
         for (int i = 0; i < len; i = i + 64) {
 
             if (i + 64 < len) {
-                val = val + s.substring(i, i + 64) + "\n";
+                val.append(s.substring(i, i + 64)+System.getProperty("line.separator"));
             } else {
-                val = val + s.substring(i, len);
+                val.append(s.substring(i, len));
             }
 
         }
-        return val;
+        return val.toString();
     }
 
     /**

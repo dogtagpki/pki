@@ -1666,16 +1666,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // convert "rawData" into "base64Data"
         if (rawData != null) {
             String base64Data = CMS.BtoA(rawData).trim();
-            String key = "";
+            StringBuffer key = new StringBuffer();
 
             // extract all line separators from the "base64Data"
             for (int i = 0; i < base64Data.length(); i++) {
                 if (base64Data.substring(i, i).getBytes() != EOL) {
-                    key += base64Data.substring(i, i);
+                    key.append(base64Data.substring(i, i));
                 }
             }
 
-            return key;
+            return key.toString();
         }
 
         return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -1710,7 +1710,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         String key = null;
-
+        StringBuffer tempBuffer = new StringBuffer();
         // convert "rawData" into "base64Data"
         if (rawData != null) {
             String base64Data = null;
@@ -1720,9 +1720,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             // extract all line separators from the "base64Data"
             for (int i = 0; i < base64Data.length(); i++) {
                 if (base64Data.substring(i, i).getBytes() != EOL) {
-                    key += base64Data.substring(i, i);
+                    tempBuffer.append(base64Data.substring(i, i));
                 }
             }
+        }
+
+        if (tempBuffer.length() > 0) {
+            key = tempBuffer.toString();
         }
 
         if (key != null) {

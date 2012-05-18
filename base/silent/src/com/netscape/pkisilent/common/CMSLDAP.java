@@ -215,19 +215,18 @@ public class CMSLDAP {
     }
 
     private String buildDNString(String s) {
-
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == ',') && (s.charAt(i + 1) == ' ')) {
-                val += ',';
+                val.append(',');
                 i++;
                 continue;
             } else {
-                val += s.charAt(i);
+                val.append(s.charAt(i));
             }
         }
-        return val;
+        return val.toString();
     }
 
     /**

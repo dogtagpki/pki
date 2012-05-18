@@ -834,7 +834,7 @@ public class EnrollmentService implements IService {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
-        String key = "";
+        StringBuffer key = new StringBuffer();
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
@@ -845,16 +845,14 @@ public class EnrollmentService implements IService {
             // extract all line separators from the "base64Data"
             StringTokenizer st = new StringTokenizer(base64Data, "\r\n");
             while (st.hasMoreTokens()) {
-                key += st.nextToken();
+                key.append(st.nextToken());
             }
         }
-
-        key = key.trim();
-
-        if (key.equals("")) {
+        String checkKey = key.toString().trim();
+        if (checkKey.equals("")) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         } else {
-            return key;
+            return checkKey;
         }
     }
 

@@ -197,14 +197,16 @@ public class SubjectDirAttributesExtension extends Extension
      * Return user readable form of extension.
      */
     public String toString() {
+
         String s = super.toString() + "SubjectDirectoryAttributes:[\n";
 
         Enumeration<Attribute> attrs = attrList.elements();
+        StringBuffer tempBuffer = new StringBuffer();
         while (attrs.hasMoreElements()) {
             Attribute attr = attrs.nextElement();
-            s += attr.toString();
+            tempBuffer.append(attr.toString());
         }
-
+        s += tempBuffer.toString();
         return (s + "]\n");
     }
 

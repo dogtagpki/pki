@@ -2009,7 +2009,7 @@ public class ArgParser {
         s = "Usage: " + synopsisString + "\n";
         s += "Options include:\n\n";
         for (int i = 0; i < matchList.size(); i++) {
-            String optionInfo = "";
+            StringBuffer optionInfo = new StringBuffer();
             rec = matchList.get(i);
             if (rec.convertCode == 'h' && !helpOptionsEnabled) {
                 continue;
@@ -2021,33 +2021,33 @@ public class ArgParser {
                 }
             }
             for (ndesc = rec.nameList; ndesc != null; ndesc = ndesc.next) {
-                optionInfo += ndesc.name;
+                optionInfo.append(ndesc.name);
                 if (hasOneWordAlias && !ndesc.oneWord) {
-                    optionInfo += " ";
+                    optionInfo.append(" ");
                 }
                 if (ndesc.next != null) {
-                    optionInfo += ",";
+                    optionInfo.append(",");
                 }
             }
             if (!hasOneWordAlias) {
-                optionInfo += " ";
+                optionInfo.append(" ");
             }
             if (rec.convertCode != 'v' && rec.convertCode != 'h') {
                 if (rec.valueDesc != null) {
-                    optionInfo += rec.valueDesc;
+                    optionInfo.append(rec.valueDesc);
                 } else {
                     if (rec.rangeDesc != null) {
-                        optionInfo += "<" + rec.valTypeName() + " "
-                                + rec.rangeDesc + ">";
+                        optionInfo.append("<" + rec.valTypeName() + " "
+                                + rec.rangeDesc + ">");
                     } else {
-                        optionInfo += "<" + rec.valTypeName() + ">";
+                        optionInfo.append("<" + rec.valTypeName() + ">");
                     }
                 }
             }
             if (rec.numValues > 1) {
-                optionInfo += "X" + rec.numValues;
+                optionInfo.append("X" + rec.numValues);
             }
-            s += optionInfo;
+            s += optionInfo.toString();
             if (rec.helpMsg.length() > 0) {
                 int pad = helpIndent - optionInfo.length();
                 if (pad < 2) { //s += '\n';

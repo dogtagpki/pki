@@ -142,24 +142,25 @@ public class IPAddressName implements GeneralNameInterface {
                     + (address[1] & 0xff) + "."
                     + (address[2] & 0xff) + "." + (address[3] & 0xff));
         } else {
-            String r = "IPAddress: " + Integer.toHexString(address[0] & 0xff);
+            StringBuffer r = new StringBuffer();
+            r.append("IPAddress: " + Integer.toHexString(address[0] & 0xff));
             String hexString = Integer.toHexString(address[1] & 0xff);
             if (hexString.length() == 1) {
-                r = r + "0" + hexString;
+                r.append("0" + hexString);
             } else {
-                r += hexString;
+                r.append(hexString);
             }
             for (int i = 2; i < address.length;) {
-                r += ":" + Integer.toHexString(address[i] & 0xff);
+                r.append(":" + Integer.toHexString(address[i] & 0xff));
                 hexString = Integer.toHexString(address[i + 1] & 0xff);
                 if (hexString.length() == 1) {
-                    r = r + "0" + hexString;
+                    r.append("0" + hexString);
                 } else {
-                    r += hexString;
+                    r.append(hexString);
                 }
                 i += 2;
             }
-            return r;
+            return r.toString();
         }
     }
 }

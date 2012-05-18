@@ -244,17 +244,17 @@ public class ServerInfo {
 
     private String stripSpace(String s) {
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == ' ')) {
                 i++;
                 continue;
             } else {
-                val += s.charAt(i);
+                val.append(s.charAt(i));
             }
         }
-        return val;
+        return val.toString();
     }
 
     private void readAdminConfig() {

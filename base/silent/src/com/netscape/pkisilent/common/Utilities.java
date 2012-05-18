@@ -113,7 +113,7 @@ public class Utilities {
             return null;
         }
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
@@ -125,9 +125,9 @@ public class Utilities {
             } else if (s.charAt(i) == '"') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
 
     }
 
@@ -137,11 +137,11 @@ public class Utilities {
             return null;
         }
 
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
-                val += '\n';
+                val.append(System.getProperty("line.separator"));
                 i++;
                 continue;
             } else if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'r')) {
@@ -150,9 +150,9 @@ public class Utilities {
             } else if (s.charAt(i) == '"') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     /*
@@ -262,7 +262,7 @@ public class Utilities {
      * a binary array[] to a Ldap filter string
      */
     public static String escapeBinaryData(byte data[]) {
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         for (int i = 0; i < data.length; i++) {
             String s = Integer.toHexString(0xff & data[i]);
@@ -270,11 +270,11 @@ public class Utilities {
             if (s.length() == 1) {
                 s = "0" + s;
             }
-            result = result + "\\" + s;
+            result.append("\\" + s);
         }
 
-        System.out.println("LDAP_FILTER=" + result);
-        return result;
+        System.out.println("LDAP_FILTER=" + result.toString());
+        return result.toString();
     }
 
     /*
@@ -323,14 +323,14 @@ public class Utilities {
 
             X500Name dname = (X500Name) csn1.get(CertificateSubjectName.DN_NAME);
 
-            String pp = "";
+            StringBuffer pp = new StringBuffer();
             RDN[] rdns = dname.getNames();
 
             for (int i = rdns.length - 1; i >= 0; i--) {
-                pp = pp + rdns[i] + "\n";
+                pp.append(rdns[i] + System.getProperty("line.separator"));
             }
 
-            cr.subject = pp;
+            cr.subject = pp.toString();
 
         } catch (Exception e) {
             System.out.println("ERROR: Exception when decoding certificate=" + e);

@@ -345,15 +345,16 @@ final public class ObjectIdentifier implements Serializable {
      * will not be understood everywhere.
      */
     public String toString() {
-        String retval;
+        StringBuffer retval = new StringBuffer();
+
         int i;
 
-        for (i = 0, retval = ""; i < componentLen; i++) {
+        for (i = 0; i < componentLen; i++) {
             if (i != 0)
-                retval += ".";
-            retval += components[i];
+                retval.append(".");
+            retval.append(components[i]);
         }
-        return retval;
+        return retval.toString();
     }
 
     /*
