@@ -25,7 +25,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
-	<classpathentry kind="lib" path="/usr/lib64/java/jss4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/glassfish-jaxb/jaxb-impl.jar"/>
@@ -42,5 +41,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/xml-commons-apis.jar"/>
 	<classpathentry kind="lib" path="/usr/share/tomcat6/lib/catalina.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/istack-commons-runtime.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jss/jss4.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
