@@ -394,13 +394,13 @@ public class CMCEnroll {
                 //     headers beginning with HEADER and any trailers beginning
                 //     with TRAILER
                 String asciiBASE64BlobChunk = "";
-                String asciiBASE64Blob = "";
+                StringBuffer asciiBASE64Blob = new StringBuffer();
 
                 try {
                     while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {
                         if (!(asciiBASE64BlobChunk.startsWith(HEADER)) &&
                                 !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
-                            asciiBASE64Blob += asciiBASE64BlobChunk.trim();
+                            asciiBASE64Blob.append(asciiBASE64BlobChunk.trim());
                         }
                     }
                 } catch (IOException e) {
@@ -416,13 +416,13 @@ public class CMCEnroll {
                             "encoded error encountered in close():\n" + e);
                 }
 
-                asciiBASE64Blob = getCMCBlob(signerCert, cm, nValue, asciiBASE64Blob);
+                String asciiBASE64Blob_str = getCMCBlob(signerCert, cm, nValue, asciiBASE64Blob.toString());
                 // (5) Decode the ASCII BASE 64 blob enclosed in the
                 //     String() object into a BINARY BASE 64 byte[] object
 
                 @SuppressWarnings("unused")
                 byte binaryBASE64Blob[] =
-                        Utils.base64decode(asciiBASE64Blob); // check for errors
+                        Utils.base64decode(asciiBASE64Blob_str); // check for errors
 
                 // (6) Finally, print the actual CMCEnroll blob to the
                 //     specified output file
@@ -435,10 +435,10 @@ public class CMCEnroll {
                 }
 
                 System.out.println(HEADER);
-                System.out.println(asciiBASE64Blob + TRAILER);
+                System.out.println(asciiBASE64Blob.toString() + TRAILER);
                 try {
-                    asciiBASE64Blob = HEADER + "\n" + asciiBASE64Blob + TRAILER;
-                    outputBlob.write(asciiBASE64Blob.getBytes());
+                    asciiBASE64Blob_str = HEADER + "\n" + asciiBASE64Blob_str.toString() + TRAILER;
+                    outputBlob.write(asciiBASE64Blob_str.getBytes());
                 } catch (IOException e) {
                     System.out.println("CMCEnroll:  I/O error " +
                             "encountered during write():\n" +

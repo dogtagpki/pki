@@ -1820,10 +1820,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mProfileList.size() > 1) {
                 filter += "(|";
             }
+            StringBuffer tempBuffer = new StringBuffer();
             for (int k = 0; k < mProfileList.size(); k++) {
                 String id = mProfileList.elementAt(k);
-                filter += "(" + CertRecord.ATTR_META_INFO + "=profileId:" + id + ")";
+                tempBuffer.append("(" + CertRecord.ATTR_META_INFO + "=profileId:" + id + ")");
             }
+            filter += tempBuffer.toString();
             if (mProfileList.size() > 1) {
                 filter += ")";
             }
@@ -2481,14 +2483,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mDeltaCRLSize = deltaCRLCerts.size();
 
                     long totalTime = 0;
-                    String splitTimes = "  (";
+                    StringBuffer splitTimes = new StringBuffer();
+                    splitTimes.append("  (");
                     for (int i = 1; i < mSplits.length && i < 5; i++) {
                         totalTime += mSplits[i];
                         if (i > 1)
-                            splitTimes += ",";
-                        splitTimes += Long.toString(mSplits[i]);
+                            splitTimes.append(",");
+                        splitTimes.append(String.valueOf(mSplits[i]));
                     }
-                    splitTimes += ")";
+                    splitTimes.append(")");
                     mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                                 AuditFormat.LEVEL,
                                 CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
@@ -2499,7 +2502,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                         getLastUpdate(),
                                         getNextDeltaUpdate(),
                                         Long.toString(mDeltaCRLSize),
-                                        Long.toString(totalTime) + splitTimes
+                                        Long.toString(totalTime) + splitTimes.toString()
                                 }
                                );
                 } catch (EBaseException e) {

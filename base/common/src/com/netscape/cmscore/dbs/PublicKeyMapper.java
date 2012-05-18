@@ -123,14 +123,14 @@ public class PublicKeyMapper implements IDBAttrMapper {
     }
 
     public static String escapeBinaryData(byte data[]) {
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         for (int i = 0; i < data.length; i++) {
             int v = 0xff & data[i];
 
-            result = result + "\\" + (v < 16 ? "0" : "") +
-                    Integer.toHexString(v);
+            result.append("\\" + (v < 16 ? "0" : "") +
+                    Integer.toHexString(v));
         }
-        return result;
+        return result.toString();
     }
 }

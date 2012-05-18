@@ -151,7 +151,8 @@ public class KeyCertUtil {
 
     public static String getTokenNames(CryptoManager manager)
             throws TokenException {
-        String tokenList = "";
+        StringBuffer tokenList = new StringBuffer();
+
         @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> tokens = manager.getExternalTokens();
         int num = 0;
@@ -159,16 +160,15 @@ public class KeyCertUtil {
         while (tokens.hasMoreElements()) {
             CryptoToken c = tokens.nextElement();
 
-            if (num++ == 0)
-                tokenList = tokenList + c.getName();
-            else
-                tokenList = tokenList + "," + c.getName();
+            if (num++ != 0)
+                tokenList.append(",");
+            tokenList.append(c.getName());
         }
 
-        if (tokenList.equals(""))
+        if (tokenList.length() == 0)
             return Constants.PR_INTERNAL_TOKEN;
         else
-            return (tokenList + "," + Constants.PR_INTERNAL_TOKEN);
+            return (tokenList.toString() + "," + Constants.PR_INTERNAL_TOKEN);
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {

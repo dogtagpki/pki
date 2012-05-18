@@ -28,8 +28,6 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.cmsutil.util.Utils;
-
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
@@ -37,6 +35,8 @@ import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.URIName;
+
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This represents the authority information access extension
@@ -219,16 +219,18 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
      * Returns a printable representation of the AuthInfoAccess.
      */
     public String toString() {
-        String s = super.toString() + "AuthInfoAccess [\n";
+        StringBuffer s = new StringBuffer();
+        String b = super.toString() + "AuthInfoAccess [\n";
+        s.append(b);
 
         for (int i = 0; i < mDesc.size(); i++) {
             AccessDescription ad = mDesc.elementAt(i);
 
-            s += "(" + i + ")";
-            s += " ";
-            s += ad.getMethod().toString() + " " + ad.getLocation().toString();
+            s.append("(" + i + ")");
+            s.append(" ");
+            s.append(ad.getMethod().toString() + " " + ad.getLocation().toString());
         }
-        return (s + "]\n");
+        return (s.toString() + "]\n");
     }
 
     public static void main(String[] argv) {

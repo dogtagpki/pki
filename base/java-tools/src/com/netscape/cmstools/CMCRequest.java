@@ -673,11 +673,12 @@ public class CMCRequest {
         try {
             byte bvalue[] = str.getBytes();
             System.out.println("Data Return Control: ");
-            String ss = "   Value: ";
+            StringBuffer ss = new StringBuffer();
+            ss.append("   Value: ");
             for (int m = 0; m < bvalue.length; m++) {
-                ss = ss + bvalue[m] + " ";
+                ss.append(bvalue[m]).append(" ");
             }
-            System.out.println(ss);
+            System.out.println(ss.toString());
             OCTET_STRING s = new OCTET_STRING(bvalue);
             TaggedAttribute dataReturnControl = new TaggedAttribute(new
                     INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_dataReturn, s);
@@ -756,11 +757,14 @@ public class CMCRequest {
         }
         byte bb[] = sn.getBytes();
         System.out.println("SenderNonce control: ");
-        String ss = "   Value: ";
+
+        StringBuffer ss = new StringBuffer();
+
+        ss.append("   Value: ");
         for (int m = 0; m < bb.length; m++) {
-            ss = ss + bb[m] + " ";
+            ss.append(bb[m] + " ");
         }
-        System.out.println(ss);
+        System.out.println(ss.toString());
         TaggedAttribute senderNonce = new TaggedAttribute(new
                 INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
                 new OCTET_STRING(sn.getBytes()));
@@ -1006,16 +1010,16 @@ public class CMCRequest {
                 //     headers beginning with HEADER and any trailers beginning
                 //     with TRAILER
                 String asciiBASE64BlobChunk = "";
-                String asciiBASE64Blob = "";
+                StringBuffer asciiBASE64Blob = new StringBuffer();
 
                 try {
                     while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {
                         if (!(asciiBASE64BlobChunk.startsWith(HEADER)) &&
                                 !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
-                            asciiBASE64Blob += asciiBASE64BlobChunk.trim();
+                            asciiBASE64Blob.append(asciiBASE64BlobChunk.trim());
                         }
                     }
-                    requests[i] = asciiBASE64Blob;
+                    requests[i] = asciiBASE64Blob.toString();
                 } catch (IOException e) {
                     System.out.println("CMCRequest:  Unexpected BASE64 " +
                             "encoded error encountered in readLine():\n" +

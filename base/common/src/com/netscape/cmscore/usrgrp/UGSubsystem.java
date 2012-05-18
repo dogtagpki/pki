@@ -271,17 +271,17 @@ public final class UGSubsystem implements IUGSubsystem {
 
         if (hasSlash != -1) {
             String up = filter;
-            String stripped = "";
+            StringBuffer stripped = new StringBuffer();
 
             hasSlash = up.indexOf('\\');
             while (hasSlash != -1) {
-                stripped += up.substring(0, hasSlash) +
-                        "\\5c";
-                ;
+                stripped.append(up.substring(0, hasSlash)).append(
+                        "\\5c");
+
                 up = up.substring(hasSlash + 1);
                 hasSlash = up.indexOf('\\');
             }
-            filter = stripped + up;
+            filter = stripped.toString() + up;
         }
 
         LDAPConnection ldapconn = null;

@@ -389,12 +389,12 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * Read RFC-2254
      */
     public static String escapeBinaryData(byte data[]) {
-        String result = "";
+        StringBuffer result = new StringBuffer();
 
         for (int i = 0; i < data.length; i++) {
-            result = result + "\\" + Integer.toHexString(data[i]);
+            result.append("\\" + Integer.toHexString(data[i]));
         }
-        return result;
+        return result.toString();
     }
 
     public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)

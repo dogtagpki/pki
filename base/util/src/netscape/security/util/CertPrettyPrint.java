@@ -96,7 +96,7 @@ public class CertPrettyPrint {
     }
 
     public String pkcs7toString(Locale clientLocale) {
-        String content = "";
+        StringBuffer content=new StringBuffer();
 
         try {
             mX509Cert = new X509CertImpl(mCert_b);
@@ -134,15 +134,15 @@ public class CertPrettyPrint {
                     }
 
                     CertPrettyPrint print = new CertPrettyPrint(certImpl);
-                    content += print.toString(Locale.getDefault());
-                    content += "\n";
+                    content.append(print.toString(Locale.getDefault()));
+                    content.append("\n");
                 }
 
-                return content;
+                return content.toString();
             }
         }
 
-        return content;
+        return content.toString();
     }
 
     public String stripCertBrackets(String s) {
@@ -165,7 +165,7 @@ public class CertPrettyPrint {
     }
 
     public String normalizeCertStr(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
@@ -177,9 +177,9 @@ public class CertPrettyPrint {
             } else if (s.charAt(i) == ' ') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     public String X509toString(Locale clientLocale) {
@@ -323,18 +323,18 @@ public class CertPrettyPrint {
 
             // fingerprints
             String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
-            String certFingerprints = "";
+            StringBuffer certFingerprints = new StringBuffer();
 
             sb.append(pp.indent(8) + "FingerPrint\n");
             for (int i = 0; i < hashes.length; i++) {
                 MessageDigest md = MessageDigest.getInstance(hashes[i]);
 
                 md.update(mX509Cert.getEncoded());
-                certFingerprints += pp.indent(12) + hashes[i] + ":\n" +
-                        pp.toHexString(md.digest(), 16, 16);
+                certFingerprints.append(pp.indent(12) + hashes[i] + ":\n" +
+                        pp.toHexString(md.digest(), 16, 16));
             }
 
-            sb.append(certFingerprints);
+            sb.append(certFingerprints.toString());
         } catch (Exception e) {
         }
 

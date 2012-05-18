@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -79,13 +78,12 @@ public class PWCBsdr implements PasswordCallback {
         }
 
         //    System.out.println("after CMS.getConfigStore");
-        if (File.separator.equals("/")) {
+
             // Unix
             mCB = new PWsdrConsolePasswordCallback(prompt);
-        } else {
-            mCB = new PWsdrConsolePasswordCallback(prompt);
+
             // mCB = new PWsdrDialogPasswordCallback( prompt );
-        }
+
 
         // System.out.println( "Created PWCBsdr with prompt of "
         //                   + mprompt );

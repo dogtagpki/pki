@@ -66,11 +66,12 @@ public class RevocationInfoMapper implements IDBAttrMapper {
             throws EBaseException {
         try {
             // in format of <date>;<extensions>
-            String value = "";
+            StringBuffer value = new StringBuffer();
+
             RevocationInfo info = (RevocationInfo) obj;
             Date d = info.getRevocationDate();
 
-            value = DateMapper.dateToDB(d);
+            value.append(DateMapper.dateToDB(d));
             CRLExtensions exts = info.getCRLEntryExtensions();
             // CRLExtension's DER encoding and decoding does not work!
             // That is why we need to do our own serialization.
@@ -83,20 +84,20 @@ public class RevocationInfoMapper implements IDBAttrMapper {
                     RevocationReason reason =
                             ((CRLReasonExtension) ext).getReason();
 
-                    value = value + ";CRLReasonExtension=" +
-                            Integer.toString(reason.toInt());
+                    value.append(";CRLReasonExtension=" +
+                            Integer.toString(reason.toInt()));
                 } else if (ext instanceof InvalidityDateExtension) {
                     Date invalidityDate =
                             ((InvalidityDateExtension) ext).getInvalidityDate();
 
-                    value = value + ";InvalidityDateExtension=" +
-                            DateMapper.dateToDB(invalidityDate);
+                    value.append(";InvalidityDateExtension=" +
+                            DateMapper.dateToDB(invalidityDate));
                 } else {
                     Debug.trace("XXX skipped extension");
                 }
             }
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO,
-                    value));
+                    value.toString()));
         } catch (Exception e) {
             Debug.trace(e.toString());
             throw new EDBException(

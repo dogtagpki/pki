@@ -837,7 +837,7 @@ public class PublisherProcessor implements
     public void publishCACert(X509Certificate cert)
             throws ELdapException {
         boolean error = false;
-        String errorRule = "";
+        StringBuffer errorRule = new StringBuffer();
 
         if (!enabled())
             return;
@@ -889,15 +889,14 @@ public class PublisherProcessor implements
                 //log(ILogger.LL_WARN, e.toString());
                 CMS.debug("PublisherProcessor::publishCACert returned error: " + e);
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName() +
-                        " error:" + e;
+                errorRule.append(" " + rule.getInstanceName() + " error:" + e);
             }
         }
         // set the ldap published flag.
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -908,7 +907,7 @@ public class PublisherProcessor implements
     public void unpublishCACert(X509Certificate cert)
             throws ELdapException {
         boolean error = false;
-        String errorRule = "";
+        StringBuffer errorRule = new StringBuffer();
 
         if (!enabled())
             return;
@@ -956,7 +955,7 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName();
+                errorRule.append(" ").append(rule.getInstanceName());
             }
         }
 
@@ -964,7 +963,7 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -1034,7 +1033,7 @@ public class PublisherProcessor implements
     public void publishCert(X509Certificate cert, IRequest req)
             throws ELdapException {
         boolean error = false;
-        String errorRule = "";
+        StringBuffer errorRule = new StringBuffer();
 
         CMS.debug("In  PublisherProcessor::publishCert");
         if (!enabled())
@@ -1048,7 +1047,7 @@ public class PublisherProcessor implements
             CMS.debug("Publishing: can't find publishing rule,exiting routine.");
 
             error = true;
-            errorRule = "No rules enabled";
+            errorRule.append("No rules enabled");
         }
 
         while (rules != null && rules.hasMoreElements()) {
@@ -1073,15 +1072,15 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName();
+                errorRule.append(" ").append(rule.getInstanceName());
             }
         }
         // set the ldap published flag.
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            CMS.debug("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            CMS.debug("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -1092,7 +1091,7 @@ public class PublisherProcessor implements
     public void unpublishCert(X509Certificate cert, IRequest req)
             throws ELdapException {
         boolean error = false;
-        String errorRule = "";
+        StringBuffer errorRule = new StringBuffer();
 
         if (!enabled())
             return;
@@ -1139,7 +1138,7 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName();
+                errorRule.append(" ").append(rule.getInstanceName());
             }
         }
 
@@ -1147,7 +1146,7 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
         }
     }
 

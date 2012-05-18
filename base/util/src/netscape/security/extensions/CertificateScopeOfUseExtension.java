@@ -183,15 +183,15 @@ public class CertificateScopeOfUseExtension extends Extension
      * Returns a printable representation of the CertificateRenewalWindow.
      */
     public String toString() {
-        String s = super.toString() + "CertificateUseOfScope [\n";
+        StringBuffer s = new StringBuffer(super.toString() + "CertificateUseOfScope [\n");
 
         if (mEntries != null) {
             for (int i = 0; i < mEntries.size(); i++) {
                 CertificateScopeEntry se = mEntries.elementAt(i);
 
-                s += se.toString();
+                s.append(se.toString());
             }
         }
-        return (s + "]\n");
+        return (s.toString() + "]\n");
     }
 }

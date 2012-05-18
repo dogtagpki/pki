@@ -612,7 +612,7 @@ public class CertUtils {
     }
 
     public static String normalizeCertStr(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
@@ -624,9 +624,9 @@ public class CertUtils {
             } else if (s.charAt(i) == ' ') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     public static String stripCRLBrackets(String s) {
@@ -747,17 +747,17 @@ public class CertUtils {
             throws NoSuchAlgorithmException/*, CertificateEncodingException*/{
         //        byte certDer[] = cert.getEncoded();
         String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
-        String certFingerprints = "";
+        StringBuffer certFingerprints = new StringBuffer();
         PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
         for (int i = 0; i < hashes.length; i++) {
             MessageDigest md = MessageDigest.getInstance(hashes[i]);
 
             md.update(certDer);
-            certFingerprints += hashes[i] + ":\n" +
-                    pp.toHexString(md.digest(), 8, 16);
+            certFingerprints.append(hashes[i] + ":\n" +
+                    pp.toHexString(md.digest(), 8, 16));
         }
-        return certFingerprints;
+        return certFingerprints.toString();
     }
 
     /**

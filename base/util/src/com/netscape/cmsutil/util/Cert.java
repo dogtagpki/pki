@@ -151,7 +151,7 @@ public class Cert {
     }
 
     public static String normalizeCertStr(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
@@ -163,13 +163,13 @@ public class Cert {
             } else if (s.charAt(i) == ' ') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     public static String normalizeCertStrAndReq(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
@@ -179,8 +179,8 @@ public class Cert {
             } else if (s.charAt(i) == '"') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 }

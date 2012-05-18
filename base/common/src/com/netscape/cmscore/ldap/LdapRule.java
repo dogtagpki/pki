@@ -66,28 +66,28 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         mProcessor = processor;
         Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
         Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
-
-        String map = NOMAPPER;
+           StringBuffer map=new StringBuffer();
+        map.append(NOMAPPER);
 
         for (; mappers.hasMoreElements();) {
             String name = mappers.nextElement();
 
-            map = map + "," + name;
+            map.append(",").append(name);
         }
-        String publish = "";
+        StringBuffer publish = new StringBuffer();
 
         for (; publishers.hasMoreElements();) {
             String name = publishers.nextElement();
 
-            publish = publish + "," + name;
+            publish.append(",").append(name);
         }
 
         epi_params = new String[] {
                 "type;choice(cacert,crl, certs);The publishing object type",
                 "mapper;choice("
-                        + map + ");Use the mapper to find the ldap dn \nto publish the certificate or crl",
+                        + map.toString() + ");Use the mapper to find the ldap dn \nto publish the certificate or crl",
                 "publisher;choice("
-                        + publish + ");Use the publisher to publish the certificate or crl a directory etc",
+                        + publish.toString() + ");Use the publisher to publish the certificate or crl a directory etc",
                 "enable;boolean;Enable this publishing rule",
                 "predicate;string;Filter describing when this publishing rule shoule be used"
         };
@@ -171,22 +171,27 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     public Vector<String> getInstanceParams() {
         //if (mProcessor == null) System.out.println("xxxxnull");
         //dont know why the processor was null in getExtendedPluginInfo()
-        Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
+
+        /* Commented block contains variables which are used only in the below commented block.
+         *
+         * Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
         Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
-        String map = NOMAPPER;
+        StringBuffer map=new StringBuffer();
+        map.append(NOMAPPER);
 
         for (; mappers.hasMoreElements();) {
             String name = mappers.nextElement();
 
-            map = map + "," + name;
+            map.append(",").append(name);
         }
-        String publish = "";
+        StringBuffer publish=new StringBuffer();
+
 
         for (; publishers.hasMoreElements();) {
             String name = publishers.nextElement();
 
-            publish = publish + "," + name;
-        }
+            publish.append(",").append(name);
+        }*/
 
         /*
          mExtendedPluginInfo = new NameValuePairs();

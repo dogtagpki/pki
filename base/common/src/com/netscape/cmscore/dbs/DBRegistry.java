@@ -262,12 +262,20 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 }
             }
         }
-        String result = "";
+       return inStringFormat(v);
+    }
 
+    /**
+     * Convert a Vector<String> to Concatenated String
+     * @param v
+     * @return
+     */
+    private String inStringFormat(Vector<String> v){
+        StringBuffer result = new StringBuffer();
         for (int i = 0; i < v.size(); i++) {
-            result += v.elementAt(i);
+            result.append(v.elementAt(i));
         }
-        return result;
+        return result.toString();
     }
 
     /**
@@ -321,13 +329,13 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 if (ldapNames == null)
                     throw new EDBException(
                             CMS.getUserMessage("CMS_DBS_INVALID_FILTER_ITEM", f));
-                String filter = "";
+                StringBuffer filter = new StringBuffer();
 
                 for (int g = 0; g < ldapNames.length; g++) {
-                    filter += "(objectclass=" +
-                            ldapNames[g] + ")";
+                    filter.append("(objectclass=" +
+                            ldapNames[g] + ")");
                 }
-                return "&" + filter;
+                return "&" + filter.toString();
             } else {
                 return c.convert(type, "=", value);
             }
@@ -526,13 +534,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 v.addElement(s[i]);
         }
 
-        // concate them
-        String result = "";
-
-        for (int i = 0; i < v.size(); i++) {
-            result += v.elementAt(i) + "+";
-        }
-        return result;
+       return inStringFormat(v);
     }
 }
 

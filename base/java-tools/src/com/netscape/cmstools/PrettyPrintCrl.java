@@ -73,7 +73,8 @@ public class PrettyPrintCrl {
 
         BufferedReader inputCrl = null;
         String encodedBASE64CrlChunk = "";
-        String encodedBASE64Crl = "";
+        StringBuffer encodedBASE64Crl = new StringBuffer(0);
+
         byte decodedBASE64Crl[] = null;
         X509CRLImpl crl = null;
         Locale aLocale = null;
@@ -136,7 +137,7 @@ public class PrettyPrintCrl {
             while ((encodedBASE64CrlChunk = inputCrl.readLine()) != null) {
                 if (!(encodedBASE64CrlChunk.startsWith(HEADER)) &&
                         !(encodedBASE64CrlChunk.startsWith(TRAILER))) {
-                    encodedBASE64Crl += encodedBASE64CrlChunk.trim();
+                    encodedBASE64Crl.append(encodedBASE64CrlChunk.trim());
                 }
             }
         } catch (IOException e) {
@@ -156,7 +157,7 @@ public class PrettyPrintCrl {
         // (5) Decode the ASCII BASE 64 CRL enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
-        decodedBASE64Crl = Utils.base64decode(encodedBASE64Crl);
+        decodedBASE64Crl = Utils.base64decode(encodedBASE64Crl.toString());
 
         // (6) Create an X509CRLImpl() object from the BINARY BASE 64
         //     byte[] object

@@ -73,7 +73,8 @@ public class CMCResponse {
             org.mozilla.jss.pkix.cms.SignedData cmcFullResp =
                     (org.mozilla.jss.pkix.cms.SignedData) cii.getInterpretedContent();
 
-            String content = "";
+            StringBuffer content = new StringBuffer();
+
             if (cmcFullResp.hasCertificates()) {
                 SET certs = cmcFullResp.getCertificates();
                 int numCerts = certs.size();
@@ -82,12 +83,12 @@ public class CMCResponse {
                     Certificate cert = (Certificate) certs.elementAt(i);
                     X509CertImpl certImpl = new X509CertImpl(ASN1Util.encode(cert));
                     CertPrettyPrint print = new CertPrettyPrint(certImpl);
-                    content += print.toString(Locale.getDefault());
+                    content.append(print.toString(Locale.getDefault()));
                 }
             }
 
             System.out.println("Certificates: ");
-            System.out.println(content);
+            System.out.println(content.toString());
             System.out.println("");
             EncapsulatedContentInfo ci = cmcFullResp.getContentInfo();
             OBJECT_IDENTIFIER id = ci.getContentType();

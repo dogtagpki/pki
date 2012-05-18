@@ -413,14 +413,14 @@ final public class ObjectIdentifier implements Serializable {
 
     public static ObjectIdentifier getObjectIdentifier(int values[])
             throws IOException {
-        String retval;
+        StringBuffer retval = new StringBuffer();
         int i;
 
-        for (i = 0, retval = ""; i < values.length; i++) {
+        for (i = 0; i < values.length; i++) {
             if (i != 0)
-                retval += ".";
-            retval += values[i];
+                retval.append(".");
+            retval.append(values[i]);
         }
-        return getObjectIdentifier(retval);
+        return getObjectIdentifier(retval.toString());
     }
 }

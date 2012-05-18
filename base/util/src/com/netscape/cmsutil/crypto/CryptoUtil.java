@@ -403,19 +403,20 @@ public class CryptoUtil {
      * formats a cert request
      */
     public static String reqFormat(String content) {
-        String result = CERTREQ_BEGIN_HEADING + "\n";
+        StringBuffer result = new StringBuffer();
+        result.append(CERTREQ_BEGIN_HEADING + System.getProperty("line.separator"));
 
         while (content.length() >= LINE_COUNT) {
-            result = result + content.substring(0, LINE_COUNT) + "\n";
+            result.append(content.substring(0, LINE_COUNT) + System.getProperty("line.separator"));
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result = result + content + "\n" + CERTREQ_END_HEADING;
+            result.append(content).append(System.getProperty("line.separator") + CERTREQ_END_HEADING);
         } else {
-            result = result + CERTREQ_END_HEADING;
+            result.append(CERTREQ_END_HEADING);
         }
 
-        return result;
+        return result.toString();
     }
 
     public static String getPKCS10FromKey(String dn,
@@ -463,19 +464,20 @@ public class CryptoUtil {
         if (content == null || content.length() == 0) {
             return "";
         }
-        String result = CERT_BEGIN_HEADING + "\n";
+        StringBuffer result = new StringBuffer();
+        result.append(CERT_BEGIN_HEADING + System.getProperty("line.separator"));
 
         while (content.length() >= LINE_COUNT) {
-            result = result + content.substring(0, LINE_COUNT) + "\n";
+            result.append(content.substring(0, LINE_COUNT) + System.getProperty("line.separator"));
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result = result + content + "\n" + CERT_END_HEADING;
+            result.append(content + System.getProperty("line.separator") + CERT_END_HEADING);
         } else {
-            result = result + CERT_END_HEADING;
+            result.append(CERT_END_HEADING);
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -545,7 +547,7 @@ public class CryptoUtil {
     }
 
     public static String normalizeCertStr(String s) {
-        String val = "";
+        StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
@@ -557,9 +559,9 @@ public class CryptoUtil {
             } else if (s.charAt(i) == ' ') {
                 continue;
             }
-            val += s.charAt(i);
+            val.append(s.charAt(i));
         }
-        return val;
+        return val.toString();
     }
 
     public static void importCertificateChain(String certchain)

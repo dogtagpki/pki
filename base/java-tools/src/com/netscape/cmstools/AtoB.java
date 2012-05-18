@@ -61,7 +61,8 @@ public class AtoB {
 
         BufferedReader inputBlob = null;
         String asciiBASE64BlobChunk = "";
-        String asciiBASE64Blob = "";
+        StringBuffer asciiBASE64Blob = new StringBuffer();
+
         byte binaryBASE64Blob[] = null;
         FileOutputStream outputBlob = null;
 
@@ -95,7 +96,7 @@ public class AtoB {
             while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {
                 if (!(asciiBASE64BlobChunk.startsWith(HEADER)) &&
                         !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
-                    asciiBASE64Blob += asciiBASE64BlobChunk.trim();
+                    asciiBASE64Blob.append(asciiBASE64BlobChunk.trim());
                 }
             }
         } catch (IOException e) {
@@ -115,7 +116,7 @@ public class AtoB {
         // (5) Decode the ASCII BASE 64 blob enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
-        binaryBASE64Blob = Utils.base64decode(asciiBASE64Blob);
+        binaryBASE64Blob = Utils.base64decode(asciiBASE64Blob.toString());
 
         // (6) Finally, print the actual AtoB blob to the
         //     specified output file

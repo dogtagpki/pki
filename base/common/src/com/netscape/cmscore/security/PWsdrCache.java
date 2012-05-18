@@ -231,11 +231,12 @@ public class PWsdrCache {
      */
     public void addEntry(String tag, String pwd, Hashtable<String, String> tagPwds) throws EBaseException {
 
-        String stringToAdd = null;
+        StringBuffer stringToAdd = new StringBuffer();
+
         String bufs = null;
 
         if (tagPwds == null) {
-            stringToAdd = tag + ":" + pwd + "\n";
+            stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
         } else {
             Enumeration<String> enum1 = tagPwds.keys();
 
@@ -244,11 +245,7 @@ public class PWsdrCache {
                 pwd = tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
 
-                if (stringToAdd == null) {
-                    stringToAdd = tag + ":" + pwd + "\n";
-                } else {
-                    stringToAdd += tag + ":" + pwd + "\n";
-                }
+                stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
             }
         }
 
@@ -269,7 +266,7 @@ public class PWsdrCache {
             bufs = hashtable2String(ht);
         } else {
             debug("adding new tag: " + tag);
-            bufs = stringToAdd;
+            bufs = stringToAdd.toString();
         }
 
         // write update to cache
@@ -436,19 +433,14 @@ public class PWsdrCache {
 
     public String hashtable2String(Hashtable<String, String> ht) {
         Enumeration<String> enum1 = ht.keys();
-        String returnString = null;
+        StringBuffer returnString = new StringBuffer();
 
         while (enum1.hasMoreElements()) {
             String tag = enum1.nextElement();
             String pwd = ht.get(tag);
-
-            if (returnString == null) {
-                returnString = tag + ":" + pwd + "\n";
-            } else {
-                returnString += tag + ":" + pwd + "\n";
-            }
+            returnString.append(tag + ":" + pwd + System.getProperty("line.separator"));
         }
-        return returnString;
+        return returnString.toString();
     }
 
     public Hashtable<String, String> string2Hashtable(String cache) {

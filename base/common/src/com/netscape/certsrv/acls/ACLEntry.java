@@ -223,23 +223,23 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      * @return string representation of this ACLEntry
      */
     public String toString() {
-        String entry = "";
+        StringBuffer entry = new StringBuffer();
 
         if (isNegative()) {
-            entry += "deny (";
+            entry.append("deny (");
         } else {
-            entry += "allow (";
+            entry.append("allow (");
         }
         Enumeration<String> e = permissions();
 
         for (; e.hasMoreElements();) {
             String p = e.nextElement();
 
-            entry += p;
+            entry.append(p);
             if (e.hasMoreElements())
-                entry += ",";
+                entry.append(",");
         }
-        entry += ") " + getAttributeExpressions();
-        return entry;
+        entry.append(") ").append(getAttributeExpressions());
+        return entry.toString();
     }
 }

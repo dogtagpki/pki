@@ -154,19 +154,19 @@ public class ProfileSubsystem implements IProfileSubsystem {
         }
 
         StringTokenizer tokenizer = new StringTokenizer(ids, ",");
-        String list = "";
+        StringBuffer list = new StringBuffer();
 
         while (tokenizer.hasMoreTokens()) {
             String element = tokenizer.nextToken();
 
             if (!element.equals(id)) {
-                list = list + element + ",";
+                list.append(element).append(",");
             }
         }
-        if (!list.equals(""))
-            list = list.substring(0, list.length() - 1);
+        if (list.length() != 0)
+            list.deleteCharAt(list.length() - 1);
 
-        mConfig.putString(PROP_LIST, list);
+        mConfig.putString(PROP_LIST, list.toString());
         mConfig.removeSubStore(id);
         File file1 = new File(configPath);
 

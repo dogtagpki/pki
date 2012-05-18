@@ -220,22 +220,21 @@ public class EmailFormProcessor implements IEmailFormProcessor {
      * takes a vector of strings and concatenate them
      */
     public String formContent(Vector<String> vec) {
-        String content = null;
+        StringBuffer content = new StringBuffer();
 
         Enumeration<String> e = vec.elements();
 
         // initialize content with first element
         if (e.hasMoreElements()) {
-            content = e.nextElement();
+            content.append(e.nextElement());
         }
 
         while (e.hasMoreElements()) {
             String v = e.nextElement();
-
-            content += v;
+            content.append(v);
         }
 
-        return content;
+        return content.toString();
     }
 
     /**

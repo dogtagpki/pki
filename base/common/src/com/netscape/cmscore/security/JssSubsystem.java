@@ -508,7 +508,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public String getTokenList() throws EBaseException {
-        String tokenList = "";
+        StringBuffer tokenList = new StringBuffer();
+
         @SuppressWarnings("unchecked")
         Enumeration<CryptoToken> tokens = mCryptoManager.getExternalTokens();
         int num = 0;
@@ -522,10 +523,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     continue;
                 }
 
-                if (num++ == 0)
-                    tokenList = tokenList + c.getName();
-                else
-                    tokenList = tokenList + "," + c.getName();
+                if (num++ != 0)
+                    tokenList.append(",");
+                tokenList.append(c.getName());
             }
         } catch (TokenException e) {
             String[] params = { mId, e.toString() };
@@ -536,10 +536,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throw ex;
         }
 
-        if (tokenList.equals(""))
+        if (tokenList.length()==0)
             return Constants.PR_INTERNAL_TOKEN;
         else
-            return (tokenList + "," + Constants.PR_INTERNAL_TOKEN);
+            return tokenList.append(",").append(Constants.PR_INTERNAL_TOKEN).toString();
     }
 
     public boolean isTokenLoggedIn(String name) throws EBaseException {
@@ -596,7 +596,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public String getAllCerts() throws EBaseException {
-        String certNames = "";
+        StringBuffer certNames = new StringBuffer();
 
         try {
             @SuppressWarnings("unchecked")
@@ -610,10 +610,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < list.length; i++) {
                     String nickname = list[i].getNickname();
 
-                    if (certNames.equals(""))
-                        certNames = certNames + nickname;
-                    else
-                        certNames = certNames + "," + nickname;
+                    if (i > 0)
+                        certNames.append(",");
+                    certNames.append(nickname);
                 }
             }
         } catch (TokenException e) {
@@ -625,13 +624,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throw ex;
         }
 
-        return certNames;
+        return certNames.toString();
     }
 
     public String getCertListWithoutTokenName(String name) throws EBaseException {
 
         CryptoToken c = null;
-        String certNames = "";
+        StringBuffer certNames = new StringBuffer();
 
         try {
             if (name.equals(Constants.PR_INTERNAL_TOKEN)) {
@@ -653,12 +652,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                     if (index != -1)
                         nickname = nickname.substring(index + 1);
-                    if (i == 0)
-                        certNames = certNames + nickname;
-                    else
-                        certNames = certNames + "," + nickname;
+                    if (i != 0)
+                        certNames.append(",");
+                    certNames.append(nickname);
                 }
-                return certNames;
+                return certNames.toString();
             } else
                 return "";
 
@@ -682,7 +680,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getCertList(String name) throws EBaseException {
 
         CryptoToken c = null;
-        String certNames = "";
+        StringBuffer certNames = new StringBuffer();
 
         try {
             if (name.equals(Constants.PR_INTERNAL_TOKEN)) {
@@ -701,12 +699,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < list.length; i++) {
                     String nickname = list[i].getNickname();
 
-                    if (i == 0)
-                        certNames = certNames + nickname;
-                    else
-                        certNames = certNames + "," + nickname;
+                    if (i != 0)
+                        certNames.append(",");
+                    certNames.append(nickname);
                 }
-                return certNames;
+
+                return certNames.toString();
             } else
                 return "";
 
@@ -2004,7 +2002,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
             } catch (CertificateException e) {
                 // failed to decode as a certificate, try decoding
                 // as a PKCS #7 blob
-                String content = "";
+                StringBuffer content = new StringBuffer();
+
                 String noHeader = CertUtils.stripCertBrackets(b64E);
                 String normalized = CertUtils.normalizeCertStr(noHeader);
                 byte data[] = Utils.base64decode(normalized);
@@ -2030,10 +2029,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             ASN1Util.encode(cert));
                     CertPrettyPrint print = new CertPrettyPrint(certImpl);
 
-                    content += print.toString(Locale.getDefault());
+                    content.append(print.toString(Locale.getDefault()));
                 }
 
-                return content;
+                return content.toString();
             }
         } catch (InvalidBERException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));

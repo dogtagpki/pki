@@ -1446,7 +1446,7 @@ public class DRMTool {
     private static PublicKey getPublicKey() {
         BufferedReader inputCert = null;
         String encodedBASE64CertChunk = "";
-        String encodedBASE64Cert = "";
+        StringBuffer encodedBASE64Cert = new StringBuffer();
         byte decodedBASE64Cert[] = null;
         X509CertImpl cert = null;
         PublicKey key = null;
@@ -1481,7 +1481,7 @@ public class DRMTool {
             while ((encodedBASE64CertChunk = inputCert.readLine()) != null) {
                 if (!(encodedBASE64CertChunk.startsWith(HEADER)) &&
                         !(encodedBASE64CertChunk.startsWith(TRAILER))) {
-                    encodedBASE64Cert += encodedBASE64CertChunk.trim();
+                    encodedBASE64Cert.append(encodedBASE64CertChunk.trim());
                 }
             }
         } catch (IOException exWrapReadLineIO) {
@@ -1512,7 +1512,7 @@ public class DRMTool {
         // Decode the ASCII BASE 64 certificate enclosed in the
         // String() object into a BINARY BASE 64 byte[] object
         decodedBASE64Cert = Utils.base64decode(
-                                encodedBASE64Cert);
+                                encodedBASE64Cert.toString());
 
         // Create an X509CertImpl() object from
         // the BINARY BASE 64 byte[] object
@@ -1997,36 +1997,36 @@ public class DRMTool {
      *         suitable for an LDIF file
      */
     private static String format_ldif_data(int length, String data) {
-        String revised_data = "";
+        StringBuffer revised_data = new StringBuffer();
 
         if (data.length() > length) {
             // process first line
             for (int i = 0; i < length; i++) {
-                revised_data += data.charAt(i);
+                revised_data.append(data.charAt(i));
             }
 
             // terminate first line
-            revised_data += '\n';
+            revised_data.append(System.getProperty("line.separator"));
 
             // process remaining lines
             int j = 0;
             for (int i = length; i < data.length(); i++) {
                 if (j == 0) {
-                    revised_data += ' ';
+                    revised_data.append(' ');
                 }
 
-                revised_data += data.charAt(i);
+                revised_data.append(data.charAt(i));
 
                 j++;
 
                 if (j == 76) {
-                    revised_data += '\n';
+                    revised_data.append(System.getProperty("line.separator"));
                     j = 0;
                 }
             }
         }
 
-        return revised_data.replaceAll("\\s+$", "");
+        return revised_data.toString().replaceAll("\\s+$", "");
     }
 
     /*********************/
@@ -2778,8 +2778,9 @@ public class DRMTool {
      * @return the composed output line
      */
     private static String output_extdata_request_notes(String record_type,
-                                                        String line) {
-        String input = null;
+            String line) {
+        StringBuffer input = new StringBuffer();
+
         String data = null;
         String unformatted_data = null;
         String output = null;
@@ -2787,13 +2788,13 @@ public class DRMTool {
 
         // extract the data
         if (line.length() > DRM_LDIF_EXTDATA_REQUEST_NOTES.length()) {
-            input = line.substring(
+            input.append(line.substring(
                         DRM_LDIF_EXTDATA_REQUEST_NOTES.length() + 1
-                    ).trim();
+                    ).trim());
         } else {
-            input = line.substring(
+            input.append(line.substring(
                         DRM_LDIF_EXTDATA_REQUEST_NOTES.length()
-                    ).trim();
+                    ).trim());
         }
 
         while ((line = ldif_record.next()) != null) {
@@ -2801,7 +2802,7 @@ public class DRMTool {
                 // Do NOT use "trim()";
                 // remove single leading space and
                 // trailing carriage returns and newlines ONLY!
-                input += line.replaceFirst(" ", "").replace('\r', '\0').replace('\n', '\0');
+                input.append(line.replaceFirst(" ", "").replace('\r', '\0').replace('\n', '\0'));
             } else {
                 next_line = line;
                 break;
@@ -2812,7 +2813,7 @@ public class DRMTool {
             if (drmtoolCfg.get(DRMTOOL_CFG_ENROLLMENT_EXTDATA_REQUEST_NOTES)) {
                 // write out a revised 'extdata-requestnotes' line
                 if (mRewrapFlag && mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -2843,7 +2844,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -2874,7 +2875,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -2898,7 +2899,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -2923,7 +2924,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -2957,7 +2958,7 @@ public class DRMTool {
                         + SPACE
                         + format_ldif_data(
                                 EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
-                                input)
+                                input.toString())
                         + TIC
                         + NEWLINE
                         + "--->"
@@ -2973,7 +2974,7 @@ public class DRMTool {
             if (drmtoolCfg.get(DRMTOOL_CFG_RECOVERY_EXTDATA_REQUEST_NOTES)) {
                 // write out a revised 'extdata-requestnotes' line
                 if (mRewrapFlag && mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3004,7 +3005,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3035,7 +3036,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3059,7 +3060,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3084,7 +3085,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3118,7 +3119,7 @@ public class DRMTool {
                         + SPACE
                         + format_ldif_data(
                                 EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
-                                input)
+                                input.toString())
                         + TIC
                         + NEWLINE
                         + "--->"
@@ -3134,7 +3135,7 @@ public class DRMTool {
             if (drmtoolCfg.get(DRMTOOL_CFG_KEYGEN_EXTDATA_REQUEST_NOTES)) {
                 // write out a revised 'extdata-requestnotes' line
                 if (mRewrapFlag && mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3165,7 +3166,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3196,7 +3197,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRewrapFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3220,7 +3221,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mAppendIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3245,7 +3246,7 @@ public class DRMTool {
                                     EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
                                     unformatted_data);
                 } else if (mRemoveIdOffsetFlag) {
-                    data = input
+                    data = input.toString()
                             + SPACE
                             + LEFT_BRACE
                             + mDateOfModify
@@ -3279,7 +3280,7 @@ public class DRMTool {
                         + SPACE
                         + format_ldif_data(
                                 EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
-                                input)
+                                input.toString())
                         + TIC
                         + NEWLINE
                         + "--->"
@@ -3668,7 +3669,7 @@ public class DRMTool {
                                                    String line) {
         byte source_wrappedKeyData[] = null;
         byte target_wrappedKeyData[] = null;
-        String data = null;
+        StringBuffer data = new StringBuffer();
         String revised_data = null;
         String unformatted_data = null;
         String formatted_data = null;
@@ -3685,13 +3686,13 @@ public class DRMTool {
                     // these options have been selected
                     if (mRewrapFlag) {
                         // extract the data
-                        data = line.substring(
-                                   DRM_LDIF_PRIVATE_KEY_DATA.length() + 1
-                                ).trim();
+                        data.append(line.substring(
+                                DRM_LDIF_PRIVATE_KEY_DATA.length() + 1
+                                ).trim());
 
                         while ((line = ldif_record.next()) != null) {
                             if (line.startsWith(SPACE)) {
-                                data += line.trim();
+                                data.append(line.trim());
                             } else {
                                 break;
                             }
@@ -3701,7 +3702,7 @@ public class DRMTool {
                         // enclosed in the String() object
                         // into a BINARY BASE 64 byte[] object
                         source_wrappedKeyData =
-                                Utils.base64decode(data);
+                                Utils.base64decode(data.toString());
 
                         // rewrap the source wrapped private key data
                         target_wrappedKeyData = rewrap_wrapped_key_data(
@@ -3734,7 +3735,7 @@ public class DRMTool {
                         log("Changed 'privateKeyData' from:"
                                 + NEWLINE
                                 + TIC
-                                + data
+                                + data.toString()
                                 + TIC
                                 + NEWLINE
                                 + " to:"
@@ -3759,13 +3760,13 @@ public class DRMTool {
                     // these options have been selected
                     if (mRewrapFlag) {
                         // extract the data
-                        data = line.substring(
+                        data.append(line.substring(
                                    DRM_LDIF_PRIVATE_KEY_DATA.length() + 1
-                                ).trim();
+                                ).trim());
 
                         while ((line = ldif_record.next()) != null) {
                             if (line.startsWith(SPACE)) {
-                                data += line.trim();
+                                data.append(line.trim());
                             } else {
                                 break;
                             }
@@ -3775,7 +3776,7 @@ public class DRMTool {
                         // enclosed in the String() object
                         // into a BINARY BASE 64 byte[] object
                         source_wrappedKeyData =
-                                Utils.base64decode(data);
+                                Utils.base64decode(data.toString());
 
                         // rewrap the source wrapped private key data
                         target_wrappedKeyData = rewrap_wrapped_key_data(
@@ -3808,7 +3809,7 @@ public class DRMTool {
                         log("Changed 'privateKeyData' from:"
                                 + NEWLINE
                                 + TIC
-                                + data
+                                + data.toString()
                                 + TIC
                                 + NEWLINE
                                 + " to:"
