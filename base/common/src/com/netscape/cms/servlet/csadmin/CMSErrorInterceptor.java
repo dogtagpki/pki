@@ -38,7 +38,7 @@ public class CMSErrorInterceptor implements ClientErrorInterceptor {
         String contentType = headers.getFirst("Content-Type");
 
         // handle XML content only
-        if (!contentType.startsWith(MediaType.TEXT_XML))
+        if (contentType == null || !contentType.startsWith(MediaType.APPLICATION_XML))
             return;
 
         CMSException exception;

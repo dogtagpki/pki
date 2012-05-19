@@ -2,6 +2,7 @@ project(setup)
 
 install(
     FILES
+        pki
         pkicreate
         pkiremove
         pki-setup-proxy

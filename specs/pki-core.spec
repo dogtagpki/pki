@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}16%{?prerel}%{?dist}
+Release:          %{?relprefix}17%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1147,6 +1147,7 @@ fi
 %files -n pki-setup
 %defattr(-,root,root,-)
 %doc base/setup/LICENSE
+%{_bindir}/pki
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
@@ -1412,6 +1413,9 @@ fi
 
 
 %changelog
+* Mon May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
+- Added CLI for REST services
+
 * Fri May 18 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.16.a1
 - Integration of Tomcat 7
 - Addition of centralized 'pki-tomcatd' systemd functionality to the

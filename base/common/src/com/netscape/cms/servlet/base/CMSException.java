@@ -161,7 +161,7 @@ public class CMSException extends RuntimeException {
             return Response
                     .status(exception.getCode())
                     .entity(exception.getData())
-                    .type(MediaType.TEXT_XML)
+                    .type(MediaType.APPLICATION_XML)
                     .build();
         }
     }

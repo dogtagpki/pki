@@ -17,12 +17,23 @@ import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
 public abstract class CMSRestClient {
+
+    protected String clientCertNickname;
+    protected ResteasyProviderFactory providerFactory;
+    protected ClientExecutor executor;
+    protected URI uri;
+
+    public CMSRestClient(String baseUri) throws URISyntaxException {
+        this(baseUri, null);
+    }
+
     // Callback to approve or deny returned SSL server certs
     // Right now, simply approve the cert.
     // ToDO: Look into taking this JSS http client code and move it into
@@ -58,25 +69,11 @@ public abstract class CMSRestClient {
             //For now lets just accept the server cert. This is a test tool, being
             // pointed at a well know kra instance.
 
-            if (servercert != null) {
-                System.out.println("Peer SSL Servercert details: " +
-                        "\n     subject: " + servercert.getSubjectDN().toString() +
-                        "\n     issuer:  " + servercert.getIssuerDN().toString() +
-                        "\n     serial:  " + servercert.getSerialNumber().toString()
-                        );
-            }
-
             SSLCertificateApprovalCallback.ValidityItem item;
 
             Enumeration<?> errors = status.getReasons();
-            int i = 0;
             while (errors.hasMoreElements()) {
-                i++;
                 item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
-                System.out.println("item " + i +
-                        " reason=" + item.getReason() +
-                        " depth=" + item.getDepth());
-
                 int reason = item.getReason();
 
                 if (reason ==
@@ -168,8 +165,7 @@ public abstract class CMSRestClient {
 
     }
 
-    protected static String clientCertNickname;
-    protected ResteasyProviderFactory providerFactory;
-    protected ClientExecutor executor;
-    protected URI uri;
+    public <T> T createProxy(Class<T> clazz) {
+        return ProxyFactory.create(clazz, uri, executor, providerFactory);
+    }
 }

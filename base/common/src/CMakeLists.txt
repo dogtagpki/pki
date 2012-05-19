@@ -30,6 +30,13 @@ find_file(COMMONS_HTTPCLIENT_JAR
         /usr/share/java
 )
 
+find_file(APACHE_COMMONS_CLI_JAR
+    NAMES
+        apache-commons-cli.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(APACHE_COMMONS_LANG_JAR
     NAMES
         apache-commons-lang.jar
@@ -444,6 +451,19 @@ set(pki-certsrv_java_SRCS
 )
 
 set(pki-cms_java_SRCS
+    com/netscape/cms/client/cli/CLI.java
+    com/netscape/cms/client/cli/MainCLI.java
+    com/netscape/cms/client/user/UserAddCertCLI.java
+    com/netscape/cms/client/user/UserAddCLI.java
+    com/netscape/cms/client/user/UserCLI.java
+    com/netscape/cms/client/user/UserFindCertCLI.java
+    com/netscape/cms/client/user/UserFindCLI.java
+    com/netscape/cms/client/user/UserModifyCLI.java
+    com/netscape/cms/client/user/UserRemoveCertCLI.java
+    com/netscape/cms/client/user/UserRemoveCLI.java
+    com/netscape/cms/client/user/UserRestClient.java
+    com/netscape/cms/client/user/UserShowCertCLI.java
+    com/netscape/cms/client/user/UserShowCLI.java
     com/netscape/cms/listeners/PinRemovalListener.java
     com/netscape/cms/listeners/RequestInQListener.java
     com/netscape/cms/listeners/CertificateIssuedListener.java
@@ -1119,7 +1139,8 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${APACHE_COMMONS_LANG_JAR}
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+    ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
     ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR}
     ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
     ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
