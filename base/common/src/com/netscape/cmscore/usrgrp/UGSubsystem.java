@@ -917,6 +917,33 @@ public final class UGSubsystem implements IUGSubsystem {
         return;
     }
 
+    public void addUserToGroup(IGroup grp, String userid)
+            throws EUsrGrpException {
+
+        LDAPConnection ldapconn = null;
+
+        try {
+            ldapconn = getConn();
+            String groupDN = "cn=" + grp.getGroupID() +
+                    "," + getGroupBaseDN();
+            LDAPAttribute memberAttr = new LDAPAttribute(
+                    "uniquemember", "uid=" + userid + "," + getUserBaseDN());
+            LDAPModification singleChange = new LDAPModification(
+                    LDAPModification.ADD, memberAttr);
+
+            ldapconn.modify(groupDN, singleChange);
+        } catch (LDAPException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+
+            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"));
+        } catch (ELdapException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+        } finally {
+            if (ldapconn != null)
+                returnConn(ldapconn);
+        }
+    }
+
     public void removeUserFromGroup(IGroup grp, String userid)
             throws EUsrGrpException {
 

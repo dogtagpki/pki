@@ -28,6 +28,7 @@ public interface ScopeDef {
 
     // users and groups
     public final static String SC_GROUPS = "groups";
+    public final static String SC_GROUP_MEMBERS = "members";
     public final static String SC_USERS = "users";
     public final static String SC_USER_CERTS = "certs";
 

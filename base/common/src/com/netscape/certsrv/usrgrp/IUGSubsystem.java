@@ -205,6 +205,17 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
     public void modifyGroup(IGroup group) throws EUsrGrpException;
 
     /**
+     * Adds the user with the given id into the given group
+     *
+     * @param grp the given group
+     * @param userid the given user id
+     * @exception EUsrGrpException thrown when failed to add the user into
+     *                the given group
+     */
+    public void addUserToGroup(IGroup grp, String userid)
+            throws EUsrGrpException;
+
+    /**
      * Removes the user with the given id from the given group
      *
      * @param grp the given group

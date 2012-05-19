@@ -141,6 +141,12 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/common/ConfigConstants.java
     com/netscape/certsrv/common/OpDef.java
     com/netscape/certsrv/common/Constants.java
+    com/netscape/certsrv/group/GroupCollection.java
+    com/netscape/certsrv/group/GroupData.java
+    com/netscape/certsrv/group/GroupMemberCollection.java
+    com/netscape/certsrv/group/GroupMemberData.java
+    com/netscape/certsrv/group/GroupMemberResource.java
+    com/netscape/certsrv/group/GroupResource.java
     com/netscape/certsrv/user/UserCertCollection.java
     com/netscape/certsrv/user/UserCertData.java
     com/netscape/certsrv/user/UserCertResource.java
@@ -622,6 +628,8 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/admin/AdminResources.java
     com/netscape/cms/servlet/admin/SystemCertificateResource.java
     com/netscape/cms/servlet/admin/SystemCertificateResourceService.java
+    com/netscape/cms/servlet/admin/GroupMemberResourceService.java
+    com/netscape/cms/servlet/admin/GroupResourceService.java
     com/netscape/cms/servlet/admin/UserCertResourceService.java
     com/netscape/cms/servlet/admin/UserResourceService.java
     com/netscape/cms/servlet/key/DisplayBySerial.java

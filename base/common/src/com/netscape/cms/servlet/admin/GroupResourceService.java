@@ -1,0 +1,335 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2012 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+
+package com.netscape.cms.servlet.admin;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.Enumeration;
+import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang.StringUtils;
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.group.GroupCollection;
+import com.netscape.certsrv.group.GroupData;
+import com.netscape.certsrv.group.GroupResource;
+import com.netscape.certsrv.logging.IAuditor;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cmsutil.ldap.LDAPUtil;
+
+/**
+ * @author Endi S. Dewata
+ */
+public class GroupResourceService extends CMSResourceService implements GroupResource {
+
+    public final static int DEFAULT_SIZE = 20;
+
+    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+
+    public GroupData createGroupData(IGroup group) throws Exception {
+
+        GroupData groupData = new GroupData();
+
+        String id = group.getGroupID();
+        if (!StringUtils.isEmpty(id)) groupData.setID(id);
+
+        String description = group.getDescription();
+        if (!StringUtils.isEmpty(description)) groupData.setDescription(description);
+
+        String groupID = URLEncoder.encode(groupData.getID(), "UTF-8");
+        URI uri = uriInfo.getBaseUriBuilder().path(GroupResource.class).path("{groupID}").build(groupID);
+        groupData.setLink(new Link("self", uri));
+
+        return groupData;
+    }
+
+    /**
+     * Searches for users in LDAP directory.
+     *
+     * Request/Response Syntax:
+     * http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
+     */
+    @Override
+    public GroupCollection findGroups(String filter, Integer start, Integer size) {
+        try {
+            filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
+            start = start == null ? 0 : start;
+            size = size == null ? DEFAULT_SIZE : size;
+
+            Enumeration<IGroup> groups = userGroupManager.listGroups(filter);
+
+            GroupCollection response = new GroupCollection();
+
+            int i = 0;
+
+            // skip to the start of the page
+            for ( ; i<start && groups.hasMoreElements(); i++) groups.nextElement();
+
+            // return entries up to the page size
+            for ( ; i<start+size && groups.hasMoreElements(); i++) {
+                IGroup group = groups.nextElement();
+                response.addGroup(createGroupData(group));
+            }
+
+            // count the total entries
+            for ( ; groups.hasMoreElements(); i++) groups.nextElement();
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                response.addLink(new Link("prev", uri));
+            }
+
+            if (start+size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+                response.addLink(new Link("next", uri));
+            }
+
+            return response;
+
+        } catch (Exception e) {
+            throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+        }
+    }
+
+    /**
+     * finds a group
+     * Request/Response Syntax:
+     * http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
+     */
+    @Override
+    public GroupData getGroup(String groupID) {
+
+        try {
+            if (groupID == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+            }
+
+            IGroup group = userGroupManager.getGroupFromName(groupID);
+            if (group == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+            }
+
+            return createGroupData(group);
+
+        } catch (CMSException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+        }
+    }
+
+    /**
+     * Adds a new group in local scope.
+     * <P>
+     *
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#group
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
+     * </ul>
+     */
+    @Override
+    public Response addGroup(GroupData groupData) {
+
+        String groupID = groupData.getID();
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            if (groupID == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+            }
+
+            IGroup group = userGroupManager.createGroup(groupID);
+
+            String description = groupData.getDescription();
+            if (description != null) {
+                group.set("description", description);
+            } else {
+                group.set("description", "");
+            }
+
+            // allow adding a group with no members
+            try {
+                userGroupManager.addGroup(group);
+
+                auditAddGroup(groupID, groupData, ILogger.SUCCESS);
+
+                // read the data back
+                groupData = getGroup(groupID);
+
+                return Response
+                        .created(groupData.getLink().getHref())
+                        .entity(groupData)
+                        .type(MediaType.APPLICATION_XML)
+                        .build();
+
+            } catch (Exception e) {
+                throw new CMSException(getUserMessage("CMS_USRGRP_GROUP_ADD_FAILED"));
+            }
+
+        } catch (CMSException e) {
+            auditAddGroup(groupID, groupData, ILogger.FAILURE);
+            throw e;
+
+        } catch (EBaseException e) {
+            auditAddGroup(groupID, groupData, ILogger.FAILURE);
+            throw new CMSException(e.getMessage());
+        }
+    }
+
+    /**
+     * modifies a group
+     * <P>
+     *
+     * last person of the super power group "Certificate Server Administrators" can never be removed.
+     * <P>
+     *
+     * http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#group
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
+     * </ul>
+     */
+    @Override
+    public Response modifyGroup(String groupID, GroupData groupData) {
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            if (groupID == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+            }
+
+            IGroup group = userGroupManager.getGroupFromName(groupID);
+
+            group.set("description", groupData.getDescription());
+
+            // allow adding a group with no members, except "Certificate
+            // Server Administrators"
+            try {
+                userGroupManager.modifyGroup(group);
+
+                auditModifyGroup(groupID, groupData, ILogger.SUCCESS);
+
+                // read the data back
+                groupData = getGroup(groupID);
+
+                return Response
+                        .ok(groupData)
+                        .type(MediaType.APPLICATION_XML)
+                        .build();
+
+            } catch (Exception e) {
+                log(ILogger.LL_FAILURE, e.toString());
+                throw new CMSException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
+            }
+
+        } catch (CMSException e) {
+            auditModifyGroup(groupID, groupData, ILogger.FAILURE);
+            throw e;
+
+        } catch (EBaseException e) {
+            auditModifyGroup(groupID, groupData, ILogger.FAILURE);
+            throw new CMSException(e.getMessage());
+        }
+    }
+
+    /**
+     * removes a group
+     * <P>
+     *
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#group
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
+     * </ul>
+     */
+    @Override
+    public void removeGroup(String groupID) {
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            if (groupID == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+            }
+
+            // if fails, let the exception fall through
+            userGroupManager.removeGroup(groupID);
+
+            auditDeleteGroup(groupID, ILogger.SUCCESS);
+
+        } catch (CMSException e) {
+            auditDeleteGroup(groupID, ILogger.FAILURE);
+            throw e;
+
+        } catch (EBaseException e) {
+            auditDeleteGroup(groupID, ILogger.FAILURE);
+            throw new CMSException(e.getMessage());
+        }
+    }
+
+    public void log(int level, String message) {
+        log(ILogger.S_USRGRP, level, message);
+    }
+
+    public void auditAddGroup(String groupID, GroupData groupData, String status) {
+        audit(OpDef.OP_ADD, groupID, getParams(groupData), status);
+    }
+
+    public void auditModifyGroup(String groupID, GroupData groupData, String status) {
+        audit(OpDef.OP_MODIFY, groupID, getParams(groupData), status);
+    }
+
+    public void auditDeleteGroup(String groupID, String status) {
+        audit(OpDef.OP_DELETE, groupID, null, status);
+    }
+
+    public void audit(String type, String id, Map<String, String> params, String status) {
+        audit(IAuditor.LOGGING_SIGNED_AUDIT_CONFIG_ROLE, ScopeDef.SC_GROUPS, type, id, params, status);
+    }
+}
