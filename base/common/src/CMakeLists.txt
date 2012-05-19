@@ -351,6 +351,7 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/logging/ELogException.java
     com/netscape/certsrv/logging/ConsoleLog.java
     com/netscape/certsrv/logging/LogPlugin.java
+    com/netscape/certsrv/logging/IAuditor.java
     com/netscape/certsrv/logging/ILogSubsystem.java
     com/netscape/certsrv/logging/IBundleLogEvent.java
     com/netscape/certsrv/logging/ELogPluginNotFound.java
@@ -1037,6 +1038,7 @@ set(pki-cmscore_java_SRCS
     com/netscape/cmscore/logging/AuditEventFactory.java
     com/netscape/cmscore/logging/LogQueue.java
     com/netscape/cmscore/logging/LogSubsystem.java
+    com/netscape/cmscore/logging/Auditor.java
     com/netscape/cmscore/logging/AuditFormat.java
     com/netscape/cmscore/logging/Logger.java
     com/netscape/cmscore/logging/SignedAuditEventFactory.java

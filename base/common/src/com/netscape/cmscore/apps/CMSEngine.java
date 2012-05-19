@@ -100,6 +100,7 @@ import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.ELogException;
+import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
@@ -152,6 +153,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.LdapJssSSLSocketFactory;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.Logger;
 import com.netscape.cmscore.logging.SignedAuditLogger;
@@ -1511,6 +1513,10 @@ public class CMSEngine implements ICMSEngine {
 
     public ILogger getLogger() {
         return Logger.getLogger();
+    }
+
+    public IAuditor getAuditor() {
+        return Auditor.getAuditor();
     }
 
     public ILogger getSignedAuditLogger() {

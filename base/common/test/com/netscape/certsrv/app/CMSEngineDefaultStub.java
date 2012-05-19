@@ -49,6 +49,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
+import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -139,6 +140,10 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public ILogger getLogger() {
+        return null;
+    }
+
+    public IAuditor getAuditor() {
         return null;
     }
 

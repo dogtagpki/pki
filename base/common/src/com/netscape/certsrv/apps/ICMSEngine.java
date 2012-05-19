@@ -64,6 +64,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
+import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -185,6 +186,15 @@ public interface ICMSEngine extends ISubsystem {
      * @return logger
      */
     public ILogger getLogger();
+
+    /**
+     * Returns the auditor of the current server. The auditor can
+     * be used to audit critical informational or critical error
+     * messages.
+     *
+     * @return auditor
+     */
+    public IAuditor getAuditor();
 
     /**
      * Returns the signed audit logger of the current server. This logger can
