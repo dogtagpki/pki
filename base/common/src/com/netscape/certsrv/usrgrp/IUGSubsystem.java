@@ -240,6 +240,11 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
     public String getCertificateString(X509Certificate cert);
 
     /**
+     * Searchs for identities that matches the filter.
+     */
+    public Enumeration<IUser> findUsers(String filter) throws EUsrGrpException;
+
+    /**
      * Searchs for identities that matches the certificate locater
      * generated filter.
      *

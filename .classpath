@@ -42,5 +42,7 @@
 	<classpathentry kind="lib" path="/usr/share/tomcat6/lib/catalina.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/istack-commons-runtime.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jss/jss4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/apache-commons-lang.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-atom-provider.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

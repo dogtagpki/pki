@@ -193,6 +193,7 @@ my $resteasy_jaxb_provider_jar_base_name = "resteasy-jaxb-provider.jar";        
 my $resteasy_jaxrs_jar_base_name  = "resteasy-jaxrs.jar";                          # CA, KRA, OCSP, TKS
 my $scannotation_jar_base_name    = "scannotation.jar";                            # CA, KRA, OCSP, TKS
 my $jettison_jar_base_name        = "jettison.jar";                                # CA, KRA, OCSP, TKS
+my $resteasy_atom_provider_jar_base_name = "resteasy-atom-provider.jar";           # CA, KRA, OCSP, TKS
 my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider.jar";   # CA, KRA, OCSP, TKS
 
 my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
@@ -486,6 +487,8 @@ my $scannotation_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
 my $scannotation_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
 my $jettison_jar_file_path                       = undef;  # CA, KRA, OCSP, TKS
 my $jettison_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_atom_provider_jar_file_path         = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_atom_provider_jar_symlink_path      = undef;  # CA, KRA, OCSP, TKS
 my $resteasy_jettison_provider_jar_file_path     = undef;  # CA, KRA, OCSP, TKS
 my $resteasy_jettison_provider_jar_symlink_path  = undef;  # CA, KRA, OCSP, TKS
 my $commons_collections_jar_file_path            = undef;  # CA, KRA, OCSP, TKS
@@ -1887,6 +1890,11 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
+        if (!defined($resteasy_atom_provider_jar_file_path = find_jar($resteasy_atom_provider_jar_base_name))) {
+            emit("could not find jar: $resteasy_atom_provider_jar_base_name", "error");
+            return 0;
+        }
+
         if (!defined($resteasy_jettison_provider_jar_file_path = find_jar($resteasy_jettison_provider_jar_base_name))) {
             emit("could not find jar: $resteasy_jettison_provider_jar_base_name", "error");
             return 0;
@@ -1966,6 +1974,8 @@ sub initialize_subdirectory_paths
                                                      . "/" . $resteasy_jaxrs_jar_base_name;
         $scannotation_jar_symlink_path               = $webinf_lib_instance_path
                                                      . "/" . $scannotation_jar_base_name;
+        $resteasy_atom_provider_jar_symlink_path     = $webinf_lib_instance_path
+                                                     . "/" . $resteasy_atom_provider_jar_base_name;
         $resteasy_jettison_provider_jar_symlink_path = $webinf_lib_instance_path
                                                      . "/" . $resteasy_jettison_provider_jar_base_name;
         $jettison_jar_symlink_path                   = $webinf_lib_instance_path
@@ -2996,6 +3006,10 @@ sub process_pki_files_and_symlinks
 
         # create instance symlink to "scannotation.jar"
         return 0 if !create_symlink($scannotation_jar_symlink_path, $scannotation_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-resteasy_atom_provider.jar"
+        return 0 if !create_symlink($resteasy_atom_provider_jar_symlink_path, $resteasy_atom_provider_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create instance symlink to "pki-resteasy_jettison_provider.jar"

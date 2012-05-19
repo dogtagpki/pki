@@ -1415,7 +1415,7 @@ public class CMSEngine implements ICMSEngine {
         try {
             return "-----BEGIN CERTIFICATE-----\n" +
                     CMS.BtoA(cert.getEncoded()) +
-                    "\n-----END CERTIFICATE-----\n";
+                    "-----END CERTIFICATE-----\n";
         } catch (Exception e) {
             return null;
         }

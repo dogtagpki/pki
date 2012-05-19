@@ -23,6 +23,20 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_HTTPCLIENT_JAR
+    NAMES
+        commons-httpclient.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(APACHE_COMMONS_LANG_JAR
+    NAMES
+        apache-commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(TOMCAT_CATALINA_JAR
     NAMES
         catalina.jar
@@ -76,6 +90,13 @@ find_file(RESTEASY_JAXRS_JAR
         /usr/share/java/resteasy
 )
 
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        /usr/share/java/resteasy
+)
+
 find_file(HTTPCLIENT_JAR
     NAMES
         httpclient.jar
@@ -113,6 +134,12 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/common/ConfigConstants.java
     com/netscape/certsrv/common/OpDef.java
     com/netscape/certsrv/common/Constants.java
+    com/netscape/certsrv/user/UserCertCollection.java
+    com/netscape/certsrv/user/UserCertData.java
+    com/netscape/certsrv/user/UserCertResource.java
+    com/netscape/certsrv/user/UserCollection.java
+    com/netscape/certsrv/user/UserData.java
+    com/netscape/certsrv/user/UserResource.java
     com/netscape/certsrv/usrgrp/EUsrGrpException.java
     com/netscape/certsrv/usrgrp/IGroupConstants.java
     com/netscape/certsrv/usrgrp/Certificates.java
@@ -575,6 +602,8 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/admin/AdminResources.java
     com/netscape/cms/servlet/admin/SystemCertificateResource.java
     com/netscape/cms/servlet/admin/SystemCertificateResourceService.java
+    com/netscape/cms/servlet/admin/UserCertResourceService.java
+    com/netscape/cms/servlet/admin/UserResourceService.java
     com/netscape/cms/servlet/key/DisplayBySerial.java
     com/netscape/cms/servlet/key/SrchKey.java
     com/netscape/cms/servlet/key/DisplayTransport.java
@@ -1090,7 +1119,10 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${APACHE_COMMONS_LANG_JAR}
+    ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR}
+    ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+    ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
