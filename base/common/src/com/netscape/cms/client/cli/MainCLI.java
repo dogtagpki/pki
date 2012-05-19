@@ -26,6 +26,7 @@ import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cms.client.group.GroupCLI;
 import com.netscape.cms.client.user.UserCLI;
 
 /**
@@ -48,6 +49,7 @@ public class MainCLI extends CLI {
         super("pki", "PKI command-line interface");
 
         addModule(new UserCLI(this));
+        addModule(new GroupCLI(this));
     }
 
     public String getProtocol() {
