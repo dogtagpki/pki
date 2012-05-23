@@ -673,10 +673,9 @@ public class CMCRequest {
         try {
             byte bvalue[] = str.getBytes();
             System.out.println("Data Return Control: ");
-            StringBuffer ss = new StringBuffer();
-            ss.append("   Value: ");
+            StringBuffer ss = new StringBuffer("   Value: ");
             for (int m = 0; m < bvalue.length; m++) {
-                ss.append(bvalue[m]).append(" ");
+                ss.append(bvalue[m] + " ");
             }
             System.out.println(ss.toString());
             OCTET_STRING s = new OCTET_STRING(bvalue);
@@ -758,9 +757,8 @@ public class CMCRequest {
         byte bb[] = sn.getBytes();
         System.out.println("SenderNonce control: ");
 
-        StringBuffer ss = new StringBuffer();
+        StringBuffer ss = new StringBuffer("   Value: ");
 
-        ss.append("   Value: ");
         for (int m = 0; m < bb.length; m++) {
             ss.append(bb[m] + " ");
         }

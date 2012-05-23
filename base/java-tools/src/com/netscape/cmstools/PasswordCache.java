@@ -446,7 +446,7 @@ class PWsdrCache {
         String bufs = null;
 
         if (tagPwds == null) {
-            stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
+            stringToAdd.append(tag + ":" + pwd + "\n");
         } else {
             Enumeration<String> enum1 = tagPwds.keys();
 
@@ -455,7 +455,7 @@ class PWsdrCache {
                 pwd = tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
 
-                stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
+                stringToAdd.append(tag + ":" + pwd + "\n");
             }
         }
 
@@ -672,7 +672,7 @@ class PWsdrCache {
         while (enum1.hasMoreElements()) {
             String tag = enum1.nextElement();
             String pwd = ht.get(tag);
-            returnString.append(tag + ":" + pwd + System.getProperty("line.separator"));
+            returnString.append(tag + ":" + pwd + "\n");
 
         }
         return returnString.toString();

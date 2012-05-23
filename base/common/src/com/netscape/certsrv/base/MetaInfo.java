@@ -53,10 +53,8 @@ public class MetaInfo implements IAttrSet {
      * @return information about this certificate attribute.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer("[\n" + "  Meta information:\n");
 
-        sb.append("[\n");
-        sb.append("  Meta information:\n");
         Enumeration<String> enum1 = content.keys();
 
         while (enum1.hasMoreElements()) {

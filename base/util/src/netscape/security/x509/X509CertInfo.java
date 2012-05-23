@@ -333,17 +333,12 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                 || issuer == null || algId == null || serialNum == null) {
             throw new NullPointerException("X.509 cert is incomplete");
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer("[\n" + "  " + version.toString() + "\n" + "  Subject: "
+                + subject.toString() + "\n"
+                + "  Signature Algorithm: " + algId.toString() + "\n" + "  Key:  " + pubKey.toString() + "\n");
 
-        sb.append("[\n");
-        sb.append("  " + version.toString() + "\n");
-        sb.append("  Subject: " + subject.toString() + "\n");
-        sb.append("  Signature Algorithm: " + algId.toString() + "\n");
-        sb.append("  Key:  " + pubKey.toString() + "\n");
-        sb.append("  " + interval.toString() + "\n");
-        sb.append("  Issuer: " + issuer.toString() + "\n");
-        sb.append("  " + serialNum.toString() + "\n");
-
+        sb.append("  " + interval.toString() + "\n" + "  Issuer: " + issuer.toString() + "\n"
+                + "  " + serialNum.toString() + "\n");
         // optional v2, v3 extras
         if (issuerUniqueId != null) {
             sb.append("  Issuer Id:\n" + issuerUniqueId.toString() + "\n");

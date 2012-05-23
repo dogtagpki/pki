@@ -275,8 +275,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             hasSlash = up.indexOf('\\');
             while (hasSlash != -1) {
-                stripped.append(up.substring(0, hasSlash)).append(
-                        "\\5c");
+                stripped.append(up.substring(0, hasSlash) + "\\5c");
 
                 up = up.substring(hasSlash + 1);
                 hasSlash = up.indexOf('\\');

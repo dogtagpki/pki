@@ -132,7 +132,6 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     }
 
     public String toString() {
-
         String presentation = "oid=" + ExtendedKeyUsageExtension.OID + " ";
 
         if (critical) {

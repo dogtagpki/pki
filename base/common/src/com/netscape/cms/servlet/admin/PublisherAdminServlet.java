@@ -3016,7 +3016,7 @@ public class PublisherAdminServlet extends AdminServlet {
         StringBuffer buffer = new StringBuffer(s[0]);
         if (s.length > 1) {
             for (int i = 1; i < s.length; i++) {
-                buffer.append(delimiter).append(s[i].trim());
+                buffer.append(delimiter + s[i].trim());
             }
         }
         return buffer.toString();

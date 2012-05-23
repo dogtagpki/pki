@@ -78,8 +78,7 @@ public class PolicyQualifiers implements java.io.Serializable {
      * Returns a printable representation of the CertificatePolicyId.
      */
     public String toString() {
-        StringBuffer s = new StringBuffer();
-        s.append("PolicyQualifiers: [");
+        StringBuffer s = new StringBuffer("PolicyQualifiers: [");
         for (int i = 0; i < mInfo.size(); i++) {
             PolicyQualifierInfo pq = mInfo.elementAt(i);
             s.append(pq.toString());

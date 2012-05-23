@@ -281,10 +281,8 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * @return value of this revoked certificate in a printable form.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer(serialNumber.toString() + "  On: " + revocationDate.toString());
 
-        sb.append(serialNumber.toString());
-        sb.append("  On: " + revocationDate.toString());
         if (extensions != null) {
             sb.append("\n");
             for (int i = 0; i < extensions.size(); i++)

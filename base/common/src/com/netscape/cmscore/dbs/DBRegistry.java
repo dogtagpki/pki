@@ -272,6 +272,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      */
     private String inStringFormat(Vector<String> v){
         StringBuffer result = new StringBuffer();
+
         for (int i = 0; i < v.size(); i++) {
             result.append(v.elementAt(i));
         }

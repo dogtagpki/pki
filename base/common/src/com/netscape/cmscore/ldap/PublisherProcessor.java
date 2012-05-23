@@ -955,7 +955,7 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule.append(" ").append(rule.getInstanceName());
+                errorRule.append(" " + rule.getInstanceName());
             }
         }
 
@@ -1072,7 +1072,7 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule.append(" ").append(rule.getInstanceName());
+                errorRule.append(" " + rule.getInstanceName());
             }
         }
         // set the ldap published flag.
@@ -1138,7 +1138,7 @@ public class PublisherProcessor implements
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule.append(" ").append(rule.getInstanceName());
+                errorRule.append(" " + rule.getInstanceName());
             }
         }
 

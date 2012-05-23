@@ -643,11 +643,7 @@ public class X509CertImpl extends X509Certificate
         if (info == null || algId == null || signature == null)
             return "";
 
-        StringBuffer sb = new StringBuffer();
-
-        sb.append("[\n");
-        sb.append(info.toString() + "\n");
-        sb.append("  Algorithm: [" + algId.toString() + "]\n");
+        StringBuffer sb = new StringBuffer("[\n"+info.toString() + "\n" + "  Algorithm: [" + algId.toString() + "]\n");
 
         netscape.security.util.PrettyPrintFormat pp =
                 new netscape.security.util.PrettyPrintFormat(" ", 20);

@@ -160,7 +160,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
             String element = tokenizer.nextToken();
 
             if (!element.equals(id)) {
-                list.append(element).append(",");
+                list.append(element + ",");
             }
         }
         if (list.length() != 0)

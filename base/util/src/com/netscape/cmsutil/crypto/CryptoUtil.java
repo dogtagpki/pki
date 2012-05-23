@@ -404,14 +404,14 @@ public class CryptoUtil {
      */
     public static String reqFormat(String content) {
         StringBuffer result = new StringBuffer();
-        result.append(CERTREQ_BEGIN_HEADING + System.getProperty("line.separator"));
+        result.append(CERTREQ_BEGIN_HEADING + "\n");
 
         while (content.length() >= LINE_COUNT) {
-            result.append(content.substring(0, LINE_COUNT) + System.getProperty("line.separator"));
+            result.append(content.substring(0, LINE_COUNT) + "\n");
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result.append(content).append(System.getProperty("line.separator") + CERTREQ_END_HEADING);
+            result.append(content + "\n" + CERTREQ_END_HEADING);
         } else {
             result.append(CERTREQ_END_HEADING);
         }
@@ -465,14 +465,14 @@ public class CryptoUtil {
             return "";
         }
         StringBuffer result = new StringBuffer();
-        result.append(CERT_BEGIN_HEADING + System.getProperty("line.separator"));
+        result.append(CERT_BEGIN_HEADING + "\n");
 
         while (content.length() >= LINE_COUNT) {
-            result.append(content.substring(0, LINE_COUNT) + System.getProperty("line.separator"));
+            result.append(content.substring(0, LINE_COUNT) + "\n");
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result.append(content + System.getProperty("line.separator") + CERT_END_HEADING);
+            result.append(content + "\n" + CERT_END_HEADING);
         } else {
             result.append(CERT_END_HEADING);
         }

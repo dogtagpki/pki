@@ -314,12 +314,11 @@ public class ComCrypto {
      */
 
     public String normalizeForLDAP(String s) {
-
         StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
-                val.append(System.getProperty("line.separator") + " ");
+                val.append("\n" + " ");
                 i++;
                 continue;
             } else if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'r')) {
@@ -338,7 +337,6 @@ public class ComCrypto {
      */
 
     public String pkcs7Convertcert(String s) {
-
         StringBuffer val = new StringBuffer();
 
         int len = s.length();
@@ -346,7 +344,7 @@ public class ComCrypto {
         for (int i = 0; i < len; i = i + 64) {
 
             if (i + 64 < len) {
-                val.append(s.substring(i, i + 64)+System.getProperty("line.separator"));
+                val.append(s.substring(i, i + 64) + "\n");
             } else {
                 val.append(s.substring(i, len));
             }

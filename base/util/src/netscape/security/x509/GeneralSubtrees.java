@@ -80,7 +80,7 @@ public class GeneralSubtrees {
 
         for (Enumeration<GeneralSubtree> e = trees.elements(); e.hasMoreElements();) {
             element = e.nextElement();
-            s.append(pp.indent(indent + 4) + element.toPrint(indent) + System.getProperty("line.separator"));
+            s.append(pp.indent(indent + 4) + element.toPrint(indent) + "\n");
         }
 
         return (s.toString());

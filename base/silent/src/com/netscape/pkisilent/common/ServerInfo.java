@@ -243,7 +243,6 @@ public class ServerInfo {
     }
 
     private String stripSpace(String s) {
-
         StringBuffer val = new StringBuffer();
 
         for (int i = 0; i < s.length(); i++) {

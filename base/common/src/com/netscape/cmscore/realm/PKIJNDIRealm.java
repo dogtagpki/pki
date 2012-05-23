@@ -495,7 +495,7 @@ public class PKIJNDIRealm extends JNDIRealm {
             if (orIndex == -1 && andIndex == -1) {
                 boolean passed = evaluateExpression(principal, s.trim());
 
-                v.addElement(passed);
+                v.addElement(Boolean.valueOf(passed));
                 break;
 
                 // || first
@@ -511,7 +511,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 String s1 = s.substring(0, andIndex);
                 boolean passed = evaluateExpression(principal, s1.trim());
 
-                v.addElement(passed);
+                v.addElement(Boolean.valueOf(passed));
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
             }

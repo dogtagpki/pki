@@ -299,7 +299,6 @@ public class UserEnroll extends TestClient {
     }
 
     private void buildquery() throws UnsupportedEncodingException {
-
         StringBuffer queryStrBuf = new StringBuffer();
 
         if (certType.equals("client")) {

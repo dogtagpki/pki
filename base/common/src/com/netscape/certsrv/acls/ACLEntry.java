@@ -239,7 +239,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
             if (e.hasMoreElements())
                 entry.append(",");
         }
-        entry.append(") ").append(getAttributeExpressions());
+        entry.append(") " + getAttributeExpressions());
         return entry.toString();
     }
 }

@@ -425,22 +425,20 @@ public class PKCS7 {
      * Returns the PKCS7 block in a printable string form.
      */
     public String toString() {
-        StringBuffer out=new StringBuffer();
+        StringBuffer out = new StringBuffer("PKCS7 :: version: " + version + "\n");
 
-
-        out.append("PKCS7 :: version: " + version+System.getProperty("line.separator"));
-        out.append("PKCS7 :: digest AlgorithmIds: "+System.getProperty("line.separator"));
+        out.append("PKCS7 :: digest AlgorithmIds: " + "\n");
         for (int i = 0; i < digestAlgorithmIds.length; i++) {
-            out.append("\t" + digestAlgorithmIds[i]+System.getProperty("line.separator"));
+            out.append("\t" + digestAlgorithmIds[i] + "\n");
         }
-        out.append(contentInfo).append(System.getProperty("line.separator"));
-        out.append("PKCS7 :: certificates: "+System.getProperty("line.separator"));
+        out.append(contentInfo + "\n");
+        out.append("PKCS7 :: certificates: " + "\n");
         for (int i = 0; i < certificates.length; i++) {
-            out.append("\t" + i + ".   " + certificates[i]+System.getProperty("line.separator"));
+            out.append("\t" + i + ".   " + certificates[i] + "\n");
         }
-        out.append("PKCS7 :: signer infos: "+System.getProperty("line.separator"));
+        out.append("PKCS7 :: signer infos: " + "\n");
         for (int i = 0; i < signerInfos.length; i++) {
-            out.append("\t" + i + ".  " + signerInfos[i]+System.getProperty("line.separator"));
+            out.append("\t" + i + ".  " + signerInfos[i] + "\n");
         }
         return out.toString();
     }

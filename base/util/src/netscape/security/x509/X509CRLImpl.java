@@ -514,12 +514,9 @@ public class X509CRLImpl extends X509CRL {
      * @return value of this CRL in a printable form.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("X.509 CRL v" + (version + 1) + "\n");
-        sb.append("Signature Algorithm: " + sigAlgId +
-                  ", OID=" + sigAlgId.getOID() + "\n");
-        sb.append("Issuer: " + issuer + "\n");
-        sb.append("\nThis Update: " + thisUpdate + "\n");
+        StringBuffer sb = new StringBuffer("X.509 CRL v" + (version + 1) + "\n" + "Signature Algorithm: " + sigAlgId +
+                ", OID=" + sigAlgId.getOID() + "\n" + "Issuer: " + issuer + "\n" + "\nThis Update: " + thisUpdate
+                + "\n");
         if (nextUpdate != null)
             sb.append("Next Update: " + nextUpdate + "\n");
         if (revokedCerts.isEmpty())

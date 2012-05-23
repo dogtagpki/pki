@@ -2006,7 +2006,7 @@ public class DRMTool {
             }
 
             // terminate first line
-            revised_data.append(System.getProperty("line.separator"));
+            revised_data.append("\n");
 
             // process remaining lines
             int j = 0;
@@ -2020,7 +2020,7 @@ public class DRMTool {
                 j++;
 
                 if (j == 76) {
-                    revised_data.append(System.getProperty("line.separator"));
+                    revised_data.append("\n");
                     j = 0;
                 }
             }

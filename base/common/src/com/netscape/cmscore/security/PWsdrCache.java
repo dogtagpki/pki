@@ -230,13 +230,12 @@ public class PWsdrCache {
      * add passwd in pwcache.
      */
     public void addEntry(String tag, String pwd, Hashtable<String, String> tagPwds) throws EBaseException {
-
         StringBuffer stringToAdd = new StringBuffer();
 
         String bufs = null;
 
         if (tagPwds == null) {
-            stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
+            stringToAdd.append(tag + ":" + pwd + "\n");
         } else {
             Enumeration<String> enum1 = tagPwds.keys();
 
@@ -245,7 +244,7 @@ public class PWsdrCache {
                 pwd = tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
 
-                stringToAdd.append(tag + ":" + pwd + System.getProperty("line.separator"));
+                stringToAdd.append(tag + ":" + pwd + "\n");
             }
         }
 
@@ -438,7 +437,7 @@ public class PWsdrCache {
         while (enum1.hasMoreElements()) {
             String tag = enum1.nextElement();
             String pwd = ht.get(tag);
-            returnString.append(tag + ":" + pwd + System.getProperty("line.separator"));
+            returnString.append(tag + ":" + pwd + "\n");
         }
         return returnString.toString();
     }

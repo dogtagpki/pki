@@ -107,7 +107,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
 
         if (in == null) return "";
 
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer(indent(indentSize));
         int hexCount = 0;
         char c[];
         int j = 0;
@@ -120,7 +120,6 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
 
         char sep = separator.charAt(0);
 
-        sb.append(indent(indentSize));
         for (int i = 0; i < in.length; i++) {
             if (lineLen > 0 && hexCount == lineLen) {
                 c[j++] = '\n';

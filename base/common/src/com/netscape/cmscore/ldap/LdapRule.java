@@ -66,20 +66,20 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         mProcessor = processor;
         Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
         Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
-           StringBuffer map=new StringBuffer();
+        StringBuffer map = new StringBuffer();
         map.append(NOMAPPER);
 
         for (; mappers.hasMoreElements();) {
             String name = mappers.nextElement();
 
-            map.append(",").append(name);
+            map.append("," + name);
         }
         StringBuffer publish = new StringBuffer();
 
         for (; publishers.hasMoreElements();) {
             String name = publishers.nextElement();
 
-            publish.append(",").append(name);
+            publish.append("," + name);
         }
 
         epi_params = new String[] {
@@ -176,21 +176,20 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
          *
          * Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
         Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
-        StringBuffer map=new StringBuffer();
+        StringBuffer map = new StringBuffer();
         map.append(NOMAPPER);
 
         for (; mappers.hasMoreElements();) {
             String name = mappers.nextElement();
 
-            map.append(",").append(name);
+            map.append("," + name);
         }
-        StringBuffer publish=new StringBuffer();
-
+        StringBuffer publish = new StringBuffer();
 
         for (; publishers.hasMoreElements();) {
             String name = publishers.nextElement();
 
-            publish.append(",").append(name);
+            publish.append("," + name);
         }*/
 
         /*

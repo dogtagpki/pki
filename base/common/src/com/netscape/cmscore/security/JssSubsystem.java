@@ -539,7 +539,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (tokenList.length()==0)
             return Constants.PR_INTERNAL_TOKEN;
         else
-            return tokenList.append(",").append(Constants.PR_INTERNAL_TOKEN).toString();
+            return tokenList.append("," + Constants.PR_INTERNAL_TOKEN).toString();
     }
 
     public boolean isTokenLoggedIn(String name) throws EBaseException {
@@ -610,9 +610,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < list.length; i++) {
                     String nickname = list[i].getNickname();
 
-                    if (i > 0)
-                        certNames.append(",");
-                    certNames.append(nickname);
+                    if (certNames.length() < 1) {
+                        certNames.append(nickname);
+                    } else {
+                        certNames.append("," + nickname);
+                    }
                 }
             }
         } catch (TokenException e) {

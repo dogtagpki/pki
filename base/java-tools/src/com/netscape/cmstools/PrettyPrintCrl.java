@@ -73,7 +73,7 @@ public class PrettyPrintCrl {
 
         BufferedReader inputCrl = null;
         String encodedBASE64CrlChunk = "";
-        StringBuffer encodedBASE64Crl = new StringBuffer(0);
+        StringBuffer encodedBASE64Crl = new StringBuffer();
 
         byte decodedBASE64Crl[] = null;
         X509CRLImpl crl = null;

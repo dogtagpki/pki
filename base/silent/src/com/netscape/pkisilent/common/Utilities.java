@@ -38,7 +38,6 @@ public class Utilities {
     }
 
     public String cleanupQuotes(String token) {
-
         StringBuffer buf = new StringBuffer();
         int length = token.length();
         int curIndex = 0;
@@ -141,7 +140,7 @@ public class Utilities {
 
         for (int i = 0; i < s.length(); i++) {
             if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'n')) {
-                val.append(System.getProperty("line.separator"));
+                val.append("\n");
                 i++;
                 continue;
             } else if ((s.charAt(i) == '\\') && (s.charAt(i + 1) == 'r')) {
@@ -327,7 +326,7 @@ public class Utilities {
             RDN[] rdns = dname.getNames();
 
             for (int i = rdns.length - 1; i >= 0; i--) {
-                pp.append(rdns[i] + System.getProperty("line.separator"));
+                pp.append(rdns[i] + "\n");
             }
 
             cr.subject = pp.toString();

@@ -274,9 +274,8 @@ public class CertRecord implements IDBObj, ICertRecord {
      * String representation
      */
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuffer buf = new StringBuffer("CertRecord: ");
 
-        buf.append("CertRecord: ");
         if (getSerialNumber() != null)
             buf.append("    " + getSerialNumber().toString());
         return buf.toString();

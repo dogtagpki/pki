@@ -2483,8 +2483,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mDeltaCRLSize = deltaCRLCerts.size();
 
                     long totalTime = 0;
-                    StringBuffer splitTimes = new StringBuffer();
-                    splitTimes.append("  (");
+                    StringBuffer splitTimes = new StringBuffer("  (");
                     for (int i = 1; i < mSplits.length && i < 5; i++) {
                         totalTime += mSplits[i];
                         if (i > 1)
@@ -2493,18 +2492,18 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                     splitTimes.append(")");
                     mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                                new Object[] {
-                                        getId(),
-                                        getNextCRLNumber(),
-                                        getCRLNumber(),
-                                        getLastUpdate(),
-                                        getNextDeltaUpdate(),
-                                        Long.toString(mDeltaCRLSize),
-                                        Long.toString(totalTime) + splitTimes.toString()
-                                }
-                               );
+                            AuditFormat.LEVEL,
+                            CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
+                            new Object[] {
+                                    getId(),
+                                    getNextCRLNumber(),
+                                    getCRLNumber(),
+                                    getLastUpdate(),
+                                    getNextDeltaUpdate(),
+                                    Long.toString(mDeltaCRLSize),
+                                    Long.toString(totalTime) + splitTimes.toString()
+                            }
+                            );
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
