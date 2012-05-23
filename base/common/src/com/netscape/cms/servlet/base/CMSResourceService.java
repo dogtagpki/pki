@@ -94,7 +94,7 @@ public class CMSResourceService {
             throws CertificateEncodingException {
         CertificateData data = new CertificateData();
         String b64 = HEADER + CMS.BtoA(cert.getEncoded()) + TRAILER;
-        data.setB64(b64);
+        data.setEncoded(b64);
         return data;
     }
 
@@ -120,7 +120,7 @@ public class CMSResourceService {
                 null,
                 source,
                 level,
-                getClass().getSimpleName()+": " + message);
+                getClass().getSimpleName() + ": " + message);
     }
 
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {

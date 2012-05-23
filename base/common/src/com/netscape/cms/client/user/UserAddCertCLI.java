@@ -92,6 +92,6 @@ public class UserAddCertCLI extends CLI {
 
         MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");
 
-        UserCLI.printCert(userCertData);
+        UserCLI.printCert(userCertData, false, false);
     }
 }

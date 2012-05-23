@@ -1,5 +1,12 @@
 project(pki-cmsutil_java Java)
 
+find_file(APACHE_COMMONS_LANG_JAR
+    NAMES
+        apache-commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -106,6 +113,7 @@ set(pki-nsutil_java_SRCS
     netscape/security/x509/URIName.java
     netscape/security/x509/CertAndKeyGen.java
     netscape/security/x509/RevocationReason.java
+    netscape/security/x509/RevocationReasonAdapter.java
     netscape/security/x509/AVAValueConverter.java
     netscape/security/x509/CRLDistributionPointsExtension.java
     netscape/security/x509/GeneralSubtree.java
@@ -328,7 +336,7 @@ set(pki-cmsutil_java_SRCS
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
-    ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+    ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
     ${JSS_JAR} ${COMMONS_CODEC_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})

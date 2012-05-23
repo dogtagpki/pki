@@ -21,7 +21,6 @@ package com.netscape.certsrv.user;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.math.BigInteger;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.FormParam;
@@ -31,10 +30,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 
 /**
  * @author Endi S. Dewata
@@ -56,7 +58,7 @@ public class UserCertData {
     }
 
     Integer version;
-    BigInteger serialNumber;
+    CertId serialNumber;
     String issuerDN;
     String subjectDN;
     String prettyPrint;
@@ -76,7 +78,7 @@ public class UserCertData {
     public void setID(String id) {
         StringTokenizer st = new StringTokenizer(id, ";");
         version = Integer.valueOf(st.nextToken());
-        serialNumber = new BigInteger(st.nextToken());
+        serialNumber = new CertId(st.nextToken());
         issuerDN = st.nextToken();
         subjectDN = st.nextToken();
     }
@@ -91,11 +93,12 @@ public class UserCertData {
     }
 
     @XmlElement(name="SerialNumber")
-    public BigInteger getSerialNumber() {
+    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    public CertId getSerialNumber() {
         return serialNumber;
     }
 
-    public void setSerialNumber(BigInteger serialNumber) {
+    public void setSerialNumber(CertId serialNumber) {
         this.serialNumber = serialNumber;
     }
 
@@ -240,7 +243,7 @@ public class UserCertData {
 
         UserCertData before = new UserCertData();
         before.setVersion(1);
-        before.setSerialNumber(new BigInteger("12512514865863765114"));
+        before.setSerialNumber(new CertId("12512514865863765114"));
         before.setIssuerDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setEncoded(sw.toString());

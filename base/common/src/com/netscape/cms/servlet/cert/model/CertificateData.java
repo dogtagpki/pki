@@ -17,11 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
@@ -31,51 +39,62 @@ import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
  *
  */
 @XmlRootElement(name = "CertificateData")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class CertificateData {
-    @XmlElement
-    private String b64;
 
-    @XmlElement
-    private String prettyPrint;
+    public static Marshaller marshaller;
+    public static Unmarshaller unmarshaller;
 
-    @XmlElement
-    private String subjectName;
+    static {
+        try {
+            marshaller = JAXBContext.newInstance(CertificateData.class).createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            unmarshaller = JAXBContext.newInstance(CertificateData.class).createUnmarshaller();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    @XmlElement
-    private String pkcs7CertChain;
+    CertId serialNumber;
+    String issuerDN;
+    String subjectDN;
+    String prettyPrint;
+    String encoded;
+    String pkcs7CertChain;
+    String notBefore;
+    String notAfter;
+    String status;
 
-    @XmlElement
+    Link link;
+
+    @XmlAttribute(name="id")
     @XmlJavaTypeAdapter(CertIdAdapter.class)
-    private CertId serialNo;
-
-    @XmlElement
-    private String notBefore;
-
-    @XmlElement
-    private String notAfter;
-
-    @XmlElement
-    private String issuerName;
-
-    public CertificateData() {
-        // required for jaxb
+    public CertId getSerialNumber() {
+        return serialNumber;
     }
 
-    /**
-     * @return the b64
-     */
-    public String getB64() {
-        return b64;
+    public void setSerialNumber(CertId serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
-    /**
-     * @param b64 the b64 to set
-     */
-    public void setB64(String b64) {
-        this.b64 = b64;
+    @XmlElement(name="IssuerDN")
+    public String getIssuerDN() {
+        return issuerDN;
     }
 
+    public void setIssuerDN(String issuerDN) {
+        this.issuerDN = issuerDN;
+    }
+
+    @XmlElement(name="SubjectDN")
+    public String getSubjectDN() {
+        return subjectDN;
+    }
+
+    public void setSubjectDN(String subjectDN) {
+        this.subjectDN = subjectDN;
+    }
+
+    @XmlElement(name="PrettyPrint")
     public String getPrettyPrint() {
         return prettyPrint;
     }
@@ -84,6 +103,16 @@ public class CertificateData {
         this.prettyPrint = prettyPrint;
     }
 
+    @XmlElement(name="Encoded")
+    public String getEncoded() {
+        return encoded;
+    }
+
+    public void setEncoded(String encoded) {
+        this.encoded = encoded;
+    }
+
+    @XmlElement(name="PKCS7CertChain")
     public void setPkcs7CertChain(String chain) {
         this.pkcs7CertChain = chain;
     }
@@ -92,22 +121,7 @@ public class CertificateData {
         return pkcs7CertChain;
     }
 
-    public String getSubjectName() {
-        return subjectName;
-    }
-
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
-    }
-
-    public CertId getSerialNo() {
-        return serialNo;
-    }
-
-    public void setSerialNo(CertId serialNo) {
-        this.serialNo = serialNo;
-    }
-
+    @XmlElement(name="NotBefore")
     public String getNotBefore() {
         return notBefore;
     }
@@ -116,6 +130,7 @@ public class CertificateData {
         this.notBefore = notBefore;
     }
 
+    @XmlElement(name="NotAfter")
     public String getNotAfter() {
         return notAfter;
     }
@@ -124,12 +139,145 @@ public class CertificateData {
         this.notAfter = notAfter;
     }
 
-    public String getIssuerName() {
-        return issuerName;
+    @XmlElement(name="Status")
+    public String getStatus() {
+        return status;
     }
 
-    public void setIssuerName(String issuerName) {
-        this.issuerName = issuerName;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
+    @XmlElement(name="Link")
+    public Link getLink() {
+        return link;
+    }
+
+    public void setLink(Link link) {
+        this.link = link;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((encoded == null) ? 0 : encoded.hashCode());
+        result = prime * result + ((issuerDN == null) ? 0 : issuerDN.hashCode());
+        result = prime * result + ((notAfter == null) ? 0 : notAfter.hashCode());
+        result = prime * result + ((notBefore == null) ? 0 : notBefore.hashCode());
+        result = prime * result + ((pkcs7CertChain == null) ? 0 : pkcs7CertChain.hashCode());
+        result = prime * result + ((prettyPrint == null) ? 0 : prettyPrint.hashCode());
+        result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((subjectDN == null) ? 0 : subjectDN.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertificateData other = (CertificateData) obj;
+        if (encoded == null) {
+            if (other.encoded != null)
+                return false;
+        } else if (!encoded.equals(other.encoded))
+            return false;
+        if (issuerDN == null) {
+            if (other.issuerDN != null)
+                return false;
+        } else if (!issuerDN.equals(other.issuerDN))
+            return false;
+        if (notAfter == null) {
+            if (other.notAfter != null)
+                return false;
+        } else if (!notAfter.equals(other.notAfter))
+            return false;
+        if (notBefore == null) {
+            if (other.notBefore != null)
+                return false;
+        } else if (!notBefore.equals(other.notBefore))
+            return false;
+        if (pkcs7CertChain == null) {
+            if (other.pkcs7CertChain != null)
+                return false;
+        } else if (!pkcs7CertChain.equals(other.pkcs7CertChain))
+            return false;
+        if (prettyPrint == null) {
+            if (other.prettyPrint != null)
+                return false;
+        } else if (!prettyPrint.equals(other.prettyPrint))
+            return false;
+        if (serialNumber == null) {
+            if (other.serialNumber != null)
+                return false;
+        } else if (!serialNumber.equals(other.serialNumber))
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        if (subjectDN == null) {
+            if (other.subjectDN != null)
+                return false;
+        } else if (!subjectDN.equals(other.subjectDN))
+            return false;
+        return true;
+    }
+
+    public String toString() {
+        try {
+            StringWriter sw = new StringWriter();
+            marshaller.marshal(this, sw);
+            return sw.toString();
+
+        } catch (Exception e) {
+            return super.toString();
+        }
+    }
+
+    public static CertificateData valueOf(String string) throws Exception {
+        try {
+            return (CertificateData)unmarshaller.unmarshal(new StringReader(string));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        StringWriter sw = new StringWriter();
+        PrintWriter out = new PrintWriter(sw, true);
+
+        out.println("-----BEGIN CERTIFICATE-----");
+        out.println("MIIB/zCCAWgCCQCtpWH58pqsejANBgkqhkiG9w0BAQUFADBEMRQwEgYDVQQKDAtF");
+        out.println("WEFNUExFLUNPTTEYMBYGCgmSJomT8ixkAQEMCHRlc3R1c2VyMRIwEAYDVQQDDAlU");
+        out.println("ZXN0IFVzZXIwHhcNMTIwNTE0MTcxNzI3WhcNMTMwNTE0MTcxNzI3WjBEMRQwEgYD");
+        out.println("VQQKDAtFWEFNUExFLUNPTTEYMBYGCgmSJomT8ixkAQEMCHRlc3R1c2VyMRIwEAYD");
+        out.println("VQQDDAlUZXN0IFVzZXIwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAKmmiPJp");
+        out.println("Agh/gPUAZjfgJ3a8QiHvpMzZ/hZy1FVP3+2sNhCkMv+D/I8Y7AsrbJGxxvD7bTDm");
+        out.println("zQYtYx2ryGyOgY7KBRxEj/IrNVHIkJMYq5G/aIU4FAzpc6ntNSwUQBYUAamfK8U6");
+        out.println("Wo4Cp6rLePXIDE6sfGn3VX6IeSJ8U2V+vwtzAgMBAAEwDQYJKoZIhvcNAQEFBQAD");
+        out.println("gYEAY9bjcD/7Z+oX6gsJtX6Rd79E7X5IBdOdArYzHNE4vjdaQrZw6oCxrY8ffpKC");
+        out.println("0T0q5PX9I7er+hx/sQjGPMrJDEN+vFBSNrZE7sTeLRgkyiqGvChSyuG05GtGzXO4");
+        out.println("bFBr+Gwk2VF2wJvOhTXU2hN8sfkkd9clzIXuL8WCDhWk1bY=");
+        out.println("-----END CERTIFICATE-----");
+
+        CertificateData before = new CertificateData();
+        before.setSerialNumber(new CertId("12512514865863765114"));
+        before.setIssuerDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
+        before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
+        before.setEncoded(sw.toString());
+
+        String string = before.toString();
+        System.out.println(string);
+
+        CertificateData after = CertificateData.valueOf(string);
+        System.out.println(before.equals(after));
+    }
 }

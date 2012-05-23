@@ -50,6 +50,9 @@ public class UserShowCertCLI extends CLI {
         option.setArgName("file");
         options.addOption(option);
 
+        options.addOption(null, "pretty", false, "Pretty print");
+        options.addOption(null, "encoded", false, "Base-64 encoded");
+
         CommandLine cmd = null;
 
         try {
@@ -60,6 +63,9 @@ public class UserShowCertCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
+        boolean showPrettyPrint = cmd.hasOption("pretty");
+        boolean showEncoded = cmd.hasOption("encoded");
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -82,6 +88,6 @@ public class UserShowCertCLI extends CLI {
             out.close();
         }
 
-        UserCLI.printCert(userCertData);
+        UserCLI.printCert(userCertData, showPrettyPrint, showEncoded);
     }
 }

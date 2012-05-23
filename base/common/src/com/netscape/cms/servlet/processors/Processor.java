@@ -15,6 +15,7 @@
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+
 package com.netscape.cms.servlet.processors;
 
 import java.math.BigInteger;
@@ -49,6 +50,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
@@ -147,11 +149,14 @@ public class Processor {
     protected ICertificateRepository certdb;
 
     //logging and stats
+
+    protected ILogger logger = CMS.getLogger();
+    protected IAuditor auditor = CMS.getAuditor();
     protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
 
     public Processor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
-        IConfigStore cs = CMS.getConfigStore().getSubStore("profile." + id);
+        IConfigStore cs = CMS.getConfigStore().getSubStore("processor." + id);
         this.locale = locale;
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
         this.authzResourceName = cs.getString(AUTHZ_RESOURCE_NAME, "").isEmpty() ? null :
@@ -350,6 +355,7 @@ public class Processor {
 
         if (cert == null) {
             // just don't have a cert.
+
             CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
             return null;
         }
@@ -361,11 +367,23 @@ public class Processor {
         } catch (CertificateEncodingException e) {
             CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()));
             return null;
+
         } catch (CertificateException e) {
             CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()));
             return null;
         }
         return cert;
+    }
+
+    public void log(int source, int level, String message) {
+
+        if (logger == null) return;
+
+        logger.log(ILogger.EV_SYSTEM,
+                null,
+                source,
+                level,
+                getClass().getSimpleName() + ": " + message);
     }
 
     protected static Hashtable<String, String> toHashtable(HttpServletRequest req) {

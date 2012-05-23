@@ -496,8 +496,8 @@ public class CATest {
             log("No CertInfo: ");
             return;
         }
-        log("CertId: " + info.getCertId().toString());
-        log("CertUrl: " + info.getCertURL());
+        log("CertId: " + info.getID().toString());
+        log("CertUrl: " + info.getLink().getHref());
 
     }
 
@@ -511,12 +511,12 @@ public class CATest {
         log("CertificateInfo: " + "\n");
         log("-----------------");
 
-        log("CertSerialNo:  \n" + info.getSerialNo() + "\n");
-        log("CertSubject:  \n" + info.getSubjectName() + "\n");
-        log("CertIssuer: \n" + info.getIssuerName() + "\n");
+        log("CertSerialNo:  \n" + info.getSerialNumber() + "\n");
+        log("CertSubject:  \n" + info.getSubjectDN() + "\n");
+        log("CertIssuer: \n" + info.getIssuerDN() + "\n");
         log("NotBefore:  \n" + info.getNotBefore() + "\n");
         log("NotAfter: \n" + info.getNotAfter() + "\n");
-        log("CertBase64: \n" + info.getB64() + "\n");
+        log("CertBase64: \n" + info.getEncoded() + "\n");
         log("CertPKCS7Chain: \n" + info.getPkcs7CertChain() + "\n");
         log("CertPrettyPrint: \n" + info.getPrettyPrint());
 

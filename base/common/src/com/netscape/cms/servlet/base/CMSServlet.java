@@ -208,6 +208,8 @@ public abstract class CMSServlet extends HttpServlet {
 
     // members.
 
+    protected ServletConfig servletConfig;
+
     protected boolean mRenderResult = true;
     protected String mFinalErrorMsg = FINAL_ERROR_MSG;
     protected Hashtable<Integer, CMSLoadTemplate> mTemplates = new Hashtable<Integer, CMSLoadTemplate>();
@@ -271,6 +273,9 @@ public abstract class CMSServlet extends HttpServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        this.servletConfig = sc;
+
         mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
         mId = sc.getInitParameter(PROP_ID);
 

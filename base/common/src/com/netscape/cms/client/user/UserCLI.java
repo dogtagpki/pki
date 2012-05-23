@@ -125,28 +125,32 @@ public class UserCLI extends CLI {
         }
     }
 
-    public static void printCert(UserCertData userCertData) throws Exception {
+    public static void printCert(
+            UserCertData userCertData,
+            boolean showPrettyPrint,
+            boolean showEncoded) {
+
         System.out.println("  Cert ID: " + userCertData.getID());
-        System.out.println("  Serial Number: " + userCertData.getSerialNumber());
         System.out.println("  Version: " + userCertData.getVersion());
-        System.out.println("  Issuer DN: " + userCertData.getIssuerDN());
-        System.out.println("  Subject DN: " + userCertData.getSubjectDN());
+        System.out.println("  Serial Number: " + userCertData.getSerialNumber().toHexString());
+        System.out.println("  Issuer: " + userCertData.getIssuerDN());
+        System.out.println("  Subject: " + userCertData.getSubjectDN());
+
+        Link link = userCertData.getLink();
+        if (verbose && link != null) {
+            System.out.println("  Link: " + link.getHref());
+        }
 
         String prettyPrint = userCertData.getPrettyPrint();
-        if (prettyPrint != null) {
+        if (showPrettyPrint && prettyPrint != null) {
             System.out.println();
             System.out.println(prettyPrint);
         }
 
         String encoded = userCertData.getEncoded();
-        if (encoded != null) {
+        if (showEncoded && encoded != null) {
             System.out.println();
             System.out.println(encoded);
-        }
-
-        Link link = userCertData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
         }
     }
 }

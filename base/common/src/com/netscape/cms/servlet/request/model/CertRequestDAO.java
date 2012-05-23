@@ -43,6 +43,7 @@ import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.request.RequestNotFoundException;
 
+
 /**
  * @author alee
  *
@@ -55,7 +56,6 @@ public class CertRequestDAO extends CMSRequestDAO {
     private Random random = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
-    public static final String REQ_COMPLETE = "complete";
 
     public CertRequestDAO() {
         super("ca");
@@ -154,7 +154,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         return info;
     }
 
-
     private void addNonce(AgentEnrollmentRequestData info, HttpServletRequest servletRequest) throws EBaseException {
         if (nonces != null) {
             long n = random.nextLong();
@@ -208,7 +207,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
         processor.processRequest(request, data, ireq, op);
     }
-
 
     @Override
     public CertRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {

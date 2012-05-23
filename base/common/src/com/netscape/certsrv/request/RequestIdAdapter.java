@@ -19,19 +19,20 @@ package com.netscape.certsrv.request;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The RequestIdAdapter class provides custom marshaling for RequestId.
  *
  * @author Endi S. Dewata
- * @version $Revision$ $Date$
  */
 public class RequestIdAdapter extends XmlAdapter<String, RequestId> {
 
     public RequestId unmarshal(String value) throws Exception {
-        return new RequestId(value);
+        return StringUtils.isEmpty(value) ? null : new RequestId(value);
     }
 
     public String marshal(RequestId value) throws Exception {
-        return value.toString();
+        return value == null ? null : value.toString();
     }
 }

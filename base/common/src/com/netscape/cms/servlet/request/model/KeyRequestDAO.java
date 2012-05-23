@@ -216,7 +216,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRequestInfo ret = new KeyRequestInfo();
 
         ret.setRequestType(request.getRequestType());
-        ret.setRequestStatus(request.getRequestStatus().toString());
+        ret.setRequestStatus(request.getRequestStatus());
 
         Path keyRequestPath = KeyRequestResource.class.getAnnotation(Path.class);
         RequestId rid = request.getRequestId();

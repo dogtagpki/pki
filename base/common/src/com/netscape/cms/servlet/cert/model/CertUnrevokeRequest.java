@@ -12,43 +12,38 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2011 Red Hat, Inc.
+// (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-/**
- *
- */
+
 package com.netscape.cms.servlet.cert.model;
 
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.ws.rs.FormParam;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
-import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestIdAdapter;
 
 /**
- * @author alee
- *
+ * @author Endi S. Dewata
  */
-@XmlRootElement(name = "CertDataInfo")
-public class CertDataInfo {
+@XmlRootElement(name="CertUnrevokeRequest")
+public class CertUnrevokeRequest {
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;
 
     static {
         try {
-            JAXBContext context = JAXBContext.newInstance(CertDataInfo.class);
+            JAXBContext context = JAXBContext.newInstance(CertUnrevokeRequest.class);
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             unmarshaller = context.createUnmarshaller();
@@ -57,56 +52,24 @@ public class CertDataInfo {
         }
     }
 
-    CertId id;
-    String subjectDN;
-    String status;
+    RequestId requestID;
 
-    Link link;
-
-    @XmlAttribute(name="id")
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
-    public CertId getID() {
-        return id;
+    @XmlElement(name="requestID")
+    @FormParam("requestId")
+    @XmlJavaTypeAdapter(RequestIdAdapter.class)
+    public RequestId getRequestID() {
+        return requestID;
     }
 
-    public void setID(CertId id) {
-        this.id = id;
-    }
-
-    @XmlElement(name="SubjectDN")
-    public String getSubjectDN() {
-        return subjectDN;
-    }
-
-    public void setSubjectDN(String subjectDN) {
-        this.subjectDN = subjectDN;
-    }
-
-    @XmlElement(name="Status")
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    @XmlElement(name="Link")
-    public Link getLink() {
-        return link;
-    }
-
-    public void setLink(Link link) {
-        this.link = link;
+    public void setRequestID(RequestId requestID) {
+        this.requestID = requestID;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        result = prime * result + ((subjectDN == null) ? 0 : subjectDN.hashCode());
+        result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
         return result;
     }
 
@@ -118,21 +81,11 @@ public class CertDataInfo {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        CertDataInfo other = (CertDataInfo) obj;
-        if (id == null) {
-            if (other.id != null)
+        CertUnrevokeRequest other = (CertUnrevokeRequest) obj;
+        if (requestID == null) {
+            if (other.requestID != null)
                 return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (status == null) {
-            if (other.status != null)
-                return false;
-        } else if (!status.equals(other.status))
-            return false;
-        if (subjectDN == null) {
-            if (other.subjectDN != null)
-                return false;
-        } else if (!subjectDN.equals(other.subjectDN))
+        } else if (!requestID.equals(other.requestID))
             return false;
         return true;
     }
@@ -148,9 +101,9 @@ public class CertDataInfo {
         }
     }
 
-    public static CertDataInfo valueOf(String string) throws Exception {
+    public static CertUnrevokeRequest valueOf(String string) throws Exception {
         try {
-            return (CertDataInfo)unmarshaller.unmarshal(new StringReader(string));
+            return (CertUnrevokeRequest)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
         }
@@ -158,15 +111,13 @@ public class CertDataInfo {
 
     public static void main(String args[]) throws Exception {
 
-        CertDataInfo before = new CertDataInfo();
-        before.setID(new CertId("12512514865863765114"));
-        before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
-        before.setStatus("VALID");
+        CertUnrevokeRequest before = new CertUnrevokeRequest();
+        before.setRequestID(new RequestId("42323234"));
 
         String string = before.toString();
         System.out.println(string);
 
-        CertDataInfo after = CertDataInfo.valueOf(string);
+        CertUnrevokeRequest after = CertUnrevokeRequest.valueOf(string);
 
         System.out.println(before.equals(after));
     }

@@ -12,27 +12,27 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2007 Red Hat, Inc.
+// (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.dbs.keydb;
+package netscape.security.x509;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The KeyIdAdapter class provides custom marshaling for KeyId.
+ * The RevocationReasonAdapter class provides custom marshaling for RevocationReason.
  *
  * @author Endi S. Dewata
  */
-public class KeyIdAdapter extends XmlAdapter<String, KeyId> {
+public class RevocationReasonAdapter extends XmlAdapter<String, RevocationReason> {
 
-    public KeyId unmarshal(String value) throws Exception {
-        return StringUtils.isEmpty(value) ? null : new KeyId(value);
+    public RevocationReason unmarshal(String value) throws Exception {
+        return StringUtils.isEmpty(value) ? null : RevocationReason.valueOf(value);
     }
 
-    public String marshal(KeyId value) throws Exception {
+    public String marshal(RevocationReason value) throws Exception {
         return value == null ? null : value.toString();
     }
 }

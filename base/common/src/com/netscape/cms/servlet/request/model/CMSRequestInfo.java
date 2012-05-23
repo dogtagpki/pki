@@ -20,15 +20,20 @@ package com.netscape.cms.servlet.request.model;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.request.RequestStatusAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public  class CMSRequestInfo {
+
     @XmlElement
     protected String requestType;
 
     @XmlElement
-    protected String requestStatus;
+    @XmlJavaTypeAdapter(RequestStatusAdapter.class)
+    protected RequestStatus requestStatus;
 
     @XmlElement
     protected String requestURL;
@@ -50,14 +55,14 @@ public  class CMSRequestInfo {
     /**
      * @return the requestStatus
      */
-    public String getRequestStatus() {
+    public RequestStatus getRequestStatus() {
         return requestStatus;
     }
 
     /**
      * @param requestStatus the requestStatus to set
      */
-    public void setRequestStatus(String requestStatus) {
+    public void setRequestStatus(RequestStatus requestStatus) {
         this.requestStatus = requestStatus;
     }
 

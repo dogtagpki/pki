@@ -19,19 +19,20 @@ package com.netscape.certsrv.dbs.certdb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The CertIdAdapter class provides custom marshaling for CertId.
  *
  * @author Endi S. Dewata
- * @version $Revision$ $Date$
  */
 public class CertIdAdapter extends XmlAdapter<String, CertId> {
 
     public CertId unmarshal(String value) throws Exception {
-        return new CertId(value);
+        return StringUtils.isEmpty(value) ? null : new CertId(value);
     }
 
     public String marshal(CertId value) throws Exception {
-        return value.toString();
+        return value == null ? null : value.toHexString();
     }
 }

@@ -23,7 +23,7 @@ public class BadRequestException extends CMSException {
     private static final long serialVersionUID = -4784839378360933483L;
 
     public BadRequestException(String message) {
-        super(Response.Status.BAD_REQUEST,message);
+        super(Response.Status.BAD_REQUEST, message);
     }
 
     public BadRequestException(String message, Throwable cause) {

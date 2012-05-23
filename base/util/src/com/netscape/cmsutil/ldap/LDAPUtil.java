@@ -45,9 +45,9 @@ public class LDAPUtil {
      * @param string string to escape
      * @return escaped string
      */
-    public static String escapeFilter(String string) {
+    public static String escapeFilter(Object object) {
         StringBuilder sb = new StringBuilder();
-        for (char c : string.toCharArray()) {
+        for (char c : object.toString().toCharArray()) {
             if (SPECIAL_CHARS.indexOf(c) >= 0) {
                 sb.append('\\');
                 if (c < 0x10)

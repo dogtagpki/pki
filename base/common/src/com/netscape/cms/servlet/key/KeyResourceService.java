@@ -23,17 +23,17 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.keydb.KeyId;
 
 /**
  * @author alee
@@ -112,8 +112,8 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
         //  TO-DO
 
         // confirm request is in approved state
-        String status = reqInfo.getRequestStatus();
-        if (!status.equals(RequestStatus.APPROVED.toString())) {
+        RequestStatus status = reqInfo.getRequestStatus();
+        if (!status.equals(RequestStatus.APPROVED)) {
             // log error
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }

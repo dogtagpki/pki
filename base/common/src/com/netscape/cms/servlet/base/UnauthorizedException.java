@@ -12,27 +12,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2007 Red Hat, Inc.
+// (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.dbs.keydb;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+package com.netscape.cms.servlet.base;
 
-import org.apache.commons.lang.StringUtils;
+import javax.ws.rs.core.Response;
 
 /**
- * The KeyIdAdapter class provides custom marshaling for KeyId.
- *
  * @author Endi S. Dewata
  */
-public class KeyIdAdapter extends XmlAdapter<String, KeyId> {
+public class UnauthorizedException extends CMSException {
 
-    public KeyId unmarshal(String value) throws Exception {
-        return StringUtils.isEmpty(value) ? null : new KeyId(value);
+    private static final long serialVersionUID = -2025082875126996556L;
+
+    public UnauthorizedException(String message) {
+        super(Response.Status.UNAUTHORIZED, message);
     }
 
-    public String marshal(KeyId value) throws Exception {
-        return value == null ? null : value.toString();
+    public UnauthorizedException(String message, Throwable cause) {
+        super(Response.Status.UNAUTHORIZED, message, cause);
     }
+
+    public UnauthorizedException(Data data) {
+        super(data);
+    }
+
 }
+

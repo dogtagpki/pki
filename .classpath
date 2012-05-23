@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/glassfish-jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>

@@ -12,27 +12,29 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2007 Red Hat, Inc.
+// (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.dbs.keydb;
+package com.netscape.certsrv.util;
+
+import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The KeyIdAdapter class provides custom marshaling for KeyId.
+ * The DateAdapter class provides custom marshaling for Date.
  *
  * @author Endi S. Dewata
  */
-public class KeyIdAdapter extends XmlAdapter<String, KeyId> {
+public class DateAdapter extends XmlAdapter<String, Date> {
 
-    public KeyId unmarshal(String value) throws Exception {
-        return StringUtils.isEmpty(value) ? null : new KeyId(value);
+    public Date unmarshal(String value) throws Exception {
+        return StringUtils.isEmpty(value) ? null : new Date(Long.parseLong(value));
     }
 
-    public String marshal(KeyId value) throws Exception {
-        return value == null ? null : value.toString();
+    public String marshal(Date value) throws Exception {
+        return value == null ? null : Long.toString(value.getTime());
     }
 }

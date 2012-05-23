@@ -101,7 +101,7 @@ public class CARestClient extends CMSRestClient {
             return null;
         }
 
-        return certClient.retrieveCert(id);
+        return certClient.getCert(id);
 
     }
 

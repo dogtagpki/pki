@@ -96,7 +96,7 @@ public class UserFindCertCLI extends CLI {
                 System.out.println();
             }
 
-            UserCLI.printCert(userCertData);
+            UserCLI.printCert(userCertData, false, false);
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());

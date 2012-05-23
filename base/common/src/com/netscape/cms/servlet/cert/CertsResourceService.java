@@ -38,6 +38,13 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class CertsResourceService extends CMSResourceService implements CertsResource {
 
+    public CertDAO createDAO() {
+        CertDAO dao = new CertDAO();
+        dao.setLocale(getLocale());
+        dao.setUriInfo(uriInfo);
+        return dao;
+    }
+
     private String createSearchFilter(String status) {
         String filter = "";
 
@@ -70,10 +77,10 @@ public class CertsResourceService extends CMSResourceService implements CertsRes
         String filter = createSearchFilter(status);
         CMS.debug("listKeys: filter is " + filter);
 
-        CertDAO dao = new CertDAO();
+        CertDAO dao = createDAO();
         CertDataInfos infos;
         try {
-            infos = dao.listCerts(filter, maxResults, maxTime, uriInfo);
+            infos = dao.listCerts(filter, maxResults, maxTime);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
@@ -88,11 +95,11 @@ public class CertsResourceService extends CMSResourceService implements CertsRes
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         String filter = createSearchFilter(data);
-        CertDAO dao = new CertDAO();
+        CertDAO dao = createDAO();
         CertDataInfos infos;
 
         try {
-            infos = dao.listCerts(filter, maxResults, maxTime, uriInfo);
+            infos = dao.listCerts(filter, maxResults, maxTime);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new CMSException("Error listing certs in CertsResourceService.listCerts!");

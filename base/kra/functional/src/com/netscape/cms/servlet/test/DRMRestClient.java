@@ -49,7 +49,7 @@ public class DRMRestClient  extends CMSRestClient {
         ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient
                 .getTransportCert();
         CertificateData certData = getEntity(response);
-        String transportCert = certData.getB64();
+        String transportCert = certData.getEncoded();
         return transportCert;
     }
 

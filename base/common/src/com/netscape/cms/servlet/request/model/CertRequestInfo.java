@@ -29,6 +29,8 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CertRequestInfo extends CMSRequestInfo {
 
+    public static final String REQ_COMPLETE = "complete";
+
     @XmlElement
     protected String certURL;
 

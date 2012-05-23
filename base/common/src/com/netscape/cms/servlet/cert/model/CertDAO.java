@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.cert.model;
 
 import java.io.ByteArrayOutputStream;
-import java.math.BigInteger;
+import java.net.URI;
 import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import netscape.security.pkcs.ContentInfo;
@@ -37,8 +36,11 @@ import netscape.security.pkcs.SignerInfo;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.X509CertImpl;
 
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -53,12 +55,31 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class CertDAO {
 
+    Locale locale;
+    UriInfo uriInfo;
+
     private ICertificateRepository repo;
     private ICertificateAuthority ca;
 
     public CertDAO() {
         ca = (ICertificateAuthority) CMS.getSubsystem("ca");
         repo = ca.getCertificateRepository();
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
+
+    public UriInfo getUriInfo() {
+        return uriInfo;
+    }
+
+    public void setUriInfo(UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
     }
 
     /**
@@ -72,7 +93,7 @@ public class CertDAO {
      * @return
      * @throws EBaseException
      */
-    public CertDataInfos listCerts(String filter, int maxResults, int maxTime, UriInfo uriInfo)
+    public CertDataInfos listCerts(String filter, int maxResults, int maxTime)
             throws EBaseException {
         List<CertDataInfo> list = new ArrayList<CertDataInfo>();
         Enumeration<ICertRecord> e = null;
@@ -85,7 +106,7 @@ public class CertDAO {
         while (e.hasMoreElements()) {
             ICertRecord rec = e.nextElement();
             if (rec != null) {
-                list.add(createCertDataInfo(rec, uriInfo));
+                list.add(createCertDataInfo(rec));
             }
         }
 
@@ -97,96 +118,61 @@ public class CertDAO {
 
     public CertificateData getCert(CertRetrievalRequestData data) throws EBaseException, CertificateEncodingException {
 
-        CertificateData certData = null;
         CertId certId = data.getCertId();
 
         //find the cert in question
+        ICertRecord record = repo.readCertificateRecord(certId.toBigInteger());
+        X509CertImpl cert = record.getCertificate();
 
-        ICertRecord rec = null;
-        BigInteger seq = certId.toBigInteger();
+        CertificateData certData = new CertificateData();
 
-        rec = repo.readCertificateRecord(seq);
-        X509CertImpl x509cert = null;
+        certData.setSerialNumber(certId);
 
-        if (rec != null) {
-            x509cert = rec.getCertificate();
-        }
+        Principal issuerDN = cert.getIssuerDN();
+        if (issuerDN != null) certData.setIssuerDN(issuerDN.toString());
 
-        if (x509cert != null) {
-            certData = new CertificateData();
+        Principal subjectDN = cert.getSubjectDN();
+        if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
-            byte[] ba = null;
-            String encoded64 = null;
+        String base64 = CMS.getEncodedCert(cert);
+        certData.setEncoded(base64);
 
-            ba = x509cert.getEncoded();
+        ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
+        certData.setPrettyPrint(print.toString(locale));
 
-            encoded64 = Utils.base64encode(ba);
+        String p7Str = getCertChainData(cert);
+        certData.setPkcs7CertChain(p7Str);
 
-            String prettyPrint = x509cert.toString();
+        Date notBefore = cert.getNotBefore();
+        if (notBefore != null) certData.setNotBefore(notBefore.toString());
 
-            certData.setB64(encoded64);
-            certData.setPrettyPrint(prettyPrint);
+        Date notAfter = cert.getNotAfter();
+        if (notAfter != null) certData.setNotAfter(notAfter.toString());
 
-            String subjectNameStr = null;
-            Principal subjectName = x509cert.getSubjectDN();
+        certData.setStatus(record.getStatus());
 
-            if (subjectName != null) {
-                subjectNameStr = subjectName.toString();
-            }
-
-            certData.setSubjectName(subjectNameStr);
-
-            //Try to get the chain
-
-            String p7Str = getCertChainData(x509cert);
-
-            certData.setPkcs7CertChain(p7Str);
-
-            certData.setSerialNo(certId);
-
-            Date notBefore = x509cert.getNotBefore();
-            Date notAfter = x509cert.getNotAfter();
-
-            String notBeforeStr = null;
-            String notAfterStr = null;
-
-            if (notBefore != null) {
-                notBeforeStr = notBefore.toString();
-            }
-
-            if (notAfter != null) {
-                notAfterStr = notAfter.toString();
-            }
-
-            certData.setNotBefore(notBeforeStr);
-            certData.setNotAfter(notAfterStr);
-
-            String issuerNameStr = null;
-
-            Principal issuerName = x509cert.getIssuerDN();
-
-            if (issuerName != null) {
-                issuerNameStr = issuerName.toString();
-            }
-
-            certData.setIssuerName(issuerNameStr);
-
-        }
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(certId.toHexString());
+        certData.setLink(new Link("self", uri));
 
         return certData;
     }
 
-    private CertDataInfo createCertDataInfo(ICertRecord rec, UriInfo uriInfo) throws EBaseException {
-        CertDataInfo ret = new CertDataInfo();
+    private CertDataInfo createCertDataInfo(ICertRecord record) throws EBaseException {
 
-        Path certPath = CertResource.class.getAnnotation(Path.class);
-        BigInteger serial = rec.getSerialNumber();
+        CertDataInfo info = new CertDataInfo();
 
-        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
-        certBuilder.path(certPath.value() + "/" + serial);
-        ret.setCertURL(certBuilder.build().toString());
+        CertId id = new CertId(record.getSerialNumber());
+        info.setID(id);
 
-        return ret;
+        X509Certificate cert = record.getCertificate();
+        info.setSubjectDN(cert.getSubjectDN().toString());
+
+        info.setStatus(record.getStatus());
+
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(id.toHexString());
+        info.setLink(new Link("self", uri));
+
+        return info;
     }
 
     private String getCertChainData(X509CertImpl x509cert) {

@@ -42,6 +42,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.user.UserCertCollection;
@@ -68,7 +69,7 @@ public class UserCertResourceService extends CMSResourceService implements UserC
         UserCertData userCertData = new UserCertData();
 
         userCertData.setVersion(cert.getVersion());
-        userCertData.setSerialNumber(cert.getSerialNumber());
+        userCertData.setSerialNumber(new CertId(cert.getSerialNumber()));
         userCertData.setIssuerDN(cert.getIssuerDN().toString());
         userCertData.setSubjectDN(cert.getSubjectDN().toString());
 
@@ -358,7 +359,7 @@ public class UserCertResourceService extends CMSResourceService implements UserC
                 // read the data back
 
                 userCertData.setVersion(cert.getVersion());
-                userCertData.setSerialNumber(cert.getSerialNumber());
+                userCertData.setSerialNumber(new CertId(cert.getSerialNumber()));
                 userCertData.setIssuerDN(cert.getIssuerDN().toString());
                 userCertData.setSubjectDN(cert.getSubjectDN().toString());
                 String certID = userCertData.getID();

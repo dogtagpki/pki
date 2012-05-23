@@ -191,6 +191,7 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/publish/ERulePluginNotFound.java
     com/netscape/certsrv/publish/MapperProxy.java
     com/netscape/certsrv/publish/ILdapCrlMapper.java
+    com/netscape/certsrv/util/DateAdapter.java
     com/netscape/certsrv/util/IStatsSubsystem.java
     com/netscape/certsrv/util/HttpInput.java
     com/netscape/certsrv/util/StatsEvent.java
@@ -624,7 +625,9 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/cert/model/CertDAO.java
     com/netscape/cms/servlet/cert/model/CertDataInfo.java
     com/netscape/cms/servlet/cert/model/CertDataInfos.java
+    com/netscape/cms/servlet/cert/model/CertRevokeRequest.java
     com/netscape/cms/servlet/cert/model/CertSearchData.java
+    com/netscape/cms/servlet/cert/model/CertUnrevokeRequest.java
     com/netscape/cms/servlet/admin/OCSPAdminServlet.java
     com/netscape/cms/servlet/admin/CMSAdminServlet.java
     com/netscape/cms/servlet/admin/JobsAdminServlet.java
@@ -675,6 +678,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/PortsServlet.java
     com/netscape/cms/servlet/base/CMSException.java
     com/netscape/cms/servlet/base/BadRequestException.java
+    com/netscape/cms/servlet/base/UnauthorizedException.java
     com/netscape/cms/servlet/base/CMSResourceService.java
     com/netscape/cms/servlet/base/CMSServlet.java
     com/netscape/cms/servlet/base/CMSStartServlet.java
@@ -781,6 +785,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/model/RecoveryRequestData.java
     com/netscape/cms/servlet/request/model/CertRequestDAO.java
     com/netscape/cms/servlet/request/model/CertRequestInfo.java
+    com/netscape/cms/servlet/request/model/CertRequestInfoFactory.java
     com/netscape/cms/servlet/request/model/CertRequestInfos.java
     com/netscape/cms/servlet/request/model/CertRetrievalRequestData.java
     com/netscape/cms/servlet/request/model/AgentEnrollmentRequestData.java 
