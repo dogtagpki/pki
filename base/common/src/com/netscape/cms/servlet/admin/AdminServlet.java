@@ -24,7 +24,9 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
@@ -49,9 +51,9 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -94,7 +96,7 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_LANG = "accept-language";
 
     protected ILogger mLogger = CMS.getLogger();
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+    protected IAuditor auditor = CMS.getAuditor();
     private IUGSubsystem mUG = null;
     protected IConfigStore mConfig = null;
     protected IAuthzSubsystem mAuthz = null;
@@ -118,15 +120,6 @@ public class AdminServlet extends HttpServlet {
     public final static String AUTHZ_SRC_XML = "web.xml";
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
-
-    public final static String SIGNED_AUDIT_SCOPE = "Scope";
-    public final static String SIGNED_AUDIT_OPERATION = "Operation";
-    public final static String SIGNED_AUDIT_RESOURCE = "Resource";
-    public final static String SIGNED_AUDIT_RULENAME = "RULENAME";
-    public final static String SIGNED_AUDIT_PASSWORD_VALUE = "********";
-    public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
-    public final static String SIGNED_AUDIT_NAME_VALUE_DELIMITER = ";;";
-    public final static String SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER = "+";
 
     private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
             "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
@@ -1036,15 +1029,11 @@ public class AdminServlet extends HttpServlet {
         // in this case, do NOT strip preceding/trailing whitespace
         // from passed-in String parameters
 
-        if (mSignedAuditLogger == null) {
+        if (auditor == null) {
             return;
         }
 
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        auditor.log(msg);
     }
 
     /**
@@ -1058,30 +1047,8 @@ public class AdminServlet extends HttpServlet {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        String subjectID = null;
-
-        // Initialize subjectID
-        SessionContext auditContext = SessionContext.getExistingContext();
-
-        if (auditContext != null) {
-            subjectID = (String)
-                    auditContext.get(SessionContext.USER_ID);
-
-            if (subjectID != null) {
-                subjectID = subjectID.trim();
-            } else {
-                subjectID = ILogger.NONROLEUSER;
-            }
-        } else {
-            subjectID = ILogger.UNIDENTIFIED;
-        }
-
-        return subjectID;
+        if (auditor == null) return null;
+        return auditor.getSubjectID();
     }
 
     /**
@@ -1097,40 +1064,20 @@ public class AdminServlet extends HttpServlet {
      * @return a delimited string of one or more delimited name/value pairs
      */
     protected String auditParams(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        String parameters = SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR;
-        String value = null;
+        if (auditor == null) return null;
 
         // always identify the scope of the request
-        if (req.getParameter(Constants.OP_SCOPE) != null) {
-            parameters = SIGNED_AUDIT_SCOPE
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + req.getParameter(Constants.OP_SCOPE);
-        }
+        String scope = req.getParameter(Constants.OP_SCOPE);
 
         // identify the operation type of the request
-        if (req.getParameter(Constants.OP_TYPE) != null) {
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
-
-            parameters += SIGNED_AUDIT_OPERATION
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + req.getParameter(Constants.OP_TYPE);
-        }
+        String type = req.getParameter(Constants.OP_TYPE);
 
         // identify the resource type of the request
-        if (req.getParameter(Constants.RS_ID) != null) {
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
-
-            parameters += SIGNED_AUDIT_RESOURCE
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + req.getParameter(Constants.RS_ID);
-        }
+        String id = req.getParameter(Constants.RS_ID);
 
         // identify any remaining request parameters
+        Map<String, String> params = new LinkedHashMap<String, String>();
+
         @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
@@ -1138,75 +1085,15 @@ public class AdminServlet extends HttpServlet {
             String name = e.nextElement();
 
             // skip previously extracted parameters
-            if (name.equals(Constants.OP_SCOPE)) {
-                continue;
-            }
-            if (name.equals(Constants.OP_TYPE)) {
-                continue;
-            }
-            if (name.equals(Constants.RS_ID)) {
-                continue;
-            }
+            if (name.equals(Constants.OP_SCOPE)) continue;
+            if (name.equals(Constants.OP_TYPE)) continue;
+            if (name.equals(Constants.RS_ID)) continue;
 
-            // skip "RULENAME" parameter
-            if (name.equals(SIGNED_AUDIT_RULENAME)) {
-                continue;
-            }
-
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
-
-            value = req.getParameter(name);
-            if (value != null) {
-                value = value.trim();
-
-                if (value.equals("")) {
-                    parameters += name
-                            + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                            + ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-                } else {
-                    //
-                    // To fix Blackflag Bug # 613800:
-                    //
-                    //     Check "com.netscape.certsrv.common.Constants" for
-                    //     case-insensitive "password", "pwd", and "passwd"
-                    //     name fields, and hide any password values:
-                    //
-                    /* "password" */if (name.equals(Constants.PASSWORDTYPE) ||
-                            name.equals(Constants.TYPE_PASSWORD) ||
-                            name.equals(Constants.PR_USER_PASSWORD) ||
-                            name.equals(Constants.PT_OLD_PASSWORD) ||
-                            name.equals(Constants.PT_NEW_PASSWORD) ||
-                            name.equals(Constants.PT_DIST_STORE) ||
-                            name.equals(Constants.PT_DIST_EMAIL) ||
-                            /* "pwd" */name.equals(Constants.PR_AUTH_ADMIN_PWD) ||
-                            // ignore this one  name.equals( Constants.PR_BINDPWD_PROMPT )        ||
-                            name.equals(Constants.PR_DIRECTORY_MANAGER_PWD) ||
-                            name.equals(Constants.PR_OLD_AGENT_PWD) ||
-                            name.equals(Constants.PR_AGENT_PWD) ||
-                            name.equals(Constants.PT_PUBLISH_PWD) ||
-                            /* "passwd" */name.equals(Constants.PR_BIND_PASSWD) ||
-                            name.equals(Constants.PR_BIND_PASSWD_AGAIN) ||
-                            name.equals(Constants.PR_TOKEN_PASSWD)) {
-
-                        // hide password value
-                        parameters += name
-                                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                                    + SIGNED_AUDIT_PASSWORD_VALUE;
-                    } else {
-                        // process normally
-                        parameters += name
-                                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                                    + value;
-                    }
-                }
-            } else {
-                parameters += name
-                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            }
+            String value = req.getParameter(name);
+            params.put(name, value);
         }
 
-        return parameters;
+        return auditor.getParamString(scope, type, id, params);
     }
 
     /**
@@ -1216,48 +1103,13 @@ public class AdminServlet extends HttpServlet {
      * with the "auditSubjectID()".
      * <P>
      *
-     * @param SubjectID string containing the signed audit log message SubjectID
+     * @param subjectID string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
      *         with the "auditSubjectID()"
      */
-    private String auditGroups(String SubjectID) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        if ((SubjectID == null) ||
-                (SubjectID.equals(ILogger.UNIDENTIFIED))) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        Enumeration<IGroup> groups = null;
-
-        try {
-            groups = mUG.findGroups("*");
-        } catch (Exception e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        StringBuffer membersString = new StringBuffer();
-
-        while (groups.hasMoreElements()) {
-            IGroup group = groups.nextElement();
-
-            if (group.isMember(SubjectID) == true) {
-                if (membersString.length() != 0) {
-                    membersString.append(", ");
-                }
-
-                membersString.append(group.getGroupID());
-            }
-        }
-
-        if (membersString.length() != 0) {
-            return membersString.toString();
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
+    private String auditGroups(String subjectID) {
+        if (auditor == null) return null;
+        return auditor.getGroups(subjectID);
     }
 
     protected NameValuePairs convertStringArrayToNVPairs(String[] s) {
