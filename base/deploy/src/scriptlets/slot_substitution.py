@@ -38,17 +38,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.file.copy_with_slot_substitution(master['pki_source_cs_cfg'],
                                               master['pki_target_cs_cfg'])
         util.file.copy_with_slot_substitution(master['pki_source_registry'],
-                                              master['pki_target_registry'])
+                                              master['pki_target_registry'],
+                                              overwrite_flag=True)
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             util.file.copy_with_slot_substitution(
                 master['pki_source_catalina_properties'],
-                master['pki_target_catalina_properties'])
+                master['pki_target_catalina_properties'],
+                overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_servercertnick_conf'],
-                master['pki_target_servercertnick_conf'])
+                master['pki_target_servercertnick_conf'],
+                overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_server_xml'],
-                master['pki_target_server_xml'])
+                master['pki_target_server_xml'],
+                overwrite_flag=True)
+            util.file.copy_with_slot_substitution(
+                master['pki_source_tomcat_conf'],
+                master['pki_target_tomcat_conf_instance_id'],
+                overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf'],
@@ -90,6 +98,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy_with_slot_substitution(
                 master['pki_source_server_xml'],
                 master['pki_target_server_xml'],
+                overwrite_flag=True)
+            util.file.copy_with_slot_substitution(
+                master['pki_source_tomcat_conf'],
+                master['pki_target_tomcat_conf_instance_id'],
                 overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],

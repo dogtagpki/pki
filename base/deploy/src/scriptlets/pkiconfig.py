@@ -40,6 +40,8 @@ PKI_INDENTATION_LEVEL_3 = {'indent' : '........... '}
 PKI_INDENTATION_LEVEL_4 = {'indent' : '............... '}
 
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
+PKI_DEPLOYMENT_SYSTEMD_ROOT = "/lib/systemd/system"
+PKI_DEPLOYMENT_SYSTEMD_CONFIGURATION_ROOT = "/etc/systemd/system"
 PKI_DEPLOYMENT_TOMCAT_ROOT = "/usr/share/tomcat"
 PKI_DEPLOYMENT_TOMCAT_SYSTEMD = "/usr/sbin/tomcat-sysd"
 PKI_DEPLOYMENT_BASE_ROOT = "/var/lib/pki"
@@ -92,11 +94,11 @@ pki_root_prefix = None
 pki_update_flag = False
 
 # PKI Deployment "Custom" Command-Line Variables
-pki_admin_domain_name = None
-pki_instance_name = None
-pki_http_port = None
-pki_https_port = None
-pki_ajp_port = None
+custom_pki_admin_domain_name = None
+custom_pki_instance_name = None
+custom_pki_http_port = None
+custom_pki_https_port = None
+custom_pki_ajp_port = None
 
 
 # PKI Deployment Logger Variables

@@ -1,0 +1,13 @@
+[Unit]
+Description=PKI Tomcat Server %i
+After=pki-tomcatd.target
+BindTo=pki-tomcatd.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/pkidaemon start tomcat %i
+ExecStop=/usr/bin/pkidaemon stop tomcat %i
+
+[Install]
+WantedBy=multi-user.target
+

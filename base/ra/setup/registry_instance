@@ -1,8 +1,5 @@
 # Establish PKI Variable "Slot" Substitutions
 
-PKI_FLAVOR=[PKI_FLAVOR]
-export PKI_FLAVOR
-
 PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
 export PKI_SUBSYSTEM_TYPE
 

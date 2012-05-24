@@ -80,7 +80,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove top-level infrastructure registry
                 util.directory.delete(master['pki_registry_path'])
                 if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                    util.file.delete(master['pki_target_tomcat_conf'])
+                    util.file.delete(
+                        master['pki_target_tomcat_conf_instance_id'])
 
         else:
             # ALWAYS display correct information (even during dry_run)
@@ -98,5 +99,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove top-level infrastructure registry
                 util.directory.delete(master['pki_registry_path'])
                 if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                    util.file.delete(master['pki_target_tomcat_conf'])
+                    util.file.delete(
+                        master['pki_target_tomcat_conf_instance_id'])
         return self.rv

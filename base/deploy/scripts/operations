@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/bash -X
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
-# 
+#
 # Status Exit Codes
 #
 #  0 program is running or service is OK
@@ -70,25 +70,35 @@ fi
 
 # Check to insure that this script's associated PKI
 # subsystem currently resides on this system.
-if [ ! -d ${PKI_PATH} ] ; then
-    echo "This machine is missing the '${PKI_TYPE}' subsystem!"
-    if [ "${command}" != "status" ]; then
-        # 5 program is not installed
-        exit 5
-    else
-        exit ${default_error}
+PKI_CA_PATH="/usr/share/pki/ca"
+PKI_KRA_PATH="/usr/share/pki/kra"
+PKI_OCSP_PATH="/usr/share/pki/ocsp"
+PKI_RA_PATH="/usr/share/pki/ra"
+PKI_TKS_PATH="/usr/share/pki/tks"
+PKI_TPS_PATH="/usr/share/pki/tps"
+if [ '${PKI_TYPE}' == "apache" ] ; then
+    if [ ! -d ${PKI_RA_PATH} ]  &&
+       [ ! -d ${PKI_TPS_PATH} ] ; then
+        echo "This machine is missing all PKI '${PKI_TYPE}' subsystems!"
+        if [ "${command}" != "status" ]; then
+            # 5 program is not installed
+            exit 5
+        else
+            exit ${default_error}
+        fi
     fi
-fi
-
-# Check to insure that this script's associated PKI
-# subsystem instance registry currently resides on this system.
-if [ ! -d ${PKI_REGISTRY} ] ; then
-    echo "This machine contains no registered '${PKI_TYPE}' subsystem instances!"
-    if [ "${command}" != "status" ]; then
-        # 5 program is not installed
-        exit 5
-    else
-        exit ${default_error}
+elif [ '${PKI_TYPE}' == "tomcat" ] ; then
+    if [ ! -d ${PKI_CA_PATH} ]   &&
+       [ ! -d ${PKI_KRA_PATH} ]  &&
+       [ ! -d ${PKI_OCSP_PATH} ] &&
+       [ ! -d ${PKI_TKS_PATH} ] ; then
+        echo "This machine is missing all PKI '${PKI_TYPE}' subsystems!"
+        if [ "${command}" != "status" ]; then
+            # 5 program is not installed
+            exit 5
+        else
+            exit ${default_error}
+        fi
     fi
 fi
 
@@ -109,18 +119,23 @@ PKI_REGISTRY_ENTRIES=""
 TOTAL_PKI_REGISTRY_ENTRIES=0
 TOTAL_UNCONFIGURED_PKI_ENTRIES=0
 
-# Gather ALL registered instances of this PKI subsystem type
-for FILE in ${PKI_REGISTRY}/*; do
-    if [ -f "$FILE" ] ; then
-        PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $FILE"
-        TOTAL_PKI_REGISTRY_ENTRIES=`expr ${TOTAL_PKI_REGISTRY_ENTRIES} + 1`
+# Gather ALL registered instances of this PKI web server type
+for INSTANCE in ${PKI_REGISTRY}/*; do
+    if [ -d "$INSTANCE" ] ; then
+        for REGISTRY in ${INSTANCE}/*; do
+            if [ -f "$REGISTRY" ] ; then
+                PKI_REGISTRY_ENTRIES="${PKI_REGISTRY_ENTRIES} $REGISTRY"
+                TOTAL_PKI_REGISTRY_ENTRIES=`expr ${TOTAL_PKI_REGISTRY_ENTRIES} + 1`
+            fi
+        done
     fi
 done
 
-if [ -n "${pki_instance}" ]; then
-    for I in ${PKI_REGISTRY_ENTRIES}; do
-        if [ "${PKI_REGISTRY}/${pki_instance}" = "$I" ]; then
-            PKI_REGISTRY_ENTRIES="${PKI_REGISTRY}/${pki_instance}"
+# Execute the specified registered instance of this PKI web server type
+if [ -n "${pki_instance_id}" ]; then
+    for INSTANCE in ${PKI_REGISTRY_ENTRIES}; do
+        if [ "${PKI_REGISTRY}/${pki_instance_id}" = "$INSTANCE" ]; then
+            PKI_REGISTRY_ENTRIES="${PKI_REGISTRY}/${pki_instance_id}"
             TOTAL_PKI_REGISTRY_ENTRIES=1
             break
         fi
@@ -145,7 +160,7 @@ usage()
 
 usage_systemd()
 {
-    echo -n "Usage: /usr/bin/pkicontrol "
+    echo -n "Usage: /usr/bin/pkidaemon "
     echo -n "{start"
     echo -n "|stop"
     echo -n "|restart"
@@ -165,7 +180,7 @@ list_instances()
 {
     echo
     for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
-	instance_name=`basename $PKI_REGISTRY_ENTRY`
+        instance_name=`basename $PKI_REGISTRY_ENTRY`
         echo "    $instance_name"
     done
     echo
@@ -203,7 +218,7 @@ if [ $SYSTEMD ]; then
             exit 4
         fi
     fi
-else  
+else
     if [ $# -lt 1 ] ; then
         # 3 unimplemented feature (for example, "reload")
         #     [insufficient arguments]
@@ -238,17 +253,17 @@ else
 fi
 
 # If an "instance" was supplied, check that it is a "valid" instance
-if [ -n "${pki_instance}" ]; then
+if [ -n "${pki_instance_id}" ]; then
     valid=0
     for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
-	instance_name=`basename $PKI_REGISTRY_ENTRY`
-        if [ $pki_instance == $instance_name ]; then
-	    valid=1
-	    break
-	fi
+        instance_name=`basename $PKI_REGISTRY_ENTRY`
+        if [ "${pki_instance_id}" == "${instance_name}" ]; then
+            valid=1
+            break
+        fi
     done
     if [ $valid -eq 0 ]; then
-        echo -n "${pki_instance} is an invalid '${PKI_TYPE}' instance"
+        echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
         if [ ! $SYSTEMD ]; then
             echo_failure
         fi
@@ -268,9 +283,23 @@ check_pki_configuration_status()
 {
     rv=0
 
-    rv=`grep -c ^preop ${pki_instance_configuration_file}`
-
-    rv=`expr ${rv} + 0`
+    case ${PKI_WEB_SERVER_TYPE} in
+        tomcat)
+            for SUBSYSTEM in ca kra ocsp tks; do
+                if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
+                    rv=`grep -c ^preop ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM}/CS.cfg`
+                    rv=`expr ${rv} + 0`
+                fi
+            done
+            ;;
+        apache)
+            # TBD
+            ;;
+        *)
+            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
+            exit ${default_error}
+            ;;
+    esac
 
     if [ $rv -ne 0 ] ; then
         echo "    '${PKI_INSTANCE_ID}' must still be CONFIGURED!"
@@ -301,23 +330,23 @@ check_pki_configuration_status()
 
 get_pki_status_definitions()
 {
-    case $PKI_SUBSYSTEM_TYPE in
-	ca|kra|ocsp|tks)
-	    get_pki_status_definitions_tomcat
-	    return $?
-	    ;;
-	ra)
-	    get_pki_status_definitions_ra
-	    return $?
-	    ;;
-	tps)
-	    get_pki_status_definitions_tps
-	    return $?
-	    ;;
-	*)
-	    echo "Unknown subsystem type ($PKI_SUBSYSTEM_TYPE)"
-	    exit ${default_error}
-	    ;;
+    case $PKI_WEB_SERVER_TYPE in
+        tomcat)
+            get_pki_status_definitions_tomcat
+            return $?
+            ;;
+        ra)
+            get_pki_status_definitions_ra
+            return $?
+            ;;
+        tps)
+            get_pki_status_definitions_tps
+            return $?
+            ;;
+        *)
+            echo "Unknown web server type ($PKI_WEB_SERVER_TYPE)"
+            exit ${default_error}
+            ;;
     esac
 }
 
@@ -331,40 +360,40 @@ get_pki_status_definitions_ra()
 
     # check to see that an instance-specific "httpd.conf" file exists
     if [ ! -f ${PKI_HTTPD_CONF} ] ; then
-	echo "File '${PKI_HTTPD_CONF}' does not exist!"
-	exit ${default_error}
+        echo "File '${PKI_HTTPD_CONF}' does not exist!"
+        exit ${default_error}
     fi
 
     # check to see that an instance-specific "nss.conf" file exists
     if [ ! -f ${PKI_NSS_CONF} ] ; then
-	echo "File '${PKI_NSS_CONF}' does not exist!"
-	exit ${default_error}
+        echo "File '${PKI_NSS_CONF}' does not exist!"
+        exit ${default_error}
     fi
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
-	UNSECURE_PORT=$port
-	if [ $total_ports -eq 0 ]; then
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+        UNSECURE_PORT=$port
+        if [ $total_ports -eq 0 ]; then
+            echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
         else
             echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
         fi
-	total_ports=`expr ${total_ports} + 1`
+        total_ports=`expr ${total_ports} + 1`
 
     done
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
-	UNSECURE_PORT=$port
-	if [ $total_ports -eq 1 ]; then
-	    CLIENTAUTH_PORT=$port
-	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}"
+        UNSECURE_PORT=$port
+        if [ $total_ports -eq 1 ]; then
+            CLIENTAUTH_PORT=$port
+            echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}"
         fi
-	if [ $total_ports -eq 2 ]; then
-	    NON_CLIENTAUTH_PORT=$port
-	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}"
+        if [ $total_ports -eq 2 ]; then
+            NON_CLIENTAUTH_PORT=$port
+            echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}"
         fi
-	total_ports=`expr ${total_ports} + 1`
+        total_ports=`expr ${total_ports} + 1`
 
     done
 
@@ -381,49 +410,49 @@ get_pki_status_definitions_tps()
 
     # check to see that an instance-specific "httpd.conf" file exists
     if [ ! -f ${PKI_HTTPD_CONF} ] ; then
-	echo "File '${PKI_HTTPD_CONF}' does not exist!"
-	exit ${default_error}
+        echo "File '${PKI_HTTPD_CONF}' does not exist!"
+        exit ${default_error}
     fi
 
     # check to see that an instance-specific "nss.conf" file exists
     if [ ! -f ${PKI_NSS_CONF} ] ; then
-	echo "File '${PKI_NSS_CONF}' does not exist!"
-	exit ${default_error}
+        echo "File '${PKI_NSS_CONF}' does not exist!"
+        exit ${default_error}
     fi
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
-	UNSECURE_PORT=$port
-	if [ $total_ports -eq 0 ]; then
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
-	    echo "                                 (ESC Security Officer Enrollment)"
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/home/index.cgi"
-	    echo "                                 (ESC Phone Home)"
+        UNSECURE_PORT=$port
+        if [ $total_ports -eq 0 ]; then
+            echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
+            echo "                                 (ESC Security Officer Enrollment)"
+            echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/home/index.cgi"
+            echo "                                 (ESC Phone Home)"
         else
             echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
         fi
-	total_ports=`expr ${total_ports} + 1`
+        total_ports=`expr ${total_ports} + 1`
 
     done
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
-	UNSECURE_PORT=$port
-	if [ $total_ports -eq 1 ]; then
-	    CLIENTAUTH_PORT=$port
-	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/cgi-bin/sow/welcome.cgi"
-	    echo "                                 (ESC Security Officer Workstation)"
-	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/tus"
-	    echo "                                 (TPS Roles - Operator/Administrator/Agent)"
+        UNSECURE_PORT=$port
+        if [ $total_ports -eq 1 ]; then
+            CLIENTAUTH_PORT=$port
+            echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/cgi-bin/sow/welcome.cgi"
+            echo "                                 (ESC Security Officer Workstation)"
+            echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/tus"
+            echo "                                 (TPS Roles - Operator/Administrator/Agent)"
         fi
-	if [ $total_ports -eq 2 ]; then
-	    NON_CLIENTAUTH_PORT=$port
-	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/so/enroll.cgi"
-	    echo "                                 (ESC Security Officer Enrollment)"
-	    echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/home/index.cgi"
-	    echo "                                 (ESC Phone Home)"
+        if [ $total_ports -eq 2 ]; then
+            NON_CLIENTAUTH_PORT=$port
+            echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/so/enroll.cgi"
+            echo "                                 (ESC Security Officer Enrollment)"
+            echo "    Secure Non-Clientauth Port = https://${PKI_SERVER_NAME}:${NON_CLIENTAUTH_PORT}/cgi-bin/home/index.cgi"
+            echo "                                 (ESC Phone Home)"
         fi
-	total_ports=`expr ${total_ports} + 1`
+        total_ports=`expr ${total_ports} + 1`
 
     done
 
@@ -494,7 +523,7 @@ get_pki_status_definitions_tomcat()
 get_pki_configuration_definitions()
 {
     # Obtain the PKI Subsystem Type
-    line=`grep -e '^[ \t]*cs.type[ \t]*=' ${pki_instance_configuration_file}`
+    line=`grep -e '^[ \t]*cs.type[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
     pki_subsystem=`echo "${line}" | sed -e 's/^[^=]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
     if [ "${line}" != "" ] ; then
         if  [ "${pki_subsystem}" != "CA"   ]  &&
@@ -522,7 +551,7 @@ get_pki_configuration_definitions()
         [ "${pki_subsystem}" == "OCSP" ]  ||
         [ "${pki_subsystem}" == "TKS"  ]
     then
-        line=`grep -e '^[ \t]*subsystem.select[ \t]*=' ${pki_instance_configuration_file}`
+        line=`grep -e '^[ \t]*subsystem.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
         if [ "${line}" != "" ] ; then
             pki_clone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
             if [ "${pki_clone}" != "Clone" ] ; then
@@ -540,7 +569,7 @@ get_pki_configuration_definitions()
     if    [ "${pki_subsystem}" == "CA" ]  &&
         [ "${pki_clone}" != "Clone"  ]
     then
-        line=`grep -e '^[ \t]*hierarchy.select[ \t]*=' ${pki_instance_configuration_file}`
+        line=`grep -e '^[ \t]*hierarchy.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
         if [ "${line}" != "" ] ; then
             pki_hierarchy=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
         else
@@ -552,7 +581,7 @@ get_pki_configuration_definitions()
     # see if it is also a Security Domain
     pki_security_domain=""
     if    [ "${pki_subsystem}" == "CA" ] ; then
-        line=`grep -e '^[ \t]*securitydomain.select[ \t]*=' ${pki_instance_configuration_file}`
+        line=`grep -e '^[ \t]*securitydomain.select[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
         if [ "${line}" != "" ] ; then
             pki_security_domain=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
             if [ "${pki_security_domain}" == "new" ] ; then
@@ -573,21 +602,21 @@ get_pki_configuration_definitions()
     pki_security_domain_hostname=""
     pki_security_domain_https_admin_port=""
 
-    line=`grep -e '^[ \t]*securitydomain.name[ \t]*=' ${pki_instance_configuration_file}`
+    line=`grep -e '^[ \t]*securitydomain.name[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
     if [ "${line}" != "" ] ; then
         pki_security_domain_name=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
     else
         return ${default_error}
     fi
 
-    line=`grep -e '^[ \t]*securitydomain.host[ \t]*=' ${pki_instance_configuration_file}`
+    line=`grep -e '^[ \t]*securitydomain.host[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
     if [ "${line}" != "" ] ; then
         pki_security_domain_hostname=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
     else
         return ${default_error}
     fi
 
-    line=`grep -e '^[ \t]*securitydomain.httpsadminport[ \t]*=' ${pki_instance_configuration_file}`
+    line=`grep -e '^[ \t]*securitydomain.httpsadminport[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
     if [ "${line}" != "" ] ; then
         pki_security_domain_https_admin_port=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
     else
@@ -650,7 +679,7 @@ get_pki_configuration_definitions()
     registered_pki_security_domain_name="${header} ${pki_security_domain_name}"
 
     header="URL:  "
-    if    [ "${pki_security_domain_hostname}" != ""         ] &&
+    if  [ "${pki_security_domain_hostname}" != ""         ] &&
         [ "${pki_security_domain_https_admin_port}" != "" ]
     then
         data="https://${pki_security_domain_hostname}:${pki_security_domain_https_admin_port}"
@@ -687,14 +716,14 @@ display_configuration_information()
         get_pki_status_definitions
         rv=$?
         if [ $rv -ne 0 ] ; then
-	    result=$rv
+            result=$rv
             echo
             echo "${PKI_INSTANCE_ID} Status Definitions not found"
         else
             get_pki_configuration_definitions
             rv=$?
             if [ $rv -ne 0 ] ; then
-		result=$rv
+                result=$rv
                 echo
                 echo "${PKI_INSTANCE_ID} Configuration Definitions not found"
             fi
@@ -724,7 +753,7 @@ display_instance_status()
     # Verify there is an initscript for this instance
     if [ ! -f $PKI_INSTANCE_INITSCRIPT ]; then
         # 4 program or service status is unknown
-	return 4
+        return 4
     fi
 
     # Invoke the initscript for this instance
@@ -732,7 +761,7 @@ display_instance_status()
     rv=$?
 
     if [ $rv -eq 0 ] ; then
-	display_configuration_information
+        display_configuration_information
     fi
 
     return $rv
@@ -747,24 +776,29 @@ start_instance()
     fi
 
     # Invoke the initscript for this instance
-    case $PKI_SUBSYSTEM_TYPE in
-        ca|kra|ocsp|tks)
+    case $PKI_WEB_SERVER_TYPE in
+        tomcat)
 
-            # We must export the service name so that the systemd version 
-            # of the tomcat6 init script knows which instance specific
+            # We must export the service name so that the systemd version
+            # of the tomcat init script knows which instance specific
             # configuration file to source.
             export SERVICE_NAME=$PKI_INSTANCE_ID
 
             if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
-                /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t \
-                     $PKI_INSTANCE_INITSCRIPT start
+                # HACKS:
+                # (1) MUST eventually replace hard-coded 'pki_ca_script_t'
+                #     with programmatic replacement of either
+                #     'pki_tomcat_script_t' or 'pki_apache_script_t', AND
+                # (2) MUST currently be run with SELinux in 'Permissive' mode!
+                /usr/bin/runcon -t pki_ca_script_t \
+                    $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             else
-                $PKI_INSTANCE_INITSCRIPT start 
+                $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             fi
             ;;
-        ra|tps)
+        apache)
             $PKI_INSTANCE_INITSCRIPT start
             rv=$?
             ;;
@@ -775,11 +809,11 @@ start_instance()
     fi
 
     # On Tomcat subsystems, make certain that the service has started
-    case $PKI_SUBSYSTEM_TYPE in
-        ca|kra|ocsp|tks)
+    case $PKI_WEB_SERVER_TYPE in
+        tomcat)
             count=0
             tries=30
-            port=`grep '^pkicreate.unsecure_port=' ${pki_instance_configuration_file} | cut -b25- -`
+            port=${PKI_UNSECURE_PORT}
             while [ $count -lt $tries ]
             do
                 netstat -antl | grep ${port} > /dev/null
@@ -824,8 +858,8 @@ start_instance()
             # "pki subsystem identity" symlink to the PKI instance
             # lock file and place it under '/var/lock/pki/<pki subsystem>'.
             #
-            case $PKI_SUBSYSTEM_TYPE in
-                ca|kra|ocsp|tks)
+            case $PKI_WEB_SERVER_TYPE in
+                tomcat)
                     if [ -h ${PKI_PIDFILE} ]; then
                         rm -f ${PKI_PIDFILE}
                     fi
@@ -859,8 +893,8 @@ stop_instance()
 
     # On Tomcat subsystems, always remove the "pki subsystem identity" symlinks
     # that were previously associated with the Tomcat 'pid' and 'lock' files.
-    case $PKI_SUBSYSTEM_TYPE in
-        ca|kra|ocsp|tks)
+    case $PKI_WEB_SERVER_TYPE in
+        tomcat)
             if [ -h ${PKI_PIDFILE} ]; then
                 rm -f ${PKI_PIDFILE}
             fi
@@ -1063,16 +1097,16 @@ registry_status()
 
         [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
-        case $PKI_SUBSYSTEM_TYPE in
-            ca|kra|ocsp|tks)
-                if [ $SYSTEMD ]; then 
+        case $PKI_WEB_SERVER_TYPE in
+            tomcat)
+                if [ $SYSTEMD ]; then
                     display_instance_status_systemd
-                else 
+                else
                     display_instance_status
                 fi
                 rv=$?
                 ;;
-            tps|ra)
+            apache)
                 display_instance_status
                 rv=$?
                 ;;

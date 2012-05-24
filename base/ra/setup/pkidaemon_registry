@@ -1,5 +1,8 @@
 # Establish PKI Variable "Slot" Substitutions
 
+PKI_WEB_SERVER_TYPE=[PKI_WEB_SERVER_TYPE]
+export PKI_WEB_SERVER_TYPE
+
 PKI_SUBSYSTEM_TYPE=[PKI_SUBSYSTEM_TYPE]
 export PKI_SUBSYSTEM_TYPE
 
@@ -39,7 +42,7 @@ export PKI_LOCK_FILE
 PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_ID}.pid"
 export PKI_PID_FILE
 
-PKI_SELINUX_TYPE="pki_tps_t"
+PKI_SELINUX_TYPE="pki_ra_t"
 export PKI_SELINUX_TYPE
 
 pki_instance_configuration_file=${PKI_SERVER_ROOT}/conf/CS.cfg

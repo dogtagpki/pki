@@ -41,10 +41,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                        master['pki_subsystem_registry_path'] +\
                        "/" + config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE)
         # Save a timestamped copy of the installation manifest file
-        filename = master['pki_root_prefix'] +\
-                   config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                   master['pki_instance_id'] + "/" +\
-                   master['pki_subsystem'].lower() +"/" +\
+        filename = master['pki_subsystem_registry_path'] + "/" +\
                    "spawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"
         config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, filename,
@@ -74,10 +71,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                        "/" + config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE,
                        overwrite_flag=True)
         # Save a timestamped copy of the updated manifest file
-        filename = master['pki_root_prefix'] +\
-                   config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                   master['pki_instance_id'] + "/" +\
-                   master['pki_subsystem'].lower() +"/" +\
+        filename = master['pki_subsystem_registry_path'] + "/" +\
                    "respawn" + "_" + "manifest" + "." +\
                    master['pki_timestamp'] + "." + "csv"
         config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, filename,

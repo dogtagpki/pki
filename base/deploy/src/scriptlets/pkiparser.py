@@ -79,23 +79,23 @@ def process_command_line_arguments(argv):
     custom = parser.add_argument_group('custom arguments '
                                        '(OVERRIDES configuration file values)')
     custom.add_argument('-d',
-                        dest='pki_admin_domain_name', action='store',
+                        dest='custom_pki_admin_domain_name', action='store',
                         nargs=1, metavar='<admin_domain>',
                         help='PKI admin domain name (instance name prefix)')
     custom.add_argument('-i',
-                        dest='pki_instance_name', action='store',
+                        dest='custom_pki_instance_name', action='store',
                         nargs=1, metavar='<instance>',
                         help='PKI instance name (MUST specify REQUIRED ports)')
     custom.add_argument('--http_port',
-                        dest='pki_http_port', action='store',
+                        dest='custom_pki_http_port', action='store',
                         nargs=1, metavar='<port>',
                         help='HTTP port (CA, KRA, OCSP, RA, TKS, TPS)')
     custom.add_argument('--https_port',
-                        dest='pki_https_port', action='store',
+                        dest='custom_pki_https_port', action='store',
                         nargs=1, metavar='<port>',
                         help='HTTPS port (CA, KRA, OCSP, RA, TKS, TPS)')
     custom.add_argument('--ajp_port',
-                        dest='pki_ajp_port', action='store',
+                        dest='custom_pki_ajp_port', action='store',
                         nargs=1, metavar='<port>',
                         help='AJP port (CA, KRA, OCSP, TKS)')
     args = parser.parse_args()
@@ -141,19 +141,22 @@ def process_command_line_arguments(argv):
         config.pki_jython_log_level = config.PKI_JYTHON_WARNING_LOG_LEVEL
         config.pki_console_log_level = logging.WARNING
         config.pki_log_level = logging.INFO
-    if not args.pki_admin_domain_name is None:
-        config.pki_admin_domain_name =\
-            str(args.pki_admin_domain_name).strip('[\']')
-    if not args.pki_instance_name is None:
-        config.pki_instance_name =\
-            str(args.pki_instance_name).strip('[\']')
-    if not args.pki_http_port is None:
-        config.pki_http_port = str(args.pki_http_port).strip('[\']')
-    if not args.pki_https_port is None:
-        config.pki_https_port = str(args.pki_https_port).strip('[\']')
-    if not args.pki_ajp_port is None:
+    if not args.custom_pki_admin_domain_name is None:
+        config.custom_pki_admin_domain_name =\
+            str(args.custom_pki_admin_domain_name).strip('[\']')
+    if not args.custom_pki_instance_name is None:
+        config.custom_pki_instance_name =\
+            str(args.custom_pki_instance_name).strip('[\']')
+    if not args.custom_pki_http_port is None:
+        config.custom_pki_http_port =\
+            str(args.custom_pki_http_port).strip('[\']')
+    if not args.custom_pki_https_port is None:
+        config.custom_pki_https_port =\
+            str(args.custom_pki_https_port).strip('[\']')
+    if not args.custom_pki_ajp_port is None:
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_ajp_port = str(args.pki_ajp_port).strip('[\']')
+            config.custom_pki_ajp_port =\
+                str(args.custom_pki_ajp_port).strip('[\']')
         else:
             print "ERROR:  " +\
                   log.PKI_CUSTOM_TOMCAT_AJP_PORT_1 %\
@@ -161,24 +164,24 @@ def process_command_line_arguments(argv):
             print
             parser.print_help()
             parser.exit(-1);
-    if not args.pki_instance_name is None or\
-       not args.pki_http_port is None or\
-       not args.pki_https_port is None or\
-       not args.pki_ajp_port is None:
+    if not args.custom_pki_instance_name is None or\
+       not args.custom_pki_http_port is None or\
+       not args.custom_pki_https_port is None or\
+       not args.custom_pki_ajp_port is None:
         if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            if args.pki_instance_name is None or\
-               args.pki_http_port is None or\
-               args.pki_https_port is None:
+            if args.custom_pki_instance_name is None or\
+               args.custom_pki_http_port is None or\
+               args.custom_pki_https_port is None:
                 print "ERROR:  " + log.PKI_CUSTOM_APACHE_INSTANCE_1 %\
                       config.pki_subsystem
                 print
                 parser.print_help()
                 parser.exit(-1);
         elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if args.pki_instance_name is None or\
-               args.pki_http_port is None or\
-               args.pki_https_port is None or\
-               args.pki_ajp_port is None:
+            if args.custom_pki_instance_name is None or\
+               args.custom_pki_http_port is None or\
+               args.custom_pki_https_port is None or\
+               args.custom_pki_ajp_port is None:
                 print "ERROR:  " + log.PKI_CUSTOM_TOMCAT_INSTANCE_1 %\
                       config.pki_subsystem
                 print
@@ -191,16 +194,51 @@ def process_command_line_arguments(argv):
         #        explicitly specified if it does not use the default location
         #        and/or default configuration file name.
         if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            default_pki_instance_name =\
-                config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME
+            if not config.custom_pki_instance_name is None:
+                default_pki_instance_name = config.custom_pki_instance_name
+            else:
+                default_pki_instance_name =\
+                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME
+            if not config.custom_pki_admin_domain_name is None:
+                config.pkideployment_cfg =\
+                    config.pki_root_prefix +\
+                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME + "/" +\
+                    config.custom_pki_admin_domain_name + "-" +\
+                    default_pki_instance_name +"/" +\
+                    config.pki_subsystem.lower() +"/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+            else:
+                config.pkideployment_cfg =\
+                    config.pki_root_prefix +\
+                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME + "/" +\
+                    default_pki_instance_name +"/" +\
+                    config.pki_subsystem.lower() +"/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
         elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            default_pki_instance_name =\
-                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME
-        config.pkideployment_cfg = config.pki_root_prefix +\
-            config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-            default_pki_instance_name +"/" +\
-            config.pki_subsystem.lower() +"/" +\
-            config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+            if not config.custom_pki_instance_name is None:
+                default_pki_instance_name = config.custom_pki_instance_name
+            else:
+                default_pki_instance_name =\
+                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME
+            if not config.custom_pki_admin_domain_name is None:
+                config.pkideployment_cfg =\
+                    config.pki_root_prefix +\
+                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME + "/" +\
+                    config.custom_pki_admin_domain_name + "-" +\
+                    default_pki_instance_name +"/" +\
+                    config.pki_subsystem.lower() +"/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+            else:
+                config.pkideployment_cfg =\
+                    config.pki_root_prefix +\
+                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME + "/" +\
+                    default_pki_instance_name +"/" +\
+                    config.pki_subsystem.lower() +"/" +\
+                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
     if not os.path.exists(config.pkideployment_cfg) or\
        not os.path.isfile(config.pkideployment_cfg):
         print "ERROR:  " +\
@@ -334,16 +372,47 @@ def compose_pki_master_dictionary():
                          "conf")
         config.pki_master_dict['pki_source_setup_path'] =\
             os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                         config.pki_master_dict['pki_subsystem'].lower(),
                          "setup")
+        config.pki_master_dict['pki_source_shared_path'] =\
+            os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                         "shared",
+                         "conf")
         config.pki_master_dict['pki_source_cs_cfg'] =\
             os.path.join(config.pki_master_dict['pki_source_conf_path'],
                          "CS.cfg")
         config.pki_master_dict['pki_source_registry'] =\
             os.path.join(config.pki_master_dict['pki_source_setup_path'],
-                         "registry_instance")
+                         "pkidaemon_registry")
         if config.pki_master_dict['pki_subsystem'] in\
-           config.PKI_TOMCAT_SUBSYSTEMS:
+           config.PKI_APACHE_SUBSYSTEMS:
+            config.pki_master_dict['pki_systemd_service'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_ROOT + "/" +\
+                "pki-apached" + "@" + ".service"
+            config.pki_master_dict['pki_systemd_target'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_ROOT + "/" +\
+                "pki-apached.target"
+            config.pki_master_dict['pki_systemd_target_wants'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_CONFIGURATION_ROOT + "/" +\
+                "pki-apached.target.wants"
+            config.pki_master_dict['pki_systemd_service_link'] =\
+                config.pki_master_dict['pki_systemd_target_wants'] + "/" +\
+                "pki-apached" + "@" +\
+                config.pki_master_dict['pki_instance_id'] + ".service"
+        elif config.pki_master_dict['pki_subsystem'] in\
+             config.PKI_TOMCAT_SUBSYSTEMS:
+            config.pki_master_dict['pki_systemd_service'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_ROOT + "/" +\
+                "pki-tomcatd" + "@" + ".service"
+            config.pki_master_dict['pki_systemd_target'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_ROOT + "/" +\
+                "pki-tomcatd.target"
+            config.pki_master_dict['pki_systemd_target_wants'] =\
+                config.PKI_DEPLOYMENT_SYSTEMD_CONFIGURATION_ROOT + "/" +\
+                "pki-tomcatd.target.wants"
+            config.pki_master_dict['pki_systemd_service_link'] =\
+                config.pki_master_dict['pki_systemd_target_wants'] + "/" +\
+                "pki-tomcatd" + "@" +\
+                config.pki_master_dict['pki_instance_id'] + ".service"
             config.pki_master_dict['pki_tomcat_bin_path'] =\
                 os.path.join(config.PKI_DEPLOYMENT_TOMCAT_ROOT,
                              "bin")
@@ -364,16 +433,16 @@ def compose_pki_master_dictionary():
                 os.path.join(config.pki_master_dict['pki_war_path'],
                              config.pki_master_dict['pki_war_name'])
             config.pki_master_dict['pki_source_catalina_properties'] =\
-                os.path.join(config.pki_master_dict['pki_source_conf_path'],
+                os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "catalina.properties")
             config.pki_master_dict['pki_source_servercertnick_conf'] =\
-                os.path.join(config.pki_master_dict['pki_source_conf_path'],
+                os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "serverCertNick.conf")
             config.pki_master_dict['pki_source_server_xml'] =\
-                os.path.join(config.pki_master_dict['pki_source_conf_path'],
+                os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "server.xml")
             config.pki_master_dict['pki_source_tomcat_conf'] =\
-                os.path.join(config.pki_master_dict['pki_source_conf_path'],
+                os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "tomcat.conf")
             config.pki_master_dict['pki_source_index_jsp'] =\
                 os.path.join(config.pki_master_dict['pki_source_webapps_path'],
@@ -425,12 +494,24 @@ def compose_pki_master_dictionary():
             os.path.join(config.pki_master_dict['pki_configuration_path'],
                          config.pki_master_dict['pki_instance_id'])
         # Apache/Tomcat instance registry name/value pairs
-        config.pki_master_dict['pki_instance_registry_path'] =\
-            os.path.join(config.pki_master_dict['pki_registry_path'],
-                         config.pki_master_dict['pki_instance_id'])
-        # Tomcat-specific instance name/value pairs
+        # Apache-specific instance name/value pairs
         if config.pki_master_dict['pki_subsystem'] in\
-           config.PKI_TOMCAT_SUBSYSTEMS:
+           config.PKI_APACHE_SUBSYSTEMS:
+            # Apache instance base name/value pairs
+            # Apache instance log name/value pairs
+            # Apache instance configuration name/value pairs
+            # Apache instance registry name/value pairs
+            config.pki_master_dict['pki_instance_type_registry_path'] =\
+                os.path.join(config.pki_master_dict['pki_registry_path'],
+                             "apache")
+            config.pki_master_dict['pki_instance_registry_path'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_instance_type_registry_path'],
+                    config.pki_master_dict['pki_instance_id'])
+            # Apache instance convenience symbolic links
+        # Tomcat-specific instance name/value pairs
+        elif config.pki_master_dict['pki_subsystem'] in\
+             config.PKI_TOMCAT_SUBSYSTEMS:
             # Tomcat instance base name/value pairs
             config.pki_master_dict['pki_tomcat_common_path'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
@@ -467,6 +548,13 @@ def compose_pki_master_dictionary():
             # Tomcat instance log name/value pairs
             # Tomcat instance configuration name/value pairs
             # Tomcat instance registry name/value pairs
+            config.pki_master_dict['pki_instance_type_registry_path'] =\
+                os.path.join(config.pki_master_dict['pki_registry_path'],
+                             "tomcat")
+            config.pki_master_dict['pki_instance_registry_path'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_instance_type_registry_path'],
+                    config.pki_master_dict['pki_instance_id'])
             # Tomcat instance convenience symbolic links
             config.pki_master_dict['pki_tomcat_bin_link'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
@@ -572,26 +660,30 @@ def compose_pki_master_dictionary():
                 config.pki_master_dict['pki_subsystem_configuration_path'],
                 "CS.cfg")
         config.pki_master_dict['pki_target_registry'] =\
-            os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
+            os.path.join(config.pki_master_dict['pki_instance_registry_path'],
                          config.pki_master_dict['pki_instance_id'])
         if config.pki_master_dict['pki_subsystem'] in\
            config.PKI_TOMCAT_SUBSYSTEMS:
             config.pki_master_dict['pki_target_catalina_properties'] =\
                 os.path.join(
-                    config.pki_master_dict['pki_subsystem_configuration_path'],
+                    config.pki_master_dict['pki_instance_configuration_path'],
                     "catalina.properties")
             config.pki_master_dict['pki_target_servercertnick_conf'] =\
                 os.path.join(
-                    config.pki_master_dict['pki_subsystem_configuration_path'],
+                    config.pki_master_dict['pki_instance_configuration_path'],
                     "serverCertNick.conf")
             config.pki_master_dict['pki_target_server_xml'] =\
                 os.path.join(
-                    config.pki_master_dict['pki_subsystem_configuration_path'],
+                    config.pki_master_dict['pki_instance_configuration_path'],
                     "server.xml")
-            config.pki_master_dict['pki_target_tomcat_conf'] =\
+            config.pki_master_dict['pki_target_tomcat_conf_instance_id'] =\
                 config.pki_master_dict['pki_root_prefix'] +\
                 "/etc/sysconfig/" +\
                 config.pki_master_dict['pki_instance_id']
+            config.pki_master_dict['pki_target_tomcat_conf'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_instance_configuration_path'],
+                    "tomcat.conf")
             config.pki_master_dict['pki_target_index_jsp'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_webapps_root_path'],
@@ -626,14 +718,8 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['PKI_INSTANCE_ID_SLOT'] =\
             config.pki_master_dict['pki_instance_id']
         config.pki_master_dict['PKI_INSTANCE_INITSCRIPT_SLOT'] =\
-            os.path.join(config.pki_master_dict['pki_subsystem_path'],
+            os.path.join(config.pki_master_dict['pki_instance_path'],
                          config.pki_master_dict['pki_instance_id'])
-        config.pki_master_dict['PKI_LOCKDIR_SLOT'] =\
-            os.path.join("/var/lock/pki",
-                         config.pki_master_dict['pki_subsystem'].lower())
-        config.pki_master_dict['PKI_PIDDIR_SLOT'] =\
-            os.path.join("/var/run/pki",
-                         config.pki_master_dict['pki_subsystem'].lower())
         config.pki_master_dict['PKI_REGISTRY_FILE_SLOT'] =\
             os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
                          config.pki_master_dict['pki_instance_id'])
@@ -650,6 +736,13 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['NON_CLIENTAUTH_SECURE_PORT_SLOT'] = None
             config.pki_master_dict['NSS_CONF_SLOT'] = None
             config.pki_master_dict['OBJ_EXT_SLOT'] = None
+            config.pki_master_dict['PKI_LOCKDIR_SLOT'] =\
+                os.path.join("/var/lock/pki",
+                             "apache")
+            config.pki_master_dict['PKI_PIDDIR_SLOT'] =\
+                os.path.join("/var/run/pki",
+                             "apache")
+            config.pki_master_dict['PKI_WEB_SERVER_TYPE_SLOT'] = "apache"
             config.pki_master_dict['PORT_SLOT'] = None
             config.pki_master_dict['PROCESS_ID_SLOT'] = None
             config.pki_master_dict['REQUIRE_CFG_PL_SLOT'] = None
@@ -711,14 +804,15 @@ def compose_pki_master_dictionary():
                 "Unused"
             config.pki_master_dict['PKI_EE_SECURE_PORT_SERVER_COMMENT_SLOT'] =\
                 ""
-            config.pki_master_dict['PKI_FLAVOR_SLOT'] =\
-                "pki"
             config.pki_master_dict['PKI_GROUP_SLOT'] =\
                 config.pki_master_dict['pki_group']
             config.pki_master_dict['PKI_INSTANCE_PATH_SLOT'] =\
-                config.pki_master_dict['pki_subsystem_path']
-            config.pki_master_dict['PKI_INSTANCE_ROOT_SLOT'] =\
                 config.pki_master_dict['pki_instance_path']
+            config.pki_master_dict['PKI_INSTANCE_ROOT_SLOT'] =\
+                config.pki_master_dict['pki_path']
+            config.pki_master_dict['PKI_LOCKDIR_SLOT'] =\
+                os.path.join("/var/lock/pki",
+                             "tomcat")
             config.pki_master_dict['PKI_MACHINE_NAME_SLOT'] =\
                 config.pki_master_dict['pki_hostname']
             config.pki_master_dict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] =\
@@ -731,6 +825,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict\
             ['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] =\
                 "<!--"
+            config.pki_master_dict['PKI_PIDDIR_SLOT'] =\
+                os.path.join("/var/run/pki",
+                             "tomcat")
             config.pki_master_dict['PKI_PROXY_SECURE_PORT_SLOT'] =\
                 config.pki_master_dict['pki_proxy_https_port']
             config.pki_master_dict['PKI_PROXY_UNSECURE_PORT_SLOT'] =\
@@ -752,9 +849,8 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['PKI_SUBSYSTEM_TYPE_SLOT'] =\
                 config.pki_master_dict['pki_subsystem'].lower()
             config.pki_master_dict['PKI_SYSTEMD_SERVICENAME_SLOT'] =\
-                "pki-" + config.pki_master_dict['pki_subsystem'].lower() +\
-                "d" + "@" + "pki-" +\
-                config.pki_master_dict['pki_subsystem'].lower() + ".service"
+                "pki-tomcatd" + "@" +\
+                config.pki_master_dict['pki_instance_id'] + ".service"
             config.pki_master_dict['PKI_UNSECURE_PORT_SLOT'] =\
                 config.pki_master_dict['pki_http_port']
             config.pki_master_dict['PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT'] =\
@@ -763,6 +859,8 @@ def compose_pki_master_dictionary():
                 "<!-- Shared Ports:  Unsecure Port Connector -->"
             config.pki_master_dict['PKI_USER_SLOT'] =\
                 config.pki_master_dict['pki_user']
+            config.pki_master_dict['PKI_WEB_SERVER_TYPE_SLOT'] =\
+                "tomcat"
             config.pki_master_dict['PKI_WEBAPPS_NAME_SLOT'] =\
                 "webapps"
             config.pki_master_dict['TOMCAT_CFG_SLOT'] =\
@@ -772,7 +870,7 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
                     "*.jar")
             config.pki_master_dict['TOMCAT_LOG_DIR_SLOT'] =\
-                config.pki_master_dict['pki_subsystem_log_path']
+                config.pki_master_dict['pki_instance_log_path']
             config.pki_master_dict['TOMCAT_PIDFILE_SLOT'] =\
                 "/var/run/" + config.pki_master_dict['pki_instance_id'] + ".pid"
             config.pki_master_dict['TOMCAT_SERVER_PORT_SLOT'] =\

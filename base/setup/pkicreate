@@ -102,7 +102,7 @@ use lib "/usr/share/pki/scripts";
 use pkicommon;
 
 # Establish path to scripts
-my $pki_subsystem_common_area = "/usr/share/$pki_flavor";
+my $pki_subsystem_common_area = "/usr/share/pki";
 
 # make -w happy by suppressing warnings of Global variables used only once
 my $suppress = "";
@@ -319,7 +319,6 @@ my $TOMCAT_TLS_CIPHERS                  = "TOMCAT_TLS_CIPHERS";
 my $TOMCAT_INSTANCE_COMMON_LIB          = "TOMCAT_INSTANCE_COMMON_LIB";
 my $TOMCAT_LOG_DIR                      = "TOMCAT_LOG_DIR";
 my $PKI_INSTANCE_INITSCRIPT             = "PKI_INSTANCE_INITSCRIPT";
-my $PKI_FLAVOR_SLOT                     = "PKI_FLAVOR";
 my $PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT              = "PKI_UNSECURE_PORT_CONNECTOR_NAME";
 my $PKI_SECURE_PORT_CONNECTOR_NAME_SLOT                = "PKI_SECURE_PORT_CONNECTOR_NAME";
 my $PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT          = "PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME";
@@ -1480,7 +1479,7 @@ sub initialize_subsystem_paths
             $applets_subsystem_path = $pki_subsystem_path
                                     . "/" . $applets_base_subsystem_dir;
             $bin_subsystem_path     = $default_system_user_libraries
-                                    . "/" . $pki_flavor
+                                    . "/" . "pki"
                                     . "/" . $subsystem_type;
             $samples_subsystem_path = $pki_subsystem_path
                                     . "/" . $samples_base_subsystem_dir;
@@ -2438,7 +2437,6 @@ sub process_pki_templates
         $slot_hash{$SYSTEM_USER_LIBRARIES} = $default_system_user_libraries;
         $slot_hash{$TMP_DIR}               = $tmp_dir;
         $slot_hash{$TPS_DIR}               = $pki_subsystem_path;
-        $slot_hash{$PKI_FLAVOR_SLOT}       = $pki_flavor;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT} = $random;
         $slot_hash{$PKI_LOCKDIR}           = $pki_lockdir_path;
         if (is_Fedora() || (is_RHEL() && (! is_RHEL4()))) {
@@ -2586,7 +2584,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $proxy_unsecure_port : "";
 
         $slot_hash{$PKI_WEBAPPS_NAME}          = $webapps_base_subsystem_dir; 
-        $slot_hash{$PKI_FLAVOR_SLOT}           = $pki_flavor;
         $slot_hash{$TOMCAT_SERVER_PORT_SLOT}   = $tomcat_server_port;
         $slot_hash{$TOMCAT_PIDFILE}            = $tomcat6_instance_pid_file_path;
         $slot_hash{$TOMCAT_CFG}                = $tomcat6_conf_instance_file_path;

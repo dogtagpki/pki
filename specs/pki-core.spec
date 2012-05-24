@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}15%{?prerel}%{?dist}
+Release:          %{?relprefix}16%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -364,11 +364,24 @@ Requires:         resteasy >= 2.3.2-1
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jss >= 4.2.6-24
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
 Requires:         tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
 Requires:         jss >= 4.2.6-24
 Requires:         tomcatjss >= 6.0.0
 %else
@@ -754,6 +767,11 @@ echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfi
 echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+# generate 'pki-tomcat.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /var/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /var/run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 # generate 'pki-tks.conf' under the 'tmpfiles.d' directory
 echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
@@ -771,12 +789,16 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
+%{__rm} %{buildroot}%{_bindir}/pkidaemon
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-krad.target.wants
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-ocspd.target.wants
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tksd.target.wants
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
+
+%{__rm} -rf %{buildroot}%{_datadir}/pki/shared/lib
 
 # tomcat6 has changed how TOMCAT_LOG is used.
 # Need to adjust accordingly
@@ -1012,6 +1034,13 @@ fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %fix_tomcat_log tks
 
+
+## %post -n pki-common
+## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
+##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
+##        PKI deployment process
+
+
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-cad.target > /dev/null 2>&1 || :
@@ -1040,6 +1069,12 @@ if [ $1 = 0 ] ; then
 fi
 
 
+## %preun -n pki-common
+## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
+##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
+##        PKI deployment process
+
+
 %postun -n pki-ca
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
@@ -1066,6 +1101,12 @@ fi
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
 fi
+
+
+## %postun -n pki-common
+## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
+##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
+##        PKI deployment process
 %endif
 
 %files -n pki-deploy
@@ -1094,11 +1135,13 @@ fi
 %{_datadir}/pki/deployment/destroy/ra/
 %{_datadir}/pki/deployment/destroy/tks/
 %{_datadir}/pki/deployment/destroy/tps/
-#%dir %{_localstatedir}/lock/pki
-#%dir %{_localstatedir}/run/pki
-#%if 0%{?fedora} >= 16
-#%{_bindir}/pkicontrol
-#%endif
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/operations
+%dir %{_localstatedir}/lock/pki
+%dir %{_localstatedir}/run/pki
+%if 0%{?fedora} >= 16
+%{_bindir}/pkidaemon
+%endif
 
 
 %files -n pki-setup
@@ -1124,6 +1167,7 @@ fi
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
+
 
 %files -n pki-native-tools
 %defattr(-,root,root,-)
@@ -1186,9 +1230,15 @@ fi
 %{_javadocdir}/pki-java-tools-%{version}/
 %endif
 
+
 %files -n pki-common
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
+%{_unitdir}/pki-tomcatd@.service
+%{_unitdir}/pki-tomcatd.target
+%endif
 %{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
 %{_javadir}/pki/pki-cms-%{version}.jar
@@ -1197,22 +1247,35 @@ fi
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
+%dir %{_localstatedir}/lock/pki/tomcat
+%dir %{_localstatedir}/run/pki/tomcat
 
 %if 0%{?fedora} >= 16
 # Create symlink to the pki-jndi-realm jar
 %{_javadir}/tomcat6/pki-jndi-realm.jar
+%endif
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 %endif
 
 %{_javadir}/pki/pki-jndi-realm-%{version}.jar
 %{_javadir}/pki/pki-jndi-realm.jar
 
 %{_datadir}/pki/setup/
+%dir %{_datadir}/pki/shared
+%{_datadir}/pki/shared/conf/
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-common-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-common-%{version}/
 %endif
+
 
 %files -n pki-selinux
 %defattr(-,root,root,-)
@@ -1349,6 +1412,12 @@ fi
 
 
 %changelog
+* Fri May 18 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.16.a1
+- Integration of Tomcat 7
+- Addition of centralized 'pki-tomcatd' systemd functionality to the
+  PKI Deployment strategy
+- Removal of 'pki_flavor' attribute
+
 * Mon Apr 16 2012 Ade Lee <alee@redhat.com> 10.0.0-0.15.a1
 - BZ 813075 - selinux denial for file size access
 

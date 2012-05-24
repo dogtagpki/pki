@@ -23,10 +23,22 @@ set(APACHE_SUBSYSTEMS
 
 install(
     FILES
+        scripts/pkidaemon
         src/pkispawn
         src/pkidestroy
     DESTINATION
         ${BIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    FILES
+        scripts/operations
+    DESTINATION
+        ${DATA_INSTALL_DIR}/scripts/
     PERMISSIONS
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -97,8 +109,8 @@ install(
 )
 
 # install empty directories
-#install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
-#install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
+install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
+install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
 
 # install subsystem directories for pkispawn and pkidestroy
 foreach(PKI_SUBSYSTEM ${PKI_SUBSYSTEMS})

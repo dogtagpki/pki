@@ -47,6 +47,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_client_key_database'],
                 master['pki_client_secmod_database'],
                 password_file=master['pki_client_password_conf'])
+            util.symlink.create(
+                config.pki_master_dict['pki_systemd_service'],
+                config.pki_master_dict['pki_systemd_service_link'])
         else:
             util.password.create_password_conf(
                 master['pki_client_password_conf'],
@@ -71,17 +74,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() == 0:
-                util.directory.delete(master['pki_client_path'])
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() == 0:
-                util.directory.delete(master['pki_client_path'])
-        else:
-            # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
                util.instance.apache_instances() == 1:
                 util.directory.delete(master['pki_client_path'])
+                util.symlink.delete(
+                    config.pki_master_dict['pki_systemd_service_link'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() == 1:
                 util.directory.delete(master['pki_client_path'])
+                util.symlink.delete(
+                    config.pki_master_dict['pki_systemd_service_link'])
+        else:
+            # ALWAYS display correct information (even during dry_run)
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+               util.instance.apache_instances() == 0:
+                util.directory.delete(master['pki_client_path'])
+                util.symlink.delete(
+                    config.pki_master_dict['pki_systemd_service_link'])
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                 util.instance.tomcat_instances() == 0:
+                util.directory.delete(master['pki_client_path'])
+                util.symlink.delete(
+                    config.pki_master_dict['pki_systemd_service_link'])
         return self.rv

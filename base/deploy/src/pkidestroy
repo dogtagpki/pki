@@ -125,21 +125,21 @@ def main(argv):
                              extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Override PKI configuration file values with 'custom' command-line values.
-    if not config.pki_admin_domain_name is None:
+    if not config.custom_pki_admin_domain_name is None:
         config.pki_common_dict['pki_admin_domain_name'] =\
-            config.pki_admin_domain_name
-    if not config.pki_instance_name is None:
-        config.pki_common_dict['pki_instance_name'] =\
-            config.pki_instance_name
-    if not config.pki_http_port is None:
+            config.custom_pki_admin_domain_name
+    if not config.custom_pki_instance_name is None:
+        config.pki_web_server_dict['pki_instance_name'] =\
+            config.custom_pki_instance_name
+    if not config.custom_pki_http_port is None:
         config.pki_web_server_dict['pki_http_port'] =\
-            config.pki_http_port
-    if not config.pki_https_port is None:
+            config.custom_pki_http_port
+    if not config.custom_pki_https_port is None:
         config.pki_web_server_dict['pki_https_port'] =\
-            config.pki_https_port
-    if not config.pki_ajp_port is None:
+            config.custom_pki_https_port
+    if not config.custom_pki_ajp_port is None:
         config.pki_web_server_dict['pki_ajp_port'] =\
-            config.pki_ajp_port
+            config.custom_pki_ajp_port
     config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pp.pformat(config.pki_common_dict),

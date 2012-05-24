@@ -27,7 +27,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(
  $lib_prefix $obj_ext $path_sep $tmp_dir
- $pki_flavor $pki_registry_path
+ $pki_registry_path
  $verbose $dry_run $hostname $default_hardware_platform
  $default_system_binaries $default_lockdir $default_system_libraries $default_system_user_binaries
  $default_system_user_libraries
@@ -164,7 +164,6 @@ our %selinux_ports = ();
 # Shared Default Values
 ##############################################################
 
-our $pki_flavor                    = undef;
 our $pki_registry_path             = undef;
 
 our $default_hardware_platform     = undef;
@@ -204,11 +203,10 @@ my $is_IPv6 = 0;
 
 # Compute "hardware platform" of Operating System
 if ($^O eq "linux") {
-    $pki_flavor = "pki";
     $default_registry_path = "/etc/sysconfig";
-    $pki_registry_path = "$default_registry_path/$pki_flavor";
+    $pki_registry_path = "$default_registry_path/pki";
     $default_initscripts_path = "/etc/rc.d/init.d";
-    $default_lockdir = "/var/lock/$pki_flavor";
+    $default_lockdir = "/var/lock/pki";
     $default_hardware_platform = `uname -i`;
     $default_hardware_platform =~ s/\s+$//g;
     chomp($default_hardware_platform);

@@ -2,6 +2,7 @@ set(VERSION ${APPLICATION_VERSION})
 
 install(
     FILES
+        pkidaemon_registry
         registry_instance
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/setup

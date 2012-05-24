@@ -41,6 +41,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish instance configuration
         util.directory.create(master['pki_instance_configuration_path'])
         # establish instance registry
+        util.directory.create(master['pki_instance_type_registry_path'])
         util.directory.create(master['pki_instance_registry_path'])
         # establish Apache/Tomcat specific instance
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
@@ -59,6 +60,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(master['pki_tomcat_webapps_webinf_lib_path'])
             # establish Tomcat instance logs
             # establish Tomcat instance configuration
+            util.directory.copy(master['pki_source_shared_path'],
+                                master['pki_instance_configuration_path'],
+                                overwrite_flag=True)
             # establish Tomcat instance registry
             # establish Tomcat instance convenience
             # symbolic links
@@ -89,6 +93,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # update instance configuration
         util.directory.modify(master['pki_instance_configuration_path'])
         # update instance registry
+        util.directory.modify(master['pki_instance_type_registry_path'])
         util.directory.modify(master['pki_instance_registry_path'])
         # update Apache/Tomcat specific instance
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
@@ -116,6 +121,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # update instance convenience symbolic links
         util.symlink.modify(master['pki_instance_database_link'])
         util.symlink.modify(master['pki_instance_conf_link'])
+        util.directory.copy(master['pki_source_shared_path'],
+                            master['pki_instance_configuration_path'],
+                            overwrite_flag=True)
         util.symlink.modify(master['pki_instance_logs_link'])
         return self.rv
 
@@ -133,6 +141,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Apache instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Apache instance registry
+                util.directory.delete(master['pki_instance_type_registry_path'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() == 0:
                 # remove Tomcat instance base
@@ -143,6 +152,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Tomcat instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
+                util.directory.delete(master['pki_instance_type_registry_path'])
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
@@ -155,6 +165,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Apache instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Apache instance registry
+                util.directory.delete(master['pki_instance_type_registry_path'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() == 1:
                 # remove Tomcat instance base
@@ -165,4 +176,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Tomcat instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
+                util.directory.delete(master['pki_instance_type_registry_path'])
         return self.rv
