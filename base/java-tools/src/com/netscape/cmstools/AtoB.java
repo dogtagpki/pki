@@ -60,7 +60,7 @@ public class AtoB {
     public static void main(String argv[]) {
 
         BufferedReader inputBlob = null;
-        String asciiBASE64BlobChunk = "";
+        String asciiBASE64BlobChunk;
         StringBuffer asciiBASE64Blob = new StringBuffer();
 
         byte binaryBASE64Blob[] = null;

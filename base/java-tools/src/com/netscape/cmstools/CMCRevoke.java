@@ -280,7 +280,7 @@ public class CMCRevoke {
         SignerIdentifier si = null;
         ContentInfo fullEnrollmentReq = null;
         String tokenname = "internal";
-        String asciiBASE64Blob = "";
+        String asciiBASE64Blob = null;
 
         try {
 

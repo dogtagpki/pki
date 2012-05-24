@@ -79,7 +79,7 @@ public class PrettyPrintCrl {
         X509CRLImpl crl = null;
         Locale aLocale = null;
         CrlPrettyPrint CrlDetails = null;
-        String pp = "";
+        String pp;
         FileOutputStream outputCrl = null;
 
         // (1) Check that at least one argument was submitted to the program

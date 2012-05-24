@@ -91,13 +91,13 @@ public class ARequestNotifier implements IRequestNotifier {
             mRequestQueue = mCA.getRequestQueue();
         if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && mRequestQueue != null) {
             mPublishingStatus = mRequestQueue.getPublishingStatus();
-            BigInteger status = new BigInteger("-2");
             try {
-                status = new BigInteger(mPublishingStatus);
+                BigInteger status = new BigInteger(mPublishingStatus);
                 if (status.compareTo(BigInteger.ZERO) > -1) {
                     recoverPublishingQueue(mPublishingStatus);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

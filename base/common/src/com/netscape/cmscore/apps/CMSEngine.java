@@ -896,7 +896,6 @@ public class CMSEngine implements ICMSEngine {
 
         // load dyn subsystems.
         mDynSubsystems = new SubsystemInfo[nsubsystems];
-        ssnames = ssconfig.getSubStoreNames();
         for (int i = 0; i < mDynSubsystems.length; i++) {
             IConfigStore config =
                     ssconfig.getSubStore(String.valueOf(i));

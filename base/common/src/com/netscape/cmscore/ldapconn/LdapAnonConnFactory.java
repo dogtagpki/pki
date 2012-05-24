@@ -338,8 +338,15 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         if (conn == null) {
             return;
         }
+        AnonConnection anon = null;
+
         // check if conn is valid and from this factory.
-        AnonConnection anon = (AnonConnection) conn;
+        if (conn instanceof AnonConnection) {
+            anon = (AnonConnection) conn;
+        } else {
+            log(ILogger.LL_WARN, "returnConn : Connection is not an AnonConnection");
+            return;
+        }
 
         if (anon.getFacId() != mConns) {
             // returning a connection not from this factory.

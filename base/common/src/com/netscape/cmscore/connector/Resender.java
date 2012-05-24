@@ -216,11 +216,9 @@ public class Resender implements IResender {
             RequestStatus replyStatus =
                     RequestStatus.fromString(replymsg.reqStatus);
             int index = replymsg.reqId.lastIndexOf(':');
-            RequestId replyRequestId =
-                    new RequestId(replymsg.reqId.substring(index + 1));
 
             if (Debug.ON)
-                Debug.trace("reply request id " + replyRequestId +
+                Debug.trace("reply request id " + replymsg.reqId.substring(index + 1) +
                         " for request " + r.getRequestId());
 
             if (replyStatus != RequestStatus.COMPLETE) {

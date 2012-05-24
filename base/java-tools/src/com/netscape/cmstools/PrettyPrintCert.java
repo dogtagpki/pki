@@ -79,7 +79,7 @@ public class PrettyPrintCert {
     public static void main(String argv[]) {
 
         BufferedReader inputCert = null;
-        String encodedBASE64CertChunk = "";
+        String encodedBASE64CertChunk;
         StringBuffer encodedBASE64Cert = new StringBuffer();
 
         byte decodedBASE64Cert[] = null;

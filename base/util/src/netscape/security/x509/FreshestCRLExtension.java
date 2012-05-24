@@ -191,6 +191,7 @@ public class FreshestCRLExtension extends Extension
     // because it is so complicated. Therefore, we only provide a
     // minimal implementation.
     /////////////////////////////////////////////////////////////
+    @Override
     public String toString() {
         return NAME;
     }

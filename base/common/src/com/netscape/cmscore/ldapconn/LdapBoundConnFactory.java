@@ -413,7 +413,14 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         if (conn == null) {
             return;
         }
-        BoundConnection boundconn = (BoundConnection) conn;
+        BoundConnection boundconn = null;
+
+        if (conn instanceof BoundConnection) {
+            boundconn = (BoundConnection) conn;
+        } else {
+            log(ILogger.LL_WARN, "returnConn : Connection is not an BoundConnection");
+            return;
+        }
 
         if (boundconn.getFacId() != mConns) {
             log(ILogger.LL_WARN, "returnConn: unknown connection.");

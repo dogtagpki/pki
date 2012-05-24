@@ -72,7 +72,7 @@ public class PKCS7 {
         int len = 0;
         byte[] newbuf = new byte[len];
         byte[] oldbuf = new byte[len];
-        byte[] data = new byte[len];
+        byte[] data;
 
         do {
             newbuf = new byte[dis.available()];

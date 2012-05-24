@@ -1445,7 +1445,7 @@ public class DRMTool {
      */
     private static PublicKey getPublicKey() {
         BufferedReader inputCert = null;
-        String encodedBASE64CertChunk = "";
+        String encodedBASE64CertChunk;
         StringBuffer encodedBASE64Cert = new StringBuffer();
         byte decodedBASE64Cert[] = null;
         X509CertImpl cert = null;

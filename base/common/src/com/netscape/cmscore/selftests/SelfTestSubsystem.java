@@ -1249,9 +1249,7 @@ public class SelfTestSubsystem
             throws EBaseException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
-        if (id != null) {
-            id = id.trim();
-        } else {
+        if (id == null) {
             log(mLogger,
                     CMS.getLogMessage(
                             "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
