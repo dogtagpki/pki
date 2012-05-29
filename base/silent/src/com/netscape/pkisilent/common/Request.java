@@ -664,9 +664,7 @@ public class Request extends TestClient {
             con.setQueryString(query);
             con.setActionURL(ACTION_STRING);
             con.Send();
-            StringBuffer s;
-
-            s = con.getPage();
+            StringBuffer s = con.getPage();
 
             if (debug) {
                 System.out.println(s.toString());

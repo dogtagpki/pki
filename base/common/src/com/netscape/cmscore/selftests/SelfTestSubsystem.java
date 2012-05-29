@@ -1247,8 +1247,7 @@ public class SelfTestSubsystem
      */
     public void setId(String id)
             throws EBaseException {
-        // strip preceding/trailing whitespace
-        // from passed-in String parameters
+
         if (id == null) {
             log(mLogger,
                     CMS.getLogMessage(

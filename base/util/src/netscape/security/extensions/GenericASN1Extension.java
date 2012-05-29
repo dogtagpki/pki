@@ -272,7 +272,7 @@ public class GenericASN1Extension extends Extension
      */
     @Override
     public String toString() {
-        return super.toString();
+        return (null);
     }
 
     /**
