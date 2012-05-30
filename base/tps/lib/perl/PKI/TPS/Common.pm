@@ -65,9 +65,8 @@ sub add_schema_update
 
     foreach my $attr (@addtypes) {
         my @vals = $aentry->getValues($attr);
-        push @vals, $vals[0];          # HACK! for some reason, first value always fails with server unwilling to perform
-
-        foreach my $val (@vals) {
+        my @values = ("dummyAttr: dummy value", @vals); # this dummy entry consumes the error 53
+        foreach my $val (@values) {
             $sentry->addValue( $attr, $val );
             $conn->update($sentry);
             my $rc = $conn->getErrorCode();
