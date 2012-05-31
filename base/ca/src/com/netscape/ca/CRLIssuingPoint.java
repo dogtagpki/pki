@@ -756,8 +756,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Initializes CRL cache and republishes CRL if requested
      * Called from auto update thread (run()).
      * Do not call it from init(), because it will block CMS on start.
+     * @throws EBaseException
      */
-    private void initCRL() {
+    private void initCRL() throws EBaseException {
         ICRLIssuingPointRecord crlRecord = null;
 
         mLastCacheUpdate = System.currentTimeMillis() + mCacheUpdateInterval;
@@ -1709,60 +1710,65 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         ((mEnableDailyUpdates && mDailyUpdates != null &&
                         mTimeListSize > 0) ||
                         (mEnableUpdateFreq && mAutoUpdateInterval > 0));
+                try {
+                    if (mInitialized == CRL_IP_NOT_INITIALIZED)
+                        initCRL();
 
-                if (mInitialized == CRL_IP_NOT_INITIALIZED)
-                    initCRL();
-                if (mInitialized == CRL_IP_INITIALIZED && (!mEnable))
-                    break;
+                    if (mInitialized == CRL_IP_INITIALIZED && (!mEnable))
+                        break;
 
-                if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
-                    delay = 0;
-                } else if (scheduledUpdates) {
-                    delay = findNextUpdate(true, false);
-                }
+                    if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
+                        delay = 0;
+                    } else if (scheduledUpdates) {
+                        delay = findNextUpdate(true, false);
+                    }
 
-                if (mEnableCRLCache && mCacheUpdateInterval > 0) {
-                    delay2 = mLastCacheUpdate + mCacheUpdateInterval -
-                             System.currentTimeMillis();
-                    if (delay2 < delay ||
-                            (!(scheduledUpdates || mDoLastAutoUpdate ||
-                            (mEnableCRLUpdates && mDoManualUpdate)))) {
-                        delay = delay2;
-                        if (delay <= 0) {
-                            doCacheUpdate = true;
-                            mLastCacheUpdate = System.currentTimeMillis();
+                    if (mEnableCRLCache && mCacheUpdateInterval > 0) {
+                        delay2 = mLastCacheUpdate + mCacheUpdateInterval -
+                                System.currentTimeMillis();
+                        if (delay2 < delay ||
+                                (!(scheduledUpdates || mDoLastAutoUpdate ||
+                                (mEnableCRLUpdates && mDoManualUpdate)))) {
+                            delay = delay2;
+                            if (delay <= 0) {
+                                doCacheUpdate = true;
+                                mLastCacheUpdate = System.currentTimeMillis();
+                            }
                         }
                     }
-                }
 
-                if (delay > 0) {
-                    try {
-                        wait(delay);
-                    } catch (InterruptedException e) {
-                    }
-                } else {
-                    try {
-                        if (doCacheUpdate) {
-                            updateCRLCacheRepository();
-                        } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
-                            updateCRL();
+                    if (delay > 0) {
+                        try {
+                            wait(delay);
+                        } catch (InterruptedException e) {
                         }
-                    } catch (Exception e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
-                                (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
-                        if (Debug.on()) {
-                            Debug.trace((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e);
-                            Debug.printStackTrace(e);
+                    } else {
+                        try {
+                            if (doCacheUpdate) {
+                                updateCRLCacheRepository();
+                            } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
+                                updateCRL();
+                            }
+                        } catch (Exception e) {
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
+                                    (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
+                            if (Debug.on()) {
+                                Debug.trace((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e);
+                                Debug.printStackTrace(e);
+                            }
+                        }
+                        // put this here to prevent continuous loop if internal
+                        // db is down.
+                        if (mDoLastAutoUpdate)
+                            mDoLastAutoUpdate = false;
+                        if (mDoManualUpdate) {
+                            mDoManualUpdate = false;
+                            mSignatureAlgorithmForManualUpdate = null;
                         }
                     }
-                    // put this here to prevent continuous loop if internal
-                    // db is down.
-                    if (mDoLastAutoUpdate)
-                        mDoLastAutoUpdate = false;
-                    if (mDoManualUpdate) {
-                        mDoManualUpdate = false;
-                        mSignatureAlgorithmForManualUpdate = null;
-                    }
+                } catch (EBaseException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
                 }
             }
         }
@@ -1886,8 +1892,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * recovers CRL cache
+     * @throws EBaseException
      */
-    private void recoverCRLCache() {
+    private void recoverCRLCache() throws EBaseException {
         if (mEnableCacheRecovery) {
             // 553815 - original filter was not aligned with any VLV index
             // String filter = "(&(requeststate=complete)"+
@@ -1926,25 +1933,41 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (IRequest.REVOCATION_REQUEST.equals(request.getRequestType())) {
                     RevokedCertImpl revokedCert[] =
                             request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
-                    for (int j = 0; j < revokedCert.length; j++) {
-                        if (Debug.on()) {
-                            Debug.trace("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +
+                    if (revokedCert != null) {
+                        for (int j = 0; j < revokedCert.length; j++) {
+                            if (Debug.on()) {
+                                Debug.trace("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +
                                         "  SerialNumber=0x" + revokedCert[j].getSerialNumber().toString(16));
+                            }
+                            if (cp != null)
+                                includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
+                            if (includeCert) {
+                                updateRevokedCert(REVOKED_CERT, revokedCert[j].getSerialNumber(), revokedCert[j]);
+                            }
                         }
-                        if (cp != null)
-                            includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
-                        if (includeCert) {
-                            updateRevokedCert(REVOKED_CERT, revokedCert[j].getSerialNumber(), revokedCert[j]);
+                    } else {
+                        if (Debug.on()) {
+                            Debug.trace("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
                         }
+                        log(ILogger.LL_FAILURE, "Revoked Certificates is a Null or has Invalid Values");
+                        throw new EBaseException("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
                     }
                 } else if (IRequest.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
                     BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
-                    for (int j = 0; j < serialNo.length; j++) {
-                        if (Debug.on()) {
-                            Debug.trace("recoverCRLCache U j=" + j + "  length=" + serialNo.length +
+                    if (serialNo != null) {
+                        for (int j = 0; j < serialNo.length; j++) {
+                            if (Debug.on()) {
+                                Debug.trace("recoverCRLCache U j=" + j + "  length=" + serialNo.length +
                                         "  SerialNumber=0x" + serialNo[j].toString(16));
+                            }
+                            updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
                         }
-                        updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
+                    } else {
+                        if (Debug.on()) {
+                            Debug.trace("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
+                        }
+                        log(ILogger.LL_FAILURE, "Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
+                        throw new EBaseException("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
                     }
                 }
             }

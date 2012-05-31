@@ -454,10 +454,16 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     protected LDAPConnection getConn() throws ELdapException {
-        if (mLdapConnFactory != null)
-            return mLdapConnFactory.getConn();
+        if (mLdapConnFactory != null) {
+            LDAPConnection conn = mLdapConnFactory.getConn();
+            if (conn == null) {
+                throw new ELdapException("No Ldap Connection Available");
+            } else {
+                return conn;
+            }
+        }
 
-        return null;
+        throw new ELdapException("Ldap Connection Factory is null");
     }
 
     protected void returnConn(LDAPConnection conn) throws ELdapException {

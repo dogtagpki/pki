@@ -204,6 +204,10 @@ public class LogSubsystem implements ILogSubsystem {
         try {
             return cs.getString("pluginName", "");
         } catch (EBaseException e) {
+            e.printStackTrace();
+            return "";
+        } catch (NullPointerException e) {
+            e.printStackTrace();
             return "";
         }
     }

@@ -102,6 +102,9 @@ public class PrettyPrintFormat {
 
     public String toHexString(byte[] in, int indentSize,
             int lineLen, String separator) {
+        if (in == null) {
+            return "";
+        }
         StringBuffer sb = new StringBuffer();
         int hexCount = 0;
         char c[];

@@ -274,7 +274,7 @@ class PredicateTokenizer {
         return (currentIndex != -1);
     }
 
-    public String nextToken() {
+    public String nextToken() throws ELdapException {
         if (nextToken != null) {
             String toReturn = nextToken;
 
@@ -322,8 +322,9 @@ class PredicateTokenizer {
             }
         } else {
             // Cannot happen; Assert here.
-            toReturn = null;
-            System.out.println("We shouldn't be here!");
+            if (Debug.ON)
+                Debug.trace("Malformed expression: Null Token");
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION"));
         }
         if (toReturn == null)
             return null;

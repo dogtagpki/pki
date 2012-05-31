@@ -189,6 +189,9 @@ public abstract class CertificateInfo {
                 String hashtype = (String) mProperties.get(ConfigConstants.PR_HASH_TYPE);
 
                 algm = KeyCertUtil.getSigningAlgorithm(getKeyAlgorithm(), hashtype);
+                if (algm == null) {
+                    throw new NoSuchAlgorithmException();
+                }
                 mProperties.put(Constants.PR_SIGNATURE_ALGORITHM, algm);
             }
 

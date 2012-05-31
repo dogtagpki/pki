@@ -1500,6 +1500,9 @@ class getCertsForChallenge implements IServant {
             throws EBaseException {
         BigInteger[] serialNoArray =
                 request.getExtDataInBigIntegerArray(CAService.SERIALNO_ARRAY);
+        if (serialNoArray == null) {
+            throw new ECAException(CMS.getLogMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
+        }
         X509CertImpl[] certs = new X509CertImpl[serialNoArray.length];
 
         for (int i = 0; i < serialNoArray.length; i++) {

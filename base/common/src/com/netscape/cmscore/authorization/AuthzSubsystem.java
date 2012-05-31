@@ -421,8 +421,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             //String infoMsg =
             //        "Shutting down authz manager instance " + mgr.getName();
             //log(ILogger.LL_INFO, infoMsg);
-
-            mgr.shutdown();
+            if (mgr != null)
+                mgr.shutdown();
         }
         mAuthzMgrPlugins.clear();
         mAuthzMgrInsts.clear();

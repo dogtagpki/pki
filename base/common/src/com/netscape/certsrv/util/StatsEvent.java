@@ -18,6 +18,8 @@
 package com.netscape.certsrv.util;
 
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -34,7 +36,7 @@ public class StatsEvent {
     private long mTimeTaken = 0;
     private long mTimeTakenSqSum = 0;
     private long mNoOfOperations = 0;
-    private Vector<StatsEvent> mSubEvents = new Vector<StatsEvent>();
+    private Map<String,StatsEvent> mSubEvents = new HashMap<String,StatsEvent>();
     private StatsEvent mParent = null;
 
     public StatsEvent(StatsEvent parent) {
@@ -53,7 +55,7 @@ public class StatsEvent {
     }
 
     public void addSubEvent(StatsEvent st) {
-        mSubEvents.addElement(st);
+        mSubEvents.put(st.getName(), st);
     }
 
     /**
@@ -61,10 +63,8 @@ public class StatsEvent {
      */
     public Enumeration<String> getSubEventNames() {
         Vector<String> names = new Vector<String>();
-        Enumeration<StatsEvent> e = mSubEvents.elements();
-        while (e.hasMoreElements()) {
-            StatsEvent st = e.nextElement();
-            names.addElement(st.getName());
+        for (String s : mSubEvents.keySet()) {
+            names.add(s);
         }
         return names.elements();
     }
@@ -73,14 +73,7 @@ public class StatsEvent {
      * Retrieves a sub transaction.
      */
     public StatsEvent getSubEvent(String name) {
-        Enumeration<StatsEvent> e = mSubEvents.elements();
-        while (e.hasMoreElements()) {
-            StatsEvent st = e.nextElement();
-            if (st.getName().equals(name)) {
-                return st;
-            }
-        }
-        return null;
+        return mSubEvents.get(name);
     }
 
     public void resetCounters() {
@@ -89,11 +82,10 @@ public class StatsEvent {
         mNoOfOperations = 0;
         mTimeTaken = 0;
         mTimeTakenSqSum = 0;
-        Enumeration<String> e = getSubEventNames();
-        while (e.hasMoreElements()) {
-            String n = e.nextElement();
-            StatsEvent c = getSubEvent(n);
-            c.resetCounters();
+        for (StatsEvent c : mSubEvents.values()) {
+            if (c != null) {
+                c.resetCounters();
+            }
         }
     }
 

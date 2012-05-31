@@ -1680,9 +1680,16 @@ public final class UGSubsystem implements IUGSubsystem {
     }
 
     protected LDAPConnection getConn() throws ELdapException {
-        if (mLdapConnFactory == null)
-            return null;
-        return mLdapConnFactory.getConn();
+        if (mLdapConnFactory != null) {
+            LDAPConnection conn = mLdapConnFactory.getConn();
+            if (conn == null) {
+                throw new ELdapException("No Ldap Connection Available");
+            } else {
+                return conn;
+            }
+        }
+
+        throw new ELdapException("Ldap Connection Factory is Unavailable");
     }
 
     protected void returnConn(LDAPConnection conn) {

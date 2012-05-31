@@ -210,7 +210,12 @@ public class KeyUsageExtension extends Extension
         }
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);
-        this.bitString = val.getUnalignedBitString().toBooleanArray();
+        BitArray bitArray = val.getUnalignedBitString();
+        if (bitArray == null) {
+            throw new IOException("Invalid bit string");
+        }
+        this.bitString = bitArray.toBooleanArray();
+
     }
 
     /**

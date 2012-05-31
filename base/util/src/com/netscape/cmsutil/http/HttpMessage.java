@@ -119,9 +119,9 @@ public class HttpMessage {
             throws IOException {
         String line = reader.readLine();
 
-        //        if (line == null) {
-        //           throw new HttpEofException("End of stream reached");
-        //      }
+        if (line == null) {
+            throw new HttpEofException("End of stream reached");
+        }
         if (line.equals("")) {
             throw new HttpProtocolException("Bad Http req/resp line " + line);
         }

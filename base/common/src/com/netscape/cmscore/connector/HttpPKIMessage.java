@@ -73,11 +73,10 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                 + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
 
         String attrs[] = RequestTransfer.getTransferAttributes(r);
-        int len = attrs.length;
         String[] names = attrs;
         Object value = null;
 
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < attrs.length; i++) {
             String key = names[i];
             if (r.isSimpleExtDataValue(key)) {
                 value = r.getExtDataInString(key);

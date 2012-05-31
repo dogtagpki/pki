@@ -75,6 +75,7 @@ public class PolicyPredicateParser {
                 Debug.trace("Malformed expression: " + predicateExpression);
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_BAD_POLICY_EXPRESSION", predicateExpression));
         }
+
         IExpression current = parseExpression(token);
         boolean malformed = false;
         Vector<IExpression> expSet = new Vector<IExpression>();
@@ -276,7 +277,7 @@ class PredicateTokenizer {
         return (currentIndex != -1);
     }
 
-    public String nextToken() {
+    public String nextToken() throws EPolicyException {
         if (nextToken != null) {
             String toReturn = nextToken;
 
@@ -324,8 +325,9 @@ class PredicateTokenizer {
             }
         } else {
             // Cannot happen; Assert here.
-            toReturn = null;
-            System.out.println("We shouldn't be here!");
+            if (Debug.ON)
+                Debug.trace("Malformed Predicate Expression : No Tokens");
+            throw new EPolicyException("Malformed Predicate Expression : No Tokens");
         }
         if (toReturn == null)
             return null;

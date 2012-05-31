@@ -91,12 +91,7 @@ public class RequestTransfer {
                 v.addElement(k);
             }
             CMS.debug("RequestTransfer: attribute size=" + v.size());
-            if (v.size() == 0)
-                return null;
-            String attrs[] = new String[v.size()];
-
-            v.copyInto(attrs);
-            return attrs;
+            return v.toArray(new String[v.size()]);
         } else {
             return transferAttributes;
         }

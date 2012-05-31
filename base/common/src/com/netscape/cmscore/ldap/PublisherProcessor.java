@@ -493,7 +493,7 @@ public class PublisherProcessor implements
             //this is the only rule we support now
             LdapRule rule = (LdapRule) (mRuleInsts.get(name));
 
-            if (rule.enabled() && rule.getType().equals(publishingType)) {
+            if (rule.enabled() && publishingType.equals(rule.getType())) {
                 // check if the predicate match
                 ILdapExpression exp = rule.getPredicate();
 
@@ -509,6 +509,7 @@ public class PublisherProcessor implements
                 if (Debug.ON)
                     Debug.trace("added rule " + name + " for " + publishingType);
             }
+
         }
         return rules.elements();
     }
@@ -519,24 +520,13 @@ public class PublisherProcessor implements
         }
 
         Vector<ILdapRule> rules = new Vector<ILdapRule>();
-        Enumeration<String> e = mRuleInsts.keys();
+        Enumeration<ILdapRule> e = mRuleInsts.elements();
 
         while (e.hasMoreElements()) {
-            String name = e.nextElement();
-
-            if (name == null) {
-                if (Debug.ON)
-                    Debug.trace("rule name is " + "null");
-                return null;
-            } else {
-                if (Debug.ON)
-                    Debug.trace("rule name is " + name);
-            }
-
             //this is the only rule we support now
-            LdapRule rule = (LdapRule) (mRuleInsts.get(name));
+            LdapRule rule = (LdapRule) e.nextElement();
 
-            if (rule.enabled() && rule.getType().equals(publishingType)) {
+            if (rule.enabled() && publishingType.equals(rule.getType())) {
                 // check if the predicate match
                 ILdapExpression exp = rule.getPredicate();
 
@@ -549,9 +539,10 @@ public class PublisherProcessor implements
 
                 rules.addElement(rule);
                 if (Debug.ON)
-                    Debug.trace("added rule " + name + " for " + publishingType +
+                    Debug.trace("added rule " + rule.getInstanceName() + " for " + publishingType +
                             " request: " + req.getRequestId());
             }
+
         }
         return rules.elements();
     }

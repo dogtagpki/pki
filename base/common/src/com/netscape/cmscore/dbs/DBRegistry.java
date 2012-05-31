@@ -457,25 +457,20 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      * Creates object from attribute set.
      */
     public IDBObj createObject(LDAPAttributeSet attrs)
-            throws EBaseException {
+            throws EDBException {
         // map object class attribute to object
         LDAPAttribute attr = attrs.getAttribute("objectclass");
+        if (attr == null) {
+            throw new EDBException(CMS.getLogMessage("CMS_DBS_MISSING_OBJECT_CLASS"));
+        }
 
         //CMS.debug("createObject: attrs " + attrs.toString());
 
         attrs.remove("objectclass");
 
         // sort the object class values
-        @SuppressWarnings("unchecked")
-        Enumeration<String> vals = attr.getStringValues();
-        Vector<String> v = new Vector<String>();
 
-        while (vals.hasMoreElements()) {
-            v.addElement(vals.nextElement());
-        }
-        String s[] = new String[v.size()];
-
-        v.copyInto(s);
+        String[] s = attr.getStringValueArray();
         String sorted = sortAndConcate(s).toLowerCase();
         NameAndObject no = mOCldapNames.get(sorted);
 
