@@ -190,7 +190,7 @@ public abstract class CertificateInfo {
                 String key = getKeyAlgorithm();
                 algm = KeyCertUtil.getSigningAlgorithm(key, hashtype);
                 if (algm == null) {
-                    throw new NoSuchAlgorithmException("No Algorithm for Key : " + key + " and Hashtype : " + hashtype);
+                    throw new NoSuchAlgorithmException("Key : " + key + "/ Hashtype : " + hashtype);
                 }
                 mProperties.put(Constants.PR_SIGNATURE_ALGORITHM, algm);
             }
@@ -212,7 +212,7 @@ public abstract class CertificateInfo {
         } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", e.getMessage()));
         }
 
         return certInfo;
