@@ -326,15 +326,13 @@ class PredicateTokenizer {
                 Debug.trace("Malformed expression: Null Token");
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION"));
         }
-        if (toReturn == null)
-            return null;
-        else {
-            String trimmed = toReturn.trim();
 
-            if (trimmed == null || trimmed.length() == 0)
-                return nextToken();
-            else
-                return trimmed;
-        }
+        String trimmed = toReturn.trim();
+
+        if (trimmed.length() == 0)
+            return nextToken();
+        else
+            return trimmed;
+
     }
 }

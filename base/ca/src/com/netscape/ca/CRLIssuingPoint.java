@@ -1694,23 +1694,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * <P>
      */
     public void run() {
-        while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
-                           (mInitialized == CRL_IP_NOT_INITIALIZED) ||
-                            mDoLastAutoUpdate || (mEnableCRLUpdates &&
-                            ((mEnableDailyUpdates && mDailyUpdates != null &&
-                                    mTimeListSize > 0) ||
-                                    (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
-                              mDoManualUpdate)))) {
+        try {
+            while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
+                    (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                    mDoLastAutoUpdate || (mEnableCRLUpdates &&
+                    ((mEnableDailyUpdates && mDailyUpdates != null &&
+                            mTimeListSize > 0) ||
+                            (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
+                    mDoManualUpdate)))) {
 
-            synchronized (this) {
-                long delay = 0;
-                long delay2 = 0;
-                boolean doCacheUpdate = false;
-                boolean scheduledUpdates = mEnableCRLUpdates &&
-                        ((mEnableDailyUpdates && mDailyUpdates != null &&
-                        mTimeListSize > 0) ||
-                        (mEnableUpdateFreq && mAutoUpdateInterval > 0));
-                try {
+                synchronized (this) {
+                    long delay = 0;
+                    long delay2 = 0;
+                    boolean doCacheUpdate = false;
+                    boolean scheduledUpdates = mEnableCRLUpdates &&
+                            ((mEnableDailyUpdates && mDailyUpdates != null &&
+                            mTimeListSize > 0) ||
+                            (mEnableUpdateFreq && mAutoUpdateInterval > 0));
+
                     if (mInitialized == CRL_IP_NOT_INITIALIZED)
                         initCRL();
 
@@ -1766,11 +1767,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             mSignatureAlgorithmForManualUpdate = null;
                         }
                     }
-                } catch (EBaseException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+
                 }
             }
+        } catch (EBaseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
         mUpdateThread = null;
     }

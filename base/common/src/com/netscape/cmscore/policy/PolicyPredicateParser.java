@@ -329,15 +329,13 @@ class PredicateTokenizer {
                 Debug.trace("Malformed Predicate Expression : No Tokens");
             throw new EPolicyException("Malformed Predicate Expression : No Tokens");
         }
-        if (toReturn == null)
-            return null;
-        else {
-            String trimmed = toReturn.trim();
 
-            if (trimmed == null || trimmed.length() == 0)
-                return nextToken();
-            else
-                return trimmed;
-        }
+        String trimmed = toReturn.trim();
+
+        if (trimmed.length() == 0)
+            return nextToken();
+        else
+            return trimmed;
+
     }
 }

@@ -63,9 +63,7 @@ public class StatsEvent {
      */
     public Enumeration<String> getSubEventNames() {
         Vector<String> names = new Vector<String>();
-        for (String s : mSubEvents.keySet()) {
-            names.add(s);
-        }
+        names.addAll(mSubEvents.keySet());
         return names.elements();
     }
 
@@ -83,9 +81,7 @@ public class StatsEvent {
         mTimeTaken = 0;
         mTimeTakenSqSum = 0;
         for (StatsEvent c : mSubEvents.values()) {
-            if (c != null) {
                 c.resetCounters();
-            }
         }
     }
 
