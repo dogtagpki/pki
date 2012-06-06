@@ -24,6 +24,7 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
@@ -241,8 +242,11 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);
-
-        this.mBitString = val.getUnalignedBitString().toByteArray();
+        BitArray bitArray = val.getUnalignedBitString();
+        if (bitArray == null) {
+            throw new IOException("Invalid Encoded DER Value");
+        }
+        this.mBitString = bitArray.toByteArray();
     }
 
     /**

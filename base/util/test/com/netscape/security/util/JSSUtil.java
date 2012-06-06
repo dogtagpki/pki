@@ -68,6 +68,10 @@ public class JSSUtil {
         default:
             throw new Exception("Unsupported tag: " + tag);
         }
-        return ASN1Util.decode(new Tag(Tag.UNIVERSAL, tag), template, bytes).toString();
+        ASN1Value asnValue = ASN1Util.decode(new Tag(Tag.UNIVERSAL, tag), template, bytes);
+        if (asnValue == null) {
+            throw new Exception("Cannot decode the given bytes.");
+        }
+        return asnValue.toString();
     }
 }

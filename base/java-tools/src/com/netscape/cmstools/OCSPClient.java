@@ -174,6 +174,9 @@ public class OCSPClient {
         ResponseData rd = basic.getResponseData();
         for (int i = 0; i < rd.getResponseCount(); i++) {
             SingleResponse rd1 = rd.getResponseAt(i);
+            if (rd1 == null) {
+                throw new Exception("No OCSP Response data.");
+            }
             System.out.println("CertID.serialNumber=" +
                     rd1.getCertID().getSerialNumber());
             CertStatus status1 = rd1.getCertStatus();

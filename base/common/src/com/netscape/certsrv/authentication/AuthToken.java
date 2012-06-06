@@ -291,17 +291,13 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
-    public CertificateExtensions getInCertExts(String name) {
+    public CertificateExtensions getInCertExts(String name) throws IOException {
         CertificateExtensions exts = null;
         byte[] data = getInByteArray(name);
         if (data != null) {
-            try {
-                exts = new CertificateExtensions();
-                // exts.decode() doesn't work for empty CertExts
-                exts.decodeEx(new ByteArrayInputStream(data));
-            } catch (IOException e) {
-                return null;
-            }
+            exts = new CertificateExtensions();
+            // exts.decode() doesn't work for empty CertExts
+            exts.decodeEx(new ByteArrayInputStream(data));
         }
         return exts;
     }
@@ -321,7 +317,7 @@ public class AuthToken implements IAuthToken {
         return set(name, out.toByteArray());
     }
 
-    public Certificates getInCertificates(String name) {
+    public Certificates getInCertificates(String name) throws IOException, CertificateException {
         X509CertImpl[] certArray;
 
         byte[] byteValue = getInByteArray(name);
@@ -329,18 +325,12 @@ public class AuthToken implements IAuthToken {
             return null;
         }
 
-        try {
-            DerInputStream in = new DerInputStream(byteValue);
-            DerValue[] derValues = in.getSequence(5);
-            certArray = new X509CertImpl[derValues.length];
-            for (int i = 0; i < derValues.length; i++) {
-                byte[] certData = derValues[i].toByteArray();
-                certArray[i] = new X509CertImpl(certData);
-            }
-        } catch (IOException e) {
-            return null;
-        } catch (CertificateException e) {
-            return null;
+        DerInputStream in = new DerInputStream(byteValue);
+        DerValue[] derValues = in.getSequence(5);
+        certArray = new X509CertImpl[derValues.length];
+        for (int i = 0; i < derValues.length; i++) {
+            byte[] certData = derValues[i].toByteArray();
+            certArray[i] = new X509CertImpl(certData);
         }
         return new Certificates(certArray);
     }
@@ -372,22 +362,18 @@ public class AuthToken implements IAuthToken {
         }
     }
 
-    public byte[][] getInByteArrayArray(String name) {
+    public byte[][] getInByteArrayArray(String name) throws IOException {
         byte[][] retval;
 
         byte[] byteValue = getInByteArray(name);
         if (byteValue == null) {
             return null;
         }
-        try {
-            DerInputStream in = new DerInputStream(byteValue);
-            DerValue[] derValues = in.getSequence(5);
-            retval = new byte[derValues.length][];
-            for (int i = 0; i < derValues.length; i++) {
-                retval[i] = derValues[i].getOctetString();
-            }
-        } catch (IOException e) {
-            return null;
+        DerInputStream in = new DerInputStream(byteValue);
+        DerValue[] derValues = in.getSequence(5);
+        retval = new byte[derValues.length][];
+        for (int i = 0; i < derValues.length; i++) {
+            retval[i] = derValues[i].getOctetString();
         }
         return retval;
     }

@@ -224,6 +224,9 @@ public class PKCS12Export {
         try {
             BufferedReader in = new BufferedReader(new FileReader(pwdfile));
             pwd = in.readLine();
+            if (pwd == null) {
+                pwd = "";
+            }
         } catch (Exception e) {
             debug("Failed to read the keydb password from the file. Exception: " + e.toString());
             System.exit(1);
@@ -233,6 +236,9 @@ public class PKCS12Export {
         try {
             BufferedReader in = new BufferedReader(new FileReader(pk12pwdfile));
             pk12pwd = in.readLine();
+            if (pk12pwd == null) {
+                pk12pwd = "";
+            }
         } catch (Exception e) {
             debug("Failed to read the keydb password from the file. Exception: " + e.toString());
             System.exit(1);

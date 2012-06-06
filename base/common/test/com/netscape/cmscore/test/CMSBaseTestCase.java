@@ -7,7 +7,6 @@ import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.logging.ILogger;
@@ -88,7 +87,7 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     class DBSubsystemStub extends DBSubsystemDefaultStub {
-        public IDBSSession createSession() throws EDBException {
+        public IDBSSession createSession() {
             return session;
         }
 

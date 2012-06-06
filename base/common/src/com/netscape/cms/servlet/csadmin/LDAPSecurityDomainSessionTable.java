@@ -192,7 +192,11 @@ public class LDAPSecurityDomainSessionTable
             LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
             while (res.hasMoreElements()) {
                 LDAPEntry entry = res.next();
-                ret.add(entry.getAttribute("cn").getStringValueArray()[0]);
+                LDAPAttribute sid = entry.getAttribute("cn");
+                if (sid == null) {
+                    throw new Exception("Invalid LDAP Entry." + entry.getDN() + " No session id(cn).");
+                }
+                ret.add(sid.getStringValueArray()[0]);
             }
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
@@ -228,10 +232,14 @@ public class LDAPSecurityDomainSessionTable
             LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
             if (res.getCount() > 0) {
                 LDAPEntry entry = res.next();
-                ret = entry.getAttribute(attr).getStringValueArray()[0];
+                LDAPAttribute searchAttribute = entry.getAttribute(attr);
+                if (searchAttribute == null) {
+                    throw new Exception("No Attribute " + attr + " for this session in LDAPEntry "+entry.getDN());
+                }
+                ret = searchAttribute.getStringValueArray()[0];
             }
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to query session " + sessionId + ": " + e);
+            CMS.debug("SecurityDomainSessionTable: unable to query session " + sessionId + ": " + e.getMessage());
         }
 
         try {

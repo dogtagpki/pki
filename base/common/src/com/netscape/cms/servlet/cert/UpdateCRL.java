@@ -122,7 +122,6 @@ public class UpdateCRL extends CMSServlet {
 
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
-
         try {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "update");

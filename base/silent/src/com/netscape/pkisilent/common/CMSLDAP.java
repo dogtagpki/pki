@@ -196,7 +196,7 @@ public class CMSLDAP {
 
     }
 
-    private X509Certificate getXCertificate(byte[] cpack) {
+    private X509Certificate getXCertificate(byte[] cpack) throws Exception {
 
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -209,7 +209,7 @@ public class CMSLDAP {
             return the_cert;
         } catch (Exception e) {
             System.out.println("ERROR: getXCertificate " + e.toString());
-            return null;
+            throw e;
         }
 
     }

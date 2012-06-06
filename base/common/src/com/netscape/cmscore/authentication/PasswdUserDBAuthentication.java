@@ -191,7 +191,11 @@ public class PasswdUserDBAuthentication implements IAuthManager {
                 e.printStackTrace();
             // not a user in our user/group database.
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_UID_NOT_FOUND", uid, e.toString()));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + " " + e.getMessage());
+        }
+        if (user == null) {
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR",
+                    "Failure in User Group subsystem."));
         }
         authToken.set(TOKEN_USERDN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());

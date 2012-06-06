@@ -132,9 +132,9 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
      * </ul>
      *
      * @param cmsReq the object holding the request and response information
+     * @throws EBaseException
      */
-    protected void process(CMSRequest cmsReq)
-            throws EBaseException {
+    protected void process(CMSRequest cmsReq) throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();

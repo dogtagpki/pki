@@ -32,8 +32,8 @@ public class RejectException extends Exception {
         return _res.getAttributeSet();
     }
 
-    public String getReplyMessage() {
-        return ((ReplyMessageAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.REPLY_MESSAGE)))
-                .getString();
+    public ReplyMessageAttribute getReplyMessage() {
+        return (ReplyMessageAttribute) _res.getAttributeSet().getAttributeByType(
+                Attribute.REPLY_MESSAGE);
     }
 }

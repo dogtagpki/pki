@@ -408,6 +408,9 @@ public class DBSubsystem implements IDBSubsystem {
 
             LDAPEntry entry = conn.read(dn);
             LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
+            if (attr == null) {
+                throw new Exception("Missing Attribute" + PROP_NEXT_RANGE + "in Entry " + dn);
+            }
             nextRange = (String) attr.getStringValues().nextElement();
 
             BigInteger nextRangeNo = new BigInteger(nextRange);

@@ -250,9 +250,9 @@ public class SubjAltNameExt extends APolicyRule
     /**
      * Generate a String Vector containing all the email addresses
      * found in this Authentication token
+     * @throws IOException
      */
-    protected Vector /* of String */<String>
-            getEmailList(IAuthToken tok) {
+    protected Vector<String> getEmailList(IAuthToken tok) throws IOException {
 
         Vector<String> v = new Vector<String>();
 
@@ -267,9 +267,10 @@ public class SubjAltNameExt extends APolicyRule
 
     /**
      * Add attribute values from an LDAP attribute to a vector
+     * @throws IOException
      */
     protected void
-            addValues(IAuthToken tok, String attrName, Vector<String> v) {
+            addValues(IAuthToken tok, String attrName, Vector<String> v) throws IOException {
         String attr[] = tok.getInStringArray(attrName);
 
         if (attr == null)

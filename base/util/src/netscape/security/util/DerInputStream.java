@@ -112,8 +112,9 @@ public class DerInputStream {
     /**
      * Return what has been written to this DerInputStream
      * as a byte array. Useful for debugging.
+     * @throws IOException
      */
-    public byte[] toByteArray() {
+    public byte[] toByteArray() throws IOException {
         return buffer.toByteArray();
     }
 

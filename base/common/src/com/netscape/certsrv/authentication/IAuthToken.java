@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -176,9 +178,10 @@ public interface IAuthToken {
      * Retrieves the CertificateExtensions value for name.
      *
      * @param name The attribute name.
-     * @return The value or null on error.
+     * @return The value.
+     * @throws IOException
      */
-    public CertificateExtensions getInCertExts(String name);
+    public CertificateExtensions getInCertExts(String name) throws IOException;
 
     /**
      * Stores the CertificateExtensions with the associated key.
@@ -193,9 +196,11 @@ public interface IAuthToken {
      * Retrieves the Certificates value for name.
      *
      * @param name The attribute name.
-     * @return The value or null on error.
+     * @return The value.
+     * @throws IOException
+     * @throws CertificateException
      */
-    public Certificates getInCertificates(String name);
+    public Certificates getInCertificates(String name) throws IOException, CertificateException;
 
     /**
      * Stores the Certificates with the associated key.
@@ -210,9 +215,10 @@ public interface IAuthToken {
      * Retrieves the byte[][] value for name.
      *
      * @param name The attribute name.
-     * @return The value or null on error.
+     * @return The value.
+     * @throws IOException
      */
-    public byte[][] getInByteArrayArray(String name);
+    public byte[][] getInByteArrayArray(String name) throws IOException;
 
     /**
      * Stores the byte[][] with the associated key.

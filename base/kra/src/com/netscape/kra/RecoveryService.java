@@ -20,10 +20,10 @@ package com.netscape.kra;
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
@@ -194,6 +194,9 @@ public class RecoveryService implements IService {
         byte pubData[] = keyRecord.getPublicKeyData();
         X509Certificate x509cert =
                 request.getExtDataInCert(ATTR_USER_CERT);
+        if (x509cert == null) {
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
+        }
         byte inputPubData[] = x509cert.getPublicKey().getEncoded();
 
         if (inputPubData.length != pubData.length) {
@@ -380,7 +383,7 @@ public class RecoveryService implements IService {
             throws EBaseException {
 
         CMS.debug("RecoverService: recoverKey: key to recover is RSA? "+
-            isRSA); 
+            isRSA);
 
         try {
             if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {

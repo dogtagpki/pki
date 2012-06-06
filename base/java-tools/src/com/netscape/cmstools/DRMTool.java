@@ -1642,7 +1642,9 @@ public class DRMTool {
                              new FileReader(
                                      mSourcePKISecurityDatabasePwdfile));
                     pwd = in.readLine();
-
+                    if (pwd == null) {
+                        pwd = "";
+                    }
                     mPwd = new Password(pwd.toCharArray());
 
                     mSourceToken.login(mPwd);

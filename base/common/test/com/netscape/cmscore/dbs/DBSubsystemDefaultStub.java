@@ -7,7 +7,6 @@ import netscape.ldap.LDAPConnection;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -25,7 +24,7 @@ public class DBSubsystemDefaultStub implements IDBSubsystem {
         return null;
     }
 
-    public IDBSSession createSession() throws EDBException {
+    public IDBSSession createSession() {
         return null;
     }
 

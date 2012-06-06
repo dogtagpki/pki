@@ -1610,7 +1610,7 @@ public class ArgParser {
         return (rec != null) ? rec.valTypeName() : null;
     }
 
-    private Object createResultHolder(Record rec) {
+    private Object createResultHolder(Record rec) throws ArgParseException {
         if (rec.numValues == 1) {
             switch (rec.type) {
             case Record.LONG: {
@@ -1648,7 +1648,9 @@ public class ArgParser {
             }
             }
         }
-        return null; // can't happen
+
+        throw new ArgParseException("Bad parameters in the Record for Result Holder. Type :" + rec.type
+                + " ,Number of Values : " + rec.numValues); // can't happen
     }
 
     static void stringToArgs(Vector<String> vec, String s,

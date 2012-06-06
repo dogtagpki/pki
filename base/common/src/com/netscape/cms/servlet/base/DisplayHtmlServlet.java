@@ -61,9 +61,7 @@ public class DisplayHtmlServlet extends CMSServlet {
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("DisplayHtmlServlet about to service ");
-
         authenticate(cmsReq);
-
         try {
             String realpath =
                     mServletConfig.getServletContext().getRealPath("/" + mHTMLPath);

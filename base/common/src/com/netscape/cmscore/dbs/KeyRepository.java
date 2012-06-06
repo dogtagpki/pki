@@ -251,6 +251,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public IKeyRecord readKeyRecord(BigInteger serialNo)
             throws EBaseException {
+        if (serialNo == null) {
+            throw new EBaseException("Invalid Serial Number.");
+        }
         IDBSSession s = mDBService.createSession();
         KeyRecord rec = null;
 
@@ -263,6 +266,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
         } finally {
             if (s != null)
                 s.close();
+        }
+        if (rec == null) {
+            throw new EBaseException("Failed to recover Key for Serial Number " + serialNo);
         }
         return rec;
     }

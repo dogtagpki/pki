@@ -458,9 +458,9 @@ public class AuthSubsystem implements IAuthSubsystem {
      * <P>
      */
     public void shutdown() {
-        for (Enumeration<String> e = mAuthMgrInsts.keys(); e.hasMoreElements();) {
+        for (AuthManagerProxy proxy : mAuthMgrInsts.values()) {
 
-            IAuthManager mgr = get(e.nextElement());
+            IAuthManager mgr = proxy.getAuthManager();
 
             log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_SHUTDOWN", mgr.getName()));
 

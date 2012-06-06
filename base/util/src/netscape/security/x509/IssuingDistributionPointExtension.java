@@ -195,6 +195,9 @@ public class IssuingDistributionPointExtension extends Extension
                                 opt.resetTag(DerValue.tag_BitString);
                                 try {
                                     BitArray reasons = opt.getUnalignedBitString();
+                                    if (reasons == null) {
+                                        throw new IOException("Unable to get the unaligned bit string.");
+                                    }
                                     issuingDistributionPoint.setOnlySomeReasons(reasons);
 
                                     @SuppressWarnings("unused")

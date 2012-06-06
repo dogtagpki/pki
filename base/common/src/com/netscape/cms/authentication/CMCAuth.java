@@ -768,7 +768,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 level, "CMC Authentication: " + msg);
     }
 
-    protected IAuthToken verifySignerInfo(AuthToken authToken, SignedData cmcFullReq) throws EInvalidCredentials {
+    protected IAuthToken verifySignerInfo(AuthToken authToken, SignedData cmcFullReq) throws EBaseException {
 
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();
@@ -875,6 +875,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
                         IAuthManager agentAuth = authSS.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
+                        if (agentAuth == null) {
+                            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", IAuthSubsystem.CERTUSERDB_AUTHMGR_ID));
+                        }
                         IAuthCredentials agentCred = new com.netscape.certsrv.authentication.AuthCredentials();
 
                         agentCred.set(IAuthManager.CRED_SSL_CLIENT_CERT, x509Certs);

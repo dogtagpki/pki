@@ -109,7 +109,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key4", (BigInteger[]) null));
     }
 
-    public void testGetSetDate() {
+    public void testGetSetDate() throws Exception {
         Date value = new Date();
         authToken.set("key", value);
         assertEquals(String.valueOf(value.getTime()),
@@ -118,6 +118,9 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
         authToken.set("key2", "234567");
         Date retval = authToken.getInDate("key2");
+        if (retval == null) {
+            throw new Exception("Unable to get key2 as Date");
+        }
         assertEquals(234567L, retval.getTime());
 
         authToken.set("key3", "oops");
@@ -137,6 +140,9 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
         assertFalse(cmsStub.aToBCalled);
         String[] retval = authToken.getInStringArray("key");
+        if (retval == null) {
+            throw new IOException("Unable to get key as String Array");
+        }
         assertTrue(cmsStub.aToBCalled);
         assertEquals(4, retval.length);
         assertEquals(value[0], retval[0]);
@@ -193,7 +199,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key3", (CertificateExtensions) null));
     }
 
-    public void testGetSetCertificates() throws CertificateException {
+    public void testGetSetCertificates() throws CertificateException, IOException {
         X509CertImpl cert1 = getFakeCert();
         X509CertImpl cert2 = getFakeCert();
         X509CertImpl[] certArray = new X509CertImpl[] { cert1, cert2 };
@@ -216,7 +222,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key2", (Certificates) null));
     }
 
-    public void testGetSetByteArrayArray() {
+    public void testGetSetByteArrayArray() throws IOException {
         byte[][] value = new byte[][] {
                 new byte[] { 1, 2, 3, 4 },
                 new byte[] { 12, 13, 14 },

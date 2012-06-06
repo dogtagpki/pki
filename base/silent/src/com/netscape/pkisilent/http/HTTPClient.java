@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URLDecoder;
@@ -39,10 +38,10 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.TestCertApprovalCallback;
 import org.mozilla.jss.ssl.TestClientCertificateSelectionCallback;
 
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
-import com.netscape.cmsutil.util.Utils;
 
 public class HTTPClient implements SSLCertificateApprovalCallback {
 
@@ -373,11 +372,10 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     // posts the given query data
     // returns HTTPResponse
     public HTTPResponse nonsslConnect(String hostname, String portnumber,
-                                String url, String query) {
+                                String url, String query) throws Exception {
 
-        boolean st = true;
         HTTPResponse hr = null;
-
+        PrintStream ps = null;
         try {
 
             System.out.println("#############################################");
@@ -397,7 +395,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
             OutputStream rawos = socket.getOutputStream();
             BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            ps = new PrintStream(os);
 
             System.out.println("Connected.");
 
@@ -423,37 +421,21 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             ps.flush();
             os.flush();
 
-            try {
                 hr = readResponse(socket.getInputStream());
                 hr.parseContent();
 
-            } catch (Exception e) {
-                System.out.println("Exception");
-                e.printStackTrace();
-                st = false;
-            }
-
-            socket.close();
-            os.close();
-            rawos.close();
-            ps.close();
-
-            os = null;
-            rawos = null;
-            ps = null;
-
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println("Exception: Unable to Send Request:" + e);
             e.printStackTrace();
-            st = false;
+            throw e;
+        } finally {
+            if (ps != null) {
+                ps.close();
+                ps = null;
+            }
         }
 
-        if (!st)
-            return null;
-        else
-            return hr;
+        return hr;
     }
 
     public HTTPResponse readResponse(InputStream inputStream)
@@ -1079,7 +1061,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         return true;
     }
 
-    public static void main(String args[]) throws UnsupportedEncodingException {
+    public static void main(String args[]) throws Exception  {
         HTTPClient hc = new HTTPClient();
         HTTPResponse hr = null;
 
@@ -1190,8 +1172,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
                 // ssl client auth call
 
                 hr = hc.sslConnectClientAuth(cs_hostname, cs_port,
-                                        client_cert_nickname,
-                                        uri, query);
+                        client_cert_nickname,
+                        uri, query);
             }
 
             else {

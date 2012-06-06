@@ -32,12 +32,11 @@ public class ChallengeException extends Exception {
         return _res.getAttributeSet();
     }
 
-    public String getState() {
-        return ((StateAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.STATE))).getString();
+    public StateAttribute getState() {
+        return (StateAttribute) _res.getAttributeSet().getAttributeByType(Attribute.STATE);
     }
 
-    public String getReplyMessage() {
-        return ((ReplyMessageAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.REPLY_MESSAGE)))
-                .getString();
+    public ReplyMessageAttribute getReplyMessage() {
+        return (ReplyMessageAttribute) _res.getAttributeSet().getAttributeByType(Attribute.REPLY_MESSAGE);
     }
 }

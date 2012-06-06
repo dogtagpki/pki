@@ -52,10 +52,10 @@ class DerInputBuffer extends ByteArrayInputStream implements Cloneable {
         }
     }
 
-    byte[] toByteArray() {
+    byte[] toByteArray() throws IOException {
         int len = available();
         if (len <= 0)
-            return null;
+            throw new IOException("No Buffer Space Available.");
         byte[] retval = new byte[len];
 
         System.arraycopy(buf, pos, retval, 0, len);
