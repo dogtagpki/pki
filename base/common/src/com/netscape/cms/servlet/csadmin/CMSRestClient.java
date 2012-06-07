@@ -10,12 +10,17 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.http.client.HttpClient;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ClientResponseFailure;
@@ -28,6 +33,8 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
 public abstract class CMSRestClient {
+
+    protected boolean verbose;
 
     protected String clientCertNickname;
     protected ResteasyProviderFactory providerFactory;
@@ -53,7 +60,20 @@ public abstract class CMSRestClient {
         String protocol = uri.getScheme();
         int port = uri.getPort();
 
-        HttpClient httpclient = new DefaultHttpClient();
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+
+        httpclient.addRequestInterceptor(new HttpRequestInterceptor() {
+            public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+                if (verbose) System.out.println("HTTP Request: "+request.getRequestLine());
+            }
+        });
+
+        httpclient.addResponseInterceptor(new HttpResponseInterceptor() {
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                if (verbose) System.out.println("HTTP Response: "+response.getStatusLine());
+            }
+        });
+
         if (protocol != null && protocol.equals("https")) {
 
             Scheme scheme = new Scheme("https", port, new JSSProtocolSocketFactory());
@@ -189,5 +209,13 @@ public abstract class CMSRestClient {
        }
 
        return response.getEntity();
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 }

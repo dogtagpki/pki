@@ -462,6 +462,13 @@ set(pki-certsrv_java_SRCS
 set(pki-cms_java_SRCS
     com/netscape/cms/client/cli/CLI.java
     com/netscape/cms/client/cli/MainCLI.java
+    com/netscape/cms/client/cert/CertCLI.java
+    com/netscape/cms/client/cert/CertFindCLI.java
+    com/netscape/cms/client/cert/CertHoldCLI.java
+    com/netscape/cms/client/cert/CertReleaseHoldCLI.java
+    com/netscape/cms/client/cert/CertRestClient.java
+    com/netscape/cms/client/cert/CertRevokeCLI.java
+    com/netscape/cms/client/cert/CertShowCLI.java
     com/netscape/cms/client/group/GroupAddCLI.java
     com/netscape/cms/client/group/GroupAddMemberCLI.java
     com/netscape/cms/client/group/GroupFindMemberCLI.java

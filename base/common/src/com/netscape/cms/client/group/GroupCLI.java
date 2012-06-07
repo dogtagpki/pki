@@ -75,6 +75,7 @@ public class GroupCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = new GroupRestClient(parent.url + "/pki", parent.certNickname);
+        client.setVerbose(verbose);
 
         String command = args[0];
         String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);

@@ -16,40 +16,37 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cms.client.user;
+package com.netscape.cms.client.cert;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.user.UserCertData;
-import com.netscape.certsrv.user.UserData;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
+import com.netscape.cms.servlet.cert.model.CertDataInfo;
+import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserCLI extends CLI {
+public class CertCLI extends CLI {
 
     public MainCLI parent;
-    public UserRestClient client;
+    public CertRestClient client;
 
-    public UserCLI(MainCLI parent) {
-        super("user", "User management commands");
+    public CertCLI(MainCLI parent) {
+        super("cert", "Certificate management commands");
         this.parent = parent;
 
-        addModule(new UserFindCLI(this));
-        addModule(new UserShowCLI(this));
-        addModule(new UserAddCLI(this));
-        addModule(new UserModifyCLI(this));
-        addModule(new UserRemoveCLI(this));
+        addModule(new CertFindCLI(this));
+        addModule(new CertShowCLI(this));
 
-        addModule(new UserFindCertCLI(this));
-        addModule(new UserShowCertCLI(this));
-        addModule(new UserAddCertCLI(this));
-        addModule(new UserRemoveCertCLI(this));
+        addModule(new CertRevokeCLI(this));
+        addModule(new CertHoldCLI(this));
+        addModule(new CertReleaseHoldCLI(this));
     }
 
     public void printHelp() {
@@ -75,7 +72,7 @@ public class UserCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new UserRestClient(parent.url + "/pki", parent.certNickname);
+        client = new CertRestClient(parent.url + "/pki", parent.certNickname);
         client.setVerbose(verbose);
 
         String command = args[0];
@@ -97,61 +94,50 @@ public class UserCLI extends CLI {
         }
     }
 
-    public static void printUser(UserData userData) {
-        System.out.println("  User ID: " + userData.getID());
+    public static void printCertInfo(CertDataInfo info) {
+        System.out.println("  Serial Number: "+info.getID().toHexString());
+        System.out.println("  Subject DN: "+info.getSubjectDN());
+        System.out.println("  Status: "+info.getStatus());
 
-        String fullName = userData.getFullName();
-        if (!StringUtils.isEmpty(fullName))
-            System.out.println("  Full name: " + fullName);
-
-        String email = userData.getEmail();
-        if (!StringUtils.isEmpty(email))
-            System.out.println("  Email: " + email);
-
-        String phone = userData.getPhone();
-        if (!StringUtils.isEmpty(phone))
-            System.out.println("  Phone: " + phone);
-
-        String type = userData.getType();
-        if (!StringUtils.isEmpty(type))
-            System.out.println("  Type: " + type);
-
-        String state = userData.getState();
-        if (!StringUtils.isEmpty(state))
-            System.out.println("  State: " + state);
-
-        Link link = userData.getLink();
+        Link link = info.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
         }
     }
 
-    public static void printCert(
-            UserCertData userCertData,
+    public static void printCertData(
+            CertificateData certData,
             boolean showPrettyPrint,
             boolean showEncoded) {
 
-        System.out.println("  Cert ID: " + userCertData.getID());
-        System.out.println("  Version: " + userCertData.getVersion());
-        System.out.println("  Serial Number: " + userCertData.getSerialNumber().toHexString());
-        System.out.println("  Issuer: " + userCertData.getIssuerDN());
-        System.out.println("  Subject: " + userCertData.getSubjectDN());
+        System.out.println("  Serial Number: " + certData.getSerialNumber().toHexString());
+        System.out.println("  Issuer: " + certData.getIssuerDN());
+        System.out.println("  Subject: " + certData.getSubjectDN());
+        System.out.println("  Status: " + certData.getStatus());
+        System.out.println("  Not Before: " + certData.getNotBefore());
+        System.out.println("  Not After: " + certData.getNotAfter());
 
-        Link link = userCertData.getLink();
+        Link link = certData.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
         }
 
-        String prettyPrint = userCertData.getPrettyPrint();
+        String prettyPrint = certData.getPrettyPrint();
         if (showPrettyPrint && prettyPrint != null) {
             System.out.println();
             System.out.println(prettyPrint);
         }
 
-        String encoded = userCertData.getEncoded();
+        String encoded = certData.getEncoded();
         if (showEncoded && encoded != null) {
             System.out.println();
             System.out.println(encoded);
         }
+    }
+
+    public static void printCertRequestInfo(CertRequestInfo info) {
+        System.out.println("  Request ID: " + info.getRequestId());
+        System.out.println("  Status: " + info.getRequestStatus());
+        System.out.println("  Type: " + info.getRequestType());
     }
 }
