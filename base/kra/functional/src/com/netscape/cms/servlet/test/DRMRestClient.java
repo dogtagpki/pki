@@ -48,7 +48,7 @@ public class DRMRestClient  extends CMSRestClient {
         @SuppressWarnings("unchecked")
         ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient
                 .getTransportCert();
-        CertificateData certData = response.getEntity();
+        CertificateData certData = getEntity(response);
         String transportCert = certData.getB64();
         return transportCert;
     }

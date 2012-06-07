@@ -17,8 +17,12 @@ import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ClientResponse;
+import org.jboss.resteasy.client.ClientResponseFailure;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.client.core.BaseClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
+import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -27,6 +31,7 @@ public abstract class CMSRestClient {
 
     protected String clientCertNickname;
     protected ResteasyProviderFactory providerFactory;
+    protected ClientErrorHandler errorHandler;
     protected ClientExecutor executor;
     protected URI uri;
 
@@ -59,6 +64,7 @@ public abstract class CMSRestClient {
         executor = new ApacheHttpClient4Executor(httpclient);
         providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.addClientErrorInterceptor(new CMSErrorInterceptor());
+        errorHandler = new ClientErrorHandler(providerFactory.getClientErrorInterceptors());
     }
 
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
@@ -167,5 +173,21 @@ public abstract class CMSRestClient {
 
     public <T> T createProxy(Class<T> clazz) {
         return ProxyFactory.create(clazz, uri, executor, providerFactory);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getEntity(ClientResponse<T> response) {
+        BaseClientResponse<T> clientResponse = (BaseClientResponse<T>)response;
+        try {
+            clientResponse.checkFailureStatus();
+
+       } catch (ClientResponseFailure e) {
+            errorHandler.clientErrorHandling((BaseClientResponse<T>) e.getResponse(), e);
+
+       } catch (RuntimeException e) {
+            errorHandler.clientErrorHandling(clientResponse, e);
+       }
+
+       return response.getEntity();
     }
 }

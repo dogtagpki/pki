@@ -59,13 +59,13 @@ public class UserRestClient extends CMSRestClient {
     public UserData addUser(UserData userData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.addUser(userData);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public UserData modifyUser(String userID, UserData userData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.modifyUser(userID, userData);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public void removeUser(String userID) {
@@ -83,7 +83,7 @@ public class UserRestClient extends CMSRestClient {
     public UserCertData addUserCert(String userID, UserCertData userCertData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserCertData> response = (ClientResponse<UserCertData>)userCertClient.addUserCert(userID, userCertData);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public void removeUserCert(String userID, String certID) {

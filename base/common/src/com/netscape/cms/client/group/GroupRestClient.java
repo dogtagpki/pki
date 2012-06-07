@@ -59,13 +59,13 @@ public class GroupRestClient extends CMSRestClient {
     public GroupData addGroup(GroupData groupData) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.addGroup(groupData);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public GroupData modifyGroup(String groupID, GroupData groupData) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.modifyGroup(groupID, groupData);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public void removeGroup(String groupID) {
@@ -83,7 +83,7 @@ public class GroupRestClient extends CMSRestClient {
     public GroupMemberData addGroupMember(String groupID, String memberID) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupMemberData> response = (ClientResponse<GroupMemberData>)groupMemberClient.addGroupMember(groupID, memberID);
-        return response.getEntity();
+        return getEntity(response);
     }
 
     public void removeGroupMember(String groupID, String memberID) {
