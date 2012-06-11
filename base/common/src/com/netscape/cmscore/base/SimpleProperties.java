@@ -453,4 +453,30 @@ public class SimpleProperties extends Hashtable<String, String> {
             h.put(key, get(key));
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((defaults == null) ? 0 : defaults.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SimpleProperties other = (SimpleProperties) obj;
+        if (defaults == null) {
+            if (other.defaults != null)
+                return false;
+        } else if (!defaults.equals(other.defaults))
+            return false;
+        return true;
+    }
+
 }

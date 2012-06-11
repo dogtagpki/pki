@@ -144,4 +144,30 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
     public Enumeration<PKCS10Attribute> getElements() {
         return map.elements();
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((map == null) ? 0 : map.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PKCS10Attributes other = (PKCS10Attributes) obj;
+        if (map == null) {
+            if (other.map != null)
+                return false;
+        } else if (!map.equals(other.map))
+            return false;
+        return true;
+    }
+
 }

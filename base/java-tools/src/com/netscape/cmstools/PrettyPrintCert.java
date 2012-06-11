@@ -86,7 +86,7 @@ public class PrettyPrintCert {
         X509CertImpl cert = null;
         Locale aLocale = null;
         CertPrettyPrint certDetails = null;
-        String pp = "";
+        StringBuilder pp = new StringBuilder();
         FileOutputStream outputCert = null;
         boolean mSimpleInfo = false;
         String inputfile = null;
@@ -194,11 +194,10 @@ public class PrettyPrintCert {
 
                 X500Name dname = (X500Name) csn.get(CertificateSubjectName.DN_NAME);
 
-                pp = "";
                 RDN[] rdns = dname.getNames();
 
                 for (int i = rdns.length - 1; i >= 0; i--) {
-                    pp = pp + rdns[i] + "\n";
+                    pp.append(rdns[i] + "\n");
                 }
 
             } catch (Exception e) {
@@ -213,7 +212,7 @@ public class PrettyPrintCert {
             certDetails = new CertPrettyPrint(cert);
 
             // (9) Convert the CertPrettyPrint() object into a String() object
-            pp = certDetails.toString(aLocale);
+            pp.append(certDetails.toString(aLocale));
         }
 
         // (10) Finally, "pretty print" the actual certificate to the console
@@ -230,7 +229,7 @@ public class PrettyPrintCert {
             }
 
             try {
-                outputCert.write(pp.getBytes());
+                outputCert.write(pp.toString().getBytes());
             } catch (IOException e) {
                 System.out.println("PrettyPrintCert:  Unexpected error " +
                         "encountered while attempting to write() " +

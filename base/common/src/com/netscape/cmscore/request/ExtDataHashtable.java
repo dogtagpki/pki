@@ -1,9 +1,7 @@
 package com.netscape.cmscore.request;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Subclass of Hashtable returned by IRequest.getExtDataInHashtable. Its
@@ -54,14 +52,6 @@ public class ExtDataHashtable<V> extends Hashtable<String, V> {
 
     public V put(String oKey, V val) {
         return super.put(oKey.toLowerCase(), val);
-    }
-
-    public void putAll(Map<? extends String, ? extends V> map) {
-        Set<? extends String> keys = map.keySet();
-        for (Iterator<? extends String> i = keys.iterator(); i.hasNext();) {
-            Object key = i.next();
-            put((String) key, map.get(key));
-        }
     }
 
     public V remove(Object o) {

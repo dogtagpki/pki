@@ -141,4 +141,30 @@ public final class DSAPrivateKey extends PKCS8Key
             throw new InvalidKeyException(e.getMessage());
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((x == null) ? 0 : x.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DSAPrivateKey other = (DSAPrivateKey) obj;
+        if (x == null) {
+            if (other.x != null)
+                return false;
+        } else if (!x.equals(other.x))
+            return false;
+        return true;
+    }
+
 }

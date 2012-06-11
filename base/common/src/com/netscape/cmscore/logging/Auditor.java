@@ -18,9 +18,7 @@
 
 package com.netscape.cmscore.logging;
 
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
@@ -98,62 +96,62 @@ public class Auditor implements IAuditor {
 
         // if no signed audit object exists, bail
         if (signedAuditLogger == null) return null;
-
-        String parameters = SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR;
+        StringBuilder parameters = new StringBuilder();
 
         // always identify the scope of the request
         if (scope != null) {
-            parameters = SIGNED_AUDIT_SCOPE
+            parameters.append(SIGNED_AUDIT_SCOPE
                     + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + scope;
+                    + scope);
+        } else {
+            parameters.append(SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR);
         }
 
         // identify the operation type of the request
         if (type != null) {
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
+            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
 
-            parameters += SIGNED_AUDIT_OPERATION
+            parameters.append(SIGNED_AUDIT_OPERATION
                     + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + type;
+                    + type);
         }
 
         // identify the resource type of the request
         if (id != null) {
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
+            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
 
-            parameters += SIGNED_AUDIT_RESOURCE
+            parameters.append(SIGNED_AUDIT_RESOURCE
                     + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + id;
+                    + id);
         }
 
-        if (params == null) return parameters;
+        if (params == null) return parameters.toString();
 
         // identify any remaining request parameters
-        Collection<String> names = params.keySet();
 
-        for (Iterator<String> i = names.iterator(); i.hasNext(); ) {
-            String name = i.next();
+        for (Map.Entry<String,String> entry : params.entrySet() ) {
+            String name = entry.getKey();
 
             // skip "RULENAME" parameter
             if (name.equals(SIGNED_AUDIT_RULENAME)) continue;
 
-            parameters += SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER;
+            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
 
-            String value = params.get(name);
+            String value = entry.getValue();
 
             if (value == null) {
-                parameters += name
+                parameters.append(name
                         + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE);
                 continue;
             }
 
             value = value.trim();
 
             if (value.equals("")) {
-                parameters += name
+                parameters.append(name
                         + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE);
                 continue;
             }
 
@@ -182,19 +180,19 @@ public class Auditor implements IAuditor {
                     name.equals(Constants.PR_TOKEN_PASSWD)) {
 
                 // hide password value
-                parameters += name
-                            + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                            + SIGNED_AUDIT_PASSWORD_VALUE;
+                parameters.append(name
+                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                        + SIGNED_AUDIT_PASSWORD_VALUE);
 
             } else {
                 // process normally
-                parameters += name
-                            + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                            + value;
+                parameters.append(name
+                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                        + value);
             }
         }
 
-        return parameters;
+        return parameters.toString();
     }
 
     @Override

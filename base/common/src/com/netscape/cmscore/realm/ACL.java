@@ -150,15 +150,15 @@ public class ACL  {
      *         <resource name>[<ACLEntry1>,<ACLEntry 2>,...<ACLEntry N>]
      */
     public String toString() {
-        String entries = "";
+        StringBuilder entries = new StringBuilder();
         Enumeration<ACLEntry> e = entries();
 
         for (; e.hasMoreElements();) {
             ACLEntry entry = e.nextElement();
 
-            entries += entry.toString();
+            entries.append(entry);
             if (e.hasMoreElements())
-                entries += ",";
+                entries.append(",");
         }
         return getName() + "[" + entries + "]";
     }

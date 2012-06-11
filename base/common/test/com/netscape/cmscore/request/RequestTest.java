@@ -631,6 +631,36 @@ public class RequestTest extends CMSBaseTestCase {
             getEncodedCalled = true;
             return new byte[] {};
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + (getEncodedCalled ? 1231 : 1237);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            X509CertInfoStub other = (X509CertInfoStub) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+                return false;
+            if (getEncodedCalled != other.getEncodedCalled)
+                return false;
+            return true;
+        }
+
+        private RequestTest getOuterType() {
+            return RequestTest.this;
+        }
+
     }
 
     class RevokedCertImplStub extends RevokedCertImpl {

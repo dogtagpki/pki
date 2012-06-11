@@ -122,10 +122,10 @@ public class CMCResponse {
                                 ASN1Util.encode(sts.elementAt(j)));
                         SEQUENCE seq = cst.getBodyList();
 
-                        String s = "   BodyList: ";
+                        StringBuilder s = new StringBuilder("   BodyList: ");
                         for (int k = 0; k < seq.size(); k++) {
                             INTEGER n = (INTEGER) seq.elementAt(k);
-                            s = s + n.toString() + " ";
+                            s.append(n.toString() + " ");
                         }
                         System.out.println(s);
                         int st = cst.getStatus();

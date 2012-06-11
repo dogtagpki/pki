@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -930,8 +931,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             boolean noRestart = true;
             boolean modifiedSchedule = false;
 
-            for (String name : params.keySet()) {
-                String value = params.get(name);
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                String name = entry.getKey();
+                String value = entry.getValue();
 
                 // -- Update Schema --
                 if (name.equals(Constants.PR_ENABLE_CRL)) {
@@ -2707,7 +2709,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 long totalTime = 0;
                 long crlTime = 0;
                 long deltaTime = 0;
-                String splitTimes = "  (";
+                StringBuilder splitTimes = new StringBuilder("  (");
                 for (int i = 0; i < mSplits.length; i++) {
                     totalTime += mSplits[i];
                     if (i > 0 && i < 5) {
@@ -2716,13 +2718,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         crlTime += mSplits[i];
                     }
                     if (i > 0)
-                        splitTimes += ",";
-                    splitTimes += Long.toString(mSplits[i]);
+                        splitTimes.append(",");
+                    splitTimes.append(mSplits[i]);
                 }
-                splitTimes +=
-                        ","
-                                + Long.toString(deltaTime) + "," + Long.toString(crlTime) + ","
-                                + Long.toString(totalTime) + ")";
+                splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
                 mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                             AuditFormat.LEVEL,
                             CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
@@ -3095,14 +3094,12 @@ class CertRecProcessor implements IElementProcessor {
             return includeCert;
         }
         boolean reasonMatch = false;
-        if (reason != null) {
-            if (mOnlySomeReasons != null) {
-                reasonMatch = mOnlySomeReasons.get(reasonIndex);
-                if (reasonMatch != true) {
-                    includeCert = false;
-                } else {
-                    CMS.debug("onlySomeReasons match! reason: " + reason);
-                }
+        if (mOnlySomeReasons != null) {
+            reasonMatch = mOnlySomeReasons.get(reasonIndex);
+            if (reasonMatch != true) {
+                includeCert = false;
+            } else {
+                CMS.debug("onlySomeReasons match! reason: " + reason);
             }
         }
 
@@ -3150,9 +3147,7 @@ class CertRecProcessor implements IElementProcessor {
 
             if (includeCert == true) {
                 mCRLCerts.put(serialNumber, newRevokedCert);
-                if (serialNumber != null) {
-                    CMS.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
-                }
+                CMS.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
             }
         } catch (EBaseException e) {
             CMS.debug(

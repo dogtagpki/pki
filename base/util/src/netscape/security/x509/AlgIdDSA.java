@@ -174,4 +174,46 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
                 "\n    g:\n" + (new BigInt(g)).toString() +
                 "\n";
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((g == null) ? 0 : g.hashCode());
+        result = prime * result + ((p == null) ? 0 : p.hashCode());
+        result = prime * result + ((q == null) ? 0 : q.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other instanceof AlgIdDSA) {
+            AlgIdDSA rhs = (AlgIdDSA) other;
+            if (this == rhs) {
+                return true;
+            }
+            if (!(bigIntEquals(this.p, rhs.p) && bigIntEquals(this.q, rhs.q) && bigIntEquals(this.g, rhs.g))) {
+                return false;
+            }
+            return super.equals(rhs);
+        }
+        return false;
+    }
+
+    public boolean bigIntEquals(BigInteger x, BigInteger y) {
+        if (x == null) {
+            if (y != null) {
+                return false;
+            }
+        } else {
+            if (!x.equals(y)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

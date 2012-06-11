@@ -869,9 +869,6 @@ public class PKIJNDIRealm extends JNDIRealm {
     private synchronized void loadAuthzProperties(Context context) {
 
         if (authzProperties == null && context != null) {
-            ClassLoader loader = this.getClass().getClassLoader();
-            if (loader == null)
-                loader = ClassLoader.getSystemClassLoader();
 
             InputStream inputStream = context.getServletContext().getResourceAsStream(PROP_AUTH_FILE_PATH);
 

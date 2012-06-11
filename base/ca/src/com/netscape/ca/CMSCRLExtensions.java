@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -581,8 +582,9 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             ip = ca.getCRLIssuingPoint(ipId);
         }
 
-        for (String name : nvp.keySet()) {
-            String value = nvp.get(name);
+        for (Map.Entry<String,String> entry : nvp.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
 
             if (name.equals(PROP_ENABLE)) {
                 if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
@@ -618,8 +620,10 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 boolean crlCACertsOnly = false;
 
                 boolean issuingDistPointExtEnabled = false;
-
-                CMSCRLExtensions cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
+                CMSCRLExtensions cmsCRLExtensions = null;
+                if (ip != null) {
+                    cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
+                }
                 if (cmsCRLExtensions != null) {
                     issuingDistPointExtEnabled =
                             cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
