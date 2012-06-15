@@ -1,6 +1,5 @@
 package com.netscape.cmscore.request;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateEncodingException;
@@ -237,7 +236,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (Integer) null));
     }
 
-    public void testGetSetExtDataIntegerArray() {
+    public void testGetSetExtDataIntegerArray() throws Exception {
         Integer[] data = new Integer[] {
                 Integer.valueOf(5),
                 Integer.valueOf(23),
@@ -245,6 +244,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
         assertTrue(request.setExtData("topkey1", data));
         Integer[] retval = request.getExtDataInIntegerArray("topkey1");
+        assertNotNull(retval);
         assertEquals(3, retval.length);
         assertEquals(data[0], retval[0]);
         assertEquals(data[1], retval[1]);
@@ -276,7 +276,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (BigInteger) null));
     }
 
-    public void testGetSetExtDataBigIntegerArray() {
+    public void testGetSetExtDataBigIntegerArray() throws Exception {
         BigInteger[] data = new BigInteger[] {
                 new BigInteger("111111111"),
                 new BigInteger("222222222"),
@@ -284,6 +284,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
         assertTrue(request.setExtData("topkey1", data));
         BigInteger[] retval = request.getExtDataInBigIntegerArray("topkey1");
+        assertNotNull(retval);
         assertEquals(3, retval.length);
         assertEquals(data[0], retval[0]);
         assertEquals(data[1], retval[1]);
@@ -340,7 +341,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (X509CertImpl) null));
     }
 
-    public void testGetSetCertArray() throws CertificateException {
+    public void testGetSetCertArray() throws Exception {
         // this test is also pretty weak, but fortunately relies on the
         // building blocks.
         X509CertImpl[] vals = new X509CertImpl[] {
@@ -354,6 +355,7 @@ public class RequestTest extends CMSBaseTestCase {
 
         assertFalse(cmsStub.aToBCalled);
         X509CertImpl[] retval = request.getExtDataInCertArray("key");
+        assertNotNull(retval);
         assertTrue(cmsStub.aToBCalled);
 
         assertEquals(2, retval.length);
@@ -363,7 +365,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (X509CertImpl[]) null));
     }
 
-    public void testGetSetStringArray() {
+    public void testGetSetStringArray() throws Exception {
         String[] value = new String[] { "blue", "green", "red", "orange" };
         assertTrue(request.setExtData("key", value));
 
@@ -380,6 +382,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("orange", hashValue.get("3"));
 
         String[] retval = request.getExtDataInStringArray("key");
+        assertNotNull(retval);
         assertEquals(4, retval.length);
         assertEquals("blue", retval[0]);
         assertEquals("green", retval[1]);
@@ -394,6 +397,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("kevin", hashValue);
 
         retval = request.getExtDataInStringArray("kevin");
+        assertNotNull(retval);
         assertEquals(7, retval.length);
         assertEquals("square", retval[0]);
         assertNull(retval[1]);
@@ -536,7 +540,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (RevokedCertImpl[]) null));
     }
 
-    public void testGetSetCertExts() throws IOException {
+    public void testGetSetCertExts() throws Exception {
         CertificateExtensions exts = new CertificateExtensions();
         BasicConstraintsExtension ext = new BasicConstraintsExtension(false, 1);
 
@@ -557,7 +561,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (CertificateExtensions) null));
     }
 
-    public void testGetSetCertSubjectName() throws IOException {
+    public void testGetSetCertSubjectName() throws Exception {
         CertificateSubjectName name = new CertificateSubjectName(
                 new X500Name("cn=kevin"));
         assertTrue(request.setExtData("key", name));

@@ -97,7 +97,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
             String classid = subStore.getString(PROP_CLASS_ID);
             IPluginInfo info = registry.getPluginInfo("profile", classid);
             if (info == null) {
-                throw new EBaseException("No plugins for type : profile with id " + classid);
+                throw new EBaseException("No plugins for type : profile, with id " + classid);
             }
             String configPath = subStore.getString(PROP_CONFIG);
 

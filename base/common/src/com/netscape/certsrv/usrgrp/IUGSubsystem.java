@@ -120,16 +120,18 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      *
      * @param filter the search filter
      * @return a list of groups that match the given search filter
+     * @throws EUsrGrpException
      */
-    public Enumeration<IGroup> findGroups(String filter);
+    public Enumeration<IGroup> findGroups(String filter) throws EUsrGrpException;
 
     /**
      * Find a group for the given name
      *
      * @param name the given name
      * @return a group that matched the given name
+     * @throws EUsrGrpException
      */
-    public IGroup findGroup(String name);
+    public IGroup findGroup(String name) throws EUsrGrpException;
 
     /**
      * List groups. This method is more efficient than findGroups because

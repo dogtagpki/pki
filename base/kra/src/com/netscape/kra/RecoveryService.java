@@ -450,6 +450,9 @@ public class RecoveryService implements IService {
             // create p12
             X509Certificate x509cert =
                     request.getExtDataInCert(ATTR_USER_CERT);
+            if (x509cert == null) {
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+            }
             String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
             // add certificate
@@ -587,6 +590,9 @@ public class RecoveryService implements IService {
             // create p12
             X509Certificate x509cert =
                     request.getExtDataInCert(ATTR_USER_CERT);
+            if (x509cert == null) {
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
+            }
             String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
             // add certificate

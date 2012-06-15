@@ -416,8 +416,11 @@ public final class UGSubsystem implements IUGSubsystem {
      * @return the User entity.
      */
     protected IUser lbuildUser(LDAPEntry entry) throws EUsrGrpException {
-        IUser id = createUser(this, (String)
-                entry.getAttribute("uid").getStringValues().nextElement());
+        LDAPAttribute uid = entry.getAttribute("uid");
+        if (uid == null) {
+            throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
+        }
+        IUser id = createUser(this, (String) uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -472,8 +475,11 @@ public final class UGSubsystem implements IUGSubsystem {
      * @return the User entity.
      */
     protected IUser buildUser(LDAPEntry entry) throws EUsrGrpException {
-        IUser id = createUser(this, (String)
-                entry.getAttribute("uid").getStringValues().nextElement());
+        LDAPAttribute uid = entry.getAttribute("uid");
+        if (uid == null) {
+            throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
+        }
+        IUser id = createUser(this, (String) uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
@@ -1119,7 +1125,7 @@ public final class UGSubsystem implements IUGSubsystem {
         }
     }
 
-    protected Enumeration<IGroup> buildGroups(LDAPSearchResults res) {
+    protected Enumeration<IGroup> buildGroups(LDAPSearchResults res) throws EUsrGrpException {
         Vector<IGroup> v = new Vector<IGroup>();
 
         while (res.hasMoreElements()) {
@@ -1132,8 +1138,9 @@ public final class UGSubsystem implements IUGSubsystem {
 
     /**
      * Finds groups.
+     * @throws EUsrGrpException
      */
-    public Enumeration<IGroup> findGroups(String filter) {
+    public Enumeration<IGroup> findGroups(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -1160,7 +1167,7 @@ public final class UGSubsystem implements IUGSubsystem {
         }
     }
 
-    public IGroup findGroup(String filter) {
+    public IGroup findGroup(String filter) throws EUsrGrpException {
         Enumeration<IGroup> groups = findGroups(filter);
 
         if (groups == null || !groups.hasMoreElements())
@@ -1205,9 +1212,14 @@ public final class UGSubsystem implements IUGSubsystem {
 
     /**
      * builds an instance of a Group entry
+     * @throws EUsrGrpException
      */
-    protected IGroup buildGroup(LDAPEntry entry) {
-        String groupName = (String) entry.getAttribute("cn").getStringValues().nextElement();
+    protected IGroup buildGroup(LDAPEntry entry) throws EUsrGrpException {
+        LDAPAttribute cn = entry.getAttribute("cn");
+        if (cn == null) {
+            throw new EUsrGrpException("Cannot build group. No Attribute cn in LDAP Entry " + entry.getDN());
+        }
+        String groupName = (String) cn.getStringValues().nextElement();
         IGroup grp = createGroup(this, groupName);
 
         LDAPAttribute grpDesc = entry.getAttribute("description");
@@ -1357,7 +1369,9 @@ public final class UGSubsystem implements IUGSubsystem {
     public boolean isMemberOf(String userid, String groupname) {
         try {
             IUser user = getUser(userid);
-            return isMemberOfLdapGroup(user.getUserDN(), groupname);
+            if (user != null) {
+                return isMemberOfLdapGroup(user.getUserDN(), groupname);
+            }
         } catch (Exception e) {
             /* do nothing */
         }
@@ -1630,6 +1644,12 @@ public final class UGSubsystem implements IUGSubsystem {
     protected boolean isMatched(String dn1, String dn2) {
         String rdn1[] = LDAPDN.explodeDN(dn1, false);
         String rdn2[] = LDAPDN.explodeDN(dn2, false);
+        if (rdn1 == null && rdn2 == null) {
+            return true;
+        }
+        if (rdn1 == null || rdn2 == null) {
+            return false;
+        }
 
         if (rdn1.length == rdn2.length) {
             for (int j = 0; j < rdn1.length; j++) {
