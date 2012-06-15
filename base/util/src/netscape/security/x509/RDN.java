@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -201,25 +202,25 @@ public class RDN {
 
     // other public methods.
 
-    /**
-     * Checks if this RDN is the same as another by comparing the AVAs
-     * in the RDNs.
-     *
-     * @param other the other RDN.
-     * @return true iff the other RDN is the same.
-     */
-    public boolean equals(RDN other) {
-        int i;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(assertion);
+        return result;
+    }
 
-        if (other == this)
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        if (assertion.length != other.assertion.length)
+        if (obj == null)
             return false;
-
-        for (i = 0; i < assertion.length; i++)
-            if (!assertion[i].equals(other.assertion[i]))
-                return false;
-
+        if (getClass() != obj.getClass())
+            return false;
+        RDN other = (RDN) obj;
+        if (!Arrays.equals(assertion, other.assertion))
+            return false;
         return true;
     }
 

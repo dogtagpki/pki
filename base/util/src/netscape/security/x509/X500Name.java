@@ -19,6 +19,7 @@ package netscape.security.x509;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -285,23 +286,25 @@ public class X500Name implements Principal, GeneralNameInterface {
         }
     }
 
-    /**
-     * Compares this name with another, for equality.
-     *
-     * @return true iff the names are identical.
-     */
-    synchronized public boolean equals(X500Name other) {
-        int i;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(names);
+        return result;
+    }
 
-        if (this == other)
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-
-        if (names.length != other.names.length)
+        if (obj == null)
             return false;
-        for (i = 0; i < names.length; i++) {
-            if (!names[i].equals(other.names[i]))
-                return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
+        X500Name other = (X500Name) obj;
+        if (!Arrays.equals(names, other.names))
+            return false;
         return true;
     }
 
