@@ -275,10 +275,13 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     // posts the given query data
     // returns HTTPResponse
     public HTTPResponse sslConnect(String hostname, String portnumber,
-                                String url, String query) {
+                                String url, String query) throws Exception {
 
-        boolean st = true;
-        HTTPResponse hr = null;
+        Socket js = null;
+        SSLSocket socket = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
+        PrintStream ps = null;
 
         try {
 
@@ -294,8 +297,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             SSLClientCertificateSelectionCallback certSelectionCallback =
                                 new TestClientCertificateSelectionCallback();
 
-            Socket js = new Socket(InetAddress.getByName(hostname), port);
-            SSLSocket socket = new SSLSocket(js, hostname, approvalCallback,
+            js = new Socket(InetAddress.getByName(hostname), port);
+            socket = new SSLSocket(js, hostname, approvalCallback,
                         certSelectionCallback);
             setCipherPref(socket);
             disableSSL2(socket);
@@ -309,9 +312,9 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
                                 "/" + url +
                                 "?" + query);
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
+            ps = new PrintStream(os);
 
             ps.println("POST " + url + " HTTP/1.0");
 
@@ -335,37 +338,43 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             ps.flush();
             os.flush();
 
-            try {
-                hr = readResponse(socket.getInputStream());
-                hr.parseContent();
+            HTTPResponse hr = readResponse(socket.getInputStream());
+            hr.parseContent();
 
-            } catch (Exception e) {
-                System.out.println("Exception");
-                e.printStackTrace();
-                st = false;
-            }
-
-            socket.close();
-            os.close();
-            rawos.close();
-            ps.close();
-
-            os = null;
-            rawos = null;
-            ps = null;
-
-        }
-
-        catch (Exception e) {
-            System.err.println("Exception: Unable to Send Request:" + e);
-            e.printStackTrace();
-            st = false;
-        }
-
-        if (!st)
-            return null;
-        else
             return hr;
+
+        } catch (Exception e) {
+            System.err.println("Exception: Unable to Send Request:" + e);
+            throw e;
+
+        } finally {
+            if (ps != null)
+                ps.close();
+            if (os != null)
+                try {
+                    os.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (rawos != null)
+                try {
+                    rawos.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (socket != null)
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (js != null)
+                try {
+                    js.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        }
     }
 
     // performs non ssl connect to given host/port
@@ -374,8 +383,11 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     public HTTPResponse nonsslConnect(String hostname, String portnumber,
                                 String url, String query) throws Exception {
 
-        HTTPResponse hr = null;
+        Socket socket = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
         PrintStream ps = null;
+
         try {
 
             System.out.println("#############################################");
@@ -385,7 +397,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             Integer x = new Integer(portnumber);
             int port = x.intValue();
 
-            Socket socket = new Socket(hostname, port);
+            socket = new Socket(hostname, port);
 
             System.out.println("Posting Query = " +
                                 "http://" + hostname +
@@ -393,8 +405,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
                                 "/" + url +
                                 "?" + query);
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
             ps = new PrintStream(os);
 
             System.out.println("Connected.");
@@ -421,21 +433,37 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             ps.flush();
             os.flush();
 
-                hr = readResponse(socket.getInputStream());
-                hr.parseContent();
+            HTTPResponse hr = readResponse(socket.getInputStream());
+            hr.parseContent();
+
+            return hr;
 
         } catch (Exception e) {
             System.err.println("Exception: Unable to Send Request:" + e);
-            e.printStackTrace();
             throw e;
-        } finally {
-            if (ps != null) {
-                ps.close();
-                ps = null;
-            }
-        }
 
-        return hr;
+        } finally {
+            if (ps != null)
+                ps.close();
+            if (os != null)
+                try {
+                    os.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (rawos != null)
+                try {
+                    rawos.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (socket != null)
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        }
     }
 
     public HTTPResponse readResponse(InputStream inputStream)

@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -32,13 +31,13 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.PFX;
 
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
-import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureOCSP {
     public static final String DEFAULT_KEY_TYPE = "RSA";
@@ -170,7 +169,7 @@ public class ConfigureOCSP {
 
     }
 
-    public boolean LoginPanel() {
+    public boolean LoginPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -206,7 +205,7 @@ public class ConfigureOCSP {
         return st;
     }
 
-    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
+    public boolean TokenChoicePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -251,7 +250,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean DomainPanel() throws UnsupportedEncodingException {
+    public boolean DomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -276,7 +275,7 @@ public class ConfigureOCSP {
 
     }
 
-    public boolean DisplayChainPanel() {
+    public boolean DisplayChainPanel() throws Exception {
         String query_string = null;
 
         query_string = "p=4" + "&op=next" + "&xml=true";
@@ -290,7 +289,7 @@ public class ConfigureOCSP {
 
     }
 
-    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
+    public boolean SecurityDomainLoginPanel() throws Exception {
         HTTPResponse hr = null;
 
         String ocsp_url = "https://" + cs_hostname + ":" + cs_port +
@@ -330,7 +329,7 @@ public class ConfigureOCSP {
 
     }
 
-    public boolean SubsystemPanel() throws UnsupportedEncodingException {
+    public boolean SubsystemPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -349,7 +348,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean LdapConnectionPanel() throws UnsupportedEncodingException {
+    public boolean LdapConnectionPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -375,7 +374,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean KeyPanel() {
+    public boolean KeyPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -437,7 +436,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
+    public boolean CertSubjectPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -494,7 +493,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean CertificatePanel() throws UnsupportedEncodingException {
+    public boolean CertificatePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -526,7 +525,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean BackupPanel() throws UnsupportedEncodingException {
+    public boolean BackupPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -546,7 +545,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean SavePKCS12Panel() {
+    public boolean SavePKCS12Panel() throws Exception {
         HTTPResponse hr = null;
 
         String query_string = "";
@@ -594,7 +593,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertReqPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -650,7 +649,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean AdminCertImportPanel() {
+    public boolean AdminCertImportPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
 
@@ -689,7 +688,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean UpdateDomainPanel() throws UnsupportedEncodingException {
+    public boolean UpdateDomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -708,7 +707,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean ConfigureOCSPInstance() throws UnsupportedEncodingException {
+    public boolean ConfigureOCSPInstance() throws Exception {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -854,7 +853,7 @@ public class ConfigureOCSP {
         }
     }
 
-    public static void main(String args[]) throws UnsupportedEncodingException {
+    public static void main(String args[]) throws Exception {
         ConfigureOCSP ca = new ConfigureOCSP();
 
         // set variables

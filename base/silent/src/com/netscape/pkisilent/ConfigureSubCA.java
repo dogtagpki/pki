@@ -19,7 +19,6 @@ package com.netscape.pkisilent;
 // --- END COPYRIGHT BLOCK ---
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -174,7 +173,7 @@ public class ConfigureSubCA {
 
     }
 
-    public boolean LoginPanel() {
+    public boolean LoginPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -210,7 +209,7 @@ public class ConfigureSubCA {
         return st;
     }
 
-    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
+    public boolean TokenChoicePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -261,7 +260,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean DomainPanel() throws UnsupportedEncodingException {
+    public boolean DomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -294,7 +293,7 @@ public class ConfigureSubCA {
 
     }
 
-    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
+    public boolean SecurityDomainLoginPanel() throws Exception {
         String subca_url = "https://" + cs_hostname + ":" + cs_port +
                             "/ca/admin/console/config/wizard" +
                             "?p=5&subsystem=CA";
@@ -332,7 +331,7 @@ public class ConfigureSubCA {
 
     }
 
-    public boolean DisplayChainPanel() throws UnsupportedEncodingException {
+    public boolean DisplayChainPanel() throws Exception {
         String query_string = "p=5" + "&op=next" + "&xml=true" +
                         "&choice=newsubsystem" +
                         "&subsystemName=" +
@@ -349,7 +348,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean HierarchyPanel() {
+    public boolean HierarchyPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -368,7 +367,7 @@ public class ConfigureSubCA {
 
     }
 
-    public boolean LdapConnectionPanel() throws UnsupportedEncodingException {
+    public boolean LdapConnectionPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -394,7 +393,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean KeyPanel() {
+    public boolean KeyPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -467,7 +466,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
+    public boolean CertSubjectPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -553,7 +552,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean CertificatePanel() throws UnsupportedEncodingException {
+    public boolean CertificatePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -586,7 +585,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean BackupPanel() throws UnsupportedEncodingException {
+    public boolean BackupPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -627,7 +626,7 @@ public class ConfigureSubCA {
         }
     }
 
-    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertReqPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -685,7 +684,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean AdminCertImportPanel() {
+    public boolean AdminCertImportPanel() throws Exception {
         boolean st = false;
 
         String query_string = "serialNumber=" + admin_serial_number +
@@ -724,7 +723,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean UpdateDomainPanel() throws UnsupportedEncodingException {
+    public boolean UpdateDomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -755,7 +754,7 @@ public class ConfigureSubCA {
         return true;
     }
 
-    public boolean ConfigureSubCAInstance() throws UnsupportedEncodingException {
+    public boolean ConfigureSubCAInstance() throws Exception {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -900,7 +899,7 @@ public class ConfigureSubCA {
         }
     }
 
-    public static void main(String args[]) throws UnsupportedEncodingException {
+    public static void main(String args[]) throws Exception {
         ConfigureSubCA ca = new ConfigureSubCA();
 
         // set variables

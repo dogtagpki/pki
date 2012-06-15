@@ -19,16 +19,15 @@ package com.netscape.pkisilent;
 // --- END COPYRIGHT BLOCK ---
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
-import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureTPS {
     // define global variables
@@ -156,7 +155,7 @@ public class ConfigureTPS {
 
     }
 
-    public boolean LoginPanel() {
+    public boolean LoginPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -194,7 +193,7 @@ public class ConfigureTPS {
         return st;
     }
 
-    public boolean DomainPanel() throws UnsupportedEncodingException {
+    public boolean DomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -219,7 +218,7 @@ public class ConfigureTPS {
 
     }
 
-    public boolean DisplayChainPanel() {
+    public boolean DisplayChainPanel() throws Exception {
         String query_string = "p=4" + "&op=next" + "&xml=true";
         hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -227,7 +226,7 @@ public class ConfigureTPS {
 
     }
 
-    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
+    public boolean SecurityDomainLoginPanel() throws Exception {
         String tps_url = "https://" + cs_hostname + ":" + cs_port +
                             "/tps/admin/console/config/wizard" +
                             "?p=3&subsystem=TPS";
@@ -269,7 +268,7 @@ public class ConfigureTPS {
 
     }
 
-    public boolean SubsystemPanel() throws UnsupportedEncodingException {
+    public boolean SubsystemPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -336,7 +335,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean LdapAuthConnectionPanel() throws UnsupportedEncodingException {
+    public boolean LdapAuthConnectionPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -361,7 +360,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean LdapConnectionPanel() throws UnsupportedEncodingException {
+    public boolean LdapConnectionPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -393,7 +392,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
+    public boolean TokenChoicePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -450,7 +449,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean KeyPanel() {
+    public boolean KeyPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -481,7 +480,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
+    public boolean CertSubjectPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -515,7 +514,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean CertificatePanel() {
+    public boolean CertificatePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -540,7 +539,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertReqPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -608,7 +607,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean AdminCertImportPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertImportPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -676,7 +675,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean ConfigureTPSInstance() throws UnsupportedEncodingException {
+    public boolean ConfigureTPSInstance() throws Exception {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -798,7 +797,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public static void main(String args[]) throws UnsupportedEncodingException {
+    public static void main(String args[]) throws Exception {
         ConfigureTPS ca = new ConfigureTPS();
 
         // set variables

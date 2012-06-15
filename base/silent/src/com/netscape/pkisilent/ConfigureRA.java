@@ -19,16 +19,15 @@ package com.netscape.pkisilent;
 // --- END COPYRIGHT BLOCK ---
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
-import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureRA {
 
@@ -121,7 +120,7 @@ public class ConfigureRA {
 
     }
 
-    public boolean LoginPanel() {
+    public boolean LoginPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -159,7 +158,7 @@ public class ConfigureRA {
         return st;
     }
 
-    public boolean DomainPanel() throws UnsupportedEncodingException {
+    public boolean DomainPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -184,7 +183,7 @@ public class ConfigureRA {
 
     }
 
-    public boolean DisplayChainPanel() {
+    public boolean DisplayChainPanel() throws Exception {
         String query_string = "p=2" + "&op=next" + "&xml=true";
         hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -192,7 +191,7 @@ public class ConfigureRA {
 
     }
 
-    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
+    public boolean SecurityDomainLoginPanel() throws Exception {
         HTTPResponse hr = null;
 
         String ra_url = "https://" + cs_hostname + ":" + cs_port +
@@ -236,7 +235,7 @@ public class ConfigureRA {
 
     }
 
-    public boolean SubsystemPanel() throws UnsupportedEncodingException {
+    public boolean SubsystemPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -272,7 +271,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean DBPanel() {
+    public boolean DBPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -291,7 +290,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
+    public boolean TokenChoicePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -348,7 +347,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean KeyPanel() {
+    public boolean KeyPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -376,7 +375,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
+    public boolean CertSubjectPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -404,7 +403,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean CertificatePanel() {
+    public boolean CertificatePanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -427,7 +426,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertReqPanel() throws Exception {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -495,7 +494,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean AdminCertImportPanel() throws UnsupportedEncodingException {
+    public boolean AdminCertImportPanel() throws Exception {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -563,7 +562,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public boolean ConfigureRAInstance() throws UnsupportedEncodingException {
+    public boolean ConfigureRAInstance() throws Exception {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -677,7 +676,7 @@ public class ConfigureRA {
         return true;
     }
 
-    public static void main(String args[]) throws UnsupportedEncodingException {
+    public static void main(String args[]) throws Exception {
         ConfigureRA ca = new ConfigureRA();
 
         // set variables
