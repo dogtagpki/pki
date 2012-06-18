@@ -553,28 +553,44 @@ public class ConfigureOCSP {
         hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
 
         // dump hr.getResponseData() to file
-
         try {
-            FileOutputStream fos = new FileOutputStream(backup_fname);
-            fos.write(hr.getResponseData());
-            fos.close();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(backup_fname);
+                fos.write(hr.getResponseData());
+            } finally {
+                if (fos != null)
+                    fos.close();
+            }
 
             // set file to permissions 600
             String rtParams[] = { "chmod", "600", backup_fname };
             Process proc = Runtime.getRuntime().exec(rtParams);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-            String line = null;
-            while ((line = br.readLine()) != null)
-                System.out.println("Error: " + line);
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                String line = null;
+                while ((line = br.readLine()) != null)
+                    System.out.println("Error: " + line);
+            } finally {
+                if (br != null)
+                    br.close();
+            }
             proc.waitFor();
 
             // verify p12 file
 
             // Decode the P12 file
-            FileInputStream fis = new FileInputStream(backup_fname);
-            PFX.Template pfxt = new PFX.Template();
-            PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
+            FileInputStream fis = null;
+            PFX pfx = null;
+            try {
+                fis = new FileInputStream(backup_fname);
+                PFX.Template pfxt = new PFX.Template();
+                pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
+            } finally {
+                if (fis != null)
+                    fis.close();
+            }
             System.out.println("Decoded PFX");
 
             // now peruse it for interesting info

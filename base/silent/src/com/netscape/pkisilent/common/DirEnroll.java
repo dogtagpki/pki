@@ -20,6 +20,7 @@ package com.netscape.pkisilent.common;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -260,7 +261,11 @@ public class DirEnroll extends TestClient {
 
     private boolean Send() {
         boolean st = false;
-
+        SSLSocket socket = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
+        PrintStream ps = null;
+        BufferedReader stdin = null;
         try {
             if (debug) {
                 System.out.println("Step 3 : Socket initialize");
@@ -273,13 +278,13 @@ public class DirEnroll extends TestClient {
             GregorianCalendar begin = new GregorianCalendar();
 
             // SSLSocket socket = new SSLSocket(host,port);
-            SSLSocket socket = new SSLSocket(host, port, null, 0, this, null);
+            socket = new SSLSocket(host, port, null, 0, this, null);
 
             socket.setUseClientMode(true);
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
+            ps = new PrintStream(os);
 
             ps.println("POST /enrollment HTTP/1.0");
             ps.println("Connection: Keep-Alive");
@@ -290,7 +295,7 @@ public class DirEnroll extends TestClient {
             ps.println("\r");
             ps.flush();
             os.flush();
-            BufferedReader stdin = new BufferedReader(
+            stdin = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
 
             if (debug) {
@@ -327,16 +332,6 @@ public class DirEnroll extends TestClient {
                 }
 
             }
-            stdin.close();
-            socket.close();
-            os.close();
-            rawos.close();
-            ps.close();
-            os = null;
-            rawos = null;
-            stdin = null;
-            ps = null;
-            line = null;
 
             GregorianCalendar end = new GregorianCalendar();
             long diff = calculateElapsedTime(begin, end);
@@ -346,10 +341,39 @@ public class DirEnroll extends TestClient {
         } catch (Exception e) {
             System.err.println("some exception: in Send routine" + e);
             return false;
+        } finally {
+            if (ps != null)
+                ps.close();
+            if (stdin != null) {
+                try {
+                    stdin.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (rawos != null) {
+                try {
+                    rawos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
         return st;
-
     }
 
     private void buildquery() throws UnsupportedEncodingException {

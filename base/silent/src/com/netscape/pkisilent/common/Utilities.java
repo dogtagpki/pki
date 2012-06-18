@@ -20,6 +20,7 @@ package com.netscape.pkisilent.common;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import netscape.security.x509.CertificateSerialNumber;
@@ -162,10 +163,11 @@ public class Utilities {
      */
     public String getcertfromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
-
+        BufferedReader in = null;
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(filename);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+            fis = new FileInputStream(filename);
+            in = new BufferedReader(new InputStreamReader(fis));
 
             String temp;
             while ((temp = in.readLine()) != null) {
@@ -180,17 +182,33 @@ public class Utilities {
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcertfromfile" + e.toString());
-            return null;
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
+        return null;
     }
 
     public String getcertfromfile_withheaders(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
-
+        BufferedReader in = null;
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(filename);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+            fis = new FileInputStream(filename);
+            in = new BufferedReader(new InputStreamReader(fis));
 
             String temp;
             while ((temp = in.readLine()) != null) {
@@ -200,8 +218,24 @@ public class Utilities {
         } catch (Exception e) {
             System.out.println(
                     "ERROR: getcertfromfile_withheaders" + e.toString());
-            return null;
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        return null;
     }
 
     /*
@@ -212,10 +246,11 @@ public class Utilities {
      */
     public String getcrlfromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
-
+        BufferedReader in = null;
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(filename);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+            fis = new FileInputStream(filename);
+            in = new BufferedReader(new InputStreamReader(fis));
 
             String temp;
             while ((temp = in.readLine()) != null) {
@@ -225,9 +260,26 @@ public class Utilities {
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcrlfromfile" + e.toString());
-            return null;
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Unable to close the input reader");
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
+        return null;
     }
 
     /*
@@ -238,10 +290,11 @@ public class Utilities {
      */
     public String getcafromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
-
+        BufferedReader in = null;
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(filename);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+            fis = new FileInputStream(filename);
+            in = new BufferedReader(new InputStreamReader(fis));
 
             String temp;
             while ((temp = in.readLine()) != null) {
@@ -251,9 +304,25 @@ public class Utilities {
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcafromfile" + e.toString());
-            return null;
+            e.printStackTrace();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Unable to close the input reader");
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
+        return null;
     }
 
     /*

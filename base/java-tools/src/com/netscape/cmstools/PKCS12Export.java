@@ -233,8 +233,9 @@ public class PKCS12Export {
         }
 
         String pk12pwd = null;
+        BufferedReader in = null;
         try {
-            BufferedReader in = new BufferedReader(new FileReader(pk12pwdfile));
+            in = new BufferedReader(new FileReader(pk12pwdfile));
             pk12pwd = in.readLine();
             if (pk12pwd == null) {
                 pk12pwd = "";
@@ -242,6 +243,14 @@ public class PKCS12Export {
         } catch (Exception e) {
             debug("Failed to read the keydb password from the file. Exception: " + e.toString());
             System.exit(1);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         CryptoManager cm = null;

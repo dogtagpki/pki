@@ -21,6 +21,7 @@ package com.netscape.pkisilent.common;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.StringTokenizer;
 
@@ -260,9 +261,9 @@ public class ServerInfo {
         String ldapHostStr = "ldapHost:";
         String ldapPortStr = "ldapPort:";
         String adminPortStr = "port:";
-
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(AdminConfigFile);
+            fis = new FileInputStream(AdminConfigFile);
             int size = fis.available();
             byte b[] = new byte[size];
 
@@ -294,12 +295,17 @@ public class ServerInfo {
                 }
 
             }
-
-            fis.close();
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
     }
 
     private void readCMSConfig() {

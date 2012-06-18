@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URLEncoder;
@@ -662,10 +663,12 @@ public class ConfigureCA {
                         return false;
                     }
                 } else {
+                    FileInputStream fis = null;
+                    BufferedReader in = null;
                     try {
                         ca_cert_cert = "";
-                        FileInputStream fis = new FileInputStream(ext_ca_cert_file);
-                        BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+                        fis = new FileInputStream(ext_ca_cert_file);
+                        in = new BufferedReader(new InputStreamReader(fis));
                         String line;
                         while ((line = in.readLine()) != null) {
                             ca_cert_cert += line;
@@ -678,13 +681,27 @@ public class ConfigureCA {
                         while ((line = in.readLine()) != null) {
                             signing_cc += line;
                         }
-                        in.close();
                         return true;
                     } catch (Exception e) {
                         System.out.println(
                                "CertSubjectPanel: Unable to read in external approved CA cert or certificate chain.");
                         System.out.println(e.toString());
                         return false;
+                    } finally {
+                        if (fis != null) {
+                            try {
+                                fis.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (in != null) {
+                            try {
+                                in.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
             }
@@ -883,44 +900,52 @@ public class ConfigureCA {
                 hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
 
                 // dump hr.getResponseData() to file
-
+                FileOutputStream fos = null;
                 try {
-                    FileOutputStream fos = new FileOutputStream(backup_fname);
-
+                    fos = new FileOutputStream(backup_fname);
                     fos.write(hr.getResponseData());
-                    fos.close();
-
-                    // set file to permissions 600
-                    String rtParams[] = { "chmod", "600", backup_fname };
-                    Process proc = Runtime.getRuntime().exec(rtParams);
-
-                    BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                } finally {
+                    if (fos != null) {
+                        fos.close();
+                    }
+                }
+                // set file to permissions 600
+                String rtParams[] = { "chmod", "600", backup_fname };
+                Process proc = Runtime.getRuntime().exec(rtParams);
+                BufferedReader br = null;
+                try {
+                    br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
                     String line = null;
                     while ((line = br.readLine()) != null)
                         System.out.println("Error: " + line);
-                    proc.waitFor();
-
-                    // verify p12 file
-                    // Decode the P12 file
-                    FileInputStream fis = new FileInputStream(backup_fname);
-                    PFX.Template pfxt = new PFX.Template();
-                    PFX pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
-
-                    System.out.println("Decoded PFX");
-
-                    // now peruse it for interesting info
-                    System.out.println("Version: " + pfx.getVersion());
-                    AuthenticatedSafes authSafes = pfx.getAuthSafes();
-                    SEQUENCE asSeq = authSafes.getSequence();
-
-                    System.out.println(
-                            "AuthSafes has " + asSeq.size() + " SafeContents");
-
-                    fis.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
+                } finally {
+                    if (br != null) {
+                        br.close();
+                    }
                 }
+                proc.waitFor();
+
+                // verify p12 file
+                // Decode the P12 file
+                FileInputStream fis = null;
+                PFX pfx = null;
+                try {
+                    fis = new FileInputStream(backup_fname);
+                    PFX.Template pfxt = new PFX.Template();
+                    pfx = (PFX) pfxt.decode(new BufferedInputStream(fis, 2048));
+                } finally {
+                    if (fis != null)
+                        fis.close();
+                }
+                System.out.println("Decoded PFX");
+
+                // now peruse it for interesting info
+                System.out.println("Version: " + pfx.getVersion());
+                AuthenticatedSafes authSafes = pfx.getAuthSafes();
+                SEQUENCE asSeq = authSafes.getSequence();
+
+                System.out.println(
+                        "AuthSafes has " + asSeq.size() + " SafeContents");
             }
 
             return true;

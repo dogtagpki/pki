@@ -1657,6 +1657,14 @@ public class DRMTool {
                             + "'"
                             + NEWLINE, true);
                     System.exit(0);
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         } catch (Exception exUninitialized) {
@@ -4291,6 +4299,17 @@ public class DRMTool {
                     + "'"
                     + NEWLINE, true);
             return FAILURE;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (writer != null) {
+                writer.close();
+            }
         }
 
         return SUCCESS;
@@ -4401,6 +4420,14 @@ public class DRMTool {
                     + "'"
                     + NEWLINE, true);
             return FAILURE;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return SUCCESS;

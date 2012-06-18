@@ -20,6 +20,7 @@ package com.netscape.pkisilent.common;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.util.Properties;
@@ -357,15 +358,15 @@ public class TestClient implements SSLCertificateApprovalCallback {
      */
 
     public void getProperties(String fileName) throws Exception {
+        FileInputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(fileName);
-
+            fis = new FileInputStream(fileName);
             props = new Properties();
             props.load(fis);
-        } catch (Exception e) {
-            System.out.println("exception " + e.getMessage());
+        } finally {
+            if (fis != null)
+                fis.close();
         }
-
     }
 
     public String ReadEnv(String str) {
@@ -488,8 +489,9 @@ public class TestClient implements SSLCertificateApprovalCallback {
      **/
 
     public String readRequest(String filename) {
+        FileInputStream f1 = null;
         try {
-            FileInputStream f1 = new FileInputStream(filename);
+            f1 = new FileInputStream(filename);
             int size = f1.available();
             byte b[] = new byte[size];
 
@@ -497,13 +499,20 @@ public class TestClient implements SSLCertificateApprovalCallback {
                 return null;
             }
 
-            f1.close();
             String s = new String(b);
 
             return s;
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
             return null;
+        } finally {
+            if (f1 != null) {
+                try {
+                    f1.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

@@ -20,6 +20,7 @@ package com.netscape.pkisilent.common;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -157,13 +158,18 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     // Submit requests
 
     public boolean Send() {
+        SSLSocket socket = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
+        PrintStream ps = null;
+        BufferedReader stdin1 = null;
         try {
 
             if (!loginCertDB()) {
                 return false;
             }
 
-            SSLSocket socket = new SSLSocket(host, port, null, 0, this, null);
+            socket = new SSLSocket(host, port, null, 0, this, null);
 
             System.out.println("Con2Agent.java: host = " + host);
             System.out.println("Con2Agent.java: port = " + port);
@@ -172,9 +178,9 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             socket.setClientCertNickname(certnickname);
             System.out.println("Connected to the socket");
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
+            ps = new PrintStream(os);
 
             System.out.println(ACTIONURL);
             System.out.println("Query :" + query);
@@ -187,7 +193,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             ps.println("\r");
             ps.flush();
             os.flush();
-            BufferedReader stdin1 = new BufferedReader(
+            stdin1 = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
             String line;
 
@@ -195,32 +201,50 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
                 stdout.append(line + "\n");
                 System.out.println(line);
             }
-
+            ps.println("Connection: close");
+        } catch (Exception e) {
+            System.out.println("some exception: in Send routine" + e);
+            return false;
+        } finally {
             // Send Connection: close to let the server close the connection.
             // Else the socket on the server side continues to remain in TIME_WAIT state
-
-            ps.println("Connection: close");
-            ps.flush();
-            os.flush();
-            os.close();
-            rawos.close();
-            ps.close();
-            stdin1.close();
-            socket.close();
-
+            if (ps != null)
+                ps.close();
+            if (stdin1 != null) {
+                try {
+                    stdin1.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (rawos != null) {
+                try {
+                    rawos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             if (socket.isClosed()) {
                 System.out.println("Con2Agent.java : Socket is Closed");
             } else {
                 System.out.println("Con2Agent.java : Socket not Closed");
             }
-
-        } catch (Exception e) {
-            System.out.println("some exception: in Send routine" + e);
-            return false;
         }
-
         return true;
-
     }
 
     private boolean loginCertDB() {
@@ -271,6 +295,11 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     public boolean Send_withGET() {
+        SSLSocket socket = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
+        PrintStream ps = null;
+        BufferedReader stdin2 = null;
 
         try {
 
@@ -278,14 +307,14 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
                 return false;
             }
 
-            SSLSocket socket = new SSLSocket(host, port, null, 0, this, null);
+            socket = new SSLSocket(host, port, null, 0, this, null);
 
             socket.setClientCertNickname(certnickname);
             System.out.println("Connected to the socket");
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
+            ps = new PrintStream(os);
 
             System.out.println("Query in con2agent :" + query);
             System.out.println("ACTIONURL in con2agent : " + ACTIONURL);
@@ -295,24 +324,51 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             ps.println("\r");
             ps.flush();
             os.flush();
-            BufferedReader stdin2 = new BufferedReader(
+            stdin2 = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
             String line;
 
             while ((line = stdin2.readLine()) != null) {
                 stdout.append(line + "\n");
             }
-            stdin2.close();
-
-            socket.close();
-
         } catch (Exception e) {
             System.err.println("some exception: in Send routine" + e);
             return false;
+        } finally {
+
+            if (ps != null)
+                ps.close();
+            if (stdin2 != null) {
+                try {
+                    stdin2.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (rawos != null) {
+                try {
+                    rawos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
-
         return true;
-
     }
 
 } // end of class

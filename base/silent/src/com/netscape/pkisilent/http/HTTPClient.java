@@ -192,7 +192,11 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
         boolean st = true;
         HTTPResponse hr = null;
-
+        PrintStream ps = null;
+        SSLSocket socket = null;
+        Socket js = null;
+        OutputStream rawos = null;
+        BufferedOutputStream os = null;
         try {
 
             System.out.println("#############################################");
@@ -210,8 +214,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             // Client Cert for Auth is set here
             certSelectionCallback.setClientCert(client_cert);
 
-            Socket js = new Socket(InetAddress.getByName(hostname), port);
-            SSLSocket socket = new SSLSocket(js, hostname, approvalCallback,
+            js = new Socket(InetAddress.getByName(hostname), port);
+            socket = new SSLSocket(js, hostname, approvalCallback,
                         certSelectionCallback);
             disableSSL2(socket);
             setCipherPref(socket);
@@ -225,9 +229,9 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
                                 "/" + url +
                                 "?" + query);
 
-            OutputStream rawos = socket.getOutputStream();
-            BufferedOutputStream os = new BufferedOutputStream(rawos);
-            PrintStream ps = new PrintStream(os);
+            rawos = socket.getOutputStream();
+            os = new BufferedOutputStream(rawos);
+            ps = new PrintStream(os);
 
             ps.println("POST " + url + " HTTP/1.0");
             ps.println("Connection: Keep-Alive");
@@ -237,32 +241,44 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             ps.print(query);
             ps.flush();
             os.flush();
-
-            try {
-                hr = readResponse(socket.getInputStream());
-                hr.parseContent();
-
-            } catch (Exception e) {
-                System.out.println("Exception");
-                e.printStackTrace();
-                st = false;
-            }
-
-            socket.close();
-            os.close();
-            rawos.close();
-            ps.close();
-
-            os = null;
-            rawos = null;
-            ps = null;
-
+            hr = readResponse(socket.getInputStream());
+            hr.parseContent();
         }
 
         catch (Exception e) {
             System.err.println("Exception: Unable to Send Request:" + e);
             e.printStackTrace();
             st = false;
+        } finally {
+            if (ps != null) {
+                ps.close();
+                ps = null;
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (os != null)
+                try {
+                    os.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (rawos != null)
+                try {
+                    rawos.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            if (js != null)
+                try {
+                    js.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
         }
 
         if (!st)
@@ -387,7 +403,6 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         OutputStream rawos = null;
         BufferedOutputStream os = null;
         PrintStream ps = null;
-
         try {
 
             System.out.println("#############################################");
@@ -948,7 +963,9 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
         boolean st = true;
         HTTPResponse hr = null;
-
+        DataOutputStream dos = null;
+        SSLSocket socket = null;
+        Socket js = null;
         try {
 
             System.out.println("#############################################");
@@ -963,8 +980,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             SSLClientCertificateSelectionCallback certSelectionCallback =
                                 new TestClientCertificateSelectionCallback();
 
-            Socket js = new Socket(InetAddress.getByName(hostname), port);
-            SSLSocket socket = new SSLSocket(js, hostname, approvalCallback,
+            js = new Socket(InetAddress.getByName(hostname), port);
+            socket = new SSLSocket(js, hostname, approvalCallback,
                         certSelectionCallback);
             setCipherPref(socket);
             disableSSL2(socket);
@@ -972,26 +989,15 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             System.out.println("Connected.");
             socket.setUseClientMode(true);
 
-            DataOutputStream dos =
-                    new DataOutputStream(socket.getOutputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
             dos.writeBytes("POST /ocsp HTTP/1.0\r\n");
             dos.writeBytes("Content-length: " + data.length + "\r\n");
             dos.writeBytes("\r\n");
             dos.write(data);
             dos.writeBytes("\r\n");
             dos.flush();
-
-            try {
-                hr = readResponse(socket.getInputStream());
-                hr.parseContent();
-            } catch (Exception e) {
-                System.out.println("Exception");
-                e.printStackTrace();
-                st = false;
-            }
-
-            socket.close();
-            dos.close();
+            hr = readResponse(socket.getInputStream());
+            hr.parseContent();
 
         }
 
@@ -999,6 +1005,28 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             System.err.println("Exception: Unable to Send Request:" + e);
             e.printStackTrace();
             st = false;
+        } finally {
+            if (dos != null) {
+                try {
+                    dos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (js != null) {
+                try {
+                    js.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         if (!st)
@@ -1015,7 +1043,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
         boolean st = true;
         HTTPResponse hr = null;
-
+        DataOutputStream dos = null;
+        Socket socket = null;
         try {
 
             System.out.println("#############################################");
@@ -1025,7 +1054,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             Integer x = new Integer(portnumber);
             int port = x.intValue();
 
-            Socket socket = new Socket(hostname, port);
+            socket = new Socket(hostname, port);
 
             System.out.println("Posting Query = " +
                                 "http://" + hostname +
@@ -1034,8 +1063,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
             System.out.println("Connected.");
 
-            DataOutputStream dos =
-                    new DataOutputStream(socket.getOutputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
             dos.writeBytes("POST " + url + " HTTP/1.0\r\n");
             dos.writeBytes("Content-length: " + data.length + "\r\n");
             dos.writeBytes("\r\n");
@@ -1043,17 +1071,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             dos.writeBytes("\r\n");
             dos.flush();
 
-            try {
-                hr = readResponse(socket.getInputStream());
-                hr.parseContent();
-            } catch (Exception e) {
-                System.out.println("Exception");
-                e.printStackTrace();
-                st = false;
-            }
-
-            socket.close();
-            dos.close();
+            hr = readResponse(socket.getInputStream());
+            hr.parseContent();
 
         }
 
@@ -1061,6 +1080,21 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             System.err.println("Exception: Unable to Send Request:" + e);
             e.printStackTrace();
             st = false;
+        } finally {
+            if (dos != null) {
+                try {
+                    dos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         if (!st)
