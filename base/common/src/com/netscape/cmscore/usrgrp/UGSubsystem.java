@@ -852,75 +852,89 @@ public final class UGSubsystem implements IUGSubsystem {
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
         }
 
-        LDAPAttribute certAttr = new
-                LDAPAttribute(LDAP_ATTR_USER_CERT);
-        LDAPAttribute certAttrS = new
-                LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
-
-        LDAPAttribute certDNAttrS = new LDAPAttribute(LDAP_ATTR_CERTDN);
-
         int certCount = 0;
 
         for (int i = 0; i < certs.length; i++) {
-            LDAPModificationSet attrs = new LDAPModificationSet();
-
-            String certStr = null;
+            String certStr;
 
             if (delCertdn.startsWith("-1;")) {
                 certStr = getCertificateStringWithoutVersion(certs[i]);
             } else {
                 certStr = getCertificateString(certs[i]);
             }
-            if (delCertdn.equalsIgnoreCase(certStr)) {
+
+            if (!delCertdn.equalsIgnoreCase(certStr)) continue;
+
+            LDAPConnection ldapconn = null;
+
+            try {
+                ldapconn = getConn();
+
+                String dn = "uid=" + user.getUserID() + "," + getUserBaseDN();
+
                 try {
-                    certAttr.addValue(certs[i].getEncoded());
-                    certAttrS.addValue(getCertificateString(certs[i]));
+                    // remove seeAlso attribute
+                    LDAPModificationSet attrs = new LDAPModificationSet();
+                    LDAPAttribute certDNAttrS = new LDAPAttribute(LDAP_ATTR_CERTDN);
                     certDNAttrS.addValue(certs[i].getSubjectDN().toString());
-                } catch (CertificateEncodingException e) {
-                    throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
-                }
-
-                attrs.add(LDAPModification.DELETE, certAttr);
-                attrs.add(LDAPModification.DELETE, certAttrS);
-                attrs.add(LDAPModification.DELETE, certDNAttrS);
-
-                LDAPConnection ldapconn = null;
-
-                try {
-                    ldapconn = getConn();
-                    ldapconn.modify("uid=" + user.getUserID() +
-                            "," + getUserBaseDN(), attrs);
-                    certCount++;
-                    // for audit log
-                    SessionContext sessionContext = SessionContext.getContext();
-                    String adminId = (String) sessionContext.get(SessionContext.USER_ID);
-
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_USRGRP,
-                            AuditFormat.LEVEL,
-                            AuditFormat.REMOVEUSERCERTFORMAT,
-                            new Object[] { adminId, user.getUserID(),
-                                    certs[0].getSubjectDN().toString(),
-                                    certs[i].getSerialNumber().toString(16) }
-                            );
+                    attrs.add(LDAPModification.DELETE, certDNAttrS);
+                    ldapconn.modify(dn, attrs);
 
                 } catch (LDAPException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
-                    throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_USER_FAIL"));
-                } catch (ELdapException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
-                } finally {
-                    if (ldapconn != null)
-                        returnConn(ldapconn);
+                    if (e.getLDAPResultCode() == 16) { // ignore missing seeAlso attribute
+                        CMS.debug("removeUserCert: No attribute "+LDAP_ATTR_CERTDN+" in entry "+dn);
+                    } else {
+                        throw e;
+                    }
                 }
+
+                // remove userCertificate and description attributes
+                LDAPModificationSet attrs = new LDAPModificationSet();
+
+                LDAPAttribute certAttr = new LDAPAttribute(LDAP_ATTR_USER_CERT);
+                certAttr.addValue(certs[i].getEncoded());
+                attrs.add(LDAPModification.DELETE, certAttr);
+
+                LDAPAttribute certAttrS = new LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
+                certAttrS.addValue(getCertificateString(certs[i]));
+                attrs.add(LDAPModification.DELETE, certAttrS);
+
+                ldapconn.modify(dn, attrs);
+
+                certCount++;
+
+                // for audit log
+                SessionContext sessionContext = SessionContext.getContext();
+                String adminId = (String) sessionContext.get(SessionContext.USER_ID);
+
+                mLogger.log(ILogger.EV_AUDIT,
+                        ILogger.S_USRGRP,
+                        AuditFormat.LEVEL,
+                        AuditFormat.REMOVEUSERCERTFORMAT,
+                        new Object[] { adminId, user.getUserID(),
+                                certs[0].getSubjectDN().toString(),
+                                certs[i].getSerialNumber().toString(16) }
+                        );
+
+            } catch (CertificateEncodingException e) {
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
+
+            } catch (LDAPException e) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_USER_FAIL"));
+
+            } catch (ELdapException e) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+
+            } finally {
+                if (ldapconn != null)
+                    returnConn(ldapconn);
             }
         }
 
         if (certCount == 0) {
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
         }
-
-        return;
     }
 
     public void addUserToGroup(IGroup grp, String userid)
