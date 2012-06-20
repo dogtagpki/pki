@@ -37,9 +37,15 @@ public class PlainPasswordReader implements IPasswordReader {
         mPwdPath = pwdPath;
         mPwdStore = new Properties();
 
-        FileInputStream file = new FileInputStream(mPwdPath);
-        mPwdStore.load(file);
-        file.close();
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream(mPwdPath);
+            mPwdStore.load(file);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
     }
 
     public String getPassword(String tag) {

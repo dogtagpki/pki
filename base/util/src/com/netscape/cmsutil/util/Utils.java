@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.util;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +33,8 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class Utils {
     /**
@@ -152,10 +152,12 @@ public class Utils {
         InetAddress.getByName(hostname);
     }
 
-    public static void copy(String orig, String dest) {
+    public static void copy(String orig, String dest) throws Exception {
+        BufferedReader in = null;
+        PrintWriter out = null;
         try {
-            BufferedReader in = new BufferedReader(new FileReader(orig));
-            PrintWriter out = new PrintWriter(
+            in = new BufferedReader(new FileReader(orig));
+            out = new PrintWriter(
                     new BufferedWriter(new FileWriter(dest)));
             String line = "";
             while (in.ready()) {
@@ -163,9 +165,20 @@ public class Utils {
                 if (line != null)
                     out.println(line);
             }
-            in.close();
-            out.close();
         } catch (Exception ee) {
+            ee.printStackTrace();
+            throw ee;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (out != null) {
+                out.close();
+            }
         }
     }
 

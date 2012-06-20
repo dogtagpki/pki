@@ -20,10 +20,10 @@ package com.netscape.cmstools;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.netscape.cmsutil.util.Utils;
-
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
+
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This program joins a sequence of extensions together
@@ -93,11 +93,13 @@ public class ExtJoiner {
             throws IOException {
         FileInputStream fis = new FileInputStream(fileName);
 
-        byte data[] = new byte[fis.available()];
+        byte data[] = null;
         try {
+            data = new byte[fis.available()];
             fis.read(data);
         } finally {
-            fis.close();
+            if (fis != null)
+                fis.close();
         }
         return Utils.base64decode(new String(data));
     }

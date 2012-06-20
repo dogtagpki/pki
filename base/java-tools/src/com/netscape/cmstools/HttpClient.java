@@ -74,7 +74,7 @@ public class HttpClient {
 
     public static byte[] getBytesFromFile(String filename) throws IOException {
         File file = new File(filename);
-        FileInputStream is = new FileInputStream(file);
+        FileInputStream is = null;
 
         long length = file.length();
 
@@ -87,57 +87,64 @@ public class HttpClient {
 
         int offset = 0;
         int numRead = 0;
-        while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-            offset += numRead;
+        try {
+            is = new FileInputStream(file);
+            while (offset < bytes.length
+                    && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
-
         if (offset < bytes.length) {
             throw new IOException("Could not completely read file " + filename);
         }
-
-        is.close();
         return bytes;
     }
 
     public void send(String ifilename, String ofilename, String dbdir,
             String nickname, String password, String servlet, String clientmode)
             throws Exception {
-        byte[] b = getBytesFromFile(ifilename);
-
-        System.out.println("Total number of bytes read = " + b.length);
-
         DataOutputStream dos = null;
         InputStream is = null;
-        if (_secure) {
-            try {
+        PrintStream ps = null;
+        ByteArrayOutputStream bs = null;
+        SSLSocket sslSocket = null;
+        Socket socket = null;
+        try {
+            byte[] b = getBytesFromFile(ifilename);
+
+            System.out.println("Total number of bytes read = " + b.length);
+            if (_secure) {
                 CryptoManager.InitializationValues vals =
                         new CryptoManager.InitializationValues(dbdir, "", "", "secmod.db");
                 CryptoManager.initialize(vals);
-                SSLSocket socket = new SSLSocket(_host, _port);
+                sslSocket = new SSLSocket(_host, _port);
                 int i;
 
                 for (i = SSLSocket.SSL2_RC4_128_WITH_MD5; i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
                     try {
-                        socket.setCipherPreference(i, true);
+                        sslSocket.setCipherPreference(i, true);
                     } catch (SocketException e) {
                     }
                 }
                 //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
                 for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5; i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
                     try {
-                        socket.setCipherPreference(i, true);
+                        sslSocket.setCipherPreference(i, true);
                     } catch (SocketException e) {
                     }
                 }
                 for (i = 0; cipherSuites[i] != 0; ++i) {
                     try {
-                        socket.setCipherPreference(cipherSuites[i], true);
+                        sslSocket.setCipherPreference(cipherSuites[i], true);
                     } catch (SocketException e) {
                     }
                 }
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
-                socket.addHandshakeCompletedListener(listener);
+                sslSocket.addHandshakeCompletedListener(listener);
 
                 if (clientmode != null && clientmode.equals("true")) {
                     CryptoManager cm = CryptoManager.getInstance();
@@ -149,76 +156,95 @@ public class HttpClient {
                         System.out.println("client cert is null");
                     else
                         System.out.println("client cert is not null");
-                    socket.setUseClientMode(true);
-                    socket.setClientCertNickname(nickname);
+                    sslSocket.setUseClientMode(true);
+                    sslSocket.setClientCertNickname(nickname);
                 }
 
-                socket.forceHandshake();
+                sslSocket.forceHandshake();
+                dos = new DataOutputStream(sslSocket.getOutputStream());
+                is = sslSocket.getInputStream();
+            } else {
+                socket = new Socket(_host, _port);
                 dos = new DataOutputStream(socket.getOutputStream());
                 is = socket.getInputStream();
-            } catch (Exception e) {
-                System.out.println("Exception: " + e.toString());
-                return;
             }
-        } else {
-            Socket socket = new Socket(_host, _port);
-            dos = new DataOutputStream(socket.getOutputStream());
-            is = socket.getInputStream();
-        }
 
-        // send request
-        if (servlet == null) {
-            System.out.println("Missing servlet name.");
-            printUsage();
-        } else {
-            String s = "POST " + servlet + " HTTP/1.0\r\n";
-            dos.writeBytes(s);
-        }
-        dos.writeBytes("Content-length: " + b.length + "\r\n");
-        dos.writeBytes("\r\n");
-        dos.write(b);
-        dos.flush();
+            // send request
+            if (servlet == null) {
+                System.out.println("Missing servlet name.");
+                printUsage();
+            } else {
+                String s = "POST " + servlet + " HTTP/1.0\r\n";
+                dos.writeBytes(s);
+            }
+            dos.writeBytes("Content-length: " + b.length + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.write(b);
+            dos.flush();
 
-        FileOutputStream fof = new FileOutputStream(ofilename);
-        boolean startSaving = false;
-        int sum = 0;
-        boolean hack = false;
-        try {
-            while (true) {
-                int r = is.read();
-                if (r == -1)
-                    break;
-                if (r == 10) {
-                    sum++;
-                }
-                if (sum == 6) {
-                    startSaving = true;
-                    continue;
-                }
-                if (startSaving) {
-                    if (hack) {
-                        fof.write(r);
+            FileOutputStream fof = new FileOutputStream(ofilename);
+            boolean startSaving = false;
+            int sum = 0;
+            boolean hack = false;
+            try {
+                while (true) {
+                    int r = is.read();
+                    if (r == -1)
+                        break;
+                    if (r == 10) {
+                        sum++;
                     }
-                    if (hack == false) {
-                        hack = true;
+                    if (sum == 6) {
+                        startSaving = true;
+                        continue;
+                    }
+                    if (startSaving) {
+                        if (hack) {
+                            fof.write(r);
+                        }
+                        if (hack == false) {
+                            hack = true;
+                        }
                     }
                 }
+            } catch (IOException e) {
             }
-        } catch (IOException e) {
+            fof.close();
+
+            byte[] bout = getBytesFromFile(ofilename);
+            System.out.println("Total number of bytes read = " + bout.length);
+
+            bs = new ByteArrayOutputStream();
+            ps = new PrintStream(bs);
+            ps.print(Utils.base64encode(bout));
+            System.out.println(bs.toString());
+
+            System.out.println("");
+            System.out.println("The response in binary format is stored in " + ofilename);
+            System.out.println("");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (dos != null) {
+                dos.close();
+            }
+            if (bs != null) {
+                bs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (sslSocket != null) {
+                sslSocket.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
         }
-        fof.close();
-
-        byte[] bout = getBytesFromFile(ofilename);
-        System.out.println("Total number of bytes read = " + bout.length);
-
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bs);
-        ps.print(Utils.base64encode(bout));
-        System.out.println(bs.toString());
-
-        System.out.println("");
-        System.out.println("The response in binary format is stored in " + ofilename);
-        System.out.println("");
     }
 
     static void printUsage() {

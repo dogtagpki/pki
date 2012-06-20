@@ -1328,10 +1328,14 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         File file = new File(path);
         Long l = Long.valueOf(file.length());
         byte[] b = new byte[l.intValue()];
-        FileInputStream in = new FileInputStream(path);
-        in.read(b);
-        in.close();
-
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(path);
+            in.read(b);
+        } finally {
+            if (in != null)
+                in.close();
+        }
         return b;
     }
 

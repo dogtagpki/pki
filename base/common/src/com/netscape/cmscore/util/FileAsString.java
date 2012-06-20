@@ -52,16 +52,19 @@ public class FileAsString {
         BufferedReader br = createBufferedReader(mFilename);
         StringBuffer buf = new StringBuffer();
         int bytesread = 0;
+        try {
+            do {
+                char cbuf[] = new char[16];
 
-        do {
-            char cbuf[] = new char[16];
-
-            bytesread = br.read(cbuf, 0, cbuf.length);
-            if (bytesread > 0) {
-                buf.append(cbuf, 0, bytesread);
-            }
-        } while (bytesread != -1);
-        br.close();
+                bytesread = br.read(cbuf, 0, cbuf.length);
+                if (bytesread > 0) {
+                    buf.append(cbuf, 0, bytesread);
+                }
+            } while (bytesread != -1);
+        } finally {
+            if (br != null)
+                br.close();
+        }
 
         fileContents = new String(buf);
     }

@@ -243,7 +243,7 @@ public class CRLDistributionPointsExtension extends Extension
      * Test driver.
      */
     public static void main(String args[]) {
-
+        BufferedOutputStream bos = null;
         try {
 
             if (args.length != 1) {
@@ -252,7 +252,7 @@ public class CRLDistributionPointsExtension extends Extension
                 System.exit(-1);
             }
 
-            BufferedOutputStream bos = new BufferedOutputStream(
+            bos = new BufferedOutputStream(
                     new FileOutputStream(args[0]));
 
             // URI only
@@ -291,10 +291,16 @@ public class CRLDistributionPointsExtension extends Extension
             crldpExt.setCritical(true);
             crldpExt.encode(bos);
 
-            bos.close();
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

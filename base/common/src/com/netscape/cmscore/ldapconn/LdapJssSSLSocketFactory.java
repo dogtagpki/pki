@@ -78,6 +78,13 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
             throw new LDAPException(
                     "Cannot Create JSS SSL Socket - Unknown host");
         } catch (IOException e) {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAPCONN_IO_ERROR", e.toString()));
             throw new LDAPException("IO Error creating JSS SSL Socket");
         }

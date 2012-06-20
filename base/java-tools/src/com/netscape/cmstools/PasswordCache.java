@@ -192,12 +192,21 @@ public class PasswordCache {
                 if (++i >= argv.length)
                     usage();
                 String keyFile = argv[i];
+                BufferedReader r = null;
                 try {
-                    BufferedReader r = new BufferedReader(new FileReader(keyFile));
+                    r = new BufferedReader(new FileReader(keyFile));
                     mKeyIdString = r.readLine();
                 } catch (Exception e) {
                     System.out.println("Error: " + e.toString());
                     System.exit(1);
+                } finally {
+                    if (r != null) {
+                        try {
+                            r.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
                 if (mKeyIdString != null) {
@@ -541,13 +550,15 @@ class PWsdrCache {
                 bos.write(readbuf, 0, numRead);
                 totalRead += numRead;
             }
-            inputs.close();
         } catch (FileNotFoundException e) {
             System.out.println("Failed for file " + mPWcachedb + " " + e.toString());
             throw new IOException(e.toString() + ": " + mPWcachedb);
         } catch (IOException e) {
             System.out.println("Failed for file " + mPWcachedb + " " + e.toString());
             throw new IOException(e.toString() + ": " + mPWcachedb);
+        } finally {
+            if (inputs != null)
+                inputs.close();
         }
 
         if (totalRead > 0) {
@@ -578,7 +589,7 @@ class PWsdrCache {
      * encrypts and writes the whole String buf into pwcache.db
      */
     public void writePWcache(String bufs) throws IOException {
-
+        FileOutputStream outstream = null;
         try {
             Encryptor sdr = new Encryptor(mToken, mKeyID,
                                 Encryptor.DEFAULT_ENCRYPTION_ALG);
@@ -600,10 +611,9 @@ class PWsdrCache {
                 // it wasn't removed?
                 tmpPWcache.delete();
             }
-            FileOutputStream outstream = new FileOutputStream(mPWcachedb + ".tmp");
+            outstream = new FileOutputStream(mPWcachedb + ".tmp");
 
             outstream.write(writebuf);
-            outstream.close();
 
             // Make certain that this temporary file has
             // the correct permissions.
@@ -662,6 +672,10 @@ class PWsdrCache {
         } catch (Exception e) {
             System.out.println("sdrPWcache: Error " + e.toString());
             throw new IOException(e.toString());
+        } finally {
+            if (outstream != null) {
+                outstream.close();
+            }
         }
     }
 

@@ -264,14 +264,23 @@ public class CRMFPopClient {
 
         boolean foundTransport = false;
         String transportCert = null;
+        BufferedReader br = null;
         try {
-            BufferedReader br = new BufferedReader(new FileReader("./transport.txt"));
+            br = new BufferedReader(new FileReader("./transport.txt"));
             transportCert = br.readLine();
             foundTransport = true;
         } catch (Exception e) {
             System.out.println("ERROR: cannot find ./transport.txt, so no key archival");
 
             return;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         try {

@@ -259,7 +259,7 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
     public void setOID(String oid) {
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String args[]) {
         /*
            0 30  115: SEQUENCE {
            2 06    9:   OBJECT IDENTIFIER '2 16 840 1 113730 1 100'
@@ -285,36 +285,56 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
                     :       }
                     :   }
          */
-        boolean critical = false;
-        int version = 1;
-        String streetAddress = "401E Middlefield Rd.,MV,CA94041";
-        String telephoneNumber = "650-111-1111";
-        String rfc822Name = "admin@netscape.com";
-        String ID = "ps-capitol";
-        String hostName = "capitol";
-        int portNumber = 80;
-        int maxUsers = 10;
-        int serviceLevel = 1;
+        ByteArrayOutputStream dos = null;
+        FileOutputStream fos = null;
+        try {
+            boolean critical = false;
+            int version = 1;
+            String streetAddress = "401E Middlefield Rd.,MV,CA94041";
+            String telephoneNumber = "650-111-1111";
+            String rfc822Name = "admin@netscape.com";
+            String ID = "ps-capitol";
+            String hostName = "capitol";
+            int portNumber = 80;
+            int maxUsers = 10;
+            int serviceLevel = 1;
 
-        PresenceServerExtension ext = new PresenceServerExtension(
-                critical,
-                version, streetAddress, telephoneNumber,
-                rfc822Name, ID, hostName, portNumber,
-                maxUsers, serviceLevel);
+            PresenceServerExtension ext = new PresenceServerExtension(
+                    critical,
+                    version, streetAddress, telephoneNumber,
+                    rfc822Name, ID, hostName, portNumber,
+                    maxUsers, serviceLevel);
 
-        // encode
+            // encode
 
-        ByteArrayOutputStream dos = new ByteArrayOutputStream();
-        ext.encode(dos);
-        FileOutputStream fos = new FileOutputStream("pse.der");
-        fos.write(dos.toByteArray());
-        fos.close();
+            dos = new ByteArrayOutputStream();
+            ext.encode(dos);
+            fos = new FileOutputStream("pse.der");
+            fos.write(dos.toByteArray());
+            Extension ext1 = new Extension(new DerValue(dos.toByteArray()));
 
-        Extension ext1 = new Extension(new DerValue(dos.toByteArray()));
-
-        @SuppressWarnings("unused")
-        PresenceServerExtension ext2 = new PresenceServerExtension(
-                Boolean.valueOf(false), ext1.getExtensionValue());
-
+            @SuppressWarnings("unused")
+            PresenceServerExtension ext2 = new PresenceServerExtension(
+                    Boolean.valueOf(false), ext1.getExtensionValue());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } finally {
+            if (dos != null) {
+                try {
+                    dos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

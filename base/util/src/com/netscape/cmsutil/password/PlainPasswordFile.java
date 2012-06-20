@@ -37,10 +37,15 @@ public class PlainPasswordFile implements IPasswordStore {
         mPwdStore = new Properties();
         // initialize mPwdStore
         mPwdPath = pwdPath;
-
-        FileInputStream file = new FileInputStream(mPwdPath);
-        mPwdStore.load(file);
-        file.close();
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream(mPwdPath);
+            mPwdStore.load(file);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
     }
 
     public String getPassword(String tag) {
@@ -63,8 +68,14 @@ public class PlainPasswordFile implements IPasswordStore {
 
     public void commit()
             throws IOException, ClassCastException, NullPointerException {
-        FileOutputStream file = new FileOutputStream(mPwdPath);
-        mPwdStore.store(file, PASSWORD_WRITER_HEADER);
-        file.close();
+        FileOutputStream file = null;
+        try {
+            file = new FileOutputStream(mPwdPath);
+            mPwdStore.store(file, PASSWORD_WRITER_HEADER);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
     }
 }

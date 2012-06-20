@@ -37,9 +37,15 @@ public class PlainPasswordWriter implements IPasswordWriter {
         mPwdPath = pwdPath;
         mPwdStore = new Properties();
 
-        FileInputStream file = new FileInputStream(mPwdPath);
-        mPwdStore.load(file);
-        file.close();
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream(mPwdPath);
+            mPwdStore.load(file);
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+        }
     }
 
     public Object putPassword(String tag, String password) {
@@ -48,9 +54,13 @@ public class PlainPasswordWriter implements IPasswordWriter {
 
     public void commit()
             throws IOException, ClassCastException, NullPointerException {
-        FileOutputStream file = new FileOutputStream(mPwdPath);
-        mPwdStore.store(file, PASSWORD_WRITER_HEADER);
-        file.close();
+        FileOutputStream file = null;
+        try {
+            file = new FileOutputStream(mPwdPath);
+            mPwdStore.store(file, PASSWORD_WRITER_HEADER);
+        } finally {
+            if (file != null)
+                file.close();
+        }
     }
-
 }

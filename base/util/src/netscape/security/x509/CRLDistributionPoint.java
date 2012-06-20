@@ -252,13 +252,14 @@ public class CRLDistributionPoint implements ASN1Value {
     }
 
     public static void main(String args[]) {
+        ByteArrayOutputStream bos = null;
         try {
             if (args.length != 1) {
                 System.out.println("Usage: CRLDistributionPoint <outfile>");
                 System.exit(-1);
             }
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bos = new ByteArrayOutputStream();
 
             SEQUENCE cdps = new SEQUENCE();
 
@@ -336,6 +337,14 @@ public class CRLDistributionPoint implements ASN1Value {
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

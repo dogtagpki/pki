@@ -317,7 +317,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 String baseName = mDir + File.separator + namePrefix[0];
                 String tempFile = baseName + ".temp";
                 FileOutputStream fos;
-                ZipOutputStream zos;
+                ZipOutputStream zos = null;
                 byte[] encodedArray = null;
                 File destFile = null;
                 String destName = null;
@@ -329,12 +329,16 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     fos.write(encodedArray);
                     fos.close();
                     if (mZipCRL) {
-                        zos = new ZipOutputStream(new FileOutputStream(baseName + ".zip"));
-                        zos.setLevel(mZipLevel);
-                        zos.putNextEntry(new ZipEntry(baseName + ".der"));
-                        zos.write(encodedArray, 0, encodedArray.length);
-                        zos.closeEntry();
-                        zos.close();
+                        try {
+                            zos = new ZipOutputStream(new FileOutputStream(baseName + ".zip"));
+                            zos.setLevel(mZipLevel);
+                            zos.putNextEntry(new ZipEntry(baseName + ".der"));
+                            zos.write(encodedArray, 0, encodedArray.length);
+                            zos.closeEntry();
+                        } finally {
+                            if (zos != null)
+                                zos.close();
+                        }
                     }
                     destName = baseName + ".der";
                     destFile = new File(destName);

@@ -525,23 +525,34 @@ public class CertUtils {
 
     public static byte[] readFromFile(String fileName)
             throws IOException {
-        FileInputStream fin = new FileInputStream(fileName);
-        int available = fin.available();
-        byte[] ba = new byte[available];
-        int nRead = fin.read(ba);
+        FileInputStream fin = null;
+        try {
+            fin = new FileInputStream(fileName);
+            int available = fin.available();
+            byte[] ba = new byte[available];
+            int nRead = fin.read(ba);
 
-        if (nRead != available)
-            throw new IOException("Error reading data from file: " + fileName);
-        fin.close();
-        return ba;
+            if (nRead != available)
+                throw new IOException("Error reading data from file: " + fileName);
+
+            return ba;
+        } finally {
+            if (fin != null)
+                fin.close();
+        }
     }
 
     public static void storeInFile(String fileName, byte[] ba)
             throws IOException {
-        FileOutputStream fout = new FileOutputStream(fileName);
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(fileName);
 
-        fout.write(ba);
-        fout.close();
+            fout.write(ba);
+        } finally {
+            if (fout != null)
+                fout.close();
+        }
     }
 
     public static String toMIME64(X509CertImpl cert) {

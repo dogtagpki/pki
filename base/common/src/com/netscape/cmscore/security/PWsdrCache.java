@@ -325,13 +325,21 @@ public class PWsdrCache {
                 bos.write(readbuf, 0, numRead);
                 totalRead += numRead;
             }
-            inputs.close();
+
         } catch (FileNotFoundException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
+        } finally {
+            if (inputs != null) {
+                try {
+                    inputs.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         if (totalRead > 0) {
@@ -354,6 +362,7 @@ public class PWsdrCache {
      * encrypts and writes the whole String buf into pwcache.db
      */
     public void writePWcache(String bufs) throws EBaseException {
+        FileOutputStream outstream = null;
         try {
             Encryptor sdr = new Encryptor(mToken, mKeyID,
                                 Encryptor.DEFAULT_ENCRYPTION_ALG);
@@ -376,10 +385,10 @@ public class PWsdrCache {
                 tmpPWcache.delete();
                 tmpPWcache = new File(mPWcachedb + ".tmp");
             }
-            FileOutputStream outstream = new FileOutputStream(mPWcachedb + ".tmp");
+            outstream = new FileOutputStream(mPWcachedb + ".tmp");
 
             outstream.write(writebuf);
-            outstream.close();
+
 
             File origFile = new File(mPWcachedb);
 
@@ -427,6 +436,14 @@ public class PWsdrCache {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
+        } finally {
+            if (outstream != null) {
+                try {
+                    outstream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

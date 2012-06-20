@@ -419,31 +419,37 @@ public class GenericASN1Extension extends Extension
         }
 
         FileInputStream fis = new FileInputStream(fname);
-        int n = 0;
-        while ((n = fis.available()) > 0) {
-            buff = new byte[n];
-            int result = fis.read(buff);
-            if (result == -1)
-                break;
+        try {
+            int n = 0;
+            while ((n = fis.available()) > 0) {
+                buff = new byte[n];
+                int result = fis.read(buff);
+                if (result == -1)
+                    break;
+                s = new String(buff);
+            }
+
+            for (i = 0, j = 0; j < s.length(); j++) {
+                int ch = s.charAt(j);
+                if (ch == 10 || ch == 13 || ch == 9)
+                    continue;
+                i++;
+            }
+            buff = new byte[i];
+            for (i = 0, j = 0; j < s.length(); j++) {
+                int ch = s.charAt(j);
+                if (ch == 10 || ch == 13 || ch == 9)
+                    continue;
+                buff[i++] = (byte) ch;
+            }
+
             s = new String(buff);
-        }
 
-        for (i = 0, j = 0; j < s.length(); j++) {
-            int ch = s.charAt(j);
-            if (ch == 10 || ch == 13 || ch == 9)
-                continue;
-            i++;
+            return s;
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
         }
-        buff = new byte[i];
-        for (i = 0, j = 0; j < s.length(); j++) {
-            int ch = s.charAt(j);
-            if (ch == 10 || ch == 13 || ch == 9)
-                continue;
-            buff[i++] = (byte) ch;
-        }
-
-        s = new String(buff);
-
-        return s;
     }
 }

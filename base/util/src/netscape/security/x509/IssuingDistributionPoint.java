@@ -272,6 +272,7 @@ public class IssuingDistributionPoint implements ASN1Value {
     }
 
     public static void main(String args[]) {
+        BufferedOutputStream bos = null;
 
         try {
             if (args.length != 1) {
@@ -279,7 +280,7 @@ public class IssuingDistributionPoint implements ASN1Value {
                 System.exit(-1);
             }
 
-            BufferedOutputStream bos = new BufferedOutputStream(
+            bos = new BufferedOutputStream(
                     new FileOutputStream(args[0]));
 
             SEQUENCE idps = new SEQUENCE();
@@ -306,9 +307,16 @@ public class IssuingDistributionPoint implements ASN1Value {
             idps.addElement(idp);
 
             idps.encode(bos);
-            bos.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

@@ -361,6 +361,7 @@ public class IssuingDistributionPointExtension extends Extension
      */
     public static void main(String args[]) {
 
+        BufferedOutputStream bos = null;
         try {
 
             if (args.length != 1) {
@@ -369,7 +370,7 @@ public class IssuingDistributionPointExtension extends Extension
                 System.exit(-1);
             }
 
-            BufferedOutputStream bos = new BufferedOutputStream(
+            bos = new BufferedOutputStream(
                     new FileOutputStream(args[0]));
 
             // URI only
@@ -410,10 +411,18 @@ public class IssuingDistributionPointExtension extends Extension
             idpExt.setCritical(false);
             idpExt.encode(bos);
 
-            bos.close();
+
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

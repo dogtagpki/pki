@@ -165,12 +165,20 @@ public class OIDMap {
         if (!namesMap.exists()) {
             loadNamesDefault(props);
         } else {
+            FileInputStream fis = null;
             try {
-                FileInputStream fis = new FileInputStream(namesMap);
+                fis = new FileInputStream(namesMap);
                 props.load(fis);
-                fis.close();
             } catch (IOException e) {
                 loadNamesDefault(props);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
@@ -193,11 +201,20 @@ public class OIDMap {
         if (!classMap.exists()) {
             loadClassDefault(props);
         } else {
+            FileInputStream fis = null;
             try {
-                FileInputStream fis = new FileInputStream(classMap);
+                fis = new FileInputStream(classMap);
                 props.load(fis);
             } catch (IOException e) {
                 loadClassDefault(props);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

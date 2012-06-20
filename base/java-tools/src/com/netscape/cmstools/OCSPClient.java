@@ -115,80 +115,96 @@ public class OCSPClient {
     }
 
     public void sendOCSPRequest(String uri, String host, int port,
-               byte request_data[], String output) throws Exception {
-        Socket socket = new Socket(host, port);
-
-        // send request
-        System.out.println("URI: " + uri);
-
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeBytes("POST " + uri + " HTTP/1.0\r\n");
-        dos.writeBytes("Content-length: " + request_data.length + "\r\n");
-        dos.writeBytes("\r\n");
-        dos.write(request_data);
-        dos.flush();
-
-        System.out.println("Data Length: " + request_data.length);
-        System.out.println("Data: " + Utils.base64encode(request_data));
-
-        InputStream iiss = socket.getInputStream();
-        FileOutputStream fof = new FileOutputStream(output);
-        boolean startSaving = false;
-        int sum = 0;
-        boolean hack = false;
+            byte request_data[], String output) throws Exception {
+        Socket socket = null;
+        DataOutputStream dos = null;
+        InputStream iiss = null;
+        FileOutputStream fof = null;
+        BufferedInputStream fis = null;
         try {
-            while (true) {
-                int r = iiss.read();
-                if (r == -1)
-                    break;
-                if (r == 10) {
-                    sum++;
-                }
-                if (sum == 6) {
-                    startSaving = true;
-                    continue;
-                }
-                if (startSaving) {
-                    if (hack) {
-                        fof.write(r);
-                    }
-                    if (hack == false) {
-                        hack = true;
-                    }
-                }
-            } // while
-        } catch (IOException e) {
-        }
-        fof.close();
+            socket = new Socket(host, port);
 
-        // parse OCSPResponse
-        BufferedInputStream fis =
-                new BufferedInputStream(
-                        new FileInputStream(output));
-        OCSPResponse resp = (OCSPResponse)
-                OCSPResponse.getTemplate().decode(fis);
-        ResponseBytes bytes = resp.getResponseBytes();
-        BasicOCSPResponse basic = (BasicOCSPResponse)
-                BasicOCSPResponse.getTemplate().decode(
-                        new ByteArrayInputStream(bytes.getResponse().toByteArray()));
-        ResponseData rd = basic.getResponseData();
-        for (int i = 0; i < rd.getResponseCount(); i++) {
-            SingleResponse rd1 = rd.getResponseAt(i);
-            if (rd1 == null) {
-                throw new Exception("No OCSP Response data.");
+            // send request
+            System.out.println("URI: " + uri);
+
+            dos = new DataOutputStream(socket.getOutputStream());
+            dos.writeBytes("POST " + uri + " HTTP/1.0\r\n");
+            dos.writeBytes("Content-length: " + request_data.length + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.write(request_data);
+            dos.flush();
+
+            System.out.println("Data Length: " + request_data.length);
+            System.out.println("Data: " + Utils.base64encode(request_data));
+
+            iiss = socket.getInputStream();
+            fof = new FileOutputStream(output);
+            boolean startSaving = false;
+            int sum = 0;
+            boolean hack = false;
+            try {
+                while (true) {
+                    int r = iiss.read();
+                    if (r == -1)
+                        break;
+                    if (r == 10) {
+                        sum++;
+                    }
+                    if (sum == 6) {
+                        startSaving = true;
+                        continue;
+                    }
+                    if (startSaving) {
+                        if (hack) {
+                            fof.write(r);
+                        }
+                        if (hack == false) {
+                            hack = true;
+                        }
+                    }
+                } // while
+            } catch (IOException e) {
             }
-            System.out.println("CertID.serialNumber=" +
-                    rd1.getCertID().getSerialNumber());
-            CertStatus status1 = rd1.getCertStatus();
-            if (status1 instanceof GoodInfo) {
-                System.out.println("CertStatus=Good");
+            // parse OCSPResponse
+            fis = new BufferedInputStream(
+                    new FileInputStream(output));
+            OCSPResponse resp = (OCSPResponse)
+                    OCSPResponse.getTemplate().decode(fis);
+            ResponseBytes bytes = resp.getResponseBytes();
+            BasicOCSPResponse basic = (BasicOCSPResponse)
+                    BasicOCSPResponse.getTemplate().decode(
+                            new ByteArrayInputStream(bytes.getResponse().toByteArray()));
+            ResponseData rd = basic.getResponseData();
+            for (int i = 0; i < rd.getResponseCount(); i++) {
+                SingleResponse rd1 = rd.getResponseAt(i);
+                if (rd1 == null) {
+                    throw new Exception("No OCSP Response data.");
+                }
+                System.out.println("CertID.serialNumber=" +
+                        rd1.getCertID().getSerialNumber());
+                CertStatus status1 = rd1.getCertStatus();
+                if (status1 instanceof GoodInfo) {
+                    System.out.println("CertStatus=Good");
+                }
+                if (status1 instanceof UnknownInfo) {
+                    System.out.println("CertStatus=Unknown");
+                }
+                if (status1 instanceof RevokedInfo) {
+                    System.out.println("CertStatus=Revoked");
+                }
             }
-            if (status1 instanceof UnknownInfo) {
-                System.out.println("CertStatus=Unknown");
-            }
-            if (status1 instanceof RevokedInfo) {
-                System.out.println("CertStatus=Revoked");
-            }
+        } finally {
+            if (socket != null)
+                socket.close();
+            if (dos != null)
+                dos.close();
+            if (iiss != null)
+                iiss.close();
+            if (fof != null)
+                fof.close();
+            if (fis != null)
+                fis.close();
+
         }
     }
 
@@ -233,10 +249,11 @@ public class OCSPClient {
         try {
             serialno = Integer.parseInt(args[4]);
         } catch (Exception e) {
+            FileInputStream fis = null;
             try {
                 System.out.println("Warning: Serial Number not found. It may be a filename.");
                 /* it could be a file name */
-                FileInputStream fis = new FileInputStream(args[4]);
+                fis = new FileInputStream(args[4]);
                 System.out.println("File Size: " + fis.available());
                 data = new byte[fis.available()];
                 fis.read(data);
@@ -244,6 +261,14 @@ public class OCSPClient {
                 System.out.println("Error: Invalid Serial Number or File Name");
                 printUsage();
                 System.exit(0);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         }
         String output = args[5];

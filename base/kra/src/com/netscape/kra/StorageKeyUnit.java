@@ -261,19 +261,28 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
             if (mKeySplitting) {
                 // read private key from the file
+                FileInputStream fi = null;
                 try {
                     File priFile = new File(mConfig.getString(PROP_KEYDB));
 
                     mPrivateKeyData = new byte[
                             (Long.valueOf(priFile.length())).intValue()];
-                    FileInputStream fi = new FileInputStream(priFile);
+                    fi = new FileInputStream(priFile);
 
                     fi.read(mPrivateKeyData);
-                    fi.close();
+
                 } catch (IOException e) {
                     mKRA.log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_PRIVATE", e.toString()));
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
+                } finally {
+                    if (fi != null) {
+                        try {
+                            fi.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
 
