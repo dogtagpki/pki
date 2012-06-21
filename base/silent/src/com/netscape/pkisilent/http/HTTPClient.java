@@ -658,6 +658,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
             // This should never happen -- an empty response
             System.out.println("Unable to parse response header -- empty " +
                               "header");
+            throw new Exception("Unable to create response. Empty header.");
         }
 
         // If the status code was 100 (continue), then it was an intermediate header

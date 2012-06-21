@@ -101,6 +101,9 @@ public class BigIntegerMapper implements IDBAttrMapper {
     }
 
     public static String BigIntegerToDB(BigInteger i) {
+        if (i == null) {
+            return null;
+        }
         int len = i.toString().length();
         String ret = null;
 

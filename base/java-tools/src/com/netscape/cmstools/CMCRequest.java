@@ -519,6 +519,9 @@ public class CMCRequest {
             hmacDigest.update(b);
             finalDigest = hmacDigest.digest();
         } catch (NoSuchAlgorithmException ex) {
+            System.out.println("CMCRequest::addIdentityProofAttr() - "
+                    + "No such algorithm!");
+            return -1;
         }
 
         TaggedAttribute identityProof = new TaggedAttribute(new

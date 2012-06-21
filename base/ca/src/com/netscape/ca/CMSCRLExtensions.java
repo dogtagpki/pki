@@ -658,8 +658,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 //If the CRLCACertsOnly prop is true change it to false to sync.
                 if (value.equals(Constants.FALSE) && (issuingDistPointExtEnabled == true)) {
-                    crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
                     if (ip != null) {
+                        crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
                         ip.updateConfig(crlIssuingPointPairs);
                         newValue = Constants.FALSE;
                         modifiedCRLConfig = true;

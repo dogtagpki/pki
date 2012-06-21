@@ -207,6 +207,13 @@ public class CertificatePair implements ASN1Value {
      */
     public boolean byteArraysAreEqual(byte[] a, byte[] b) {
         debug("in byteArraysAreEqual()");
+
+        if (a == null && b == null) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
         if (a.length != b.length) {
             debug("exiting byteArraysAreEqual(): false");
             return false;

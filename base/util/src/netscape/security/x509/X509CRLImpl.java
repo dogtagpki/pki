@@ -404,7 +404,7 @@ public class X509CRLImpl extends X509CRL {
         Signature sigVerf = null;
 
         String sigAlg = sigAlgId.getName();
-        if (sigProvider.equals("Mozilla-JSS")) {
+        if (sigProvider != null && sigProvider.equals("Mozilla-JSS")) {
             if (sigAlg.equals("MD5withRSA")) {
                 sigAlg = "MD5/RSA";
             } else if (sigAlg.equals("MD2withRSA")) {

@@ -308,13 +308,12 @@ public class CMSEngine implements ICMSEngine {
                 CMS.debug("CMSEngine: getPasswordStore(): password store not initialized before.");
                 String pwdClass = mConfig.getString("passwordClass");
 
-                if (pwdClass != null) {
-                    try {
-                        mPasswordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
-                    } catch (Exception e) {
-                        CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:"
-                                + e.toString());
-                    }
+                try {
+                    mPasswordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
+                } catch (Exception e) {
+                    CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:"
+                            + e.toString());
+                    throw e;
                 }
             } else {
                 CMS.debug("CMSEngine: getPasswordStore(): password store initialized before.");
@@ -1877,32 +1876,32 @@ public class CMSEngine implements ICMSEngine {
                             checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
 
                             queue.processRequest(checkRevReq);
+
+                            RequestStatus status = checkRevReq.getRequestStatus();
+
+                            if (status == RequestStatus.COMPLETE) {
+                                Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
+
+                                while (enum1.hasMoreElements()) {
+                                    String name = enum1.nextElement();
+
+                                    if (name.equals(IRequest.REVOKED_CERTS)) {
+                                        revoked = true;
+                                        if (mVCList != null)
+                                            mVCList.update(cert, VerifiedCert.REVOKED);
+                                    }
+                                }
+                                if (revoked == false) {
+                                    if (mVCList != null)
+                                        mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                                }
+
+                            } else {
+                                if (mVCList != null)
+                                    mVCList.update(cert, VerifiedCert.CHECKED);
+                            }
                         } catch (EBaseException e) {
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"));
-                        }
-
-                        RequestStatus status = checkRevReq.getRequestStatus();
-
-                        if (status == RequestStatus.COMPLETE) {
-                            Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
-
-                            while (enum1.hasMoreElements()) {
-                                String name = enum1.nextElement();
-
-                                if (name.equals(IRequest.REVOKED_CERTS)) {
-                                    revoked = true;
-                                    if (mVCList != null)
-                                        mVCList.update(cert, VerifiedCert.REVOKED);
-                                }
-                            }
-                            if (revoked == false) {
-                                if (mVCList != null)
-                                    mVCList.update(cert, VerifiedCert.NOT_REVOKED);
-                            }
-
-                        } else {
-                            if (mVCList != null)
-                                mVCList.update(cert, VerifiedCert.CHECKED);
                         }
                     }
                 }

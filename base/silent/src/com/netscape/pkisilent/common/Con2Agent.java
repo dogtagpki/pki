@@ -238,10 +238,12 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
                     e.printStackTrace();
                 }
             }
-            if (socket.isClosed()) {
-                System.out.println("Con2Agent.java : Socket is Closed");
-            } else {
-                System.out.println("Con2Agent.java : Socket not Closed");
+            if (socket != null) {
+                if (socket.isClosed()) {
+                    System.out.println("Con2Agent.java : Socket is Closed");
+                } else {
+                    System.out.println("Con2Agent.java : Socket not Closed");
+                }
             }
         }
         return true;

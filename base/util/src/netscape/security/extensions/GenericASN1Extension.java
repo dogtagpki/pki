@@ -418,8 +418,9 @@ public class GenericASN1Extension extends Extension
             throw new IOException("File name is not provided.");
         }
 
-        FileInputStream fis = new FileInputStream(fname);
+        FileInputStream fis = null;
         try {
+            fis = new FileInputStream(fname);
             int n = 0;
             while ((n = fis.available()) > 0) {
                 buff = new byte[n];
@@ -428,28 +429,30 @@ public class GenericASN1Extension extends Extension
                     break;
                 s = new String(buff);
             }
-
-            for (i = 0, j = 0; j < s.length(); j++) {
-                int ch = s.charAt(j);
-                if (ch == 10 || ch == 13 || ch == 9)
-                    continue;
-                i++;
-            }
-            buff = new byte[i];
-            for (i = 0, j = 0; j < s.length(); j++) {
-                int ch = s.charAt(j);
-                if (ch == 10 || ch == 13 || ch == 9)
-                    continue;
-                buff[i++] = (byte) ch;
-            }
-
-            s = new String(buff);
-
-            return s;
         } finally {
             if (fis != null) {
                 fis.close();
             }
         }
+        if (s == null) {
+            return "";
+        }
+        for (i = 0, j = 0; j < s.length(); j++) {
+            int ch = s.charAt(j);
+            if (ch == 10 || ch == 13 || ch == 9)
+                continue;
+            i++;
+        }
+        buff = new byte[i];
+        for (i = 0, j = 0; j < s.length(); j++) {
+            int ch = s.charAt(j);
+            if (ch == 10 || ch == 13 || ch == 9)
+                continue;
+            buff[i++] = (byte) ch;
+        }
+        s = new String(buff);
+
+        return s;
     }
+
 }

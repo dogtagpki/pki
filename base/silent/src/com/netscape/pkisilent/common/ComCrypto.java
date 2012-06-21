@@ -241,7 +241,8 @@ public class ComCrypto {
             }
 
             if (manager == null) {
-                System.out.println("Manager object is null");
+                System.out.println("ComCrypto: importCert :Manager object is null");
+                throw new Exception("ComCrypto: importCert :Manager Object is null");
             }
 
             manager.importCertPackage(tmp.getBytes(), cn);
@@ -270,7 +271,8 @@ public class ComCrypto {
             }
 
             if (manager == null) {
-                System.out.println("Manager object is null");
+                System.out.println("ComCrypto: importCACert :Manager object is null");
+                throw new Exception("ComCrypto: importCACert :Manager object is null");
             }
 
             manager.importCACertPackage(tmp.getBytes());

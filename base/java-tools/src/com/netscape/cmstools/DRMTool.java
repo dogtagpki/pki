@@ -4223,9 +4223,13 @@ public class DRMTool {
                         // if one is not already present,
                         // compose and write out the missing
                         // 'extdata_requestnotes' line
-                        create_extdata_request_notes(record_type,
-                                                      previous_line,
-                                                      writer);
+                        if (previous_line != null) {
+                            create_extdata_request_notes(record_type,
+                                    previous_line,
+                                    writer);
+                        } else {
+                            return FAILURE;
+                        }
 
                         // ALWAYS pass through the original
                         // 'extdata-requesttype' line UNCHANGED

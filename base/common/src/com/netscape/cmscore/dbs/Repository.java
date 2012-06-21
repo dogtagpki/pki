@@ -393,14 +393,13 @@ public abstract class Repository implements IRepository {
                 CMS.debug("Reached the end of the range.  Attempting to move to next range");
                 mMinSerialNo = mNextMinSerialNo;
                 mMaxSerialNo = mNextMaxSerialNo;
-                mLastSerialNo = mMinSerialNo;
                 mNextMinSerialNo = null;
                 mNextMaxSerialNo = null;
                 if ((mMaxSerialNo == null) || (mMinSerialNo == null)) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
                             mLastSerialNo.toString()));
                 }
-
+                mLastSerialNo = mMinSerialNo;
                 // persist the changes
                 mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString());
                 mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString());

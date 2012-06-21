@@ -301,9 +301,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         certDir = config.getString(CONFIG_DIR, null);
 
-        CryptoManager.InitializationValues vals =
-                new CryptoManager.InitializationValues(certDir,
-                                                   "", "", "secmod.db");
+        CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(certDir, "", "", "secmod.db");
 
         vals.removeSunProvider = false;
         vals.installJSSProvider = true;
@@ -313,8 +311,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             // do nothing
         } catch (Exception e) {
             String[] params = { mId, e.toString() };
-            EBaseException ex = new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
+            EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
             throw ex;
@@ -325,8 +322,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             initSSL();
         } catch (CryptoManager.NotInitializedException e) {
             String[] params = { mId, e.toString() };
-            EBaseException ex = new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
+            EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
             throw ex;
@@ -751,8 +747,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public String getSignatureAlgorithm(String nickname) throws EBaseException {
         try {
-            X509Certificate cert =
-                    CryptoManager.getInstance().findCertByNickname(nickname);
+            X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
             X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
             return impl.getSigAlgName();
@@ -773,10 +768,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public KeyPair getKeyPair(String nickname) throws EBaseException {
         try {
-            X509Certificate cert =
-                    CryptoManager.getInstance().findCertByNickname(nickname);
-            PrivateKey priKey =
-                    CryptoManager.getInstance().findPrivKeyByCert(cert);
+            X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
+            PrivateKey priKey = CryptoManager.getInstance().findPrivKeyByCert(cert);
             PublicKey publicKey = cert.getPublicKey();
 
             return new KeyPair(publicKey, priKey);
@@ -822,7 +815,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         try {
             KeyPair kp = KeyCertUtil.generateKeyPair(token, kpAlg, keySize, pqg);
-
             return kp;
         } catch (InvalidParameterException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
@@ -856,11 +848,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getCertRequest(String subjectName, KeyPair kp)
             throws EBaseException {
         try {
-            netscape.security.pkcs.PKCS10 pkcs =
-                    KeyCertUtil.getCertRequest(subjectName, kp);
+            netscape.security.pkcs.PKCS10 pkcs = KeyCertUtil.getCertRequest(subjectName, kp);
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
-
             pkcs.print(ps);
             return bs.toString();
         } catch (NoSuchAlgorithmException e) {
@@ -1151,8 +1141,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             @SuppressWarnings("unchecked")
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
-            if (mNicknameMapCertsTable != null)
+            if (mNicknameMapCertsTable != null) {
                 mNicknameMapCertsTable.clear();
+            } else {
+                CMS.debug("JssSubsystem::getRootCerts() - mNicknameMapCertsTable is null");
+                throw new EBaseException("JssSubsystem::getRootCerts() - mNicknameMapCertsTable is null");
+            }
 
             // a temp hashtable with vectors
             Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
@@ -1167,8 +1161,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < list.length; i++) {
                     try {
                         @SuppressWarnings("unused")
-                        PrivateKey key =
-                                CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
+                        PrivateKey key = CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
                         Debug.trace("JssSubsystem getRootCerts: find private key "
                                 + list[i].getNickname());
                     } catch (ObjectNotFoundException e) {
@@ -1291,8 +1284,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         NameValuePairs pairs = getCACerts();
 
-        if (mNicknameMapUserCertsTable != null)
+        if (mNicknameMapUserCertsTable != null) {
             mNicknameMapUserCertsTable.clear();
+        } else {
+            CMS.debug("JssSubsystem:: getAllCertsManage() : mNicknameMapCertsTable is null");
+            throw new EBaseException("JssSubsystem:: getAllCertsManage() : mNicknameMapCertsTable is null");
+        }
 
         try {
             @SuppressWarnings("unchecked")
@@ -1358,17 +1355,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
         X509Certificate[] certs;
 
         try {
-            certs =
-                    CryptoManager.getInstance().getCACerts();
+            certs = CryptoManager.getInstance().getCACerts();
         } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         }
 
         if (mNicknameMapCertsTable == null) {
-            CMS.debug("JssSubsystem::getCACerts() - "
-                     + "mNicknameMapCertsTable is null!");
-            throw new EBaseException("mNicknameMapCertsTable is null");
+            CMS.debug("JssSubsystem::getCACerts() - " + "mNicknameMapCertsTable is null!");
+            throw new EBaseException("JssSubsystem::getCACerts() - mNicknameMapCertsTable is null");
         } else {
             mNicknameMapCertsTable.clear();
         }
@@ -1570,18 +1565,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void deleteCert(String nickname, String notAfterTime) throws EBaseException {
         boolean isUserCert = false;
         X509Certificate[] certs = null;
-        ;
 
         try {
             if (mNicknameMapCertsTable != null) {
-                certs =
-                        mNicknameMapCertsTable.get(nickname);
+                certs = mNicknameMapCertsTable.get(nickname);
             }
 
             if (certs == null) {
                 if (mNicknameMapUserCertsTable != null) {
-                    certs =
-                            mNicknameMapUserCertsTable.get(nickname);
+                    certs = mNicknameMapUserCertsTable.get(nickname);
                     if (certs != null) {
                         CMS.debug("in mNicknameMapUserCertsTable, isUserCert is true");
                         isUserCert = true;
@@ -1712,8 +1704,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public String getSubjectDN(String nickname) throws EBaseException {
         try {
-            X509Certificate cert =
-                    CryptoManager.getInstance().findCertByNickname(nickname);
+            X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
             X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
             return impl.getSubjectDN().getName();
@@ -1758,8 +1749,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             nickname = nickname.substring(index + 1);
         }
         try {
-            X509Certificate[] certs =
-                    CryptoManager.getInstance().findCertsByNickname(nickname);
+            X509Certificate[] certs = CryptoManager.getInstance().findCertsByNickname(nickname);
 
             X509CertImpl impl = null;
             int i = 0;
@@ -1771,10 +1761,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         return certs[i];
                 }
             } else {
-                EBaseException e =
-                        new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
         } catch (NotInitializedException e) {
@@ -1799,8 +1787,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             nickname = nickname.substring(index + 1);
         }
         try {
-            X509Certificate[] certs =
-                    CryptoManager.getInstance().findCertsByNickname(nickname);
+            X509Certificate[] certs = CryptoManager.getInstance().findCertsByNickname(nickname);
 
             X509CertImpl impl = null;
             int i = 0;
@@ -1812,10 +1799,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         break;
                 }
             } else {
-                EBaseException e =
-                        new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
 
@@ -1848,8 +1833,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             nickname = nickname.substring(index + 1);
         }
         try {
-            X509Certificate[] certs =
-                    CryptoManager.getInstance().findCertsByNickname(nickname);
+            X509Certificate[] certs = CryptoManager.getInstance().findCertsByNickname(nickname);
 
             X509CertImpl impl = null;
             if (certs != null && certs.length > 0) {
@@ -1860,10 +1844,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         break;
                 }
             } else {
-                EBaseException e =
-                        new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
             CertPrettyPrint print = null;
@@ -1895,8 +1877,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             nickname = nickname.substring(index + 1);
         }
         try {
-            X509Certificate[] certs =
-                    CryptoManager.getInstance().findCertsByNickname(nickname);
+            X509Certificate[] certs = CryptoManager.getInstance().findCertsByNickname(nickname);
 
             X509CertImpl impl = null;
             if (certs != null && certs.length > 0) {
@@ -1907,10 +1888,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         break;
                 }
             } else {
-                EBaseException e =
-                        new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
             CertPrettyPrint print = null;
@@ -1945,8 +1924,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public String getCertPrettyPrint(String nickname, String date,
             Locale locale) throws EBaseException {
         try {
-            X509Certificate[] certs =
-                    CryptoManager.getInstance().findCertsByNickname(nickname);
+            X509Certificate[] certs = CryptoManager.getInstance().findCertsByNickname(nickname);
 
             if ((certs == null || certs.length == 0) &&
                     mNicknameMapCertsTable != null) {
@@ -2072,8 +2050,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         try {
             certInfo = cert.getCertInfo();
-            SignatureAlgorithm sigAlg =
-                    (SignatureAlgorithm) data.get(Constants.PR_SIGNATURE_ALGORITHM);
+            SignatureAlgorithm sigAlg = (SignatureAlgorithm) data.get(Constants.PR_SIGNATURE_ALGORITHM);
 
             signedCert = KeyCertUtil.signCert(priKey, certInfo, sigAlg);
         } catch (NoSuchTokenException e) {
@@ -2100,15 +2077,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certinfo == null)
                 return false;
             else {
-                CertificateExtensions exts =
-                        (CertificateExtensions) certinfo.get(X509CertInfo.EXTENSIONS);
+                CertificateExtensions exts = (CertificateExtensions) certinfo.get(X509CertInfo.EXTENSIONS);
 
                 if (exts == null)
                     return false;
                 else {
                     try {
-                        BasicConstraintsExtension ext = (BasicConstraintsExtension)
-                                exts.get(BasicConstraintsExtension.NAME);
+                        BasicConstraintsExtension ext = (BasicConstraintsExtension) exts
+                                .get(BasicConstraintsExtension.NAME);
 
                         if (ext == null)
                             return false;
