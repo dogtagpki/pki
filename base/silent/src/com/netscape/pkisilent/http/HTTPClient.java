@@ -657,7 +657,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         } else {
             // This should never happen -- an empty response
             System.out.println("Unable to parse response header -- empty " +
-                              "header");
+                    "header");
             throw new Exception("Unable to create response. Empty header.");
         }
 

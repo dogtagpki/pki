@@ -59,13 +59,15 @@ public class KeyRecordMapper implements IDBAttrMapper {
 
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs) throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         try {
             KeyRecord rec = (KeyRecord) obj;
 
             attrs.add(new LDAPAttribute(KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID,
                     rec.getSerialNumber().toString()));
         } catch (Exception e) {
-
             /*LogDoc
              *
              * @phase  Maps object to ldap attribute set

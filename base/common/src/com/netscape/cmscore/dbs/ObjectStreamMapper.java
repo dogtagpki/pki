@@ -78,13 +78,12 @@ public class ObjectStreamMapper implements IDBAttrMapper {
             byte data[] = bos.toByteArray();
             if (data == null) {
                 CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
-                           name + " size=0");
+                        name + " size=0");
             } else {
                 CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
-                           name + " size=" + data.length);
+                        name + " size=" + data.length);
             }
-            attrs.add(new LDAPAttribute(mLdapName,
-                    data));
+            attrs.add(new LDAPAttribute(mLdapName, data));
         } catch (IOException e) {
 
             /*LogDoc

@@ -1052,7 +1052,7 @@ public class KeyCertUtil {
     }
 
     public static BigInteger getSerialNumber(LDAPConnection conn, String baseDN)
-            throws LDAPException {
+            throws LDAPException, EBaseException {
         String dn = "ou=certificateRepository,ou=ca," + baseDN;
         BigInteger serialno = null;
         LDAPEntry entry = conn.read(dn);
@@ -1077,7 +1077,7 @@ public class KeyCertUtil {
 
     public static void setSerialNumber(LDAPConnection conn,
             String baseDN, BigInteger serial)
-            throws LDAPException {
+            throws LDAPException, EBaseException {
         String dn = "ou=certificateRepository,ou=ca," + baseDN;
         LDAPAttribute attr = new LDAPAttribute("serialno");
 

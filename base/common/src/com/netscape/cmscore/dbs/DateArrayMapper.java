@@ -24,6 +24,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -62,10 +63,10 @@ public class DateArrayMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null)
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         Date dates[] = (Date[]) obj;
 
-        if (dates == null)
-            return;
         LDAPAttribute attr = new LDAPAttribute(mLdapName);
 
         for (int i = 0; i < dates.length; i++) {

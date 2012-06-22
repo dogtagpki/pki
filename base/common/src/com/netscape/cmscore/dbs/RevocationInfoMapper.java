@@ -64,6 +64,9 @@ public class RevocationInfoMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         try {
             // in format of <date>;<extensions>
             StringBuffer value = new StringBuffer();

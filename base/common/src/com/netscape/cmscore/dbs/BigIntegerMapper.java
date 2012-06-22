@@ -24,6 +24,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -62,6 +63,9 @@ public class BigIntegerMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         attrs.add(new LDAPAttribute(mLdapName,
                 BigIntegerToDB((BigInteger) obj)));
     }
@@ -101,9 +105,6 @@ public class BigIntegerMapper implements IDBAttrMapper {
     }
 
     public static String BigIntegerToDB(BigInteger i) {
-        if (i == null) {
-            return null;
-        }
         int len = i.toString().length();
         String ret = null;
 

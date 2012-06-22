@@ -23,6 +23,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -61,6 +62,9 @@ public class StringVectorMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         @SuppressWarnings("unchecked")
         Vector<String> v = (Vector<String>) obj;
         int s = v.size();

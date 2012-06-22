@@ -59,17 +59,13 @@ public class CertRecordMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
-        try {
-            CertRecord rec = (CertRecord) obj;
-
-            attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_CERT_RECORD_ID,
-                    rec.getSerialNumber().toString()));
-        } catch (Exception e) {
-            Debug.trace(e.toString());
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
+        CertRecord rec = (CertRecord) obj;
+        attrs.add(new LDAPAttribute(
+                CertDBSchema.LDAP_ATTR_CERT_RECORD_ID,
+                rec.getSerialNumber().toString()));
     }
 
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,

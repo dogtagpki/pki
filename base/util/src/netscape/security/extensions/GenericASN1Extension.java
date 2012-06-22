@@ -434,9 +434,11 @@ public class GenericASN1Extension extends Extension
                 fis.close();
             }
         }
+
         if (s == null) {
             return "";
         }
+
         for (i = 0, j = 0; j < s.length(); j++) {
             int ch = s.charAt(j);
             if (ch == 10 || ch == 13 || ch == 9)

@@ -33,6 +33,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
@@ -337,7 +338,10 @@ class RequestStateMapper
 
     //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
-            String name, Object obj, LDAPAttributeSet attrs) {
+            String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         RequestStatus rs = (RequestStatus) obj;
 
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE,
@@ -388,7 +392,10 @@ class RequestIdMapper
 
     //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
-            String name, Object obj, LDAPAttributeSet attrs) {
+            String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         RequestId rid = (RequestId) obj;
 
         String v = BigIntegerMapper.BigIntegerToDB(new BigInteger(rid.toString()));
@@ -410,7 +417,7 @@ class RequestIdMapper
                 BigIntegerMapper.BigIntegerFromDB(value).toString()));
     }
 
-    public String mapSearchFilter(String name, String op, String value) {
+    public String mapSearchFilter(String name, String op, String value) throws EBaseException {
         String v = null;
 
         try {
@@ -450,14 +457,18 @@ class RequestAttrsMapper
 
     //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
-            String name, Object obj, LDAPAttributeSet attrs) {
+            String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         @SuppressWarnings("unchecked")
         Hashtable<String, Object> ht = (Hashtable<String, Object>) obj;
         Enumeration<String> e = ht.keys();
-
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream os = null;
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bos);
+            bos = new ByteArrayOutputStream();
+            os = new ObjectOutputStream(bos);
 
             String key = null;
             Object value = null;
@@ -487,17 +498,33 @@ class RequestAttrsMapper
             }
 
             os.writeObject(null);
-            os.close();
 
-            attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS,
-                    bos.toByteArray()));
         } catch (Exception x) {
-            Debug.trace("Output Mapping Error in requeset ID " +
-                    ((RequestRecord) parent).getRequestId().toString() + " : " + x);
+            if (parent != null)
+                Debug.trace("Output Mapping Error in requeset ID " +
+                        ((RequestRecord) parent).getRequestId().toString() + " : " + x);
             //if (Debug.ON) {
             Debug.printStackTrace(x);
             //}
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
+        attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS,
+                bos.toByteArray()));
     }
 
     private byte[] encode(Object value)
@@ -777,38 +804,33 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
                                             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         @SuppressWarnings("unchecked")
         Hashtable<String, Object> ht = (Hashtable<String, Object>) obj;
         Enumeration<String> e = ht.keys();
 
-        try {
-            while (e.hasMoreElements()) {
-                String key = e.nextElement();
-                Object value = ht.get(key);
-                if (value instanceof String) {
-                    String stringValue = (String) value;
+        while (e.hasMoreElements()) {
+            String key = e.nextElement();
+            Object value = ht.get(key);
+            if (value instanceof String) {
+                String stringValue = (String) value;
+                attrs.add(new LDAPAttribute(
+                        extAttrPrefix + encodeKey(key),
+                        stringValue));
+            } else if (value instanceof Hashtable) {
+                @SuppressWarnings("unchecked")
+                Hashtable<String, String> innerHash = (Hashtable<String, String>) value;
+                Enumeration<String> innerHashEnum = innerHash.keys();
+                while (innerHashEnum.hasMoreElements()) {
+                    String innerKey = innerHashEnum.nextElement();
+                    String innerValue = innerHash.get(innerKey);
                     attrs.add(new LDAPAttribute(
-                            extAttrPrefix + encodeKey(key),
-                            stringValue));
-                } else if (value instanceof Hashtable) {
-                    @SuppressWarnings("unchecked")
-                    Hashtable<String, String> innerHash = (Hashtable<String, String>) value;
-                    Enumeration<String> innerHashEnum = innerHash.keys();
-                    while (innerHashEnum.hasMoreElements()) {
-                        String innerKey = innerHashEnum.nextElement();
-                        String innerValue = innerHash.get(innerKey);
-                        attrs.add(new LDAPAttribute(
-                                extAttrPrefix + encodeKey(key) + ";" + encodeKey(innerKey),
-                                innerValue));
-                    }
+                            extAttrPrefix + encodeKey(key) + ";" + encodeKey(innerKey),
+                            innerValue));
                 }
             }
-        } catch (Exception x) {
-            Debug.trace("Output Mapping Error in requeset ID " +
-                    ((IRequestRecord) parent).getRequestId().toString() + " : " + x);
-            //if (Debug.ON) {
-            Debug.printStackTrace(x);
-            //}
         }
     }
 

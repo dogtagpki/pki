@@ -24,6 +24,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
@@ -71,6 +72,9 @@ public class MetaInfoMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
+        if (obj == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+        }
         MetaInfo info = (MetaInfo) obj;
         Enumeration<String> e = info.getElements();
 
