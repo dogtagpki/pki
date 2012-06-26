@@ -515,7 +515,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
                 (KeyRecordList) findKeyRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
                         5 * -1);
 
-        int size = recList.getSize();
+        int size = -1;
+        if (recList != null) {
+            size = recList.getSize();
+        }
 
         CMS.debug("KeyRepository: getLastSerialNumberInRange: recList size " + size);
 

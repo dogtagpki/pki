@@ -188,9 +188,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     // posts the given query data
     // returns HTTPResponse
     public HTTPResponse sslConnectClientAuth(String hostname, String portnumber,
-                                String client_cert, String url, String query) {
+                                String client_cert, String url, String query) throws Exception {
 
-        boolean st = true;
         HTTPResponse hr = null;
         PrintStream ps = null;
         SSLSocket socket = null;
@@ -247,8 +246,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
         catch (Exception e) {
             System.err.println("Exception: Unable to Send Request:" + e);
-            e.printStackTrace();
-            st = false;
+            throw e;
         } finally {
             if (ps != null) {
                 ps.close();
@@ -281,10 +279,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
                 }
         }
 
-        if (!st)
-            return null;
-        else
-            return hr;
+        return hr;
     }
 
     // performs ssl connect to given host/port

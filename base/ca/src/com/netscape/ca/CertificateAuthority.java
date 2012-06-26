@@ -1896,7 +1896,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             return response;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
-            return null;
+            throw new EBaseException(e.toString());
         }
     }
 
@@ -1940,7 +1940,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             e.printStackTrace();
             // error e
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()));
-            return null;
+            throw new EBaseException(e.toString());
         }
     }
 

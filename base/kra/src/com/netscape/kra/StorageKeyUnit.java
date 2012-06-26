@@ -216,7 +216,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
             // read certificate from file
             byte certData[] = null;
-
+            FileInputStream fi = null;
             try {
                 if (mKeySplitting) {
                     File certFile = new File(
@@ -224,11 +224,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
                     certData = new byte[
                             (Long.valueOf(certFile.length())).intValue()];
-                    FileInputStream fi = new FileInputStream(certFile);
+                    fi = new FileInputStream(certFile);
 
                     fi.read(certData);
-                    fi.close();
-
                     // pick up cert by nickName
                     mCert = mManager.findCertByNickname(
                             config.getString(PROP_NICKNAME));
@@ -257,11 +255,18 @@ public class StorageKeyUnit extends EncryptionUnit implements
                             CMS.getLogMessage("CMSCORE_KRA_STORAGE_IMPORT_CERT", e.toString()));
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ex.toString()));
                 }
+            } finally {
+                if (fi != null) {
+                    try {
+                        fi.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             if (mKeySplitting) {
                 // read private key from the file
-                FileInputStream fi = null;
                 try {
                     File priFile = new File(mConfig.getString(PROP_KEYDB));
 

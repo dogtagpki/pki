@@ -1927,15 +1927,14 @@ class serviceGetRevocationInfo implements IServant {
 
         while (enum1.hasMoreElements()) {
             String name = enum1.nextElement();
-
+            RevocationInfo info = null;
             if (name.equals(IRequest.ISSUED_CERTS)) {
                 X509CertImpl certsToCheck[] =
                         request.getExtDataInCertArray(IRequest.ISSUED_CERTS);
-
-                CertificateRepository certDB = (CertificateRepository) mCA.getCertificateRepository();
-                RevocationInfo info =
-                        certDB.isCertificateRevoked(certsToCheck[0]);
-
+                if (certsToCheck != null) {
+                    CertificateRepository certDB = (CertificateRepository) mCA.getCertificateRepository();
+                    info = certDB.isCertificateRevoked(certsToCheck[0]);
+                }
                 if (info != null) {
                     RevokedCertImpl revokedCerts[] = new RevokedCertImpl[1];
                     RevokedCertImpl revokedCert = new RevokedCertImpl(

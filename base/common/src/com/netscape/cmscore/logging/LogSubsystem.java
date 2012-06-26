@@ -200,13 +200,12 @@ public class LogSubsystem implements ILogSubsystem {
 
     public String getLogPluginName(ILogEventListener log) {
         IConfigStore cs = log.getConfigStore();
-
+        if (cs == null) {
+            return "";
+        }
         try {
             return cs.getString("pluginName", "");
         } catch (EBaseException e) {
-            e.printStackTrace();
-            return "";
-        } catch (NullPointerException e) {
             e.printStackTrace();
             return "";
         }

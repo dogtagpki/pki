@@ -287,6 +287,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
         CMS.debug("FileBasedPublisher: publish");
+
         try {
             if (object instanceof X509Certificate) {
                 X509Certificate cert = (X509Certificate) object;
@@ -295,28 +296,45 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         File.separator + "cert-" +
                         sno.toString();
                 if (mDerAttr) {
-                    String fileName = name + ".der";
-                    FileOutputStream fos = new FileOutputStream(fileName);
-                    fos.write(cert.getEncoded());
-                    fos.close();
+                    FileOutputStream fos = null;
+                    try {
+                        String fileName = name + ".der";
+                        fos = new FileOutputStream(fileName);
+                        fos.write(cert.getEncoded());
+                    } finally {
+                        if (fos != null)
+                            fos.close();
+                    }
                 }
                 if (mB64Attr) {
                     String fileName = name + ".b64";
-                    FileOutputStream fos = new FileOutputStream(fileName);
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    Base64OutputStream b64 =
-                            new Base64OutputStream(new PrintStream(new FilterOutputStream(output)));
-                    b64.write(cert.getEncoded());
-                    b64.flush();
-                    (new PrintStream(fos)).print(output.toString("8859_1"));
-                    fos.close();
+                    PrintStream ps = null;
+                    Base64OutputStream b64 = null;
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(fileName);
+                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                        b64 = new Base64OutputStream(new PrintStream(new FilterOutputStream(output)));
+                        b64.write(cert.getEncoded());
+                        b64.flush();
+                        ps = new PrintStream(fos);
+                        ps.print(output.toString("8859_1"));
+                    } finally {
+                        if (ps != null) {
+                            ps.close();
+                        }
+                        if (b64 != null) {
+                            b64.close();
+                        }
+                        if (fos != null)
+                            fos.close();
+                    }
                 }
             } else if (object instanceof X509CRL) {
                 X509CRL crl = (X509CRL) object;
                 String[] namePrefix = getCrlNamePrefix(crl, mTimeStamp.equals("GMT"));
                 String baseName = mDir + File.separator + namePrefix[0];
                 String tempFile = baseName + ".temp";
-                FileOutputStream fos;
                 ZipOutputStream zos = null;
                 byte[] encodedArray = null;
                 File destFile = null;
@@ -324,10 +342,15 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 File renameFile = null;
 
                 if (mDerAttr) {
-                    fos = new FileOutputStream(tempFile);
-                    encodedArray = crl.getEncoded();
-                    fos.write(encodedArray);
-                    fos.close();
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(tempFile);
+                        encodedArray = crl.getEncoded();
+                        fos.write(encodedArray);
+                    } finally {
+                        if (fos != null)
+                            fos.close();
+                    }
                     if (mZipCRL) {
                         try {
                             zos = new ZipOutputStream(new FileOutputStream(baseName + ".zip"));
@@ -368,10 +391,14 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 if (mB64Attr == true) {
                     if (encodedArray == null)
                         encodedArray = crl.getEncoded();
-
-                    fos = new FileOutputStream(tempFile);
-                    fos.write(Utils.base64encode(encodedArray).getBytes());
-                    fos.close();
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(tempFile);
+                        fos.write(Utils.base64encode(encodedArray).getBytes());
+                    } finally {
+                        if (fos != null)
+                            fos.close();
+                    }
                     destName = baseName + ".b64";
                     destFile = new File(destName);
 

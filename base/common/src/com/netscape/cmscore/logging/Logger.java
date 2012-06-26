@@ -203,7 +203,9 @@ public class Logger implements ILogger {
      */
     public void log(int evtClass, Properties prop, int source, int level, String msg,
             Object params[]) {
-        mLogQueue.log(create(evtClass, prop, source, level, msg, params, ILogger.L_SINGLELINE));
+        ILogEvent iLEvent = create(evtClass, prop, source, level, msg, params, ILogger.L_SINGLELINE);
+        if (iLEvent != null)
+            mLogQueue.log(iLEvent);
     }
 
     //******************** multiline log *************************
@@ -342,7 +344,9 @@ public class Logger implements ILogger {
      */
     public void log(int evtClass, Properties prop, int source, int level, String msg,
             Object params[], boolean multiline) {
-        mLogQueue.log(create(evtClass, prop, source, level, msg, params, multiline));
+        ILogEvent iLEvent = create(evtClass, prop, source, level, msg, params, multiline);
+        if (iLEvent != null)
+            mLogQueue.log(iLEvent);
     }
 
     //******************** end  multiline log *************************

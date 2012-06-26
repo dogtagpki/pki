@@ -253,6 +253,7 @@ public class CRLDistributionPoint implements ASN1Value {
 
     public static void main(String args[]) {
         ByteArrayOutputStream bos = null;
+        FileOutputStream fos = null;
         try {
             if (args.length != 1) {
                 System.out.println("Usage: CRLDistributionPoint <outfile>");
@@ -298,7 +299,8 @@ public class CRLDistributionPoint implements ASN1Value {
             cdps.encode(bos);
 
             byte[] encoded = bos.toByteArray();
-            (new FileOutputStream(args[0])).write(encoded);
+            fos = new FileOutputStream(args[0]);
+            fos.write(encoded);
 
             SEQUENCE.OF_Template seqt = new SEQUENCE.OF_Template(getTemplate());
 
@@ -341,6 +343,13 @@ public class CRLDistributionPoint implements ASN1Value {
             if (bos != null) {
                 try {
                     bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
