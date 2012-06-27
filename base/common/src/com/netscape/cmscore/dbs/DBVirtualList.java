@@ -308,9 +308,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
         if (sortKeys == null)
             throw new EBaseException("sort keys cannot be null");
         try {
-
             mKeys = new LDAPSortKey[sortKeys.length];
-            String la[] = mRegistry.getLDAPAttributes(sortKeys);
+            String la[] = null;
+            synchronized (this) {
+                la = mRegistry.getLDAPAttributes(sortKeys);
+            }
 
             for (int j = 0; j < sortKeys.length; j++) {
                 mKeys[j] = new LDAPSortKey(la[j]);

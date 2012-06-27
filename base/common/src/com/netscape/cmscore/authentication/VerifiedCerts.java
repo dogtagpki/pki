@@ -53,7 +53,7 @@ public class VerifiedCerts {
         mUnknownStateInterval = unknownStateInterval;
     }
 
-    public void update(X509CertImpl cert, int status) {
+    public synchronized void update(X509CertImpl cert, int status) {
         if (cert != null) {
             byte[] certEncoded = null;
 
@@ -90,7 +90,7 @@ public class VerifiedCerts {
         }
     }
 
-    public int check(X509CertImpl cert) {
+    public synchronized int check(X509CertImpl cert) {
         int status = VerifiedCert.UNKNOWN;
 
         if (mLast != mNext && mInterval > 0) { // if not empty and

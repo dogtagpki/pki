@@ -144,7 +144,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         return null;
     }
 
-    public void updateGeneralPanel() {
+    public synchronized void updateGeneralPanel() {
         Runtime.getRuntime().gc();
         String text =
                 "JDK VM Information " + "\n" +
@@ -161,7 +161,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         mTextArea.setText(text);
     }
 
-    public void updateThreadPanel() {
+    public synchronized void updateThreadPanel() {
         Thread currentThread = Thread.currentThread();
         Vector<Vector<String>> data = new Vector<Vector<String>>();
         Thread threads[] = new Thread[100];

@@ -370,9 +370,11 @@ final class AclEnumerator implements Enumeration<AclEntry> {
     }
 
     public boolean hasMoreElements() {
-        return (u1.hasMoreElements() ||
-                u2.hasMoreElements() ||
-                g1.hasMoreElements() || g2.hasMoreElements());
+        synchronized (acl) {
+            return (u1.hasMoreElements() ||
+                    u2.hasMoreElements() ||
+                    g1.hasMoreElements() || g2.hasMoreElements());
+        }
     }
 
     public AclEntry nextElement() {

@@ -141,7 +141,7 @@ public class ComCrypto {
         certpackage = cd;
     }
 
-    public void setGenerateRequest(boolean c) {
+    public synchronized void setGenerateRequest(boolean c) {
         generaterequest = c;
     }
 
@@ -167,7 +167,7 @@ public class ComCrypto {
         dualkey = dkey;
     }
 
-    public String getPkcs10Request() {
+    public synchronized String getPkcs10Request() {
         return pkcs10request;
     }
 

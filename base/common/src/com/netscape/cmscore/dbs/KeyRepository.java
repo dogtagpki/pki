@@ -154,8 +154,9 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {
 
         CMS.debug("In setKeyStatusUpdateInterval " + interval);
-
-        this.requestRepository = requestRepo;
+        synchronized (this) {
+            this.requestRepository = requestRepo;
+        }
 
         // stop running task
         if (mKeyStatusUpdateTask != null) {

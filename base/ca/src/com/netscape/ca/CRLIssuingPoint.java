@@ -1297,7 +1297,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mSigningAlgorithm;
     }
 
-    public String getLastSigningAlgorithm() {
+    public synchronized String getLastSigningAlgorithm() {
         return mLastSigningAlgorithm;
     }
 
@@ -1773,7 +1773,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
         } catch (EBaseException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
         mUpdateThread = null;
@@ -2307,7 +2306,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return revocationDate;
     }
 
-    public Vector<Long> getSplitTimes() {
+    public synchronized Vector<Long> getSplitTimes() {
         Vector<Long> splits = new Vector<Long>();
 
         for (int i = 0; i < mSplits.length; i++) {
@@ -2316,7 +2315,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return splits;
     }
 
-    public int isCRLUpdateInProgress() {
+    public synchronized int isCRLUpdateInProgress() {
         return mUpdatingCRL;
     }
 
@@ -2884,7 +2883,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
     }
 
-    protected void log(int level, String msg) {
+    protected synchronized void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
                 "CRLIssuingPoint " + mId + " - " + msg);
     }

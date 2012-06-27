@@ -459,7 +459,9 @@ public class ARequestNotifier implements IRequestNotifier {
             CMS.debug("recoverPublishingQueue  extended buffer to " + mRequests.size() + "(" + mMaxRequests + ")" +
                       " requests by adding request " + id);
             if (morePublishingThreads()) {
-                mSearchForRequests = true;
+                synchronized (this) {
+                    mSearchForRequests = true;
+                }
                 try {
                     Thread notifierThread = new Thread(new RunListeners(this));
                     if (notifierThread != null) {

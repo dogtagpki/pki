@@ -277,7 +277,7 @@ public class X500NameSubsystem implements ISubsystem {
 
     protected ILogger mLogger = null;
 
-    protected void log(int level, String msg) {
+    protected synchronized void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM,
                 ILogger.S_ADMIN, level, msg);
     }

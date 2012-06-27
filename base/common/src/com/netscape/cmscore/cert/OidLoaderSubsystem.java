@@ -182,7 +182,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      *
      * @return configuration store of this subsystem
      */
-    public IConfigStore getConfigStore() {
+    public synchronized IConfigStore getConfigStore() {
         return mConfig;
     }
 

@@ -226,11 +226,13 @@ public class CertificateRepository extends Repository
      * 0 - disable
      * >0 - enable
      */
-    public void setCertStatusUpdateInterval(IRepository requestRepository, int interval, boolean listenToCloneModifications) {
+    public void setCertStatusUpdateInterval(IRepository requestRepository, int interval,
+            boolean listenToCloneModifications) {
 
         CMS.debug("In setCertStatusUpdateInterval " + interval);
-
-        this.requestRepository = requestRepository;
+        synchronized (this) {
+            this.requestRepository = requestRepository;
+        }
 
         // stop running tasks
         if (certStatusUpdateTask != null) {

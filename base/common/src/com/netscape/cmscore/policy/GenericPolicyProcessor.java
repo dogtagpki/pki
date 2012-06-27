@@ -129,7 +129,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      *
      * @return configuration store
      */
-    public IConfigStore getConfigStore() {
+    public synchronized IConfigStore getConfigStore() {
         return mConfig;
     }
 

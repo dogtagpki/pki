@@ -230,7 +230,9 @@ public final class MD5 extends MessageDigestSpi implements Cloneable {
     public void init() {
         state = new int[4];
         transformBuffer = new int[16];
-        buffer = new byte[64];
+        synchronized (this) {
+            buffer = new byte[64];
+        }
         digestBits = new byte[16];
         count = 0;
         // Load magic initialization constants.

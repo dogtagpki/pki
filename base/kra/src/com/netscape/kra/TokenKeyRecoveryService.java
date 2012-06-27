@@ -194,7 +194,7 @@ public class TokenKeyRecoveryService implements IService {
      * @return operation success or not
      * @exception EBaseException failed to serve
      */
-    public boolean serviceRequest(IRequest request) throws EBaseException {
+    public synchronized boolean serviceRequest(IRequest request) throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = null;
         String auditRecoveryID = ILogger.UNIDENTIFIED;
