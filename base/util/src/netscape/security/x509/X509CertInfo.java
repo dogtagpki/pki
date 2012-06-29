@@ -352,12 +352,13 @@ public class X509CertInfo implements CertAttrSet, Serializable {
             for (int i = 0; i < extensions.size(); i++) {
                 sb.append("  Extension[" + i + "] = ");
                 Extension ext = extensions.elementAt(i);
+                DerOutputStream out = null;
                 try {
                     if (OIDMap.getClass(ext.getExtensionId()) == null) {
                         sb.append(ext.toString());
                         byte[] extValue = ext.getExtensionValue();
                         if (extValue != null) {
-                            DerOutputStream out = new DerOutputStream();
+                            out = new DerOutputStream();
                             out.putOctetString(extValue);
                             extValue = out.toByteArray();
                             String extValuebits = pp.toHexString(extValue);
@@ -367,8 +368,18 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                         }
                     } else
                         sb.append(ext.toString()); //sub-class exists
-                } catch (Exception e) {
+                } catch (CertificateException e) {
                     sb.append(", Error parsing this extension");
+                } catch (IOException e) {
+                    sb.append(", Error parsing this extension");
+                } finally {
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }

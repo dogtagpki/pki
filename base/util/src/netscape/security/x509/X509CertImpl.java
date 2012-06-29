@@ -976,6 +976,7 @@ public class X509CertImpl extends X509Certificate
      * @param oid the Object Identifier value for the extension.
      */
     public byte[] getExtensionValue(String oid) {
+        DerOutputStream out = null;
         try {
             String extAlias = OIDMap.getName(new ObjectIdentifier(oid));
             Extension certExt = null;
@@ -1008,11 +1009,19 @@ public class X509CertImpl extends X509Certificate
             if (extData == null)
                 return null;
 
-            DerOutputStream out = new DerOutputStream();
+            out = new DerOutputStream();
             out.putOctetString(extData);
             return out.toByteArray();
         } catch (Exception e) {
             return null;
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

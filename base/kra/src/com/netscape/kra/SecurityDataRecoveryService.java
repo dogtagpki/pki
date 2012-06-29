@@ -236,6 +236,7 @@ public class SecurityDataRecoveryService implements IService {
                         throw new IOException("Failed to create cipher");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new EBaseException("Can't wrap pass phrase!");
                 }
             }

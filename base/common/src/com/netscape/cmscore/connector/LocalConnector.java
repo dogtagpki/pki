@@ -36,7 +36,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
 
 public class LocalConnector implements IConnector {
-    ILogger mLogger = CMS.getLogger();
     ICertAuthority mSource = null;
     IAuthority mDest = null;
     Hashtable<String, IRequest> mSourceReqs = new Hashtable<String, IRequest>();

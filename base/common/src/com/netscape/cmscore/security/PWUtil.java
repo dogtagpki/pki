@@ -21,53 +21,48 @@ import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 
 public class PWUtil {
-    public static Password
-            readPasswordFromStream()
-                    throws PasswordCallback.GiveUpException {
+
+    public static Password readPasswordFromStream() throws PasswordCallback.GiveUpException {
 
         StringBuffer buf = new StringBuffer();
         String passwordString = "";
         int c;
-
+        // System.out.println( "about to do read" );
         try {
-            // System.out.println( "about to do read" );
-            try {
-                while ((c = System.in.read()) != -1) {
-                    char ch = (char) c;
+            while ((c = System.in.read()) != -1) {
+                char ch = (char) c;
 
-                    // System.out.println( "read [" + ch + "]" );
-                    // System.out.println( "char is [" + ch + "]" );
-                    if (ch != '\r') {
-                        if (ch != '\n') {
-                            buf.append(ch);
-                        } else {
-                            passwordString = buf.toString();
-                            buf.setLength(0);
-                            break;
-                        }
+                // System.out.println( "read [" + ch + "]" );
+                // System.out.println( "char is [" + ch + "]" );
+                if (ch != '\r') {
+                    if (ch != '\n') {
+                        buf.append(ch);
+                    } else {
+                        passwordString = buf.toString();
+                        buf.setLength(0);
+                        break;
                     }
                 }
-            } catch (Exception e) {
-                System.out.println("READ EXCEPTION");
             }
-
-            // memory problem?
-            //      String passwordString = in.readLine();
-            //            System.out.println( "done read" );
-            //            System.out.println( " password recieved is ["
-            //                              + passwordString + "]" );
-            if (passwordString == null) {
-                throw new PasswordCallback.GiveUpException();
-            }
-
-            if (passwordString.equals("")) {
-                throw new PasswordCallback.GiveUpException();
-            }
-
-            // System.out.println( "returning pw" );
-            return (new Password(passwordString.toCharArray()));
         } catch (Exception e) {
+            System.out.println("READ EXCEPTION");
+        }
+
+        // memory problem?
+        //      String passwordString = in.readLine();
+        //            System.out.println( "done read" );
+        //            System.out.println( " password recieved is ["
+        //                              + passwordString + "]" );
+        if (passwordString == null) {
             throw new PasswordCallback.GiveUpException();
         }
+
+        if (passwordString.equals("")) {
+            throw new PasswordCallback.GiveUpException();
+        }
+
+        // System.out.println( "returning pw" );
+        return (new Password(passwordString.toCharArray()));
+
     }
 }

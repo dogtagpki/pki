@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
@@ -36,8 +33,6 @@ import com.netscape.cmscore.base.JDialogPasswordCallback;
  */
 
 public class PWCBsdr implements PasswordCallback {
-    InputStream in = null;
-    OutputStream out = null;
     String mprompt = "";
     boolean firsttime = true;
     private PasswordCallback mCB = null;
@@ -49,8 +44,6 @@ public class PWCBsdr implements PasswordCallback {
     }
 
     public PWCBsdr(String prompt) {
-        in = System.in;
-        out = System.out;
         mprompt = prompt;
 
         /* to get the test program work

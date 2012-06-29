@@ -818,9 +818,12 @@ class PWsdrCache {
                  **/
                 return false;
             }
-        } catch (Exception e) {
-            return false;
+        } catch (IOException e) {
+            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return false;
     }
 
     public void debug(String msg) {

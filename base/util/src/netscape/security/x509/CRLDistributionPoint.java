@@ -251,7 +251,7 @@ public class CRLDistributionPoint implements ASN1Value {
         return templateInstance;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         ByteArrayOutputStream bos = null;
         FileOutputStream fos = null;
         try {
@@ -339,13 +339,13 @@ public class CRLDistributionPoint implements ASN1Value {
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         } finally {
             if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                bos.close();
+            }
+            if (fos != null) {
+                fos.close();
             }
             if (fos != null) {
                 try {

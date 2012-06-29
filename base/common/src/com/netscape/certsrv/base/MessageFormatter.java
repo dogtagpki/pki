@@ -88,67 +88,63 @@ public class MessageFormatter {
         String localizedFormat = null;
 
         try {
-            try {
-                // if you are worried about the efficiency of the
-                // following line, dont worry. ResourceBundle has
-                // an internal cache. So resource bundle wont be
-                // instantiated everytime you call toString().
+            // if you are worried about the efficiency of the
+            // following line, dont worry. ResourceBundle has
+            // an internal cache. So resource bundle wont be
+            // instantiated everytime you call toString().
 
-                localizedFormat = ResourceBundle.getBundle(
-                            resourceBundleBaseName, locale).getString(formatString);
-            } catch (MissingResourceException e) {
-                return formatString;
+            localizedFormat = ResourceBundle.getBundle(
+                    resourceBundleBaseName, locale).getString(formatString);
+        } catch (MissingResourceException e) {
+            return formatString;
 
-            }
-            Object[] localizedParams = params;
-            Object[] localeArg = null;
+        }
+        Object[] localizedParams = params;
+        Object[] localeArg = null;
 
-            if (params != null) {
-                for (int i = 0; i < params.length; ++i) {
-                    if (!(params[i] instanceof String) ||
-                            !(params[i] instanceof Date) ||
-                            !(params[i] instanceof Number)) {
-                        if (localizedParams == params) {
+        if (params != null) {
+            for (int i = 0; i < params.length; ++i) {
+                if (!(params[i] instanceof String) ||
+                        !(params[i] instanceof Date) ||
+                        !(params[i] instanceof Number)) {
+                    if (localizedParams == params) {
 
+                        // only done once
+                        // NB if the following variant of cloning code is used
+                        //         localizedParams = (Object [])mParams.clone();
+                        // it causes ArrayStoreException in
+                        //         localizedParams[i] = params[i].toString();
+                        // below
+
+                        localizedParams = new Object[params.length];
+                        System.arraycopy(params, 0, localizedParams, 0,
+                                params.length);
+                    }
+                    try {
+                        Method toStringMethod = params[i].getClass().getMethod(
+                                "toString", toStringSignature);
+
+                        if (localeArg == null) {
                             // only done once
-                            // NB if the following variant of cloning code is used
-                            //         localizedParams = (Object [])mParams.clone();
-                            // it causes ArrayStoreException in
-                            //         localizedParams[i] = params[i].toString();
-                            // below
-
-                            localizedParams = new Object[params.length];
-                            System.arraycopy(params, 0, localizedParams, 0,
-                                    params.length);
+                            localeArg = new Object[] { locale };
                         }
-                        try {
-                            Method toStringMethod = params[i].getClass().getMethod(
-                                    "toString", toStringSignature);
-
-                            if (localeArg == null) {
-                                // only done once
-                                localeArg = new Object[] { locale };
-                            }
-                            localizedParams[i] = toStringMethod.invoke(
-                                        params[i], localeArg);
-                        } catch (Exception e) {
-                            // no method for localization, fall back
-                            localizedParams[i] = params[i].toString();
-                        }
+                        localizedParams[i] = toStringMethod.invoke(
+                                params[i], localeArg);
+                    } catch (Exception e) {
+                        // no method for localization, fall back
+                        localizedParams[i] = params[i].toString();
                     }
                 }
             }
-            try {
-                // XXX - runtime exception may be raised by the following function
-                MessageFormat format = new MessageFormat(localizedFormat);
+        }
+        try {
+            // XXX - runtime exception may be raised by the following function
+            MessageFormat format = new MessageFormat(localizedFormat);
 
-                return format.format(localizedParams);
-            } catch (IllegalArgumentException e) {
-                // XXX - for now, we just print the unformatted message
-                // if the exception is raised
-                return localizedFormat;
-            }
-        } catch (Exception e) {
+            return format.format(localizedParams);
+        } catch (IllegalArgumentException e) {
+            // XXX - for now, we just print the unformatted message
+            // if the exception is raised
             return localizedFormat;
         }
     }

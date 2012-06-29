@@ -265,7 +265,6 @@ class PredicateTokenizer {
     int currentIndex;
     int endOfString;
     String nextToken;
-    boolean first;
 
     public PredicateTokenizer(String predString) {
         input = predString;

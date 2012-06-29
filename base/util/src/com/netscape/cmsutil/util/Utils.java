@@ -87,9 +87,12 @@ public class Utils {
                  **/
                 return false;
             }
-        } catch (Exception e) {
-            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return false;
     }
 
     public static String SpecialURLDecode(String s) {

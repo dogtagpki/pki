@@ -28,6 +28,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -453,7 +454,7 @@ public class CertUtils {
         return ((recentCert == currentCert) ? null : recentCert);
     }
 
-    public static String getCertType(X509CertImpl cert) {
+    public static String getCertType(X509CertImpl cert) throws CertificateParsingException, IOException {
         StringBuffer sb = new StringBuffer();
 
         if (isSigningCert(cert))
@@ -465,27 +466,24 @@ public class CertUtils {
         }
 
         // Is is object signing cert?
-        try {
-            CertificateExtensions extns = (CertificateExtensions)
-                    cert.get(X509CertImpl.NAME + "." +
-                            X509CertImpl.INFO + "." +
-                            X509CertInfo.EXTENSIONS);
+        CertificateExtensions extns = (CertificateExtensions)
+                cert.get(X509CertImpl.NAME + "." +
+                        X509CertImpl.INFO + "." +
+                        X509CertInfo.EXTENSIONS);
 
-            if (extns != null) {
-                NSCertTypeExtension nsExtn = (NSCertTypeExtension)
-                        extns.get(NSCertTypeExtension.NAME);
+        if (extns != null) {
+            NSCertTypeExtension nsExtn = (NSCertTypeExtension)
+                    extns.get(NSCertTypeExtension.NAME);
 
-                if (nsExtn != null) {
-                    String nsType = getNSExtensionInfo(nsExtn);
+            if (nsExtn != null) {
+                String nsType = getNSExtensionInfo(nsExtn);
 
-                    if (nsType != null) {
-                        if (sb.length() > 0)
-                            sb.append("  ");
-                        sb.append(nsType);
-                    }
+                if (nsType != null) {
+                    if (sb.length() > 0)
+                        sb.append("  ");
+                    sb.append(nsType);
                 }
             }
-        } catch (Exception e) {
         }
         return (sb.length() > 0) ? sb.toString() : null;
     }
@@ -793,14 +791,21 @@ public class CertUtils {
 
         // if the OID isn't valid (ex. n.n) the error isn't caught til
         // encoding time leaving a bad request in the request queue.
+        DerOutputStream derOut = null;
         try {
-            DerOutputStream derOut = new DerOutputStream();
+            derOut = new DerOutputStream();
 
             derOut.putOID(oid);
             new ObjectIdentifier(new DerInputStream(derOut.toByteArray()));
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        attrName, msg1));
+                    attrName, msg1));
+        } finally {
+            try {
+                derOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return oid;
     }

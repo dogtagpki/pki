@@ -531,8 +531,9 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * Parse server.xml to get the ports and IPs
+     * @throws EBaseException
      */
-    private void parseServerXML() {
+    private void parseServerXML() throws EBaseException {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
@@ -628,6 +629,7 @@ public class CMSEngine implements ICMSEngine {
 
         } catch (Exception e) {
             CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
+            throw new EBaseException("CMSEngine: Cannot parse the configuration file. " + e.toString());
         }
     }
 
@@ -1586,8 +1588,10 @@ public class CMSEngine implements ICMSEngine {
 
             process.waitFor();
 
-        } catch (Exception e) {
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     } // end shutdownHttpServer
 

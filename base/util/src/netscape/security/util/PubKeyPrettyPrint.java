@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
+import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -113,7 +114,8 @@ public class PubKeyPrettyPrint {
                 sb.append(pp.toHexString(mX509Key.getKey(), indentSize + 4, lineLen));
             }
 
-        } catch (Exception e) {
+        } catch(InvalidKeyException e){
+            e.printStackTrace();
         }
 
         return sb.toString();

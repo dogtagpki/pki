@@ -61,23 +61,19 @@ public class BasicOCSPResponse implements Response {
         _certs = certs;
     }
 
-    public BasicOCSPResponse(OCTET_STRING os) {
+    public BasicOCSPResponse(OCTET_STRING os) throws InvalidBERException, IOException {
         this(os.toByteArray());
     }
 
-    public BasicOCSPResponse(byte data[]) {
+    public BasicOCSPResponse(byte data[]) throws InvalidBERException, IOException {
         mData = data;
 
         // extract _rd, _signAlg, _signature and _certs
-        try {
-            BasicOCSPResponse resp = (BasicOCSPResponse) getTemplate().decode(new ByteArrayInputStream(data));
-            _rd = resp.getResponseData();
-            _signAlg = resp.getSignatureAlgorithm();
-            _signature = resp.getSignature();
-            _certs = resp.getCerts();
-        } catch (Exception e) {
-            // exception in decoding byte data
-        }
+        BasicOCSPResponse resp = (BasicOCSPResponse) getTemplate().decode(new ByteArrayInputStream(data));
+        _rd = resp.getResponseData();
+        _signAlg = resp.getSignatureAlgorithm();
+        _signature = resp.getSignature();
+        _certs = resp.getCerts();
     }
 
     private static final Tag TAG = SEQUENCE.TAG;

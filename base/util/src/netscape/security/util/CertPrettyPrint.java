@@ -336,6 +336,7 @@ public class CertPrettyPrint {
 
             sb.append(certFingerprints.toString());
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return sb.toString();

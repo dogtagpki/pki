@@ -484,9 +484,12 @@ public class CRSPKIMessage {
 
             return baos.toByteArray();
             //            return crsd.getEncodedContents();
-        } catch (Exception e) {
-            return null;
+        } catch (InvalidBERException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     public String toString() {

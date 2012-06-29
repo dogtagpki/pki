@@ -542,50 +542,52 @@ public class PWsdrCache {
         return ((File.separator).equals("\\"));
     }
 
-    public static boolean exec(String cmd) throws EBaseException {
+    public static boolean exec(String cmd) throws IOException {
+        String cmds[] = null;
+
+        if (isNT()) {
+            // NT
+            cmds = new String[3];
+            cmds[0] = "cmd";
+            cmds[1] = "/c";
+            cmds[2] = cmd;
+        } else {
+            // UNIX
+            cmds = new String[3];
+            cmds[0] = "/bin/sh";
+            cmds[1] = "-c";
+            cmds[2] = cmd;
+        }
+        Process process = null;
         try {
-            String cmds[] = null;
-
-            if (isNT()) {
-                // NT
-                cmds = new String[3];
-                cmds[0] = "cmd";
-                cmds[1] = "/c";
-                cmds[2] = cmd;
-            } else {
-                // UNIX
-                cmds = new String[3];
-                cmds[0] = "/bin/sh";
-                cmds[1] = "-c";
-                cmds[2] = cmd;
-            }
-            Process process = Runtime.getRuntime().exec(cmds);
-
+            process = Runtime.getRuntime().exec(cmds);
             process.waitFor();
+        } catch (IOException e) {
+            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-            if (process.exitValue() == 0) {
+        if (process != null && process.exitValue() == 0) {
 
-                /**
-                 * pOut = new BufferedReader(
-                 * new InputStreamReader(process.getInputStream()));
-                 * while ((l = pOut.readLine()) != null) {
-                 * System.out.println(l);
-                 * }
-                 **/
-                return true;
-            } else {
+            /**
+             * pOut = new BufferedReader(
+             * new InputStreamReader(process.getInputStream()));
+             * while ((l = pOut.readLine()) != null) {
+             * System.out.println(l);
+             * }
+             **/
+            return true;
+        } else {
 
-                /**
-                 * pOut = new BufferedReader(
-                 * new InputStreamReader(process.getErrorStream()));
-                 * l = null;
-                 * while ((l = pOut.readLine()) != null) {
-                 * System.out.println(l);
-                 * }
-                 **/
-                return false;
-            }
-        } catch (Exception e) {
+            /**
+             * pOut = new BufferedReader(
+             * new InputStreamReader(process.getErrorStream()));
+             * l = null;
+             * while ((l = pOut.readLine()) != null) {
+             * System.out.println(l);
+             * }
+             **/
             return false;
         }
     }
