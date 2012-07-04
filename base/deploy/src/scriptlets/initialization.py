@@ -41,9 +41,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # verify that this type of "subsystem" does NOT yet
         # exist for this "instance"
         util.instance.verify_subsystem_does_not_exist()
+        # initialize 'uid' and 'gid'
+        util.identity.add_uid_and_gid(master['pki_user'], master['pki_group'])
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
+        # verify existence of MANDATORY configuration file data
+        util.configuration_file.verify_sensitive_data()
+        util.configuration_file.verify_mutually_exclusive_data()
         return self.rv
 
     def respawn(self):
@@ -74,4 +79,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
+        # ALWAYS Stop this Apache/Tomcat PKI Process
+        util.systemd.stop()
         return self.rv

@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}17%{?prerel}%{?dist}
+Release:          %{?relprefix}19%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -47,6 +47,12 @@ BuildRequires:    junit
 %else
 BuildRequires:    junit4
 %endif
+%if 0%{?fedora} >= 18
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
+BuildRequires:    jss >= 4.2.6-24
+BuildRequires:    systemd-units
+BuildRequires:    tomcatjss >= 7.0.0
+%else
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
@@ -61,6 +67,7 @@ BuildRequires:    tomcatjss >= 6.0.0
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    tomcatjss >= 2.0.0
+%endif
 %endif
 %endif
 # Add the following build-time requirements to support the "pki-deploy" package
@@ -345,6 +352,7 @@ BuildArch:        noarch
 Requires:         java >= 1:1.6.0
 Requires:         javassist
 Requires:         jettison
+Requires:         jython >= 2.2.1
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-deploy = %{version}-%{release}
@@ -360,6 +368,15 @@ Requires:         velocity
 %if 0%{?fedora} >= 17
 Requires:         resteasy >= 2.3.2-1
 %endif
+%if 0%{?fedora} >= 18
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
+Requires:         jss >= 4.2.6-24
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+Requires:         tomcatjss >= 7.0.0
+%else
 %if 0%{?fedora} >= 16
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
@@ -395,6 +412,7 @@ Requires:         jakarta-commons-lang
 Requires:         jakarta-commons-logging
 Requires:         jss >= 4.2.6-17
 Requires:         tomcatjss >= 2.0.0
+%endif
 %endif
 %endif
 %endif
@@ -785,8 +803,8 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
 # Create symlink to the pki-jndi-realm jar
-%{__mkdir_p} %{buildroot}%{_javadir}/tomcat6
-%{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
+%{__mkdir_p} %{buildroot}%{_javadir}/tomcat
+%{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat/pki-jndi-realm.jar
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} %{buildroot}%{_bindir}/pkidaemon
@@ -1253,7 +1271,7 @@ fi
 
 %if 0%{?fedora} >= 16
 # Create symlink to the pki-jndi-realm jar
-%{_javadir}/tomcat6/pki-jndi-realm.jar
+%{_javadir}/tomcat/pki-jndi-realm.jar
 %endif
 %if 0%{?fedora} >= 15
 # Details:
@@ -1413,6 +1431,12 @@ fi
 
 
 %changelog
+* Wed Jul 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.19.a1
+- Moved 'pki-jndi-real.jar' link from 'tomcat6' to 'tomcat' (Tomcat 7)
+
+* Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.18.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
+
 * Mon May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
 - Added CLI for REST services
 

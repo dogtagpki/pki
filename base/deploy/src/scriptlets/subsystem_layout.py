@@ -56,6 +56,34 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                     master['pki_subsystem_profiles_path'])
             # establish instance-based Tomcat PKI subsystem logs
             # establish instance-based Tomcat PKI subsystem configuration
+            if master['pki_subsystem'] == "CA":
+                util.file.copy(master['pki_source_flatfile_txt'],
+                               master['pki_target_flatfile_txt'])
+                util.file.copy(master['pki_source_registry_cfg'],
+                               master['pki_target_registry_cfg'])
+                # '*.profile'
+                util.file.copy(master['pki_source_admincert_profile'],
+                               master['pki_target_admincert_profile'])
+                util.file.copy(master['pki_source_caauditsigningcert_profile'],
+                               master['pki_target_caauditsigningcert_profile'])
+                util.file.copy(master['pki_source_cacert_profile'],
+                               master['pki_target_cacert_profile'])
+                util.file.copy(master['pki_source_caocspcert_profile'],
+                               master['pki_target_caocspcert_profile'])
+                util.file.copy(master['pki_source_servercert_profile'],
+                               master['pki_target_servercert_profile'])
+                util.file.copy(master['pki_source_subsystemcert_profile'],
+                               master['pki_target_subsystemcert_profile'])
+            elif master['pki_subsystem'] == "KRA":
+                # '*.profile'
+                util.file.copy(master['pki_source_servercert_profile'],
+                               master['pki_target_servercert_profile'])
+                util.file.copy(master['pki_source_storagecert_profile'],
+                               master['pki_target_storagecert_profile'])
+                util.file.copy(master['pki_source_subsystemcert_profile'],
+                               master['pki_target_subsystemcert_profile'])
+                util.file.copy(master['pki_source_transportcert_profile'],
+                               master['pki_target_transportcert_profile'])
             # establish instance-based Tomcat PKI subsystem registry
             # establish instance-based Tomcat PKI subsystem convenience
             # symbolic links
@@ -98,6 +126,46 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                     overwrite_flag=True)
             # update instance-based Tomcat PKI subsystem logs
             # update instance-based Tomcat PKI subsystem configuration
+            if master['pki_subsystem'] == "CA":
+                # util.file.copy(master['pki_source_flatfile_txt'],
+                #                master['pki_target_flatfile_txt'],
+                #                overwrite_flag=True)
+                util.file.copy(master['pki_source_registry_cfg'],
+                               master['pki_target_registry_cfg'],
+                               overwrite_flag=True)
+                # '*.profile'
+                util.file.copy(master['pki_source_admincert_profile'],
+                               master['pki_target_admincert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_caauditsigningcert_profile'],
+                               master['pki_target_caauditsigningcert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_cacert_profile'],
+                               master['pki_target_cacert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_caocspcert_profile'],
+                               master['pki_target_caocspcert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_servercert_profile'],
+                               master['pki_target_servercert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_subsystemcert_profile'],
+                               master['pki_target_subsystemcert_profile'],
+                               overwrite_flag=True)
+            elif master['pki_subsystem'] == "KRA":
+                # '*.profile'
+                util.file.copy(master['pki_source_servercert_profile'],
+                               master['pki_target_servercert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_storagecert_profile'],
+                               master['pki_target_storagecert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_subsystemcert_profile'],
+                               master['pki_target_subsystemcert_profile'],
+                               overwrite_flag=True)
+                util.file.copy(master['pki_source_transportcert_profile'],
+                               master['pki_target_transportcert_profile'],
+                               overwrite_flag=True)
             # update instance-based Tomcat PKI subsystem registry
             # update instance-based Tomcat PKI subsystem convenience
             # symbolic links

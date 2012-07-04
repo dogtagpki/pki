@@ -28,6 +28,13 @@ PKI_DEPLOYMENT_DEFAULT_SGID_DIR_PERMISSIONS = 02770
 PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS = 00777
 PKI_DEPLOYMENT_DEFAULT_UMASK = 00002
 
+PKI_DEPLOYMENT_DEFAULT_COMMENT = "'Certificate System'"
+PKI_DEPLOYMENT_DEFAULT_GID = 17
+PKI_DEPLOYMENT_DEFAULT_GROUP = "pkiuser"
+PKI_DEPLOYMENT_DEFAULT_SHELL = "/sbin/nologin"
+PKI_DEPLOYMENT_DEFAULT_UID = 17
+PKI_DEPLOYMENT_DEFAULT_USER = "pkiuser"
+
 PKI_SUBSYSTEMS = ["CA","KRA","OCSP","RA","TKS","TPS"]
 PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS","TPS"]
 PKI_APACHE_SUBSYSTEMS = ["RA","TPS"]
@@ -39,6 +46,12 @@ PKI_INDENTATION_LEVEL_2 = {'indent' : '....... '}
 PKI_INDENTATION_LEVEL_3 = {'indent' : '........... '}
 PKI_INDENTATION_LEVEL_4 = {'indent' : '............... '}
 
+PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
+                                  "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
+PKI_DEPLOYMENT_JAR_SOURCE_ROOT = "/usr/share/java"
+PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT = "/usr/share/java/httpcomponents"
+PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT = "/usr/share/java/pki"
+PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT = "/usr/share/java/resteasy"
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
 PKI_DEPLOYMENT_SYSTEMD_ROOT = "/lib/systemd/system"
 PKI_DEPLOYMENT_SYSTEMD_CONFIGURATION_ROOT = "/etc/systemd/system"
@@ -101,6 +114,48 @@ custom_pki_https_port = None
 custom_pki_ajp_port = None
 
 
+# PKI Deployment Helper Functions
+def str2bool(string):
+    return string.lower() in ("yes", "true", "t", "1")
+
+# NOTE:  To utilize the 'preparations_for_an_external_java_debugger(master)'
+#        and 'wait_to_attach_an_external_java_debugger(master)' functions,
+#        change 'pki_enable_java_debugger=False' to
+#        'pki_enable_java_debugger=True' in the appropriate
+#        'pkideployment.cfg' configuration file.
+def prepare_for_an_external_java_debugger(instance):
+    print
+    print PKI_DEPLOYMENT_INTERRUPT_BANNER
+    print
+    print "The following 'JAVA_OPTS' MUST be enabled (uncommented) in"
+    print "'%s':" % instance
+    print
+    print "    JAVA_OPTS=\"-Xdebug -Xrunjdwp:transport=dt_socket,\""
+    print "              \"address=8000,server=y,suspend\""
+    print
+    raw_input("Enable external java debugger 'JAVA_OPTS' "\
+              "and press return to continue  . . . ")
+    print
+    print PKI_DEPLOYMENT_INTERRUPT_BANNER
+    print
+    return
+
+def wait_to_attach_an_external_java_debugger():
+    print
+    print PKI_DEPLOYMENT_INTERRUPT_BANNER
+    print
+    print "Attach the java debugger to this process on the port specified by"
+    print "the 'address' selected by 'JAVA_OPTS' (e. g. - port 8000) and"
+    print "set any desired breakpoints"
+    print
+    raw_input("Please attach an external java debugger "\
+              "and press return to continue  . . . ")
+    print
+    print PKI_DEPLOYMENT_INTERRUPT_BANNER
+    print
+    return
+
+
 # PKI Deployment Logger Variables
 pki_jython_log_level = None
 pki_log = None
@@ -111,6 +166,9 @@ pki_console_log_level = None
 
 
 # PKI Deployment Global Dictionaries
+pki_sensitive_dict = None
+pki_mandatory_dict = None
+pki_optional_dict = None
 pki_common_dict = None
 pki_web_server_dict = None
 pki_subsystem_dict = None

@@ -307,6 +307,7 @@ my $PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT_UI"
 my $PKI_AGENT_SECURE_PORT_SLOT          = "PKI_AGENT_SECURE_PORT";
 my $PKI_ADMIN_SECURE_PORT_SLOT          = "PKI_ADMIN_SECURE_PORT";
 my $PKI_SERVER_XML_CONF                 = "PKI_SERVER_XML_CONF";
+my $PKI_SUBSYSTEM_DIR_SLOT              = "PKI_SUBSYSTEM_DIR";
 my $PKI_SUBSYSTEM_TYPE_SLOT             = "PKI_SUBSYSTEM_TYPE";
 my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT                       = "PKI_USER";
@@ -2417,6 +2418,7 @@ sub process_pki_templates
 
     emit("Processing PKI templates for '$pki_instance_path' ...\n");
 
+    $slot_hash{$PKI_SUBSYSTEM_DIR_SLOT}    = "";
     $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
     $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
     $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;

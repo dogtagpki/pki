@@ -68,7 +68,10 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 <Server port="[TOMCAT_SERVER_PORT]" shutdown="SHUTDOWN">
 
   <!--APR library loader. Documentation at /docs/apr.html -->
-  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <!-- The following Listener class has been commented out because this -->
+  <!-- implementation depends upon the 'tomcatjss' JSSE module, 'JSS',  -->
+  <!-- and 'NSS' rather than the 'tomcat-native' module! -->
+  <!-- Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" -->
   <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
   <Listener className="org.apache.catalina.core.JasperListener" />
   <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html -->
@@ -116,7 +119,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     [PKI_UNSECURE_PORT_SERVER_COMMENT]
     <Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]" port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1" redirectPort="8443"
            maxHttpHeaderSize="8192"
-           acceptCount="100" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+           acceptCount="100" maxThreads="150" minSpareThreads="25"
            enableLookups="false" connectionTimeout="20000" disableUploadTimeout="true"
            />
 
@@ -124,9 +127,31 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     [PKI_SECURE_PORT_SERVER_COMMENT]
     <!-- DO NOT REMOVE - Begin define PKI secure port
     1
+    NOTE: The following 'keys' (and their assigned values) are exclusive to
+          the 'tomcatjss' JSSE module:
+
+              'enableOCSP'
+              'ocspResponderURL'
+              'ocspResponderCertNickname'
+              'ocspCacheSize'
+              'ocspMinCacheEntryDuration'
+              'ocspMaxCacheEntryDuration'
+              'ocspTimeout'
+              'strictCiphers'
+              'clientauth' (ALL lowercase)
+              'sslOptions'
+              'ssl2Ciphers'
+              'ssl3Ciphers'
+              'tlsCiphers'
+              'serverCertNickFile'
+              'passwordFile'
+              'passwordClass'
+              'certdbDir'
+
+          and are referenced via the value of the 'sslImplementationName' key.
     NOTE: The OCSP settings take effect globally, so it should only be set once.
 
-      In setup where SSL clientAuth="true", OCSP can be turned on by
+      In setup where SSL clientauth="true", OCSP can be turned on by
       setting enableOCSP to true like the following:
         enableOCSP="true"
       along with changes to related settings, especially:
@@ -150,9 +175,9 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     -->
     <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_SECURE_PORT]" protocol="HTTP/1.1" SSLEnabled="true" sslProtocol="SSL" scheme="https" secure="true"
            maxHttpHeaderSize="8192"
-           acceptCount="100" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+           acceptCount="100" maxThreads="150" minSpareThreads="25"
            enableLookups="false" disableUploadTimeout="true"
-           SSLImplementation="org.apache.tomcat.util.net.jss.JSSImplementation"
+           sslImplementationName="org.apache.tomcat.util.net.jss.JSSImplementation"
            enableOCSP="false"
            ocspResponderURL="http://[PKI_MACHINE_NAME]:9080/ca/ocsp"
            ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
@@ -162,6 +187,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            ocspTimeout="10"
            strictCiphers="false"
            clientAuth="[PKI_AGENT_CLIENTAUTH]"
+           clientauth="[PKI_AGENT_CLIENTAUTH]"
            sslOptions="[TOMCAT_SSL_OPTIONS]"
            ssl2Ciphers="[TOMCAT_SSL2_CIPHERS]"
            ssl3Ciphers="[TOMCAT_SSL3_CIPHERS]"
@@ -172,23 +198,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            certdbDir="[PKI_INSTANCE_PATH]/alias"
            />
     <!-- DO NOT REMOVE - End define PKI secure port -->
-
-    <!-- A "Connector" using the shared thread pool-->
-    <!--
-    <Connector executor="tomcatThreadPool"
-               port="8080" protocol="HTTP/1.1"
-               connectionTimeout="20000"
-               redirectPort="8443" />
-    -->
-    <!-- Define a SSL HTTP/1.1 Connector on port 8443
-         This connector uses the JSSE configuration, when using APR, the
-         connector should be using the OpenSSL style configuration
-         described in the APR documentation -->
-    <!--
-    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
-               maxThreads="150" scheme="https" secure="true"
-               clientAuth="false" sslProtocol="TLS" />
-    -->
 
     <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
 [PKI_OPEN_AJP_PORT_COMMENT]
@@ -281,9 +290,44 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
       <!-- Define the default virtual host
            Note: XML Schema validation will not work with Xerces 2.2.
       -->
-      <Host name="localhost"  appBase="webapps"
+      <Host name="localhost"
+            appBase="[PKI_INSTANCE_PATH]/webapps"
             unpackWARs="true" autoDeploy="false"
             xmlValidation="false" xmlNamespaceAware="false">
+
+        <!--
+        <Context path="/ca"
+                 docBase="ca"
+                 allowLinking="true">
+          <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+                  virtualClasspath="[PKI_INSTANCE_PATH]/ca/webapps/ca/WEB-INF/classes;[PKI_INSTANCE_PATH]/ca/webapps/ca/WEB-INF/lib" />" />
+          <JarScanner scanAllDirectories="true" />
+        </Context>
+
+        <Context path="/kra"
+                 docBase="kra"
+                 allowLinking="true">
+          <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+                  virtualClasspath="[PKI_INSTANCE_PATH]/kra/webapps/kra/WEB-INF/classes;[PKI_INSTANCE_PATH]/kra/webapps/kra/WEB-INF/lib" />
+          <JarScanner scanAllDirectories="true" />
+        </Context>
+
+        <Context path="/ocsp"
+                 docBase="ocsp"
+                 allowLinking="true">
+          <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+                  virtualClasspath="[PKI_INSTANCE_PATH]/ocsp/webapps/ocsp/WEB-INF/classes;[PKI_INSTANCE_PATH]/ocsp/webapps/ocsp/WEB-INF/lib" />
+          <JarScanner scanAllDirectories="true" />
+        </Context>
+
+        <Context path="/tks"
+                 docBase="tks"
+                 allowLinking="true">
+          <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+                  virtualClasspath="[PKI_INSTANCE_PATH]/tks/webapps/tks/WEB-INF/classes;[PKI_INSTANCE_PATH]/tks/webapps/tks/WEB-INF/lib" />
+          <JarScanner scanAllDirectories="true" />
+        </Context>
+        -->
 
         <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
@@ -294,8 +338,9 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
         <!-- Access log processes all example.
              Documentation at: /docs/config/valve.html -->
         <!--
-        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
-               prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
+        <Valve className="org.apache.catalina.valves.AccessLogValve"
+               directory="logs" prefix="localhost_access_log." suffix=".txt"
+               pattern="common" resolveHosts="false"/>
         -->
 
       </Host>

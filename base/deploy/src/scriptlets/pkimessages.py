@@ -20,6 +20,14 @@
 #
 
 # PKI Deployment Engine Messages
+PKI_DICTIONARY_MANDATORY ="\n"\
+"=====================================================\n"\
+"    DISPLAY CONTENTS OF PKI MANDATORY DICTIONARY\n"\
+"====================================================="
+PKI_DICTIONARY_OPTIONAL ="\n"\
+"=====================================================\n"\
+"    DISPLAY CONTENTS OF PKI OPTIONAL DICTIONARY\n"\
+"====================================================="
 PKI_DICTIONARY_COMMON ="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI COMMON DICTIONARY\n"\
@@ -40,6 +48,7 @@ PKI_DICTIONARY_WEB_SERVER="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI WEB SERVER DICTIONARY\n"\
 "====================================================="
+# NEVER print out 'sensitive' data dictionary!!!
 
 
 # PKI Deployment Log Messages
@@ -150,10 +159,16 @@ PKIHELPER_CP_P_2 = "cp -p %s %s"
 PKIHELPER_CP_RP_2 = "cp -rp %s %s"
 PKIHELPER_CREATE_SECURITY_DATABASES_1 = "executing '%s'"
 PKIHELPER_DANGLING_SYMLINK_2 = "Dangling symlink '%s'-->'%s'"
+PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1 = "KeyError:  Master dictionary "\
+                                            "is missing the key called '%s'!"
 PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
 PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
 PKIHELPER_GID_2 = "GID of '%s' is %s"
 PKIHELPER_GROUP_1 = "retrieving GID for '%s' . . ."
+PKIHELPER_GROUP_ADD_2 = "adding GID '%s' for group '%s' . . ."
+PKIHELPER_GROUP_ADD_DEFAULT_2 = "adding default GID '%s' for group '%s' . . ."
+PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
+PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
 PKIHELPER_INVOKE_JYTHON_3 = "executing 'export %s;"\
                             "jython %s %s <master_dictionary>'"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
@@ -165,32 +180,82 @@ PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
 PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
 PKIHELPER_MODIFY_SYMLINK_1 = "modifying '%s'"
+PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA = "cloned CAs and external "\
+                                                 "CAs MUST be MUTUALLY "\
+                                                 "EXCLUSIVE in '%s'"
+PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA = "cloned CAs, external "\
+                                                     "CAs, and subordinate CAs"\
+                                                     "MUST ALL be MUTUALLY "\
+                                                     "EXCLUSIVE in '%s'"
+PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA = "cloned CAs and subordinate "\
+                                            "CAs MUST be MUTUALLY "\
+                                            "EXCLUSIVE in '%s'"
+PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA = "external CAs and subordinate "\
+                                               "CAs MUST be MUTUALLY "\
+                                               "EXCLUSIVE in '%s'"
 PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
 PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2 = "instance '%s' contains '%d' "\
                                       "PKI subsystems"
+PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
 PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
 PKIHELPER_SLOT_SUBSTITUTION_2 = "slot substitution: '%s' ==> '%s'"
+PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
 PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' "\
                                "Tomcat PKI subsystems"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
+PKIHELPER_UNDEFINED_ADMIN_PASSWORD_1 =\
+    "A value for 'pki_admin_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1 =\
+    "A value for 'pki_backup_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_DS_PASSWORD_1 =\
+    "A value for 'pki_ds_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_PKCS12_PASSWORD_1 =\
+    "A value for 'pki_pkcs12_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_SECURITY_DOMAIN_PASSWORD_1 =\
+    "A value for 'pki_security_domain_password' MUST be defined in '%s'"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
+PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."
+PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."
+PKIHELPER_USER_ADD_KEYERROR_1 = "KeyError:  pki_user %s"
+PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
 
 # PKI Deployment Jython "Scriptlet" Messages
 # (MUST contain NO embedded formats since Jython 2.2 does not support logging!)
+PKI_JYTHON_CDATA_TAG = "tag:"
+PKI_JYTHON_CDATA_CERT = "cert:"
+PKI_JYTHON_CDATA_REQUEST = "request:"
+PKI_JYTHON_CLONED_PKI_SUBSYSTEM = "Cloned"
+PKI_JYTHON_CONFIGURING_PKI_DATA = "configuring PKI configuration data for"
+PKI_JYTHON_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data for"
+PKI_JYTHON_CRMF_SUPPORT_ONLY = "only the 'crmf' certificate request type "\
+                               "is currently supported"
+PKI_JYTHON_IS_DUALKEY = "dualkey = true"
+PKI_JYTHON_EXCEPTION_PARSER = "Problem parsing"
+PKI_JYTHON_EXTERNAL_CA = "External"
 PKI_JYTHON_INDENTATION_0 = "pkispawn    : JYTHON  "
 PKI_JYTHON_INDENTATION_1 = "pkispawn    : JYTHON   ..."
 PKI_JYTHON_INDENTATION_2 = "pkispawn    : JYTHON   ......."
 PKI_JYTHON_INDENTATION_3 = "pkispawn    : JYTHON   ..........."
 PKI_JYTHON_INDENTATION_4 = "pkispawn    : JYTHON   ..............."
+PKI_JYTHON_INITIALIZATION_ERROR = "INITIALIZATION ERROR:"
+PKI_JYTHON_INITIALIZING_REST_CLIENT = "initializing REST client via"
 PKI_JYTHON_INITIALIZING_TOKEN = "initializing token located in"
+PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION =\
+    "Exception from Java Configuration Servlet:"
 PKI_JYTHON_LOG_INTO_TOKEN = "logging into token located in"
+PKI_JYTHON_LOGIN_EXCEPTION = "login Exception:"
+PKI_JYTHON_RESPONSE_ADMIN_CERT = "adminCert:"
+PKI_JYTHON_RESPONSE_STATUS = "status:"
+PKI_JYTHON_TOKEN_LOGIN_EXCEPTION = "Exception in logging into token:"
+PKI_JYTHON_NOT_YET_IMPLEMENTED = "NOT YET IMPLEMENTED"
+PKI_JYTHON_SUBORDINATE_CA = "Subordinate"
 
 
 # PKI Deployment "Scriptlet" Messages

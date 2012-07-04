@@ -28,6 +28,7 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.realm.JNDIRealm;
+import org.apache.catalina.Wrapper;
 
 /*
  *  Self contained PKI JNDI Real that overrides the standard JNDI Realm
@@ -206,6 +207,8 @@ public class PKIJNDIRealm extends JNDIRealm {
 
         boolean allowed = super.hasResourcePermission(request, response, constraints, context);
 
+        Wrapper wrapper = request.getWrapper();
+
         if (allowed == true && hasResourceACLS()) {
 
             loadAuthzProperties(context);
@@ -238,7 +241,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                         }
                     }
 
-                    allowed = checkACLPermission(principal, resourceID, operation);
+                    allowed = checkACLPermission(principal, resourceID, operation, wrapper);
                     logDebug("resourceID: " + resourceID + " operation: " + operation + " allowed: " + allowed);
                 }
             }
@@ -351,7 +354,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
     // Check a PKI  ACL resourceID and operation for permissions
     // If the check fails the user (principal) is not authorized to access the resource
-    private boolean checkACLPermission(Principal principal, String resourceId, String operation) {
+    private boolean checkACLPermission(Principal principal, String resourceId, String operation, Wrapper wrapper) {
 
         boolean allowed = true;
 
@@ -378,7 +381,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
             String expressions = entry.getAttributeExpressions();
 
-            allowed = evaluateExpressions(principal, expressions);
+            allowed = evaluateExpressions(principal, expressions, wrapper);
 
             if (isEntryNegative) {
                 allowed = !allowed;
@@ -400,7 +403,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
     // Evaluate an expression as part of a PKI ACL
     // Ex: user=anybody , group=Data Recovery Manager Agents
-    private boolean evaluateExpression(Principal principal, String expression) {
+    private boolean evaluateExpression(Principal principal, String expression, Wrapper wrapper) {
 
         boolean allowed = true;
         if (principal == null || expression == null) {
@@ -445,7 +448,7 @@ public class PKIJNDIRealm extends JNDIRealm {
         allowed = false;
         if (left.equals(PROP_GROUP)) {
             // Check JNDI to see if the user has this role/group
-            if (hasRole(principal, right)) {
+            if (hasRole(wrapper, principal, right)) {
                 allowed = true;
             }
         } else if (left.equals(PROP_USER)) {
@@ -482,7 +485,7 @@ public class PKIJNDIRealm extends JNDIRealm {
     }
 
     // Take a set of expressions in an ACL and evaluate it
-    private boolean evaluateExpressions(Principal principal, String s) {
+    private boolean evaluateExpressions(Principal principal, String s, Wrapper wrapper) {
 
         Vector<Object> v = new Vector<Object>();
 
@@ -492,7 +495,7 @@ public class PKIJNDIRealm extends JNDIRealm {
 
             // this is the last expression
             if (orIndex == -1 && andIndex == -1) {
-                boolean passed = evaluateExpression(principal, s.trim());
+                boolean passed = evaluateExpression(principal, s.trim(), wrapper);
 
                 v.addElement(Boolean.valueOf(passed));
                 break;
@@ -500,7 +503,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 // || first
             } else if (andIndex == -1 || (orIndex != -1 && orIndex < andIndex)) {
                 String s1 = s.substring(0, orIndex);
-                boolean passed = evaluateExpression(principal, s1.trim());
+                boolean passed = evaluateExpression(principal, s1.trim(), wrapper);
 
                 v.addElement(Boolean.valueOf(passed));
                 v.addElement("||");
@@ -508,7 +511,7 @@ public class PKIJNDIRealm extends JNDIRealm {
                 // && first
             } else {
                 String s1 = s.substring(0, andIndex);
-                boolean passed = evaluateExpression(principal, s1.trim());
+                boolean passed = evaluateExpression(principal, s1.trim(), wrapper);
 
                 v.addElement(Boolean.valueOf(passed));
                 v.addElement("&&");

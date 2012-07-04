@@ -39,7 +39,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                               master['pki_target_cs_cfg'])
         util.file.copy_with_slot_substitution(master['pki_source_registry'],
                                               master['pki_target_registry'],
-                                              overwrite_flag=True)
+                                              uid=0, gid=0, overwrite_flag=True)
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             util.file.copy_with_slot_substitution(
                 master['pki_source_catalina_properties'],
@@ -56,7 +56,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf_instance_id'],
-                overwrite_flag=True)
+                uid=0, gid=0, overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf'],
@@ -69,6 +69,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_target_velocity_properties'])
             util.file.apply_slot_substitution(
                 master['pki_target_subsystem_web_xml'])
+            # Strip "<filter>" section from subsystem "web.xml"
+            # This is ONLY necessary because XML comments cannot be "nested"!
+            #util.file.copy(master['pki_target_subsystem_web_xml'],
+            #               master['pki_target_subsystem_web_xml_orig'])
+            #util.file.delete(master['pki_target_subsystem_web_xml'])
+            #util.xml_file.remove_filter_section_from_web_xml(
+            #    master['pki_target_subsystem_web_xml_orig'],
+            #    master['pki_target_subsystem_web_xml'])
+            #util.file.delete(master['pki_target_subsystem_web_xml_orig'])
             if master['pki_subsystem'] == "CA":
                 util.file.copy_with_slot_substitution(
                     master['pki_source_proxy_conf'],
@@ -85,7 +94,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                               overwrite_flag=True)
         util.file.copy_with_slot_substitution(master['pki_source_registry'],
                                               master['pki_target_registry'],
-                                              overwrite_flag=True)
+                                              uid=0, gid=0, overwrite_flag=True)
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             util.file.copy_with_slot_substitution(
                 master['pki_source_catalina_properties'],
@@ -102,7 +111,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf_instance_id'],
-                overwrite_flag=True)
+                uid=0, gid=0, overwrite_flag=True)
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf'],
@@ -115,6 +124,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_target_velocity_properties'])
             util.file.apply_slot_substitution(
                 master['pki_target_subsystem_web_xml'])
+            # Strip "<filter>" section from subsystem "web.xml"
+            # This is ONLY necessary because XML comments cannot be "nested"!
+            #util.file.copy(master['pki_target_subsystem_web_xml'],
+            #               master['pki_target_subsystem_web_xml_orig'])
+            #util.file.delete(master['pki_target_subsystem_web_xml'])
+            #util.xml_file.remove_filter_section_from_web_xml(
+            #    master['pki_target_subsystem_web_xml_orig'],
+            #    master['pki_target_subsystem_web_xml'])
+            #util.file.delete(master['pki_target_subsystem_web_xml_orig'])
             if master['pki_subsystem'] == "CA":
                 util.file.copy_with_slot_substitution(
                     master['pki_source_proxy_conf'],

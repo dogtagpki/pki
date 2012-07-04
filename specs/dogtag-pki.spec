@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -17,6 +17,19 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
+%if 0%{?fedora} >= 18
+%define dogtag_pki_theme_version   10.0.0
+%define esc_version                1.1.0
+%define jss_version                4.2.6-24
+%define pki_core_version           10.0.0
+%define pki_kra_version            10.0.0
+%define pki_ocsp_version           10.0.0
+%define pki_ra_version             10.0.0
+%define pki_tks_version            10.0.0
+%define pki_tps_version            10.0.0
+%define pki_console_version        10.0.0
+%define tomcatjss_version          7.0.0
+%else
 %if 0%{?fedora} >= 17
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
@@ -54,6 +67,7 @@ BuildArch:        noarch
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
 %define tomcatjss_version          2.0.0
+%endif
 %endif
 %endif
 
@@ -184,6 +198,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.5.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
+
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.4.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 

@@ -371,8 +371,10 @@ public class CertUtil {
 
             String instanceRoot = config.getString("instanceRoot");
 
+            String configurationRoot = config.getString("configurationRoot");
+
             CertInfoProfile processor = new CertInfoProfile(
-                    instanceRoot + "/conf/" + profile);
+                    instanceRoot + configurationRoot + profile);
 
             // cfu - create request to enable renewal
             try {

@@ -30,14 +30,17 @@ import random
 import shutil
 import string
 import subprocess
+from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
+from pwd import getpwuid
 import zipfile
 
 
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
+from pkiconfig import pki_sensitive_dict as sensitive
 from pkiconfig import pki_slots_dict as slots
 import pkimanifest as manifest
 import pkimessages as log
@@ -117,6 +120,136 @@ def pki_copytree(src, dst, symlinks=False, ignore=None):
 
 # PKI Deployment Identity Class
 class identity:
+    def __add_gid(self, pki_group):
+        pki_gid = None
+        try:
+            # Does the specified 'pki_group' exist?
+            pki_gid = getgrnam(pki_group)[2]
+            # Yes, group 'pki_group' exists!
+            config.pki_log.info(log.PKIHELPER_GROUP_ADD_2, pki_group, pki_gid,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+        except KeyError as exc:
+            # No, group 'pki_group' does not exist!
+            config.pki_log.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            try:
+                # Is the default well-known GID already defined?
+                group = getgrgid(config.PKI_DEPLOYMENT_DEFAULT_GID)[0]
+                # Yes, the default well-known GID exists!
+                config.pki_log.info(log.PKIHELPER_GROUP_ADD_DEFAULT_2,
+                                    group, config.PKI_DEPLOYMENT_DEFAULT_GID,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # Attempt to create 'pki_group' using a random GID.
+                command = "/usr/sbin/groupadd" + " " +\
+                          pki_group + " " +\
+                          "> /dev/null 2>&1"
+            except KeyError as exc:
+                # No, the default well-known GID does not exist!
+                config.pki_log.debug(log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1,
+                                     exc, extra=config.PKI_INDENTATION_LEVEL_2)
+                # Is the specified 'pki_group' the default well-known group?
+                if pki_group == config.PKI_DEPLOYMENT_DEFAULT_GROUP:
+                    # Yes, attempt to create the default well-known group
+                    # using the default well-known GID.
+                    command = "/usr/sbin/groupadd" + " " +\
+                              "-g" + " " +\
+                              str(config.PKI_DEPLOYMENT_DEFAULT_GID) + " " +\
+                              "-r" + " " +\
+                              pki_group + " " +\
+                              "> /dev/null 2>&1"
+                else:
+                    # No, attempt to create 'pki_group' using a random GID.
+                    command = "/usr/sbin/groupadd" + " " +\
+                              pki_group + " " +\
+                              "> /dev/null 2>&1"
+            # Execute this "groupadd" command.
+            subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        return
+
+    def __add_uid(self, pki_user, pki_group):
+        pki_uid = None
+        try:
+            # Does the specified 'pki_user' exist?
+            pki_uid = getpwnam(pki_user)[2]
+            # Yes, user 'pki_user' exists!
+            config.pki_log.info(log.PKIHELPER_USER_ADD_2, pki_user, pki_uid,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+            # NOTE:  For now, never check validity of specified 'pki_group'!
+        except KeyError as exc:
+            # No, user 'pki_user' does not exist!
+            config.pki_log.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            try:
+                # Is the default well-known UID already defined?
+                user = getpwuid(config.PKI_DEPLOYMENT_DEFAULT_UID)[0]
+                # Yes, the default well-known UID exists!
+                config.pki_log.info(log.PKIHELPER_USER_ADD_DEFAULT_2,
+                                    user, config.PKI_DEPLOYMENT_DEFAULT_UID,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # Attempt to create 'pki_user' using a random UID.
+                command = "/usr/sbin/useradd" + " " +\
+                          "-g" + " " +\
+                          pki_group + " " +\
+                          "-d" + " " +\
+                          config.PKI_DEPLOYMENT_SOURCE_ROOT + " " +\
+                          "-s" + " " +\
+                          config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " +\
+                          "-c" + " " +\
+                          config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " +\
+                          pki_user + " " +\
+                          "> /dev/null 2>&1"
+            except KeyError as exc:
+                # No, the default well-known UID does not exist!
+                config.pki_log.debug(log.PKIHELPER_USER_ADD_UID_KEYERROR_1,
+                                     exc, extra=config.PKI_INDENTATION_LEVEL_2)
+                # Is the specified 'pki_user' the default well-known user?
+                if pki_user == config.PKI_DEPLOYMENT_DEFAULT_USER:
+                    # Yes, attempt to create the default well-known user
+                    # using the default well-known UID.
+                    command = "/usr/sbin/useradd" + " " +\
+                              "-g" + " " +\
+                              pki_group + " " +\
+                              "-d" + " " +\
+                              config.PKI_DEPLOYMENT_SOURCE_ROOT + " " +\
+                              "-s" + " " +\
+                              config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " +\
+                              "-c" + " " +\
+                              config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " +\
+                              "-u" + " " +\
+                              str(config.PKI_DEPLOYMENT_DEFAULT_UID) + " " +\
+                              "-r" + " " +\
+                              pki_user + " " +\
+                              "> /dev/null 2>&1"
+                else:
+                    # No, attempt to create 'pki_user' using a random UID.
+                    command = "/usr/sbin/useradd" + " " +\
+                              "-g" + " " +\
+                              pki_group + " " +\
+                              "-d" + " " +\
+                              config.PKI_DEPLOYMENT_SOURCE_ROOT + " " +\
+                              "-s" + " " +\
+                              config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " +\
+                              "-c" + " " +\
+                              config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " +\
+                              pki_user + " " +\
+                              "> /dev/null 2>&1"
+            # Execute this "useradd" command.
+            subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        return
+
+    def add_uid_and_gid(self, pki_user, pki_group):
+        self.__add_gid(pki_group)
+        self.__add_uid(pki_user, pki_group)
+        return
+
     def get_uid(self, critical_failure=True):
         try:
             pki_uid = master['pki_uid']
@@ -170,18 +303,140 @@ class identity:
         return pki_gid
 
 
+# PKI Deployment Configuration File Class
+class configuration_file:
+    def verify_sensitive_data(self):
+        # Silently verify the existence of 'sensitive' data
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # Verify existence of Directory Server Password (ALWAYS)
+            if not sensitive.has_key('pki_ds_password') or\
+               not len(sensitive['pki_ds_password']):
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_DS_PASSWORD_1,
+                    config.pkideployment_cfg,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            # Verify existence of Admin Password (except for Clones)
+            if not config.str2bool(master['pki_clone']):
+                if not sensitive.has_key('pki_admin_password') or\
+                   not len(sensitive['pki_admin_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_ADMIN_PASSWORD_1,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            # If required, verify existence of Backup Password
+            # (except for Clones)
+            if config.str2bool(master['pki_backup_keys']):
+                if not config.str2bool(master['pki_clone']):
+                    if not sensitive.has_key('pki_backup_password') or\
+                       not len(sensitive['pki_backup_password']):
+                        config.pki_log.error(
+                            log.PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1,
+                            config.pkideployment_cfg,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+            # Verify existence of PKCS #12 Password (ONLY for Clones)
+            if config.str2bool(master['pki_clone']):
+                if not sensitive.has_key('pki_pkcs12_password') or\
+                   not len(sensitive['pki_pkcs12_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_PKCS12_PASSWORD_1,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            # Verify existence of Security Domain Password File
+            # (ONLY for Clones, Subordinate CA, KRA, OCSP, RA, TKS, or TPS)
+            if config.str2bool(master['pki_clone']) or\
+               config.str2bool(master['pki_subordinate']) or\
+               master['pki_subsystem'] == "KRA" or\
+               master['pki_subsystem'] == "OCSP" or\
+               master['pki_subsystem'] == "RA" or\
+               master['pki_subsystem'] == "TKS" or\
+               master['pki_subsystem'] == "TPS":
+                if not sensitive.has_key('pki_security_domain_password') or\
+                   not len(sensitive['pki_security_domain_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_SECURITY_DOMAIN_PASSWORD_1,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+        return
+
+    def verify_mutually_exclusive_data(self):
+        # Silently verify the existence of 'mutually exclusive' data
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if master['pki_subsystem'] == "CA":
+                if config.str2bool(master['pki_clone']) and\
+                   config.str2bool(master['pki_external']) and\
+                   config.str2bool(master['pki_subordinate']):
+                    config.pki_log.error(
+                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                elif config.str2bool(master['pki_clone']) and\
+                     config.str2bool(master['pki_external']):
+                    config.pki_log.error(
+                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                elif config.str2bool(master['pki_clone']) and\
+                     config.str2bool(master['pki_subordinate']):
+                    config.pki_log.error(
+                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                elif config.str2bool(master['pki_external']) and\
+                     config.str2bool(master['pki_subordinate']):
+                    config.pki_log.error(
+                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+
+
+# PKI Deployment XML File Class
+#class xml_file:
+#    def remove_filter_section_from_web_xml(self,
+#                                           web_xml_source,
+#                                           web_xml_target):
+#        config.pki_log.info(log.PKIHELPER_REMOVE_FILTER_SECTION_1,
+#            master['pki_target_subsystem_web_xml'],
+#            extra=config.PKI_INDENTATION_LEVEL_2)
+#        if not config.pki_dry_run_flag:
+#            begin_filters_section = False
+#            begin_servlet_section = False
+#            FILE = open(web_xml_target, "w")
+#            for line in fileinput.FileInput(web_xml_source):
+#                if not begin_filters_section:
+#                    # Read and write lines until first "<filter>" tag
+#                    if line.count("<filter>") >= 1:
+#                        # Mark filters section
+#                        begin_filters_section = True
+#                    else:
+#                        FILE.write(line)
+#                elif not begin_servlet_section:
+#                    # Skip lines until first "<servlet>" tag
+#                    if line.count("<servlet>") >= 1:
+#                        # Mark servlets section and write out the opening tag
+#                        begin_servlet_section = True
+#                        FILE.write(line)
+#                    else:
+#                        continue
+#                else:
+#                    # Read and write lines all lines after "<servlet>" tag
+#                    FILE.write(line)
+#            FILE.close()
+
+
 # PKI Deployment Instance Class
 class instance:
     def apache_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_instance_path']) or\
-               not os.path.isdir(master['pki_instance_path']):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_instance_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             # count number of PKI subsystems present
             # within the specified Apache instance
             for subsystem in config.PKI_APACHE_SUBSYSTEMS:
@@ -206,13 +461,6 @@ class instance:
     def pki_subsystem_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_path']) or\
-               not os.path.isdir(master['pki_path']):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             # Since ALL directories within the top-level PKI infrastructure
             # SHOULD represent PKI instances, look for all possible
             # PKI instances within the top-level PKI infrastructure
@@ -247,13 +495,6 @@ class instance:
     def tomcat_instances(self):
         rv = 0
         try:
-            if not os.path.exists(master['pki_instance_path']) or\
-               not os.path.isdir(master['pki_instance_path']):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    master['pki_instance_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             # count number of PKI subsystems present
             # within the specified Tomcat instance
             for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
@@ -1295,8 +1536,8 @@ class war:
 
 # PKI Deployment Password Class
 class password:
-    def create_password_conf(self, path, pin, overwrite_flag=False,
-                             critical_failure=True):
+    def create_password_conf(self, path, pin, pin_sans_token=False,
+                             overwrite_flag=False, critical_failure=True):
         try:
             if not config.pki_dry_run_flag:
                 if os.path.exists(path):
@@ -1306,7 +1547,9 @@ class password:
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         # overwrite the existing 'password.conf' file
                         with open(path, "wt") as fd:
-                            if master['pki_subsystem'] in\
+                            if pin_sans_token == True:
+                                fd.write(str(pin))
+                            elif master['pki_subsystem'] in\
                                config.PKI_APACHE_SUBSYSTEMS:
                                 fd.write(master['pki_self_signed_token'] +\
                                          ":" + str(pin))
@@ -1319,7 +1562,9 @@ class password:
                                         extra=config.PKI_INDENTATION_LEVEL_2)
                     # create a new 'password.conf' file
                     with open(path, "wt") as fd:
-                        if master['pki_subsystem'] in\
+                        if pin_sans_token == True:
+                            fd.write(str(pin))
+                        elif master['pki_subsystem'] in\
                            config.PKI_APACHE_SUBSYSTEMS:
                             fd.write(master['pki_self_signed_token'] +\
                                      ":" + str(pin))
@@ -1642,6 +1887,90 @@ class certutil:
         return
 
 
+# PKI Deployment 'systemd' Execution Management Class
+class systemd:
+    def start(self, critical_failure=True):
+        try:
+            # Compose this "systemd" execution management command
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "start" + " " +\
+                          "pki-apached" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "start" + " " +\
+                          "pki-tomcatd" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            if not config.pki_dry_run_flag:
+                # Execute this "systemd" execution management command
+                subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+    def stop(self, critical_failure=True):
+        try:
+            # Compose this "systemd" execution management command
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "stop" + " " +\
+                          "pki-apached" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "stop" + " " +\
+                          "pki-tomcatd" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            if not config.pki_dry_run_flag:
+                # Execute this "systemd" execution management command
+                subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+    def restart(self, critical_failure=True):
+        try:
+            # Compose this "systemd" execution management command
+            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "restart" + " " +\
+                          "pki-apached" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                command = "systemctl" + " " +\
+                          "restart" + " " +\
+                          "pki-tomcatd" + "@" +\
+                          master['pki_instance_id'] + "." + "service"
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            if not config.pki_dry_run_flag:
+                # Execute this "systemd" execution management command
+                subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+
 # PKI Deployment 'jython' Class
 class jython:
     def invoke(self, scriptlet, critical_failure=True):
@@ -1681,6 +2010,8 @@ class jython:
 
 # PKI Deployment Helper Class Instances
 identity = identity()
+configuration_file = configuration_file()
+#xml_file = xml_file()
 instance = instance()
 directory = directory()
 file = file()
@@ -1688,4 +2019,5 @@ symlink = symlink()
 war = war()
 password = password()
 certutil = certutil()
+systemd = systemd()
 jython = jython()

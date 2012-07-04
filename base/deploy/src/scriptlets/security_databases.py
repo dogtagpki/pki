@@ -38,13 +38,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.password.create_password_conf(
                 master['pki_shared_password_conf'],
                 master['pki_pin'])
+            # Since 'certutil' does NOT strip the 'token=' portion of
+            # the 'token=password' entries, create a temporary server 'pfile'
+            # which ONLY contains the 'password' for the purposes of
+            # allowing 'certutil' to generate the security databases
+            util.password.create_password_conf(
+                master['pki_shared_pfile'],
+                master['pki_pin'], pin_sans_token=True)
             util.file.modify(master['pki_shared_password_conf'])
             util.certutil.create_security_databases(
                 master['pki_database_path'],
                 master['pki_cert_database'],
                 master['pki_key_database'],
                 master['pki_secmod_database'],
-                password_file=master['pki_shared_password_conf'])
+                password_file=master['pki_shared_pfile'])
             util.file.modify(master['pki_cert_database'], perms=\
                 config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
             util.file.modify(master['pki_key_database'], perms=\
@@ -58,7 +65,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      master['pki_secmod_database'],
                      master['pki_self_signed_token'],
                      master['pki_self_signed_nickname'],
-                     password_file=master['pki_shared_password_conf'])
+                     password_file=master['pki_shared_pfile'])
             if not rv:
                 util.file.generate_noise_file(
                     master['pki_self_signed_noise_file'],
@@ -76,18 +83,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     master['pki_self_signed_issuer_name'],
                     master['pki_self_signed_trustargs'],
                     master['pki_self_signed_noise_file'],
-                    password_file=master['pki_shared_password_conf'])
+                    password_file=master['pki_shared_pfile'])
+                # Delete the temporary 'noise' file
                 util.file.delete(master['pki_self_signed_noise_file'])
+            # Delete the temporary 'pfile'
+            util.file.delete(master['pki_shared_pfile'])
         else:
             util.password.create_password_conf(
                 master['pki_shared_password_conf'],
                 master['pki_pin'])
+            # Since 'certutil' does NOT strip the 'token=' portion of
+            # the 'token=password' entries, create a temporary server 'pfile'
+            # which ONLY contains the 'password' for the purposes of
+            # allowing 'certutil' to generate the security databases
+            util.password.create_password_conf(
+                master['pki_shared_pfile'],
+                master['pki_pin'], pin_sans_token=True)
             util.certutil.create_security_databases(
                 master['pki_database_path'],
                 master['pki_cert_database'],
                 master['pki_key_database'],
                 master['pki_secmod_database'],
-                password_file=master['pki_shared_password_conf'])
+                password_file=master['pki_shared_pfile'])
             rv = util.certutil.verify_certificate_exists(
                      master['pki_database_path'],
                      master['pki_cert_database'],
@@ -95,7 +112,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      master['pki_secmod_database'],
                      master['pki_self_signed_token'],
                      master['pki_self_signed_nickname'],
-                     password_file=master['pki_shared_password_conf'])
+                     password_file=master['pki_shared_pfile'])
             if not rv:
                 util.file.generate_noise_file(
                     master['pki_self_signed_noise_file'],
@@ -113,7 +130,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     master['pki_self_signed_issuer_name'],
                     master['pki_self_signed_trustargs'],
                     master['pki_self_signed_noise_file'],
-                    password_file=master['pki_shared_password_conf'])
+                    password_file=master['pki_shared_pfile'])
+                # Delete the temporary 'noise' file
+                util.file.delete(master['pki_self_signed_noise_file'])
+            # Delete the temporary 'pfile'
+            util.file.delete(master['pki_shared_pfile'])
         return self.rv
 
     def respawn(self):

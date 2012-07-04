@@ -9,7 +9,6 @@ import sys
 # PKI Python Imports
 import pkijython as jyutil
 import pkiconfig as config
-from pkiconfig import pki_master_jython_dict as master
 import pkimessages as log
 
 
@@ -18,11 +17,18 @@ from java.lang import System as javasystem
 
 
 def main(argv):
+    rv = 0
+
     # Establish 'master' as the PKI jython dictionary
     master = dict()
 
-    # import the master dictionary from 'pkispawn'
+    # Import the master dictionary from 'pkispawn'
     master = pickle.loads(argv[1])
+
+    # Optionally enable a java debugger (e. g. - 'eclipse'):
+    if config.str2bool(master['pki_enable_java_debugger']):
+        config.wait_to_attach_an_external_java_debugger()
+
 
     # IMPORTANT:  Unfortunately, 'jython 2.2' does NOT support logging!
     #
@@ -59,11 +65,107 @@ def main(argv):
         master['pki_jython_log_level'])
 
     # Log into token
-    jyutil.security_databases.log_into_token(
-        master['pki_client_database_path'],
-        master['pki_client_password_conf'],
-        master['pki_dry_run_flag'],
-        master['pki_jython_log_level'])
+    token = jyutil.security_databases.log_into_token(
+                master['pki_client_database_path'],
+                master['pki_client_password_conf'],
+                master['pki_dry_run_flag'],
+                master['pki_jython_log_level'])
+
+    # Establish REST Client
+    client = jyutil.rest_client.initialize(
+                 master['pki_jython_base_uri'],
+                 master['pki_dry_run_flag'],
+                 master['pki_jython_log_level'])
+
+    # Construct PKI Subsystem Configuration Data
+    data = None
+    if master['pki_instance_type'] == "Apache":
+        if master['pki_subsystem'] == "RA":
+            print "%s '%s' %s" %\
+                  (log.PKI_JYTHON_INDENTATION_2,
+                   master['pki_subsystem'],
+                   log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+            return self.rv
+        elif master['pki_subsystem'] == "TPS":
+            print "%s '%s' %s" %\
+                  (log.PKI_JYTHON_INDENTATION_2,
+                   master['pki_subsystem'],
+                   log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+            return self.rv
+    elif master['pki_instance_type'] == "Tomcat":
+        if master['pki_subsystem'] == "CA":
+            if config.str2bool(master['pki_clone']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            elif config.str2bool(master['pki_external']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_EXTERNAL_CA,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            elif config.str2bool(master['pki_subordinate']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_SUBORDINATE_CA,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            else:
+                data = jyutil.rest_client.construct_pki_configuration_data(
+                           master, token)
+        elif master['pki_subsystem'] == "KRA":
+            if config.str2bool(master['pki_clone']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            else:
+                print "%s '%s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+        elif master['pki_subsystem'] == "OCSP":
+            if config.str2bool(master['pki_clone']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            else:
+                print "%s '%s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+        elif master['pki_subsystem'] == "TKS":
+            if config.str2bool(master['pki_clone']):
+                print "%s '%s %s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+            else:
+                print "%s '%s' %s" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       master['pki_subsystem'],
+                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
+                return self.rv
+
+    # Formulate PKI Subsystem Configuration Data Response
+    jyutil.rest_client.configure_pki_data(data,
+                                          master['pki_subsystem'],
+                                          master['pki_dry_run_flag'],
+                                          master['pki_jython_log_level'])
 
 
 if __name__ == "__main__":

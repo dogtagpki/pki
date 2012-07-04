@@ -5,6 +5,7 @@ from java.io import BufferedReader
 from java.io import ByteArrayInputStream
 from java.io import FileReader
 from java.io import IOException
+from java.lang import Integer
 from java.lang import String as javastring
 from java.lang import System as javasystem
 from java.net import URISyntaxException
@@ -18,6 +19,7 @@ import jarray
 
 
 # System Python Imports
+import ConfigParser
 import os
 import sys
 pki_python_module_path = os.path.join(sys.prefix,
@@ -79,10 +81,15 @@ class classPathHacker:
 jarLoad = classPathHacker()
 #     Webserver Jars
 jarLoad.addFile("/usr/share/java/httpcomponents/httpclient.jar")
+jarLoad.addFile("/usr/share/java/httpcomponents/httpcore.jar")
 jarLoad.addFile("/usr/share/java/apache-commons-cli.jar")
+jarLoad.addFile("/usr/share/java/apache-commons-codec.jar")
+jarLoad.addFile("/usr/share/java/apache-commons-logging.jar")
+jarLoad.addFile("/usr/share/java/istack-commons-runtime.jar")
 #     Resteasy Jars
 jarLoad.addFile("/usr/share/java/glassfish-jaxb/jaxb-impl.jar")
 jarLoad.addFile("/usr/share/java/resteasy/jaxrs-api.jar")
+jarLoad.addFile("/usr/share/java/resteasy/resteasy-atom-provider.jar")
 jarLoad.addFile("/usr/share/java/resteasy/resteasy-jaxb-provider.jar")
 jarLoad.addFile("/usr/share/java/resteasy/resteasy-jaxrs.jar")
 jarLoad.addFile("/usr/share/java/resteasy/resteasy-jettison-provider.jar")
@@ -145,6 +152,63 @@ import pkiconfig as config
 import pkimessages as log
 
 
+# PKI Deployment Jython Helper Functions
+def extract_sensitive_data(configuration_file):
+    "Read 'sensitive' configuration file section into a dictionary"
+    try:
+        parser = ConfigParser.ConfigParser()
+        # Make keys case-sensitive!
+        parser.optionxform = str
+        parser.read(configuration_file)
+        # return dict(parser._sections['Sensitive'])
+        dictionary = {}
+        for option in parser.options('Sensitive'):
+            dictionary[option] = parser.get('Sensitive', option)
+        return dictionary
+    except ConfigParser.ParsingError, err:
+        javasystem.out.println(log.PKI_JYTHON_EXCEPTION_PARSER + " '" +\
+                               configuration_file + "':  " + str(err))
+        javasystem.exit(1)
+
+def generateCRMFRequest(token, keysize, subjectdn, dualkey):
+        kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA)
+        x = Integer(keysize)
+        key_len = x.intValue()
+        kg.initialize(key_len)
+        # 1st key pair
+        pair = kg.genKeyPair()
+        # create CRMF
+        certTemplate = CertTemplate()
+        certTemplate.setVersion(INTEGER(2))
+        if not subjectdn is None:
+            name = X500Name(subjectdn)
+            cs = ByteArrayInputStream(name.getEncoded())
+            n = Name.getTemplate().decode(cs)
+            certTemplate.setSubject(n)
+        certTemplate.setPublicKey(SubjectPublicKeyInfo(pair.getPublic()))
+        seq = SEQUENCE()
+        certReq = CertRequest(INTEGER(1), certTemplate, seq)
+        popdata = jarray.array([0x0,0x3,0x0], 'b')
+        pop = ProofOfPossession.createKeyEncipherment(
+                  POPOPrivKey.createThisMessage(BIT_STRING(popdata, 3)))
+        crmfMsg = CertReqMsg(certReq, pop, None)
+        s1 = SEQUENCE()
+        # 1st : Encryption key
+        s1.addElement(crmfMsg)
+        # 2nd : Signing Key
+        if dualkey:
+            javasystem.out.println(log.PKI_JYTHON_IS_DUALKEY)
+            seq1 = SEQUENCE()
+            certReqSigning = CertRequest(INTEGER(1), certTemplate, seq1)
+            signingMsg = CertReqMsg(certReqSigning, pop, None)
+            s1.addElement(signingMsg)
+        encoded = jarray.array(ASN1Util.encode(s1), 'b')
+        # encoder = BASE64Encoder()
+        # Req1 = encoder.encodeBuffer(encoded)
+        Req1 = Utils.base64encode(encoded)
+        return Req1
+
+
 # PKI Deployment 'security databases' Class
 class security_databases:
     def initialize_token(self, pki_database_path, pki_dry_run_flag, log_level):
@@ -160,11 +224,13 @@ class security_databases:
             # it is ok if it is already initialized
             pass
         except Exception, e:
-            javasystem.out.println("INITIALIZATION ERROR: " + str(e))
+            javasystem.out.println(log.PKI_JYTHON_INITIALIZATION_ERROR +\
+                                   " " + str(e))
             javasystem.exit(1)
 
     def log_into_token(self, pki_database_path, password_conf,
                        pki_dry_run_flag, log_level):
+        token = None
         try:
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
                 print "%s %s '%s'" %\
@@ -174,10 +240,10 @@ class security_databases:
             if not pki_dry_run_flag:
                 manager = CryptoManager.getInstance()
                 token = manager.getInternalKeyStorageToken()
-                # Retrieve 'token_pwd' from 'password_conf'
+                # Retrieve 'password' from client-side 'password_conf'
                 #
                 #     NOTE:  For now, ONLY read the first line
-                #            (which contains the password)
+                #            (which contains "password")
                 #
                 fd = open(password_conf, "r")
                 token_pwd = fd.readline()
@@ -188,13 +254,364 @@ class security_databases:
                 try:
                     token.login(password)
                 except Exception, e:
-                    javasystem.out.println("login Exception: " + str(e))
+                    javasystem.out.println(log.PKI_JYTHON_LOGIN_EXCEPTION +\
+                                           " " + str(e))
                     if not token.isLoggedIn():
                         token.initPassword(password, password)
+                    javasystem.exit(1)
         except Exception, e:
-            javasystem.out.println("Exception in logging into token: " +\
-                                   str(e))
+            javasystem.out.println(log.PKI_JYTHON_TOKEN_LOGIN_EXCEPTION +\
+                                   " " + str(e))
             javasystem.exit(1)
+        return token
+
+
+# PKI Deployment 'REST Client' Class
+class rest_client:
+    client = None
+
+    def initialize(self, base_uri, pki_dry_run_flag, log_level):
+        try:
+            if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
+                print "%s %s '%s'" %\
+                      (log.PKI_JYTHON_INDENTATION_2,
+                       log.PKI_JYTHON_INITIALIZING_REST_CLIENT,
+                       base_uri)
+            if not pki_dry_run_flag:
+                self.client = ConfigurationRESTClient(base_uri, None)
+            return self.client
+        except URISyntaxException, e:
+            e.printStackTrace()
+            javasystem.exit(1)
+
+    def construct_pki_configuration_data(self, master, token):
+        data = None
+        if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
+            print "%s %s '%s'" %\
+                  (log.PKI_JYTHON_INDENTATION_2,
+                   log.PKI_JYTHON_CONSTRUCTING_PKI_DATA,
+                   master['pki_subsystem'])
+        if not master['pki_dry_run_flag']:
+            sensitive = extract_sensitive_data(master['pki_deployment_cfg'])
+            data = ConfigurationData()
+            # Miscellaneous Configuration Information
+            data.setPin(master['pki_one_time_pin'])
+            data.setToken(ConfigurationData.TOKEN_DEFAULT)
+            if master['pki_instance_type'] == "Tomcat":
+                if master['pki_subsystem'] == "CA":
+                    if config.str2bool(master['pki_clone']):
+                        # Cloned CA
+                        data.setHierarchy("root")
+                        data.setIsClone("true")
+                        data.setSubsystemName("Cloned CA Subsystem")
+                    elif config.str2bool(master['pki_external']):
+                        # External CA
+                        data.setHierarchy("join")
+                        data.setIsClone("false")
+                        data.setSubsystemName("External CA Subsystem")
+                    elif config.str2bool(master['pki_subordinate']):
+                        # Subordinate CA
+                        data.setHierarchy("join")
+                        data.setIsClone("false")
+                        data.setSubsystemName("Subordinate CA Subsystem")
+                    else:
+                        # PKI CA
+                        data.setHierarchy("root")
+                        data.setIsClone("false")
+                        data.setSubsystemName("PKI CA Subsystem")
+                elif master['pki_subsystem'] == "KRA":
+                    if config.str2bool(master['pki_clone']):
+                        # Cloned KRA
+                        data.setIsClone("true")
+                        data.setSubsystemName("Cloned KRA Subsystem")
+                    else:
+                        # PKI KRA
+                        data.setIsClone("false")
+                        data.setSubsystemName("PKI KRA Subsystem")
+                elif master['pki_subsystem'] == "OCSP":
+                    if config.str2bool(master['pki_clone']):
+                        # Cloned OCSP
+                        data.setIsClone("true")
+                        data.setSubsystemName("Cloned OCSP Subsystem")
+                    else:
+                        # PKI OCSP
+                        data.setIsClone("false")
+                        data.setSubsystemName("PKI OCSP Subsystem")
+                elif master['pki_subsystem'] == "TKS":
+                    if config.str2bool(master['pki_clone']):
+                        # Cloned TKS
+                        data.setIsClone("true")
+                        data.setSubsystemName("Cloned TKS Subsystem")
+                    else:
+                        # PKI TKS
+                        data.setIsClone("false")
+                        data.setSubsystemName("PKI TKS Subsystem")
+            # Security Domain Information
+            if master['pki_instance_type'] == "Tomcat":
+                if master['pki_subsystem'] == "CA":
+                    if config.str2bool(master['pki_external']):
+                        # External CA
+                        data.setSecurityDomainType(
+                            ConfigurationData.NEW_DOMAIN)
+                        data.setSecurityDomainName(
+                            master['pki_security_domain_name'])
+                    elif not config.str2bool(master['pki_clone']) and\
+                         not config.str2bool(master['pki_subordinate']):
+                        # PKI CA
+                        data.setSecurityDomainType(
+                            ConfigurationData.NEW_DOMAIN)
+                        data.setSecurityDomainName(
+                            master['pki_security_domain_name'])
+                    else:
+                        # PKI Cloned or Subordinate CA
+                        data.setSecurityDomainType(
+                            ConfigurationData.EXISTING_DOMAIN)
+                        data.setSecurityDomainUri(
+                            master['pki_security_domain_uri'])
+                        data.setSecurityDomainUser(
+                            master['pki_security_domain_user'])
+                        data.setSecurityDomainPassword(
+                            sensitive['pki_security_domain_password'])
+                else:
+                    # PKI KRA, OCSP, or TKS
+                    data.setSecurityDomainType(
+                        ConfigurationData.EXISTING_DOMAIN)
+                    data.setSecurityDomainUri(
+                        master['pki_security_domain_uri'])
+                    data.setSecurityDomainUser(
+                        master['pki_security_domain_user'])
+                    data.setSecurityDomainPassword(
+                        sensitive['pki_security_domain_password'])
+            # Directory Server Information
+            if master['pki_subsystem'] != "RA":
+                data.setDsHost(master['pki_ds_hostname'])
+                data.setDsPort(master['pki_ds_http_port'])
+                data.setBaseDN(master['pki_ds_base_dn'])
+                data.setBindDN(master['pki_ds_bind_dn'])
+                data.setDatabase(master['pki_ds_database'])
+                data.setBindpwd(sensitive['pki_ds_password'])
+                if config.str2bool(master['pki_ds_remove_data']):
+                    data.setRemoveData("true")
+                else:
+                    data.setRemoveData("false")
+                if config.str2bool(master['pki_ds_secure_connection']):
+                    data.setSecureConn("true")
+                else:
+                    data.setSecureConn("false")
+            # Backup Information
+            if master['pki_instance_type'] == "Tomcat":
+                if config.str2bool(master['pki_backup_keys']):
+                    data.setBackupKeys("true")
+                    data.setBackupFile(master['pki_backup_file'])
+                    data.setBackupPassword(
+                        sensitive['pki_backup_password'])
+                else:
+                    data.setBackupKeys("false")
+            # Admin Information
+            if master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    data.setAdminEmail(master['pki_admin_email'])
+                    data.setAdminName(master['pki_admin_name'])
+                    data.setAdminPassword(sensitive['pki_admin_password'])
+                    data.setAdminProfileID(master['pki_admin_profile_id'])
+                    data.setAdminUID(master['pki_admin_uid'])
+                    data.setAdminSubjectDN(master['pki_admin_subject_dn'])
+                    if master['pki_admin_cert_request_type'] == "crmf":
+                        data.setAdminCertRequestType("crmf")
+                        if config.str2bool(master['pki_admin_dualkey']):
+                            crmf_request = generateCRMFRequest(
+                                               token,
+                                               master['pki_admin_keysize'],
+                                               master['pki_admin_subject_dn'],
+                                               "true")
+                        else:
+                            crmf_request = generateCRMFRequest(
+                                               token,
+                                               master['pki_admin_keysize'],
+                                               master['pki_admin_subject_dn'],
+                                               "false")
+                        data.setAdminCertRequest(crmf_request)
+                    else:
+                        javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
+                        javasystem.exit(1)
+            # Create system certs
+            systemCerts = ArrayList()
+            # Create 'CA Signing Certificate'
+            if master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    if master['pki_subsystem'] == "CA":
+                        # External CA, Subordinate CA, or PKI CA
+                        cert1 = CertData()
+                        cert1.setTag(master['pki_ca_signing_tag'])
+                        cert1.setKeyAlgorithm(
+                            master['pki_ca_signing_key_algorithm'])
+                        cert1.setKeySize(master['pki_ca_signing_key_size'])
+                        cert1.setKeyType(master['pki_ca_signing_key_type'])
+                        cert1.setNickname(master['pki_ca_signing_nickname'])
+                        cert1.setSigningAlgorithm(
+                            master['pki_ca_signing_signing_algorithm'])
+                        cert1.setSubjectDN(master['pki_ca_signing_subject_dn'])
+                        cert1.setToken(master['pki_ca_signing_token'])
+                        systemCerts.add(cert1)
+            # Create 'OCSP Signing Certificate'
+            if master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    if master['pki_subsystem'] == "CA" or\
+                       master['pki_subsystem'] == "OCSP":
+                        # External CA, Subordinate CA, PKI CA, or PKI OCSP
+                        cert2 = CertData()
+                        cert2.setTag(master['pki_ocsp_signing_tag'])
+                        cert2.setKeyAlgorithm(
+                            master['pki_ocsp_signing_key_algorithm'])
+                        cert2.setKeySize(master['pki_ocsp_signing_key_size'])
+                        cert2.setKeyType(master['pki_ocsp_signing_key_type'])
+                        cert2.setNickname(master['pki_ocsp_signing_nickname'])
+                        cert2.setSigningAlgorithm(
+                            master['pki_ocsp_signing_signing_algorithm'])
+                        cert2.setSubjectDN(
+                            master['pki_ocsp_signing_subject_dn'])
+                        cert2.setToken(master['pki_ocsp_signing_token'])
+                        systemCerts.add(cert2)
+            # Create 'SSL Server Certificate'
+            #     PKI RA, PKI TPS,
+            #     PKI CA, PKI KRA, PKI OCSP, PKI TKS,
+            #     PKI CA CLONE, PKI KRA CLONE, PKI OCSP CLONE, PKI TKS CLONE,
+            #     External CA, or Subordinate CA
+            cert3 = CertData()
+            cert3.setTag(master['pki_ssl_server_tag'])
+            cert3.setKeyAlgorithm(master['pki_ssl_server_key_algorithm'])
+            cert3.setKeySize(master['pki_ssl_server_key_size'])
+            cert3.setKeyType(master['pki_ssl_server_key_type'])
+            cert3.setNickname(master['pki_ssl_server_nickname'])
+            cert3.setSubjectDN(master['pki_ssl_server_subject_dn'])
+            cert3.setToken(master['pki_ssl_server_token'])
+            systemCerts.add(cert3)
+            # Create 'Subsystem Certificate'
+            if master['pki_instance_type'] == "Apache":
+                # PKI RA or PKI TPS
+                cert4 = CertData()
+                cert4.setTag(master['pki_subsystem_tag'])
+                cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
+                cert4.setKeySize(master['pki_subsystem_key_size'])
+                cert4.setKeyType(master['pki_subsystem_key_type'])
+                cert4.setNickname(master['pki_subsystem_nickname'])
+                cert4.setSubjectDN(master['pki_subsystem_subject_dn'])
+                cert4.setToken(master['pki_subsystem_token'])
+                systemCerts.add(cert4)
+            elif master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
+                    # External CA, or Subordinate CA
+                    cert4 = CertData()
+                    cert4.setTag(master['pki_subsystem_tag'])
+                    cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
+                    cert4.setKeySize(master['pki_subsystem_key_size'])
+                    cert4.setKeyType(master['pki_subsystem_key_type'])
+                    cert4.setNickname(master['pki_subsystem_nickname'])
+                    cert4.setSubjectDN(master['pki_subsystem_subject_dn'])
+                    cert4.setToken(master['pki_subsystem_token'])
+                    systemCerts.add(cert4)
+            # Create 'Audit Signing Certificate'
+            if master['pki_instance_type'] == "Apache":
+                if master['pki_subsystem'] != "RA":
+                    # PKI TPS
+                    cert5 = CertData()
+                    cert5.setTag(master['pki_audit_signing_tag'])
+                    cert5.setKeyAlgorithm(
+                        master['pki_audit_signing_key_algorithm'])
+                    cert5.setKeySize(master['pki_audit_signing_key_size'])
+                    cert5.setKeyType(master['pki_audit_signing_key_type'])
+                    cert5.setNickname(master['pki_audit_signing_nickname'])
+                    cert5.setKeyAlgorithm(
+                        master['pki_audit_signing_signing_algorithm'])
+                    cert5.setSubjectDN(master['pki_audit_signing_subject_dn'])
+                    cert5.setToken(master['pki_audit_signing_token'])
+                    systemCerts.add(cert5)
+            elif master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
+                    # External CA, or Subordinate CA
+                    cert5 = CertData()
+                    cert5.setTag(master['pki_audit_signing_tag'])
+                    cert5.setKeyAlgorithm(
+                        master['pki_audit_signing_key_algorithm'])
+                    cert5.setKeySize(master['pki_audit_signing_key_size'])
+                    cert5.setKeyType(master['pki_audit_signing_key_type'])
+                    cert5.setNickname(master['pki_audit_signing_nickname'])
+                    cert5.setKeyAlgorithm(
+                        master['pki_audit_signing_signing_algorithm'])
+                    cert5.setSubjectDN(master['pki_audit_signing_subject_dn'])
+                    cert5.setToken(master['pki_audit_signing_token'])
+                    systemCerts.add(cert5)
+            # Create 'DRM Transport Certificate'
+            if master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    if master['pki_subsystem'] == "KRA":
+                        # PKI KRA
+                        cert6 = CertData()
+                        cert6.setTag(master['pki_transport_tag'])
+                        cert6.setKeyAlgorithm(
+                            master['pki_transport_key_algorithm'])
+                        cert6.setKeySize(master['pki_transport_key_size'])
+                        cert6.setKeyType(master['pki_transport_key_type'])
+                        cert6.setNickname(master['pki_transport_nickname'])
+                        cert6.setKeyAlgorithm(
+                            master['pki_transport_signing_algorithm'])
+                        cert6.setSubjectDN(master['pki_transport_subject_dn'])
+                        cert6.setToken(master['pki_transport_token'])
+                        systemCerts.add(cert6)
+            # Create 'DRM Storage Certificate'
+            if master['pki_instance_type'] == "Tomcat":
+                if not config.str2bool(master['pki_clone']):
+                    if master['pki_subsystem'] == "KRA":
+                        # PKI KRA
+                        cert7 = CertData()
+                        cert7.setTag(master['pki_storage_tag'])
+                        cert7.setKeyAlgorithm(
+                            master['pki_storage_key_algorithm'])
+                        cert7.setKeySize(master['pki_storage_key_size'])
+                        cert7.setKeyType(master['pki_storage_key_type'])
+                        cert7.setNickname(master['pki_storage_nickname'])
+                        cert7.setKeyAlgorithm(
+                            master['pki_storage_signing_algorithm'])
+                        cert7.setSubjectDN(master['pki_storage_subject_dn'])
+                        cert7.setToken(master['pki_storage_token'])
+                        systemCerts.add(cert7)
+            # Create system certs
+            data.setSystemCerts(systemCerts)
+        return data
+
+    def configure_pki_data(self, data, pki_subsystem, pki_dry_run_flag,
+                           log_level):
+        if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
+            print "%s %s '%s'" %\
+                  (log.PKI_JYTHON_INDENTATION_2,
+                   log.PKI_JYTHON_CONFIGURING_PKI_DATA,
+                   pki_subsystem)
+        if not pki_dry_run_flag:
+            try:
+                response = self.client.configure(data)
+                javasystem.out.println(log.PKI_JYTHON_RESPONSE_STATUS +\
+                                       " " + response.getStatus())
+                javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
+                                       " " + response.getAdminCert().getCert())
+                certs = response.getSystemCerts()
+                iterator = certs.iterator()
+                while iterator.hasNext():
+                    cdata = iterator.next()
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_TAG + " " +\
+                                           cdata.getTag())
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_CERT + " " +\
+                                           cdata.getCert())
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
+                                           cdata.getRequest())
+            except Exception, e:
+                javasystem.out.println(
+                    log.PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION + " " + str(e))
+                javasystem.exit(1)
+        return
+
 
 # PKI Deployment Jython Class Instances
 security_databases = security_databases()
+rest_client = rest_client()

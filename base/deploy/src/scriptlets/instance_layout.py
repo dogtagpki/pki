@@ -48,30 +48,90 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # establish Tomcat instance base
             util.directory.create(master['pki_tomcat_common_path'])
             util.directory.create(master['pki_tomcat_common_lib_path'])
+            util.directory.create(master['pki_tomcat_tmpdir_path'])
             util.directory.create(master['pki_tomcat_webapps_path'])
             util.directory.create(master['pki_tomcat_webapps_root_path'])
             util.directory.create(master['pki_tomcat_webapps_root_webinf_path'])
             util.file.copy(master['pki_source_webapps_root_web_xml'],
                            master['pki_tomcat_webapps_root_webinf_web_xml'],
                            overwrite_flag=True)
-            util.directory.create(master['pki_tomcat_webapps_webinf_path'])
+            util.directory.create(master['pki_tomcat_work_path'])
+            util.directory.create(master['pki_tomcat_work_catalina_path'])
+            util.directory.create(master['pki_tomcat_work_catalina_host_path'])
             util.directory.create(
-                master['pki_tomcat_webapps_webinf_classes_path'])
-            util.directory.create(master['pki_tomcat_webapps_webinf_lib_path'])
+                master['pki_tomcat_work_catalina_host_run_path'])
+            util.directory.create(
+                master['pki_tomcat_work_catalina_host_subsystem_path'])
             # establish Tomcat instance logs
             # establish Tomcat instance configuration
             util.directory.copy(master['pki_source_shared_path'],
                                 master['pki_instance_configuration_path'],
                                 overwrite_flag=True)
             # establish Tomcat instance registry
-            # establish Tomcat instance convenience
-            # symbolic links
+            # establish Tomcat instance convenience symbolic links
             util.symlink.create(master['pki_tomcat_bin_path'],
                                 master['pki_tomcat_bin_link'])
             util.symlink.create(master['pki_tomcat_lib_path'],
                                 master['pki_tomcat_lib_link'])
+            util.symlink.create(master['pki_instance_log4j_properties'],
+                                master['pki_tomcat_lib_log4j_properties_link'],
+                                uid=0, gid=0)
             util.symlink.create(master['pki_tomcat_systemd'],
-                                master['pki_instance_systemd_link'])
+                                master['pki_instance_systemd_link'],
+                                uid=0, gid=0)
+            # establish Tomcat instance common lib jar symbolic links
+            util.symlink.create(master['pki_apache_commons_collections_jar'],
+                master['pki_apache_commons_collections_jar_link'])
+            util.symlink.create(master['pki_apache_commons_lang_jar'],
+                master['pki_apache_commons_lang_jar_link'])
+            util.symlink.create(master['pki_apache_commons_logging_jar'],
+                master['pki_apache_commons_logging_jar_link'])
+            util.symlink.create(master['pki_commons_codec_jar'],
+                master['pki_commons_codec_jar_link'])
+            util.symlink.create(master['pki_httpclient_jar'],
+                master['pki_httpclient_jar_link'])
+            util.symlink.create(master['pki_javassist_jar'],
+                master['pki_javassist_jar_link'])
+            util.symlink.create(master['pki_resteasy_jaxrs_api_jar'],
+                master['pki_resteasy_jaxrs_api_jar_link'])
+            util.symlink.create(master['pki_jettison_jar'],
+                master['pki_jettison_jar_link'])
+            util.symlink.create(master['pki_jss_jar'],
+                master['pki_jss_jar_link'])
+            util.symlink.create(master['pki_ldapjdk_jar'],
+                master['pki_ldapjdk_jar_link'])
+            util.symlink.create(master['pki_certsrv_jar'],
+                master['pki_certsrv_jar_link'])
+            util.symlink.create(master['pki_cmsbundle'],
+                master['pki_cmsbundle_jar_link'])
+            util.symlink.create(master['pki_cmscore'],
+                master['pki_cmscore_jar_link'])
+            util.symlink.create(master['pki_cms'],
+                master['pki_cms_jar_link'])
+            util.symlink.create(master['pki_cmsutil'],
+                master['pki_cmsutil_jar_link'])
+            util.symlink.create(master['pki_nsutil'],
+                master['pki_nsutil_jar_link'])
+            util.symlink.create(master['pki_resteasy_jaxb_provider_jar'],
+                master['pki_resteasy_jaxb_provider_jar_link'])
+            util.symlink.create(master['pki_resteasy_jaxrs_jar'],
+                master['pki_resteasy_jaxrs_jar_link'])
+            util.symlink.create(master['pki_resteasy_jettison_provider_jar'],
+                master['pki_resteasy_jettison_provider_jar_link'])
+            util.symlink.create(master['pki_scannotation_jar'],
+                master['pki_scannotation_jar_link'])
+            util.symlink.create(master['pki_symkey_jar'],
+                master['pki_symkey_jar_link'])
+            util.symlink.create(master['pki_tomcatjss_jar'],
+                master['pki_tomcatjss_jar_link'])
+            util.symlink.create(master['pki_velocity_jar'],
+                master['pki_velocity_jar_link'])
+            util.symlink.create(master['pki_xerces_j2_jar'],
+                master['pki_xerces_j2_jar_link'])
+            util.symlink.create(master['pki_xml_commons_apis_jar'],
+                master['pki_xml_commons_apis_jar_link'])
+            util.symlink.create(master['pki_xml_commons_resolver_jar'],
+                master['pki_xml_commons_resolver_jar_link'])
         # establish shared NSS security databases for this instance
         util.directory.create(master['pki_database_path'])
         # establish instance convenience symbolic links
@@ -106,16 +166,53 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy(master['pki_source_webapps_root_web_xml'],
                            master['pki_tomcat_webapps_root_webinf_web_xml'],
                            overwrite_flag=True)
-            util.directory.modify(master['pki_tomcat_webapps_webinf_path'])
+            util.directory.modify(master['pki_tomcat_work_path'])
+            util.directory.modify(master['pki_tomcat_work_catalina_path'])
+            util.directory.modify(master['pki_tomcat_work_catalina_host_path'])
             util.directory.modify(
-                master['pki_tomcat_webapps_webinf_classes_path'])
-            util.directory.modify(master['pki_tomcat_webapps_webinf_lib_path'])
+                master['pki_tomcat_work_catalina_host_run_path'])
+            util.directory.modify(
+                master['pki_tomcat_work_catalina_host_subsystem_path'])
             # update Tomcat instance logs
             # update Tomcat instance configuration
             # update Tomcat instance registry
             # update Tomcat instance convenience symbolic links
             util.symlink.modify(master['pki_tomcat_bin_link'])
             util.symlink.modify(master['pki_tomcat_lib_link'])
+            util.symlink.modify(master['pki_tomcat_lib_log4j_properties_link'],
+                                uid=0, gid=0)
+            util.symlink.modify(master['pki_instance_systemd_link'],
+                                uid=0, gid=0)
+            # update Tomcat instance common lib jar symbolic links
+
+            util.symlink.modify(
+                master['pki_apache_commons_collections_jar_link'])
+            util.symlink.modify(master['pki_apache_commons_lang_jar_link'])
+            util.symlink.modify(master['pki_apache_commons_logging_jar_link'])
+            util.symlink.modify(master['pki_commons_codec_jar_link'])
+            util.symlink.modify(master['pki_httpclient_jar_link'])
+            util.symlink.modify(master['pki_javassist_jar_link'])
+            util.symlink.modify(master['pki_resteasy_jaxrs_api_jar_link'])
+            util.symlink.modify(master['pki_jettison_jar_link'])
+            util.symlink.modify(master['pki_jss_jar_link'])
+            util.symlink.modify(master['pki_ldapjdk_jar_link'])
+            util.symlink.modify(master['pki_certsrv_jar_link'])
+            util.symlink.modify(master['pki_cmsbundle_jar_link'])
+            util.symlink.modify(master['pki_cmscore_jar_link'])
+            util.symlink.modify(master['pki_cms_jar_link'])
+            util.symlink.modify(master['pki_cmsutil_jar_link'])
+            util.symlink.modify(master['pki_nsutil_jar_link'])
+            util.symlink.modify(master['pki_resteasy_jaxb_provider_jar_link'])
+            util.symlink.modify(master['pki_resteasy_jaxrs_jar_link'])
+            util.symlink.modify(
+                master['pki_resteasy_jettison_provider_jar_link'])
+            util.symlink.modify(master['pki_scannotation_jar_link'])
+            util.symlink.modify(master['pki_symkey_jar_link'])
+            util.symlink.modify(master['pki_tomcatjss_jar_link'])
+            util.symlink.modify(master['pki_velocity_jar_link'])
+            util.symlink.modify(master['pki_xerces_j2_jar_link'])
+            util.symlink.modify(master['pki_xml_commons_apis_jar_link'])
+            util.symlink.modify(master['pki_xml_commons_resolver_jar_link'])
         # update shared NSS security databases for this instance
         util.directory.modify(master['pki_database_path'])
         # update instance convenience symbolic links
@@ -150,6 +247,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration
+                util.symlink.delete(
+                    master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
                 util.directory.delete(master['pki_instance_type_registry_path'])
@@ -174,6 +273,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration
+                util.symlink.delete(
+                    master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
                 util.directory.delete(master['pki_instance_type_registry_path'])

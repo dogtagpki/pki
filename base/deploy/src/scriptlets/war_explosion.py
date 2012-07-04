@@ -39,11 +39,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
             util.war.explode(master['pki_war'],
                              master['pki_tomcat_webapps_subsystem_path'])
-            # establish convenience symbolic links
-            util.symlink.create(master['pki_tomcat_webapps_webinf_classes_path'],
-                master['pki_tomcat_webapps_subsystem_webinf_classes_link'])
-            util.symlink.create(master['pki_tomcat_webapps_webinf_lib_path'],
-                master['pki_tomcat_webapps_subsystem_webinf_lib_link'])
+            util.directory.create(
+                master['pki_tomcat_webapps_subsystem_webinf_classes_path'])
+            util.directory.create(
+                master['pki_tomcat_webapps_subsystem_webinf_lib_path'])
+            # establish Tomcat webapps subsystem WEB-INF lib symbolic links
+            if master['pki_subsystem'] == "CA":
+                util.symlink.create(master['pki_ca_jar'],
+                                    master['pki_ca_jar_link'])
+            elif master['pki_subsystem'] == "KRA":
+                util.symlink.create(master['pki_kra_jar'],
+                                    master['pki_kra_jar_link'])
+            elif master['pki_subsystem'] == "OCSP":
+                util.symlink.create(master['pki_ocsp_jar'],
+                                    master['pki_ocsp_jar_link'])
+            elif master['pki_subsystem'] == "TKS":
+                util.symlink.create(master['pki_tks_jar'],
+                                    master['pki_tks_jar_link'])
             # set ownerships, permissions, and acls
             util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
@@ -56,8 +68,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.modify(master['pki_tomcat_webapps_subsystem_path'])
             util.war.explode(master['pki_war'],
                              master['pki_tomcat_webapps_subsystem_path'])
+            # update Tomcat webapps subsystem WEB-INF lib symbolic links
+            if master['pki_subsystem'] == "CA":
+                util.symlink.modify(master['pki_ca_jar_link'])
+            elif master['pki_subsystem'] == "KRA":
+                util.symlink.modify(master['pki_kra_jar_link'])
+            elif master['pki_subsystem'] == "OCSP":
+                util.symlink.modify(master['pki_ocsp_jar_link'])
+            elif master['pki_subsystem'] == "TKS":
+                util.symlink.modify(master['pki_tks_jar_link'])
             # update ownerships, permissions, and acls
-            # NOTE:  This includes existing convenience symbolic links
             util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
 

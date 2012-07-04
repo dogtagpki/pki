@@ -48,7 +48,14 @@ find_file(TOMCAT_CATALINA_JAR
     NAMES
         catalina.jar
     PATHS
-        /usr/share/java/tomcat6
+        /usr/share/java/tomcat
+)
+
+find_file(TOMCAT_UTIL_JAR
+    NAMES
+        tomcat-util.jar
+    PATHS
+        /usr/share/java/tomcat
 )
 
 find_file(SERVLET_JAR
@@ -1193,7 +1200,7 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
     ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
     ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
-    ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR}
+    ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
     ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
     ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
 
