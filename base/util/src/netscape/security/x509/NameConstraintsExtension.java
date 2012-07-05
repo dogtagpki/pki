@@ -57,8 +57,7 @@ import netscape.security.util.PrettyPrintFormat;
  * @see Extension
  * @see CertAttrSet
  */
-public class NameConstraintsExtension extends Extension
-        implements CertAttrSet {
+public class NameConstraintsExtension extends Extension implements CertAttrSet {
     /**
      *
      */
@@ -82,7 +81,7 @@ public class NameConstraintsExtension extends Extension
     private GeneralSubtrees permitted;
     private GeneralSubtrees excluded;
 
-    private PrettyPrintFormat pp = new PrettyPrintFormat(":");
+    private transient PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     // Encode this extension value.
     private void encodeThis() throws IOException {

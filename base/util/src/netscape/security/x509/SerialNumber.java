@@ -19,6 +19,7 @@ package netscape.security.x509;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import netscape.security.util.BigInt;
@@ -33,7 +34,9 @@ import netscape.security.util.DerValue;
  * @author Hemma Prafullchandra
  * @version 1.5
  */
-public class SerialNumber {
+public class SerialNumber implements Serializable {
+
+    private static final long serialVersionUID = 1600956411497203535L;
     private BigInt serialNum;
 
     // Construct the class from the DerValue

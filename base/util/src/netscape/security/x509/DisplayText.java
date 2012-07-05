@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -33,7 +34,9 @@ import netscape.security.util.DerValue;
  *
  * @author Thomas Kwan
  */
-public class DisplayText {
+public class DisplayText implements Serializable {
+
+    private static final long serialVersionUID = -6521458152495173328L;
 
     /** Tag value indicating an ASN.1 "BMPString" value. */
     public final static byte tag_IA5String = 0x16;

@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Vector;
 
 import netscape.security.util.BigInt;
@@ -34,8 +35,9 @@ import netscape.security.util.DerValue;
  *
  * @author Thomas Kwan
  */
-public class NoticeReference {
+public class NoticeReference implements Serializable {
 
+    private static final long serialVersionUID = 1986080941078808200L;
     private DisplayText mOrg = null;
     private int mNumbers[] = null;
 

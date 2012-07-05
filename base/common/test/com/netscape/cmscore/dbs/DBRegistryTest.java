@@ -118,7 +118,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         }
     }
 
-    class DBDynAttrMapperStub extends DBDynAttrMapperDefaultStub {
+    static class DBDynAttrMapperStub extends DBDynAttrMapperDefaultStub {
         boolean mapObjectCalled = false;
         Object mapObjectCalledWithObject = null;
         boolean mapLDAPAttrsCalled = false;

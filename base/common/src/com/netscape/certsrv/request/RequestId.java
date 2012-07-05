@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -27,7 +28,7 @@ import java.math.BigInteger;
  *
  * @version $Revision$ $Date$
  */
-public class RequestId {
+public class RequestId implements Serializable {
 
     protected BigInteger value;
 

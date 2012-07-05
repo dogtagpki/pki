@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
+
 /**
  * This class will display the certificate content in predefined
  * format.

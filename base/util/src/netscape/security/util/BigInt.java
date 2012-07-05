@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -34,8 +35,9 @@ import java.math.BigInteger;
  * @version 1.23
  * @author David Brownell
  */
-public final class BigInt {
+public final class BigInt implements Serializable {
 
+    private static final long serialVersionUID = 705094142021888265L;
     // Big endian -- MSB first.
     private byte[] places;
 

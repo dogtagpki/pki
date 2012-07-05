@@ -1042,7 +1042,7 @@ public class CertificateRepository extends Repository
     /**
      * temp solution...
      */
-    public class RenewableCertificateCollection {
+    public static class RenewableCertificateCollection {
         Vector<Object> mToRenew = null;
         Vector<Object> mToNotify = null;
 

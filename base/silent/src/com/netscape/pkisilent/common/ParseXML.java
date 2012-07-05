@@ -113,6 +113,7 @@ public class ParseXML {
             writer.write(dom, output);
 
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -63,6 +63,7 @@ import com.netscape.cmscore.util.Debug;
  */
 public final class UGSubsystem implements IUGSubsystem {
 
+    private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
     private String mId = ID;
 
@@ -77,11 +78,11 @@ public final class UGSubsystem implements IUGSubsystem {
     protected static final String PROP_BASEDN = "basedn";
 
     protected IConfigStore mConfig = null;
-    protected LdapBoundConnFactory mLdapConnFactory = null;
+    protected transient LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
 
-    private ILogger mLogger = null;
+    private transient ILogger mLogger = null;
 
     // singleton enforcement
 

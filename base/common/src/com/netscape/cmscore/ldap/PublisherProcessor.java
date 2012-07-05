@@ -443,8 +443,9 @@ public class PublisherProcessor implements
                 //mLdapRequestListener.shutdown();
                 mAuthority.removeRequestListener(mLdapRequestListener);
             }
-        } catch (Exception e) {
+        } catch (ELdapException e) {
             // ignore
+            CMS.debug(e);
         }
     }
 

@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
+import java.io.Serializable;
+
 /**
  * Represent the enumerated type used in CRLReason Extension of CRL entry.
  *
@@ -25,7 +27,8 @@ package netscape.security.x509;
  * @version $Revision$, $Date$
  */
 
-public final class RevocationReason {
+public final class RevocationReason implements Serializable {
+    private static final long serialVersionUID = -2582403666913588806L;
     /**
      * Reasons
      */

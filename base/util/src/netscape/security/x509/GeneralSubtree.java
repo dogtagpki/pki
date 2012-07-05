@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
@@ -40,7 +41,9 @@ import netscape.security.util.PrettyPrintFormat;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class GeneralSubtree {
+public class GeneralSubtree implements Serializable {
+
+    private static final long serialVersionUID = -2835481424013062770L;
     private static final byte TAG_MIN = 0;
     private static final byte TAG_MAX = 1;
     private static final int MIN_DEFAULT = 0;

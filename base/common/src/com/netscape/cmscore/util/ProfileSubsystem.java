@@ -48,9 +48,6 @@ import com.netscape.certsrv.base.ISubsystem;
  */
 public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7411549542009497317L;
     private String mId = null;
     private Thread mMonitoring = new Thread(this);
@@ -207,7 +204,8 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
                 updateThreadPanel();
                 // update every second
                 Thread.sleep(1000);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }

@@ -667,7 +667,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     }
 
-    class RevokedCertImplStub extends RevokedCertImpl {
+    static class RevokedCertImplStub extends RevokedCertImpl {
         /**
          *
          */

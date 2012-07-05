@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
+import java.io.Serializable;
+
 import netscape.ldap.LDAPException;
 
 /**
@@ -25,7 +27,7 @@ import netscape.ldap.LDAPException;
  *
  * @version $Revision$, $Date$
  */
-public interface IUsrGrp extends IIdEvaluator {
+public interface IUsrGrp extends IIdEvaluator , Serializable {
 
     /**
      * Retrieves usr/grp manager identifier.

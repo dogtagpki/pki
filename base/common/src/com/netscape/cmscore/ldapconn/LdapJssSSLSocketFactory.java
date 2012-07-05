@@ -102,7 +102,7 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
     public void log(int level, String msg) {
     }
 
-    class ClientHandshakeCB implements SSLHandshakeCompletedListener {
+    static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
         Object sc;
 
         public ClientHandshakeCB(Object sc) {

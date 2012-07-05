@@ -80,7 +80,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         }
     }
 
-    public class ElementProcessorStub implements IElementProcessor {
+    public static class ElementProcessorStub implements IElementProcessor {
         public void process(Object o) throws EBaseException {
         }
     }

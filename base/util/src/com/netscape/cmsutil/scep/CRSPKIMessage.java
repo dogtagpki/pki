@@ -255,32 +255,28 @@ public class CRSPKIMessage {
 
     // These functions are used to initialize the various blobs
 
-    public void makeSignedData(int version,
-            byte[] certificate, String hashAlgorithm) {
+    public void makeSignedData(int version, byte[] certificate, String hashAlgorithm) {
 
-        try {
-            SET digest_algs = new SET();
+        SET digest_algs = new SET();
 
-            digest_algs.addElement(new AlgorithmIdentifier(getAlgorithmOID(hashAlgorithm), new NULL()));
+        digest_algs.addElement(new AlgorithmIdentifier(getAlgorithmOID(hashAlgorithm), new NULL()));
 
-            //      SET certs = new SET();
-            //      certs.addElement(new ANY(certificate));
+        //      SET certs = new SET();
+        //      certs.addElement(new ANY(certificate));
 
-            SET sis = new SET();
+        SET sis = new SET();
 
-            sis.addElement(si);
+        sis.addElement(si);
 
-            ContentInfo data = this.data;
+        ContentInfo data = this.data;
 
-            this.sd = new SignedData(
-                        digest_algs,
-                        data,
-                        null, // don't send the certs, he already has them
-                    null, // crl's
-                    sis);
+        this.sd = new SignedData(
+                digest_algs,
+                data,
+                null, // don't send the certs, he already has them
+                null, // crl's
+                sis);
 
-        } catch (Exception e) {
-        }
     }
 
     public byte[] getResponse() throws IOException, InvalidBERException {

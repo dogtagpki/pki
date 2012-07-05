@@ -750,8 +750,10 @@ public abstract class ARequestQueue
 // Request - implementation of the IRequest interface.  This
 // version is returned by ARequestQueue (and its derivatives)
 //
-class Request
-        implements IRequest {
+class Request implements IRequest {
+
+    private static final long serialVersionUID = -1510479502681392568L;
+
     // IRequest.getRequestId
     public RequestId getRequestId() {
         return mRequestId;
@@ -1460,9 +1462,10 @@ class RequestIAttrSetWrapper implements IAttrSet {
 /**
  * Example of a specialized request class.
  */
-class EnrollmentRequest
-        extends Request
-        implements IEnrollmentRequest {
+class EnrollmentRequest extends Request implements IEnrollmentRequest {
+
+    private static final long serialVersionUID = 8214498908217267555L;
+
     EnrollmentRequest(RequestId id) {
         super(id);
     }

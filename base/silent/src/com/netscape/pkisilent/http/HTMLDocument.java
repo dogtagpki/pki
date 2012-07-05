@@ -328,13 +328,10 @@ public class HTMLDocument {
             while (tokenizer.hasMoreTokens()) {
                 token = tokenizer.nextToken();
                 if (token.equalsIgnoreCase("href")) {
-                    try {
-                        Matcher matcher = hrefPattern.matcher(tag);
-                        lastURL = uriToURL(matcher.replaceAll("$1"));
-                        if (lastURL != null) {
-                            lastElementIsLink = true;
-                        }
-                    } catch (Exception e) {
+                    Matcher matcher = hrefPattern.matcher(tag);
+                    lastURL = uriToURL(matcher.replaceAll("$1"));
+                    if (lastURL != null) {
+                        lastElementIsLink = true;
                     }
                     break;
                 }

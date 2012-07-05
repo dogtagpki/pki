@@ -23,6 +23,8 @@ import com.netscape.certsrv.request.RequestStatus;
  * Default testing stub for the IRequest interface.
  */
 public class RequestDefaultStub implements IRequest {
+    private static final long serialVersionUID = -8466522941927034614L;
+
     public RequestId getRequestId() {
         return null;
     }

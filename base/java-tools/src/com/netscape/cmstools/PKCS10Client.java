@@ -69,7 +69,7 @@ public class PKCS10Client {
                 "Usage: PKCS10Client -p <certdb password> -d <location of certdb> -o <output file which saves the base64 PKCS10> -s <subjectDN>\n");
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         String dbdir = null, ofilename = null, password = null, subjectName = null;
 
         if (args.length != 8) {
@@ -99,73 +99,71 @@ public class PKCS10Client {
         if (dbdir == null)
             dbdir = ".";
 
-        try {
-            String mPrefix = "";
-            CryptoManager.InitializationValues vals =
-                    new CryptoManager.InitializationValues(dbdir, mPrefix,
-                            mPrefix, "secmod.db");
+        String mPrefix = "";
+        CryptoManager.InitializationValues vals =
+                new CryptoManager.InitializationValues(dbdir, mPrefix,
+                        mPrefix, "secmod.db");
 
-            CryptoManager.initialize(vals);
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = cm.getInternalKeyStorageToken();
-            Password pass = new Password(password.toCharArray());
+        CryptoManager.initialize(vals);
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        Password pass = new Password(password.toCharArray());
 
-            token.login(pass);
-            KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-            kg.initialize(1024);
-            KeyPair pair = kg.genKeyPair();
+        token.login(pass);
+        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        kg.initialize(1024);
+        KeyPair pair = kg.genKeyPair();
 
-            // Add idPOPLinkWitness control
-            String secretValue = "testing";
-            byte[] key1 = null;
-            byte[] finalDigest = null;
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-            key1 = SHA1Digest.digest(secretValue.getBytes());
+        // Add idPOPLinkWitness control
+        String secretValue = "testing";
+        byte[] key1 = null;
+        byte[] finalDigest = null;
+        MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+        key1 = SHA1Digest.digest(secretValue.getBytes());
 
-            /* seed */
-            byte[] b =
-            { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
-                    0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
-                    0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
-                    0x61, 0x4f, 0x6e, 0x43, 0x1e, 0x2a, 0x2b, 0x31,
-                    0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48, 0x14,
-                    0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44,
-                    0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
-                    0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69 };
+        /* seed */
+        byte[] b =
+        { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
+                0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
+                0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
+                0x61, 0x4f, 0x6e, 0x43, 0x1e, 0x2a, 0x2b, 0x31,
+                0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48, 0x14,
+                0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44,
+                0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
+                0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69 };
 
-            HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key1);
-            hmacDigest.update(b);
-            finalDigest = hmacDigest.digest();
+        HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key1);
+        hmacDigest.update(b);
+        finalDigest = hmacDigest.digest();
 
-            OCTET_STRING ostr = new OCTET_STRING(finalDigest);
-            Attribute attr = new Attribute(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr);
+        OCTET_STRING ostr = new OCTET_STRING(finalDigest);
+        Attribute attr = new Attribute(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr);
 
-            SET attributes = new SET();
-            attributes.addElement(attr);
-            Name n = getJssName(subjectName);
-            SubjectPublicKeyInfo subjectPub = new SubjectPublicKeyInfo(pair.getPublic());
-            CertificationRequestInfo certReqInfo =
-                    new CertificationRequestInfo(new INTEGER(0), n, subjectPub, attributes);
-            CertificationRequest certRequest = new CertificationRequest(certReqInfo,
-                    pair.getPrivate(), SignatureAlgorithm.RSASignatureWithMD5Digest);
+        SET attributes = new SET();
+        attributes.addElement(attr);
+        Name n = getJssName(subjectName);
+        SubjectPublicKeyInfo subjectPub = new SubjectPublicKeyInfo(pair.getPublic());
+        CertificationRequestInfo certReqInfo =
+                new CertificationRequestInfo(new INTEGER(0), n, subjectPub, attributes);
+        CertificationRequest certRequest = new CertificationRequest(certReqInfo,
+                pair.getPrivate(), SignatureAlgorithm.RSASignatureWithMD5Digest);
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            certRequest.encode(bos);
-            byte[] bb = bos.toByteArray();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        certRequest.encode(bos);
+        byte[] bb = bos.toByteArray();
 
-            String b64E = Utils.base64encode(bb);
+        String b64E = Utils.base64encode(bb);
 
-            System.out.println("");
-            System.out.println(b64E);
-            System.out.println("");
+        System.out.println("");
+        System.out.println(b64E);
+        System.out.println("");
 
-            PrintStream ps = null;
-            ps = new PrintStream(new FileOutputStream(ofilename));
-            ps.println(b64E);
-            ps.flush();
-            ps.close();
-        } catch (Exception e) {
-        }
+        PrintStream ps = null;
+        ps = new PrintStream(new FileOutputStream(ofilename));
+        ps.println(b64E);
+        ps.flush();
+        ps.close();
+
     }
 
     static Name getJssName(String dn) {

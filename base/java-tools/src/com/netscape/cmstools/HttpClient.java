@@ -415,7 +415,7 @@ public class HttpClient {
         }
     }
 
-    class ClientHandshakeCB implements SSLHandshakeCompletedListener {
+    static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
         Object sc;
 
         public ClientHandshakeCB(Object sc) {

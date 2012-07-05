@@ -169,7 +169,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
     public void log(int level, String msg) {
     }
 
-    class ClientHandshakeCB implements SSLHandshakeCompletedListener {
+    static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
         Object sc;
 
         public ClientHandshakeCB(Object sc) {

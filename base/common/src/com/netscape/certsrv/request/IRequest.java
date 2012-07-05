@@ -19,6 +19,7 @@ package com.netscape.certsrv.request;
 
 //import java.io.Serializable;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
@@ -40,7 +41,7 @@ import com.netscape.certsrv.base.IAttrSet;
  *
  * @version $Revision$, $Date$
  */
-public interface IRequest {
+public interface IRequest extends Serializable {
 
     public static final String REQ_VERSION = "requestVersion";
 

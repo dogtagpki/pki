@@ -138,7 +138,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
     }
 
-    class DBRegistryStub extends DBRegistryDefaultStub {
+    static class DBRegistryStub extends DBRegistryDefaultStub {
         boolean registerCalledWithExtAttr = false;
         IDBAttrMapper extAttrMapper = null;
 

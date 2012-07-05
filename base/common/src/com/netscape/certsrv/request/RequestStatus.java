@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import java.io.Serializable;
+
 /**
  * The RequestStatus class represents the current state of a request
  * in a request queue. The state of the request changes as actions
@@ -33,7 +35,9 @@ package com.netscape.certsrv.request;
  *
  * @version $Revision$ $Date$
  */
-public final class RequestStatus {
+public final class RequestStatus implements Serializable {
+
+    private static final long serialVersionUID = -8176052970922133411L;
     public static String BEGIN_STRING = "begin";
     public static String PENDING_STRING = "pending";
     public static String APPROVED_STRING = "approved";
