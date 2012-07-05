@@ -366,6 +366,7 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/request/IRequestListener.java
     com/netscape/certsrv/request/AgentApproval.java
     com/netscape/certsrv/request/RequestStatus.java
+    com/netscape/certsrv/request/RequestStatusAdapter.java
     com/netscape/certsrv/request/IRequestScheduler.java
     com/netscape/certsrv/request/IRequest.java
     com/netscape/certsrv/request/IRequestQueue.java

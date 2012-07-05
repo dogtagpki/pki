@@ -1770,8 +1770,8 @@ public class CRSEnrollment extends HttpServlet {
                 crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
                 crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badAlg);
             }
-        } else if (status.equals(RequestStatus.REJECTED_STRING) ||
-                 status.equals(RequestStatus.CANCELED_STRING)) {
+        } else if (status == RequestStatus.REJECTED ||
+                 status == RequestStatus.CANCELED) {
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
         } else { // not complete

@@ -246,7 +246,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
         String auditRequestType = OFF_HOLD;
-        String auditApprovalStatus = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(OFF_HOLD_REASON);
 
         try {
@@ -286,7 +286,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             mQueue.processRequest(unrevReq);
 
             // retrieve the request status
-            auditApprovalStatus = unrevReq.getRequestStatus().toString();
+            auditApprovalStatus = unrevReq.getRequestStatus();
 
             RequestStatus status = unrevReq.getRequestStatus();
             String type = unrevReq.getRequestType();
@@ -458,9 +458,9 @@ public class DoUnrevokeTPS extends CMSServlet {
             // store a message in the signed audit log file
             // if and only if "auditApprovalStatus" is
             // "complete", "revoked", or "canceled"
-            if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                    || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                    || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+            if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                    auditApprovalStatus == RequestStatus.REJECTED ||
+                    auditApprovalStatus == RequestStatus.CANCELED) {
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -469,7 +469,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus);
+                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                 audit(auditMessage);
             }
@@ -492,12 +492,9 @@ public class DoUnrevokeTPS extends CMSServlet {
                 // message in the signed audit log file
                 // if and only if "auditApprovalStatus" is
                 // "complete", "revoked", or "canceled"
-                if ((auditApprovalStatus.equals(
-                            RequestStatus.COMPLETE_STRING)) ||
-                        (auditApprovalStatus.equals(
-                                RequestStatus.REJECTED_STRING)) ||
-                        (auditApprovalStatus.equals(
-                                RequestStatus.CANCELED_STRING))) {
+                if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                        auditApprovalStatus == RequestStatus.REJECTED ||
+                        auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                                 auditSubjectID,
@@ -506,7 +503,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                                 auditSerialNumber,
                                 auditRequestType,
                                 auditReasonNum,
-                                auditApprovalStatus);
+                                auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                     audit(auditMessage);
                 }

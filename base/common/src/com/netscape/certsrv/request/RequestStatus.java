@@ -18,6 +18,10 @@
 package com.netscape.certsrv.request;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * The RequestStatus class represents the current state of a request
@@ -38,13 +42,9 @@ import java.io.Serializable;
 public final class RequestStatus implements Serializable {
 
     private static final long serialVersionUID = -8176052970922133411L;
-    public static String BEGIN_STRING = "begin";
-    public static String PENDING_STRING = "pending";
-    public static String APPROVED_STRING = "approved";
-    public static String SVC_PENDING_STRING = "svc_pending";
-    public static String CANCELED_STRING = "canceled";
-    public static String REJECTED_STRING = "rejected";
-    public static String COMPLETE_STRING = "complete";
+
+    public static final Collection<RequestStatus> INSTANCES = new ArrayList<RequestStatus>();
+    public static final Map<String, RequestStatus> LABELS = new LinkedHashMap<String, RequestStatus>();
 
     /**
      * The initial state of a request. Requests in this state have not
@@ -54,7 +54,7 @@ public final class RequestStatus implements Serializable {
      * but it could be some other protocol module, such as email)
      * should populate the request with data need to service it.
      */
-    public static RequestStatus BEGIN = new RequestStatus(BEGIN_STRING);
+    public static RequestStatus BEGIN = new RequestStatus("begin");
 
     /**
      * The state of a request that is waiting for action by an agent.
@@ -64,7 +64,7 @@ public final class RequestStatus implements Serializable {
      * In this state there may be PolicyMessages present that indicate
      * the reason for the pending status.
      */
-    public static RequestStatus PENDING = new RequestStatus(PENDING_STRING);
+    public static RequestStatus PENDING = new RequestStatus("pending");
 
     /**
      * The state of a request that has been approved by an agent, or
@@ -74,22 +74,21 @@ public final class RequestStatus implements Serializable {
      * These requests are resent to the service during the recovery
      * process that runs at server startup.
      */
-    public static RequestStatus APPROVED = new RequestStatus(APPROVED_STRING);
+    public static RequestStatus APPROVED = new RequestStatus("approved");
 
     /**
      * The state of a request that has been sent to the service, but
      * has not been fully processed. The service will invoke the
      * serviceComplete() method to cause processing to continue.
      */
-    public static RequestStatus SVC_PENDING =
-            new RequestStatus(SVC_PENDING_STRING);
+    public static RequestStatus SVC_PENDING = new RequestStatus("svc_pending");
 
     /**
      * Not implemented. This is intended to be a final state that is
      * reached when a request is removed from the processing queue without
      * normal notification occurring. (see REJECTED)
      */
-    public static RequestStatus CANCELED = new RequestStatus(CANCELED_STRING);
+    public static RequestStatus CANCELED = new RequestStatus("canceled");
 
     /**
      * The state of a request after it is rejected. When a request is
@@ -100,7 +99,7 @@ public final class RequestStatus implements Serializable {
      * the rejection, or AgentMessages, which allow the agent to give
      * reasons for the action.
      */
-    public static RequestStatus REJECTED = new RequestStatus(REJECTED_STRING);
+    public static RequestStatus REJECTED = new RequestStatus("rejected");
 
     /**
      * The normal final state of a request. The completion status attribute
@@ -108,35 +107,38 @@ public final class RequestStatus implements Serializable {
      * necessarily successful, but may indicated that service processing
      * did not succeed.
      */
-    public static RequestStatus COMPLETE = new RequestStatus(COMPLETE_STRING);
+    public static RequestStatus COMPLETE = new RequestStatus("complete");
+
+    private String label;
+
+    /**
+     * Class constructor. Creates request status from the string.
+     *
+     * @param label string describing request status
+     */
+    private RequestStatus(String label) {
+        this.label = label;
+
+        INSTANCES.add(this);
+        LABELS.put(label.toLowerCase(), this);
+    }
 
     /**
      * Converts a string name for a request status into the
      * request status enum object.
      * <p>
      *
-     * @param s
+     * @param label
      *            The string representation of the state.
      * @return
      *         request status
      */
-    public static RequestStatus fromString(String s) {
-        if (s.equals(BEGIN_STRING))
-            return BEGIN;
-        if (s.equals(PENDING_STRING))
-            return PENDING;
-        if (s.equals(APPROVED_STRING))
-            return APPROVED;
-        if (s.equals(SVC_PENDING_STRING))
-            return SVC_PENDING;
-        if (s.equals(CANCELED_STRING))
-            return CANCELED;
-        if (s.equals(REJECTED_STRING))
-            return REJECTED;
-        if (s.equals(COMPLETE_STRING))
-            return COMPLETE;
+    public static RequestStatus fromString(String label) {
+        return valueOf(label);
+    }
 
-        return null;
+    public static RequestStatus valueOf(String label) {
+        return LABELS.get(label.toLowerCase());
     }
 
     /**
@@ -146,41 +148,31 @@ public final class RequestStatus implements Serializable {
      * @return request status
      */
     public String toString() {
-        return mString;
+        return label;
     }
 
-    /**
-     * Class constructor. Creates request status from the string.
-     *
-     * @param string string describing request status
-     */
-    private RequestStatus(String string) {
-        mString = string;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        return result;
     }
 
-    private String mString;
-
-    /**
-     * Compares request status with specified string.
-     *
-     * @param string string describing request status
-     */
-    public boolean equals(String string) {
-        if (string.equals(mString))
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        else
+        if (obj == null)
             return false;
-    }
-
-    /**
-     * Compares current request status with request status.
-     *
-     * @param rs request status
-     */
-    public boolean equals(RequestStatus rs) {
-        if (mString.equals(rs.mString))
-            return true;
-        else
+        if (getClass() != obj.getClass())
             return false;
+        RequestStatus other = (RequestStatus) obj;
+        if (label == null) {
+            if (other.label != null)
+                return false;
+        } else if (!label.equals(other.label))
+            return false;
+        return true;
     }
 }

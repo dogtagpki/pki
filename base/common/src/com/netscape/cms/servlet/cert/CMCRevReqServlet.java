@@ -374,7 +374,7 @@ public class CMCRevReqServlet extends CMSServlet {
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(eeSerialNumber);
         String auditRequestType = auditRequestType(reason);
-        String auditApprovalStatus = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(reason);
 
         try {
@@ -576,7 +576,7 @@ public class CMCRevReqServlet extends CMSServlet {
             mQueue.processRequest(revReq);
 
             // retrieve the request status
-            auditApprovalStatus = revReq.getRequestStatus().toString();
+            auditApprovalStatus = revReq.getRequestStatus();
 
             RequestStatus stat = revReq.getRequestStatus();
 
@@ -810,9 +810,9 @@ public class CMCRevReqServlet extends CMSServlet {
             // store a message in the signed audit log file
             // if and only if "auditApprovalStatus" is
             // "complete", "revoked", or "canceled"
-            if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                    || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                    || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+            if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                    auditApprovalStatus == RequestStatus.REJECTED ||
+                    auditApprovalStatus == RequestStatus.CANCELED) {
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                         auditSubjectID,
@@ -821,7 +821,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditSerialNumber,
                         auditRequestType,
                         auditReasonNum,
-                        auditApprovalStatus);
+                        auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                 audit(auditMessage);
             }
@@ -844,9 +844,9 @@ public class CMCRevReqServlet extends CMSServlet {
                 // message in the signed audit log file
                 // if and only if "auditApprovalStatus" is
                 // "complete", "revoked", or "canceled"
-                if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+                if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                        auditApprovalStatus == RequestStatus.REJECTED ||
+                        auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -855,7 +855,7 @@ public class CMCRevReqServlet extends CMSServlet {
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus);
+                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                     audit(auditMessage);
                 }
@@ -882,9 +882,9 @@ public class CMCRevReqServlet extends CMSServlet {
                 // message in the signed audit log file
                 // if and only if "auditApprovalStatus" is
                 // "complete", "revoked", or "canceled"
-                if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+                if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                        auditApprovalStatus == RequestStatus.REJECTED ||
+                        auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -893,7 +893,7 @@ public class CMCRevReqServlet extends CMSServlet {
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus);
+                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                     audit(auditMessage);
                 }
@@ -921,9 +921,9 @@ public class CMCRevReqServlet extends CMSServlet {
                 // message in the signed audit log file
                 // if and only if "auditApprovalStatus" is
                 // "complete", "revoked", or "canceled"
-                if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+                if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                        auditApprovalStatus == RequestStatus.REJECTED ||
+                        auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -932,7 +932,7 @@ public class CMCRevReqServlet extends CMSServlet {
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus);
+                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                     audit(auditMessage);
                 }
@@ -957,9 +957,9 @@ public class CMCRevReqServlet extends CMSServlet {
                 // message in the signed audit log file
                 // if and only if "auditApprovalStatus" is
                 // "complete", "revoked", or "canceled"
-                if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                        || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
+                if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                        auditApprovalStatus == RequestStatus.REJECTED ||
+                        auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -968,7 +968,7 @@ public class CMCRevReqServlet extends CMSServlet {
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus);
+                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
 
                     audit(auditMessage);
                 }

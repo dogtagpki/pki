@@ -225,7 +225,7 @@ public class CertReqParser extends ReqParser {
                             IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
                     if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
-                            (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
+                            (req.getRequestStatus() == RequestStatus.COMPLETE ||
                             req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
                         X509CertImpl issuedCert[] =
                                 req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
@@ -468,7 +468,7 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
-                    (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
+                    (req.getRequestStatus() == RequestStatus.COMPLETE ||
                     req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
                 X509CertImpl issuedCert[] =
                         req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
