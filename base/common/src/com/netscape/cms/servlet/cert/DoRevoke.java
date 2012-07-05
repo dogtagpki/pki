@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -32,12 +34,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
 import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -51,6 +51,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -58,13 +59,13 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -86,20 +87,11 @@ public class DoRevoke extends CMSServlet {
 
     private ICertificateRepository mCertDB = null;
     private String mFormPath = null;
-    private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;
     private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
     private IUGSubsystem mUG = null;
     private ICertUserLocator mUL = null;
-
-    private final static String REVOKE = "revoke";
-    private final static String ON_HOLD = "on-hold";
-    private final static int ON_HOLD_REASON = 6;
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
 
     public DoRevoke() {
         super();
@@ -127,7 +119,6 @@ public class DoRevoke extends CMSServlet {
         if (mAuthority instanceof ICertAuthority) {
             mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
         }
-        mQueue = mAuthority.getRequestQueue();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -320,9 +311,11 @@ public class DoRevoke extends CMSServlet {
             }
 
             if (authorized) {
+                BigInteger serialNumber = parseSerialNumber(eeSerialNumber);
+
                 process(argSet, header, reason, invalidityDate, initiative,
                         req, resp, verifiedRecordCount, revokeAll,
-                        totalRecordCount, eeSerialNumber, eeSubjectDN,
+                        totalRecordCount, serialNumber, eeSubjectDN,
                         comments, locale[0]);
             }
 
@@ -403,7 +396,7 @@ public class DoRevoke extends CMSServlet {
      * @param revokeAll string containing information on all of the
      *            certificates to be revoked
      * @param totalRecordCount total number of records (verified and unverified)
-     * @param eeSerialNumber string containing the end-entity certificate
+     * @param eeSerialNumber BigInteger containing the end-entity certificate
      *            serial number
      * @param eeSubjectDN string containing the end-entity certificate subject
      *            distinguished name (DN)
@@ -419,142 +412,100 @@ public class DoRevoke extends CMSServlet {
             int verifiedRecordCount,
             String revokeAll,
             int totalRecordCount,
-            String eeSerialNumber,
+            BigInteger eeSerialNumber,
             String eeSubjectDN,
             String comments,
             Locale locale)
             throws EBaseException {
-        boolean auditRequest = true;
-        String auditMessage = null;
-        String auditSubjectID = auditSubjectID();
-        String auditRequesterID = auditRequesterID(req);
-        String auditSerialNumber = auditSerialNumber(eeSerialNumber);
-        String auditRequestType = auditRequestType(reason);
-        RequestStatus auditApprovalStatus = null;
-        String auditReasonNum = String.valueOf(reason);
 
-        CMS.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber + " auditSerialNumber: " + auditSerialNumber);
+        CMS.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber);
         long startTime = CMS.getCurrentDate().getTime();
 
+        RevocationProcessor processor =
+                new RevocationProcessor(servletConfig.getServletName(), getLocale(req));
+
+        processor.setStartTime(startTime);
+        processor.setInitiative(initiative);
+        processor.setSerialNumber(eeSerialNumber == null ? null : new CertId(eeSerialNumber));
+        processor.setRequestID(auditRequesterID(req));
+
+        RevocationReason revReason = RevocationReason.fromInt(reason);
+        processor.setRevocationReason(revReason);
+        processor.setRequestType(
+                processor.getRevocationReason() == RevocationReason.CERTIFICATE_HOLD
+                        ? RevocationProcessor.ON_HOLD : RevocationProcessor.REVOKE);
+
+        processor.setInvalidityDate(invalidityDate);
+        processor.setComments(comments);
+
+        if (mAuthority instanceof ICertificateAuthority) {
+            processor.setAuthority((ICertificateAuthority)mAuthority);
+        }
+
         try {
-            int count = 0;
-            Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
-            Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
-
-            // Construct a CRL reason code extension.
-            RevocationReason revReason = RevocationReason.fromInt(reason);
-            CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
-
-            // Construct a CRL invalidity date extension.
-            InvalidityDateExtension invalidityDateExtn = null;
-
-            if (invalidityDate != null) {
-                invalidityDateExtn = new InvalidityDateExtension(invalidityDate);
-            }
-
-            // Construct a CRL extension for this request.
-            CRLExtensions entryExtn = new CRLExtensions();
-
-            if (crlReasonExtn != null) {
-                entryExtn.set(crlReasonExtn.getName(), crlReasonExtn);
-            }
-            if (invalidityDateExtn != null) {
-                entryExtn.set(invalidityDateExtn.getName(), invalidityDateExtn);
-            }
+            processor.createCRLExtension();
 
             if (mAuthority instanceof ICertificateAuthority) {
 
-                Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
-                        totalRecordCount, mTimeLimits);
+                Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
 
                 while (e != null && e.hasMoreElements()) {
-                    ICertRecord rec = e.nextElement();
+                    ICertRecord targetRecord = e.nextElement();
+                    X509CertImpl targetCert = targetRecord.getCertificate();
 
-                    if (rec == null)
-                        continue;
-                    X509CertImpl xcert = rec.getCertificate();
+                    // Verify end-entity cert is not revoked.
+                    // TODO: This should be checked during authentication.
+                    if (eeSerialNumber != null &&
+                        eeSerialNumber.equals(targetCert.getSerialNumber()) &&
+                        targetRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                        processor.log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
+                                        targetRecord.getSerialNumber().toString(16)));
+
+                        throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
+                    }
+
                     IArgBlock rarg = CMS.createArgBlock();
+                    rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
 
-                    // we do not want to revoke the CA certificate accidentially
-                    if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {
-                        CMS.debug("DoRevoke: skipped revocation request for system certificate "
-                                + xcert.getSerialNumber());
-                        continue;
+                    try {
+                        processor.validateCertificateToRevoke(eeSubjectDN, targetRecord, false);
+                        processor.addCertificateToRevoke(targetCert);
+                        rarg.addStringValue("error", null);
+
+                    } catch (CMSException ex) {
+                        rarg.addStringValue("error", ex.getMessage());
                     }
 
-                    if (xcert != null) {
-                        rarg.addStringValue("serialNumber",
-                                xcert.getSerialNumber().toString(16));
-
-                        if (eeSerialNumber != null &&
-                                (eeSerialNumber.equals(xcert.getSerialNumber().toString())) &&
-                                rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1", xcert.getSerialNumber()
-                                            .toString(16)));
-
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                                        auditSubjectID,
-                                        ILogger.FAILURE,
-                                        auditRequesterID,
-                                        auditSerialNumber,
-                                        auditRequestType);
-
-                            audit(auditMessage);
-
-                            throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
-                        } else if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
-                            rarg.addStringValue("error", "Certificate 0x" +
-                                    xcert.getSerialNumber().toString(16) +
-                                    " is already revoked.");
-                        } else if (eeSubjectDN != null &&
-                                (!eeSubjectDN.equals(xcert.getSubjectDN().toString()))) {
-                            rarg.addStringValue("error", "Certificate 0x" +
-                                    xcert.getSerialNumber().toString(16) +
-                                    " belongs to different subject.");
-                        } else {
-                            oldCertsV.addElement(xcert);
-
-                            RevokedCertImpl revCertImpl =
-                                    new RevokedCertImpl(xcert.getSerialNumber(),
-                                            CMS.getCurrentDate(), entryExtn);
-
-                            revCertImplsV.addElement(revCertImpl);
-                            count++;
-                            rarg.addStringValue("error", null);
-                        }
-                        argSet.addRepeatRecord(rarg);
-                    }
+                    argSet.addRepeatRecord(rarg);
                 }
 
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 String reqIdStr = req.getParameter("requestId");
-                Vector<String> serialNumbers = new Vector<String>();
+                Collection<CertId> certSerialNumbers = new ArrayList<CertId>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1;
-                            i = revokeAll.indexOf('=', i)) {
-                        if (i > -1) {
+                    for (int i = revokeAll.indexOf('='); i > -1; i = revokeAll.indexOf('=', i)) {
+                        i++;
+                        // skip spaces
+                        while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
                             i++;
-                            while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
-                                i++;
-                            }
-                            // xxxx decimal serial number?
-                            String legalDigits = "0123456789";
-                            int j = i;
+                        }
+                        // xxxx decimal serial number?
+                        String legalDigits = "0123456789";
+                        int j = i;
 
-                            while (j < revokeAll.length() && legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
-                                j++;
-                            }
-                            if (j > i) {
-                                serialNumbers.addElement(revokeAll.substring(i, j));
-                            }
+                        // find legal digits
+                        while (j < revokeAll.length() && legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
+                            j++;
+                        }
+                        if (j > i) {
+                            certSerialNumbers.add(new CertId(revokeAll.substring(i, j)));
                         }
                     }
                 }
-                if (reqIdStr != null && reqIdStr.length() > 0 && serialNumbers.size() > 0) {
+
+                if (reqIdStr != null && reqIdStr.length() > 0 && certSerialNumbers.size() > 0) {
                     IRequest certReq = mRequestQueue.findRequest(new RequestId(reqIdStr));
                     X509CertImpl[] certs = certReq.getExtDataInCertArray(IRequest.OLD_CERTS);
                     boolean authorized = false;
@@ -562,52 +513,36 @@ public class DoRevoke extends CMSServlet {
                     for (int i = 0; i < certs.length; i++) {
                         boolean addToList = false;
 
-                        for (int j = 0; j < serialNumbers.size(); j++) {
+                        for (CertId certSerialNumber : certSerialNumbers) {
                             //xxxxx serial number in decimal?
-                            if (certs[i].getSerialNumber().toString().equals(serialNumbers.elementAt(j)) &&
+                            if (certs[i].getSerialNumber().equals(certSerialNumber.toBigInteger()) &&
                                     eeSubjectDN != null && eeSubjectDN.equals(certs[i].getSubjectDN().toString())) {
                                 addToList = true;
                                 break;
                             }
                         }
-                        if (eeSerialNumber != null &&
-                                eeSerialNumber.equals(certs[i].getSerialNumber().toString())) {
+
+                        if (eeSerialNumber != null && eeSerialNumber.equals(certs[i].getSerialNumber())) {
                             authorized = true;
                         }
+
                         if (addToList) {
                             IArgBlock rarg = CMS.createArgBlock();
 
-                            rarg.addStringValue("serialNumber",
-                                    certs[i].getSerialNumber().toString(16));
-                            oldCertsV.addElement(certs[i]);
+                            rarg.addStringValue("serialNumber", certs[i].getSerialNumber().toString(16));
 
-                            RevokedCertImpl revCertImpl =
-                                    new RevokedCertImpl(certs[i].getSerialNumber(),
-                                            CMS.getCurrentDate(), entryExtn);
+                            processor.addCertificateToRevoke(certs[i]);
 
-                            revCertImplsV.addElement(revCertImpl);
-                            count++;
                             rarg.addStringValue("error", null);
                             argSet.addRepeatRecord(rarg);
                         }
                     }
+
                     if (!authorized) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_REQ_AUTH_REVOKED_CERT"));
-
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    auditSerialNumber,
-                                    auditRequestType);
-
-                        audit(auditMessage);
-
+                        processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQ_AUTH_REVOKED_CERT"));
                         throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                     }
+
                 } else {
                     String b64eCert = req.getParameter("b64eCertificate");
 
@@ -618,182 +553,74 @@ public class DoRevoke extends CMSServlet {
                         X509CertImpl cert = new X509CertImpl(certBytes);
                         IArgBlock rarg = CMS.createArgBlock();
 
-                        rarg.addStringValue("serialNumber",
-                                cert.getSerialNumber().toString(16));
-                        oldCertsV.addElement(cert);
+                        rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
 
-                        RevokedCertImpl revCertImpl =
-                                new RevokedCertImpl(cert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                        processor.addCertificateToRevoke(cert);
 
-                        revCertImplsV.addElement(revCertImpl);
-                        count++;
                         rarg.addStringValue("error", null);
                         argSet.addRepeatRecord(rarg);
                     }
                 }
             }
+
+            int count = processor.getCertificates().size();
             if (count == 0) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
-
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
-
+                processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
                 throw new ECMSGWException(CMS.getLogMessage("CMSGW_REVOCATION_ERROR_CERT_NOT_FOUND"));
             }
 
             header.addIntegerValue("totalRecordCount", count);
 
-            X509CertImpl[] oldCerts = new X509CertImpl[count];
-            //Certificate[] oldCerts = new Certificate[count];
-            RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
+            processor.createRevocationRequest();
 
-            for (int i = 0; i < count; i++) {
-                oldCerts[i] = oldCertsV.elementAt(i);
-                revCertImpls[i] = revCertImplsV.elementAt(i);
-            }
+            processor.auditChangeRequest(ILogger.SUCCESS);
 
-            IRequest revReq =
-                    mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+        } catch (CertificateException e) {
+            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            processor.auditChangeRequest(ILogger.FAILURE);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditSerialNumber,
-                        auditRequestType);
+            // TODO: throw exception or return?
+            // throw new EBaseException(e.getMessage());
+            return;
 
-            audit(auditMessage);
+        } catch (EBaseException e) {
+            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            processor.auditChangeRequest(ILogger.FAILURE);
 
-            revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-            revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
-            if (initiative.equals(AuditFormat.FROMUSER))
-                revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_EE);
-            else
-                revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
-            revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
-            if (comments != null) {
-                revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
-            }
-            revReq.setExtData(IRequest.REVOKED_REASON,
-                    Integer.valueOf(reason));
+            throw e;
 
-            // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
-            // to distinguish which type of signed audit log message to save
-            // as a failure outcome in case an exception occurs
-            auditRequest = false;
+        } catch (IOException e) {
+            processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+            processor.auditChangeRequest(ILogger.FAILURE);
 
-            mQueue.processRequest(revReq);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+        }
+
+        // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
+        // to distinguish which type of signed audit log message to save
+        // as a failure outcome in case an exception occurs
+
+        try {
+            processor.processRevocationRequest();
+            IRequest revReq = processor.getRequest();
 
             // retrieve the request status
-            auditApprovalStatus = revReq.getRequestStatus();
+            RequestStatus status = revReq.getRequestStatus();
+            processor.setRequestStatus(status);
 
-            RequestStatus stat = revReq.getRequestStatus();
             String type = revReq.getRequestType();
 
             // The SVC_PENDING check has been added for the Cloned CA request
             // that is meant for the Master CA. From Clone's point of view
             // the request is complete
-            if ((stat == RequestStatus.COMPLETE)
-                    || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
-                // audit log the error
-                Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
 
-                if (result.equals(IRequest.RES_ERROR)) {
-                    String[] svcErrors =
-                            revReq.getExtDataInStringArray(IRequest.SVCERRORS);
-
-                    if (svcErrors != null && svcErrors.length > 0) {
-                        for (int i = 0; i < svcErrors.length; i++) {
-                            String err = svcErrors[i];
-
-                            if (err != null) {
-                                //cmsReq.setErrorDescription(err);
-                                for (int j = 0; j < count; j++) {
-                                    if (oldCerts[j] instanceof X509CertImpl) {
-                                        X509CertImpl cert = oldCerts[j];
-
-                                        if (oldCerts[j] != null) {
-                                            mLogger.log(ILogger.EV_AUDIT,
-                                                    ILogger.S_OTHER,
-                                                    AuditFormat.LEVEL,
-                                                    AuditFormat.DOREVOKEFORMAT,
-                                                    new Object[] {
-                                                            revReq.getRequestId(),
-                                                            initiative,
-                                                            "completed with error: " +
-                                                                    err,
-                                                            cert.getSubjectDN(),
-                                                            cert.getSerialNumber().toString(16),
-                                                            RevocationReason.fromInt(reason).toString() }
-                                                    );
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // store a message in the signed audit log file
-                    // if and only if "auditApprovalStatus" is
-                    // "complete", "revoked", or "canceled"
-                    if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                            auditApprovalStatus == RequestStatus.REJECTED ||
-                            auditApprovalStatus == RequestStatus.CANCELED) {
-                        auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    auditSerialNumber,
-                                    auditRequestType,
-                                    auditReasonNum,
-                                    auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                        audit(auditMessage);
-                    }
-
-                    return;
-                }
-
-                long endTime = CMS.getCurrentDate().getTime();
-
-                // audit log the success.
-                for (int j = 0; j < count; j++) {
-                    if (oldCerts[j] != null) {
-                        if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = oldCerts[j];
-
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.DOREVOKEFORMAT,
-                                    new Object[] {
-                                            revReq.getRequestId(),
-                                            initiative,
-                                            "completed",
-                                            cert.getSubjectDN(),
-                                            cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString()
-                                                    + " time: " + (endTime - startTime) }
-                                    );
-                        }
-                    }
-                }
+            if (status == RequestStatus.COMPLETE
+                    || status == RequestStatus.SVC_PENDING
+                        && type.equals(IRequest.CLA_CERT4CRL_REQUEST)) {
 
                 header.addStringValue("revoked", "yes");
 
-                Integer updateCRLResult =
-                        revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                Integer updateCRLResult = revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
@@ -801,28 +628,24 @@ public class DoRevoke extends CMSServlet {
                         header.addStringValue("updateCRLSuccess", "yes");
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
-                        String crlError =
-                                revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                        String crlError = revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
-                            header.addStringValue("updateCRLError",
-                                    crlError);
+                            header.addStringValue("updateCRLError", crlError);
                     }
+
                     // let known crl publishing status too.
-                    Integer publishCRLResult =
-                            revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                    Integer publishCRLResult = revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
-                            String publError =
-                                    revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            String publError = revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
-                                header.addStringValue("publishCRLError",
-                                        publError);
+                                header.addStringValue("publishCRLError", publError);
                         }
                     }
                 }
@@ -838,6 +661,7 @@ public class DoRevoke extends CMSServlet {
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
                             continue;
+
                         String updateStatusStr = crl.getCrlUpdateStatusStr();
                         Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
 
@@ -846,38 +670,35 @@ public class DoRevoke extends CMSServlet {
                                 CMS.debug("DoRevoke: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
+
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
                                 CMS.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
-                                String error =
-                                        revReq.getExtDataInString(updateErrorStr);
+                                String error = revReq.getExtDataInString(updateErrorStr);
 
                                 if (error != null)
-                                    header.addStringValue(updateErrorStr,
-                                            error);
+                                    header.addStringValue(updateErrorStr, error);
                             }
+
                             String publishStatusStr = crl.getCrlPublishStatusStr();
-                            Integer publishResult =
-                                    revReq.getExtDataInInteger(publishStatusStr);
+                            Integer publishResult = revReq.getExtDataInInteger(publishStatusStr);
 
                             if (publishResult == null)
                                 continue;
+
                             if (publishResult.equals(IRequest.RES_SUCCESS)) {
                                 header.addStringValue(publishStatusStr, "yes");
-                            } else {
-                                String publishErrorStr =
-                                        crl.getCrlPublishErrorStr();
 
+                            } else {
+                                String publishErrorStr = crl.getCrlPublishErrorStr();
                                 header.addStringValue(publishStatusStr, "no");
-                                String error =
-                                        revReq.getExtDataInString(publishErrorStr);
+                                String error = revReq.getExtDataInString(publishErrorStr);
 
                                 if (error != null)
-                                    header.addStringValue(
-                                            publishErrorStr, error);
+                                    header.addStringValue(publishErrorStr, error);
                             }
                         }
                     }
@@ -885,8 +706,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
                     header.addStringValue("dirEnabled", "yes");
-                    Integer[] ldapPublishStatus =
-                            revReq.getExtDataInIntegerArray("ldapPublishStatus");
+                    Integer[] ldapPublishStatus = revReq.getExtDataInIntegerArray("ldapPublishStatus");
                     int certsToUpdate = 0;
                     int certsUpdated = 0;
 
@@ -898,200 +718,55 @@ public class DoRevoke extends CMSServlet {
                             }
                         }
                     }
+
                     header.addIntegerValue("certsUpdated", certsUpdated);
                     header.addIntegerValue("certsToUpdate", certsToUpdate);
 
                     // add crl publishing status.
-                    String publError =
-                            revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                    String publError = revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                     if (publError != null) {
-                        header.addStringValue("crlPublishError",
-                                publError);
+                        header.addStringValue("crlPublishError", publError);
                     }
+
                 } else {
                     header.addStringValue("dirEnabled", "no");
                 }
+
                 header.addStringValue("error", null);
 
             } else {
-                if (stat == RequestStatus.PENDING || stat == RequestStatus.REJECTED) {
-                    header.addStringValue("revoked", stat.toString());
+                if (status == RequestStatus.PENDING || status == RequestStatus.REJECTED) {
+                    header.addStringValue("revoked", status.toString());
                 } else {
                     header.addStringValue("revoked", "no");
                 }
+
                 Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
                 if (errors != null) {
-                    StringBuffer errInfo = new StringBuffer();
+                    StringBuilder errInfo = new StringBuilder();
                     for (int i = 0; i < errors.size(); i++) {
                         errInfo.append(errors.elementAt(i));
                         errInfo.append("\n");
                     }
                     header.addStringValue("error", errInfo.toString());
 
-                } else if (stat == RequestStatus.PENDING) {
+                } else if (status == RequestStatus.PENDING) {
                     header.addStringValue("error", "Request Pending");
+
                 } else {
                     header.addStringValue("error", null);
                 }
-
-                // audit log the pending, revoked and rest
-                for (int j = 0; j < count; j++) {
-                    if (oldCerts[j] != null) {
-                        if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = oldCerts[j];
-
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.DOREVOKEFORMAT,
-                                    new Object[] {
-                                            revReq.getRequestId(),
-                                            initiative,
-                                            stat.toString(),
-                                            cert.getSubjectDN(),
-                                            cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString() }
-                                    );
-                        }
-                    }
-                }
             }
 
-            // store a message in the signed audit log file
-            // if and only if "auditApprovalStatus" is
-            // "complete", "revoked", or "canceled"
-            if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                    auditApprovalStatus == RequestStatus.REJECTED ||
-                    auditApprovalStatus == RequestStatus.CANCELED) {
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                            auditSubjectID,
-                            ILogger.SUCCESS,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType,
-                            auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
+            processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
-                audit(auditMessage);
-            }
-
-        } catch (CertificateException e) {
-            if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
-                }
-            }
-
-            log(ILogger.LL_FAILURE, "error " + e);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "error " + e);
-
-            if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
-                }
-            }
+            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
             throw e;
-        } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
-
-            if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
-                }
-            }
-
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
         }
-
-        return;
     }
 
     /**
@@ -1104,104 +779,44 @@ public class DoRevoke extends CMSServlet {
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
-    private String auditRequesterID(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        String requesterID = null;
-
-        // Obtain the requesterID
-        requesterID = req.getParameter("requestId");
+    private RequestId auditRequesterID(HttpServletRequest req) {
+        String requesterID = req.getParameter("requestId");
 
         if (requesterID != null) {
-            requesterID = requesterID.trim();
+            return new RequestId(requesterID.trim());
         } else {
-            requesterID = ILogger.UNIDENTIFIED;
+            return null;
         }
-
-        return requesterID;
     }
 
     /**
-     * Signed Audit Log Serial Number
+     * This method parses a String serial number into BigInteger.
      *
-     * This method is called to obtain the serial number of the certificate
-     * whose status is to be changed for a signed audit log message.
-     * <P>
-     *
-     * @param eeSerialNumber a string containing the un-normalized serialNumber
-     * @return id string containing the signed audit log message RequesterID
+     * @param serialNumber a String containing the un-normalized serial number
+     * @return a BigInteger containing the serial number
      */
-    private String auditSerialNumber(String eeSerialNumber) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
+    private BigInteger parseSerialNumber(String serialNumber) {
 
-        String serialNumber = null;
+        if (StringUtils.isEmpty(serialNumber)) return null;
 
         // Normalize the serialNumber
-        if (eeSerialNumber != null) {
-            serialNumber = eeSerialNumber.trim();
+        serialNumber = serialNumber.trim();
 
-            // find out if the value is hex or decimal
+        // find out if the value is hex or decimal
 
-            BigInteger value = BigInteger.ONE.negate();
-
-            //try int
-            try {
-                value = new BigInteger(serialNumber, 10);
-            } catch (NumberFormatException e) {
-            }
-
-            //try hex
-            if (value.compareTo(BigInteger.ONE.negate()) == 0) {
-                try {
-                    value = new BigInteger(serialNumber, 16);
-                } catch (NumberFormatException e) {
-                }
-            }
-            // give up if it isn't hex or dec
-            if (value.compareTo(BigInteger.ONE.negate()) == 0) {
-                throw new NumberFormatException();
-            }
-
-            // convert it to hexadecimal
-            serialNumber = "0x" + value.toString(16);
-        } else {
-            serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        //try decimal
+        try {
+            return new BigInteger(serialNumber, 10);
+        } catch (NumberFormatException e) {
         }
 
-        return serialNumber;
-    }
-
-    /**
-     * Signed Audit Log Request Type
-     *
-     * This method is called to obtain the "Request Type" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @param reason an integer denoting the revocation reason
-     * @return string containing REVOKE or ON_HOLD
-     */
-    private String auditRequestType(int reason) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
+        //try hex
+        try {
+            return new BigInteger(serialNumber, 16);
+        } catch (NumberFormatException e) {
         }
 
-        String requestType = null;
-
-        // Determine the revocation type based upon the revocation reason
-        if (reason == ON_HOLD_REASON) {
-            requestType = ON_HOLD;
-        } else {
-            requestType = REVOKE;
-        }
-
-        return requestType;
+        // give up if it isn't hex or dec
+        throw new NumberFormatException("Invalid serial number: "+serialNumber);
     }
 }

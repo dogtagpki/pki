@@ -30,7 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -42,13 +42,15 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -73,15 +75,7 @@ public class DoUnrevoke extends CMSServlet {
     private ICertificateRepository mCertDB;
 
     private String mFormPath = null;
-    private IRequestQueue mQueue = null;
     private IPublisherProcessor mPublisherProcessor = null;
-
-    private final static String OFF_HOLD = "off-hold";
-    private final static int OFF_HOLD_REASON = 6;
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
 
     public DoUnrevoke() {
         super();
@@ -101,7 +95,6 @@ public class DoUnrevoke extends CMSServlet {
         if (mAuthority instanceof ICertAuthority) {
             mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
         }
-        mQueue = mAuthority.getRequestQueue();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -243,175 +236,113 @@ public class DoUnrevoke extends CMSServlet {
             HttpServletResponse resp,
             Locale locale, String initiative)
             throws EBaseException {
-        boolean auditRequest = true;
-        String auditMessage = null;
-        String auditSubjectID = auditSubjectID();
-        String auditRequesterID = auditRequesterID(req);
-        String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
-        String auditRequestType = OFF_HOLD;
-        RequestStatus auditApprovalStatus = null;
-        String auditReasonNum = String.valueOf(OFF_HOLD_REASON);
+
+        RevocationProcessor processor = new RevocationProcessor(
+                servletConfig.getServletName(), getLocale(req));
+
+        processor.setInitiative(initiative);
+        processor.setSerialNumber(auditSerialNumber(serialNumbers[0].toString()));
+        processor.setRequestID(auditRequesterID(req));
+
+        processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
+        processor.setRequestType(RevocationProcessor.OFF_HOLD);
+
+        if (mAuthority instanceof ICertificateAuthority) {
+            processor.setAuthority((ICertificateAuthority) mAuthority);
+        }
 
         try {
-            StringBuffer snList = new StringBuffer();
+            StringBuilder snList = new StringBuilder();
 
-            // certs are for old cloning and they should be removed as soon as possible
-            X509CertImpl[] certs = new X509CertImpl[serialNumbers.length];
-            for (int i = 0; i < serialNumbers.length; i++) {
-                certs[i] = (X509CertImpl) getX509Certificate(serialNumbers[i]);
+            for (BigInteger serialNumber : serialNumbers) {
+
+                processor.addSerialNumberToUnrevoke(serialNumber);
+
                 if (snList.length() > 0)
                     snList.append(", ");
                 snList.append("0x");
-                snList.append(serialNumbers[i].toString(16));
+                snList.append(serialNumber.toString(16));
             }
+
             header.addStringValue("serialNumber", snList.toString());
 
-            IRequest unrevReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+            processor.createUnrevocationRequest();
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditSerialNumber,
-                        auditRequestType);
+            processor.auditChangeRequest(ILogger.SUCCESS);
 
-            audit(auditMessage);
+        } catch (EBaseException e) {
+            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            processor.auditChangeRequest(ILogger.FAILURE);
 
-            unrevReq.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
-            unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
-            unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
+            throw new CMSException(e.getMessage());
+        }
 
-            // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
-            // to distinguish which type of signed audit log message to save
-            // as a failure outcome in case an exception occurs
-            auditRequest = false;
+        // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
+        // to distinguish which type of signed audit log message to save
+        // as a failure outcome in case an exception occurs
 
-            mQueue.processRequest(unrevReq);
-
-            // retrieve the request status
-            auditApprovalStatus = unrevReq.getRequestStatus();
+        try {
+            processor.processUnrevocationRequest();
+            IRequest unrevReq = processor.getRequest();
 
             RequestStatus status = unrevReq.getRequestStatus();
             String type = unrevReq.getRequestType();
 
-            if ((status == RequestStatus.COMPLETE)
-                    || ((type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) && (status == RequestStatus.SVC_PENDING))) {
+            if (status == RequestStatus.COMPLETE
+                    || status == RequestStatus.SVC_PENDING && type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
 
                 Integer result = unrevReq.getExtDataInInteger(IRequest.RESULT);
 
                 if (result != null && result.equals(IRequest.RES_SUCCESS)) {
                     header.addStringValue("unrevoked", "yes");
-                    if (certs[0] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.DOUNREVOKEFORMAT,
-                                new Object[] {
-                                        unrevReq.getRequestId(),
-                                        initiative,
-                                        "completed",
-                                        certs[0].getSubjectDN(),
-                                        "0x" + serialNumbers[0].toString(16) }
-                                );
-                    }
+
                 } else {
                     header.addStringValue("unrevoked", "no");
                     String error = unrevReq.getExtDataInString(IRequest.ERROR);
 
                     if (error != null) {
                         header.addStringValue("error", error);
-                        if (certs[0] != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.DOUNREVOKEFORMAT,
-                                    new Object[] {
-                                            unrevReq.getRequestId(),
-                                            initiative,
-                                            "completed with error: " +
-                                                    error,
-                                            certs[0].getSubjectDN(),
-                                            "0x" + serialNumbers[0].toString(16) }
-                                    );
-                        }
 
-                        /****************************************************/
-
-                        /* IMPORTANT:  In the event that the following      */
-
-                        /*             "throw error;" statement is          */
-
-                        /*             uncommented, uncomment the following */
-
-                        /*             signed audit log message, also!!!    */
-
-                        /****************************************************/
-
-                        //                  // store a message in the signed audit log file
-                        //                  // if and only if "auditApprovalStatus" is
-                        //                  // "complete", "revoked", or "canceled"
-                        //                  if( ( auditApprovalStatus.equals(
-                        //                            RequestStatus.COMPLETE_STRING ) ) ||
-                        //                      ( auditApprovalStatus.equals(
-                        //                            RequestStatus.REJECTED_STRING ) ) ||
-                        //                      ( auditApprovalStatus.equals(
-                        //                            RequestStatus.CANCELED_STRING ) ) ) {
-                        //                          auditMessage = CMS.getLogMessage(
-                        //                              LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                        //                              auditSubjectID,
-                        //                              ILogger.FAILURE,
-                        //                              auditRequesterID,
-                        //                              auditSerialNumber,
-                        //                              auditRequestType,
-                        //                              auditReasonNum,
-                        //                              auditApprovalStatus );
-                        //
-                        //                          audit( auditMessage );
-                        //                      }
-
-                        //                      throw error;
+                        // TODO: throw exception on error?
+                        // throw new EBaseException(error);
                     }
                 }
 
-                Integer updateCRLResult =
-                        unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                Integer updateCRLResult = unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
+
                     if (updateCRLResult.equals(IRequest.RES_SUCCESS)) {
                         header.addStringValue("updateCRLSuccess", "yes");
+
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
-                        String crlError =
-                                unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                        String crlError = unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
-                            header.addStringValue("updateCRLError",
-                                    crlError);
+                            header.addStringValue("updateCRLError", crlError);
                     }
+
                     // let known crl publishing status too.
-                    Integer publishCRLResult =
-                            unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                    Integer publishCRLResult = unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
                             header.addStringValue("publishCRLSuccess", "yes");
+
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
-                            String publError =
-                                    unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            String publError = unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
-                                header.addStringValue("publishCRLError",
-                                        publError);
+                                header.addStringValue("publishCRLError", publError);
                         }
                     }
                 }
 
                 // let known update and publish status of all crls.
-                Enumeration<ICRLIssuingPoint> otherCRLs =
-                        ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> otherCRLs = ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                 while (otherCRLs.hasMoreElements()) {
                     ICRLIssuingPoint crl = otherCRLs.nextElement();
@@ -419,54 +350,49 @@ public class DoUnrevoke extends CMSServlet {
 
                     if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
                         continue;
+
                     String updateStatusStr = crl.getCrlUpdateStatusStr();
                     Integer updateResult = unrevReq.getExtDataInInteger(updateStatusStr);
 
                     if (updateResult != null) {
                         if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                            CMS.debug("DoUnrevoke: adding header " +
-                                    updateStatusStr + " yes ");
+                            CMS.debug("DoUnrevoke: adding header " + updateStatusStr + " yes");
                             header.addStringValue(updateStatusStr, "yes");
+
                         } else {
                             String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                            CMS.debug("DoUnrevoke: adding header " +
-                                    updateStatusStr + " no ");
+                            CMS.debug("DoUnrevoke: adding header " + updateStatusStr + " no");
                             header.addStringValue(updateStatusStr, "no");
-                            String error =
-                                    unrevReq.getExtDataInString(updateErrorStr);
+                            String error = unrevReq.getExtDataInString(updateErrorStr);
 
                             if (error != null)
-                                header.addStringValue(
-                                        updateErrorStr, error);
+                                header.addStringValue(updateErrorStr, error);
                         }
+
                         String publishStatusStr = crl.getCrlPublishStatusStr();
-                        Integer publishResult =
-                                unrevReq.getExtDataInInteger(publishStatusStr);
+                        Integer publishResult = unrevReq.getExtDataInInteger(publishStatusStr);
 
                         if (publishResult == null)
                             continue;
+
                         if (publishResult.equals(IRequest.RES_SUCCESS)) {
                             header.addStringValue(publishStatusStr, "yes");
-                        } else {
-                            String publishErrorStr =
-                                    crl.getCrlPublishErrorStr();
 
+                        } else {
+                            String publishErrorStr = crl.getCrlPublishErrorStr();
                             header.addStringValue(publishStatusStr, "no");
-                            String error =
-                                    unrevReq.getExtDataInString(publishErrorStr);
+                            String error = unrevReq.getExtDataInString(publishErrorStr);
 
                             if (error != null)
-                                header.addStringValue(
-                                        publishErrorStr, error);
+                                header.addStringValue(publishErrorStr, error);
                         }
                     }
                 }
 
                 if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
                     header.addStringValue("dirEnabled", "yes");
-                    Integer[] ldapPublishStatus =
-                            unrevReq.getExtDataInIntegerArray("ldapPublishStatus");
+                    Integer[] ldapPublishStatus = unrevReq.getExtDataInIntegerArray("ldapPublishStatus");
 
                     if (ldapPublishStatus != null) {
                         if (ldapPublishStatus[0] == IRequest.RES_SUCCESS) {
@@ -482,91 +408,18 @@ public class DoUnrevoke extends CMSServlet {
             } else if (status == RequestStatus.PENDING) {
                 header.addStringValue("error", "Request Pending");
                 header.addStringValue("unrevoked", "pending");
-                if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    "pending",
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
-                }
+
             } else {
                 header.addStringValue("error", "Request Status.Error");
                 header.addStringValue("unrevoked", "no");
-                if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    status.toString(),
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
-                }
             }
 
-            // store a message in the signed audit log file
-            // if and only if "auditApprovalStatus" is
-            // "complete", "revoked", or "canceled"
-            if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                    auditApprovalStatus == RequestStatus.REJECTED ||
-                    auditApprovalStatus == RequestStatus.CANCELED) {
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                            auditSubjectID,
-                            ILogger.SUCCESS,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType,
-                            auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
+            processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
-                audit(auditMessage);
-            }
-
-        } catch (EBaseException eAudit1) {
-            if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
-                }
-            }
+        } catch (EBaseException e) {
+            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            processor.auditChangeRequestProcessed(ILogger.FAILURE);
         }
-
-        return;
     }
 
     private BigInteger[] getSerialNumbers(HttpServletRequest req)
@@ -615,24 +468,14 @@ public class DoUnrevoke extends CMSServlet {
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
-    private String auditRequesterID(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        String requesterID = null;
-
-        // Obtain the requesterID
-        requesterID = req.getParameter("requestId");
+    private RequestId auditRequesterID(HttpServletRequest req) {
+        String requesterID = req.getParameter("requestId");
 
         if (requesterID != null) {
-            requesterID = requesterID.trim();
+            return new RequestId(requesterID.trim());
         } else {
-            requesterID = ILogger.UNIDENTIFIED;
+            return null;
         }
-
-        return requesterID;
     }
 
     /**
@@ -645,24 +488,11 @@ public class DoUnrevoke extends CMSServlet {
      * @param eeSerialNumber a string containing the un-normalized serialNumber
      * @return id string containing the signed audit log message RequesterID
      */
-    private String auditSerialNumber(String eeSerialNumber) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
+    private CertId auditSerialNumber(String eeSerialNumber) {
+        if (eeSerialNumber != null) {
+            return new CertId(eeSerialNumber.trim());
+        } else {
             return null;
         }
-
-        String serialNumber = null;
-
-        // Normalize the serialNumber
-        if (eeSerialNumber != null) {
-            serialNumber = eeSerialNumber.trim();
-
-            // convert it to hexadecimal
-            serialNumber = "0x" + (new BigInteger(serialNumber)).toString(16);
-        } else {
-            serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        return serialNumber;
     }
 }
