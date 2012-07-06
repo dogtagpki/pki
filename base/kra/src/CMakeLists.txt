@@ -46,6 +46,12 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        /usr/share/java/resteasy
+)
 
 # '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
@@ -73,6 +79,7 @@ find_file(SYMKEY_JAR
 # identify java sources
 set(pki-kra_java_SRCS
     com/netscape/kra/KeyRecoveryAuthority.java
+    com/netscape/kra/KeyRecoveryAuthorityApplication.java
     com/netscape/kra/EnrollmentService.java
     com/netscape/kra/RecoveryService.java
     com/netscape/kra/SecurityDataRecoveryService.java
@@ -93,7 +100,7 @@ set(pki-kra_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-    ${LDAPJDK_JAR}
+    ${LDAPJDK_JAR} ${JAXRS_API_JAR}
     ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
 
 

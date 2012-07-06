@@ -24,6 +24,12 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        /usr/share/java/resteasy
+)
 
 # identify java sources
 set(pki-ca_java_SRCS
@@ -34,6 +40,7 @@ set(pki-ca_java_SRCS
     com/netscape/ca/CRLIssuingPoint.java
     com/netscape/ca/CAPolicy.java
     com/netscape/ca/CertificateAuthority.java
+    com/netscape/ca/CertificateAuthorityApplication.java
 )
 
 
@@ -41,7 +48,7 @@ set(pki-ca_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-    ${LDAPJDK_JAR}
+    ${LDAPJDK_JAR} ${JAXRS_API_JAR}
     ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
 
 
