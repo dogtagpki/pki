@@ -107,6 +107,10 @@ public class MainCLI extends CLI {
         option.setArgName("nickname");
         options.addOption(option);
 
+        option = new Option("u", true, "Username");
+        option.setArgName("username");
+        options.addOption(option);
+
         option = new Option("w", true, "Password");
         option.setArgName("password");
         options.addOption(option);
@@ -131,6 +135,7 @@ public class MainCLI extends CLI {
 
         String certDatabase = cmd.getOptionValue("d");
         String certNickname = cmd.getOptionValue("n");
+        String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
 
         // convert into absolute path
@@ -139,6 +144,9 @@ public class MainCLI extends CLI {
 
         if (certNickname != null)
             config.setCertNickname(certNickname);
+
+        if (username != null)
+            config.setUsername(username);
 
         if (password != null)
             config.setPassword(password);

@@ -52,6 +52,7 @@ public class ClientConfig {
 
     String certDatabase;
     String certNickname;
+    String username;
     String password;
 
     @XmlElement(name="ServerURI")
@@ -85,6 +86,15 @@ public class ClientConfig {
         this.certNickname = certNickname;
     }
 
+    @XmlElement(name="Username")
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @XmlElement(name="Password")
     public String getPassword() {
         return password;
@@ -102,6 +112,7 @@ public class ClientConfig {
         result = prime * result + ((certNickname == null) ? 0 : certNickname.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((serverURI == null) ? 0 : serverURI.hashCode());
+        result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
     }
 
@@ -133,6 +144,11 @@ public class ClientConfig {
             if (other.serverURI != null)
                 return false;
         } else if (!serverURI.equals(other.serverURI))
+            return false;
+        if (username == null) {
+            if (other.username != null)
+                return false;
+        } else if (!username.equals(other.username))
             return false;
         return true;
     }
