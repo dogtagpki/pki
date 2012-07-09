@@ -75,7 +75,9 @@ public class CMSStartServlet extends HttpServlet {
                     // Remove the original file if and only if
                     // the backup copy was successful.
                     if (f.exists()) {
-                        f1.delete();
+                        if (!f1.delete()) {
+                            CMS.debug("CMSStartServlet: init: Cannot delete file : " + old_path);
+                        }
 
                         // Make certain that the new file has
                         // the correct permissions.

@@ -609,7 +609,9 @@ class PWsdrCache {
 
             if (tmpPWcache.exists()) {
                 // it wasn't removed?
-                tmpPWcache.delete();
+                if (!tmpPWcache.delete()) {
+                    debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                }
             }
             outstream = new FileOutputStream(mPWcachedb + ".tmp");
 
@@ -626,7 +628,9 @@ class PWsdrCache {
             try {
                 // Always remove any pre-existing target file
                 if (origFile.exists()) {
-                    origFile.delete();
+                    if (!origFile.delete()) {
+                        debug("Could not delete the existing " + mPWcachedb + "file.");
+                    }
                 }
 
                 if (isNT()) {
@@ -644,7 +648,9 @@ class PWsdrCache {
                 // Remove the temporary file if and only if
                 // the "rename" was successful.
                 if (origFile.exists()) {
-                    tmpPWcache.delete();
+                    if (!tmpPWcache.delete()) {
+                        debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                    }
 
                     // Make certain that the final file has
                     // the correct permissions.

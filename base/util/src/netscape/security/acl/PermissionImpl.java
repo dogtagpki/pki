@@ -54,6 +54,14 @@ public class PermissionImpl implements Permission {
         }
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((permission == null) ? 0 : permission.hashCode());
+        return result;
+    }
+
     /**
      * Prints a stringified version of the permission.
      *

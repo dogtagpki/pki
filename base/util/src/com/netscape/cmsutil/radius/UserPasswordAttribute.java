@@ -61,7 +61,7 @@ public class UserPasswordAttribute extends Attribute {
             if (i < up.length) {
                 ret[i] = (byte) (sum[i % 16] ^ up[i]);
             } else {
-                ret[i] = (byte) (sum[i % 16] ^ 0);
+                ret[i] = sum[i % 16];
             }
             md5.update(ret[i]);
             if ((i % 16) == 15) {

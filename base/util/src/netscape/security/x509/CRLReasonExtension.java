@@ -231,4 +231,12 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
             return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mReason == null) ? 0 : mReason.hashCode());
+        return result;
+    }
+
 }

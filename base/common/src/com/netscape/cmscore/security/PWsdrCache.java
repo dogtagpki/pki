@@ -382,7 +382,9 @@ public class PWsdrCache {
 
             if (tmpPWcache.exists()) {
                 // it wasn't removed?
-                tmpPWcache.delete();
+                if (!tmpPWcache.delete()) {
+                    debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                }
                 tmpPWcache = new File(mPWcachedb + ".tmp");
             }
             outstream = new FileOutputStream(mPWcachedb + ".tmp");
@@ -417,10 +419,12 @@ public class PWsdrCache {
                                         origFile.getCanonicalPath());
                         } catch (IOException e) {
                             CMS.debug("Unable to change file permissions on "
-                                     + origFile.toString());
+                                    + origFile.toString());
                         }
                     }
-                    tmpPWcache.delete();
+                    if (!tmpPWcache.delete()) {
+                        debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                    }
                     debug("operation completed for " + mPWcachedb);
                 }
             } catch (Exception exx) {

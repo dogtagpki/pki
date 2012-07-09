@@ -174,7 +174,7 @@ class RequestRepository
             }
         }
 
-        if (obj != null || (obj instanceof RepositoryRecord)) {
+        if (obj != null && (obj instanceof RepositoryRecord)) {
             record = (RepositoryRecord) obj;
             status = record.getPublishingStatus();
         } else {

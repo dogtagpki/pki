@@ -19,6 +19,7 @@ package netscape.security.util;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * A low-overhead arbitrary-precision <em>unsigned</em> integer.
@@ -190,6 +191,14 @@ public final class BigInt implements Serializable {
         if (other instanceof BigInt)
             return equals((BigInt) other);
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(places);
+        return result;
     }
 
     /**

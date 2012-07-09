@@ -116,7 +116,7 @@ public class StatsEvent {
             long a = getTimeTakenSqSum();
             long b = (-2 * getAvg() * getTimeTaken());
             long c = getAvg() * getAvg() * getNoOfOperations();
-            return (long) Math.sqrt((a + b + c) / getNoOfOperations());
+            return (long) Math.sqrt(((double) (a + b + c)) / getNoOfOperations());
         }
     }
 

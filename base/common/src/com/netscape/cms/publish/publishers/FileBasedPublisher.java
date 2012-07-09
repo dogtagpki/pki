@@ -366,8 +366,9 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     destName = baseName + ".der";
                     destFile = new File(destName);
 
-                    if (destFile.exists())
+                    if (destFile.exists()) {
                         destFile.delete();
+                    }
                     renameFile = new File(tempFile);
                     renameFile.renameTo(destFile);
 
@@ -402,8 +403,9 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     destName = baseName + ".b64";
                     destFile = new File(destName);
 
-                    if (destFile.exists())
+                    if (destFile.exists()) {
                         destFile.delete();
+                    }
                     renameFile = new File(tempFile);
                     renameFile.renameTo(destFile);
                 }

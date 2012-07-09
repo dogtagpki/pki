@@ -203,6 +203,15 @@ public final class AVA implements DerEncoder {
             return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((oid == null) ? 0 : oid.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
     /**
      * Encodes the AVA to a Der output stream.
      * AVAs are encoded as a SEQUENCE of two elements.

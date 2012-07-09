@@ -52,7 +52,7 @@ public class GeneralSubtree implements Serializable {
     private int minimum = MIN_DEFAULT;
     private int maximum = -1;
 
-    private PrettyPrintFormat pp = new PrettyPrintFormat(":");
+    private transient PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     /**
      * The default constructor for the class.

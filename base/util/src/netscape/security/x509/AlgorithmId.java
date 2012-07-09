@@ -498,6 +498,17 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((algParams == null) ? 0 : algParams.hashCode());
+        result = prime * result + ((algid == null) ? 0 : algid.hashCode());
+        result = prime * result + ((params == null) ? 0 : params.hashCode());
+        result = prime * result + ((paramsString == null) ? 0 : paramsString.hashCode());
+        return result;
+    }
+
     /**
      * Compares two algorithm IDs for equality. Returns true iff
      * they are the same algorithm, ignoring algorithm parameters.
@@ -505,6 +516,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public final boolean equals(ObjectIdentifier id) {
         return algid.equals(id);
     }
+
+
 
     /*****************************************************************/
 

@@ -453,7 +453,7 @@ public class DerInputStream {
             if (Htmp >= 24 || Mtmp >= 60)
                 throw new IOException("Parse UTCtime, +hhmm");
 
-            utcTime += ((Htmp * 60) + Mtmp) * 60 * 1000;
+            utcTime += ((Htmp * 60) + Mtmp) * 60 * 1000L;
         }
             break;
 
@@ -466,7 +466,7 @@ public class DerInputStream {
             if (Htmp >= 24 || Mtmp >= 60)
                 throw new IOException("Parse UTCtime, -hhmm");
 
-            utcTime -= ((Htmp * 60) + Mtmp) * 60 * 1000;
+            utcTime -= ((Htmp * 60) + Mtmp) * 60 * 1000L;
         }
             break;
 
@@ -560,7 +560,7 @@ public class DerInputStream {
             if (Htmp >= 24 || Mtmp >= 60)
                 throw new IOException("Parse GeneralizedTime, +hhmm");
 
-            utcTime += ((Htmp * 60) + Mtmp) * 60 * 1000;
+            utcTime += ((Htmp * 60) + Mtmp) * 60 * 1000L;
         }
             break;
 
@@ -573,7 +573,7 @@ public class DerInputStream {
             if (Htmp >= 24 || Mtmp >= 60)
                 throw new IOException("Parse GeneralizedTime, -hhmm");
 
-            utcTime -= ((Htmp * 60) + Mtmp) * 60 * 1000;
+            utcTime -= ((Htmp * 60) + Mtmp) * 60 * 1000L;
         }
             break;
 

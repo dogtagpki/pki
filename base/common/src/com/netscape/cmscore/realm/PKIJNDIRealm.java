@@ -423,13 +423,12 @@ public class PKIJNDIRealm extends JNDIRealm {
         String right = expBlock[1];
 
         if (left != null) {
-            left.trim();
+            left = left.trim();
         } else {
             return allowed;
         }
         //Massage the right hand side of this expression to be a legal string value.
         if (right != null) {
-            right.trim();
             right = right.replace("\"", "");
             right = right.trim();
         } else {

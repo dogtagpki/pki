@@ -150,23 +150,34 @@ public final class RSAPublicKey extends X509Key implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((modulus == null) ? 0 : modulus.hashCode());
+        result = prime * result + ((publicExponent == null) ? 0 : publicExponent.hashCode());
+        return result;
+    }
 
-        if (object == null) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
             return false;
-        }
-        if (object instanceof RSAPublicKey) {
-            RSAPublicKey rhs = (RSAPublicKey) object;
-            if (this == rhs) {
-                return true;
-            }
-            if (!(bigIntEquals(this.modulus, rhs.modulus) && bigIntEquals(this.publicExponent, rhs.publicExponent))) {
+        if (getClass() != obj.getClass())
+            return false;
+        RSAPublicKey other = (RSAPublicKey) obj;
+        if (modulus == null) {
+            if (other.modulus != null)
                 return false;
-            }
-            return super.equals(rhs);
-        }
-
-        return false;
+        } else if (!modulus.equals(other.modulus))
+            return false;
+        if (publicExponent == null) {
+            if (other.publicExponent != null)
+                return false;
+        } else if (!publicExponent.equals(other.publicExponent))
+            return false;
+        return true;
     }
 
     public boolean bigIntEquals(BigInt x, BigInt y) {

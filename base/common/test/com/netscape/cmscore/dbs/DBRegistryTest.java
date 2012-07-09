@@ -110,7 +110,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(extAttrMapper.mapLDAPAttrsCalled);
     }
 
-    class DBSubsystemStub extends DBSubsystemDefaultStub {
+    static class DBSubsystemStub extends DBSubsystemDefaultStub {
         DBRegistry registry;
 
         public IDBRegistry getRegistry() {

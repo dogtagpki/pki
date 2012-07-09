@@ -601,7 +601,7 @@ public class RequestTest extends CMSBaseTestCase {
      * getting a value out. It assumes BtoA is always called first, stores
      * the value passed in, and then returns that value for BtoA.
      */
-    class CMSMemoryStub extends CMSEngineDefaultStub {
+    static class CMSMemoryStub extends CMSEngineDefaultStub {
         boolean bToACalled = false;
         byte[] bToACalledWith = null;
 

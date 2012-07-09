@@ -173,7 +173,9 @@ public class ProfileSubsystem implements IProfileSubsystem {
         mConfig.removeSubStore(id);
         File file1 = new File(configPath);
 
-        file1.delete();
+        if (!file1.delete()) {
+            CMS.debug("ProfileSubsystem: deleteProfile: Cannot delete the configuration file : " + configPath);
+        }
         mProfileIds.removeElement(id);
         mProfiles.remove(id);
         mProfileClassIds.remove(id);

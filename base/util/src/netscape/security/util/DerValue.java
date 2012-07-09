@@ -610,6 +610,17 @@ public class DerValue {
             return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((buffer == null) ? 0 : buffer.hashCode());
+        result = prime * result + ((data == null) ? 0 : data.hashCode());
+        result = prime * result + length;
+        result = prime * result + tag;
+        return result;
+    }
+
     /**
      * Bitwise equality comparison. DER encoded values have a single
      * encoding, so that bitwise equality of the encoded values is an

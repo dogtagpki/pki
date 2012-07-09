@@ -657,12 +657,11 @@ public class CMSEngine implements ICMSEngine {
         try {
             /* if the file is not there, create one */
             File f = new File(path);
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-        } catch (Exception e) {
+            f.createNewFile();
+        } catch (IOException e) {
+            CMS.debug("Cannot create file: " + path + " ." + e.toString());
+            throw new EBaseException("Cannot create file: " + path + " ." + e.toString());
         }
-
         return new FileConfigStore(path);
     }
 

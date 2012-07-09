@@ -58,7 +58,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(7, dbList.lastIndexGetElementAtCalledWith);
     }
 
-    public class DBVirtualListStub<T> extends DBVirtualListDefaultStub<T> {
+    public static class DBVirtualListStub<T> extends DBVirtualListDefaultStub<T> {
         public int size = 0;
         public int getElementAtCallCount = 0;
         public int lastIndexGetElementAtCalledWith = 0;

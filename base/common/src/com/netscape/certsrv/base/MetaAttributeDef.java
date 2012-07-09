@@ -129,29 +129,41 @@ public class MetaAttributeDef {
         return newDef;
     }
 
-    /**
-     * Compares this attribute definition with another, for equality.
-     * <P>
-     *
-     * @return true iff names, valueClasses and object identifiers
-     *         are identical.
-     */
-    public boolean equals(Object other) {
-        if (other == this)
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((mName == null) ? 0 : mName.hashCode());
+        result = prime * result + ((mOid == null) ? 0 : mOid.hashCode());
+        result = prime * result + ((mValueClass == null) ? 0 : mValueClass.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-
-        if (other instanceof MetaAttributeDef) {
-            MetaAttributeDef otherDef = (MetaAttributeDef) other;
-
-            if ((mOid != null && otherDef.mOid != null &&
-                    !mOid.equals(otherDef.mOid)) ||
-                    (mOid == null && otherDef.mOid != null) ||
-                    !mName.equals(otherDef.mName) ||
-                    !mValueClass.equals(otherDef.mValueClass)) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MetaAttributeDef other = (MetaAttributeDef) obj;
+        if (mName == null) {
+            if (other.mName != null)
                 return false;
-            }
-        }
-        return false;
+        } else if (!mName.equals(other.mName))
+            return false;
+        if (mOid == null) {
+            if (other.mOid != null)
+                return false;
+        } else if (!mOid.equals(other.mOid))
+            return false;
+        if (mValueClass == null) {
+            if (other.mValueClass != null)
+                return false;
+        } else if (!mValueClass.equals(other.mValueClass))
+            return false;
+        return true;
     }
 
     /**
