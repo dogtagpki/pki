@@ -22,6 +22,7 @@ package com.netscape.certsrv.common;
  * used in the administration protocol between the
  * console and the server.
  *
+ * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
 public interface DestDef {

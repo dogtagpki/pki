@@ -17,15 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * This interface defines all the tasks currently in use for the
- * certificate server configuration.
+ * This interface defines all the tasks used in
+ * the configuration protocol between the
+ * configuration wizard and the configuration
+ * daemon.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface TaskId {
+
     // list out all the previously performed tasks
     public final static String TASK_LIST_PREVIOUS_STAGES = "listPreviousStages";
 
@@ -65,7 +67,7 @@ public interface TaskId {
     // get information about all cryptotokens
     public final static String TASK_TOKEN_INFO = "tokenInfo";
 
-     // get master or clone setting
+    // get master or clone setting
     public final static String TASK_MASTER_OR_CLONE = "SetMasterOrClone";
 
     // single signon
@@ -99,10 +101,10 @@ public interface TaskId {
     // set CA starting serial number
     public final static String TASK_SET_CA_SERIAL = "setCASerial";
 
-     // set KRA request and key starting and ending number
+    // set KRA request and key starting and ending number
     public final static String TASK_SET_KRA_NUMBER = "setKRANumber";
 
-   // check key length
+    // check key length
     public final static String TASK_CHECK_KEYLENGTH = "checkKeyLength";
 
     // check certificate extension

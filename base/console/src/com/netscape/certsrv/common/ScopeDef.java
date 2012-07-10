@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
  * This interface defines all the operation scope
- * currently in use.
+ * used in the administration protocol between the
+ * console and the server.
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
@@ -29,6 +29,7 @@ public interface ScopeDef {
 
     // users and groups
     public final static String SC_GROUPS = "groups";
+    public final static String SC_GROUP_MEMBERS = "members";
     public final static String SC_USERS = "users";
     public final static String SC_USER_CERTS = "certs";
 
@@ -111,7 +112,7 @@ public interface ScopeDef {
     public final static String SC_MNSCHEME = "mnScheme";
 
     //stat
-    public final static String  SC_STAT = "stat";
+    public final static String SC_STAT = "stat";
 
     // RA
     public final static String SC_GENERAL = "general";
@@ -159,9 +160,9 @@ public interface ScopeDef {
     public final static String SC_SUBJECT_NAME = "subjectName";
     public final static String SC_CERTINFO = "certInfo";
     public final static String SC_CERT_REQUEST = "certRequest";
-    public final static String SC_IMPORT_CROSS_CERT = "importXCert";
     public final static String SC_ISSUE_IMPORT_CERT = "issueImportCert";
     public final static String SC_INSTALL_CERT = "installCert";
+    public final static String SC_IMPORT_CROSS_CERT = "importXCert";
     public final static String SC_CA_CERTLIST = "caCertList";
     public final static String SC_ALL_CERTLIST = "allCertList";
     public final static String SC_DELETE_CERTS = "deleteCert";
@@ -188,6 +189,6 @@ public interface ScopeDef {
     // Manage certificate admin
     public final static String SC_USERCERTSLIST = "userCertsList";
     public final static String SC_TKSKEYSLIST = "tksKeysList";
-	public final static String SC_ROOTCERTSLIST = "rootCertsList";
+    public final static String SC_ROOTCERTSLIST = "rootCertsList";
     public final static String SC_ROOTCERT_TRUSTBIT = "rootTrustBit";
 }

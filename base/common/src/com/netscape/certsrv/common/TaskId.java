@@ -23,6 +23,7 @@ package com.netscape.certsrv.common;
  * configuration wizard and the configuration
  * daemon.
  *
+ * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface TaskId {
@@ -66,8 +67,9 @@ public interface TaskId {
     // get information about all cryptotokens
     public final static String TASK_TOKEN_INFO = "tokenInfo";
 
-    // server get master or clone setting
+    // get master or clone setting
     public final static String TASK_MASTER_OR_CLONE = "SetMasterOrClone";
+
     // single signon
     public final static String TASK_SINGLE_SIGNON = "singleSignon";
 
@@ -99,7 +101,7 @@ public interface TaskId {
     // set CA starting serial number
     public final static String TASK_SET_CA_SERIAL = "setCASerial";
 
-    // set CA starting serial number
+    // set KRA request and key starting and ending number
     public final static String TASK_SET_KRA_NUMBER = "setKRANumber";
 
     // check key length

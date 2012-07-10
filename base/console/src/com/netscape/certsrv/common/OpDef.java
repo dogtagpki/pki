@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
  * This interface defines all the administration operations
- * currently in use.
+ * used in the administration protocol between the console
+ * and the server.
  *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$

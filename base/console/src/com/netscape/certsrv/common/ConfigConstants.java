@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * Constants that are used by daemon and UI configuration.
+ * This interface contains constants that are used
+ * in the protocol between the configuration daemon
+ * and UI configuration wizard.
  *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface ConfigConstants {
+
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String OPTYPE = "opType";
@@ -32,8 +34,8 @@ public interface ConfigConstants {
 
     // Stages
     public static final String STAGES = "stages";
-    public static final String STAGE_CONNECT_DB = "stageConnectDB";
     public static final String STAGE_INTERNAL_DB = "stageInternalDB";
+    public static final String STAGE_CONNECT_DB = "stageConnectDB";
     public static final String STAGE_SETUP_PORTS = "stageSetupPorts";
     public static final String STAGE_SETUP_ADMINISTRATOR = "stageSetupAdmin";
     public static final String STAGE_SETUP_SUBSYSTEMS = "stageSubsystems";
@@ -78,9 +80,9 @@ public interface ConfigConstants {
     public static final String STAGE_CACLONING = "stageCACloning";
     public static final String STAGE_RACLONING = "stageRACloning";
     public static final String STAGE_KRACLONING = "stageKRACloning";
+    public static final String STAGE_TKSCLONING = "stageTKSCloning";
     public static final String STAGE_SSLCLONING = "stageSSLCloning";
     public static final String STAGE_OCSPCLONING = "stageOCSPCloning";
-    public static final String STAGE_TKSCLONING = "stageTKSCloning";
     public static final String STAGE_CLONEMASTER = "stageCloneMaster";
     public static final String STAGE_UPDATE_DB_INFO = "stageUpdateDBInfo";
 
@@ -133,6 +135,7 @@ public interface ConfigConstants {
     public static final String PR_EE_SECURE_PORT = "eeGateway.https.port";
     public static final String PR_AGENT_PORT = "agentGateway.https.port";
     public static final String PR_RADM_PORT = "radm.https.port";
+    public static final String PR_RADM_PORT_SETUP = "radm.port";
     public static final String PR_EE_PORT_ENABLE = "eeGateway.http.enable";
     public static final String PR_EE_PORTS_ENABLE = "eePortsEnable";
 
@@ -170,19 +173,19 @@ public interface ConfigConstants {
     public static final String PR_ADD_LDIF_PATH = "addLdifPath";
     public static final String PR_MOD_LDIF_PATH = "modLdifPath";
     public static final String PR_SIGNING_KEY_MIGRATION_TOKEN =
-        "signingKeyMigrationToken";
+            "signingKeyMigrationToken";
     public static final String PR_SSL_KEY_MIGRATION_TOKEN =
-        "sslKeyMigrationToken";
+            "sslKeyMigrationToken";
     public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_PASSWD =
-        "signingKeyMigrationTokenPasswd";
+            "signingKeyMigrationTokenPasswd";
     public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_SOPPASSWD =
-        "signingKeyMigrationTokenSOPPasswd";
+            "signingKeyMigrationTokenSOPPasswd";
     public static final String PR_SSL_KEY_MIGRATION_TOKEN_PASSWD =
-        "sslKeyMigrationTokenPasswd";
+            "sslKeyMigrationTokenPasswd";
     public static final String PR_SSL_KEY_MIGRATION_TOKEN_SOPPASSWD =
-        "sslKeyMigrationTokenSOPPasswd";
+            "sslKeyMigrationTokenSOPPasswd";
     public static final String PR_NUM_MIGRATION_WARNINGS =
-        "numMigrationWarnings";
+            "numMigrationWarnings";
     public static final String PR_MIGRATION_WARNING = "migrationWarning";
     public static final String PR_CA_KEY_TYPE = "caKeyType";
     public static final String PR_LDAP_PASSWORD = "ldapPassword";
@@ -330,4 +333,3 @@ public interface ConfigConstants {
     public static final String PR_AGREEMENT_NAME_2 = "agreementName2";
     public static final String PR_REPLICATION_MANAGER_PASSWD_2 = "replicationManagerPwd2";
 }
-

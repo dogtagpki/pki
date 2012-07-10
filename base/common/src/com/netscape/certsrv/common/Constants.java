@@ -21,6 +21,8 @@ package com.netscape.certsrv.common;
  * This interface contains constants that are shared
  * by certificate server and its client SDK.
  *
+ * @author Jack Pan-Chen
+ * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public interface Constants {

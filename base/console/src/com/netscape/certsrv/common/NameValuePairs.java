@@ -18,6 +18,7 @@
 package com.netscape.certsrv.common;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
@@ -27,6 +28,8 @@ import java.util.StringTokenizer;
  * @version $Revision$, $Date$
  */
 public class NameValuePairs extends LinkedHashMap<String, String> {
+
+    private static final long serialVersionUID = 1494507857048437440L;
 
     /**
      * Constructs name value pairs.
@@ -41,12 +44,11 @@ public class NameValuePairs extends LinkedHashMap<String, String> {
      * @return string representation
      */
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
-        for (String name : keySet()) {
-            String value = get(name);
+        for (Map.Entry<String, String> entry : entrySet()) {
 
-            buf.append(name + "=" + value);
+            buf.append(String.format("%s=%s", entry.getKey(), entry.getValue()));
             buf.append("\n");
         }
 

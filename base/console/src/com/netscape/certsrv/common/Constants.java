@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * Constants that are shared by certificate server
- * and its client SDK.
+ * This interface contains constants that are shared
+ * by certificate server and its client SDK.
  *
  * @author Jack Pan-Chen
  * @author Christine Ho
@@ -81,7 +80,7 @@ public interface Constants {
     public final static String PR_GATEWAY_S_BACKLOG = "gateway.https.backlog";
     public final static String PR_GATEWAY_BACKLOG = "gateway.http.backlog";
     public final static String PR_GATEWAY_PORT_ENABLED =
-        "gateway.http.enable";
+            "gateway.http.enable";
     public final static String PR_MASTER_AGENT_PORT = "master.ca.agent.port";
     public final static String PR_MASTER_AGENT_HOST = "master.ca.agent.host";
 
@@ -151,7 +150,7 @@ public interface Constants {
      *========================================================*/
     public final static String PR_NOTIFICATION_FORM_NAME = "emailTemplate";
     public final static String PR_NOTIFICATION_SUBJECT =
-        "emailSubject";
+            "emailSubject";
     public final static String PR_NOTIFICATION_SENDER = "senderEmail";
     public final static String PR_NOTIFICATION_RECEIVER = "recipientEmail";
 
@@ -326,9 +325,9 @@ public interface Constants {
     public final static String PR_RENEWAL_VALIDITY = "renewal.validity";
     public final static String PR_RENEWAL_EMAIL = "renewal.email";
     public final static String PR_RENEWAL_EXPIREDNOTIFIEDENABLED =
-        "renewal.expired.notification.enabled";
+            "renewal.expired.notification.enabled";
     public final static String PR_RENEWAL_NUMNOTIFICATION =
-        "renewal.numNotification";
+            "renewal.numNotification";
     public final static String PR_RENEWAL_INTERVAL = "renewal.interval";
     public final static String PR_SERVLET_CLASS = "class";
     public final static String PR_SERVLET_URI = "uri";
@@ -487,9 +486,9 @@ public interface Constants {
     //public final static String PR_CA_SIGNING_CERT = "cacert";
     //public final static String PR_SERVER_CERT = "servercert";
     public final static String PR_CLIENT_CERT = "clientcert";
-    public final static String PR_FULL_INTERNAL_TOKEN_NAME="Internal Key Storage Token";
+    public final static String PR_FULL_INTERNAL_TOKEN_NAME = "Internal Key Storage Token";
     public final static String PR_INTERNAL_TOKEN_NAME =
-        "internal";
+            "internal";
     public final static String PR_TOKEN_NAME = "tokenName";
     public final static String PR_TOKEN_PASSWD = "tokenPwd";
     public final static String PR_KEY_LENGTH = "keyLength";
@@ -523,43 +522,28 @@ public interface Constants {
     /* SSL Cipher Preferences */
     public final static String PR_CIPHER_PREF = "cipherpref";
 
+    /* SSL EC Type */
+    public final static String PR_ECTYPE = "ectype";
+
     /* values for SSL cipher preferences */
-    public final static String
-        PR_SSL2_RC4_128_WITH_MD5 = "rc4";
-    public final static String
-        PR_SSL2_RC4_128_EXPORT40_WITH_MD5 = "rc4export";
-    public final static String
-        PR_SSL2_RC2_128_CBC_WITH_MD5 = "rc2";
-    public final static String
-        PR_SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 = "rc2export";
-    public final static String
-        PR_SSL2_DES_64_CBC_WITH_MD5 = "des";
-    public final static String
-        PR_SSL2_DES_192_EDE3_CBC_WITH_MD5 = "desede3";
-    public final static String
-        PR_SSL3_RSA_WITH_NULL_MD5 = "rsa_null_md5";
-    public final static String
-        PR_SSL3_RSA_EXPORT_WITH_RC4_40_MD5 = "rsa_rc4_40_md5";
-    public final static String
-        PR_SSL3_RSA_WITH_RC4_128_MD5 = "rsa_rc4_128_md5";
-    public final static String
-        PR_SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5 = "rsa_rc2_40_md5";
-    public final static String
-        PR_SSL3_RSA_WITH_DES_CBC_SHA = "rsa_des_sha";
-    public final static String
-        PR_SSL3_RSA_WITH_3DES_EDE_CBC_SHA = "rsa_3des_sha";
-    public final static String
-        PR_SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA = "fortezza";
-    public final static String
-        PR_SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA = "fortezza_rc4_128_sha";
-    public final static String
-        PR_SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA = "rsa_fips_3des_sha";
-    public final static String
-        PR_SSL_RSA_FIPS_WITH_DES_CBC_SHA = "rsa_fips_des_sha";
-    public final static String
-        PR_TLS_RSA_EXPORT1024_WITH_RC4_56_SHA = "tls_rsa_rc4_56_sha";
-    public final static String
-        PR_TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA = "tls_rsa_des_sha";
+    public final static String PR_SSL2_RC4_128_WITH_MD5 = "rc4";
+    public final static String PR_SSL2_RC4_128_EXPORT40_WITH_MD5 = "rc4export";
+    public final static String PR_SSL2_RC2_128_CBC_WITH_MD5 = "rc2";
+    public final static String PR_SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 = "rc2export";
+    public final static String PR_SSL2_DES_64_CBC_WITH_MD5 = "des";
+    public final static String PR_SSL2_DES_192_EDE3_CBC_WITH_MD5 = "desede3";
+    public final static String PR_SSL3_RSA_WITH_NULL_MD5 = "rsa_null_md5";
+    public final static String PR_SSL3_RSA_EXPORT_WITH_RC4_40_MD5 = "rsa_rc4_40_md5";
+    public final static String PR_SSL3_RSA_WITH_RC4_128_MD5 = "rsa_rc4_128_md5";
+    public final static String PR_SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5 = "rsa_rc2_40_md5";
+    public final static String PR_SSL3_RSA_WITH_DES_CBC_SHA = "rsa_des_sha";
+    public final static String PR_SSL3_RSA_WITH_3DES_EDE_CBC_SHA = "rsa_3des_sha";
+    public final static String PR_SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA = "fortezza";
+    public final static String PR_SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA = "fortezza_rc4_128_sha";
+    public final static String PR_SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA = "rsa_fips_3des_sha";
+    public final static String PR_SSL_RSA_FIPS_WITH_DES_CBC_SHA = "rsa_fips_des_sha";
+    public final static String PR_TLS_RSA_EXPORT1024_WITH_RC4_56_SHA = "tls_rsa_rc4_56_sha";
+    public final static String PR_TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA = "tls_rsa_des_sha";
 
     /*========================================================
      * Watchdog and Server State Messages
@@ -598,9 +582,9 @@ public interface Constants {
     public final static String PT_DN = "dn";
 
     public final static String PV_SYSTEM_ADMINISTRATORS =
-        "SystemAdministrators";
+            "SystemAdministrators";
     public final static String PV_CERTIFICATE_ADMINISTRATORS =
-        "CertificateAdministrators";
+            "CertificateAdministrators";
 
     public final static String OP_AUTHENTICATE = "authenticate";
     public final static String OP_RESTART = "restart";
@@ -635,9 +619,9 @@ public interface Constants {
     // certificate authority operations
     public final static String PT_PUBLISH_DN = "ldappublish.ldap.admin-dn";
     public final static String PT_PUBLISH_PWD =
-        "ldappublish.ldap.admin-password";
+            "ldappublish.ldap.admin-password";
     public final static String PT_PUBLISH_FREQ =
-        "crl.crl0.autoUpdateInterval";
+            "crl.crl0.autoUpdateInterval";
     public final static String PT_SERIALNO = "serialno";
     public final static String PT_NAMES = "names";
     public final static String PT_CERTIFICATES = "certificates";
