@@ -384,6 +384,12 @@ public class CMCRevReqServlet extends CMSServlet {
 
             // Construct a CRL reason code extension.
             RevocationReason revReason = RevocationReason.fromInt(reason);
+            header.addIntegerValue("reasonCode", reason);
+            if (revReason != null) {
+                header.addStringValue("reason", revReason.toString());
+            } else {
+                header.addStringValue("error", "Invalid revocation reason: "+reason);
+            }
             CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
 
             // Construct a CRL invalidity date extension.
@@ -416,7 +422,8 @@ public class CMCRevReqServlet extends CMSServlet {
                     rarg.addBigIntegerValue("serialNumber",
                             cert.getSerialNumber(), 16);
 
-                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) &&
+                        (revReason == null || revReason != RevocationReason.REMOVE_FROM_CRL)) {
                         rarg.addStringValue("error", "Certificate " +
                                 cert.getSerialNumber().toString() +
                                 " is already revoked.");
@@ -521,14 +528,20 @@ public class CMCRevReqServlet extends CMSServlet {
 
             X509CertImpl[] oldCerts = new X509CertImpl[count];
             RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
+            BigInteger[] certSerialNumbers = new BigInteger[count];
 
             for (int i = 0; i < count; i++) {
                 oldCerts[i] = oldCertsV.elementAt(i);
                 revCertImpls[i] = revCertImplsV.elementAt(i);
+                certSerialNumbers[i] = oldCerts[i].getSerialNumber();
             }
 
-            IRequest revReq =
-                    mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+            IRequest revReq = null;
+            if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
+                revReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+            } else {
+                revReq = mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+            }
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -541,13 +554,18 @@ public class CMCRevReqServlet extends CMSServlet {
 
             audit(auditMessage);
 
-            revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
-            revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
-            revReq.setExtData(IRequest.REVOKED_REASON, reason);
-            revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
-            if (comments != null) {
-                revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+            if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
+                revReq.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
+                revReq.setExtData(IRequest.OLD_SERIALS, certSerialNumbers);
+            } else {
+                revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
+                revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
+                revReq.setExtData(IRequest.REVOKED_REASON, reason);
+                revReq.setExtData(IRequest.OLD_CERTS, oldCerts);
+                if (comments != null) {
+                    revReq.setExtData(IRequest.REQUESTOR_COMMENTS, comments);
+                }
             }
 
             // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
