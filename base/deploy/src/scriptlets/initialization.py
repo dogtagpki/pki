@@ -50,6 +50,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.configuration_file.verify_sensitive_data()
         # verify existence of MUTUALLY EXCLUSIVE configuration file data
         util.configuration_file.verify_mutually_exclusive_data()
+        # verify selinux context of selected ports
+        util.configuration_file.populate_non_default_ports()
+        util.configuration_file.verify_selinux_ports()
         return self.rv
 
     def respawn(self):
@@ -80,6 +83,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
+        # get ports to remove selinux context
+        util.configuration_file.populate_non_default_ports()
         # ALWAYS Stop this Apache/Tomcat PKI Process
         util.systemd.stop()
         return self.rv

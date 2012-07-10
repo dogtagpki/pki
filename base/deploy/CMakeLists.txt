@@ -83,6 +83,7 @@ install(
         src/scriptlets/pkiparser.py
         src/scriptlets/pkiscriptlet.py
         src/scriptlets/security_databases.py
+        src/scriptlets/selinux_setup.py
         src/scriptlets/slot_substitution.py
         src/scriptlets/subsystem_layout.py
         src/scriptlets/war_explosion.py
@@ -140,6 +141,11 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
         ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/subsystem_layout.py\"
         \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/030_subsystem_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/selinux_setup.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/035_selinux_setup\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
@@ -208,6 +214,11 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
         ${CMAKE_COMMAND} -E create_symlink
         \"${PYTHON_SITE_PACKAGES}/pki/deployment/instance_layout.py\"
         \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/980_instance_layout\")"
+    )
+    install(CODE "execute_process(COMMAND
+        ${CMAKE_COMMAND} -E create_symlink
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/selinux_setup.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/985_selinux_setup\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink

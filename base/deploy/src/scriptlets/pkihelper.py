@@ -35,6 +35,7 @@ from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
 import zipfile
+import seobject
 
 
 # PKI Deployment Imports
@@ -42,6 +43,7 @@ import pkiconfig as config
 from pkiconfig import pki_master_dict as master
 from pkiconfig import pki_sensitive_dict as sensitive
 from pkiconfig import pki_slots_dict as slots
+from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
 import pkimessages as log
 
@@ -402,6 +404,56 @@ class configuration_file:
                         config.pkideployment_cfg,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
+
+    def populate_non_default_ports(self):
+        if master['pki_http_port'] != \
+            config.PKI_DEPLOYMENT_DEFAULT_HTTP_PORT:
+                ports.append(master['pki_http_port'])
+        if master['pki_https_port'] != \
+            config.PKI_DEPLOYMENT_DEFAULT_HTTPS_PORT:
+                ports.append(master['pki_https_port'])
+        if master['pki_tomcat_server_port'] != \
+            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT:
+                ports.append(master['pki_tomcat_server_port'])
+        if master['pki_ajp_port'] != \
+            config.PKI_DEPLOYMENT_DEFAULT_AJP_PORT:
+                ports.append(master['pki_ajp_port'])
+        return
+
+    def verify_selinux_ports(self):
+        # Determine which ports still need to be labelled, and if any are
+        # incorrectly labelled
+        if len(ports) == 0:
+            return
+
+        portrecs = seobject.portRecords().get_all()
+        portlist = ports[:]
+        for port in portlist:
+            context = ""
+            for i in portrecs:
+                if portrecs[i][0] == "unreserved_port_t" or \
+                   portrecs[i][0] == "reserved_port_t" or \
+                   i[2] != "tcp":
+                       continue
+                if i[0] <= int(port) and int(port) <= i[1]:
+                    context = portrecs[i][0]
+                    break
+            if context == "":
+                # port has no current context
+                # leave it in list of ports to set
+                continue
+            elif context == config.PKI_PORT_SELINUX_CONTEXT:
+                # port is already set correctly
+                # remove from list of ports to set
+                ports.remove(port)
+            else:
+                config.pki_log.error(
+                        log.PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT,
+                        port, context,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        return
+
 
 
 # PKI Deployment XML File Class

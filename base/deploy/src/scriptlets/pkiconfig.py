@@ -79,6 +79,11 @@ PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = "pkideployment.cfg"
 PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
     "/usr/share/pki/deployment/config/pkislots.cfg"
 
+# default ports (for defined selinux policy)
+PKI_DEPLOYMENT_DEFAULT_HTTP_PORT = 8080
+PKI_DEPLOYMENT_DEFAULT_HTTPS_PORT = 8443
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT = 8005
+PKI_DEPLOYMENT_DEFAULT_AJP_PORT = 8009
 
 # PKI Deployment Jython 2.2 Constants
 PKI_JYTHON_CRITICAL_LOG_LEVEL = 1
@@ -174,3 +179,10 @@ pki_subsystem_dict = None
 pki_master_dict = None
 pki_slots_dict = None
 pki_master_jython_dict = None
+
+# PKI Selinux Constants and parameters
+PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
+PKI_LOG_SELINUX_CONTEXT      = "pki_tomcat_log_t"
+PKI_CFG_SELINUX_CONTEXT      = "pki_tomcat_etc_rw_t"
+PKI_PORT_SELINUX_CONTEXT     = "pki_tomcat_port_t"
+pki_selinux_config_ports = []

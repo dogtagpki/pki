@@ -790,7 +790,7 @@ start_instance()
                 #     with programmatic replacement of either
                 #     'pki_tomcat_script_t' or 'pki_apache_script_t', AND
                 # (2) MUST currently be run with SELinux in 'Permissive' mode!
-                /usr/bin/runcon -t pki_ca_script_t \
+                /usr/bin/runcon -t pki_tomcat_script_t \
                     $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             else

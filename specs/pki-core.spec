@@ -719,7 +719,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %setup -q -n %{name}-%{version}%{?prerel}
 
 %if 0%{?fedora} >= 17
-%patch1 -p2 -b .f17
+# %patch1 -p2 -b .f17
 %else
 %if 0%{?fedora} >= 16
 %patch0 -p2 -b .f16
