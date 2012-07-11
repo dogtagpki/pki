@@ -10,6 +10,7 @@ import com.netscape.cms.servlet.admin.GroupResourceService;
 import com.netscape.cms.servlet.admin.SystemCertificateResourceService;
 import com.netscape.cms.servlet.admin.UserCertResourceService;
 import com.netscape.cms.servlet.admin.UserResourceService;
+import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.csadmin.SystemConfigurationResourceService;
 
 public class TKSApplication extends Application {
@@ -29,6 +30,9 @@ public class TKSApplication extends Application {
 
         // system certs
         classes.add(SystemCertificateResourceService.class);
+
+        // exception mapper
+        classes.add(CMSException.Mapper.class);
     }
 
     public Set<Class<?>> getClasses() {
