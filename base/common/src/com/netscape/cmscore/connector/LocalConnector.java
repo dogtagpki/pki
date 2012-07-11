@@ -183,7 +183,7 @@ public class LocalConnector implements IConnector {
             // are persistent before the servicing.
             // Please see stateEngine() function in
             // ARequestQueue.java for details.
-            r = mSourceReqs.get(rId);
+            r = mSourceReqs.get(rId.toString());
             if (r != null) {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     mSource.log(ILogger.LL_FAILURE,

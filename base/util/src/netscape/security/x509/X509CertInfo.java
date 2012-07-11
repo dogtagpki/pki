@@ -796,8 +796,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * (Actually they serialize as some type data from the
      * serialization subsystem, then the cert data.)
      */
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws CertificateException, IOException {
+    private void writeObject(ObjectOutputStream stream) throws CertificateException, IOException {
         encode(stream);
     }
 
@@ -805,8 +804,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Serialization read ... X.509 certificates serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void readObject(ObjectInputStream stream)
-            throws CertificateException, IOException {
+    private void readObject(ObjectInputStream stream) throws CertificateException, IOException {
         decode(stream);
     }
 

@@ -166,9 +166,10 @@ public class CMCResponse {
                             (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
                                     ASN1Util.encode(recipientN.elementAt(0))));
                     byte b[] = str.toByteArray();
-                    String s = "   Value: ";
+                    StringBuilder s = new StringBuilder("   Value: ");
                     for (int m = 0; m < b.length; m++) {
-                        s = s + b[m] + " ";
+                        s.append(b[m]);
+                        s.append(" ");
                     }
                     System.out.println(s);
                 } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
@@ -179,9 +180,10 @@ public class CMCResponse {
                             (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
                                     ASN1Util.encode(senderN.elementAt(0))));
                     byte b[] = str.toByteArray();
-                    String s = "   Value: ";
+                    StringBuilder s = new StringBuilder("   Value: ");
                     for (int m = 0; m < b.length; m++) {
-                        s = s + b[m] + " ";
+                        s.append(b[m]);
+                        s.append(" ");
                     }
                     System.out.println(s);
                 } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_dataReturn)) {
@@ -192,9 +194,10 @@ public class CMCResponse {
                             (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
                                     ASN1Util.encode(dataReturn.elementAt(0))));
                     byte b[] = str.toByteArray();
-                    String s = "   Value: ";
+                    StringBuilder s = new StringBuilder("   Value: ");
                     for (int m = 0; m < b.length; m++) {
-                        s = s + b[m] + " ";
+                        s.append(b[m]);
+                        s.append(" ");
                     }
                     System.out.println(s);
                 }

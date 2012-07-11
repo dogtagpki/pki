@@ -831,9 +831,7 @@ public class X509Cert implements Certificate, Serializable {
      * (Actually they serialize as some type data from the
      * serialization subsystem, then the cert data.)
      */
-    private synchronized void
-            writeObject(java.io.ObjectOutputStream stream)
-                    throws IOException {
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         encode(stream);
     }
 
@@ -841,9 +839,7 @@ public class X509Cert implements Certificate, Serializable {
      * Serialization read ... X.509 certificates serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void
-            readObject(ObjectInputStream stream)
-                    throws IOException {
+    private void readObject(ObjectInputStream stream) throws IOException {
         decode(stream);
     }
 }

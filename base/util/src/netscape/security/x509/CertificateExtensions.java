@@ -170,13 +170,11 @@ public class CertificateExtensions extends Vector<Extension>
         }
     }
 
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws CertificateException, IOException {
+    private void writeObject(ObjectOutputStream stream) throws CertificateException, IOException {
         encode(stream);
     }
 
-    private synchronized void readObject(ObjectInputStream stream)
-            throws CertificateException, IOException {
+    private void readObject(ObjectInputStream stream) throws CertificateException, IOException {
         decodeEx(stream);
     }
 

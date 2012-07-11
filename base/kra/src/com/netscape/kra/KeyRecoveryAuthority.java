@@ -420,7 +420,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Clears up system during garbage collection.
      */
-    public void finalize() {
+    protected void finalize() {
         shutdown();
     }
 

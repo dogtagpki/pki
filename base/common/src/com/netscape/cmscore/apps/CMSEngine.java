@@ -202,6 +202,7 @@ public class CMSEngine implements ICMSEngine {
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
+    private String mServerCertNickname = null;
 
     // static subsystems - must be singletons
     private static SubsystemInfo[] mStaticSubsystems = {
@@ -249,7 +250,6 @@ public class CMSEngine implements ICMSEngine {
     private static final int EE_SSL = 2;
     private static final int EE_NON_SSL = 3;
     private static final int EE_CLIENT_AUTH_SSL = 4;
-    private static String mServerCertNickname = null;
     private static String info[][] = { { null, null, null },//agent
             { null, null, null },//admin
             { null, null, null },//sslEE

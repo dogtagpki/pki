@@ -25,7 +25,9 @@ import java.util.Comparator;
  * @version 1.4 97/12/10
  * @author D. N. Hoover
  */
-public class ByteArrayLexOrder implements Comparator<byte[]> {
+public class ByteArrayLexOrder implements Comparator<byte[]>, java.io.Serializable {
+
+    private static final long serialVersionUID = 1897537410212918669L;
 
     /**
      * Perform lexicographical comparison of two byte arrays,

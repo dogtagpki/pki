@@ -28,7 +28,10 @@ import netscape.security.x509.X509CertImpl;
  * @author kanda
  * @version $Revision$, $Date$
  */
-public class CertDateCompare implements Comparator<X509CertImpl> {
+public class CertDateCompare implements Comparator<X509CertImpl>, java.io.Serializable {
+
+    private static final long serialVersionUID = -1784015027375808580L;
+
     public CertDateCompare() {
     }
 

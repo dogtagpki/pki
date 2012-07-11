@@ -842,7 +842,7 @@ public class CertUtils {
             return false;
         }
 
-        if (certusage == "")
+        if (certusage == null || certusage.equals(""))
             CMS.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
         CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid()");
         try {

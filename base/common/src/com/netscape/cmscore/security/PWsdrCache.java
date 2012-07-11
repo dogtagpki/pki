@@ -128,7 +128,6 @@ public class PWsdrCache {
         cm = CryptoManager.getInstance();
         if (mTokenName != null) {
             mToken = cm.getTokenByName(mTokenName);
-            mToken = cm.getInternalKeyStorageToken();
             debug("PWsdrCache: mToken = " + mTokenName);
         } else {
             mToken = cm.getInternalKeyStorageToken();

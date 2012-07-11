@@ -432,8 +432,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * they're parsed when they get read back. (Actually they serialize as some
      * type data from the serialization subsystem, then the cert data.)
      */
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws CRLException, X509ExtensionException, IOException {
+    private void writeObject(ObjectOutputStream stream) throws CRLException, X509ExtensionException, IOException {
         DerOutputStream dos = new DerOutputStream();
         encode(dos);
         dos.derEncode(stream);
@@ -443,8 +442,7 @@ public class RevokedCertImpl extends RevokedCertificate implements Serializable 
      * Serialization read ... X.509 certificates serialize as themselves, and
      * they're parsed when they get read back.
      */
-    private synchronized void readObject(ObjectInputStream stream)
-            throws CRLException, X509ExtensionException, IOException {
+    private void readObject(ObjectInputStream stream) throws CRLException, X509ExtensionException, IOException {
         decode(stream);
     }
 

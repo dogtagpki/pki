@@ -354,9 +354,7 @@ public class X509Key implements PublicKey {
      * Serialization write ... X.509 keys serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void
-            writeObject(java.io.ObjectOutputStream stream)
-                    throws IOException {
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         stream.write(getEncoded());
     }
 
@@ -364,17 +362,12 @@ public class X509Key implements PublicKey {
      * Serialization read ... X.509 keys serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void
-            readObject(ObjectInputStream stream)
-                    throws IOException {
-
+    private void readObject(ObjectInputStream stream) throws IOException {
         try {
             decode(stream);
-
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-            throw new IOException("deserialized key is invalid: " +
-                    e.getMessage());
+            throw new IOException("deserialized key is invalid: " + e.getMessage());
         }
     }
 

@@ -96,13 +96,11 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
         return (dnName.toString());
     }
 
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
+    private void writeObject(ObjectOutputStream stream) throws IOException {
         encode(stream);
     }
 
-    private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
+    private void readObject(ObjectInputStream stream) throws IOException {
         decodeEx(stream);
     }
 

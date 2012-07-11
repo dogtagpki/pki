@@ -296,8 +296,4 @@ public class HttpConnFactory {
                 "In Http (bound) connection pool to" +
                         msg);
     }
-
-    protected void finalize()
-            throws Exception {
-    }
 }

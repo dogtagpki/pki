@@ -186,33 +186,29 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (other == null) {
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
             return false;
-        }
-        if (other instanceof AlgIdDSA) {
-            AlgIdDSA rhs = (AlgIdDSA) other;
-            if (this == rhs) {
-                return true;
-            }
-            if (!(bigIntEquals(this.p, rhs.p) && bigIntEquals(this.q, rhs.q) && bigIntEquals(this.g, rhs.g))) {
+        if (getClass() != obj.getClass())
+            return false;
+        AlgIdDSA other = (AlgIdDSA) obj;
+        if (g == null) {
+            if (other.g != null)
                 return false;
-            }
-            return super.equals(rhs);
-        }
-        return false;
-    }
-
-    public boolean bigIntEquals(BigInteger x, BigInteger y) {
-        if (x == null) {
-            if (y != null) {
+        } else if (!g.equals(other.g))
+            return false;
+        if (p == null) {
+            if (other.p != null)
                 return false;
-            }
-        } else {
-            if (!x.equals(y)) {
+        } else if (!p.equals(other.p))
+            return false;
+        if (q == null) {
+            if (other.q != null)
                 return false;
-            }
-        }
+        } else if (!q.equals(other.q))
+            return false;
         return true;
     }
 

@@ -42,9 +42,7 @@ import netscape.security.util.DerValue;
  * @see CertAttrSet
  */
 public class CertificateValidity implements CertAttrSet, Serializable {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 8277703278213804194L;
     /**
      * Identifier for this attribute, to be used with the
@@ -156,13 +154,11 @@ public class CertificateValidity implements CertAttrSet, Serializable {
         construct(derVal);
     }
 
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
+    private void writeObject(ObjectOutputStream stream) throws IOException {
         encode(stream);
     }
 
-    private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
+    private void readObject(ObjectInputStream stream) throws IOException {
         decode(stream);
     }
 

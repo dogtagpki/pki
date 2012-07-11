@@ -97,13 +97,11 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
                 ", OID = " + (algId.getOID()).toString() + "\n");
     }
 
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
+    private void writeObject(ObjectOutputStream stream) throws IOException {
         encode(stream);
     }
 
-    private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
+    private void readObject(ObjectInputStream stream) throws IOException {
         decode(stream);
     }
 

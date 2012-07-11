@@ -61,9 +61,6 @@ import netscape.security.x509.OIDMap;
  * @version 1.13
  */
 public class PKCS10Attribute implements DerEncoder, Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = 2002480042340316170L;
     protected ObjectIdentifier attributeId = null;
     protected CertAttrSet attributeValue = null;

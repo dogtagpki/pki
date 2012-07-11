@@ -19,7 +19,9 @@ package netscape.security.util;
 
 import java.util.Comparator;
 
-public class ByteArrayTagOrder implements Comparator<byte[]> {
+public class ByteArrayTagOrder implements Comparator<byte[]>, java.io.Serializable {
+
+    private static final long serialVersionUID = -2027007556858126443L;
 
     /**
      * Compare two byte arrays, by the order of their tags,
