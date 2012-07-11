@@ -43,7 +43,7 @@ public class CertRestClient extends CMSRestClient {
     }
 
     public CertRestClient(String baseUri, String nickname) throws URISyntaxException {
-        super(baseUri);
+        super(baseUri, nickname);
 
         certClient = createProxy(CertResource.class);
         certsClient = createProxy(CertsResource.class);

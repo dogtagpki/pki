@@ -46,19 +46,11 @@ public abstract class CMSRestClient {
         this(baseUri, null);
     }
 
-    // Callback to approve or deny returned SSL server certs
-    // Right now, simply approve the cert.
-    // ToDO: Look into taking this JSS http client code and move it into
-    // its own class to be used by possible future clients.
-
     public CMSRestClient(String baseUri, String clientCertNick) throws URISyntaxException {
 
         clientCertNickname = clientCertNick;
 
         uri = new URI(baseUri);
-
-        String protocol = uri.getScheme();
-        int port = uri.getPort();
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
 
@@ -74,12 +66,9 @@ public abstract class CMSRestClient {
             }
         });
 
-        if (protocol != null && protocol.equals("https")) {
-
-            Scheme scheme = new Scheme("https", port, new JSSProtocolSocketFactory());
-            httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
-
-        }
+        // register https scheme
+        Scheme scheme = new Scheme("https", 443, new JSSProtocolSocketFactory());
+        httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
 
         executor = new ApacheHttpClient4Executor(httpclient);
         providerFactory = ResteasyProviderFactory.getInstance();
@@ -89,11 +78,12 @@ public abstract class CMSRestClient {
 
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
 
-        public boolean approve(org.mozilla.jss.crypto.X509Certificate servercert,
+        // Callback to approve or deny returned SSL server cert.
+        // Right now, simply approve the cert.
+        public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
                 SSLCertificateApprovalCallback.ValidityStatus status) {
 
-            //For now lets just accept the server cert. This is a test tool, being
-            // pointed at a well know kra instance.
+            if (verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
 
             SSLCertificateApprovalCallback.ValidityItem item;
 
@@ -102,12 +92,10 @@ public abstract class CMSRestClient {
                 item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
                 int reason = item.getReason();
 
-                if (reason ==
-                        SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER ||
+                if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER ||
                         reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
 
-                    //Allow these two since we haven't necessarily installed the CA cert for trust
-                    // and we are choosing "localhost" as the host for this client.
+                    // Allow these two since we haven't installed the CA cert for trust.
 
                     return true;
 
@@ -123,11 +111,8 @@ public abstract class CMSRestClient {
     private class JSSProtocolSocketFactory implements SchemeSocketFactory, LayeredSchemeSocketFactory {
 
         @Override
-        public Socket createSocket(HttpParams params)
-                throws IOException {
-
+        public Socket createSocket(HttpParams params) throws IOException {
             return null;
-
         }
 
         @Override
@@ -138,8 +123,6 @@ public abstract class CMSRestClient {
                 throws IOException,
                 UnknownHostException,
                 ConnectTimeoutException {
-
-            SSLSocket socket;
 
             String hostName = null;
             int port = 0;
@@ -157,6 +140,7 @@ public abstract class CMSRestClient {
                 localAddr = localAddress.getAddress();
             }
 
+            SSLSocket socket;
             if (sock == null) {
                 socket = new SSLSocket(InetAddress.getByName(hostName),
                         port,
@@ -169,7 +153,8 @@ public abstract class CMSRestClient {
                 socket = new SSLSocket(sock, hostName, new ServerCertApprovalCB(), null);
             }
 
-            if (socket != null && clientCertNickname != null) {
+            if (clientCertNickname != null) {
+                if (verbose) System.out.println("Client certificate: "+clientCertNickname);
                 socket.setClientCertNickname(clientCertNickname);
             }
 
