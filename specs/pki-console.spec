@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -78,7 +78,11 @@ following "Mutually-Exclusive" PKI Theme packages:
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CONSOLE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var \
+    -DBUILD_PKI_CONSOLE:BOOL=ON \
+    -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+    %{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+    ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -96,6 +100,9 @@ cd build
 
 
 %changelog
+* Thu Jul 12 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
+- Added option to build without Javadoc
+
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.4.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 
