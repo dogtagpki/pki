@@ -64,7 +64,11 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 
 # add macros
 include(MacroCopyFile)
+include(Java)
 include(UseJava)
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/classes)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
 # required for all PKI components EXCEPT IPA_PKI_THEME, PKI_RA, and PKI_TPS
 if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME   AND
@@ -125,6 +129,29 @@ add_custom_target(uninstall
                   COMMAND ${CMAKE_COMMAND}
                       -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
+# clean-dist target
+add_custom_target(clean-dist
+    COMMAND ${CMAKE_COMMAND}
+        -E remove_directory ${CMAKE_BINARY_DIR}/dist
+)
+
+# clean-cmake target
+add_custom_target(clean-cmake
+    COMMAND ${CMAKE_COMMAND}
+        -E remove_directory ${CMAKE_BINARY_DIR}/base
+    COMMAND ${CMAKE_COMMAND}
+        -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
+    COMMAND ${CMAKE_COMMAND}
+        -E remove -f
+        ${CMAKE_BINARY_DIR}/CMakeCache.txt
+        ${CMAKE_BINARY_DIR}/cmake_install.cmake
+        ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake
+        ${CMAKE_BINARY_DIR}/config.h
+        ${CMAKE_BINARY_DIR}/CPackConfig.cmake
+        ${CMAKE_BINARY_DIR}/CPackSourceConfig.cmake
+        ${CMAKE_BINARY_DIR}/install_manifest.txt
+        ${CMAKE_BINARY_DIR}/Makefile
+)
 
 # check subdirectories
 if (APPLICATION_FLAVOR_PKI_CORE      OR

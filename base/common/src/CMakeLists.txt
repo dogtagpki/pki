@@ -125,1131 +125,264 @@ find_file(HTTPCORE_JAR
         /usr/share/java/httpcomponents
 )
 
-set(pki-certsrv_java_SRCS
-    com/netscape/certsrv/apps/ICommandQueue.java
-    com/netscape/certsrv/apps/CMS.java
-    com/netscape/certsrv/apps/ICMSEngine.java
-    com/netscape/certsrv/ldap/ILdapBoundConnFactory.java
-    com/netscape/certsrv/ldap/ILdapConnFactory.java
-    com/netscape/certsrv/ldap/ELdapException.java
-    com/netscape/certsrv/ldap/ILdapConnInfo.java
-    com/netscape/certsrv/ldap/ELdapServerDownException.java
-    com/netscape/certsrv/ldap/ILdapAuthInfo.java
-    com/netscape/certsrv/ldap/LdapResources.java
-    com/netscape/certsrv/ldap/ILdapConnModule.java
-    com/netscape/certsrv/listeners/ListenersResources.java
-    com/netscape/certsrv/listeners/IRequestListenerPlugin.java
-    com/netscape/certsrv/listeners/EListenersException.java
-    com/netscape/certsrv/common/TaskId.java
-    com/netscape/certsrv/common/DestDef.java
-    com/netscape/certsrv/common/NameValuePairs.java
-    com/netscape/certsrv/common/ScopeDef.java
-    com/netscape/certsrv/common/PrefixDef.java
-    com/netscape/certsrv/common/ConfigConstants.java
-    com/netscape/certsrv/common/OpDef.java
-    com/netscape/certsrv/common/Constants.java
-    com/netscape/certsrv/group/GroupCollection.java
-    com/netscape/certsrv/group/GroupData.java
-    com/netscape/certsrv/group/GroupMemberCollection.java
-    com/netscape/certsrv/group/GroupMemberData.java
-    com/netscape/certsrv/group/GroupMemberResource.java
-    com/netscape/certsrv/group/GroupResource.java
-    com/netscape/certsrv/user/UserCertCollection.java
-    com/netscape/certsrv/user/UserCertData.java
-    com/netscape/certsrv/user/UserCertResource.java
-    com/netscape/certsrv/user/UserCollection.java
-    com/netscape/certsrv/user/UserData.java
-    com/netscape/certsrv/user/UserResource.java
-    com/netscape/certsrv/usrgrp/EUsrGrpException.java
-    com/netscape/certsrv/usrgrp/IGroupConstants.java
-    com/netscape/certsrv/usrgrp/Certificates.java
-    com/netscape/certsrv/usrgrp/ICertUserLocator.java
-    com/netscape/certsrv/usrgrp/IGroup.java
-    com/netscape/certsrv/usrgrp/IUser.java
-    com/netscape/certsrv/usrgrp/IUGSubsystem.java
-    com/netscape/certsrv/usrgrp/IIdEvaluator.java
-    com/netscape/certsrv/usrgrp/IUserConstants.java
-    com/netscape/certsrv/usrgrp/IUsrGrp.java
-    com/netscape/certsrv/pattern/Pattern.java
-    com/netscape/certsrv/pattern/AttrSetCollection.java
-    com/netscape/certsrv/publish/ILdapPlugin.java
-    com/netscape/certsrv/publish/ECompSyntaxErr.java
-    com/netscape/certsrv/publish/ERuleNotFound.java
-    com/netscape/certsrv/publish/ILdapPublishModule.java
-    com/netscape/certsrv/publish/EMapperPluginNotFound.java
-    com/netscape/certsrv/publish/RulePlugin.java
-    com/netscape/certsrv/publish/EPublisherNotFound.java
-    com/netscape/certsrv/publish/MapperPlugin.java
-    com/netscape/certsrv/publish/EPublisherPluginNotFound.java
-    com/netscape/certsrv/publish/IXcertPublisherProcessor.java
-    com/netscape/certsrv/publish/PublisherProxy.java
-    com/netscape/certsrv/publish/ICRLPublisher.java
-    com/netscape/certsrv/publish/ILdapPublisher.java
-    com/netscape/certsrv/publish/EMapperNotFound.java
-    com/netscape/certsrv/publish/ILdapPluginImpl.java
-    com/netscape/certsrv/publish/ILdapRule.java
-    com/netscape/certsrv/publish/IPublisherProcessor.java
-    com/netscape/certsrv/publish/LdapCertMapResult.java
-    com/netscape/certsrv/publish/IPublishRuleSet.java
-    com/netscape/certsrv/publish/ILdapExpression.java
-    com/netscape/certsrv/publish/ILdapCertMapper.java
-    com/netscape/certsrv/publish/ILdapMapper.java
-    com/netscape/certsrv/publish/PublisherPlugin.java
-    com/netscape/certsrv/publish/ERulePluginNotFound.java
-    com/netscape/certsrv/publish/MapperProxy.java
-    com/netscape/certsrv/publish/ILdapCrlMapper.java
-    com/netscape/certsrv/util/DateAdapter.java
-    com/netscape/certsrv/util/IStatsSubsystem.java
-    com/netscape/certsrv/util/HttpInput.java
-    com/netscape/certsrv/util/StatsEvent.java
-    com/netscape/certsrv/policy/IGeneralNameUtil.java
-    com/netscape/certsrv/policy/IGeneralNamesAsConstraintsConfig.java
-    com/netscape/certsrv/policy/IExpression.java
-    com/netscape/certsrv/policy/EPolicyException.java
-    com/netscape/certsrv/policy/IGeneralNamesConfig.java
-    com/netscape/certsrv/policy/IPolicySet.java
-    com/netscape/certsrv/policy/IPolicyProcessor.java
-    com/netscape/certsrv/policy/IKeyRecoveryPolicy.java
-    com/netscape/certsrv/policy/IGeneralNameConfig.java
-    com/netscape/certsrv/policy/IPolicyPredicateParser.java
-    com/netscape/certsrv/policy/IKeyArchivalPolicy.java
-    com/netscape/certsrv/policy/IRevocationPolicy.java
-    com/netscape/certsrv/policy/ISubjAltNameConfig.java
-    com/netscape/certsrv/policy/IGeneralNameAsConstraintsConfig.java
-    com/netscape/certsrv/policy/IEnrollmentPolicy.java
-    com/netscape/certsrv/policy/IRenewalPolicy.java
-    com/netscape/certsrv/policy/IPolicyRule.java
-    com/netscape/certsrv/acls/IACL.java
-    com/netscape/certsrv/acls/EACLsException.java
-    com/netscape/certsrv/acls/ACL.java
-    com/netscape/certsrv/acls/IACLEntry.java
-    com/netscape/certsrv/acls/ACLEntry.java
-    com/netscape/certsrv/cert/ICrossCertPairSubsystem.java
-    com/netscape/certsrv/registry/IPluginInfo.java
-    com/netscape/certsrv/registry/ERegistryException.java
-    com/netscape/certsrv/registry/IPluginRegistry.java
-    com/netscape/certsrv/base/EPropertyNotDefined.java
-    com/netscape/certsrv/base/MessageFormatter.java
-    com/netscape/certsrv/base/MetaInfo.java
-    com/netscape/certsrv/base/ITimeSource.java
-    com/netscape/certsrv/base/AttributeNameHelper.java
-    com/netscape/certsrv/base/ISourceConfigStore.java
-    com/netscape/certsrv/base/PasswordResources.java
-    com/netscape/certsrv/base/ASubsystem.java
-    com/netscape/certsrv/base/IArgBlock.java
-    com/netscape/certsrv/base/SessionContext.java
-    com/netscape/certsrv/base/IExtPrettyPrint.java
-    com/netscape/certsrv/base/IConfigStoreEventListener.java
-    com/netscape/certsrv/base/Plugin.java
-    com/netscape/certsrv/base/IConfigStore.java
-    com/netscape/certsrv/base/EPropertyNotFound.java
-    com/netscape/certsrv/base/ISubsystem.java
-    com/netscape/certsrv/base/ISubsystemSource.java
-    com/netscape/certsrv/base/IPrettyPrintFormat.java
-    com/netscape/certsrv/base/MetaAttributeDef.java
-    com/netscape/certsrv/base/IAuthInfo.java
-    com/netscape/certsrv/base/ExtendedPluginInfo.java
-    com/netscape/certsrv/base/EBaseException.java
-    com/netscape/certsrv/base/Nonces.java
-    com/netscape/certsrv/base/ISecurityDomainSessionTable.java
-    com/netscape/certsrv/base/IExtendedPluginInfo.java
-    com/netscape/certsrv/base/KeyGenInfo.java
-    com/netscape/certsrv/base/BaseResources.java
-    com/netscape/certsrv/base/IPluginImpl.java
-    com/netscape/certsrv/base/IAttrSet.java
-    com/netscape/certsrv/base/ICRLPrettyPrint.java
-    com/netscape/certsrv/base/ICertPrettyPrint.java
-    com/netscape/certsrv/base/BadRequestDataException.java
-    com/netscape/certsrv/dbs/IDBRegistry.java
-    com/netscape/certsrv/dbs/IDBAttrMapper.java
-    com/netscape/certsrv/dbs/IElementProcessor.java
-    com/netscape/certsrv/dbs/Modification.java
-    com/netscape/certsrv/dbs/EDBNotAvailException.java
-    com/netscape/certsrv/dbs/IDBVirtualList.java
-    com/netscape/certsrv/dbs/keydb/KeyId.java
-    com/netscape/certsrv/dbs/keydb/KeyIdAdapter.java
-    com/netscape/certsrv/dbs/keydb/KeyState.java
-    com/netscape/certsrv/dbs/keydb/IKeyRecord.java
-    com/netscape/certsrv/dbs/keydb/IKeyRecordList.java
-    com/netscape/certsrv/dbs/keydb/IKeyRepository.java
-    com/netscape/certsrv/dbs/crldb/ICRLRepository.java
-    com/netscape/certsrv/dbs/crldb/ICRLIssuingPointRecord.java
-    com/netscape/certsrv/dbs/EDBException.java
-    com/netscape/certsrv/dbs/certdb/ICertRecordList.java
-    com/netscape/certsrv/dbs/certdb/ICertificateRepository.java
-    com/netscape/certsrv/dbs/certdb/IRevocationInfo.java
-    com/netscape/certsrv/dbs/certdb/ICertRecord.java
-    com/netscape/certsrv/dbs/certdb/CertId.java
-    com/netscape/certsrv/dbs/certdb/CertIdAdapter.java
-    com/netscape/certsrv/dbs/DBResources.java
-    com/netscape/certsrv/dbs/IDBSearchResults.java
-    com/netscape/certsrv/dbs/IFilterConverter.java
-    com/netscape/certsrv/dbs/ModificationSet.java
-    com/netscape/certsrv/dbs/IDBDynAttrMapper.java
-    com/netscape/certsrv/dbs/IDBSubsystem.java
-    com/netscape/certsrv/dbs/repository/IRepository.java
-    com/netscape/certsrv/dbs/repository/IRepositoryRecord.java
-    com/netscape/certsrv/dbs/IDBObj.java
-    com/netscape/certsrv/dbs/EDBRecordNotFoundException.java
-    com/netscape/certsrv/dbs/IDBSSession.java
-    com/netscape/certsrv/dbs/replicadb/IReplicaIDRepository.java
-    com/netscape/certsrv/kra/IShare.java
-    com/netscape/certsrv/kra/EKRAException.java
-    com/netscape/certsrv/kra/ProofOfArchival.java
-    com/netscape/certsrv/kra/IKeyService.java
-    com/netscape/certsrv/kra/IJoinShares.java
-    com/netscape/certsrv/kra/IKeyRecoveryAuthority.java
-    com/netscape/certsrv/kra/IProofOfArchival.java
-    com/netscape/certsrv/kra/KRAResources.java
-    com/netscape/certsrv/authentication/ISharedToken.java
-    com/netscape/certsrv/authentication/AuthMgrPlugin.java
-    com/netscape/certsrv/authentication/EInvalidCredentials.java
-    com/netscape/certsrv/authentication/EAuthMgrNotFound.java
-    com/netscape/certsrv/authentication/ECompSyntaxErr.java
-    com/netscape/certsrv/authentication/EAuthUserError.java
-    com/netscape/certsrv/authentication/IAuthToken.java
-    com/netscape/certsrv/authentication/EAuthInternalError.java
-    com/netscape/certsrv/authentication/IAuthManager.java
-    com/netscape/certsrv/authentication/AuthManagerProxy.java
-    com/netscape/certsrv/authentication/AuthToken.java
-    com/netscape/certsrv/authentication/AuthCredentials.java
-    com/netscape/certsrv/authentication/EAuthMgrPluginNotFound.java
-    com/netscape/certsrv/authentication/ISSLClientCertProvider.java
-    com/netscape/certsrv/authentication/EMissingCredential.java
-    com/netscape/certsrv/authentication/EAuthException.java
-    com/netscape/certsrv/authentication/IAuthSubsystem.java
-    com/netscape/certsrv/authentication/IAuthCredentials.java
-    com/netscape/certsrv/authentication/EFormSubjectDN.java
-    com/netscape/certsrv/authorization/AuthzManagerProxy.java
-    com/netscape/certsrv/authorization/IAuthzManager.java
-    com/netscape/certsrv/authorization/EAuthzUnknownProtectedRes.java
-    com/netscape/certsrv/authorization/AuthzMgrPlugin.java
-    com/netscape/certsrv/authorization/AuthzToken.java
-    com/netscape/certsrv/authorization/IAuthzSubsystem.java
-    com/netscape/certsrv/authorization/EAuthzUnknownOperation.java
-    com/netscape/certsrv/authorization/EAuthzAccessDenied.java
-    com/netscape/certsrv/authorization/EAuthzException.java
-    com/netscape/certsrv/authorization/EAuthzMgrNotFound.java
-    com/netscape/certsrv/authorization/EAuthzInternalError.java
-    com/netscape/certsrv/authorization/EAuthzMgrPluginNotFound.java
-    com/netscape/certsrv/extensions/ICMSExtension.java
-    com/netscape/certsrv/extensions/ExtensionsResources.java
-    com/netscape/certsrv/extensions/EExtensionsException.java
-    com/netscape/certsrv/authority/ICertAuthority.java
-    com/netscape/certsrv/authority/IAuthority.java
-    com/netscape/certsrv/template/IArgValue.java
-    com/netscape/certsrv/template/ArgString.java
-    com/netscape/certsrv/template/ArgSet.java
-    com/netscape/certsrv/template/ArgList.java
-    com/netscape/certsrv/ra/IRAService.java
-    com/netscape/certsrv/ra/IRegistrationAuthority.java
-    com/netscape/certsrv/password/IPasswordCheck.java
-    com/netscape/certsrv/password/IConfigPasswordCheck.java
-    com/netscape/certsrv/password/EPasswordCheckException.java
-    com/netscape/certsrv/jobs/JobPlugin.java
-    com/netscape/certsrv/jobs/IJob.java
-    com/netscape/certsrv/jobs/EJobsException.java
-    com/netscape/certsrv/jobs/IJobCron.java
-    com/netscape/certsrv/jobs/JobsResources.java
-    com/netscape/certsrv/jobs/IJobsScheduler.java
-    com/netscape/certsrv/selftests/ESelfTestException.java
-    com/netscape/certsrv/selftests/EMissingSelfTestException.java
-    com/netscape/certsrv/selftests/EInvalidSelfTestException.java
-    com/netscape/certsrv/selftests/ISelfTest.java
-    com/netscape/certsrv/selftests/SelfTestResources.java
-    com/netscape/certsrv/selftests/ISelfTestSubsystem.java
-    com/netscape/certsrv/selftests/EDuplicateSelfTestException.java
-    com/netscape/certsrv/request/ldap/IRequestMod.java
-    com/netscape/certsrv/request/IRequestNotifier.java
-    com/netscape/certsrv/request/IRequestSubsystem.java
-    com/netscape/certsrv/request/PolicyResult.java
-    com/netscape/certsrv/request/INotify.java
-    com/netscape/certsrv/request/IRequestList.java
-    com/netscape/certsrv/request/IEnrollmentRequest.java
-    com/netscape/certsrv/request/AgentApprovals.java
-    com/netscape/certsrv/request/IRequestRecord.java
-    com/netscape/certsrv/request/RequestId.java
-    com/netscape/certsrv/request/RequestIdAdapter.java
-    com/netscape/certsrv/request/IService.java
-    com/netscape/certsrv/request/IRequestListener.java
-    com/netscape/certsrv/request/AgentApproval.java
-    com/netscape/certsrv/request/RequestStatus.java
-    com/netscape/certsrv/request/RequestStatusAdapter.java
-    com/netscape/certsrv/request/IRequestScheduler.java
-    com/netscape/certsrv/request/IRequest.java
-    com/netscape/certsrv/request/IRequestQueue.java
-    com/netscape/certsrv/request/ARequestNotifier.java
-    com/netscape/certsrv/request/PolicyMessage.java
-    com/netscape/certsrv/request/IPolicy.java
-    com/netscape/certsrv/request/IRequestVirtualList.java
-    com/netscape/certsrv/evaluators/IAccessEvaluator.java
-    com/netscape/certsrv/tks/ITKSAuthority.java
-    com/netscape/certsrv/property/EPropertyException.java
-    com/netscape/certsrv/property/PropertySet.java
-    com/netscape/certsrv/property/IConfigTemplate.java
-    com/netscape/certsrv/property/IDescriptor.java
-    com/netscape/certsrv/property/Descriptor.java
-    com/netscape/certsrv/logging/LogResources.java
-    com/netscape/certsrv/logging/ConsoleError.java
-    com/netscape/certsrv/logging/ILogEventFactory.java
-    com/netscape/certsrv/logging/SignedAuditEvent.java
-    com/netscape/certsrv/logging/SystemEvent.java
-    com/netscape/certsrv/logging/AuditFormat.java
-    com/netscape/certsrv/logging/AuditEvent.java
-    com/netscape/certsrv/logging/ELogNotFound.java
-    com/netscape/certsrv/logging/ILogEvent.java
-    com/netscape/certsrv/logging/ELogException.java
-    com/netscape/certsrv/logging/ConsoleLog.java
-    com/netscape/certsrv/logging/LogPlugin.java
-    com/netscape/certsrv/logging/IAuditor.java
-    com/netscape/certsrv/logging/ILogSubsystem.java
-    com/netscape/certsrv/logging/IBundleLogEvent.java
-    com/netscape/certsrv/logging/ELogPluginNotFound.java
-    com/netscape/certsrv/logging/ILogger.java
-    com/netscape/certsrv/logging/ILogQueue.java
-    com/netscape/certsrv/logging/ILogEventListener.java
-    com/netscape/certsrv/ca/ICMSCRLExtensions.java
-    com/netscape/certsrv/ca/ICertificateAuthority.java
-    com/netscape/certsrv/ca/EErrorPublishCRL.java
-    com/netscape/certsrv/ca/ICAService.java
-    com/netscape/certsrv/ca/ECAException.java
-    com/netscape/certsrv/ca/ICMSCRLExtension.java
-    com/netscape/certsrv/ca/ICRLIssuingPoint.java
-    com/netscape/certsrv/ca/CAResources.java
-    com/netscape/certsrv/connector/IConnector.java
-    com/netscape/certsrv/connector/IHttpConnFactory.java
-    com/netscape/certsrv/connector/IPKIMessage.java
-    com/netscape/certsrv/connector/IRequestEncoder.java
-    com/netscape/certsrv/connector/IResender.java
-    com/netscape/certsrv/connector/IHttpPKIMessage.java
-    com/netscape/certsrv/connector/IHttpConnection.java
-    com/netscape/certsrv/connector/IRemoteAuthority.java
-    com/netscape/certsrv/security/IStorageKeyUnit.java
-    com/netscape/certsrv/security/IEncryptionUnit.java
-    com/netscape/certsrv/security/KeyCertData.java
-    com/netscape/certsrv/security/ICryptoSubsystem.java
-    com/netscape/certsrv/security/ITransportKeyUnit.java
-    com/netscape/certsrv/security/IToken.java
-    com/netscape/certsrv/security/ISigningUnit.java
-    com/netscape/certsrv/security/Credential.java
-    com/netscape/certsrv/client/connection/IAuthenticator.java
-    com/netscape/certsrv/client/connection/IConnectionFactory.java
-    com/netscape/certsrv/client/connection/IConnection.java
-    com/netscape/certsrv/client/IDataProcessor.java
-    com/netscape/certsrv/ocsp/IOCSPService.java
-    com/netscape/certsrv/ocsp/IOCSPStore.java
-    com/netscape/certsrv/ocsp/IDefStore.java
-    com/netscape/certsrv/ocsp/IOCSPAuthority.java
-    com/netscape/certsrv/notification/IEmailFormProcessor.java
-    com/netscape/certsrv/notification/IMailNotification.java
-    com/netscape/certsrv/notification/IEmailTemplate.java
-    com/netscape/certsrv/notification/IEmailResolver.java
-    com/netscape/certsrv/notification/IEmailResolverKeys.java
-    com/netscape/certsrv/notification/ENotificationException.java
-    com/netscape/certsrv/notification/NotificationResources.java
-    com/netscape/certsrv/profile/IProfileEx.java
-    com/netscape/certsrv/profile/ERejectException.java
-    com/netscape/certsrv/profile/ICertInfoPolicyDefault.java
-    com/netscape/certsrv/profile/IPolicyConstraint.java
-    com/netscape/certsrv/profile/IProfileInput.java
-    com/netscape/certsrv/profile/IProfileAuthenticator.java
-    com/netscape/certsrv/profile/IProfile.java
-    com/netscape/certsrv/profile/IProfileOutput.java
-    com/netscape/certsrv/profile/IProfileContext.java
-    com/netscape/certsrv/profile/EDeferException.java
-    com/netscape/certsrv/profile/EProfileException.java
-    com/netscape/certsrv/profile/CertInfoProfile.java
-    com/netscape/certsrv/profile/IPolicyDefault.java
-    com/netscape/certsrv/profile/IEnrollProfile.java
-    com/netscape/certsrv/profile/IProfileSubsystem.java
-    com/netscape/certsrv/profile/IProfileUpdater.java
-    com/netscape/certsrv/profile/IProfilePolicy.java
-)
-
-set(pki-cms_java_SRCS
-    com/netscape/cms/client/cli/CLI.java
-    com/netscape/cms/client/cli/MainCLI.java
-    com/netscape/cms/client/cert/CertCLI.java
-    com/netscape/cms/client/cert/CertFindCLI.java
-    com/netscape/cms/client/cert/CertHoldCLI.java
-    com/netscape/cms/client/cert/CertReleaseHoldCLI.java
-    com/netscape/cms/client/cert/CertRestClient.java
-    com/netscape/cms/client/cert/CertRevokeCLI.java
-    com/netscape/cms/client/cert/CertShowCLI.java
-    com/netscape/cms/client/group/GroupAddCLI.java
-    com/netscape/cms/client/group/GroupAddMemberCLI.java
-    com/netscape/cms/client/group/GroupFindMemberCLI.java
-    com/netscape/cms/client/group/GroupFindCLI.java
-    com/netscape/cms/client/group/GroupCLI.java
-    com/netscape/cms/client/group/GroupRestClient.java
-    com/netscape/cms/client/group/GroupModifyCLI.java
-    com/netscape/cms/client/group/GroupRemoveCLI.java
-    com/netscape/cms/client/group/GroupRemoveMemberCLI.java
-    com/netscape/cms/client/group/GroupShowCLI.java
-    com/netscape/cms/client/user/UserAddCertCLI.java
-    com/netscape/cms/client/user/UserAddCLI.java
-    com/netscape/cms/client/user/UserCLI.java
-    com/netscape/cms/client/user/UserFindCertCLI.java
-    com/netscape/cms/client/user/UserFindCLI.java
-    com/netscape/cms/client/user/UserModifyCLI.java
-    com/netscape/cms/client/user/UserRemoveCertCLI.java
-    com/netscape/cms/client/user/UserRemoveCLI.java
-    com/netscape/cms/client/user/UserRestClient.java
-    com/netscape/cms/client/user/UserShowCertCLI.java
-    com/netscape/cms/client/user/UserShowCLI.java
-    com/netscape/cms/listeners/PinRemovalListener.java
-    com/netscape/cms/listeners/RequestInQListener.java
-    com/netscape/cms/listeners/CertificateIssuedListener.java
-    com/netscape/cms/listeners/CertificateRevokedListener.java
-    com/netscape/cms/publish/mappers/LdapCertSubjMap.java
-    com/netscape/cms/publish/mappers/MapRDNPattern.java
-    com/netscape/cms/publish/mappers/NoMap.java
-    com/netscape/cms/publish/mappers/LdapEnhancedMap.java
-    com/netscape/cms/publish/mappers/MapDNPattern.java
-    com/netscape/cms/publish/mappers/LdapCertCompsMap.java
-    com/netscape/cms/publish/mappers/AVAPattern.java
-    com/netscape/cms/publish/mappers/LdapCaSimpleMap.java
-    com/netscape/cms/publish/mappers/LdapCertExactMap.java
-    com/netscape/cms/publish/mappers/MapAVAPattern.java
-    com/netscape/cms/publish/mappers/LdapCrlIssuerCompsMap.java
-    com/netscape/cms/publish/mappers/LdapDNCompsMap.java
-    com/netscape/cms/publish/mappers/LdapSimpleMap.java
-    com/netscape/cms/publish/publishers/LdapEncryptCertPublisher.java
-    com/netscape/cms/publish/publishers/LdapUserCertPublisher.java
-    com/netscape/cms/publish/publishers/LdapCaCertPublisher.java
-    com/netscape/cms/publish/publishers/FileBasedPublisher.java
-    com/netscape/cms/publish/publishers/LdapCrlPublisher.java
-    com/netscape/cms/publish/publishers/LdapCertificatePairPublisher.java
-    com/netscape/cms/publish/publishers/PublisherUtils.java
-    com/netscape/cms/publish/publishers/OCSPPublisher.java
-    com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
-    com/netscape/cms/policy/constraints/UniqueSubjectNameConstraints.java
-    com/netscape/cms/policy/constraints/AgentPolicy.java
-    com/netscape/cms/policy/constraints/KeyAlgorithmConstraints.java
-    com/netscape/cms/policy/constraints/IssuerConstraints.java
-    com/netscape/cms/policy/constraints/RevocationConstraints.java
-    com/netscape/cms/policy/constraints/DefaultRevocation.java
-    com/netscape/cms/policy/constraints/RSAKeyConstraints.java
-    com/netscape/cms/policy/constraints/DSAKeyConstraints.java
-    com/netscape/cms/policy/constraints/UniqueSubjectName.java
-    com/netscape/cms/policy/constraints/ManualAuthentication.java
-    com/netscape/cms/policy/constraints/RenewalValidityConstraints.java
-    com/netscape/cms/policy/constraints/SigningAlgorithmConstraints.java
-    com/netscape/cms/policy/constraints/AttributePresentConstraints.java
-    com/netscape/cms/policy/constraints/ValidityConstraints.java
-    com/netscape/cms/policy/constraints/RenewalConstraints.java
-    com/netscape/cms/policy/constraints/SubCANameConstraints.java
-    com/netscape/cms/policy/APolicyRule.java
-    com/netscape/cms/policy/extensions/OCSPNoCheckExt.java
-    com/netscape/cms/policy/extensions/AuthorityKeyIdentifierExt.java
-    com/netscape/cms/policy/extensions/CertificatePoliciesExt.java
-    com/netscape/cms/policy/extensions/SubjAltNameExt.java
-    com/netscape/cms/policy/extensions/RemoveBasicConstraintsExt.java
-    com/netscape/cms/policy/extensions/CertificateScopeOfUseExt.java
-    com/netscape/cms/policy/extensions/GenericASN1Ext.java
-    com/netscape/cms/policy/extensions/ExtendedKeyUsageExt.java
-    com/netscape/cms/policy/extensions/SubjectDirectoryAttributesExt.java
-    com/netscape/cms/policy/extensions/AuthInfoAccessExt.java
-    com/netscape/cms/policy/extensions/NameConstraintsExt.java
-    com/netscape/cms/policy/extensions/PolicyConstraintsExt.java
-    com/netscape/cms/policy/extensions/PresenceExt.java
-    com/netscape/cms/policy/extensions/NSCCommentExt.java
-    com/netscape/cms/policy/extensions/BasicConstraintsExt.java
-    com/netscape/cms/policy/extensions/IssuerAltNameExt.java
-    com/netscape/cms/policy/extensions/PolicyMappingsExt.java
-    com/netscape/cms/policy/extensions/SubjectAltNameExt.java
-    com/netscape/cms/policy/extensions/CRLDistributionPointsExt.java
-    com/netscape/cms/policy/extensions/SubjectKeyIdentifierExt.java
-    com/netscape/cms/policy/extensions/CertificateRenewalWindowExt.java
-    com/netscape/cms/policy/extensions/PrivateKeyUsagePeriodExt.java
-    com/netscape/cms/policy/extensions/KeyUsageExt.java
-    com/netscape/cms/policy/extensions/NSCertTypeExt.java
-    com/netscape/cms/servlet/filter/AdminRequestFilter.java
-    com/netscape/cms/servlet/filter/EEClientAuthRequestFilter.java
-    com/netscape/cms/servlet/filter/EERequestFilter.java
-    com/netscape/cms/servlet/filter/AgentRequestFilter.java
-    com/netscape/cms/servlet/common/GenRejectedTemplateFiller.java
-    com/netscape/cms/servlet/common/ICMSTemplateFiller.java
-    com/netscape/cms/servlet/common/IndexTemplateFiller.java
-    com/netscape/cms/servlet/common/GenSuccessTemplateFiller.java
-    com/netscape/cms/servlet/common/ECMSGWException.java
-    com/netscape/cms/servlet/common/CMSTemplate.java
-    com/netscape/cms/servlet/common/GenErrorTemplateFiller.java
-    com/netscape/cms/servlet/common/AuthCredentials.java
-    com/netscape/cms/servlet/common/CMSLoadTemplate.java
-    com/netscape/cms/servlet/common/CMSFileLoader.java
-    com/netscape/cms/servlet/common/RawJS.java
-    com/netscape/cms/servlet/common/GenSvcPendingTemplateFiller.java
-    com/netscape/cms/servlet/common/CMSTemplateParams.java
-    com/netscape/cms/servlet/common/GenUnauthorizedTemplateFiller.java
-    com/netscape/cms/servlet/common/CMCOutputTemplate.java
-    com/netscape/cms/servlet/common/CMSGateway.java
-    com/netscape/cms/servlet/common/CMSRequest.java
-    com/netscape/cms/servlet/common/CMSFile.java
-    com/netscape/cms/servlet/common/IRawJS.java
-    com/netscape/cms/servlet/common/ServletUtils.java
-    com/netscape/cms/servlet/common/GenPendingTemplateFiller.java
-    com/netscape/cms/servlet/common/CMSGWResources.java
-    com/netscape/cms/servlet/common/GenUnexpectedErrorTemplateFiller.java
-    com/netscape/cms/servlet/cert/UpdateCRL.java
-    com/netscape/cms/servlet/cert/GetInfo.java
-    com/netscape/cms/servlet/cert/RevocationSuccessTemplateFiller.java
-    com/netscape/cms/servlet/cert/DoUnrevoke.java
-    com/netscape/cms/servlet/cert/DisplayBySerial.java
-    com/netscape/cms/servlet/cert/GetCertFromRequest.java
-    com/netscape/cms/servlet/cert/HashEnrollServlet.java
-    com/netscape/cms/servlet/cert/UpdateDir.java
-    com/netscape/cms/servlet/cert/scep/ExtensionsRequested.java
-    com/netscape/cms/servlet/cert/scep/CRSEnrollment.java
-    com/netscape/cms/servlet/cert/scep/ChallengePassword.java
-    com/netscape/cms/servlet/cert/EnrollServlet.java
-    com/netscape/cms/servlet/cert/DisableEnrollResult.java
-    com/netscape/cms/servlet/cert/GetEnableStatus.java
-    com/netscape/cms/servlet/cert/DisplayHashUserEnroll.java
-    com/netscape/cms/servlet/cert/DoRevoke.java
-    com/netscape/cms/servlet/cert/ChallengeRevocationServlet1.java
-    com/netscape/cms/servlet/cert/CloneRedirect.java
-    com/netscape/cms/servlet/cert/EnableEnrollResult.java
-    com/netscape/cms/servlet/cert/ImportCertsTemplateFiller.java
-    com/netscape/cms/servlet/cert/GetCAChain.java
-    com/netscape/cms/servlet/cert/SrchCerts.java
-    com/netscape/cms/servlet/cert/Monitor.java
-    com/netscape/cms/servlet/cert/GetCRL.java
-    com/netscape/cms/servlet/cert/ReasonToRevoke.java
-    com/netscape/cms/servlet/cert/ListCerts.java
-    com/netscape/cms/servlet/cert/RenewalServlet.java
-    com/netscape/cms/servlet/cert/DoRevokeTPS.java
-    com/netscape/cms/servlet/cert/DirAuthServlet.java
-    com/netscape/cms/servlet/cert/RemoteAuthConfig.java
-    com/netscape/cms/servlet/cert/DoUnrevokeTPS.java
-    com/netscape/cms/servlet/cert/RevocationServlet.java
-    com/netscape/cms/servlet/cert/CMCRevReqServlet.java
-    com/netscape/cms/servlet/cert/GetBySerial.java
-    com/netscape/cms/servlet/cert/DisplayCRL.java
-    com/netscape/cms/servlet/cert/CertNotFoundException.java
-    com/netscape/cms/servlet/cert/CertResource.java
-    com/netscape/cms/servlet/cert/CertResourceService.java
-    com/netscape/cms/servlet/cert/CertsResource.java
-    com/netscape/cms/servlet/cert/CertsResourceService.java
-    com/netscape/cms/servlet/cert/RequestProcessor.java
-    com/netscape/cms/servlet/cert/CertProcessor.java
-    com/netscape/cms/servlet/cert/EnrollmentProcessor.java
-    com/netscape/cms/servlet/cert/RenewalProcessor.java
-    com/netscape/cms/servlet/cert/model/CertificateData.java
-    com/netscape/cms/servlet/cert/model/CertDAO.java
-    com/netscape/cms/servlet/cert/model/CertDataInfo.java
-    com/netscape/cms/servlet/cert/model/CertDataInfos.java
-    com/netscape/cms/servlet/cert/model/CertRevokeRequest.java
-    com/netscape/cms/servlet/cert/model/CertSearchData.java
-    com/netscape/cms/servlet/cert/model/CertUnrevokeRequest.java
-    com/netscape/cms/servlet/admin/OCSPAdminServlet.java
-    com/netscape/cms/servlet/admin/CMSAdminServlet.java
-    com/netscape/cms/servlet/admin/JobsAdminServlet.java
-    com/netscape/cms/servlet/admin/PublisherAdminServlet.java
-    com/netscape/cms/servlet/admin/ProfileAdminServlet.java
-    com/netscape/cms/servlet/admin/ACLAdminServlet.java
-    com/netscape/cms/servlet/admin/AuthCredentials.java
-    com/netscape/cms/servlet/admin/CAAdminServlet.java
-    com/netscape/cms/servlet/admin/PolicyAdminServlet.java
-    com/netscape/cms/servlet/admin/RegistryAdminServlet.java
-    com/netscape/cms/servlet/admin/AuthAdminServlet.java
-    com/netscape/cms/servlet/admin/UsrGrpAdminServlet.java
-    com/netscape/cms/servlet/admin/AdminServlet.java
-    com/netscape/cms/servlet/admin/KRAAdminServlet.java
-    com/netscape/cms/servlet/admin/LogAdminServlet.java
-    com/netscape/cms/servlet/admin/RAAdminServlet.java
-    com/netscape/cms/servlet/admin/AdminResources.java
-    com/netscape/cms/servlet/admin/SystemCertificateResource.java
-    com/netscape/cms/servlet/admin/SystemCertificateResourceService.java
-    com/netscape/cms/servlet/admin/GroupMemberResourceService.java
-    com/netscape/cms/servlet/admin/GroupResourceService.java
-    com/netscape/cms/servlet/admin/UserCertResourceService.java
-    com/netscape/cms/servlet/admin/UserResourceService.java
-    com/netscape/cms/servlet/key/DisplayBySerial.java
-    com/netscape/cms/servlet/key/SrchKey.java
-    com/netscape/cms/servlet/key/DisplayTransport.java
-    com/netscape/cms/servlet/key/GrantRecovery.java
-    com/netscape/cms/servlet/key/SrchKeyForRecovery.java
-    com/netscape/cms/servlet/key/GrantAsyncRecovery.java
-    com/netscape/cms/servlet/key/GetApprovalStatus.java
-    com/netscape/cms/servlet/key/ConfirmRecoverBySerial.java
-    com/netscape/cms/servlet/key/ExamineRecovery.java
-    com/netscape/cms/servlet/key/GetPk12.java
-    com/netscape/cms/servlet/key/GetAsyncPk12.java
-    com/netscape/cms/servlet/key/RecoverBySerial.java
-    com/netscape/cms/servlet/key/KeyRecordParser.java
-    com/netscape/cms/servlet/key/DisplayBySerialForRecovery.java
-    com/netscape/cms/servlet/key/KeyResource.java
-    com/netscape/cms/servlet/key/KeyResourceService.java
-    com/netscape/cms/servlet/key/KeysResource.java
-    com/netscape/cms/servlet/key/KeysResourceService.java
-    com/netscape/cms/servlet/key/model/KeyDAO.java
-    com/netscape/cms/servlet/key/model/KeyDataInfo.java
-    com/netscape/cms/servlet/key/model/KeyDataInfos.java
-    com/netscape/cms/servlet/key/model/KeyData.java
-    com/netscape/cms/servlet/base/IndexServlet.java
-    com/netscape/cms/servlet/base/UserInfo.java
-    com/netscape/cms/servlet/base/PortsServlet.java
-    com/netscape/cms/servlet/base/CMSException.java
-    com/netscape/cms/servlet/base/BadRequestException.java
-    com/netscape/cms/servlet/base/UnauthorizedException.java
-    com/netscape/cms/servlet/base/CMSResourceService.java
-    com/netscape/cms/servlet/base/CMSServlet.java
-    com/netscape/cms/servlet/base/CMSStartServlet.java
-    com/netscape/cms/servlet/base/ProxyServlet.java
-    com/netscape/cms/servlet/base/DynamicVariablesServlet.java
-    com/netscape/cms/servlet/base/GetStats.java
-    com/netscape/cms/servlet/base/SystemInfoServlet.java
-    com/netscape/cms/servlet/base/DisplayHtmlServlet.java
-    com/netscape/cms/servlet/base/model/Link.java
-    com/netscape/cms/servlet/csadmin/BaseServlet.java
-    com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java
-    com/netscape/cms/servlet/csadmin/ConfigHSMLoginPanel.java
-    com/netscape/cms/servlet/csadmin/SizePanel.java
-    com/netscape/cms/servlet/csadmin/Cert.java
-    com/netscape/cms/servlet/csadmin/UpdateConnector.java
-    com/netscape/cms/servlet/csadmin/DonePanel.java
-    com/netscape/cms/servlet/csadmin/GetTokenInfo.java
-    com/netscape/cms/servlet/csadmin/WizardPanelBase.java
-    com/netscape/cms/servlet/csadmin/CheckIdentity.java
-    com/netscape/cms/servlet/csadmin/UpdateNumberRange.java
-    com/netscape/cms/servlet/csadmin/ConfigCertApprovalCallback.java
-    com/netscape/cms/servlet/csadmin/AuthenticatePanel.java
-    com/netscape/cms/servlet/csadmin/ImportCAChainPanel.java
-    com/netscape/cms/servlet/csadmin/DatabasePanel.java
-    com/netscape/cms/servlet/csadmin/WelcomePanel.java
-    com/netscape/cms/servlet/csadmin/GetTransportCert.java
-    com/netscape/cms/servlet/csadmin/ImportTransportCert.java
-    com/netscape/cms/servlet/csadmin/SessionTimer.java
-    com/netscape/cms/servlet/csadmin/ModulePanel.java
-    com/netscape/cms/servlet/csadmin/GetConfigEntries.java
-    com/netscape/cms/servlet/csadmin/UpdateDomainXML.java
-    com/netscape/cms/servlet/csadmin/GetStatus.java
-    com/netscape/cms/servlet/csadmin/BackupKeyCertPanel.java
-    com/netscape/cms/servlet/csadmin/TokenAuthenticate.java
-    com/netscape/cms/servlet/csadmin/SecurityDomainLogin.java
-    com/netscape/cms/servlet/csadmin/CertUtil.java
-    com/netscape/cms/servlet/csadmin/SecurityDomainPanel.java
-    com/netscape/cms/servlet/csadmin/SecurityDomainSessionTable.java
-    com/netscape/cms/servlet/csadmin/GetCertChain.java
-    com/netscape/cms/servlet/csadmin/CreateSubsystemPanel.java
-    com/netscape/cms/servlet/csadmin/DisplayCertChainPanel.java
-    com/netscape/cms/servlet/csadmin/UpdateOCSPConfig.java
-    com/netscape/cms/servlet/csadmin/GetDomainXML.java
-    com/netscape/cms/servlet/csadmin/LDAPSecurityDomainSessionTable.java
-    com/netscape/cms/servlet/csadmin/GetCookie.java
-    com/netscape/cms/servlet/csadmin/CertRequestPanel.java
-    com/netscape/cms/servlet/csadmin/RegisterUser.java
-    com/netscape/cms/servlet/csadmin/GetSubsystemCert.java
-    com/netscape/cms/servlet/csadmin/LoginServlet.java
-    com/netscape/cms/servlet/csadmin/AdminPanel.java
-    com/netscape/cms/servlet/csadmin/RestoreKeyCertPanel.java
-    com/netscape/cms/servlet/csadmin/MainPageServlet.java
-    com/netscape/cms/servlet/csadmin/HierarchyPanel.java
-    com/netscape/cms/servlet/csadmin/DownloadPKCS12.java
-    com/netscape/cms/servlet/csadmin/SavePKCS12Panel.java
-    com/netscape/cms/servlet/csadmin/NamePanel.java
-    com/netscape/cms/servlet/csadmin/ConfigurationUtils.java
-    com/netscape/cms/servlet/csadmin/SystemConfigurationResource.java
-    com/netscape/cms/servlet/csadmin/SystemConfigurationResourceService.java
-    com/netscape/cms/servlet/csadmin/ConfigurationRESTClient.java
-    com/netscape/cms/servlet/csadmin/ConfigurationErrorInterceptor.java
-    com/netscape/cms/servlet/csadmin/model/CertData.java
-    com/netscape/cms/servlet/csadmin/model/ConfigurationData.java
-    com/netscape/cms/servlet/csadmin/model/ConfigurationResponseData.java
-    com/netscape/cms/servlet/csadmin/model/DomainInfo.java
-    com/netscape/cms/servlet/csadmin/model/InstallToken.java
-    com/netscape/cms/servlet/csadmin/model/InstallTokenRequest.java
-    com/netscape/cms/servlet/csadmin/model/SecurityDomainHost.java
-    com/netscape/cms/servlet/csadmin/model/SecurityDomainHostList.java
-    com/netscape/cms/servlet/wizard/WizardServlet.java
-    com/netscape/cms/servlet/wizard/IWizardPanel.java
-    com/netscape/cms/servlet/processors/PKCS10Processor.java
-    com/netscape/cms/servlet/processors/PKIProcessor.java
-    com/netscape/cms/servlet/processors/KeyGenProcessor.java
-    com/netscape/cms/servlet/processors/CRMFProcessor.java
-    com/netscape/cms/servlet/processors/IPKIProcessor.java
-    com/netscape/cms/servlet/processors/CMCProcessor.java
-    com/netscape/cms/servlet/processors/Processor.java
-    com/netscape/cms/servlet/request/ProcessReq.java
-    com/netscape/cms/servlet/request/CheckRequest.java
-    com/netscape/cms/servlet/request/IReqParser.java
-    com/netscape/cms/servlet/request/ReqParser.java
-    com/netscape/cms/servlet/request/QueryReq.java
-    com/netscape/cms/servlet/request/RequestNotFoundException.java
-    com/netscape/cms/servlet/request/SearchReqs.java
-    com/netscape/cms/servlet/request/ProcessCertReq.java
-    com/netscape/cms/servlet/request/CertReqParser.java
-    com/netscape/cms/servlet/request/KeyReqParser.java
-    com/netscape/cms/servlet/request/KeyRequestResource.java
-    com/netscape/cms/servlet/request/KeyRequestResourceService.java
-    com/netscape/cms/servlet/request/KeyRequestsResource.java
-    com/netscape/cms/servlet/request/KeyRequestsResourceService.java
-    com/netscape/cms/servlet/request/CertRequestResource.java
-    com/netscape/cms/servlet/request/CertRequestResourceService.java
-    com/netscape/cms/servlet/request/CertRequestsResource.java
-    com/netscape/cms/servlet/request/CertRequestsResourceService.java
-    com/netscape/cms/servlet/request/model/ArchivalRequestData.java
-    com/netscape/cms/servlet/request/model/CMSRequestDAO.java
-    com/netscape/cms/servlet/request/model/CMSRequestInfo.java
-    com/netscape/cms/servlet/request/model/CMSRequestInfos.java
-    com/netscape/cms/servlet/request/model/KeyRequestDAO.java
-    com/netscape/cms/servlet/request/model/KeyRequestInfo.java
-    com/netscape/cms/servlet/request/model/KeyRequestInfos.java
-    com/netscape/cms/servlet/request/model/RecoveryRequestData.java
-    com/netscape/cms/servlet/request/model/CertRequestDAO.java
-    com/netscape/cms/servlet/request/model/CertRequestInfo.java
-    com/netscape/cms/servlet/request/model/CertRequestInfoFactory.java
-    com/netscape/cms/servlet/request/model/CertRequestInfos.java
-    com/netscape/cms/servlet/request/model/CertRetrievalRequestData.java
-    com/netscape/cms/servlet/request/model/AgentEnrollmentRequestData.java 
-    com/netscape/cms/servlet/request/model/EnrollmentRequestData.java 
-    com/netscape/cms/servlet/request/model/ProfileRetrievalRequestData.java
-    com/netscape/cms/servlet/request/model/AgentEnrollmentRequestDataFactory.java
-    com/netscape/cms/servlet/request/model/CertRequestInfoFactory.java
-    com/netscape/cms/servlet/request/model/EnrollmentRequestDataFactory.java
-    com/netscape/cms/servlet/tks/TokenServlet.java
-    com/netscape/cms/servlet/connector/CloneServlet.java
-    com/netscape/cms/servlet/connector/TokenKeyRecoveryServlet.java
-    com/netscape/cms/servlet/connector/GenerateKeyPairServlet.java
-    com/netscape/cms/servlet/connector/ConnectorServlet.java
-    com/netscape/cms/servlet/ocsp/OCSPServlet.java
-    com/netscape/cms/servlet/ocsp/ListCAServlet.java
-    com/netscape/cms/servlet/ocsp/AddCRLServlet.java
-    com/netscape/cms/servlet/ocsp/CheckCertServlet.java
-    com/netscape/cms/servlet/ocsp/RemoveCAServlet.java
-    com/netscape/cms/servlet/ocsp/GetOCSPInfo.java
-    com/netscape/cms/servlet/ocsp/AddCAServlet.java
-    com/netscape/cms/servlet/profile/ProfileSubmitServlet.java
-    com/netscape/cms/servlet/profile/ProfileSubmitCMCServlet.java
-    com/netscape/cms/servlet/profile/ProfileSelectServlet.java
-    com/netscape/cms/servlet/profile/ProfileProcessServlet.java
-    com/netscape/cms/servlet/profile/ProfileListServlet.java
-    com/netscape/cms/servlet/profile/ProfileApproveServlet.java
-    com/netscape/cms/servlet/profile/ProfileReviewServlet.java
-    com/netscape/cms/servlet/profile/SSLClientCertProvider.java
-    com/netscape/cms/servlet/profile/ProfileServlet.java
-    com/netscape/cms/servlet/profile/ProfileNotFoundException.java
-    com/netscape/cms/servlet/profile/ProfileResource.java
-    com/netscape/cms/servlet/profile/ProfileResourceService.java
-    com/netscape/cms/servlet/profile/ProfilesResource.java
-    com/netscape/cms/servlet/profile/ProfilesResourceService.java
-    com/netscape/cms/servlet/profile/model/ProfileDAO.java
-    com/netscape/cms/servlet/profile/model/ProfileData.java
-    com/netscape/cms/servlet/profile/model/ProfileDataInfo.java
-    com/netscape/cms/servlet/profile/model/ProfileDataInfos.java
-    com/netscape/cms/servlet/profile/model/ProfileInput.java
-    com/netscape/cms/servlet/profile/model/ProfileAttribute.java
-    com/netscape/cms/servlet/profile/model/PolicyConstraint.java
-    com/netscape/cms/servlet/profile/model/PolicyConstraintValue.java
-    com/netscape/cms/servlet/profile/model/PolicyDefault.java
-    com/netscape/cms/servlet/profile/model/ProfileInput.java
-    com/netscape/cms/servlet/profile/model/ProfilePolicy.java
-    com/netscape/cms/servlet/profile/model/ProfilePolicySet.java
-    com/netscape/cms/servlet/profile/model/PolicyConstraintFactory.java
-    com/netscape/cms/servlet/profile/model/PolicyDefaultFactory.java
-    com/netscape/cms/servlet/profile/model/ProfileInputFactory.java
-    com/netscape/cms/servlet/profile/model/ProfileOutputFactory.java
-    com/netscape/cms/authentication/AgentCertAuthentication.java
-    com/netscape/cms/authentication/PortalEnroll.java
-    com/netscape/cms/authentication/UdnPwdDirAuthentication.java
-    com/netscape/cms/authentication/TokenAuthentication.java
-    com/netscape/cms/authentication/Crypt.java
-    com/netscape/cms/authentication/CMCAuth.java
-    com/netscape/cms/authentication/HashAuthData.java
-    com/netscape/cms/authentication/SharedSecret.java
-    com/netscape/cms/authentication/FlatFileAuth.java
-    com/netscape/cms/authentication/AVAPattern.java
-    com/netscape/cms/authentication/RDNPattern.java
-    com/netscape/cms/authentication/DNPattern.java
-    com/netscape/cms/authentication/DirBasedAuthentication.java
-    com/netscape/cms/authentication/HashAuthentication.java
-    com/netscape/cms/authentication/UidPwdPinDirAuthentication.java
-    com/netscape/cms/authentication/SSLclientCertAuthentication.java
-    com/netscape/cms/authentication/UidPwdDirAuthentication.java
-    com/netscape/cms/authorization/BasicAclAuthz.java
-    com/netscape/cms/authorization/AAclAuthz.java
-    com/netscape/cms/authorization/DirAclAuthz.java
-    com/netscape/cms/shares/OldJoinShares.java
-    com/netscape/cms/shares/OldShare.java
-    com/netscape/cms/password/PasswordChecker.java
-    com/netscape/cms/jobs/UnpublishExpiredJob.java
-    com/netscape/cms/jobs/RenewalNotificationJob.java
-    com/netscape/cms/jobs/RequestInQueueJob.java
-    com/netscape/cms/jobs/AJobBase.java
-    com/netscape/cms/jobs/PublishCertsJob.java
-    com/netscape/cms/selftests/ASelfTest.java
-    com/netscape/cms/selftests/kra/KRAPresence.java
-    com/netscape/cms/selftests/ra/RAPresence.java
-    com/netscape/cms/selftests/tks/TKSKnownSessionKey.java
-    com/netscape/cms/selftests/ca/CAPresence.java
-    com/netscape/cms/selftests/ca/CAValidity.java
-    com/netscape/cms/selftests/common/SystemCertsVerification.java
-    com/netscape/cms/selftests/ocsp/OCSPValidity.java
-    com/netscape/cms/selftests/ocsp/OCSPPresence.java
-    com/netscape/cms/request/RequestScheduler.java
-    com/netscape/cms/crl/CMSIssuingDistributionPointExtension.java
-    com/netscape/cms/crl/CMSAuthInfoAccessExtension.java
-    com/netscape/cms/crl/CMSCRLReasonExtension.java
-    com/netscape/cms/crl/CMSDeltaCRLIndicatorExtension.java
-    com/netscape/cms/crl/CMSCertificateIssuerExtension.java
-    com/netscape/cms/crl/CMSHoldInstructionExtension.java
-    com/netscape/cms/crl/CMSCRLNumberExtension.java
-    com/netscape/cms/crl/CMSIssuerAlternativeNameExtension.java
-    com/netscape/cms/crl/CMSFreshestCRLExtension.java
-    com/netscape/cms/crl/CMSAuthorityKeyIdentifierExtension.java
-    com/netscape/cms/crl/CMSInvalidityDateExtension.java
-    com/netscape/cms/evaluators/IPAddressAccessEvaluator.java
-    com/netscape/cms/evaluators/UserOrigReqAccessEvaluator.java
-    com/netscape/cms/evaluators/GroupAccessEvaluator.java
-    com/netscape/cms/evaluators/UserAccessEvaluator.java
-    com/netscape/cms/logging/LogEntry.java
-    com/netscape/cms/logging/LogFile.java
-    com/netscape/cms/logging/RollingLogFile.java
-    com/netscape/cms/ocsp/DefStore.java
-    com/netscape/cms/ocsp/LDAPStore.java
-    com/netscape/cms/notification/MailNotification.java
-    com/netscape/cms/profile/common/CACertCAEnrollProfile.java
-    com/netscape/cms/profile/common/ProfilePolicy.java
-    com/netscape/cms/profile/common/EnrollProfile.java
-    com/netscape/cms/profile/common/ServerCertCAEnrollProfile.java
-    com/netscape/cms/profile/common/CAEnrollProfile.java
-    com/netscape/cms/profile/common/RAEnrollProfile.java
-    com/netscape/cms/profile/common/ProfileContext.java
-    com/netscape/cms/profile/common/EnrollProfileContext.java
-    com/netscape/cms/profile/common/BasicProfile.java
-    com/netscape/cms/profile/common/UserCertCAEnrollProfile.java
-    com/netscape/cms/profile/def/UserSubjectNameDefault.java
-    com/netscape/cms/profile/def/AutoAssignDefault.java
-    com/netscape/cms/profile/def/AuthInfoAccessExtDefault.java
-    com/netscape/cms/profile/def/CRLDistributionPointsExtDefault.java
-    com/netscape/cms/profile/def/SubjectAltNameExtDefault.java
-    com/netscape/cms/profile/def/IssuerAltNameExtDefault.java
-    com/netscape/cms/profile/def/CAEnrollDefault.java
-    com/netscape/cms/profile/def/ExtendedKeyUsageExtDefault.java
-    com/netscape/cms/profile/def/SubjectNameDefault.java
-    com/netscape/cms/profile/def/NoDefault.java
-    com/netscape/cms/profile/def/SubjectInfoAccessExtDefault.java
-    com/netscape/cms/profile/def/PolicyConstraintsExtDefault.java
-    com/netscape/cms/profile/def/InhibitAnyPolicyExtDefault.java
-    com/netscape/cms/profile/def/nsTokenUserKeySubjectNameDefault.java
-    com/netscape/cms/profile/def/EnrollDefault.java
-    com/netscape/cms/profile/def/OCSPNoCheckExtDefault.java
-    com/netscape/cms/profile/def/BasicConstraintsExtDefault.java
-    com/netscape/cms/profile/def/SigningAlgDefault.java
-    com/netscape/cms/profile/def/GenericExtDefault.java
-    com/netscape/cms/profile/def/nsNKeySubjectNameDefault.java
-    com/netscape/cms/profile/def/AuthorityKeyIdentifierExtDefault.java
-    com/netscape/cms/profile/def/UserKeyDefault.java
-    com/netscape/cms/profile/def/NSCCommentExtDefault.java
-    com/netscape/cms/profile/def/CertificateVersionDefault.java
-    com/netscape/cms/profile/def/ValidityDefault.java
-    com/netscape/cms/profile/def/ImageDefault.java
-    com/netscape/cms/profile/def/PolicyMappingsExtDefault.java
-    com/netscape/cms/profile/def/NSCertTypeExtDefault.java
-    com/netscape/cms/profile/def/CAValidityDefault.java
-    com/netscape/cms/profile/def/UserSigningAlgDefault.java
-    com/netscape/cms/profile/def/SubjectDirAttributesExtDefault.java
-    com/netscape/cms/profile/def/PrivateKeyUsagePeriodExtDefault.java
-    com/netscape/cms/profile/def/UserValidityDefault.java
-    com/netscape/cms/profile/def/EnrollExtDefault.java
-    com/netscape/cms/profile/def/nsTokenDeviceKeySubjectNameDefault.java
-    com/netscape/cms/profile/def/KeyUsageExtDefault.java
-    com/netscape/cms/profile/def/FreshestCRLExtDefault.java
-    com/netscape/cms/profile/def/AuthTokenSubjectNameDefault.java
-    com/netscape/cms/profile/def/nsHKeySubjectNameDefault.java
-    com/netscape/cms/profile/def/UserExtensionDefault.java
-    com/netscape/cms/profile/def/NameConstraintsExtDefault.java
-    com/netscape/cms/profile/def/SubjectKeyIdentifierExtDefault.java
-    com/netscape/cms/profile/def/CertificatePoliciesExtDefault.java
-    com/netscape/cms/profile/input/SubjectDNInput.java
-    com/netscape/cms/profile/input/SerialNumRenewInput.java
-    com/netscape/cms/profile/input/SubjectNameInput.java
-    com/netscape/cms/profile/input/KeyGenInput.java
-    com/netscape/cms/profile/input/SigningKeyGenInput.java
-    com/netscape/cms/profile/input/EncryptionKeyGenInput.java
-    com/netscape/cms/profile/input/ImageInput.java
-    com/netscape/cms/profile/input/EnrollInput.java
-    com/netscape/cms/profile/input/nsNKeyCertReqInput.java
-    com/netscape/cms/profile/input/FileSigningInput.java
-    com/netscape/cms/profile/input/nsHKeyCertReqInput.java
-    com/netscape/cms/profile/input/CertReqInput.java
-    com/netscape/cms/profile/input/SubmitterInfoInput.java
-    com/netscape/cms/profile/input/GenericInput.java
-    com/netscape/cms/profile/input/DualKeyGenInput.java
-    com/netscape/cms/profile/input/CMCCertReqInput.java
-    com/netscape/cms/profile/constraint/KeyConstraint.java
-    com/netscape/cms/profile/constraint/KeyUsageExtConstraint.java
-    com/netscape/cms/profile/constraint/NSCertTypeExtConstraint.java
-    com/netscape/cms/profile/constraint/EnrollConstraint.java
-    com/netscape/cms/profile/constraint/RenewGracePeriodConstraint.java
-    com/netscape/cms/profile/constraint/ExtensionConstraint.java
-    com/netscape/cms/profile/constraint/BasicConstraintsExtConstraint.java
-    com/netscape/cms/profile/constraint/NoConstraint.java
-    com/netscape/cms/profile/constraint/SubjectNameConstraint.java
-    com/netscape/cms/profile/constraint/ExtendedKeyUsageExtConstraint.java
-    com/netscape/cms/profile/constraint/UniqueSubjectNameConstraint.java
-    com/netscape/cms/profile/constraint/CAEnrollConstraint.java
-    com/netscape/cms/profile/constraint/SigningAlgConstraint.java
-    com/netscape/cms/profile/constraint/ValidityConstraint.java
-    com/netscape/cms/profile/constraint/UniqueKeyConstraint.java
-    com/netscape/cms/profile/constraint/CAValidityConstraint.java
-    com/netscape/cms/profile/updater/SubsystemGroupUpdater.java
-    com/netscape/cms/profile/output/CertOutput.java
-    com/netscape/cms/profile/output/EnrollOutput.java
-    com/netscape/cms/profile/output/nsNKeyOutput.java
-    com/netscape/cms/profile/output/PKCS7Output.java
-    com/netscape/cms/profile/output/CMMFOutput.java
-)
-
-set(pki-cmscore_java_SRCS
-    com/netscape/cmscore/apps/PKIServerEvent.java
-    com/netscape/cmscore/apps/Upgrade.java
-    com/netscape/cmscore/apps/PKIServerListener.java
-    com/netscape/cmscore/apps/CommandQueue.java
-    com/netscape/cmscore/apps/CMSEngine.java
-    com/netscape/cmscore/apps/Setup.java
-    com/netscape/cmscore/ldap/LdapSimpleExpression.java
-    com/netscape/cmscore/ldap/LdapAndExpression.java
-    com/netscape/cmscore/ldap/LdapPublishModule.java
-    com/netscape/cmscore/ldap/LdapPredicateParser.java
-    com/netscape/cmscore/ldap/LdapRequestListener.java
-    com/netscape/cmscore/ldap/LdapConnModule.java
-    com/netscape/cmscore/ldap/LdapOrExpression.java
-    com/netscape/cmscore/ldap/PublishObject.java
-    com/netscape/cmscore/ldap/PublisherProcessor.java
-    com/netscape/cmscore/ldap/LdapRule.java
-    com/netscape/cmscore/listeners/ListenerPlugin.java
-    com/netscape/cmscore/usrgrp/CertDNCertUserLocator.java
-    com/netscape/cmscore/usrgrp/Group.java
-    com/netscape/cmscore/usrgrp/ExactMatchCertUserLocator.java
-    com/netscape/cmscore/usrgrp/UGSubsystem.java
-    com/netscape/cmscore/usrgrp/User.java
-    com/netscape/cmscore/crmf/CRMFParser.java
-    com/netscape/cmscore/crmf/PKIArchiveOptionsContainer.java
-    com/netscape/cmscore/util/AssertionException.java
-    com/netscape/cmscore/util/ProfileSubsystem.java
-    com/netscape/cmscore/util/FileAsString.java
-    com/netscape/cmscore/util/Assert.java
-    com/netscape/cmscore/util/UtilMessage.java
-    com/netscape/cmscore/util/PFXUtils.java
-    com/netscape/cmscore/util/ExceptionFormatter.java
-    com/netscape/cmscore/util/StatsSubsystem.java
-    com/netscape/cmscore/util/FileDialogFilter.java
-    com/netscape/cmscore/util/Debug.java
-    com/netscape/cmscore/util/UtilResources.java
-    com/netscape/cmscore/policy/JavaScriptRequestProxy.java
-    com/netscape/cmscore/policy/SimpleExpression.java
-    com/netscape/cmscore/policy/GeneralNameUtil.java
-    com/netscape/cmscore/policy/PolicyPredicateParser.java
-    com/netscape/cmscore/policy/AndExpression.java
-    com/netscape/cmscore/policy/PolicySet.java
-    com/netscape/cmscore/policy/GenericPolicyProcessor.java
-    com/netscape/cmscore/policy/OrExpression.java
-    com/netscape/cmscore/cert/CertificatePair.java
-    com/netscape/cmscore/cert/X500NameSubsystem.java
-    com/netscape/cmscore/cert/CertUtils.java
-    com/netscape/cmscore/cert/ExtPrettyPrint.java
-    com/netscape/cmscore/cert/OidLoaderSubsystem.java
-    com/netscape/cmscore/cert/CrlPrettyPrint.java
-    com/netscape/cmscore/cert/CertPrettyPrint.java
-    com/netscape/cmscore/cert/PrettyPrintResources.java
-    com/netscape/cmscore/cert/PrettyPrintFormat.java
-    com/netscape/cmscore/cert/CrossCertPairSubsystem.java
-    com/netscape/cmscore/cert/CertDateCompare.java
-    com/netscape/cmscore/cert/PubKeyPrettyPrint.java
-    com/netscape/cmscore/cert/CrlCachePrettyPrint.java
-    com/netscape/cmscore/registry/PluginInfo.java
-    com/netscape/cmscore/registry/PluginRegistry.java
-    com/netscape/cmscore/base/ArgBlock.java
-    com/netscape/cmscore/base/FileConfigStore.java
-    com/netscape/cmscore/base/SimpleProperties.java
-    com/netscape/cmscore/base/SourceConfigStore.java
-    com/netscape/cmscore/base/PropConfigStore.java
-    com/netscape/cmscore/base/JDialogPasswordCallback.java
-    com/netscape/cmscore/base/SubsystemRegistry.java
-    com/netscape/cmscore/base/SubsystemLoader.java
-    com/netscape/cmscore/dbs/CRLRepository.java
-    com/netscape/cmscore/dbs/CertRecord.java
-    com/netscape/cmscore/dbs/RevocationInfoMapper.java
-    com/netscape/cmscore/dbs/BigIntegerMapper.java
-    com/netscape/cmscore/dbs/X509CertImplMapper.java
-    com/netscape/cmscore/dbs/KeyRecord.java
-    com/netscape/cmscore/dbs/KeyStateMapper.java
-    com/netscape/cmscore/dbs/StringVectorMapper.java
-    com/netscape/cmscore/dbs/DBSSession.java
-    com/netscape/cmscore/dbs/DBSubsystem.java
-    com/netscape/cmscore/dbs/StringMapper.java
-    com/netscape/cmscore/dbs/LongMapper.java
-    com/netscape/cmscore/dbs/CertRecordList.java
-    com/netscape/cmscore/dbs/MetaInfoMapper.java
-    com/netscape/cmscore/dbs/RepositorySchema.java
-    com/netscape/cmscore/dbs/PublicKeyMapper.java
-    com/netscape/cmscore/dbs/KeyDBSchema.java
-    com/netscape/cmscore/dbs/LdapFilterConverter.java
-    com/netscape/cmscore/dbs/ObjectStreamMapper.java
-    com/netscape/cmscore/dbs/Repository.java
-    com/netscape/cmscore/dbs/CertificateRepository.java
-    com/netscape/cmscore/dbs/DBVirtualList.java
-    com/netscape/cmscore/dbs/KeyRecordList.java
-    com/netscape/cmscore/dbs/RepositoryRecord.java
-    com/netscape/cmscore/dbs/CRLIssuingPointRecord.java
-    com/netscape/cmscore/dbs/DBRegistry.java
-    com/netscape/cmscore/dbs/CRLDBSchema.java
-    com/netscape/cmscore/dbs/CertDBSchema.java
-    com/netscape/cmscore/dbs/DateMapper.java
-    com/netscape/cmscore/dbs/ByteArrayMapper.java
-    com/netscape/cmscore/dbs/CertRecordMapper.java
-    com/netscape/cmscore/dbs/DBSearchResults.java
-    com/netscape/cmscore/dbs/IntegerMapper.java
-    com/netscape/cmscore/dbs/RevocationInfo.java
-    com/netscape/cmscore/dbs/DBSUtil.java
-    com/netscape/cmscore/dbs/X500NameMapper.java
-    com/netscape/cmscore/dbs/KeyRepository.java
-    com/netscape/cmscore/dbs/ReplicaIDRepository.java
-    com/netscape/cmscore/dbs/DateArrayMapper.java
-    com/netscape/cmscore/dbs/KeyRecordMapper.java
-    com/netscape/cmscore/authentication/PasswdUserDBAuthentication.java
-    com/netscape/cmscore/authentication/NullAuthentication.java
-    com/netscape/cmscore/authentication/SSLClientCertAuthentication.java
-    com/netscape/cmscore/authentication/AuthSubsystem.java
-    com/netscape/cmscore/authentication/CertUserDBAuthentication.java
-    com/netscape/cmscore/authentication/VerifiedCert.java
-    com/netscape/cmscore/authentication/VerifiedCerts.java
-    com/netscape/cmscore/authentication/ChallengePhraseAuthentication.java
-    com/netscape/cmscore/authorization/AuthzSubsystem.java
-    com/netscape/cmscore/extensions/CMSExtensionsMap.java
-    com/netscape/cmscore/extensions/KeyUsage.java
-    com/netscape/cmscore/jobs/CronRange.java
-    com/netscape/cmscore/jobs/JobsScheduler.java
-    com/netscape/cmscore/jobs/CronItem.java
-    com/netscape/cmscore/jobs/JobCron.java
-    com/netscape/cmscore/selftests/SelfTestOrderedInstance.java
-    com/netscape/cmscore/selftests/SelfTestSubsystem.java
-    com/netscape/cmscore/request/ExtDataHashtable.java
-    com/netscape/cmscore/request/RequestAttr.java
-    com/netscape/cmscore/request/RequestQueue.java
-    com/netscape/cmscore/request/Schema.java
-    com/netscape/cmscore/request/RequestRepository.java
-    com/netscape/cmscore/request/ARequestRecord.java
-    com/netscape/cmscore/request/ARequestQueue.java
-    com/netscape/cmscore/request/CertRequestConstants.java
-    com/netscape/cmscore/request/RequestRecord.java
-    com/netscape/cmscore/request/RequestSubsystem.java
-    com/netscape/cmscore/ldapconn/LdapBoundConnection.java
-    com/netscape/cmscore/ldapconn/LdapConnInfo.java
-    com/netscape/cmscore/ldapconn/LdapAuthInfo.java
-    com/netscape/cmscore/ldapconn/LdapJssSSLSocketFactory.java
-    com/netscape/cmscore/ldapconn/LdapAnonConnFactory.java
-    com/netscape/cmscore/ldapconn/LdapBoundConnFactory.java
-    com/netscape/cmscore/ldapconn/LdapAnonConnection.java
-    com/netscape/cmscore/logging/AuditEventFactory.java
-    com/netscape/cmscore/logging/LogQueue.java
-    com/netscape/cmscore/logging/LogSubsystem.java
-    com/netscape/cmscore/logging/Auditor.java
-    com/netscape/cmscore/logging/AuditFormat.java
-    com/netscape/cmscore/logging/Logger.java
-    com/netscape/cmscore/logging/SignedAuditEventFactory.java
-    com/netscape/cmscore/logging/SignedAuditLogger.java
-    com/netscape/cmscore/logging/SystemEventFactory.java
-    com/netscape/cmscore/connector/LocalConnector.java
-    com/netscape/cmscore/connector/HttpConnection.java
-    com/netscape/cmscore/connector/RequestTransfer.java
-    com/netscape/cmscore/connector/RemoteAuthority.java
-    com/netscape/cmscore/connector/HttpPKIMessage.java
-    com/netscape/cmscore/connector/HttpConnector.java
-    com/netscape/cmscore/connector/HttpConnFactory.java
-    com/netscape/cmscore/connector/HttpRequestEncoder.java
-    com/netscape/cmscore/connector/Resender.java
-    com/netscape/cmscore/security/OCSPSigningCert.java
-    com/netscape/cmscore/security/Provider.java
-    com/netscape/cmscore/security/KeyCertUtil.java
-    com/netscape/cmscore/security/KRATransportCert.java
-    com/netscape/cmscore/security/SSLCert.java
-    com/netscape/cmscore/security/SSLSelfSignedCert.java
-    com/netscape/cmscore/security/JssSubsystem.java
-    com/netscape/cmscore/security/SubsystemCert.java
-    com/netscape/cmscore/security/PWsdrCache.java
-    com/netscape/cmscore/security/CertificateInfo.java
-    com/netscape/cmscore/security/PWCBsdr.java
-    com/netscape/cmscore/security/PWUtil.java
-    com/netscape/cmscore/security/CASigningCert.java
-    com/netscape/cmscore/security/RASigningCert.java
-    com/netscape/cmscore/notification/ReqCertSANameEmailResolver.java
-    com/netscape/cmscore/notification/EmailResolverKeys.java
-    com/netscape/cmscore/notification/EmailTemplate.java
-    com/netscape/cmscore/notification/EmailFormProcessor.java
-    com/netscape/cmscore/notification/ReqCertEmailResolver.java
-    com/netscape/cmscore/profile/ProfileSubsystem.java
-    com/netscape/cmscore/time/SimpleTimeSource.java
-)
-
-set(pki-jndi-realm_SRCS
-   com/netscape/cmscore/realm/PKIJNDIRealm.java
-   com/netscape/cmscore/realm/ACLEntry.java
-   com/netscape/cmscore/realm/ACL.java
-)
-
-set(pki-cmsbundle_RCS
-    LogMessages.properties
-    UserMessages.properties
-)
-
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-    ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-    ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
-    ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-    ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-    ${HTTPCLIENT_JAR} ${HTTPCORE_JAR})
-
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-
 # build pki-certsrv
-set(CMAKE_JAR_CLASSES_PREFIX com/netscape/certsrv)
-add_jar(pki-certsrv ${pki-certsrv_java_SRCS})
-add_dependencies(pki-certsrv pki-nsutil pki-cmsutil)
-install_jar(pki-certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_CERTSRV_JAR ${pki-certsrv_JAR_FILE} CACHE INTERNAL "pki-certsrv jar file")
+javac(pki-certsrv-classes
+    SOURCES
+        com/netscape/certsrv/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil pki-cmsutil
+)
+
+jar(pki-certsrv-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-certsrv-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/certsrv/*.class
+    DEPENDS
+        pki-certsrv-classes
+)
+
+link(pki-certsrv
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+    DEST
+        pki-certsrv-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-certsrv-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-certsrv-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
 
 # build pki-cms
-set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cms)
-add_jar(pki-cms ${pki-cms_java_SRCS})
-add_dependencies(pki-cms pki-nsutil pki-cmsutil pki-certsrv)
-install_jar(pki-cms ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_CMS_JAR ${pki-cms_JAR_FILE} CACHE INTERNAL "pki-cms jar file")
+javac(pki-cms-classes
+    SOURCES
+        com/netscape/cms/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil pki-cmsutil pki-certsrv
+)
+
+jar(pki-cms-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-cms-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cms/*.class
+    DEPENDS
+        pki-cms-classes
+)
+
+link(pki-cms
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
+    DEST
+        pki-cms-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-cms-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cms-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
 
 if(WITH_JAVADOC)
-    create_javadoc(pki-common-${APPLICATION_VERSION}
-        FILES ${pki-cms_java_SRCS} ${pki-certsrv_java_SRCS}
-        CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${pki-certsrv_JAR_FILE}
-        WINDOWTITLE "pki-common"
-        DOCTITLE "<h1>pki-common</h1>"
-        AUTHOR TRUE
-        USE TRUE
-        VERSION TRUE
+    javadoc(pki-common-javadoc
+        DEST
+            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-common-${APPLICATION_VERSION}
+        SUBPACKAGES
+            com.netscape.certsrv
+            com.netscape.cms
+        CLASSPATH
+            ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+            ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+            ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+            ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
+            ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+        OPTIONS
+            -windowtitle 'pki-common'
+            -doctitle '<h1>pki-common</h1>'
+            -author
+            -use
+            -version
+        DEPENDS
+            pki-cms pki-certsrv
     )
-    add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc pki-cms pki-certsrv)
+
+    install(
+        FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-common-${APPLICATION_VERSION}
+        DESTINATION
+            ${CMAKE_INSTALL_PREFIX}/share/javadoc
+    )
 endif(WITH_JAVADOC)
 
+
 # build pki-cmscore
-set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
-add_jar(pki-cmscore ${pki-cmscore_java_SRCS})
-add_dependencies(pki-cmscore pki-nsutil pki-cmsutil pki-certsrv pki-cms)
-install_jar(pki-cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_CMSCORE_JAR ${pki-cmscore_JAR_FILE} CACHE INTERNAL "pki-cmscore jar file")
+javac(pki-cmscore-classes
+    SOURCES
+        com/netscape/cmscore/*.java
+    EXCLUDE
+        com/netscape/cmscore/realm/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil pki-cmsutil pki-certsrv pki-cms
+)
+
+jar(pki-cmscore-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cmscore/*.class
+    EXCLUDE
+        com/netscape/cmscore/realm/*.class
+    DEPENDS
+        pki-cmscore-classes
+)
+
+link(pki-cmscore
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
+    DEST
+        pki-cmscore-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-cmscore-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CMSCORE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar CACHE INTERNAL "pki-cmscore jar file")
+
 
 # build pki-cmsbundle
-add_jar(pki-cmsbundle ${pki-cmsbundle_RCS})
-add_dependencies(pki-cmsbundle pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
-install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")
+jar(pki-cmsbundle-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle-${APPLICATION_VERSION}.jar
+    FILES
+        LogMessages.properties
+        UserMessages.properties
+    DEPENDS
+        pki-cmsbundle-jar
+)
+
+link(pki-cmsbundle
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
+    DEST
+        pki-cmsbundle-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-cmsbundle-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
+
 
 # build pki jndi realm
-set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore/realm)
-add_jar(pki-jndi-realm ${pki-jndi-realm_SRCS})
-add_dependencies(pki-jndi-realm pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore pki-cmsbundle)
-install_jar(pki-jndi-realm ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_JNDI_REALM_JAR ${pki-jndi-realm_JAR_FILE} CACHE INTERNAL "pki-jndi-realm jar file")
+javac(pki-jndi-realm-classes
+    SOURCES
+        com/netscape/cmscore/realm/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore pki-cmsbundle
+)
 
+jar(pki-jndi-realm-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cmscore/realm/*.class
+    DEPENDS
+        pki-jndi-realm-classes
+)
+
+link(pki-jndi-realm
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar
+    DEST
+        pki-jndi-realm-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-jndi-realm-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_JNDI_REALM_JAR ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar CACHE INTERNAL "pki-jndi-realm jar file")
