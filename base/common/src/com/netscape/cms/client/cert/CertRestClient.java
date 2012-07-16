@@ -28,7 +28,10 @@ import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
+import com.netscape.cms.servlet.request.CertRequestResource;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
+import com.netscape.cms.servlet.request.model.CertRequestInfos;
+import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 
 /**
  * @author Endi S. Dewata
@@ -37,6 +40,7 @@ public class CertRestClient extends CMSRestClient {
 
     public CertResource certClient;
     public CertsResource certsClient;
+    public CertRequestResource certRequestResource;
 
     public CertRestClient(String baseUri) throws URISyntaxException {
         this(baseUri, null);
@@ -47,6 +51,7 @@ public class CertRestClient extends CMSRestClient {
 
         certClient = createProxy(CertResource.class);
         certsClient = createProxy(CertsResource.class);
+        certRequestResource = createProxy(CertRequestResource.class);
     }
 
     public CertificateData getCert(CertId id) {
@@ -70,5 +75,9 @@ public class CertRestClient extends CMSRestClient {
 
     public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
         return certClient.unrevokeCert(id, request);
+    }
+
+    public CertRequestInfos enrollRequest(EnrollmentRequestData data){
+        return certRequestResource.enrollCert(data);
     }
 }

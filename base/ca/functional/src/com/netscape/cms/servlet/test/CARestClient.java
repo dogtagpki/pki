@@ -106,10 +106,10 @@ public class CARestClient extends CMSRestClient {
     }
 
     public CertRequestInfos enrollCertificate(EnrollmentRequestData data) {
-
         if (data == null) {
             return null;
         }
+
         return certRequestClient.enrollCert(data);
     }
 

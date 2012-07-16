@@ -47,6 +47,7 @@ public class CertCLI extends CLI {
         addModule(new CertRevokeCLI(this));
         addModule(new CertHoldCLI(this));
         addModule(new CertReleaseHoldCLI(this));
+        addModule(new CertRequestSubmitCLI(this));
     }
 
     public void printHelp() {
