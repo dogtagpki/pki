@@ -792,7 +792,7 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
             throw new CMSException(Response.Status.BAD_REQUEST, "Invalid or no subsystem name provided");
         }
 
-        if (data.getIsClone().equals("true")) {
+        if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
             String cloneUri = data.getCloneUri();
             if (cloneUri == null) {
                 throw new CMSException(Response.Status.BAD_REQUEST, "Clone selected, but no clone URI provided");
@@ -814,6 +814,8 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
                     throw new CMSException(Response.Status.BAD_REQUEST, "P12 password not provided");
                 }
             }
+        } else {
+            data.setIsClone("false");
         }
 
         String dsHost = data.getDsHost();
@@ -874,6 +876,8 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
             if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<=8)) {
                 throw new CMSException(Response.Status.BAD_REQUEST, "key backup password must be at least 8 characters");
             }
+        } else {
+            data.setBackupKeys("false");
         }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
