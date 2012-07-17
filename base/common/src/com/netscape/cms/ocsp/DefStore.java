@@ -212,6 +212,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void deleteOldCRLsInCA(String caName) throws EBaseException {
+        deleteCRLsInCA (caName, true);
+    }
+
+    public void deleteAllCRLsInCA(String caName) throws EBaseException {
+        deleteCRLsInCA (caName, false);
+    }
+
+    public void deleteCRLsInCA(String caName, boolean oldCRLs) throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
@@ -224,10 +232,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 return; // nothing to do
             String thisUpdate = Long.toString(
                     cp.getThisUpdate().getTime());
-            Enumeration e = searchRepository(
-                    caName,
-                    "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" +
-                    thisUpdate + ")");
+            String filter = (oldCRLs)? "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" + thisUpdate + ")": "ou=*";
+            Enumeration e = searchRepository( caName, filter);
 
             while (e != null && e.hasMoreElements()) {
                 IRepositoryRecord r = (IRepositoryRecord)
@@ -629,7 +635,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             s = mDBService.createSession();
             String name = "cn=" + transformDN(id) + "," + getBaseDN(); 
             CMS.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
-            if (s != null) s.delete(name);
+            if (s != null) {
+                deleteAllCRLsInCA(id);
+                s.delete(name);
+            }
         } finally {
             if (s != null) s.close();
         }
