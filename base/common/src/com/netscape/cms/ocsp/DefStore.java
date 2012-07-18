@@ -251,7 +251,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             String thisUpdate = Long.toString(
                     cp.getThisUpdate().getTime());
             String filter = (oldCRLs)? "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" + thisUpdate + ")": "ou=*";
-            Enumeration e = searchRepository( caName, filter);
+            Enumeration<IRepositoryRecord> e = searchRepository( caName, filter);
 
             while (e != null && e.hasMoreElements()) {
                 IRepositoryRecord r = e.nextElement();
