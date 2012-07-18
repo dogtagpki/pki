@@ -21,6 +21,18 @@
 file(WRITE ${output} "")
 
 separate_arguments(file_list UNIX_COMMAND ${files})
+separate_arguments(exclude_list UNIX_COMMAND ${exclude})
+
+foreach(file ${exclude_list})
+
+    file(GLOB_RECURSE absolute_files "${input_dir}/${file}")
+
+    foreach(absolute_file ${absolute_files})
+        file(RELATIVE_PATH relative_file ${input_dir} ${absolute_file})
+	    list(APPEND excluded_files ${relative_file})
+    endforeach(absolute_file ${absolute_files})
+
+endforeach(file ${exclude_list})
 
 foreach(file ${file_list})
 
@@ -28,7 +40,13 @@ foreach(file ${file_list})
 
     foreach(absolute_file ${absolute_files})
         file(RELATIVE_PATH relative_file ${input_dir} ${absolute_file})
-	    file(APPEND ${output} "${relative_file}\n")
+
+        list(FIND excluded_files ${relative_file} index)
+
+        if (${index} EQUAL -1)
+	        file(APPEND ${output} "${relative_file}\n")
+	    endif(${index} EQUAL -1)
+
     endforeach(absolute_file ${absolute_files})
 
-endforeach(file ${files})
+endforeach(file ${file_list})

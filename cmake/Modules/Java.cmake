@@ -24,16 +24,19 @@ function(javac target)
 
     foreach (arg ${ARGN})
 
-        if (arg MATCHES "(SOURCE_DIR|SOURCES|CLASSPATH|OUTPUT_DIR|DEPENDS)")
+        if (arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
             set(param ${arg})
 
-        else (arg MATCHES "(SOURCE_DIR|SOURCES|CLASSPATH|OUTPUT_DIR|DEPENDS)")
+        else (arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
 
             if (param MATCHES "SOURCE_DIR")
                 set(source_dir ${arg})
 
             elseif (param MATCHES "SOURCES")
                 list(APPEND sources ${arg})
+
+            elseif (param MATCHES "EXCLUDE")
+                list(APPEND exclude ${arg})
 
             elseif (param MATCHES "CLASSPATH")
                 list(APPEND classpath ${arg})
@@ -46,7 +49,7 @@ function(javac target)
 
             endif(param MATCHES "SOURCE_DIR")
 
-        endif(arg MATCHES "(SOURCE_DIR|SOURCES|CLASSPATH|OUTPUT_DIR|DEPENDS)")
+        endif(arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
 
     endforeach(arg)
 
@@ -60,22 +63,23 @@ function(javac target)
        set(native_classpath "${native_classpath}${separator}${path}")
     endforeach(path)
 
-    set(filelist "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
+    set(file_list "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
 
     add_custom_target(${target} ALL DEPENDS ${depends})
 
     add_custom_command(
         TARGET ${target}
         COMMAND ${CMAKE_COMMAND}
-            -Doutput=${filelist}
+            -Doutput=${file_list}
             -Dinput_dir=${source_dir}
             -Dfiles="${sources}"
+            -Dexclude="${exclude}"
             -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
         COMMAND ${CMAKE_Java_COMPILER}
             ${CMAKE_JAVA_COMPILE_FLAGS}
             -cp ${native_classpath}
             -d ${output_dir}
-            @${filelist}
+            @${file_list}
         WORKING_DIRECTORY
             ${source_dir}
     )
@@ -96,7 +100,7 @@ function(jar target)
             set(param ${arg})
             set(operation "u")
 
-        elseif (arg MATCHES "(INPUT_DIR|FILES|DEPENDS)")
+        elseif (arg MATCHES "(INPUT_DIR|FILES|EXCLUDE|DEPENDS)")
             set(param ${arg})
 
         else ()
@@ -110,6 +114,9 @@ function(jar target)
             elseif (param MATCHES "FILES")
                 list(APPEND files ${arg})
 
+            elseif (param MATCHES "EXCLUDE")
+                list(APPEND exclude ${arg})
+
             elseif (param MATCHES "DEPENDS")
                 list(APPEND depends ${arg})
 
@@ -119,20 +126,21 @@ function(jar target)
 
     endforeach(arg)
 
-    set(filelist "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
+    set(file_list "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
 
     add_custom_target(${target} ALL DEPENDS ${depends})
 
     add_custom_command(
         TARGET ${target}
         COMMAND ${CMAKE_COMMAND}
-            -Doutput=${filelist}
+            -Doutput=${file_list}
             -Dinput_dir=${input_dir}
             -Dfiles="${files}"
+            -Dexclude="${exclude}"
             -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
         COMMAND ${CMAKE_Java_ARCHIVE}
             -${operation}f ${output}
-            @${filelist}
+            -C ${input_dir} @${file_list}
         WORKING_DIRECTORY ${input_dir}
     )
 
