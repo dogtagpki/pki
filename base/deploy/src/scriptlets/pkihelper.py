@@ -326,16 +326,22 @@ class configuration_file:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             # If required, verify existence of Backup Password
-            # (except for Clones)
             if config.str2bool(master['pki_backup_keys']):
-                if not config.str2bool(master['pki_clone']):
-                    if not sensitive.has_key('pki_backup_password') or\
-                       not len(sensitive['pki_backup_password']):
-                        config.pki_log.error(
-                            log.PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1,
-                            config.pkideployment_cfg,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        sys.exit(1)
+                if not sensitive.has_key('pki_backup_password') or\
+                   not len(sensitive['pki_backup_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1,
+                        config.pkideployment_cfg,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            # Verify existence of Client PKCS #12 Password for Admin Cert
+            if not sensitive.has_key('pki_client_pkcs12_password') or\
+               not len(sensitive['pki_client_pkcs12_password']):
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_CLIENT_PKCS12_PASSWORD_1,
+                    config.pkideployment_cfg,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
             # Verify existence of PKCS #12 Password (ONLY for Clones)
             if config.str2bool(master['pki_clone']):
                 if not sensitive.has_key('pki_pkcs12_password') or\
@@ -1571,6 +1577,37 @@ class password:
                         else:
                             fd.write(master['pki_self_signed_token'] +\
                                      "=" + str(pin))
+                    fd.closed
+            else:
+                if not os.path.exists(path) or overwrite_flag:
+                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
+                                        extra=config.PKI_INDENTATION_LEVEL_2)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+    def create_client_pkcs12_password_conf(self, path, overwrite_flag=False,
+                                           critical_failure=True):
+        try:
+            if not config.pki_dry_run_flag:
+                if os.path.exists(path):
+                    if overwrite_flag:
+                        config.pki_log.info(
+                            log.PKIHELPER_PASSWORD_CONF_1, path,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        # overwrite the existing 'pkcs12_password.conf' file
+                        with open(path, "wt") as fd:
+                            fd.write(sensitive['pki_client_pkcs12_password'])
+                        fd.closed
+                else:
+                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
+                                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    # create a new 'pkcs12_password.conf' file
+                    with open(path, "wt") as fd:
+                        fd.write(sensitive['pki_client_pkcs12_password'])
                     fd.closed
             else:
                 if not os.path.exists(path) or overwrite_flag:

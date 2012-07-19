@@ -35,7 +35,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.CONFIGURATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
-            util.directory.create(master['pki_client_path'], uid=0, gid=0)
+            # Place "slightly" less restrictive permissions on
+            # the top-level client directory ONLY
+            util.directory.create(master['pki_client_path'],
+                uid=0, gid=0,
+                perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
             # Since 'certutil' does NOT strip the 'token=' portion of
             # the 'token=password' entries, create a client password file
             # which ONLY contains the 'password' for the purposes of
@@ -43,6 +47,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.password.create_password_conf(
                 master['pki_client_password_conf'],
                 master['pki_client_pin'], pin_sans_token=True)
+            util.file.modify(master['pki_client_password_conf'],
+                             uid=0, gid=0)
+            # Similarly, create a simple password file containing the
+            # PKCS #12 password used when exporting the "Admin Certificate"
+            # into a PKCS #12 file
+            util.password.create_client_pkcs12_password_conf(
+                master['pki_client_pkcs12_password_conf'])
+            util.file.modify(master['pki_client_pkcs12_password_conf'],
+                             uid=0, gid=0)
             util.directory.create(master['pki_client_database_path'],
                                   uid=0, gid=0)
             util.certutil.create_security_databases(
@@ -61,6 +74,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.password.create_password_conf(
                 master['pki_client_password_conf'],
                 master['pki_client_pin'], pin_sans_token=True)
+            # Similarly, create a simple password file containing the
+            # PKCS #12 password used when exporting the "Admin Certificate"
+            # into a PKCS #12 file
+            util.password.create_client_pkcs12_password_conf(
+                master['pki_client_pkcs12_password_conf'])
             util.certutil.create_security_databases(
                 master['pki_client_database_path'],
                 master['pki_client_cert_database'],
@@ -112,6 +130,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.CONFIGURATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        util.file.modify(master['pki_client_password_conf'],
+                         uid=0, gid=0)
+        util.file.modify(master['pki_client_pkcs12_password_conf'],
+                         uid=0, gid=0)
         # ALWAYS Restart this Apache/Tomcat PKI Process
         util.systemd.restart()
         return self.rv

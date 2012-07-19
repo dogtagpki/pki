@@ -21,6 +21,7 @@ import jarray
 # System Python Imports
 import ConfigParser
 import os
+import re
 import sys
 pki_python_module_path = os.path.join(sys.prefix,
                                       "lib",
@@ -581,20 +582,21 @@ class rest_client:
             data.setSystemCerts(systemCerts)
         return data
 
-    def configure_pki_data(self, data, pki_subsystem, pki_dry_run_flag,
-                           log_level):
-        if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
+    def configure_pki_data(self, data, master):
+        if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
             print "%s %s '%s'" %\
                   (log.PKI_JYTHON_INDENTATION_2,
                    log.PKI_JYTHON_CONFIGURING_PKI_DATA,
-                   pki_subsystem)
-        if not pki_dry_run_flag:
+                   master['pki_subsystem'])
+        if not master['pki_dry_run_flag']:
             try:
+                sensitive = extract_sensitive_data(master['pki_deployment_cfg'])
                 response = self.client.configure(data)
                 javasystem.out.println(log.PKI_JYTHON_RESPONSE_STATUS +\
                                        " " + response.getStatus())
+                admin_cert = response.getAdminCert().getCert()
                 javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
-                                       " " + response.getAdminCert().getCert())
+                                       " " + admin_cert)
                 certs = response.getSystemCerts()
                 iterator = certs.iterator()
                 while iterator.hasNext():
@@ -605,6 +607,78 @@ class rest_client:
                                            cdata.getCert())
                     javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
                                            cdata.getRequest())
+                # Store the Administration Certificate in a file
+                admin_cert_file = os.path.join(master['pki_client_path'],
+                                               master['pki_client_admin_cert'])
+                javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
+                                       " " + "'" + admin_cert_file + "'")
+                FILE = open(admin_cert_file, "w")
+                FILE.write(admin_cert)
+                FILE.close()
+                # Since Jython runs under Java, it does NOT support the
+                # following operating system specific command:
+                #
+                #     os.chmod(admin_cert_file,
+                #              config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+                #
+                # Emulate it with a system call.
+                command = "chmod" + " " + "660" + " " + admin_cert_file
+                javasystem.out.println(
+                    log.PKI_JYTHON_CHMOD +\
+                    " " + "'" + command + "'")
+                os.system(command)
+                # Import the Administration Certificate
+                # into the client NSS security database
+                command = "certutil" + " " +\
+                          "-A" + " " +\
+                          "-n" + " " + "\"" +\
+                          re.sub("&#39;", "'", master['pki_admin_nickname']) +\
+                          "\"" + " " +\
+                          "-t" + " " +\
+                          "\"" + "u,u,u" + "\"" + " " +\
+                          "-f" + " " +\
+                          master['pki_client_password_conf'] + " " +\
+                          "-d" + " " +\
+                          master['pki_client_database_path'] + " " +\
+                          "-a" + " " +\
+                          "-i" + " " +\
+                          admin_cert_file
+                javasystem.out.println(
+                    log.PKI_JYTHON_ADMIN_CERT_IMPORT +\
+                    " " + "'" + command + "'")
+                os.system(command)
+                # Export the Administration Certificate from the
+                # client NSS security database into a PKCS #12 file
+                command = "pk12util" + " " +\
+                          "-o" + " " +\
+                          master['pki_client_admin_cert_p12'] + " " +\
+                          "-n" + " " + "\"" +\
+                          re.sub("&#39;", "'", master['pki_admin_nickname']) +\
+                          "\"" + " " +\
+                          "-d" + " " +\
+                          master['pki_client_database_path'] + " " +\
+                          "-k" + " " +\
+                          master['pki_client_password_conf'] + " " +\
+                          "-w" + " " +\
+                          master['pki_client_pkcs12_password_conf']
+                javasystem.out.println(
+                    log.PKI_JYTHON_ADMIN_CERT_EXPORT +\
+                    " " + "'" + command + "'")
+                os.system(command)
+                # Since Jython runs under Java, it does NOT support the
+                # following operating system specific command:
+                #
+                #     os.chmod(master['pki_client_admin_cert_p12'],
+                #         config.\
+                #         PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+                #
+                # Emulate it with a system call.
+                command = "chmod" + " " + "664" + " " +\
+                          master['pki_client_admin_cert_p12']
+                javasystem.out.println(
+                    log.PKI_JYTHON_CHMOD +\
+                    " " + "'" + command + "'")
+                os.system(command)
             except Exception, e:
                 javasystem.out.println(
                     log.PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION + " " + str(e))

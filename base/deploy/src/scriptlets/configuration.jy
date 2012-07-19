@@ -163,9 +163,7 @@ def main(argv):
 
     # Formulate PKI Subsystem Configuration Data Response
     jyutil.rest_client.configure_pki_data(data,
-                                          master['pki_subsystem'],
-                                          master['pki_dry_run_flag'],
-                                          master['pki_jython_log_level'])
+                                          master)
 
 
 if __name__ == "__main__":

@@ -213,6 +213,8 @@ PKIHELPER_UNDEFINED_ADMIN_PASSWORD_1 =\
     "A value for 'pki_admin_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1 =\
     "A value for 'pki_backup_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_CLIENT_PKCS12_PASSWORD_1 =\
+    "A value for 'pki_client_pkcs12_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_DS_PASSWORD_1 =\
     "A value for 'pki_ds_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_PKCS12_PASSWORD_1 =\
@@ -228,9 +230,15 @@ PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
 # PKI Deployment Jython "Scriptlet" Messages
 # (MUST contain NO embedded formats since Jython 2.2 does not support logging!)
+PKI_JYTHON_ADMIN_CERT_EXPORT = "exporting Admin Certificate from "\
+                               "NSS client security database:"
+PKI_JYTHON_ADMIN_CERT_IMPORT = "importing Admin Certificate into "\
+                               "NSS client security database:"
+PKI_JYTHON_ADMIN_CERT_SAVE = "saving Admin Certificate to file:"
 PKI_JYTHON_CDATA_TAG = "tag:"
 PKI_JYTHON_CDATA_CERT = "cert:"
 PKI_JYTHON_CDATA_REQUEST = "request:"
+PKI_JYTHON_CHMOD = "performing chmod:"
 PKI_JYTHON_CLONED_PKI_SUBSYSTEM = "Cloned"
 PKI_JYTHON_CONFIGURING_PKI_DATA = "configuring PKI configuration data for"
 PKI_JYTHON_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data for"

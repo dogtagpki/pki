@@ -1352,6 +1352,12 @@ def compose_pki_master_dictionary():
                 config.pki_master_dict['pki_subsystem_configuration_path'],
                 "password.conf")
         # Client NSS security database name/value pairs
+        #
+        #     The following variable is established via the specified PKI
+        #     deployment configuration file and is NOT redefined below:
+        #
+        #         config.pki_sensitive_dict['pki_client_pkcs12_password']
+        #
         config.pki_master_dict['pki_client_path'] =\
             os.path.join(
                 "/tmp",
@@ -1360,6 +1366,10 @@ def compose_pki_master_dictionary():
             os.path.join(
                 config.pki_master_dict['pki_client_path'],
                 "password.conf")
+        config.pki_master_dict['pki_client_pkcs12_password_conf'] =\
+            os.path.join(
+                config.pki_master_dict['pki_client_path'],
+                "pkcs12_password.conf")
         config.pki_master_dict['pki_client_database_path'] =\
             os.path.join(
                 config.pki_master_dict['pki_client_path'],
@@ -1373,6 +1383,42 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_client_secmod_database'] =\
             os.path.join(config.pki_master_dict['pki_client_database_path'],
                          "secmod.db")
+        if config.pki_master_dict['pki_subsystem'] == "CA":
+            config.pki_master_dict['pki_client_admin_cert'] = "ca_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "ca_admin_cert.p12")
+        elif config.pki_master_dict['pki_subsystem'] == "KRA":
+            config.pki_master_dict['pki_client_admin_cert'] = "kra_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "kra_admin_cert.p12")
+        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
+            config.pki_master_dict['pki_client_admin_cert'] = "ocsp_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "ocsp_admin_cert.p12")
+        elif config.pki_master_dict['pki_subsystem'] == "RA":
+            config.pki_master_dict['pki_client_admin_cert'] = "ra_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "ra_admin_cert.p12")
+        elif config.pki_master_dict['pki_subsystem'] == "TKS":
+            config.pki_master_dict['pki_client_admin_cert'] = "tks_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "tks_admin_cert.p12")
+        elif config.pki_master_dict['pki_subsystem'] == "TPS":
+            config.pki_master_dict['pki_client_admin_cert'] = "tps_admin.cert"
+            config.pki_master_dict['pki_client_admin_cert_p12'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_path'],
+                    "tps_admin_cert.p12")
         # Jython scriptlet name/value pairs
         config.pki_master_dict['pki_jython_configuration_scriptlet'] =\
             os.path.join(sys.prefix,
@@ -1405,7 +1451,7 @@ def compose_pki_master_dictionary():
         #     deployment configuration file and are NOT redefined below:
         #
         #         config.pki_master_dict['pki_security_domain_https_port']
-        #         config.pki_master_dict['pki_security_domain_password']
+        #         config.pki_sensitive_dict['pki_security_domain_password']
         #         config.pki_master_dict['pki_security_domain_user']
         #
         #     The following variables are established via the specified PKI
@@ -1474,7 +1520,7 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_ds_bind_dn']
         #         config.pki_master_dict['pki_ds_http_port']
         #         config.pki_master_dict['pki_ds_https_port']
-        #         config.pki_master_dict['pki_ds_password']
+        #         config.pki_sensitive_dict['pki_ds_password']
         #         config.pki_master_dict['pki_ds_remove_data']
         #         config.pki_master_dict['pki_ds_secure_connection']
         #
@@ -1507,7 +1553,7 @@ def compose_pki_master_dictionary():
         #     deployment configuration file and are NOT redefined below:
         #
         #        config.pki_master_dict['pki_backup_keys']
-        #        config.pki_master_dict['pki_backup_password']
+        #        config.pki_sensitive_dict['pki_backup_password']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
@@ -1566,13 +1612,14 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_admin_dualkey']
         #         config.pki_master_dict['pki_admin_keysize']
         #         config.pki_master_dict['pki_admin_name']
-        #         config.pki_master_dict['pki_admin_password']
+        #         config.pki_sensitive_dict['pki_admin_password']
         #         config.pki_master_dict['pki_admin_uid']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
         #
         #         config.pki_master_dict['pki_admin_email']
+        #         config.pki_master_dict['pki_admin_nickname']
         #         config.pki_master_dict['pki_admin_subject_dn']
         #
         config.pki_master_dict['pki_admin_profile_id'] = "caAdminCert"
@@ -1580,6 +1627,54 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_admin_email'] =\
                 config.pki_master_dict['pki_admin_name'] + "@" +\
                 config.pki_master_dict['pki_dns_domainname']
+        if not len(config.pki_master_dict['pki_admin_nickname']):
+            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
+                if config.pki_master_dict['pki_subsystem'] == "RA":
+                    # PKI RA
+                    config.pki_master_dict['pki_admin_nickname'] =\
+                        "RA Administrator&#39;s" + " " +\
+                        config.pki_master_dict['pki_security_domain_name'] +\
+                        " " + "ID"
+                elif config.pki_master_dict['pki_subsystem'] == "TPS":
+                    # PKI TPS
+                    config.pki_master_dict['pki_admin_nickname'] =\
+                        "TPS Administrator&#39;s" + " " +\
+                        config.pki_master_dict['pki_security_domain_name'] +\
+                        " " + "ID"
+            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+                if not config.str2bool(config.pki_master_dict['pki_clone']):
+                    if config.pki_master_dict['pki_subsystem'] == "CA":
+                        # PKI CA, Subordinate CA, or External CA
+                        config.pki_master_dict['pki_admin_nickname'] =\
+                            "CA Administrator of Instance" + " " +\
+                            config.pki_master_dict['pki_instance_id'] +\
+                            "&#39;s" + " " +\
+                            config.pki_master_dict['pki_security_domain_name']\
+                            + " " + "ID"
+                    elif config.pki_master_dict['pki_subsystem'] == "KRA":
+                        # PKI KRA
+                        config.pki_master_dict['pki_admin_nickname'] =\
+                            "KRA Administrator of Instance" + " " +\
+                            config.pki_master_dict['pki_instance_id'] +\
+                            "&#39;s" + " " +\
+                            config.pki_master_dict['pki_security_domain_name']\
+                            + " " + "ID"
+                    elif config.pki_master_dict['pki_subsystem'] == "OCSP":
+                        # PKI OCSP
+                        config.pki_master_dict['pki_admin_nickname'] =\
+                            "OCSP Administrator of Instance" + " " +\
+                            config.pki_master_dict['pki_instance_id'] +\
+                            "&#39;s" + " " +\
+                            config.pki_master_dict['pki_security_domain_name']\
+                            + " " + "ID"
+                    elif config.pki_master_dict['pki_subsystem'] == "TKS":
+                        # PKI TKS
+                        config.pki_master_dict['pki_admin_nickname'] =\
+                            "TKS Administrator of Instance" + " " +\
+                            config.pki_master_dict['pki_instance_id'] +\
+                            "&#39;s" + " " +\
+                            config.pki_master_dict['pki_security_domain_name']\
+                            + " " + "ID"
         if not len(config.pki_master_dict['pki_admin_subject_dn']):
             if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
                 if config.pki_master_dict['pki_subsystem'] == "RA":
