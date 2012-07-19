@@ -27,27 +27,27 @@ function(javac target)
         if (arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
             set(param ${arg})
 
-        else (arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
+        else ()
 
-            if (param MATCHES "SOURCE_DIR")
+            if (param STREQUAL "SOURCE_DIR")
                 set(source_dir ${arg})
 
-            elseif (param MATCHES "SOURCES")
+            elseif (param STREQUAL "SOURCES")
                 list(APPEND sources ${arg})
 
-            elseif (param MATCHES "EXCLUDE")
+            elseif (param STREQUAL "EXCLUDE")
                 list(APPEND exclude ${arg})
 
-            elseif (param MATCHES "CLASSPATH")
+            elseif (param STREQUAL "CLASSPATH")
                 list(APPEND classpath ${arg})
 
-            elseif (param MATCHES "OUTPUT_DIR")
+            elseif (param STREQUAL "OUTPUT_DIR")
                 set(output_dir ${arg})
 
-            elseif (param MATCHES "DEPENDS")
+            elseif (param STREQUAL "DEPENDS")
                 list(APPEND depends ${arg})
 
-            endif(param MATCHES "SOURCE_DIR")
+            endif(param STREQUAL "SOURCE_DIR")
 
         endif(arg MATCHES "(SOURCE_DIR|SOURCES|EXCLUDE|CLASSPATH|OUTPUT_DIR|DEPENDS)")
 
@@ -92,11 +92,11 @@ function(jar target)
 
     foreach (arg ${ARGN})
 
-        if (arg MATCHES "CREATE")
+        if (arg STREQUAL "CREATE")
             set(param ${arg})
             set(operation "c")
 
-        elseif (arg MATCHES "UPDATE")
+        elseif (arg STREQUAL "UPDATE")
             set(param ${arg})
             set(operation "u")
 
@@ -108,21 +108,21 @@ function(jar target)
             if (param MATCHES "(CREATE|UPDATE)")
                 set(output ${arg})
 
-            elseif (param MATCHES "INPUT_DIR")
+            elseif (param STREQUAL "INPUT_DIR")
                 set(input_dir ${arg})
 
-            elseif (param MATCHES "FILES")
+            elseif (param STREQUAL "FILES")
                 list(APPEND files ${arg})
 
-            elseif (param MATCHES "EXCLUDE")
+            elseif (param STREQUAL "EXCLUDE")
                 list(APPEND exclude ${arg})
 
-            elseif (param MATCHES "DEPENDS")
+            elseif (param STREQUAL "DEPENDS")
                 list(APPEND depends ${arg})
 
             endif(param MATCHES "(CREATE|UPDATE)")
 
-        endif(arg MATCHES "CREATE")
+        endif(arg STREQUAL "CREATE")
 
     endforeach(arg)
 
@@ -146,6 +146,108 @@ function(jar target)
 
 endfunction(jar)
 
+function(javadoc target)
+
+    set(sourcepath ${CMAKE_CURRENT_SOURCE_DIR})
+    set(dest ${CMAKE_CURRENT_BINARY_DIR}/javadoc)
+
+    foreach (arg ${ARGN})
+
+        if (arg MATCHES "(SOURCEPATH|CLASSPATH|FILES|PACKAGES|SUBPACKAGES|EXCLUDE|OPTIONS|DEST|DEPENDS)")
+            set(param ${arg})
+
+        else ()
+
+            if (param STREQUAL "SOURCEPATH")
+                list(APPEND sourcepath ${arg})
+
+            elseif (param STREQUAL "CLASSPATH")
+                list(APPEND classpath ${arg})
+
+            elseif (param STREQUAL "FILES")
+                list(APPEND files ${arg})
+
+            elseif (param STREQUAL "PACKAGES")
+                list(APPEND packages ${arg})
+
+            elseif (param STREQUAL "SUBPACKAGES")
+                list(APPEND subpackages ${arg})
+
+            elseif (param STREQUAL "EXCLUDE")
+                list(APPEND exclude ${arg})
+
+            elseif (param STREQUAL "OPTIONS")
+                list(APPEND options ${arg})
+
+            elseif (param STREQUAL "DEST")
+                set(dest ${arg})
+
+            elseif (param STREQUAL "DEPENDS")
+                list(APPEND depends ${arg})
+
+            endif(param STREQUAL "SOURCEPATH")
+
+        endif(arg MATCHES "(SOURCEPATH|CLASSPATH|FILES|PACKAGES|SUBPACKAGES|EXCLUDE|DEST|DEPENDS)")
+
+    endforeach(arg)
+
+    if (UNIX)
+        set(separator ":")
+    else (UNIX)
+        set(separator ";")
+    endif(UNIX)
+
+    set(command ${JAVA_DOC} -d ${dest})
+
+    if (options)
+        foreach (option ${options})
+           set(command ${command} ${option})
+        endforeach(option ${options})
+    endif(sourcepath)
+
+    if (sourcepath)
+        set(tmp)
+        foreach (path ${sourcepath})
+           set(tmp "${tmp}${separator}${path}")
+        endforeach(path)
+        set(command ${command} -sourcepath ${tmp})
+    endif(sourcepath)
+
+    if (classpath)
+        set(tmp)
+        foreach (path ${classpath})
+           set(tmp "${tmp}${separator}${path}")
+        endforeach(path)
+        set(command ${command} -classpath ${tmp})
+    endif(classpath)
+
+    if (subpackages)
+        set(tmp)
+        foreach (package ${subpackages})
+           set(tmp "${tmp}:${package}")
+        endforeach(path)
+        set(command ${command} -subpackages ${tmp})
+    endif(subpackages)
+
+    if (exclude)
+        set(tmp)
+        foreach (package ${exclude})
+           set(tmp "${tmp}:${package}")
+        endforeach(path)
+        set(command ${command} -exclude ${tmp})
+    endif(exclude)
+
+    set(command ${command} ${files} ${packages})
+
+    add_custom_target(${target} ALL DEPENDS ${depends})
+
+    add_custom_command(
+        TARGET ${target}
+        COMMAND ${command}
+    )
+
+endfunction(javadoc)
+
 function(link target)
 
     foreach (arg ${ARGN})
@@ -155,16 +257,16 @@ function(link target)
 
         else ()
 
-            if (param MATCHES "SOURCE")
+            if (param STREQUAL "SOURCE")
                 set(source ${arg})
 
-            elseif (param MATCHES "DEST")
+            elseif (param STREQUAL "DEST")
                 set(dest ${arg})
 
-            elseif (param MATCHES "DEPENDS")
+            elseif (param STREQUAL "DEPENDS")
                 list(APPEND depends ${arg})
 
-            endif(param MATCHES "SOURCE")
+            endif(param STREQUAL "SOURCE")
 
         endif(arg MATCHES "(SOURCE|DEST|DEPENDS)")
 
