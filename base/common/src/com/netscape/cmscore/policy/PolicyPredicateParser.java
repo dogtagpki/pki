@@ -263,7 +263,6 @@ public class PolicyPredicateParser {
 class PredicateTokenizer {
     String input;
     int currentIndex;
-    int endOfString;
     String nextToken;
 
     public PredicateTokenizer(String predString) {

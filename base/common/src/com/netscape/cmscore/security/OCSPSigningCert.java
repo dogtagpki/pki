@@ -69,8 +69,7 @@ public class OCSPSigningCert extends CertificateInfo {
     }
 
     // get PQG params from the configuration file
-    public static PQGParams getPQGParams() throws EBaseException, IOException,
-            PQGParamGenException {
+    public PQGParams getPQGParams() throws EBaseException, IOException, PQGParamGenException {
 
         byte[] p = mConfig.getByteArray("ca.dsaP", null);
         byte[] q = mConfig.getByteArray("ca.dsaQ", null);

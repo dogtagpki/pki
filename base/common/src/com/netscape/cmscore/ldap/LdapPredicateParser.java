@@ -260,7 +260,6 @@ public class LdapPredicateParser {
 class PredicateTokenizer {
     String input;
     int currentIndex;
-    int endOfString;
     String nextToken;
 
     public PredicateTokenizer(String predString) {

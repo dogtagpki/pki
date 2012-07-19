@@ -347,7 +347,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * @return the value in this property list with the specified key value.
      * @see java.util.Properties#defaults
      */
-    public String getProperty(String key) {
+    public synchronized String getProperty(String key) {
         String oval = super.get(key);
 
         return ((oval == null) && (defaults != null)) ? defaults.getProperty(key) : oval;

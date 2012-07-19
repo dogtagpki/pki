@@ -70,7 +70,7 @@ public abstract class CertificateInfo {
 
     protected KeyCertData mProperties;
     protected KeyPair mKeyPair;
-    protected static IConfigStore mConfig;
+    protected IConfigStore mConfig;
 
     public CertificateInfo(KeyCertData properties) {
         this(properties, null);

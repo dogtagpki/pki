@@ -168,23 +168,29 @@ public class StorageKeyUnit extends EncryptionUnit implements
             if (mKeySplitting) {
 
                 byte certFileData[] = null;
+                FileInputStream fi = null;
                 try {
                     File certFile = new File(
                             mConfig.getString(PROP_CERTDB));
 
                     certFileData = new byte[
                             (Long.valueOf(certFile.length())).intValue()];
-                    FileInputStream fi = new FileInputStream(certFile);
+                    fi = new FileInputStream(certFile);
 
                     fi.read(certFileData);
-                    fi.close();
-
                     // pick up cert by nickName
 
                 } catch (IOException e) {
                     mKRA.log(ILogger.LL_INFO,
                             CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+                } finally {
+                    try {
+                        if (fi != null)
+                            fi.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 try {

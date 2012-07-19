@@ -331,9 +331,7 @@ public class PKCS8Key implements PrivateKey {
      * Serialization write ... PKCS#8 keys serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void
-            writeObject(java.io.ObjectOutputStream stream)
-                    throws IOException {
+    private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         stream.write(getEncoded());
     }
 
@@ -341,12 +339,9 @@ public class PKCS8Key implements PrivateKey {
      * Serialization read ... PKCS#8 keys serialize as
      * themselves, and they're parsed when they get read back.
      */
-    private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
-
+    private void readObject(ObjectInputStream stream) throws IOException {
         try {
             decode(stream);
-
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new IOException("deserialized key is invalid: " +
