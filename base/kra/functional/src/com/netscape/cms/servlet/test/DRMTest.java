@@ -39,6 +39,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
@@ -193,10 +194,14 @@ public class DRMTest {
         // Set base URI and get client
 
 
-        String baseUri = protocol + "://" + host + ":" + port + "/kra/pki";
         DRMRestClient client;
         try {
-            client = new DRMRestClient(baseUri, clientCertNickname);
+            ClientConfig config = new ClientConfig();
+            config.setServerURI(protocol + "://" + host + ":" + port + "/kra");
+            config.setCertNickname(clientCertNickname);
+
+            client = new DRMRestClient(config);
+
         } catch (Exception e) {
             e.printStackTrace();
             return;

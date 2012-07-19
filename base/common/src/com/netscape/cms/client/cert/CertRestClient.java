@@ -21,10 +21,10 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
@@ -42,12 +42,8 @@ public class CertRestClient extends CMSRestClient {
     public CertResource certClient;
     public CertRequestResource certRequestResource;
 
-    public CertRestClient(String baseUri) throws URISyntaxException {
-        this(baseUri, null);
-    }
-
-    public CertRestClient(String baseUri, String nickname) throws URISyntaxException {
-        super(baseUri, nickname);
+    public CertRestClient(ClientConfig config) throws URISyntaxException {
+        super(config);
 
         certClient = createProxy(CertResource.class);
         certRequestResource = createProxy(CertRequestResource.class);
@@ -57,9 +53,9 @@ public class CertRestClient extends CMSRestClient {
         return certClient.getCert(id);
     }
 
-    public CertDataInfos findCerts(CertSearchData searchData) {
-        return certClient.searchCerts(
-                searchData,
+    public CertDataInfos findCerts(String status) {
+        return certClient.listCerts(
+                status,
                 CertResource.DEFAULT_MAXRESULTS,
                 CertResource.DEFAULT_MAXTIME);
     }

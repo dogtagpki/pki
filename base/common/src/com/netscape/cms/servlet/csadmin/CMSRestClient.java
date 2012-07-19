@@ -32,29 +32,25 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
+import com.netscape.cms.client.cli.ClientConfig;
+
 public abstract class CMSRestClient {
 
     protected boolean verbose;
 
-    protected String clientCertNickname;
+    protected ClientConfig config;
+
     protected ResteasyProviderFactory providerFactory;
     protected ClientErrorHandler errorHandler;
     protected ClientExecutor executor;
-    protected URI uri;
 
-    public CMSRestClient(String baseUri) throws URISyntaxException {
-        this(baseUri, null);
-    }
-
-    public CMSRestClient(String baseUri, String clientCertNick) throws URISyntaxException {
-
-        clientCertNickname = clientCertNick;
-
-        uri = new URI(baseUri);
+    public CMSRestClient(ClientConfig config) {
+        this.config = config;
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
 
         httpclient.addRequestInterceptor(new HttpRequestInterceptor() {
+            @Override
             public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
                 if (verbose) System.out.println("HTTP Request: "+request.getRequestLine());
             }
@@ -153,9 +149,10 @@ public abstract class CMSRestClient {
                 socket = new SSLSocket(sock, hostName, new ServerCertApprovalCB(), null);
             }
 
-            if (clientCertNickname != null) {
-                if (verbose) System.out.println("Client certificate: "+clientCertNickname);
-                socket.setClientCertNickname(clientCertNickname);
+            String certNickname = config.getCertNickname();
+            if (certNickname != null) {
+                if (verbose) System.out.println("Client certificate: "+certNickname);
+                socket.setClientCertNickname(certNickname);
             }
 
             return socket;
@@ -176,7 +173,8 @@ public abstract class CMSRestClient {
 
     }
 
-    public <T> T createProxy(Class<T> clazz) {
+    public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
+        URI uri = new URI(config.getServerURI()+"/pki");
         return ProxyFactory.create(clazz, uri, executor, providerFactory);
     }
 

@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.client.cli.CLI;
+import com.netscape.cms.client.cli.MainCLI;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 
 /**
@@ -86,6 +87,8 @@ public class CertShowCLI extends CLI {
             out.print(encoded);
             out.close();
         }
+
+        MainCLI.printMessage("Certificate \"" + certID.toHexString() + "\"");
 
         CertCLI.printCertData(certData, showPrettyPrint, showEncoded);
     }

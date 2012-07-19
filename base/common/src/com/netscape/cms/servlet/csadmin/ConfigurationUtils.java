@@ -143,6 +143,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
 import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -294,9 +295,12 @@ public class ConfigurationUtils {
         String csType = cs.getString("cs.type");
 
         InstallTokenRequest data = new InstallTokenRequest(user, passwd, csType, CMS.getEEHost(), CMS.getAdminPort());
-        String baseUri = "https://" + sdhost + ":" + sdport + "/ca/pki";
-        ConfigurationRESTClient client = null;
-        client = new ConfigurationRESTClient(baseUri, null);
+
+        ClientConfig config = new ClientConfig();
+        config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
+
+        ConfigurationRESTClient client = new ConfigurationRESTClient(config);
+
         InstallToken token = client.getInstallToken(data);
 
         return token.getToken();

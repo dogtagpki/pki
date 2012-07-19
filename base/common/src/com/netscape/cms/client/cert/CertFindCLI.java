@@ -18,11 +18,13 @@
 
 package com.netscape.cms.client.cert;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
 
 /**
  * @author Endi S. Dewata
@@ -42,10 +44,23 @@ public class CertFindCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CertSearchData searchData = new CertSearchData();
-        searchData.setSerialNumberRangeInUse(true);
+        Option option = new Option(null, "status", true, "Certificate status");
+        option.setArgName("status");
+        options.addOption(option);
 
-        CertDataInfos certs = parent.client.findCerts(searchData);
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            printHelp();
+            System.exit(1);
+        }
+
+        String status = cmd.getOptionValue("status");
+        CertDataInfos certs = parent.client.findCerts(status);
 
         MainCLI.printMessage(certs.getCertInfos().size() + " certificate(s) matched");
 

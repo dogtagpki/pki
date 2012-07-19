@@ -16,6 +16,10 @@ import pkimessages as log
 from java.lang import System as javasystem
 
 
+# PKI Java Imports
+from com.netscape.cms.client.cli import ClientConfig
+
+
 def main(argv):
     rv = 0
 
@@ -71,9 +75,13 @@ def main(argv):
                 master['pki_dry_run_flag'],
                 master['pki_jython_log_level'])
 
+    # Setup connection parameters
+    client_config = ClientConfig()
+    client_config.setServerURI(master['pki_jython_base_uri'])
+
     # Establish REST Client
     client = jyutil.rest_client.initialize(
-                 master['pki_jython_base_uri'],
+                 client_config,
                  master['pki_dry_run_flag'],
                  master['pki_jython_log_level'])
 

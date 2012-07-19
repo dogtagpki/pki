@@ -20,10 +20,9 @@ package com.netscape.cms.servlet.test;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
-import org.jboss.resteasy.client.ProxyFactory;
-
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertSearchData;
@@ -44,11 +43,12 @@ public class CARestClient extends CMSRestClient {
     private CertRequestResource certRequestClient;
     private ProfileResource profileClient;
 
-    public CARestClient(String baseUri, String clientCertNick) throws URISyntaxException {
-        super(baseUri, clientCertNick);
-        certRequestClient = ProxyFactory.create(CertRequestResource.class, uri, executor, providerFactory);
-        certClient = ProxyFactory.create(CertResource.class, uri, executor, providerFactory);
-        profileClient = ProxyFactory.create(ProfileResource.class, uri, executor, providerFactory);
+    public CARestClient(ClientConfig config) throws URISyntaxException {
+        super(config);
+
+        certRequestClient = createProxy(CertRequestResource.class);
+        certClient = createProxy(CertResource.class);
+        profileClient = createProxy(ProfileResource.class);
     }
 
     public Collection<CertRequestInfo> listRequests(String requestState, String requestType) {

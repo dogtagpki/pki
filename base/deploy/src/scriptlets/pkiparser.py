@@ -1506,7 +1506,7 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_jython_base_uri'] =\
             "https" + "://" + config.pki_master_dict['pki_hostname'] + ":" +\
             config.pki_master_dict['pki_https_port'] + "/" +\
-            config.pki_master_dict['pki_subsystem'].lower() + "/" + "pki"
+            config.pki_master_dict['pki_subsystem'].lower()
         # Jython scriptlet
         # 'Security Domain' Configuration name/value pairs
         # 'Subsystem Name'  Configuration name/value pairs

@@ -27,6 +27,7 @@ import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupMemberResource;
 import com.netscape.certsrv.group.GroupResource;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
 
 /**
@@ -37,12 +38,8 @@ public class GroupRestClient extends CMSRestClient {
     public GroupResource groupClient;
     public GroupMemberResource groupMemberClient;
 
-    public GroupRestClient(String baseUri) throws URISyntaxException {
-        this(baseUri, null);
-    }
-
-    public GroupRestClient(String baseUri, String nickname) throws URISyntaxException {
-        super(baseUri, nickname);
+    public GroupRestClient(ClientConfig config) throws URISyntaxException {
+        super(config);
 
         groupClient = createProxy(GroupResource.class);
         groupMemberClient = createProxy(GroupMemberResource.class);

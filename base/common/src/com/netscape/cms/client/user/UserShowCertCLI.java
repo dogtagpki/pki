@@ -27,6 +27,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.cms.client.cli.CLI;
+import com.netscape.cms.client.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -87,6 +88,8 @@ public class UserShowCertCLI extends CLI {
             out.print(encoded);
             out.close();
         }
+
+        MainCLI.printMessage("Certificate \"" + userCertData.getID() + "\"");
 
         UserCLI.printCert(userCertData, showPrettyPrint, showEncoded);
     }

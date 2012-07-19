@@ -20,6 +20,7 @@ package com.netscape.cms.client.group;
 
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cms.client.cli.CLI;
+import com.netscape.cms.client.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -47,6 +48,8 @@ public class GroupShowCLI extends CLI {
         String groupID = args[0];
 
         GroupData groupData = parent.client.getGroup(groupID);
+
+        MainCLI.printMessage("Group \""+groupID+"\"");
 
         GroupCLI.printGroup(groupData);
     }

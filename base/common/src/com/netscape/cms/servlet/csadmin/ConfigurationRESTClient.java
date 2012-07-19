@@ -19,8 +19,7 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ProxyFactory;
-
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
@@ -35,10 +34,10 @@ public class ConfigurationRESTClient extends CMSRestClient {
 
     private SystemConfigurationResource configClient;
 
-    public ConfigurationRESTClient(String baseUri, String clientCertNick) throws URISyntaxException {
-        super(baseUri, clientCertNick);
+    public ConfigurationRESTClient(ClientConfig config) throws URISyntaxException {
+        super(config);
 
-        configClient = ProxyFactory.create(SystemConfigurationResource.class, uri, executor, providerFactory);
+        configClient = createProxy(SystemConfigurationResource.class);
     }
 
     public ConfigurationResponseData configure(ConfigurationData data) {

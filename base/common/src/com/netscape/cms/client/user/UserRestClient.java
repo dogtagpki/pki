@@ -27,6 +27,7 @@ import com.netscape.certsrv.user.UserCertResource;
 import com.netscape.certsrv.user.UserCollection;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserResource;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
 
 /**
@@ -37,12 +38,8 @@ public class UserRestClient extends CMSRestClient {
     public UserResource userClient;
     public UserCertResource userCertClient;
 
-    public UserRestClient(String baseUri) throws URISyntaxException {
-        this(baseUri, null);
-    }
-
-    public UserRestClient(String baseUri, String nickname) throws URISyntaxException {
-        super(baseUri, nickname);
+    public UserRestClient(ClientConfig config) throws URISyntaxException {
+        super(config);
 
         userClient = createProxy(UserResource.class);
         userCertClient = createProxy(UserCertResource.class);

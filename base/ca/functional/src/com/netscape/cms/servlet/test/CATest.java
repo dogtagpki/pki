@@ -35,6 +35,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertNotFoundException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
@@ -147,10 +148,13 @@ public class CATest {
             log("Exception in logging into token:" + e.toString());
         }
 
-        String baseUri = protocol + "://" + host + ":" + port + "/ca/pki";
         CARestClient client;
         try {
-            client = new CARestClient(baseUri, clientCertNickname);
+            ClientConfig config = new ClientConfig();
+            config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
+            config.setCertNickname(clientCertNickname);
+
+            client = new CARestClient(config);
         } catch (Exception e) {
             e.printStackTrace();
             return;

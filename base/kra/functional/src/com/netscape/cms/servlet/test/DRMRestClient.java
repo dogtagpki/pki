@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.client.ProxyFactory;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
@@ -29,11 +29,12 @@ public class DRMRestClient  extends CMSRestClient {
     private KeyRequestResource keyRequestClient;
     private SystemCertificateResource systemCertClient;
 
-    public DRMRestClient(String baseUri, String clientCertNick) throws URISyntaxException {
-        super(baseUri,clientCertNick);
-        systemCertClient = ProxyFactory.create(SystemCertificateResource.class, uri, executor, providerFactory);
-        keyRequestClient = ProxyFactory.create(KeyRequestResource.class, uri, executor, providerFactory);
-        keyClient = ProxyFactory.create(KeyResource.class, uri, executor, providerFactory);
+    public DRMRestClient(ClientConfig config) throws URISyntaxException {
+        super(config);
+
+        systemCertClient = createProxy(SystemCertificateResource.class);
+        keyRequestClient = createProxy(KeyRequestResource.class);
+        keyClient = createProxy(KeyResource.class);
     }
 
     public String getTransportCert() {

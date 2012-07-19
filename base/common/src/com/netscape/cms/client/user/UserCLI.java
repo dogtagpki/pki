@@ -75,8 +75,13 @@ public class UserCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new UserRestClient(parent.url + "/pki", parent.certNickname);
+        client = new UserRestClient(parent.config);
         client.setVerbose(verbose);
+
+        if (args.length == 0) {
+            printHelp();
+            System.exit(1);
+        }
 
         String command = args[0];
         String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);

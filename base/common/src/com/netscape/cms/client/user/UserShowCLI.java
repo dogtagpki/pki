@@ -20,6 +20,7 @@ package com.netscape.cms.client.user;
 
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cms.client.cli.CLI;
+import com.netscape.cms.client.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -47,6 +48,8 @@ public class UserShowCLI extends CLI {
         String userId = args[0];
 
         UserData userData = parent.client.getUser(userId);
+
+        MainCLI.printMessage("User \"" + userId + "\"");
 
         UserCLI.printUser(userData);
     }

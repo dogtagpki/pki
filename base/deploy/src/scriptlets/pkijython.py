@@ -271,15 +271,15 @@ class security_databases:
 class rest_client:
     client = None
 
-    def initialize(self, base_uri, pki_dry_run_flag, log_level):
+    def initialize(self, client_config, pki_dry_run_flag, log_level):
         try:
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
                 print "%s %s '%s'" %\
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_INITIALIZING_REST_CLIENT,
-                       base_uri)
+                       client_config.serverURI)
             if not pki_dry_run_flag:
-                self.client = ConfigurationRESTClient(base_uri, None)
+                self.client = ConfigurationRESTClient(client_config)
             return self.client
         except URISyntaxException, e:
             e.printStackTrace()
