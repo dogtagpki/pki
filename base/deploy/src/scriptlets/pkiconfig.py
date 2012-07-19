@@ -100,9 +100,9 @@ pki_one_time_pin = None
 
 # PKI Deployment "Mandatory" Command-Line Variables
 pki_subsystem = None
+pkideployment_cfg = "/usr/share/pki/deployment/config/pkideployment.cfg"
 
 # PKI Deployment "Optional" Command-Line Variables
-pkideployment_cfg = "/usr/share/pki/deployment/config/pkideployment.cfg"
 pki_dry_run_flag = False
 pki_root_prefix = None
 pki_update_flag = False
@@ -168,8 +168,6 @@ pki_console_log_level = None
 
 # PKI Deployment Global Dictionaries
 pki_sensitive_dict = None
-pki_mandatory_dict = None
-pki_optional_dict = None
 pki_common_dict = None
 pki_web_server_dict = None
 pki_subsystem_dict = None

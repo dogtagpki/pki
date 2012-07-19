@@ -46,8 +46,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
-        # verify existence of MANDATORY configuration file data
+        # verify existence of SENSITIVE configuration file data
         util.configuration_file.verify_sensitive_data()
+        # verify existence of MUTUALLY EXCLUSIVE configuration file data
         util.configuration_file.verify_mutually_exclusive_data()
         return self.rv
 

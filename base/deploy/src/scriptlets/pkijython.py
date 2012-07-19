@@ -299,65 +299,52 @@ class rest_client:
             data.setPin(master['pki_one_time_pin'])
             data.setToken(ConfigurationData.TOKEN_DEFAULT)
             if master['pki_instance_type'] == "Tomcat":
+                data.setSubsystemName(master['pki_subsystem_name'])
                 if master['pki_subsystem'] == "CA":
                     if config.str2bool(master['pki_clone']):
                         # Cloned CA
                         data.setHierarchy("root")
                         data.setIsClone("true")
-                        data.setSubsystemName("Cloned CA Subsystem")
                     elif config.str2bool(master['pki_external']):
                         # External CA
                         data.setHierarchy("join")
                         data.setIsClone("false")
-                        data.setSubsystemName("External CA Subsystem")
                     elif config.str2bool(master['pki_subordinate']):
                         # Subordinate CA
                         data.setHierarchy("join")
                         data.setIsClone("false")
-                        data.setSubsystemName("Subordinate CA Subsystem")
                     else:
                         # PKI CA
                         data.setHierarchy("root")
                         data.setIsClone("false")
-                        data.setSubsystemName("PKI CA Subsystem")
                 elif master['pki_subsystem'] == "KRA":
                     if config.str2bool(master['pki_clone']):
                         # Cloned KRA
                         data.setIsClone("true")
-                        data.setSubsystemName("Cloned KRA Subsystem")
                     else:
                         # PKI KRA
                         data.setIsClone("false")
-                        data.setSubsystemName("PKI KRA Subsystem")
                 elif master['pki_subsystem'] == "OCSP":
                     if config.str2bool(master['pki_clone']):
                         # Cloned OCSP
                         data.setIsClone("true")
-                        data.setSubsystemName("Cloned OCSP Subsystem")
                     else:
                         # PKI OCSP
                         data.setIsClone("false")
-                        data.setSubsystemName("PKI OCSP Subsystem")
                 elif master['pki_subsystem'] == "TKS":
                     if config.str2bool(master['pki_clone']):
                         # Cloned TKS
                         data.setIsClone("true")
-                        data.setSubsystemName("Cloned TKS Subsystem")
                     else:
                         # PKI TKS
                         data.setIsClone("false")
-                        data.setSubsystemName("PKI TKS Subsystem")
             # Security Domain Information
+            #
+            # NOTE:  External CA's DO NOT require a security domain
             if master['pki_instance_type'] == "Tomcat":
                 if master['pki_subsystem'] == "CA":
-                    if config.str2bool(master['pki_external']):
-                        # External CA
-                        data.setSecurityDomainType(
-                            ConfigurationData.NEW_DOMAIN)
-                        data.setSecurityDomainName(
-                            master['pki_security_domain_name'])
-                    elif not config.str2bool(master['pki_clone']) and\
-                         not config.str2bool(master['pki_subordinate']):
+                    if not config.str2bool(master['pki_clone']) and\
+                       not config.str2bool(master['pki_subordinate']):
                         # PKI CA
                         data.setSecurityDomainType(
                             ConfigurationData.NEW_DOMAIN)

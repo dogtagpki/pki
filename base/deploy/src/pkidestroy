@@ -83,9 +83,11 @@ def main(argv):
         config.pki_dns_domainname = subprocess.check_output("domainname",
                                                             shell=True)
         config.pki_dns_domainname = config.pki_dns_domainname.rstrip('\n')
+        if not len(config.pki_dns_domainname):
+            print log.PKI_DNS_DOMAIN_NOT_SET
+            sys.exit(1)
     except subprocess.CalledProcessError as exc:
-        config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
+        print log.PKI_SUBPROCESS_ERROR_1 % exc
         sys.exit(1)
 
     # Initialize 'pretty print' for objects
@@ -97,7 +99,7 @@ def main(argv):
     # Enable 'pkidestroy' logging.
     if not config.pki_dry_run_flag:
         config.pki_log_dir = config.pki_root_prefix +\
-                             "/var/log"
+                             config.PKI_DEPLOYMENT_LOG_ROOT
         config.pki_log_name = "pki" + "-" +\
                               config.pki_subsystem.lower() +\
                               "-" + "destroy" + "." +\
@@ -124,14 +126,6 @@ def main(argv):
         sys.exit(1)
     else:
         # NEVER print out 'sensitive' name/value pairs!!!
-        config.pki_log.debug(log.PKI_DICTIONARY_MANDATORY,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pp.pformat(config.pki_mandatory_dict),
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(log.PKI_DICTIONARY_OPTIONAL,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pp.pformat(config.pki_optional_dict),
-                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                              extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(pp.pformat(config.pki_common_dict),
@@ -147,7 +141,7 @@ def main(argv):
 
     # Override PKI configuration file values with 'custom' command-line values.
     if not config.custom_pki_admin_domain_name is None:
-        config.pki_optional_dict['pki_admin_domain_name'] =\
+        config.pki_common_dict['pki_admin_domain_name'] =\
             config.custom_pki_admin_domain_name
     if not config.custom_pki_instance_name is None:
         config.pki_web_server_dict['pki_instance_name'] =\
@@ -162,14 +156,6 @@ def main(argv):
         config.pki_web_server_dict['pki_ajp_port'] =\
             config.custom_pki_ajp_port
     # NEVER print out 'sensitive' name/value pairs!!!
-    config.pki_log.debug(log.PKI_DICTIONARY_MANDATORY,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_mandatory_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(log.PKI_DICTIONARY_OPTIONAL,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_optional_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pp.pformat(config.pki_common_dict),

@@ -36,8 +36,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish top-level infrastructure base
         util.directory.create(master['pki_path'])
-        # establish top-level infrastructure logs
-        util.directory.create(master['pki_log_path'])
+        # no need to establish top-level infrastructure logs
+        # since it now stores 'pkispawn'/'pkidestroy' logs
+        # and will already exist
+        # util.directory.create(master['pki_log_path'])
         # establish top-level infrastructure configuration
         if master['pki_configuration_path'] !=\
            config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
@@ -70,8 +72,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                util.instance.pki_subsystem_instances() == 0:
                 # remove top-level infrastructure base
                 util.directory.delete(master['pki_path'])
-                # remove top-level infrastructure logs
-                util.directory.delete(master['pki_log_path'])
+                # do NOT remove top-level infrastructure logs
+                # since it now stores 'pkispawn'/'pkidestroy' logs
+                # util.directory.delete(master['pki_log_path'])
                 # remove top-level infrastructure configuration
                 if util.directory.is_empty(master['pki_configuration_path'])\
                    and master['pki_configuration_path'] !=\
@@ -89,8 +92,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                util.instance.pki_subsystem_instances() == 1:
                 # remove top-level infrastructure base
                 util.directory.delete(master['pki_path'])
-                # remove top-level infrastructure logs
-                util.directory.delete(master['pki_log_path'])
+                # do NOT remove top-level infrastructure logs
+                # since it now stores 'pkispawn'/'pkidestroy' logs
+                # util.directory.delete(master['pki_log_path'])
                 # remove top-level infrastructure configuration
                 if util.directory.is_empty(master['pki_configuration_path'])\
                    and master['pki_configuration_path'] !=\

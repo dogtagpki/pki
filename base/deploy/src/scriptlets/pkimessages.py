@@ -20,14 +20,6 @@
 #
 
 # PKI Deployment Engine Messages
-PKI_DICTIONARY_MANDATORY ="\n"\
-"=====================================================\n"\
-"    DISPLAY CONTENTS OF PKI MANDATORY DICTIONARY\n"\
-"====================================================="
-PKI_DICTIONARY_OPTIONAL ="\n"\
-"=====================================================\n"\
-"    DISPLAY CONTENTS OF PKI OPTIONAL DICTIONARY\n"\
-"====================================================="
 PKI_DICTIONARY_COMMON ="\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI COMMON DICTIONARY\n"\
@@ -80,6 +72,8 @@ PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = "Directory '%s' already "\
                                                  "directory!"
 PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 = "Directory '%s' is either "\
                                              "missing or is NOT a directory!"
+PKI_DNS_DOMAIN_NOT_SET = "A valid DNS domain name MUST be established "\
+                         "to use PKI services!"
 PKI_FILE_ALREADY_EXISTS_1 = "File '%s' already exists!"
 PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 = "File '%s' already "\
                                        "exists BUT it is NOT a "\

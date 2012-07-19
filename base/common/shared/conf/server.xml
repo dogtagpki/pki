@@ -126,7 +126,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
     [PKI_SECURE_PORT_SERVER_COMMENT]
     <!-- DO NOT REMOVE - Begin define PKI secure port
-    1
     NOTE: The following 'keys' (and their assigned values) are exclusive to
           the 'tomcatjss' JSSE module:
 

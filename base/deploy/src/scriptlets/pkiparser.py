@@ -261,8 +261,6 @@ def read_pki_configuration_file():
         parser.optionxform = str
         parser.read(config.pkideployment_cfg)
         config.pki_sensitive_dict = dict(parser._sections['Sensitive'])
-        config.pki_mandatory_dict = dict(parser._sections['Mandatory'])
-        config.pki_optional_dict = dict(parser._sections['Optional'])
         config.pki_common_dict = dict(parser._sections['Common'])
         if config.pki_subsystem == "CA":
             config.pki_web_server_dict = dict(parser._sections['Tomcat'])
@@ -284,8 +282,6 @@ def read_pki_configuration_file():
             config.pki_subsystem_dict = dict(parser._sections['TPS'])
         # Insert empty record into dictionaries for "pretty print" statements
         #     NEVER print "sensitive" key value pairs!!!
-        config.pki_mandatory_dict[0] = None
-        config.pki_optional_dict[0] = None
         config.pki_common_dict[0] = None
         config.pki_web_server_dict[0] = None
         config.pki_subsystem_dict[0] = None
@@ -316,8 +312,6 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_deployment_cfg'] = config.pkideployment_cfg
         # Configuration file name/value pairs
         #     NEVER add "sensitive" key value pairs to the master dictionary!!!
-        config.pki_master_dict.update(config.pki_mandatory_dict)
-        config.pki_master_dict.update(config.pki_optional_dict)
         config.pki_master_dict.update(config.pki_common_dict)
         config.pki_master_dict.update(config.pki_web_server_dict)
         config.pki_master_dict.update(config.pki_subsystem_dict)
@@ -1435,6 +1429,7 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_subsystem'].lower() + "/" + "pki"
         # Jython scriptlet
         # 'Security Domain' Configuration name/value pairs
+        # 'Subsystem Name'  Configuration name/value pairs
         #
         #     Apache - [RA], [TPS]
         #     Tomcat - [CA], [KRA], [OCSP], [TKS]
@@ -1459,16 +1454,19 @@ def compose_pki_master_dictionary():
         #
         #         config.pki_master_dict['pki_security_domain_hostname']
         #         config.pki_master_dict['pki_security_domain_name']
+        #         config.pki_master_dict['pki_subsystem_name']
         #
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             if config.pki_subsystem == "CA":
                 if config.str2bool(config.pki_master_dict['pki_external']):
                     # External CA
-                    config.pki_master_dict['pki_security_domain_type'] = "new"
-                    if not len(config.pki_master_dict\
-                               ['pki_security_domain_name']):
-                        config.pki_master_dict['pki_security_domain_name'] =\
-                            "External CA Security Domain"
+                    #
+                    # NOTE:  External CA's DO NOT require a security domain
+                    if not len(config.pki_master_dict['pki_subsystem_name']):
+                        config.pki_master_dict['pki_subsystem_name'] =\
+                            "External CA" + " " +\
+                            config.pki_master_dict['pki_hostname'] + " " +\
+                            config.pki_master_dict['pki_https_port']
                 elif not config.str2bool(config.pki_master_dict['pki_clone'])\
                      and not\
                      config.str2bool(config.pki_master_dict['pki_subordinate']):
@@ -1479,6 +1477,11 @@ def compose_pki_master_dictionary():
                         config.pki_master_dict['pki_security_domain_name'] =\
                             config.pki_master_dict['pki_dns_domainname'] +\
                             " " + "Security Domain"
+                    if not len(config.pki_master_dict['pki_subsystem_name']):
+                        config.pki_master_dict['pki_subsystem_name'] =\
+                            "PKI CA" + " " +\
+                            config.pki_master_dict['pki_hostname'] + " " +\
+                            config.pki_master_dict['pki_https_port']
                 else:
                     # PKI Cloned or Subordinate CA
                     config.pki_master_dict['pki_security_domain_type'] =\
@@ -1492,8 +1495,24 @@ def compose_pki_master_dictionary():
                         "https" + "://" +\
                         config.pki_master_dict['pki_security_domain_hostname']\
                         + ":" + config.pki_security_domain_https_port
+                    if config.str2bool(config.pki_master_dict['pki_clone']):
+                        # Cloned CA
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "Cloned CA" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                    else:
+                        # Subordinate CA
+                        if not\
+                           len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "Subordinate CA" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
             else:
-                # PKI KRA, OCSP, or TKS
+                # PKI or Cloned KRA, OCSP, or TKS
                 config.pki_master_dict['pki_security_domain_type'] = "existing"
                 if not len(config.pki_master_dict\
                            ['pki_security_domain_hostname']):
@@ -1505,6 +1524,57 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_security_domain_hostname'] +\
                     ":" +\
                     config.pki_master_dict['pki_security_domain_https_port']
+                if config.pki_subsystem == "KRA":
+                    if config.str2bool(config.pki_master_dict['pki_clone']):
+                        # Cloned KRA
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "Cloned KRA" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                    else:
+                        # PKI KRA
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "PKI KRA" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                elif config.pki_subsystem == "OCSP":
+                    if config.str2bool(config.pki_master_dict['pki_clone']):
+                        # Cloned OCSP
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "Cloned OCSP" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                    else:
+                        # PKI OCSP
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "PKI OCSP" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                elif config.pki_subsystem == "TKS":
+                    if config.str2bool(config.pki_master_dict['pki_clone']):
+                        # Cloned TKS
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "Cloned TKS" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
+                    else:
+                        # PKI TKS
+                        if not\
+                            len(config.pki_master_dict['pki_subsystem_name']):
+                            config.pki_master_dict['pki_subsystem_name'] =\
+                                "PKI TKS" + " " +\
+                                config.pki_master_dict['pki_hostname'] + " " +\
+                                config.pki_master_dict['pki_https_port']
         # Jython scriptlet
         # 'Directory Server' Configuration name/value pairs
         #
