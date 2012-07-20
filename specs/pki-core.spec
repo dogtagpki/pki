@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.20
+Version:          9.0.21
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -749,6 +749,9 @@ fi
 
 
 %changelog
+* Fri Jul 20 2012 Ade Lee <alee@redhat.com> 9.0.21-1
+- Bugzilla Bug #841996 - latest selinux policy fix breaks dogtag
+
 * Mon May 7 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.20-1
 - New official build
 
