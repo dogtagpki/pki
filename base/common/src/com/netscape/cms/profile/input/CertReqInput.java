@@ -102,6 +102,11 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             ""));
         }
+        if (cert_request == null) {
+            CMS.debug("CertReqInput: populate - invalid certificate request");
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+        }
 
         if (cert_request_type.equals(EnrollProfile.REQ_TYPE_PKCS10)) {
             PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), cert_request);
