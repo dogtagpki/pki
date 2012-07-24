@@ -18,11 +18,13 @@
 package com.netscape.cms.servlet.request;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -32,8 +34,25 @@ import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 
-@Path("/certrequest")
+@Path("/certrequests")
 public interface CertRequestResource {
+
+    public static final int DEFAULT_START = 0;
+    public static final int DEFAULT_PAGESIZE = 20;
+    public static final int DEFAULT_MAXRESULTS = 100;
+    public static final int DEFAULT_MAXTIME = 10;
+
+    /**
+     * Used to generate list of cert requests based on the search parameters
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    public CertRequestInfos listRequests(@QueryParam("requestState") String requestState,
+            @QueryParam("requestType") String requestType,
+            @DefaultValue("" + DEFAULT_START) @QueryParam("start") RequestId start,
+            @DefaultValue("" + DEFAULT_PAGESIZE) @QueryParam("pageSize") int pageSize,
+            @DefaultValue("" + DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
+            @DefaultValue("" + DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
 
     /**
      * Used to retrieve cert request info for a specific request

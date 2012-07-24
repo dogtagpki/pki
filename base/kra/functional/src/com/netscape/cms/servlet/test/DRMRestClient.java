@@ -13,12 +13,10 @@ import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
 import com.netscape.cms.servlet.key.KeyResource;
-import com.netscape.cms.servlet.key.KeysResource;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.KeyRequestsResource;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
@@ -28,19 +26,13 @@ import com.netscape.cmsutil.util.Utils;
 public class DRMRestClient  extends CMSRestClient {
 
     private KeyResource keyClient;
-    private KeysResource keysClient;
-    private KeyRequestsResource keyRequestsClient;
     private KeyRequestResource keyRequestClient;
     private SystemCertificateResource systemCertClient;
 
     public DRMRestClient(String baseUri, String clientCertNick) throws URISyntaxException {
         super(baseUri,clientCertNick);
-
         systemCertClient = ProxyFactory.create(SystemCertificateResource.class, uri, executor, providerFactory);
-        keyRequestsClient = ProxyFactory.create(KeyRequestsResource.class, uri, executor, providerFactory);
         keyRequestClient = ProxyFactory.create(KeyRequestResource.class, uri, executor, providerFactory);
-        keysClient = ProxyFactory.create(KeysResource.class, uri, executor, providerFactory);
-        keyClient = ProxyFactory.create(KeyResource.class, uri, executor, providerFactory);
         keyClient = ProxyFactory.create(KeyResource.class, uri, executor, providerFactory);
     }
 
@@ -54,7 +46,7 @@ public class DRMRestClient  extends CMSRestClient {
     }
 
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
-        KeyRequestInfos infos = keyRequestsClient.listRequests(
+        KeyRequestInfos infos = keyRequestClient.listRequests(
                 requestState, requestType, null, new RequestId(0), 100, 100, 10
                 );
         Collection<KeyRequestInfo> list = infos.getRequests();
@@ -74,7 +66,7 @@ public class DRMRestClient  extends CMSRestClient {
     }
 
     public KeyDataInfo getKeyData(String clientId, String status) {
-        KeyDataInfos infos = keysClient.listKeys(clientId, status, 100, 10);
+        KeyDataInfos infos = keyClient.listKeys(clientId, status, 100, 10);
         Collection<KeyDataInfo> list = infos.getKeyInfos();
         Iterator<KeyDataInfo> iter = list.iterator();
 

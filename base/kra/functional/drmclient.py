@@ -612,7 +612,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/keyrequest/archive',
+            self._request('/kra/pki/keyrequests/archive',
                          self.kra_agent_port,
                          self.POST,
                          etree.tostring(request.getroot(), encoding='UTF-8'))            
@@ -750,7 +750,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/keyrequest/recover',
+            self._request('/kra/pki/keyrequests/recover',
                          self.kra_agent_port,
                          self.POST,
                          etree.tostring(request.getroot(), encoding='UTF-8'))            
@@ -798,7 +798,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/keyrequest/approve/'+ request_id,
+            self._request('/kra/pki/keyrequests/approve/'+ request_id,
                          self.kra_agent_port,
                          self.POST,
                          None)            
@@ -820,7 +820,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/keyrequest/reject/'+ request_id,
+            self._request('/kra/pki/keyrequests/reject/'+ request_id,
                          self.kra_agent_port,
                          self.POST,
                          None)            
@@ -842,7 +842,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/keyrequest/cancel/'+ request_id,
+            self._request('/kra/pki/keyrequests/cancel/'+ request_id,
                          self.kra_agent_port,
                          self.POST,
                          None)            
@@ -898,7 +898,7 @@ class kra:
         
         #Call CMS
         http_status, http_reason_phrase, http_headers, http_body = \
-            self._request('/kra/pki/key/retrieve',
+            self._request('/kra/pki/keys/retrieve',
                          self.kra_agent_port,
                          self.POST,
                          etree.tostring(request.getroot(), encoding='UTF-8'))            

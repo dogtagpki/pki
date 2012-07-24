@@ -21,6 +21,7 @@ package com.netscape.cms.servlet.profile;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.profile.model.ProfileDAO;
 import com.netscape.cms.servlet.profile.model.ProfileData;
+import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 
 /**
  * @author alee
@@ -29,12 +30,14 @@ import com.netscape.cms.servlet.profile.model.ProfileData;
 public class ProfileResourceService extends CMSResourceService implements ProfileResource {
     @Override
     public ProfileData retrieveProfile(String id) {
-
         ProfileData data = null;
         ProfileDAO dao = new ProfileDAO();
-
         data = dao.getProfile(id);
-
         return data;
+    }
+
+    public ProfileDataInfos listProfiles() {
+        ProfileDAO dao = new ProfileDAO();
+        return dao.listProfiles(uriInfo);
     }
 }

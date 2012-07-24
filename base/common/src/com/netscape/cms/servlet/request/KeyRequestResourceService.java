@@ -22,6 +22,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSException;
@@ -29,7 +30,9 @@ import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
+import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author alee
@@ -158,5 +161,64 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Used to generate list of key requests based on the search parameters
+     */
+    public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
+            RequestId start, int pageSize, int maxResults, int maxTime) {
+        // auth and authz
+
+        // get ldap filter
+        String filter = createSearchFilter(requestState, requestType, clientID);
+        CMS.debug("listRequests: filter is " + filter);
+
+        // get start marker
+        if (start == null) {
+            start = new RequestId(KeyRequestResource.DEFAULT_START);
+        }
+
+        KeyRequestDAO reqDAO = new KeyRequestDAO();
+        KeyRequestInfos requests;
+        try {
+            requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
+        } catch (EBaseException e) {
+            CMS.debug("listRequests: error in obtaining request results" + e);
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return requests;
+    }
+
+    private String createSearchFilter(String requestState, String requestType, String clientID) {
+        String filter = "";
+        int matches = 0;
+
+        if ((requestState == null) && (requestType == null) && (clientID == null)) {
+            filter = "(requeststate=*)";
+            return filter;
+        }
+
+        if (requestState != null) {
+            filter += "(requeststate=" + LDAPUtil.escapeFilter(requestState) + ")";
+            matches ++;
+        }
+
+        if (requestType != null) {
+            filter += "(requesttype=" + LDAPUtil.escapeFilter(requestType) + ")";
+            matches ++;
+        }
+
+        if (clientID != null) {
+            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
+            matches ++;
+        }
+
+        if (matches > 1) {
+            filter = "(&" + filter + ")";
+        }
+
+        return filter;
     }
 }

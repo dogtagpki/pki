@@ -25,17 +25,14 @@ import org.jboss.resteasy.client.ProxyFactory;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.cert.CertResource;
-import com.netscape.cms.servlet.cert.CertsResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
 import com.netscape.cms.servlet.profile.ProfileResource;
-import com.netscape.cms.servlet.profile.ProfilesResource;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 import com.netscape.cms.servlet.request.CertRequestResource;
-import com.netscape.cms.servlet.request.CertRequestsResource;
 import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
@@ -44,30 +41,20 @@ import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 public class CARestClient extends CMSRestClient {
 
     private CertResource certClient;
-    private CertsResource certsClient;
-    private CertRequestsResource certRequestsClient;
     private CertRequestResource certRequestClient;
-    private ProfilesResource profilesClient;
     private ProfileResource profileClient;
 
     public CARestClient(String baseUri, String clientCertNick) throws URISyntaxException {
-
         super(baseUri, clientCertNick);
-
-        certRequestsClient = ProxyFactory.create(CertRequestsResource.class, uri, executor, providerFactory);
         certRequestClient = ProxyFactory.create(CertRequestResource.class, uri, executor, providerFactory);
-
-        certsClient = ProxyFactory.create(CertsResource.class, uri, executor, providerFactory);
         certClient = ProxyFactory.create(CertResource.class, uri, executor, providerFactory);
-        profilesClient = ProxyFactory.create(ProfilesResource.class, uri, executor, providerFactory);
         profileClient = ProxyFactory.create(ProfileResource.class, uri, executor, providerFactory);
     }
 
     public Collection<CertRequestInfo> listRequests(String requestState, String requestType) {
-
         CertRequestInfos infos = null;
         Collection<CertRequestInfo> list = null;
-        infos = certRequestsClient.listRequests(
+        infos = certRequestClient.listRequests(
                 requestState, requestType, new RequestId(0), 100, 100, 10);
         list = infos.getRequests();
 
@@ -75,15 +62,15 @@ public class CARestClient extends CMSRestClient {
     }
 
     public CertDataInfos listCerts(String status) {
-        return certsClient.listCerts(status, 100, 10);
+        return certClient.listCerts(status, 100, 10);
     }
 
     public CertDataInfos searchCerts(CertSearchData data) {
-        return certsClient.searchCerts(data, 100, 10);
+        return certClient.searchCerts(data, 100, 10);
     }
 
     public ProfileDataInfos listProfiles() {
-        return profilesClient.listProfiles();
+        return profileClient.listProfiles();
     }
 
     public ProfileData getProfile(String id) {

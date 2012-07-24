@@ -12,12 +12,9 @@ import com.netscape.cms.servlet.admin.UserCertResourceService;
 import com.netscape.cms.servlet.admin.UserResourceService;
 import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.cert.CertResourceService;
-import com.netscape.cms.servlet.cert.CertsResourceService;
 import com.netscape.cms.servlet.csadmin.SystemConfigurationResourceService;
 import com.netscape.cms.servlet.profile.ProfileResourceService;
-import com.netscape.cms.servlet.profile.ProfilesResourceService;
 import com.netscape.cms.servlet.request.CertRequestResourceService;
-import com.netscape.cms.servlet.request.CertRequestsResourceService;
 
 public class CertificateAuthorityApplication extends Application {
     private Set<Object> singletons = new HashSet<Object>();
@@ -28,14 +25,11 @@ public class CertificateAuthorityApplication extends Application {
         classes.add(SystemConfigurationResourceService.class);
 
         // certs and requests
-        classes.add(CertsResourceService.class);
         classes.add(CertResourceService.class);
-        classes.add(CertRequestsResourceService.class);
         classes.add(CertRequestResourceService.class);
 
         // profile management
         classes.add(ProfileResourceService.class);
-        classes.add(ProfilesResourceService.class);
 
         // user and group management
         classes.add(GroupMemberResourceService.class);

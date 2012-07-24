@@ -23,6 +23,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.IRequest;
@@ -31,9 +32,11 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyData;
+import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author alee
@@ -119,6 +122,53 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
         }
 
         return reqInfo.getKeyId();
+    }
+
+    /**
+     * Used to generate list of key infos based on the search parameters
+     */
+    public KeyDataInfos listKeys(String clientID, String status, int maxResults, int maxTime) {
+        // auth and authz
+
+        // get ldap filter
+        String filter = createSearchFilter(status, clientID);
+        CMS.debug("listKeys: filter is " + filter);
+
+        KeyDAO dao = new KeyDAO();
+        KeyDataInfos infos;
+        try {
+            infos = dao.listKeys(filter, maxResults, maxTime, uriInfo);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return infos;
+    }
+
+    private String createSearchFilter(String status, String clientID) {
+        String filter = "";
+        int matches = 0;
+
+        if ((status == null) && (clientID == null)) {
+            filter = "(serialno=*)";
+            return filter;
+        }
+
+        if (status != null) {
+            filter += "(status=" + LDAPUtil.escapeFilter(status) + ")";
+            matches ++;
+        }
+
+        if (clientID != null) {
+            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
+            matches ++;
+        }
+
+        if (matches > 1) {
+            filter = "(&" + filter + ")";
+        }
+
+        return filter;
     }
 
 }

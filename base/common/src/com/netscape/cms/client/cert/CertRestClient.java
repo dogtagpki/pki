@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.servlet.cert.CertResource;
-import com.netscape.cms.servlet.cert.CertsResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertSearchData;
@@ -39,7 +38,6 @@ import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 public class CertRestClient extends CMSRestClient {
 
     public CertResource certClient;
-    public CertsResource certsClient;
     public CertRequestResource certRequestResource;
 
     public CertRestClient(String baseUri) throws URISyntaxException {
@@ -50,7 +48,6 @@ public class CertRestClient extends CMSRestClient {
         super(baseUri, nickname);
 
         certClient = createProxy(CertResource.class);
-        certsClient = createProxy(CertsResource.class);
         certRequestResource = createProxy(CertRequestResource.class);
     }
 
@@ -59,10 +56,10 @@ public class CertRestClient extends CMSRestClient {
     }
 
     public CertDataInfos findCerts(CertSearchData searchData) {
-        return certsClient.searchCerts(
+        return certClient.searchCerts(
                 searchData,
-                CertsResource.DEFAULT_MAXRESULTS,
-                CertsResource.DEFAULT_MAXTIME);
+                CertResource.DEFAULT_MAXRESULTS,
+                CertResource.DEFAULT_MAXTIME);
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {

@@ -23,6 +23,9 @@ import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
 
@@ -40,13 +43,16 @@ import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.base.UnauthorizedException;
 import com.netscape.cms.servlet.cert.model.CertDAO;
+import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
+import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.request.model.CertRequestDAO;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRetrievalRequestData;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author alee
@@ -58,13 +64,6 @@ public class CertResourceService extends CMSResourceService implements CertResou
 
     public CertResourceService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
-    }
-
-    public CertDAO createDAO() {
-        CertDAO dao = new CertDAO();
-        dao.setLocale(getLocale());
-        dao.setUriInfo(uriInfo);
-        return dao;
     }
 
     private void validateRequest(CertId id) {
@@ -277,5 +276,75 @@ public class CertResourceService extends CMSResourceService implements CertResou
         } catch (EBaseException e) {
             throw new CMSException(e.getMessage());
         }
+    }
+
+    public CertDAO createDAO() {
+        CertDAO dao = new CertDAO();
+        dao.setLocale(getLocale());
+        dao.setUriInfo(uriInfo);
+        return dao;
+    }
+
+    private String createSearchFilter(String status) {
+        String filter = "";
+
+        if ((status == null)) {
+            filter = "(serialno=*)";
+            return filter;
+        }
+
+        if (status != null) {
+            filter += "(certStatus=" + LDAPUtil.escapeFilter(status) + ")";
+        }
+
+        return filter;
+    }
+
+    private String createSearchFilter(CertSearchData data) {
+
+        if (data == null) {
+            return null;
+        }
+
+        return data.buildFilter();
+
+    }
+
+    @Override
+    public CertDataInfos listCerts(String status, int maxResults, int maxTime) {
+
+        // get ldap filter
+        String filter = createSearchFilter(status);
+        CMS.debug("listKeys: filter is " + filter);
+
+        CertDAO dao = createDAO();
+        CertDataInfos infos;
+        try {
+            infos = dao.listCerts(filter, maxResults, maxTime);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
+        }
+        return infos;
+    }
+
+    @Override
+    public CertDataInfos searchCerts(CertSearchData data, int maxResults, int maxTime) {
+
+        if (data == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        String filter = createSearchFilter(data);
+        CertDAO dao = createDAO();
+        CertDataInfos infos;
+
+        try {
+            infos = dao.listCerts(filter, maxResults, maxTime);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
+        }
+
+        return infos;
     }
 }

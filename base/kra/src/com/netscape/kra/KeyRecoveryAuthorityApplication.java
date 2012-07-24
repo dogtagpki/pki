@@ -13,9 +13,7 @@ import com.netscape.cms.servlet.admin.UserResourceService;
 import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.csadmin.SystemConfigurationResourceService;
 import com.netscape.cms.servlet.key.KeyResourceService;
-import com.netscape.cms.servlet.key.KeysResourceService;
 import com.netscape.cms.servlet.request.KeyRequestResourceService;
-import com.netscape.cms.servlet.request.KeyRequestsResourceService;
 
 public class KeyRecoveryAuthorityApplication extends Application {
 
@@ -27,9 +25,7 @@ public class KeyRecoveryAuthorityApplication extends Application {
         classes.add(SystemConfigurationResourceService.class);
 
         // keys and keyrequests
-        classes.add(KeysResourceService.class);
         classes.add(KeyResourceService.class);
-        classes.add(KeyRequestsResourceService.class);
         classes.add(KeyRequestResourceService.class);
 
         // user and group management
