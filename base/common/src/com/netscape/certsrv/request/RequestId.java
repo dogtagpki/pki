@@ -30,6 +30,7 @@ import java.math.BigInteger;
  */
 public class RequestId implements Serializable {
 
+    private static final long serialVersionUID = -5184710368124269481L;
     protected BigInteger value;
 
     public RequestId() {

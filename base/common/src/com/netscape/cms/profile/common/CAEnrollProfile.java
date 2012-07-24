@@ -104,7 +104,6 @@ public class CAEnrollProfile extends EnrollProfile {
         // if PKI Archive Option present, send this request
         // to DRM
         byte optionsData[] = request.getExtDataInByteArray(REQUEST_ARCHIVE_OPTIONS);
-
         // do not archive keys for renewal requests
         if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
@@ -175,11 +174,9 @@ public class CAEnrollProfile extends EnrollProfile {
                 }
             }
         }
-
         // process certificate issuance
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
         X509CertImpl theCert = null;
-
         // #615460 - added audit log (transaction)
         SessionContext sc = SessionContext.getExistingContext();
         sc.put("profileId", getId());
@@ -187,7 +184,6 @@ public class CAEnrollProfile extends EnrollProfile {
         if (setId != null) {
             sc.put("profileSetId", setId);
         }
-
         try {
             theCert = caService.issueX509Cert(info, getId() /* profileId */,
                     id /* requestId */);
@@ -223,7 +219,6 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         request.setRequestStatus(RequestStatus.COMPLETE);
-
         // notifies updater plugins
         Enumeration<String> updaterIds = getProfileUpdaterIds();
         while (updaterIds.hasMoreElements()) {
@@ -238,4 +233,5 @@ public class CAEnrollProfile extends EnrollProfile {
         else
             request.setExtData("isEncryptionCert", "false");
     }
+
 }

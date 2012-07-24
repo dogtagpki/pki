@@ -830,9 +830,7 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * get ssl client authenticated certificate
      */
-    protected X509Certificate
-            getSSLClientCertificate(HttpServletRequest httpReq)
-                    throws EBaseException {
+    protected X509Certificate getSSLClientCertificate(HttpServletRequest httpReq) throws EBaseException {
 
         X509Certificate cert = null;
 

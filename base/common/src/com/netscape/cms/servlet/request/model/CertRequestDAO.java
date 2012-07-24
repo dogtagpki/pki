@@ -146,7 +146,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
         String profileId = request.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
-
         AgentEnrollmentRequestData info = AgentEnrollmentRequestDataFactory.create(request, profile, uriInfo, locale);
         if (ca.noncesEnabled()) {
             addNonce(info, servletRequest);

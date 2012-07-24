@@ -81,7 +81,6 @@ public class RequestProcessor extends CertProcessor {
     public void processRequest(HttpServletRequest request, AgentEnrollmentRequestData data, IRequest req, String op)
             throws EBaseException {
         try {
-
             startTiming("approval");
 
             IAuthToken authToken = null;

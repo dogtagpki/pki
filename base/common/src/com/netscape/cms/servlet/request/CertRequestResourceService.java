@@ -135,7 +135,6 @@ public class CertRequestResourceService extends CMSResourceService implements Ce
         if (id == null) {
             throw new BadRequestException("Bad data input in CertRequestResourceService. op:" + op);
         }
-
         CertRequestDAO dao = new CertRequestDAO();
         try {
             dao.changeRequestState(id, servletRequest, data, getLocale(), op);
@@ -160,8 +159,9 @@ public class CertRequestResourceService extends CMSResourceService implements Ce
             throw new CMSException(CMS.getUserMessage(getLocale(), "CMS_INTERNAL_ERROR"));
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new CMSException("Problem approving request in CertRequestResource.assignRequest!");
+            throw new CMSException("Problem approving request in CertRequestResource.assignRequest! " + e);
         } catch (RequestNotFoundException e) {
+            CMS.debug(e);
             throw new CMSException(Response.Status.BAD_REQUEST,
                     CMS.getUserMessage(getLocale(), "CMS_REQUEST_NOT_FOUND", id.toString()));
         }

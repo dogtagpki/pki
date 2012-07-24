@@ -20,6 +20,7 @@ package com.netscape.cms.client.cert;
 import java.net.URISyntaxException;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
@@ -28,6 +29,7 @@ import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
 import com.netscape.cms.servlet.request.CertRequestResource;
+import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
@@ -76,5 +78,13 @@ public class CertRestClient extends CMSRestClient {
 
     public CertRequestInfos enrollRequest(EnrollmentRequestData data){
         return certRequestResource.enrollCert(data);
+    }
+
+    public AgentEnrollmentRequestData reviewRequest(RequestId id){
+        return certRequestResource.reviewRequest(id);
+    }
+
+    public void approveRequest(RequestId id, AgentEnrollmentRequestData data) {
+        certRequestResource.approveRequest(id, data);
     }
 }
