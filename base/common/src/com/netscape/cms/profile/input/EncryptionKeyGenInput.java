@@ -107,6 +107,11 @@ public class EncryptionKeyGenInput extends EnrollInput implements IProfileInput 
                         "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                         ""));
         }
+        if (keygen_request == null) {
+            CMS.debug("EncryptionKeyGenInput: populate - invalid certificate request");
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+        }
         if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_PKCS10)) {
             PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), keygen_request);
 

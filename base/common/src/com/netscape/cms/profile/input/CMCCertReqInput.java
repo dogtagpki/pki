@@ -96,6 +96,11 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
         X509CertInfo info =
             request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
+        if (cert_request == null) {
+            CMS.debug("CMCCertReqInput: populate - invalid certificate request");
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+        }
         TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
 
         if (msgs == null) {

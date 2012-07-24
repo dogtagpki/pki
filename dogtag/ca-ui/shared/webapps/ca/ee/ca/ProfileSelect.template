@@ -212,7 +212,7 @@ function validate()
           keyTransportCert = transportCert;
         }
         // generate keys for nsm.
-        if (typeof(crypto.version) != "undefined") {
+        if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
             var encKeyType = "rsa-ex";
             var signKeyType = "rsa-sign";
             var dualKeyType = "rsa-dual-use";
@@ -304,7 +304,7 @@ function setCRMFRequest()
   var uri = 'profileSubmit';
   if (typeof(authName) != "undefined") {
     if (authIsSSLClientRequired == 'true') {
-      uri = 'https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT_UI]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
+      uri = 'https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
     }
   }
   if (navigator.appName == "Microsoft Internet Explorer") {
@@ -314,7 +314,7 @@ function setCRMFRequest()
       document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
     }
     document.writeln('<form name="ReqForm" onSubmit="if (checkRequest()) {return true;} else {window.location.reload(); return false;}" method="post" action="' + uri + '">');
-  } else if (typeof(crypto.version) != "undefined") {
+  } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
     document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
   } else {
     document.writeln('<form name="ReqForm" method="post" action="' + uri + '">');
@@ -588,7 +588,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
     } else if (inputListSet[n].inputSyntax == 'dual_keygen_request') {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[n].inputId + '>');
-      } else if (typeof(crypto.version) != "undefined") {
+      } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.write('<SELECT NAME="encKeyParam">'+keyLengthsCurvesOptions("encryption")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">&nbsp;&nbsp;');
         document.write(keyTypeOptions("encryption")+'&nbsp;&nbsp;(Encryption),&nbsp;&nbsp;</FONT>');
@@ -606,7 +606,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
       if (navigator.appName == "Microsoft Internet Explorer") { 
         document.writeln('<input type=hidden name=' + inputListSet[n].inputId + '>');
         document.writeln('<SELECT NAME="keyLength">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
-      } else if (typeof(crypto.version) != "undefined") {
+      } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.write('<SELECT NAME="keyParam">'+keyLengthsCurvesOptions("")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
         document.write('&nbsp;&nbsp;&nbsp;'+keyTypeOptions("")+'&nbsp;&nbsp;');
@@ -627,7 +627,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
       keygen_request = 'true';
       if (navigator.appName == "Microsoft Internet Explorer") {
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
-      } else if (typeof(crypto.version) != "undefined") {
+      } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
       } else {
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
@@ -638,7 +638,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
       keygen_request = 'true';
       if (navigator.appName == "Microsoft Internet Explorer") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">pkcs10</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=pkcs10>');
-      } else if (typeof(crypto.version) != "undefined") {
+      } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
       } else {
         document.writeln('keygen<input type=hidden name=' + inputListSet[n].inputId + ' value=keygen>');
@@ -670,7 +670,7 @@ if (errorCode == 0) {
     } else {
       document.writeln('<input type=submit value="Submit">');
     }
-  } else if (typeof(crypto.version) != "undefined") {
+  } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
     document.writeln('<input type=submit value="Submit">');
   } else {
     document.writeln('<input type=submit value="Submit">');
