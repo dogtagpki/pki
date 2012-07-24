@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.request.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -28,6 +29,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -35,8 +38,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.key.KeyResource;
-import com.netscape.cms.servlet.key.model.KeyDAO;
-import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 
 /**
@@ -46,11 +47,15 @@ import com.netscape.cms.servlet.request.KeyRequestResource;
 public class KeyRequestDAO extends CMSRequestDAO {
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
-
     public static final String ATTR_SERIALNO = "serialNumber";
+
+    private IKeyRepository repo;
+    private IKeyRecoveryAuthority kra;
 
     public KeyRequestDAO() {
         super("kra");
+        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
+        repo = kra.getKeyRepository();
     }
 
     /**
@@ -154,7 +159,6 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public KeyRequestInfo submitRequest(RecoveryRequestData data, UriInfo uriInfo) throws EBaseException {
-
         // set data using request.setExtData(field, data)
 
         String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
@@ -237,31 +241,25 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     @Override
     public KeyRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
-
         return createKeyRequestInfo(request, uriInfo);
-
     }
 
     //We only care if the key exists or not
     private boolean doesKeyExist(String clientId, String keyStatus, UriInfo uriInfo) {
-        boolean ret = false;
         String state = "active";
-
-        KeyDAO keys = new KeyDAO();
-
-        KeyDataInfos existingKeys;
         String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_ID + "=" + clientId + ")"
                 + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
         try {
-            existingKeys = keys.listKeys(filter, 1, 10, uriInfo);
+            Enumeration<IKeyRecord> existingKeys = null;
 
-            if (existingKeys != null && existingKeys.getKeyInfos().size() > 0) {
-                ret = true;
+            existingKeys = repo.searchKeys(filter, 1, 10);
+            if (existingKeys != null && existingKeys.hasMoreElements()) {
+                return true;
             }
         } catch (EBaseException e) {
-            ret = false;
+            return false;
         }
 
-        return ret;
+        return false;
     }
 }

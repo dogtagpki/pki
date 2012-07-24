@@ -18,26 +18,186 @@
 
 package com.netscape.cms.servlet.profile;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.core.UriBuilder;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.cms.servlet.base.CMSResourceService;
-import com.netscape.cms.servlet.profile.model.ProfileDAO;
 import com.netscape.cms.servlet.profile.model.ProfileData;
+import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
+import com.netscape.cms.servlet.profile.model.ProfileInput;
 
 /**
  * @author alee
  *
  */
 public class ProfileResourceService extends CMSResourceService implements ProfileResource {
-    @Override
-    public ProfileData retrieveProfile(String id) {
+
+    private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+
+    public ProfileDataInfos listProfiles() {
+        List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
+        ProfileDataInfos infos = new ProfileDataInfos();
+
+        if (ps == null) {
+            return null;
+        }
+
+        Enumeration<String> profileIds = ps.getProfileIds();
+        if (profileIds != null) {
+            while (profileIds.hasMoreElements()) {
+                String id = profileIds.nextElement();
+                ProfileDataInfo info = null;
+                try {
+                    info = createProfileDataInfo(id);
+                } catch (EBaseException e) {
+                    continue;
+                }
+
+                if (info != null) {
+                    list.add(info);
+                }
+            }
+        }
+
+        infos.setProfileInfos(list);
+        return infos;
+    }
+
+    public ProfileData retrieveProfile(String profileId) throws ProfileNotFoundException {
         ProfileData data = null;
-        ProfileDAO dao = new ProfileDAO();
-        data = dao.getProfile(id);
+
+        if (ps == null) {
+            return null;
+        }
+
+        Enumeration<String> profileIds = ps.getProfileIds();
+
+        IProfile profile = null;
+        if (profileIds != null) {
+            while (profileIds.hasMoreElements()) {
+                String id = profileIds.nextElement();
+
+                if (id.equals(profileId)) {
+
+                    try {
+                        profile = ps.getProfile(profileId);
+                    } catch (EProfileException e) {
+                        e.printStackTrace();
+                        throw new ProfileNotFoundException(profileId);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (profile == null) {
+            throw new ProfileNotFoundException(profileId);
+        }
+
+        try {
+            data = createProfileData(profileId);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new ProfileNotFoundException(profileId);
+        }
+
         return data;
     }
 
-    public ProfileDataInfos listProfiles() {
-        ProfileDAO dao = new ProfileDAO();
-        return dao.listProfiles(uriInfo);
+    public ProfileData createProfileData(String profileId) throws EBaseException {
+
+        IProfile profile;
+
+        try {
+            profile = ps.getProfile(profileId);
+        } catch (EProfileException e) {
+            e.printStackTrace();
+            throw new ProfileNotFoundException(profileId);
+        }
+
+        ProfileData data = new ProfileData();
+
+        Locale locale = Locale.getDefault();
+        String name = profile.getName(locale);
+        String desc = profile.getDescription(locale);
+
+        data.setName(name);
+        data.setDescription(desc);
+        data.setIsEnabled(ps.isProfileEnable(profileId));
+        data.setIsVisible(profile.isVisible());
+        data.setEnabledBy(ps.getProfileEnableBy(profileId));
+        data.setId(profileId);
+
+        Enumeration<String> inputIds = profile.getProfileInputIds();
+
+        String inputName = null;
+
+        if (inputIds != null) {
+            while (inputIds.hasMoreElements()) {
+                String inputId = inputIds.nextElement();
+                IProfileInput profileInput = profile.getProfileInput(inputId);
+
+                if (profileInput == null) {
+                    continue;
+                }
+                inputName = profileInput.getName(locale);
+
+                Enumeration<String> inputNames = profileInput.getValueNames();
+
+                ProfileInput input = data.addProfileInput(inputName);
+
+                String curInputName = null;
+                while (inputNames.hasMoreElements()) {
+                    curInputName = inputNames.nextElement();
+
+                    if (curInputName != null && !curInputName.equals("")) {
+                        input.setInputAttr(curInputName, "");
+                    }
+
+                }
+            }
+        }
+
+        return data;
+
+    }
+
+    public ProfileDataInfo createProfileDataInfo(String profileId) throws EBaseException {
+
+        if (profileId == null) {
+            throw new EBaseException("Error creating ProfileDataInfo.");
+        }
+        ProfileDataInfo ret = null;
+
+        IProfile profile = null;
+
+        profile = ps.getProfile(profileId);
+        if (profile == null) {
+            return null;
+        }
+
+        ret = new ProfileDataInfo();
+
+        ret.setProfileId(profileId);
+
+        Path profilePath = ProfileResource.class.getAnnotation(Path.class);
+
+        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
+        profileBuilder.path(profilePath.value() + "/" + profileId);
+        ret.setProfileURL(profileBuilder.build().toString());
+
+        return ret;
     }
 }

@@ -18,23 +18,38 @@
 
 package com.netscape.cms.servlet.cert;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
 
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -42,7 +57,7 @@ import com.netscape.cms.servlet.base.BadRequestException;
 import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.base.UnauthorizedException;
-import com.netscape.cms.servlet.cert.model.CertDAO;
+import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertSearchData;
@@ -53,6 +68,7 @@ import com.netscape.cms.servlet.request.model.CertRequestDAO;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRetrievalRequestData;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author alee
@@ -61,32 +77,31 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 public class CertResourceService extends CMSResourceService implements CertResource {
 
     ICertificateAuthority authority;
+    ICertificateRepository repo;
+
 
     public CertResourceService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
+        repo = authority.getCertificateRepository();
     }
 
     private void validateRequest(CertId id) {
-
         if (id == null) {
             throw new BadRequestException("Invalid id in CertResourceService.validateRequest.");
         }
-
     }
 
     @Override
     public CertificateData getCert(CertId id) {
-
         validateRequest(id);
 
         CertRetrievalRequestData data = new CertRetrievalRequestData();
         data.setCertId(id);
-        CertDAO dao = createDAO();
 
         CertificateData certData = null;
 
         try {
-            certData = dao.getCert(data);
+            certData = getCert(data);
         } catch (EDBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
         } catch (EBaseException e) {
@@ -96,7 +111,6 @@ public class CertResourceService extends CMSResourceService implements CertResou
         }
 
         return certData;
-
     }
 
     @Override
@@ -110,7 +124,6 @@ public class CertResourceService extends CMSResourceService implements CertResou
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request, boolean caCert) {
-
         RevocationReason revReason = request.getReason();
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
             CertUnrevokeRequest unrevRequest = new CertUnrevokeRequest();
@@ -222,7 +235,6 @@ public class CertResourceService extends CMSResourceService implements CertResou
 
     @Override
     public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
-
         RevocationProcessor processor;
         try {
             processor = new RevocationProcessor("caDoUnrevoke", getLocale());
@@ -278,13 +290,6 @@ public class CertResourceService extends CMSResourceService implements CertResou
         }
     }
 
-    public CertDAO createDAO() {
-        CertDAO dao = new CertDAO();
-        dao.setLocale(getLocale());
-        dao.setUriInfo(uriInfo);
-        return dao;
-    }
-
     private String createSearchFilter(String status) {
         String filter = "";
 
@@ -301,26 +306,22 @@ public class CertResourceService extends CMSResourceService implements CertResou
     }
 
     private String createSearchFilter(CertSearchData data) {
-
         if (data == null) {
             return null;
         }
 
         return data.buildFilter();
-
     }
 
     @Override
     public CertDataInfos listCerts(String status, int maxResults, int maxTime) {
-
         // get ldap filter
         String filter = createSearchFilter(status);
         CMS.debug("listKeys: filter is " + filter);
 
-        CertDAO dao = createDAO();
         CertDataInfos infos;
         try {
-            infos = dao.listCerts(filter, maxResults, maxTime);
+            infos = getCertList(filter, maxResults, maxTime);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
@@ -330,21 +331,180 @@ public class CertResourceService extends CMSResourceService implements CertResou
 
     @Override
     public CertDataInfos searchCerts(CertSearchData data, int maxResults, int maxTime) {
-
         if (data == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         String filter = createSearchFilter(data);
-        CertDAO dao = createDAO();
         CertDataInfos infos;
 
         try {
-            infos = dao.listCerts(filter, maxResults, maxTime);
+            infos = getCertList(filter, maxResults, maxTime);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
         }
 
         return infos;
+    }
+
+    /**
+     * Returns list of certs meeting specified search filter.
+     * Currently, vlv searches are not used for certs.
+     *
+     * @param filter
+     * @param maxResults
+     * @param maxTime
+     * @param uriInfo
+     * @return
+     * @throws EBaseException
+     */
+    private CertDataInfos getCertList(String filter, int maxResults, int maxTime)
+            throws EBaseException {
+        List<CertDataInfo> list = new ArrayList<CertDataInfo>();
+        Enumeration<ICertRecord> e = null;
+
+        e = repo.searchCertificates(filter, maxResults, maxTime);
+        if (e == null) {
+            throw new EBaseException("search results are null");
+        }
+
+        while (e.hasMoreElements()) {
+            ICertRecord rec = e.nextElement();
+            if (rec != null) {
+                list.add(createCertDataInfo(rec));
+            }
+        }
+
+        CertDataInfos ret = new CertDataInfos();
+        ret.setCertInfos(list);
+
+        return ret;
+    }
+
+    public CertificateData getCert(CertRetrievalRequestData data) throws EBaseException, CertificateEncodingException {
+        CertId certId = data.getCertId();
+
+        //find the cert in question
+        ICertRecord record = repo.readCertificateRecord(certId.toBigInteger());
+        X509CertImpl cert = record.getCertificate();
+
+        CertificateData certData = new CertificateData();
+
+        certData.setSerialNumber(certId);
+
+        Principal issuerDN = cert.getIssuerDN();
+        if (issuerDN != null) certData.setIssuerDN(issuerDN.toString());
+
+        Principal subjectDN = cert.getSubjectDN();
+        if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
+
+        String base64 = CMS.getEncodedCert(cert);
+        certData.setEncoded(base64);
+
+        ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
+        certData.setPrettyPrint(print.toString(getLocale()));
+
+        String p7Str = getCertChainData(cert);
+        certData.setPkcs7CertChain(p7Str);
+
+        Date notBefore = cert.getNotBefore();
+        if (notBefore != null) certData.setNotBefore(notBefore.toString());
+
+        Date notAfter = cert.getNotAfter();
+        if (notAfter != null) certData.setNotAfter(notAfter.toString());
+
+        certData.setStatus(record.getStatus());
+
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(certId.toHexString());
+        certData.setLink(new Link("self", uri));
+
+        return certData;
+    }
+
+    private CertDataInfo createCertDataInfo(ICertRecord record) throws EBaseException {
+        CertDataInfo info = new CertDataInfo();
+
+        CertId id = new CertId(record.getSerialNumber());
+        info.setID(id);
+
+        X509Certificate cert = record.getCertificate();
+        info.setSubjectDN(cert.getSubjectDN().toString());
+
+        info.setStatus(record.getStatus());
+
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(id.toHexString());
+        info.setLink(new Link("self", uri));
+
+        return info;
+    }
+
+    private String getCertChainData(X509CertImpl x509cert) {
+        X509Certificate mCACerts[];
+
+        if (x509cert == null) {
+            return null;
+        }
+
+        try {
+            mCACerts = authority.getCACertChain().getChain();
+        } catch (Exception e) {
+            mCACerts = null;
+        }
+
+        X509CertImpl[] certsInChain = new X509CertImpl[1];
+
+        int mCACertsLength = 0;
+        boolean certAlreadyInChain = false;
+        int certsInChainLength = 0;
+        if (mCACerts != null) {
+            mCACertsLength = mCACerts.length;
+            for (int i = 0; i < mCACertsLength; i++) {
+                if (x509cert.equals(mCACerts[i])) {
+                    certAlreadyInChain = true;
+                    break;
+                }
+            }
+
+            if (certAlreadyInChain == true) {
+                certsInChainLength = mCACertsLength;
+            } else {
+                certsInChainLength = mCACertsLength + 1;
+            }
+
+            certsInChain = new X509CertImpl[certsInChainLength];
+
+        }
+
+        certsInChain[0] = x509cert;
+
+        if (mCACerts != null) {
+            int curCount = 1;
+            for (int i = 0; i < mCACertsLength; i++) {
+                if (!x509cert.equals(mCACerts[i])) {
+                    certsInChain[curCount] = (X509CertImpl) mCACerts[i];
+                    curCount++;
+                }
+
+            }
+        }
+
+        String p7Str;
+
+        try {
+            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+                    new ContentInfo(new byte[0]),
+                    certsInChain,
+                    new SignerInfo[0]);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+            p7.encodeSignedData(bos, false);
+            byte[] p7Bytes = bos.toByteArray();
+
+            p7Str = Utils.base64encode(p7Bytes);
+        } catch (Exception e) {
+            p7Str = null;
+        }
+
+        return p7Str;
     }
 }
