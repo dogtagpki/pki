@@ -112,6 +112,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_cmsutil_jar_link'])
             util.symlink.create(master['pki_nsutil'],
                 master['pki_nsutil_jar_link'])
+            util.symlink.create(master['pki_resteasy_atom_provider_jar'],
+                master['pki_resteasy_atom_provider_jar_link'])
             util.symlink.create(master['pki_resteasy_jaxb_provider_jar'],
                 master['pki_resteasy_jaxb_provider_jar_link'])
             util.symlink.create(master['pki_resteasy_jaxrs_jar'],
@@ -202,6 +204,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.symlink.modify(master['pki_cms_jar_link'])
             util.symlink.modify(master['pki_cmsutil_jar_link'])
             util.symlink.modify(master['pki_nsutil_jar_link'])
+            util.symlink.modify(master['pki_resteasy_atom_provider_jar_link'])
             util.symlink.modify(master['pki_resteasy_jaxb_provider_jar_link'])
             util.symlink.modify(master['pki_resteasy_jaxrs_jar_link'])
             util.symlink.modify(
@@ -244,6 +247,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Tomcat instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Tomcat instance logs
+                util.directory.delete(master['pki_instance_log_path'])
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration
@@ -270,6 +274,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Tomcat instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Tomcat instance logs
+                util.directory.delete(master['pki_instance_log_path'])
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration

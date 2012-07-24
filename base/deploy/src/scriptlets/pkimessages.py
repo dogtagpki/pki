@@ -189,6 +189,10 @@ PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA = "cloned CAs and subordinate "\
 PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA = "external CAs and subordinate "\
                                                "CAs MUST be MUTUALLY "\
                                                "EXCLUSIVE in '%s'"
+PKIHELPER_NAMESPACE_COLLISION_2 = "PKI instance '%s' would produce a "\
+                                  "namespace collision with '%s'!"
+PKIHELPER_NAMESPACE_RESERVED_NAME_2 = "PKI instance '%s' is already a "\
+                                      "reserved name under '%s'!"
 PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
@@ -211,10 +215,10 @@ PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1 =\
     "A value for 'pki_backup_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_CLIENT_PKCS12_PASSWORD_1 =\
     "A value for 'pki_client_pkcs12_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_CLONE_PKCS12_PASSWORD_1 =\
+    "A value for 'pki_clone_pkcs12_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_DS_PASSWORD_1 =\
     "A value for 'pki_ds_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_PKCS12_PASSWORD_1 =\
-    "A value for 'pki_pkcs12_password' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_SECURITY_DOMAIN_PASSWORD_1 =\
     "A value for 'pki_security_domain_password' MUST be defined in '%s'"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."

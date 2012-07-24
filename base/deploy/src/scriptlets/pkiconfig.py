@@ -40,6 +40,13 @@ PKI_SUBSYSTEMS = ["CA","KRA","OCSP","RA","TKS","TPS"]
 PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS","TPS"]
 PKI_APACHE_SUBSYSTEMS = ["RA","TPS"]
 PKI_TOMCAT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS"]
+PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
+                           "lib", "logs", "ocsp", "temp", "tks", "webapps",
+                           "work"]
+PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
+                                    "rsyslog", "tls"]
+PKI_APACHE_REGISTRY_RESERVED_NAMES = ["ra", "tps"]
+PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks"]
 
 PKI_INDENTATION_LEVEL_0 = {'indent' : ''}
 PKI_INDENTATION_LEVEL_1 = {'indent' : '... '}
@@ -73,17 +80,19 @@ PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 #        should always match the 'default' instance name specified below).
 PKI_DEPLOYMENT_REGISTRY_ROOT = "/etc/sysconfig/pki"
 PKI_DEPLOYMENT_DEFAULT_ADMIN_DOMAIN_NAME = None
-PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "apache"
-PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "tomcat"
+PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME = "apache"
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME = "tomcat"
+PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "pki-apache"
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = "pkideployment.cfg"
 PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
     "/usr/share/pki/deployment/config/pkislots.cfg"
 
 # default ports (for defined selinux policy)
-PKI_DEPLOYMENT_DEFAULT_HTTP_PORT = 8080
-PKI_DEPLOYMENT_DEFAULT_HTTPS_PORT = 8443
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT = 8080
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT = 8443
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT = 8005
-PKI_DEPLOYMENT_DEFAULT_AJP_PORT = 8009
+PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT = 8009
 
 # PKI Deployment Jython 2.2 Constants
 PKI_JYTHON_CRITICAL_LOG_LEVEL = 1
@@ -105,6 +114,7 @@ pki_one_time_pin = None
 
 # PKI Deployment "Mandatory" Command-Line Variables
 pki_subsystem = None
+#     'pkispawn' ONLY
 pkideployment_cfg = "/usr/share/pki/deployment/config/pkideployment.cfg"
 
 # PKI Deployment "Optional" Command-Line Variables
@@ -115,6 +125,7 @@ pki_update_flag = False
 # PKI Deployment "Custom" Command-Line Variables
 custom_pki_admin_domain_name = None
 custom_pki_instance_name = None
+#     'pkispawn' ONLY
 custom_pki_http_port = None
 custom_pki_https_port = None
 custom_pki_ajp_port = None

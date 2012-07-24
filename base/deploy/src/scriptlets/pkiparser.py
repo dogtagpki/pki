@@ -58,6 +58,7 @@ def process_command_line_arguments(argv):
                                dest='pkideployment_cfg', action='store',
                                nargs=1, required=True, metavar='<file>',
                                help='specifies configuration filename')
+
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--dry_run',
                           dest='pki_dry_run_flag', action='store_true',
@@ -74,26 +75,38 @@ def process_command_line_arguments(argv):
                           help='display verbose information (details below)')
     custom = parser.add_argument_group('custom arguments '
                                        '(OVERRIDES configuration file values)')
-    custom.add_argument('-d',
-                        dest='custom_pki_admin_domain_name', action='store',
-                        nargs=1, metavar='<admin_domain>',
-                        help='PKI admin domain name (instance name prefix)')
-    custom.add_argument('-i',
-                        dest='custom_pki_instance_name', action='store',
-                        nargs=1, metavar='<instance>',
-                        help='PKI instance name (MUST specify REQUIRED ports)')
-    custom.add_argument('--http_port',
-                        dest='custom_pki_http_port', action='store',
-                        nargs=1, metavar='<port>',
-                        help='HTTP port (CA, KRA, OCSP, RA, TKS, TPS)')
-    custom.add_argument('--https_port',
-                        dest='custom_pki_https_port', action='store',
-                        nargs=1, metavar='<port>',
-                        help='HTTPS port (CA, KRA, OCSP, RA, TKS, TPS)')
-    custom.add_argument('--ajp_port',
-                        dest='custom_pki_ajp_port', action='store',
-                        nargs=1, metavar='<port>',
-                        help='AJP port (CA, KRA, OCSP, TKS)')
+    if os.path.basename(argv[0]) == 'pkispawn':
+        custom.add_argument('-i',
+                            dest='custom_pki_instance_name', action='store',
+                            nargs=1, metavar='<instance>',
+                            help='PKI instance name '
+                                 '(MUST specify REQUIRED ports)')
+        custom.add_argument('-d',
+                            dest='custom_pki_admin_domain_name', action='store',
+                            nargs=1, metavar='<admin_domain>',
+                            help='PKI admin domain name (instance name suffix)')
+        custom.add_argument('--http_port',
+                            dest='custom_pki_http_port', action='store',
+                            nargs=1, metavar='<port>',
+                            help='HTTP port (CA, KRA, OCSP, RA, TKS, TPS)')
+        custom.add_argument('--https_port',
+                            dest='custom_pki_https_port', action='store',
+                            nargs=1, metavar='<port>',
+                            help='HTTPS port (CA, KRA, OCSP, RA, TKS, TPS)')
+        custom.add_argument('--ajp_port',
+                            dest='custom_pki_ajp_port', action='store',
+                            nargs=1, metavar='<port>',
+                            help='AJP port (CA, KRA, OCSP, TKS)')
+    elif os.path.basename(argv[0]) == 'pkidestroy':
+        custom.add_argument('-i',
+                            dest='custom_pki_instance_name', action='store',
+                            nargs=1, metavar='<instance>',
+                            help='PKI instance name')
+        custom.add_argument('-d',
+                            dest='custom_pki_admin_domain_name', action='store',
+                            nargs=1, metavar='<admin_domain>',
+                            help='PKI admin domain name (instance name suffix)')
+
     test = parser.add_argument_group('test arguments')
     test.add_argument('-p',
                       dest='pki_root_prefix', action='store',
@@ -119,8 +132,7 @@ def process_command_line_arguments(argv):
         parser.print_help()
         parser.exit(-1);
     if os.path.basename(argv[0]) == 'pkispawn':
-        if args.pki_update_flag:
-            config.pki_update_flag = args.pki_update_flag
+        config.pki_update_flag = args.pki_update_flag
     if args.pki_verbosity == 1:
         config.pki_jython_log_level = config.PKI_JYTHON_INFO_LOG_LEVEL
         config.pki_console_log_level = logging.INFO
@@ -143,104 +155,151 @@ def process_command_line_arguments(argv):
         config.pki_jython_log_level = config.PKI_JYTHON_WARNING_LOG_LEVEL
         config.pki_console_log_level = logging.WARNING
         config.pki_log_level = logging.INFO
-    if not args.custom_pki_admin_domain_name is None:
-        config.custom_pki_admin_domain_name =\
-            str(args.custom_pki_admin_domain_name).strip('[\']')
     if not args.custom_pki_instance_name is None:
         config.custom_pki_instance_name =\
             str(args.custom_pki_instance_name).strip('[\']')
-    if not args.custom_pki_http_port is None:
-        config.custom_pki_http_port =\
-            str(args.custom_pki_http_port).strip('[\']')
-    if not args.custom_pki_https_port is None:
-        config.custom_pki_https_port =\
-            str(args.custom_pki_https_port).strip('[\']')
-    if not args.custom_pki_ajp_port is None:
-        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.custom_pki_ajp_port =\
-                str(args.custom_pki_ajp_port).strip('[\']')
+    if not args.custom_pki_admin_domain_name is None:
+        config.custom_pki_admin_domain_name =\
+            str(args.custom_pki_admin_domain_name).strip('[\']')
+    if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
+        if not config.custom_pki_instance_name is None:
+            default_pki_instance_name = config.custom_pki_instance_name
         else:
-            print "ERROR:  " +\
-                  log.PKI_CUSTOM_TOMCAT_AJP_PORT_1 %\
-                  config.pki_subsystem
-            print
-            parser.print_help()
-            parser.exit(-1);
-    if not args.custom_pki_instance_name is None or\
-       not args.custom_pki_http_port is None or\
-       not args.custom_pki_https_port is None or\
-       not args.custom_pki_ajp_port is None:
-        if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            if args.custom_pki_instance_name is None or\
-               args.custom_pki_http_port is None or\
-               args.custom_pki_https_port is None:
-                print "ERROR:  " + log.PKI_CUSTOM_APACHE_INSTANCE_1 %\
-                      config.pki_subsystem
-                print
-                parser.print_help()
-                parser.exit(-1);
-        elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if args.custom_pki_instance_name is None or\
-               args.custom_pki_http_port is None or\
-               args.custom_pki_https_port is None or\
-               args.custom_pki_ajp_port is None:
-                print "ERROR:  " + log.PKI_CUSTOM_TOMCAT_INSTANCE_1 %\
-                      config.pki_subsystem
-                print
-                parser.print_help()
-                parser.exit(-1);
+            default_pki_instance_name =\
+                config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME
+        if not config.custom_pki_admin_domain_name is None:
+            default_pki_instance_path =\
+                config.pki_root_prefix +\
+                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                default_pki_instance_name + "." +\
+                config.custom_pki_admin_domain_name + "/" +\
+                config.pki_subsystem.lower()
+        else:
+            default_pki_instance_path =\
+                config.pki_root_prefix +\
+                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                default_pki_instance_name + "/" +\
+                config.pki_subsystem.lower()
+    elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+        if not config.custom_pki_instance_name is None:
+            default_pki_instance_name = config.custom_pki_instance_name
+        else:
+            default_pki_instance_name =\
+                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME
+        if not config.custom_pki_admin_domain_name is None:
+            default_pki_instance_path =\
+                config.pki_root_prefix +\
+                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                default_pki_instance_name + "." +\
+                config.custom_pki_admin_domain_name + "/" +\
+                config.pki_subsystem.lower()
+        else:
+            default_pki_instance_path =\
+                config.pki_root_prefix +\
+                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                default_pki_instance_name + "/" +\
+                config.pki_subsystem.lower()
     if os.path.basename(argv[0]) == 'pkispawn':
+        if args.pki_update_flag:
+            # "respawn"
+            if not os.path.exists(default_pki_instance_path):
+                print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
+                      (config.pki_subsystem, default_pki_instance_name)
+                print
+                parser.exit(-1);
+        else:
+            # "spawn"
+            if os.path.exists(default_pki_instance_path):
+                print "ERROR:  " + log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 %\
+                      (config.pki_subsystem, default_pki_instance_name)
+                print
+                parser.exit(-1);
         config.pkideployment_cfg = str(args.pkideployment_cfg).strip('[\']')
+        if not args.custom_pki_http_port is None:
+            config.custom_pki_http_port =\
+                str(args.custom_pki_http_port).strip('[\']')
+        if not args.custom_pki_https_port is None:
+            config.custom_pki_https_port =\
+                str(args.custom_pki_https_port).strip('[\']')
+        if not args.custom_pki_ajp_port is None:
+            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+                config.custom_pki_ajp_port =\
+                    str(args.custom_pki_ajp_port).strip('[\']')
+            else:
+                print "ERROR:  " +\
+                      log.PKI_CUSTOM_TOMCAT_AJP_PORT_1 %\
+                      config.pki_subsystem
+                print
+                parser.print_help()
+                parser.exit(-1);
+        if not args.custom_pki_instance_name is None or\
+           not args.custom_pki_http_port is None or\
+           not args.custom_pki_https_port is None or\
+           not args.custom_pki_ajp_port is None:
+            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
+                if args.custom_pki_instance_name is None or\
+                   args.custom_pki_http_port is None or\
+                   args.custom_pki_https_port is None:
+                    print "ERROR:  " + log.PKI_CUSTOM_APACHE_INSTANCE_1 %\
+                          config.pki_subsystem
+                    print
+                    parser.print_help()
+                    parser.exit(-1);
+            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+                if args.custom_pki_instance_name is None or\
+                   args.custom_pki_http_port is None or\
+                   args.custom_pki_https_port is None or\
+                   args.custom_pki_ajp_port is None:
+                    print "ERROR:  " + log.PKI_CUSTOM_TOMCAT_INSTANCE_1 %\
+                          config.pki_subsystem
+                    print
+                    parser.print_help()
+                    parser.exit(-1);
     elif os.path.basename(argv[0]) == 'pkidestroy':
-        # NOTE:  When performing 'pkidestroy', a configuration file must be
-        #        explicitly specified if it does not use the default location
-        #        and/or default configuration file name.
+        # NOTE:  When performing 'pkidestroy', a 'pki_instance_name' and/or
+        #        a 'pki_admin_domain_name' MUST be explicitly specified if
+        #        a PKI instance has NOT been installed in the default location
+        #        using the default PKI instance name!
+        if not os.path.exists(default_pki_instance_path):
+            print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
+                  (config.pki_subsystem, default_pki_instance_name)
+            print
+            parser.exit(-1);
         if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            if not config.custom_pki_instance_name is None:
-                default_pki_instance_name = config.custom_pki_instance_name
-            else:
-                default_pki_instance_name =\
-                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME
             if not config.custom_pki_admin_domain_name is None:
-                config.pkideployment_cfg =\
+                default_pki_instance_registry_path =\
                     config.pki_root_prefix +\
                     config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME + "/" +\
-                    config.custom_pki_admin_domain_name + "-" +\
-                    default_pki_instance_name +"/" +\
-                    config.pki_subsystem.lower() +"/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME + "/" +\
+                    default_pki_instance_name + "." +\
+                    config.custom_pki_admin_domain_name + "/" +\
+                    config.pki_subsystem.lower()
             else:
-                config.pkideployment_cfg =\
+                default_pki_instance_registry_path =\
                     config.pki_root_prefix +\
                     config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME + "/" +\
-                    default_pki_instance_name +"/" +\
-                    config.pki_subsystem.lower() +"/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME + "/" +\
+                    default_pki_instance_name + "/" +\
+                    config.pki_subsystem.lower()
         elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if not config.custom_pki_instance_name is None:
-                default_pki_instance_name = config.custom_pki_instance_name
-            else:
-                default_pki_instance_name =\
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME
             if not config.custom_pki_admin_domain_name is None:
-                config.pkideployment_cfg =\
+                default_pki_instance_registry_path =\
                     config.pki_root_prefix +\
                     config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME + "/" +\
-                    config.custom_pki_admin_domain_name + "-" +\
-                    default_pki_instance_name +"/" +\
-                    config.pki_subsystem.lower() +"/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME + "/" +\
+                    default_pki_instance_name + "." +\
+                    config.custom_pki_admin_domain_name + "/" +\
+                    config.pki_subsystem.lower()
             else:
-                config.pkideployment_cfg =\
+                default_pki_instance_registry_path =\
                     config.pki_root_prefix +\
                     config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME + "/" +\
-                    default_pki_instance_name +"/" +\
-                    config.pki_subsystem.lower() +"/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME + "/" +\
+                    default_pki_instance_name + "/" +\
+                    config.pki_subsystem.lower()
+        config.pkideployment_cfg =\
+            default_pki_instance_registry_path + "/" +\
+            config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
     if not os.path.exists(config.pkideployment_cfg) or\
        not os.path.isfile(config.pkideployment_cfg):
         print "ERROR:  " +\
@@ -333,21 +392,21 @@ def compose_pki_master_dictionary():
         #             two pki subystems.
         #
         #             Optionally, to more clearly distinguish a "PKI instance",
-        #             a common PKI "Admin Domain" may be used as a prefix to
+        #             a common PKI "Admin Domain" may be used as a suffix to
         #             either an "Apache web instance", or a
         #             "Tomcat web instance".
         #
         #             Thus, a specific "PKI instance" of a CA, KRA, OCSP,
         #             or TKS subystem must be referenced via the name of
         #             the particular PKI "Tomcat web instance" containing
-        #             this PKI subsystem optionally preceded by a
-        #             specified PKI "Admin Domain" separated via a "-".
+        #             this PKI subsystem optionally followed by a
+        #             specified PKI "Admin Domain" separated via a ".".
         #
         #             Likewise, a specific "PKI instance" of an RA, or TPS
         #             subystem must be referenced via the name of
         #             the particular PKI "Apache web instance" containing
-        #             this PKI subsystem optionally preceded by a
-        #             specified PKI "Admin Domain" separated via a "-".
+        #             this PKI subsystem optionally followed by a
+        #             specified PKI "Admin Domain" separated via a ".".
         #
         #             To emulate the original behavior of having a CA and
         #             KRA be unique PKI instances, each must be located
@@ -362,13 +421,13 @@ def compose_pki_master_dictionary():
         #           (e. g. Tomcat:  "pki-ca", "pki-kra", "pki-ocsp", "pki-tks")
         #           (e. g. Apache:  "pki-ra", "pki-tps")
         #     NEW:  "[${pki_admin_domain_name}-]${pki_instance_name}"
-        #           (e. g. Tomcat:  "tomcat", "example.com-tomcat")
-        #           (e. g. Apache:  "apache", "example.com-apache")
+        #           (e. g. Tomcat:  "pki-tomcat", "pki-tomcat.example.com")
+        #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
         #
         if len(config.pki_master_dict['pki_admin_domain_name']):
             config.pki_master_dict['pki_instance_id'] =\
-                config.pki_master_dict['pki_admin_domain_name'] +\
-                "-" + config.pki_master_dict['pki_instance_name']
+                config.pki_master_dict['pki_instance_name'] + "." +\
+                config.pki_master_dict['pki_admin_domain_name']
         else:
             config.pki_master_dict['pki_instance_id'] =\
                 config.pki_master_dict['pki_instance_name']
@@ -512,6 +571,20 @@ def compose_pki_master_dictionary():
                 config.pki_master_dict['pki_source_transportcert_profile'] =\
                     os.path.join(config.pki_master_dict['pki_source_conf_path'],
                                  "transportCert.profile")
+        config.pki_master_dict['pki_cgroup_systemd_service_path'] =\
+            os.path.join("/sys/fs/cgroup/systemd/system",
+                         config.pki_master_dict['pki_systemd_service'])
+        config.pki_master_dict['pki_cgroup_systemd_service'] =\
+            os.path.join(
+                config.pki_master_dict['pki_cgroup_systemd_service_path'],
+                config.pki_master_dict['pki_instance_id'])
+        config.pki_master_dict['pki_cgroup_cpu_systemd_service_path'] =\
+            os.path.join("/sys/fs/cgroup/cpu\,cpuacct/system",
+                         config.pki_master_dict['pki_systemd_service'])
+        config.pki_master_dict['pki_cgroup_cpu_systemd_service'] =\
+            os.path.join(
+                config.pki_master_dict['pki_cgroup_cpu_systemd_service_path'],
+                config.pki_master_dict['pki_instance_id'])
         # PKI top-level file system layout name/value pairs
         # NOTE:  Never use 'os.path.join()' whenever 'pki_root_prefix'
         #        is being prepended!!!
@@ -697,6 +770,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_nsutil'] =\
                 os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                              "pki-nsutil.jar")
+            config.pki_master_dict['pki_resteasy_atom_provider_jar'] =\
+                os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                             "resteasy-atom-provider.jar")
             config.pki_master_dict['pki_resteasy_jaxb_provider_jar'] =\
                 os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
                              "resteasy-jaxb-provider.jar")
@@ -793,6 +869,10 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
                     "pki-nsutil.jar")
+            config.pki_master_dict['pki_resteasy_atom_provider_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_common_lib_path'],
+                    "resteasy-atom-provider.jar")
             config.pki_master_dict['pki_resteasy_jaxb_provider_jar_link'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
@@ -1588,8 +1668,8 @@ def compose_pki_master_dictionary():
         #     deployment configuration file and are NOT redefined below:
         #
         #         config.pki_master_dict['pki_ds_bind_dn']
-        #         config.pki_master_dict['pki_ds_http_port']
-        #         config.pki_master_dict['pki_ds_https_port']
+        #         config.pki_master_dict['pki_ds_ldap_port']
+        #         config.pki_master_dict['pki_ds_ldaps_port']
         #         config.pki_sensitive_dict['pki_ds_password']
         #         config.pki_master_dict['pki_ds_remove_data']
         #         config.pki_master_dict['pki_ds_secure_connection']
@@ -1606,7 +1686,7 @@ def compose_pki_master_dictionary():
                 "o=" + config.pki_master_dict['pki_instance_id']
         if not len(config.pki_master_dict['pki_ds_database']):
             config.pki_master_dict['pki_ds_database'] =\
-                "o=" + config.pki_master_dict['pki_instance_id']
+                config.pki_master_dict['pki_instance_id']
         if not len(config.pki_master_dict['pki_ds_hostname']):
             # Guess that the Directory Server resides on the local host
             config.pki_master_dict['pki_ds_hostname'] =\

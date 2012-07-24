@@ -80,7 +80,7 @@ def main(argv):
     # Retrieve DNS domainname
     config.pki_dns_domainname = None
     try:
-        config.pki_dns_domainname = subprocess.check_output("domainname",
+        config.pki_dns_domainname = subprocess.check_output("dnsdomainname",
                                                             shell=True)
         config.pki_dns_domainname = config.pki_dns_domainname.rstrip('\n')
         if not len(config.pki_dns_domainname):

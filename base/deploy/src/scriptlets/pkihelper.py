@@ -305,6 +305,113 @@ class identity:
         return pki_gid
 
 
+# PKI Deployment Namespace Class
+class namespace:
+    # Silently verify that the selected 'pki_instance_name' will
+    # NOT produce any namespace collisions
+    def collision_detection(self):
+        # Run simple checks for pre-existing namespace collisions
+        if os.path.exists(master['pki_instance_path']):
+            if os.path.exists(master['pki_subsystem_path']):
+                # Top-Level PKI base path collision
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_COLLISION_2,
+                    master['pki_instance_id'],
+                    master['pki_instance_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        else:
+            if os.path.exists(master['pki_target_tomcat_conf_instance_id']):
+                # Top-Level "/etc/sysconfig" path collision
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_COLLISION_2,
+                    master['pki_instance_id'],
+                    master['pki_target_tomcat_conf_instance_id'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if os.path.exists(master['pki_cgroup_systemd_service']):
+                # Systemd cgroup path collision
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_COLLISION_2,
+                    master['pki_instance_id'],
+                    master['pki_cgroup_systemd_service_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if os.path.exists(master['pki_cgroup_cpu_systemd_service']):
+                # Systemd cgroup CPU path collision
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_COLLISION_2,
+                    master['pki_instance_id'],
+                    master['pki_cgroup_cpu_systemd_service_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        if os.path.exists(master['pki_instance_log_path']) and\
+           os.path.exists(master['pki_subsystem_log_path']):
+            # Top-Level PKI log path collision
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_COLLISION_2,
+                master['pki_instance_id'],
+                master['pki_instance_log_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        if os.path.exists(master['pki_instance_configuration_path']) and\
+           os.path.exists(master['pki_subsystem_configuration_path']):
+            # Top-Level PKI configuration path collision
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_COLLISION_2,
+                master['pki_instance_id'],
+                master['pki_instance_configuration_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        if os.path.exists(master['pki_instance_registry_path']) and\
+           os.path.exists(master['pki_subsystem_registry_path']):
+            # Top-Level PKI registry path collision
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_COLLISION_2,
+                master['pki_instance_id'],
+                master['pki_instance_registry_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        # Run simple checks for reserved name namespace collisions
+        if master['pki_instance_id'] in config.PKI_BASE_RESERVED_NAMES:
+            # Top-Level PKI base path reserved name collision
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+                master['pki_instance_id'],
+                master['pki_instance_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        # No need to check for reserved name under Top-Level PKI log path
+        if master['pki_instance_id'] in config.PKI_CONFIGURATION_RESERVED_NAMES:
+            # Top-Level PKI configuration path reserved name collision
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+                master['pki_instance_id'],
+                master['pki_instance_configuration_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+            # Top-Level Apache PKI registry path reserved name collision
+            if master['pki_instance_id'] in\
+               config.PKI_APACHE_REGISTRY_RESERVED_NAMES:
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+                    master['pki_instance_id'],
+                    master['pki_instance_registry_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # Top-Level Tomcat PKI registry path reserved name collision
+            if master['pki_instance_id'] in\
+               config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
+                config.pki_log.error(
+                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+                    master['pki_instance_id'],
+                    master['pki_instance_registry_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+
 # PKI Deployment Configuration File Class
 class configuration_file:
     def verify_sensitive_data(self):
@@ -346,22 +453,18 @@ class configuration_file:
                 sys.exit(1)
             # Verify existence of PKCS #12 Password (ONLY for Clones)
             if config.str2bool(master['pki_clone']):
-                if not sensitive.has_key('pki_pkcs12_password') or\
-                   not len(sensitive['pki_pkcs12_password']):
+                if not sensitive.has_key('pki_clone_pkcs12_password') or\
+                   not len(sensitive['pki_clone_pkcs12_password']):
                     config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_PKCS12_PASSWORD_1,
+                        log.PKIHELPER_UNDEFINED_CLONE_PKCS12_PASSWORD_1,
                         config.pkideployment_cfg,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             # Verify existence of Security Domain Password File
-            # (ONLY for Clones, Subordinate CA, KRA, OCSP, RA, TKS, or TPS)
+            # (ONLY for Clones, KRA, OCSP, TKS, or Subordinate CA)
             if config.str2bool(master['pki_clone']) or\
-               config.str2bool(master['pki_subordinate']) or\
-               master['pki_subsystem'] == "KRA" or\
-               master['pki_subsystem'] == "OCSP" or\
-               master['pki_subsystem'] == "RA" or\
-               master['pki_subsystem'] == "TKS" or\
-               master['pki_subsystem'] == "TPS":
+               not master['pki_subsystem'] == "CA" or\
+               config.str2bool(master['pki_subordinate']):
                 if not sensitive.has_key('pki_security_domain_password') or\
                    not len(sensitive['pki_security_domain_password']):
                     config.pki_log.error(
@@ -407,16 +510,16 @@ class configuration_file:
 
     def populate_non_default_ports(self):
         if master['pki_http_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_HTTP_PORT:
+            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT:
                 ports.append(master['pki_http_port'])
         if master['pki_https_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_HTTPS_PORT:
+            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT:
                 ports.append(master['pki_https_port'])
         if master['pki_tomcat_server_port'] != \
             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT:
                 ports.append(master['pki_tomcat_server_port'])
         if master['pki_ajp_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_AJP_PORT:
+            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT:
                 ports.append(master['pki_ajp_port'])
         return
 
@@ -573,32 +676,6 @@ class instance:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
         return rv
-
-    def verify_subsystem_exists(self):
-        try:
-            if not os.path.exists(master['pki_subsystem_path']):
-                config.pki_log.error(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
-                                     master['pki_subsystem'],
-                                     master['pki_instance_id'],
-                                     extra=config.PKI_INDENTATION_LEVEL_1)
-                sys.exit(1)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
-
-    def verify_subsystem_does_not_exist(self):
-        try:
-            if os.path.exists(master['pki_subsystem_path']):
-                config.pki_log.error(log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
-                                     master['pki_subsystem'],
-                                     master['pki_instance_id'],
-                                     extra=config.PKI_INDENTATION_LEVEL_1)
-                sys.exit(1)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
 
 
 # PKI Deployment Directory Class
@@ -2099,6 +2176,7 @@ class jython:
 
 # PKI Deployment Helper Class Instances
 identity = identity()
+namespace = namespace()
 configuration_file = configuration_file()
 #xml_file = xml_file()
 instance = instance()

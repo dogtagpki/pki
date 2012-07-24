@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}19%{?prerel}%{?dist}
+Release:          %{?relprefix}20%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -44,6 +44,9 @@ BuildRequires:    xerces-j2
 %if 0%{?fedora} >= 17
 BuildRequires:    resteasy >= 2.3.2-1
 BuildRequires:    junit
+# NOTE:  The following requirement is for nightly 'mock' builds ONLY since
+#        Dogtag 10 will NEVER be officially released on Fedora 17!
+BuildRequires:    tomcatjss >= 7.0.0
 %else
 BuildRequires:    junit4
 %endif
@@ -1431,6 +1434,10 @@ fi
 
 
 %changelog
+* Tue Jul 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.20.a1
+- PKI TRAC Task #254 - Dogtag 10: Fix spec file to build successfully
+  via mock on Fedora 17 . . .
+
 * Wed Jul 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.19.a1
 - Moved 'pki-jndi-real.jar' link from 'tomcat6' to 'tomcat' (Tomcat 7)
 

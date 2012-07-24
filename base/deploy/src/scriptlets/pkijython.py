@@ -373,7 +373,7 @@ class rest_client:
             # Directory Server Information
             if master['pki_subsystem'] != "RA":
                 data.setDsHost(master['pki_ds_hostname'])
-                data.setDsPort(master['pki_ds_http_port'])
+                data.setDsPort(master['pki_ds_ldap_port'])
                 data.setBaseDN(master['pki_ds_base_dn'])
                 data.setBindDN(master['pki_ds_bind_dn'])
                 data.setDatabase(master['pki_ds_database'])

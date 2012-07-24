@@ -32,15 +32,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
+        # detect and avoid any namespace collisions
+        util.namespace.collision_detection()
+        # begin official logging
         config.pki_log.info(log.PKISPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
                             master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" does NOT yet
-        # exist for this "instance"
-        util.instance.verify_subsystem_does_not_exist()
         # initialize 'uid' and 'gid'
         util.identity.add_uid_and_gid(master['pki_user'], master['pki_group'])
         # establish 'uid' and 'gid'
@@ -56,30 +56,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         return self.rv
 
     def respawn(self):
+        # begin official logging
         config.pki_log.info(log.PKIRESPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
                             master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" currently EXISTS
-        # for this "instance"
-        util.instance.verify_subsystem_exists()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
         return self.rv
 
     def destroy(self):
+        # begin official logging
         config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
                             master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" currently EXISTS
-        # for this "instance"
-        util.instance.verify_subsystem_exists()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
