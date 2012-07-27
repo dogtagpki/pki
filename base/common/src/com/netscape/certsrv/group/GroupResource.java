@@ -34,7 +34,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 /**
  * @author Endi S. Dewata
  */
-@Path("/groups")
+@Path("admin/groups")
 public interface GroupResource {
 
     @GET
@@ -51,19 +51,19 @@ public interface GroupResource {
     public Response addGroup(GroupData groupData);
 
     @GET
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public GroupData getGroup(@PathParam("groupID") String groupID);
 
     @POST
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @ClientResponseType(entityType=GroupData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response modifyGroup(@PathParam("groupID") String groupID, GroupData groupData);
 
     @DELETE
-    @Path("/{groupID}")
+    @Path("{groupID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeGroup(@PathParam("groupID") String groupID);
 }

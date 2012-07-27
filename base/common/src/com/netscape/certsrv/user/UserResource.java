@@ -34,7 +34,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 /**
  * @author Endi S. Dewata
  */
-@Path("/users")
+@Path("admin/users")
 public interface UserResource {
 
     @GET
@@ -51,19 +51,19 @@ public interface UserResource {
     public Response addUser(UserData userData);
 
     @GET
-    @Path("/{userID}")
+    @Path("{userID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public UserData getUser(@PathParam("userID") String userID);
 
     @POST
-    @Path("/{userID}")
+    @Path("{userID}")
     @ClientResponseType(entityType=UserData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response modifyUser(@PathParam("userID") String userID, UserData userData);
 
     @DELETE
-    @Path("/{userID}")
+    @Path("{userID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeUser(@PathParam("userID") String userID);
 }

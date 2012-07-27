@@ -14,14 +14,14 @@ import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 
-@Path("/keys")
+@Path("agent/keys")
 public interface KeyResource {
 
     public static final int DEFAULT_MAXTIME = 10;
     public static final int DEFAULT_MAXRESULTS = 100;
 
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyDataInfos listKeys(@QueryParam("clientID") String clientID,
                                  @QueryParam("status") String status,
                                  @DefaultValue(""+DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
@@ -35,14 +35,14 @@ public interface KeyResource {
      */
     @POST
     @Path("retrieve")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyData retrieveKey(RecoveryRequestData data);
 
     // retrieval - used to test integration with a browser
     @POST
     @Path("retrieve")
-    @Produces(MediaType.TEXT_XML)
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public KeyData retrieveKey(MultivaluedMap<String, String> form);
 }

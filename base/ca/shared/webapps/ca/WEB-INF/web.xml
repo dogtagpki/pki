@@ -1816,13 +1816,15 @@
                          <param-value> /agent/ca/doRevoke       </param-value> </init-param>
    </servlet>
 
+   <!-- ==================== RESTEasy Configuration =============== -->
+
    <listener>
       <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
    </listener>
 
    <context-param>
       <param-name>resteasy.servlet.mapping.prefix</param-name>
-      <param-value>/pki</param-value>
+      <param-value>/rest</param-value>
    </context-param>
 
    <context-param>
@@ -1843,9 +1845,9 @@
    
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/pki/*</url-pattern>
+      <url-pattern>/rest/*</url-pattern>
    </servlet-mapping>
-   
+
    <servlet-mapping>
       <servlet-name>  caacl  </servlet-name>
       <url-pattern>   /acl  </url-pattern>

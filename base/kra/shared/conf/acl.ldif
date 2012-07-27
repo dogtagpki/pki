@@ -30,13 +30,7 @@ resourceACLS: certServer.kra.TokenKeyRecovery:submit:allow (submit) group="Data 
 resourceACLS: certServer.kra.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to register a new agent
 resourceACLS: certServer.kra.getTransportCert:read:allow (read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to retrieve the transport cert
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
-resourceACLS: certServer.kra.pki.key.retrieve:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may retrieve archived key
-resourceACLS: certServer.kra.pki.keyrequests:read:allow (read) group="Data Recovery Manager Agents":Data Recovery Manager Agents may read keyrequests data
-resourceACLS: certServer.kra.pki.keyrequest:read:allow (read) group="Data Recovery Manager Agents":Data Recovery Manager Agents may read keyrequest data
-resourceACLS: certServer.kra.pki.keyrequest.archive:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may issue archival request
-resourceACLS: certServer.kra.pki.keyrequest.recover:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may issue recovery request
-resourceACLS: certServer.kra.pki.keyrequest.approve:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may approve security data request
-resourceACLS: certServer.kra.pki.keyrequest.reject:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may reject key security data request
-resourceACLS: certServer.kra.pki.keyrequest.cancel:execute:allow (execute) group="Data Recovery Manager Agents":Data Recovery Manager Agents may cancel security data request
-resourceACLS: certServer.kra.pki.keys:read:allow (read) group="Data Recovery Manager Agents":Data Recovery Manager Agents may read security data
-resourceACLS: certServer.kra.pki.config.cert.transport:read:allow (read) group="Data Recovery Manager Agents":Data Recovery Manager Agents may read transport cert data
+resourceACLS: certServer.kra.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.kra.keys:execute:allow (execute) group="Data Recovery Manager Agents":Agents may execute key operations
+resourceACLS: certServer.kra.keyrequests:execute:allow (execute) group="Data Recovery Manager Agents":Agents may execute key request operations
+resourceACLS: certServer.kra.users:execute:allow (execute) group="Administrators":Admins may execute user operations

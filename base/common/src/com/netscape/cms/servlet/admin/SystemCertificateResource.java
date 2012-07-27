@@ -10,16 +10,16 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.cms.servlet.cert.model.CertificateData;
 
-@Path("/config/cert")
+@Path("config/cert")
 public interface SystemCertificateResource {
 
     /**
      * Used to retrieve the transport certificate
      */
     @GET
-    @Path("/transport")
+    @Path("transport")
     @ClientResponseType(entityType=CertificateData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getTransportCert();
 
 }

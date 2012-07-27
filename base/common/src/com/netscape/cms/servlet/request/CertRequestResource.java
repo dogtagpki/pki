@@ -34,7 +34,7 @@ import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 
-@Path("/certrequests")
+@Path("")
 public interface CertRequestResource {
 
     public static final int DEFAULT_START = 0;
@@ -46,7 +46,8 @@ public interface CertRequestResource {
      * Used to generate list of cert requests based on the search parameters
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("agent/certrequests")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfos listRequests(@QueryParam("requestState") String requestState,
             @QueryParam("requestType") String requestType,
             @DefaultValue("" + DEFAULT_START) @QueryParam("start") RequestId start,
@@ -58,60 +59,60 @@ public interface CertRequestResource {
      * Used to retrieve cert request info for a specific request
      */
     @GET
-    @Path("{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("certrequests/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfo getRequestInfo(@PathParam("id") RequestId id);
 
     @GET
-    @Path("{id}/agentView")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("agent/certrequests/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public AgentEnrollmentRequestData reviewRequest(@PathParam("id") RequestId id);
 
     // Enrollment - used to test integration with a browser
     @POST
-    @Path("enroll")
-    @Produces({ MediaType.TEXT_XML })
+    @Path("certrequests")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public CertRequestInfos enrollCert(MultivaluedMap<String, String> form);
 
     @POST
-    @Path("enroll")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("certrequests")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfos enrollCert(EnrollmentRequestData data);
 
     @POST
-    @Path("{id}/approve")
+    @Path("agent/certrequests/{id}/approve")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void approveRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/reject")
+    @Path("agent/certrequests/{id}/reject")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void rejectRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/cancel")
+    @Path("agent/certrequests/{id}/cancel")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void cancelRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/update")
+    @Path("agent/certrequests/{id}/update")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void updateRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/validate")
+    @Path("agent/certrequests/{id}/validate")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void validateRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/unassign")
+    @Path("agent/certrequests/{id}/unassign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void unassignRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 
     @POST
-    @Path("{id}/assign")
+    @Path("agent/certrequests/{id}/assign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void assignRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
 }

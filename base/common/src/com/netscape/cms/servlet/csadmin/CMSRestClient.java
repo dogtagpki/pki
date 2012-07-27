@@ -275,7 +275,7 @@ public abstract class CMSRestClient {
     }
 
     public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
-        URI uri = new URI(config.getServerURI()+"/pki");
+        URI uri = new URI(config.getServerURI()+"/rest");
         return ProxyFactory.create(clazz, uri, executor, providerFactory);
     }
 

@@ -14,7 +14,7 @@
 //
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
-// --- END COPYRIGHT BLOCK --- 
+// --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
 import javax.ws.rs.Consumes;
@@ -33,34 +33,31 @@ import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
 
 /**
  * @author alee
- *
  */
-@Path("/installer")
+@Path("installer")
 public interface SystemConfigurationResource {
-    
+
     @POST
     @Path("configure")
-    @Produces({ MediaType.TEXT_XML })
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public ConfigurationResponseData configure(MultivaluedMap<String, String> form);
-    
+
     @POST
     @Path("configure")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ConfigurationResponseData configure(ConfigurationData data);
-    
+
     @POST
     @Path("installToken")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public InstallToken getInstallToken(InstallTokenRequest data);
-    
+
     @GET
     @Path("domainInfo")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public DomainInfo getDomainInfo();
-    
-    
 }

@@ -41,7 +41,8 @@ public class ConfigurationErrorInterceptor implements ClientErrorInterceptor {
         String contentType = headers.getFirst("Content-Type");
 
         // handle XML content only
-        if (!contentType.startsWith(MediaType.TEXT_XML)) return;
+        System.out.println("Content-type: "+contentType);
+        if (!contentType.startsWith(MediaType.APPLICATION_XML)) return;
 
         CMSException exception;
 

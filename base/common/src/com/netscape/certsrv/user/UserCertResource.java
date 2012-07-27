@@ -34,7 +34,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 /**
  * @author Endi S. Dewata
  */
-@Path("/users/{userID}/certs")
+@Path("admin/users/{userID}/certs")
 public interface UserCertResource {
 
     @GET
@@ -52,12 +52,12 @@ public interface UserCertResource {
     public Response addUserCert(@PathParam("userID") String userID, UserCertData userCertData);
 
     @GET
-    @Path("/{certID}")
+    @Path("{certID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public UserCertData getUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 
     @DELETE
-    @Path("/{certID}")
+    @Path("{certID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 }

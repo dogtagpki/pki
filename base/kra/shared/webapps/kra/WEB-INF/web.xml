@@ -691,13 +691,15 @@
                          <param-value> ee          </param-value> </init-param>
    </servlet>
 
+   <!-- ==================== RESTEasy Configuration =============== -->
+
    <listener>
       <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
    </listener>
 
    <context-param>
       <param-name>resteasy.servlet.mapping.prefix</param-name>
-      <param-value>/pki</param-value>
+      <param-value>/rest</param-value>
    </context-param>
 
    <context-param>
@@ -718,7 +720,7 @@
 
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/pki/*</url-pattern>
+      <url-pattern>/rest/*</url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -950,81 +952,40 @@
         <session-timeout>30</session-timeout>
    </session-config>
 
-<!-- Default login configuration uses form-based authentication -->
-<!-- Security Constraint for agent access to the Security Data Rest Interface -->
+    <!--
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Services</web-resource-name>
+            <url-pattern>/rest/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
-<!--
-<security-constraint>
-   <display-name>KRA Top Level Constraint</display-name>
-   <web-resource-collection>
-      <web-resource-name>KRA Protected Area</web-resource-name>
-         <url-pattern>/pki/*
-         </url-pattern>
-      </web-resource-collection>
-   <user-data-constraint>
-        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-   <auth-constraint>
-      <role-name>*</role-name>
-   </auth-constraint>
-</security-constraint>
--->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Agent Services</web-resource-name>
+            <url-pattern>/rest/agent/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
-<!-- Security Constraint to deny certain http methods for key/retrieve -->
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
-<!--
-<security-constraint>
-<display-name>Key forbidden</display-name>
-<web-resource-collection>
-  <web-resource-name>Key forbidden</web-resource-name>
-      <url-pattern>/pki/key/retrieve</url-pattern>
-  <http-method>GET</http-method>
-  <http-method>PUT</http-method>
-  <http-method>DELETE</http-method>
-</web-resource-collection>
-<auth-constraint/>
-</security-constraint>
--->
+    <login-config>
+        <realm-name>Key Recovery Authority</realm-name>
+    </login-config>
 
-<!-- Security Constraint to deny certain http methods for keyrequest/* -->
-<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
-
-<!--
-<security-constraint>
-<display-name>KeyRequest forbidden</display-name>
-<web-resource-collection>
-  <web-resource-name>KeyRequest forbidden</web-resource-name>
-      <url-pattern>/pki/keyrequest/archive</url-pattern>
-      <url-pattern>/pki/keyrequest/recover</url-pattern>
-      <url-pattern>/pki/keyrequest/approve/*</url-pattern>
-      <url-pattern>/pki/keyrequest/reject/*</url-pattern>
-      <url-pattern>/pki/keyrequest/cancel/*</url-pattern>
-  <http-method>GET</http-method>
-  <http-method>PUT</http-method>
-  <http-method>DELETE</http-method>
-</web-resource-collection>
-<auth-constraint/>
-</security-constraint>
--->
-
-
-<!-- Customized SSL Client auth login config 
-      uncomment to activate PKI realm as in conf/server.xml
--->
-
-<!--
-
-<login-config>
-   <realm-name>PKIRealm</realm-name>
-   <auth-method>CLIENT-CERT</auth-method>
-   <realm-name>Client Cert Protected Area</realm-name>
-</login-config>
-
-<security-role>
-   <role-name>*</role-name>
-</security-role>
-
--->
+    <security-role>
+        <role-name>*</role-name>
+    </security-role>
+    -->
 
 </web-app>

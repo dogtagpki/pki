@@ -17,8 +17,9 @@ import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 
-@Path("/keyrequests")
+@Path("agent/keyrequests")
 public interface KeyRequestResource {
+
     public final String SYMMETRIC_KEY_TYPE = "symmetricKey";
     public final String PASS_PHRASE_TYPE = "passPhrase";
     public final String ASYMMETRIC_KEY_TYPE = "asymmetricKey";
@@ -32,7 +33,7 @@ public interface KeyRequestResource {
      * Used to generate list of key requests based on the search parameters
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyRequestInfos listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
                                             @QueryParam("clientID") String clientID,
@@ -47,45 +48,45 @@ public interface KeyRequestResource {
      */
     @GET
     @Path("{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyRequestInfo getRequestInfo(@PathParam("id") RequestId id);
 
     // Archiving - used to test integration with a browser
     @POST
     @Path("archive")
-    @Produces({ MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form);
 
     @POST
     @Path("archive")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyRequestInfo archiveKey(ArchivalRequestData data);
 
     //Recovery - used to test integration with a browser
     @POST
     @Path("recover")
-    @Produces({ MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form);
 
     @POST
     @Path("recover")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyRequestInfo recoverKey(RecoveryRequestData data);
 
     @POST
-    @Path("approve/{id}")
+    @Path("{id}/approve")
     public void approveRequest(@PathParam("id") RequestId id);
 
     @POST
-    @Path("reject/{id}")
+    @Path("{id}/reject")
     public void rejectRequest(@PathParam("id") RequestId id);
 
     @POST
-    @Path("cancel/{id}")
+    @Path("{id}/cancel")
     public void cancelRequest(@PathParam("id") RequestId id);
 
 }

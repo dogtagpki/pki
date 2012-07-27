@@ -18,21 +18,23 @@ import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
-@Path("/certs")
+@Path("")
 public interface CertResource {
+
     public static final int DEFAULT_MAXTIME = 10;
     public static final int DEFAULT_MAXRESULTS = 100;
 
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("certs")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos listCerts(
                                  @QueryParam("status") String status,
                                  @DefaultValue(""+DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
                                  @DefaultValue(""+DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
 
     @POST
-    @Path("search")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("certs/search")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos searchCerts(
                                 CertSearchData data,
@@ -40,24 +42,24 @@ public interface CertResource {
                                 @DefaultValue(""+DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
 
     @GET
-    @Path("{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Path("certs/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertificateData getCert(@PathParam("id") CertId id);
 
     @POST
-    @Path("{id}/revoke-ca")
+    @Path("agent/certs/{id}/revoke-ca")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfo revokeCACert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
-    @Path("{id}/revoke")
+    @Path("agent/certs/{id}/revoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfo revokeCert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
-    @Path("{id}/unrevoke")
+    @Path("agent/certs/{id}/unrevoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfo unrevokeCert(@PathParam("id") CertId id, CertUnrevokeRequest request);

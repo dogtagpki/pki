@@ -34,7 +34,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 /**
  * @author Endi S. Dewata
  */
-@Path("/groups/{groupID}/members")
+@Path("admin/groups/{groupID}/members")
 public interface GroupMemberResource {
 
     @GET
@@ -51,12 +51,12 @@ public interface GroupMemberResource {
     public Response addGroupMember(@PathParam("groupID") String groupID, String memberID);
 
     @GET
-    @Path("/{memberID}")
+    @Path("{memberID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public GroupMemberData getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 
     @DELETE
-    @Path("/{memberID}")
+    @Path("{memberID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

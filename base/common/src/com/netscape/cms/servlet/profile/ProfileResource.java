@@ -9,16 +9,16 @@ import javax.ws.rs.core.MediaType;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 
-@Path("/profiles")
+@Path("agent/profiles")
 public interface ProfileResource {
 
     @GET
     @Path("{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ProfileData retrieveProfile(@PathParam("id") String id);
 
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ProfileDataInfos listProfiles();
 
     /**
@@ -31,14 +31,14 @@ public interface ProfileResource {
     /*
     @POST
     @Path("retrieve")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ProfileData retrieveProfile(ProfileRetrievalRequestData request);
 
     // retrieval - used to test integration with a browser
     @POST
     @Path("retrieve")
-    @Produces(MediaType.TEXT_XML)
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public ProfileData retrievProfile(MultivaluedMap<String, String> form);
     */
