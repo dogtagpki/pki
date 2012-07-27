@@ -54,6 +54,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_target_server_xml'],
                 overwrite_flag=True)
             util.file.copy_with_slot_substitution(
+                master['pki_source_context_xml'],
+                master['pki_target_context_xml'],
+                overwrite_flag=True)
+            util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf_instance_id'],
                 uid=0, gid=0, overwrite_flag=True)
@@ -65,6 +69,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_source_index_jsp'],
                 master['pki_target_index_jsp'],
                 overwrite_flag=True)
+            util.file.apply_slot_substitution(
+                master['pki_target_auth_properties'])
             util.file.apply_slot_substitution(
                 master['pki_target_velocity_properties'])
             util.file.apply_slot_substitution(
@@ -109,6 +115,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_target_server_xml'],
                 overwrite_flag=True)
             util.file.copy_with_slot_substitution(
+                master['pki_source_context_xml'],
+                master['pki_target_context_xml'],
+                overwrite_flag=True)
+            util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf_instance_id'],
                 uid=0, gid=0, overwrite_flag=True)
@@ -120,6 +130,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_source_index_jsp'],
                 master['pki_target_index_jsp'],
                 overwrite_flag=True)
+            util.file.apply_slot_substitution(
+                master['pki_target_auth_properties'])
             util.file.apply_slot_substitution(
                 master['pki_target_velocity_properties'])
             util.file.apply_slot_substitution(

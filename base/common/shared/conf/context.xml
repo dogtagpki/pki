@@ -39,4 +39,8 @@
     <Valve className="org.apache.catalina.valves.CometConnectionManagerValve" />
     -->
 
+    <Valve className="com.netscape.cmscore.realm.SSLAuthenticatorWithFallback" />
+
+    <Realm className="com.netscape.cmscore.realm.PKIRealm" />
+
 </Context>

@@ -400,6 +400,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_source_server_xml'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "server.xml")
+            config.pki_master_dict['pki_source_context_xml'] =\
+                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                             "context.xml")
             config.pki_master_dict['pki_source_tomcat_conf'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "tomcat.conf")
@@ -984,6 +987,10 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_instance_configuration_path'],
                     "server.xml")
+            config.pki_master_dict['pki_target_context_xml'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_instance_configuration_path'],
+                    "context.xml")
             config.pki_master_dict['pki_target_tomcat_conf_instance_id'] =\
                 config.pki_master_dict['pki_root_prefix'] +\
                 "/etc/sysconfig/" +\
@@ -997,6 +1004,11 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_tomcat_webapps_root_path'],
                     "index.jsp")
             # in-place slot substitution name/value pairs
+            config.pki_master_dict['pki_target_auth_properties'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
+                    "WEB-INF",
+                    "auth.properties")
             config.pki_master_dict['pki_target_velocity_properties'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
@@ -1131,7 +1143,7 @@ def compose_pki_master_dictionary():
             ['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] =\
                 ""
             config.pki_master_dict['PKI_AGENT_CLIENTAUTH_SLOT'] =\
-                "agent"
+                "want"
             config.pki_master_dict['PKI_AGENT_SECURE_PORT_SLOT'] =\
                 config.pki_master_dict['pki_https_port']
             config.pki_master_dict['PKI_AJP_PORT_SLOT'] =\

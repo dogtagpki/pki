@@ -84,7 +84,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     -->
 
     [PKI_UNSECURE_PORT_SERVER_COMMENT]
-    <Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]" port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1" redirectPort="8443" 
+    <Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]" port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1" redirectPort="[PKI_SECURE_PORT]"
 	       maxHttpHeaderSize="8192"
 	       acceptCount="100" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
 	       enableLookups="false" connectionTimeout="20000" disableUploadTimeout="true"

@@ -2560,7 +2560,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
             $slot_hash{$PKI_EE_SECURE_CLIENT_AUTH_PORT_COMMENT_SERVER_SLOT}    = "";
 
             # Set appropriate "clientAuth" parameter for "Shared Ports"
-            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "agent";
+            $slot_hash{$PKI_AGENT_CLIENTAUTH_SLOT} = "want";
 
             # Comment out the "Admin/EE" Ports
             $slot_hash{$PKI_OPEN_SEPARATE_PORTS_COMMENT_SERVER_SLOT}  = $PKI_OPEN_COMMENT;
