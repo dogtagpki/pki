@@ -259,8 +259,6 @@ endif(WITH_JAVADOC)
 javac(pki-cmscore-classes
     SOURCES
         com/netscape/cmscore/*.java
-    EXCLUDE
-        com/netscape/cmscore/realm/*.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
@@ -282,8 +280,6 @@ jar(pki-cmscore-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/cmscore/*.class
-    EXCLUDE
-        com/netscape/cmscore/realm/*.class
     DEPENDS
         pki-cmscore-classes
 )
@@ -337,52 +333,3 @@ install(
 )
 
 set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
-
-
-# build pki jndi realm
-javac(pki-jndi-realm-classes
-    SOURCES
-        com/netscape/cmscore/realm/*.java
-    CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
-        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-    OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
-    DEPENDS
-        pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore pki-cmsbundle
-)
-
-jar(pki-jndi-realm-jar
-    CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm-${APPLICATION_VERSION}.jar
-    INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
-    FILES
-        com/netscape/cmscore/realm/*.class
-    DEPENDS
-        pki-jndi-realm-classes
-)
-
-link(pki-jndi-realm
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar
-    DEST
-        pki-jndi-realm-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-jndi-realm-jar
-)
-
-install(
-    FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm-${APPLICATION_VERSION}.jar
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-set(PKI_JNDI_REALM_JAR ${CMAKE_BINARY_DIR}/dist/pki-jndi-realm.jar CACHE INTERNAL "pki-jndi-realm jar file")

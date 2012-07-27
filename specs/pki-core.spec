@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}20%{?prerel}%{?dist}
+Release:          %{?relprefix}21%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -805,9 +805,6 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
-# Create symlink to the pki-jndi-realm jar
-%{__mkdir_p} %{buildroot}%{_javadir}/tomcat
-%{__ln_s} -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat/pki-jndi-realm.jar
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} %{buildroot}%{_bindir}/pkidaemon
@@ -1272,10 +1269,6 @@ fi
 %dir %{_localstatedir}/lock/pki/tomcat
 %dir %{_localstatedir}/run/pki/tomcat
 
-%if 0%{?fedora} >= 16
-# Create symlink to the pki-jndi-realm jar
-%{_javadir}/tomcat/pki-jndi-realm.jar
-%endif
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -1284,9 +1277,6 @@ fi
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 %endif
-
-%{_javadir}/pki/pki-jndi-realm-%{version}.jar
-%{_javadir}/pki/pki-jndi-realm.jar
 
 %{_datadir}/pki/setup/
 %dir %{_datadir}/pki/shared
@@ -1434,6 +1424,9 @@ fi
 
 
 %changelog
+* Fri Jul 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.21.a1
+- Merged pki-jndi-realm.jar into pki-cmscore.jar.
+
 * Tue Jul 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.20.a1
 - PKI TRAC Task #254 - Dogtag 10: Fix spec file to build successfully
   via mock on Fedora 17 . . .
