@@ -421,8 +421,9 @@ class configuration_file:
             if not sensitive.has_key('pki_ds_password') or\
                not len(sensitive['pki_ds_password']):
                 config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_DS_PASSWORD_1,
-                    config.pkideployment_cfg,
+                    log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                    "pki_ds_password",
+                    master['pki_deployment_cfg'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
             # Verify existence of Admin Password (except for Clones)
@@ -430,8 +431,9 @@ class configuration_file:
                 if not sensitive.has_key('pki_admin_password') or\
                    not len(sensitive['pki_admin_password']):
                     config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_ADMIN_PASSWORD_1,
-                        config.pkideployment_cfg,
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_admin_password",
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             # If required, verify existence of Backup Password
@@ -439,16 +441,27 @@ class configuration_file:
                 if not sensitive.has_key('pki_backup_password') or\
                    not len(sensitive['pki_backup_password']):
                     config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1,
-                        config.pkideployment_cfg,
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_backup_password",
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
+            # Verify existence of Client Pin for NSS client security databases
+            if not sensitive.has_key('pki_client_database_password') or\
+               not len(sensitive['pki_client_database_password']):
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2,
+                    "pki_client_database_password",
+                    master['pki_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
             # Verify existence of Client PKCS #12 Password for Admin Cert
             if not sensitive.has_key('pki_client_pkcs12_password') or\
                not len(sensitive['pki_client_pkcs12_password']):
                 config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_CLIENT_PKCS12_PASSWORD_1,
-                    config.pkideployment_cfg,
+                    log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                    "pki_client_pkcs12_password",
+                    master['pki_deployment_cfg'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
             # Verify existence of PKCS #12 Password (ONLY for Clones)
@@ -456,8 +469,9 @@ class configuration_file:
                 if not sensitive.has_key('pki_clone_pkcs12_password') or\
                    not len(sensitive['pki_clone_pkcs12_password']):
                     config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_CLONE_PKCS12_PASSWORD_1,
-                        config.pkideployment_cfg,
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_clone_pkcs12_password",
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             # Verify existence of Security Domain Password File
@@ -468,8 +482,19 @@ class configuration_file:
                 if not sensitive.has_key('pki_security_domain_password') or\
                    not len(sensitive['pki_security_domain_password']):
                     config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_SECURITY_DOMAIN_PASSWORD_1,
-                        config.pkideployment_cfg,
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_security_domain_password",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            # If required, verify existence of Token Password
+            if not master['pki_token_name'] == "internal":
+                if not sensitive.has_key('pki_token_password') or\
+                   not len(sensitive['pki_token_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_token_password",
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
         return
@@ -483,30 +508,131 @@ class configuration_file:
                    config.str2bool(master['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
-                        config.pkideployment_cfg,
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
                 elif config.str2bool(master['pki_clone']) and\
                      config.str2bool(master['pki_external']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
-                        config.pkideployment_cfg,
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
                 elif config.str2bool(master['pki_clone']) and\
                      config.str2bool(master['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
-                        config.pkideployment_cfg,
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
                 elif config.str2bool(master['pki_external']) and\
                      config.str2bool(master['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
-                        config.pkideployment_cfg,
+                        master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
+
+    def verify_predefined_configuration_file_data(self):
+        # Silently verify the existence of any required 'predefined' data
+        #
+        # FUTURE:  As much as is possible, alter this routine to verify
+        #          ALL name/value pairs for the requested configuration
+        #          scenario.  This should include checking for the
+        #          "existence" of ALL required "name" parameters, as well as
+        #          the "existence", "type", and "correctness" of ALL required
+        #          "value" parameters.
+        #
+        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if config.str2bool(config.pki_master_dict['pki_clone']):
+                # Verify existence of clone parameters
+                if not master.has_key('pki_clone_pkcs12_path') or\
+                   not len(master['pki_clone_pkcs12_path']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_clone_pkcs12_path",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                elif not os.path.isfile(master['pki_clone_pkcs12_path']):
+                    config.pki_log.error(
+                        log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
+                        master['pki_clone_pkcs12_path'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_clone_replication_security') or\
+                   not len(master['pki_clone_replication_security']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_clone_replication_security",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_clone_uri') or\
+                   not len(master['pki_clone_uri']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_clone_uri",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            elif master['pki_subsystem'] == "CA" and\
+                 config.str2bool(config.pki_master_dict['pki_external']):
+                if not master.has_key('pki_external_step_two') or\
+                   not len(master['pki_external_step_two']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_external_step_two",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not config.str2bool(config.pki_master_dict['pki_step_two']):
+                    if not master.has_key('pki_external_csr_path') or\
+                       not len(master['pki_external_csr_path']):
+                        config.pki_log.error(
+                            log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                            "pki_external_csr_path",
+                            master['pki_deployment_cfg'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                    elif not os.path.isfile(master['pki_external_csr_path']):
+                        config.pki_log.error(
+                            log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
+                            master['pki_external_csr_path'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                else:
+                    if not master.has_key('pki_external_ca_cert_chain_path') or\
+                       not len(master['pki_external_ca_cert_chain_path']):
+                        config.pki_log.error(
+                            log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                            "pki_external_ca_cert_chain_path",
+                            master['pki_deployment_cfg'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                    elif not os.path.isfile(
+                                 master['pki_external_ca_cert_chain_path']):
+                        config.pki_log.error(
+                            log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
+                            master['pki_external_ca_cert_chain_path'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                    if not master.has_key('pki_external_ca_cert_path') or\
+                       not len(master['pki_external_ca_cert_path']):
+                        config.pki_log.error(
+                            log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                            "pki_external_ca_cert_path",
+                            master['pki_deployment_cfg'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                    elif not os.path.isfile(
+                                 master['pki_external_ca_cert_path']):
+                        config.pki_log.error(
+                            log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
+                            master['pki_external_ca_cert_path'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+        return
 
     def populate_non_default_ports(self):
         if master['pki_http_port'] != \
@@ -554,6 +680,20 @@ class configuration_file:
                         log.PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT,
                         port, context,
                         extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        return
+
+    def verify_command_matches_configuration_file(self):
+        # Silently verify that the command-line parameters match the values
+        # that are present in the corresponding configuration file
+        if master['pki_deployment_executable'] == 'pkidestroy':
+            if master['pki_deployed_instance_name'] !=\
+               master['pki_instance_id']:
+                config.pki_log.error(
+                    log.PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2,
+                    master['pki_deployed_instance_name'],
+                    master['pki_instance_id'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
         return
 
@@ -677,6 +817,32 @@ class instance:
             sys.exit(1)
         return rv
 
+    def verify_subsystem_exists(self):
+        try:
+            if not os.path.exists(master['pki_subsystem_path']):
+                config.pki_log.error(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
+                                     master['pki_subsystem'],
+                                     master['pki_instance_id'],
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+
+    def verify_subsystem_does_not_exist(self):
+        try:
+            if os.path.exists(master['pki_subsystem_path']):
+                config.pki_log.error(log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
+                                     master['pki_subsystem'],
+                                     master['pki_instance_id'],
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+
 
 # PKI Deployment Directory Class
 class directory:
@@ -792,10 +958,10 @@ class directory:
     def delete(self, name, recursive_flag=True, critical_failure=True):
         try:
             if not os.path.exists(name) or not os.path.isdir(name):
-                config.pki_log.error(
+                # Simply issue a warning and continue
+                config.pki_log.warning(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             else:
                 if recursive_flag == True:
                     # rm -rf <name>
@@ -815,6 +981,17 @@ class directory:
             if critical_failure == True:
                 sys.exit(1)
         return
+
+    def exists(self, name):
+        try:
+            if not os.path.exists(name) or not os.path.isdir(name):
+                return False
+            else:
+                return True
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
 
     def is_empty(self, name):
         try:
@@ -1165,10 +1342,10 @@ class file:
     def delete(self, name, critical_failure=True):
         try:
             if not os.path.exists(name) or not os.path.isfile(name):
-                config.pki_log.error(
+                # Simply issue a warning and continue
+                config.pki_log.warning(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             else:
                 # rm -f <name>
                 config.pki_log.info(log.PKIHELPER_RM_F_1, name,
@@ -1181,6 +1358,17 @@ class file:
             if critical_failure == True:
                 sys.exit(1)
         return
+
+    def exists(self, name):
+        try:
+            if not os.path.exists(name) or not os.path.isfile(name):
+                return False
+            else:
+                return True
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
 
     def copy(self, old_name, new_name, uid=None, gid=None,
              perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS, acls=None,
@@ -1601,10 +1789,10 @@ class symlink:
     def delete(self, link, critical_failure=True):
         try:
             if not os.path.exists(link) or not os.path.islink(link):
-                config.pki_log.error(
+                # Simply issue a warning and continue
+                config.pki_log.warning(
                     log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link,
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                sys.exit(1)
             else:
                 # rm -f <link>
                 config.pki_log.info(log.PKIHELPER_RM_F_1, link,
@@ -1617,6 +1805,17 @@ class symlink:
             if critical_failure == True:
                 sys.exit(1)
         return
+
+    def exists(self, name):
+        try:
+            if not os.path.exists(name) or not os.path.islink(name):
+                return False
+            else:
+                return True
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
 
 
 # PKI Deployment War File Class
@@ -2149,6 +2348,7 @@ class jython:
             property = ""
             # Compose this "jython" command
             data = pickle.dumps(master)
+            sensitive_data = pickle.dumps(sensitive)
             ld_library_path = "LD_LIBRARY_PATH"
             if master['pki_architecture'] == 64:
                 ld_library_path = ld_library_path + "=" +\
@@ -2158,7 +2358,8 @@ class jython:
                 ld_library_path = ld_library_path + "=" +\
                                   "/usr/lib/jss:/usr/lib:/lib"
             command = "export" + " " + ld_library_path + ";" + "jython" + " " +\
-                      property + " " + scriptlet + " " + "\"" + data + "\""
+                      property + " " + scriptlet + " " + "\"" + data + "\"" +\
+                      " " + "\"" + sensitive_data + "\""
             # Display this "jython" command
             config.pki_log.info(
                 log.PKIHELPER_INVOKE_JYTHON_3,

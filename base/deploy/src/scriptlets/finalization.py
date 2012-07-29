@@ -35,23 +35,36 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self):
         config.pki_log.info(log.FINALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # Save a copy of the configuration file used by this process
-        # (which may be used later by 'pkidestroy')
-        util.file.copy(config.pkideployment_cfg,
-                       master['pki_subsystem_registry_path'] +\
-                       "/" + config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE)
-        # Save a timestamped copy of the installation manifest file
-        filename = master['pki_subsystem_registry_path'] + "/" +\
-                   "spawn" + "_" + "manifest" + "." +\
-                   master['pki_timestamp'] + "." + "csv"
-        config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, filename,
+        # For debugging/auditing purposes, save a timestamped copy of
+        # this configuration file in the subsystem archive
+        util.file.copy(master['pki_deployment_cfg_replica'],
+                       master['pki_deployment_cfg_spawn_archive'])
+        # Save a copy of the installation manifest file
+        config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, master['pki_manifest'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
         # for record in manifest.database:
         #     print tuple(record)
         if not config.pki_dry_run_flag:
-            manifest.file.register(filename)
+            manifest.file.register(master['pki_manifest'])
             manifest.file.write()
-            util.file.modify(filename, silent=True)
+            util.file.modify(master['pki_manifest'], silent=True)
+        # Also, for debugging/auditing purposes, save a timestamped copy of
+        # this installation manifest file
+        util.file.copy(master['pki_manifest'],
+                       master['pki_manifest_spawn_archive'])
+        # Optionally, programmatically 'restart' the configured PKI instance
+        if config.str2bool(master['pki_restart_configured_instance']):
+            util.systemd.restart()
+        # Optionally, 'purge' the entire temporary client infrastructure
+        # including the client NSS security databases and password files
+        #
+        #     WARNING:  If the PKCS #12 file containing the Admin Cert was
+        #               placed under this infrastructure, it may accidentally
+        #               be deleted!
+        #
+        if config.str2bool(master['pki_client_database_purge']):
+            if util.directory.exists(master['pki_client_dir']):
+                util.directory.delete(master['pki_client_dir'])
         # Log final process messages
         config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
@@ -66,22 +79,39 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # Save a copy of the configuration file used by this process
         # (which may be used later by 'pkidestroy')
-        util.file.copy(config.pkideployment_cfg,
-                       master['pki_subsystem_registry_path'] +\
-                       "/" + config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE,
+        util.file.copy(master['pki_deployment_cfg'],
+                       master['pki_deployment_cfg_replica'],
                        overwrite_flag=True)
-        # Save a timestamped copy of the updated manifest file
-        filename = master['pki_subsystem_registry_path'] + "/" +\
-                   "respawn" + "_" + "manifest" + "." +\
-                   master['pki_timestamp'] + "." + "csv"
-        config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, filename,
+        # Also, for debugging/auditing purposes, save a timestamped copy of
+        # this configuration file in the subsystem archive
+        util.file.copy(master['pki_deployment_cfg_replica'],
+                       master['pki_deployment_cfg_respawn_archive'])
+        # Save a copy of the updated manifest file
+        config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, master['pki_manifest'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
         # for record in manifest.database:
         #     print tuple(record)
         if not config.pki_dry_run_flag:
-            manifest.file.register(filename)
+            manifest.file.register(master['pki_manifest'])
             manifest.file.write()
-            util.file.modify(filename, silent=True)
+            util.file.modify(master['pki_manifest'], silent=True)
+        # Also, for debugging/auditing purposes, save a timestamped copy of
+        # this installation manifest file
+        util.file.copy(master['pki_manifest'],
+                       master['pki_manifest_respawn_archive'])
+        # Optionally, programmatically 'restart' the configured PKI instance
+        if config.str2bool(master['pki_restart_configured_instance']):
+            util.systemd.restart()
+        # Optionally, 'purge' the entire temporary client infrastructure
+        # including the client NSS security databases and password files
+        #
+        #     WARNING:  If the PKCS #12 file containing the Admin Cert was
+        #               placed under this infrastructure, it may accidentally
+        #               be deleted!
+        #
+        if config.str2bool(master['pki_client_database_purge']):
+            if util.directory.exists(master['pki_client_dir']):
+                util.directory.delete(master['pki_client_dir'])
         # Log final process messages
         config.pki_log.info(log.PKIRESPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
@@ -94,10 +124,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.FINALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
-                            master['pki_subsystem'],
-                            master['pki_instance_id'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
         if not config.pki_dry_run_flag:
             util.file.modify(master['pki_destroy_log'], silent=True)
         # Start this Apache/Tomcat PKI Process
@@ -116,4 +142,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() >= 0:
                 util.systemd.start()
+        config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
+                            master['pki_subsystem'],
+                            master['pki_instance_id'],
+                            extra=config.PKI_INDENTATION_LEVEL_0)
         return self.rv

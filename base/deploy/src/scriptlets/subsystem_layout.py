@@ -34,18 +34,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self):
         config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # establish instance-based subsystem base
-        util.directory.create(master['pki_subsystem_path'])
         # establish instance-based subsystem logs
         util.directory.create(master['pki_subsystem_log_path'])
+        util.directory.create(master['pki_subsystem_archive_log_path'])
         if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             util.directory.create(master['pki_subsystem_signed_audit_log_path'])
         # establish instance-based subsystem configuration
         util.directory.create(master['pki_subsystem_configuration_path'])
         # util.directory.copy(master['pki_source_conf_path'],
         #                     master['pki_subsystem_configuration_path'])
-        # establish instance-based subsystem registry
-        util.directory.create(master['pki_subsystem_registry_path'])
         # establish instance-based Apache/Tomcat specific subsystems
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish instance-based Tomcat PKI subsystem base
@@ -96,6 +93,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_subsystem_conf_link'])
         util.symlink.create(master['pki_subsystem_log_path'],
                             master['pki_subsystem_logs_link'])
+        util.symlink.create(master['pki_instance_registry_path'],
+                            master['pki_subsystem_registry_link'])
         return self.rv
 
     def respawn(self):
@@ -105,6 +104,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.directory.modify(master['pki_subsystem_path'])
         # update instance-based subsystem logs
         util.directory.modify(master['pki_subsystem_log_path'])
+        util.directory.modify(master['pki_subsystem_archive_log_path'])
         if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             util.directory.modify(master['pki_subsystem_signed_audit_log_path'])
         # update instance-based subsystem configuration
@@ -174,6 +174,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.symlink.modify(master['pki_subsystem_database_link'])
         util.symlink.modify(master['pki_subsystem_conf_link'])
         util.symlink.modify(master['pki_subsystem_logs_link'])
+        util.symlink.modify(master['pki_subsystem_registry_link'])
         return self.rv
 
     def destroy(self):
@@ -187,6 +188,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove instance-based subsystem logs
         if master['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             util.directory.delete(master['pki_subsystem_signed_audit_log_path'])
+        util.directory.delete(master['pki_subsystem_archive_log_path'])
         util.directory.delete(master['pki_subsystem_log_path'])
         # remove instance-based subsystem configuration
         util.directory.delete(master['pki_subsystem_configuration_path'])

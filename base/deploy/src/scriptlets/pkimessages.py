@@ -55,17 +55,6 @@ PKI_VERBOSITY=\
 
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
-PKI_CUSTOM_APACHE_INSTANCE_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, the 'instance', 'http_port', and "\
-                               "'https_port' must ALL be specified!"
-PKI_CUSTOM_TOMCAT_INSTANCE_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, the 'instance', 'http_port', "\
-                               "'https_port', and 'ajp_port' must ALL be "\
-                               "specified!"
-PKI_CUSTOM_TOMCAT_AJP_PORT_1 = "When a custom '%s' subsystem is being "\
-                               "deployed, ONLY the 'instance', "\
-                               "'http_port', and 'https_port' MUST be "\
-                               "specified; NO 'ajp_port' should be requested!"
 PKI_DIRECTORY_ALREADY_EXISTS_1 = "Directory '%s' already exists!"
 PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = "Directory '%s' already "\
                                                  "exists BUT it is NOT a "\
@@ -81,6 +70,7 @@ PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 = "File '%s' already "\
 PKI_FILE_MISSING_OR_NOT_A_FILE_1 = "File '%s' is either missing "\
                                    "or is NOT a regular file!"
 PKI_FILE_NOT_A_WAR_FILE_1 = "File '%s' is NOT a war file!"
+PKI_INSTANCE_DOES_NOT_EXIST_1 = "PKI instance '%s' does NOT exist!"
 PKI_SECURITY_DATABASES_ALREADY_EXIST_3 = "Security databases '%s', '%s', "\
                                          "and/or '%s' already exist!"
 PKI_SECURITY_DATABASES_DO_NOT_EXIST_3 = "Security databases '%s', '%s', "\
@@ -113,6 +103,17 @@ PKIDESTROY_BEGIN_MESSAGE_2 = "BEGIN destroying subsystem '%s' of "\
                              "instance '%s' . . ."
 PKIDESTROY_END_MESSAGE_2 = "END destroying subsystem '%s' of "\
                            "instance '%s'"
+PKIDESTROY_EPILOG =\
+"REMINDER:\n\n"\
+"    The default PKI instance path will be calculated and placed in front\n"\
+"    of the mandatory '-i <instance>' parameter, and the values that reside\n"\
+"    in a copy of the 'pkideployment.cfg' file that was most recently used\n"\
+"    by this instance's 'pkispawn' (or 'pkispawn -u') command will be\n"\
+"    utilized by 'pkidestroy' to remove this instance.\n\n"\
+"    Finally, if an optional '-p <prefix>' is defined, this value WILL be\n"\
+"    prepended to the default PKI instance path which is placed in front\n"\
+"    of the specified '-i <instance>' parameter.\n\n" +\
+PKI_VERBOSITY
 PKIRESPAWN_BEGIN_MESSAGE_2 = "BEGIN respawning subsystem '%s' of "\
                              "instance '%s' . . ."
 PKIRESPAWN_END_MESSAGE_2 = "END respawning subsystem '%s' of "\
@@ -121,6 +122,20 @@ PKISPAWN_BEGIN_MESSAGE_2 = "BEGIN spawning subsystem '%s' of "\
                            "instance '%s' . . ."
 PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
                          "instance '%s'"
+PKISPAWN_EPILOG =\
+"REMINDER:\n\n"\
+"    If two or more Apache or Tomcat PKI 'instances' are specified via\n"\
+"    separate configuration files, remember that the following parameters\n"\
+"    MUST differ between PKI 'instances':\n\n"\
+"        Apache:  'pki_instance_name', 'pki_http_port', and 'pki_https_port'\n"\
+"        Tomcat:  'pki_instance_name', 'pki_http_port', 'pki_https_port',\n"\
+"                 'pki_ajp_port', and 'pki_tomcat_server_port'\n\n"\
+"    Optionally, the 'pki_admin_domain_name' may be changed instead of, or\n"\
+"    in addition to, the 'pki_instance_name' since a PKI instance is\n"\
+"    defined as '${pki_instance_name}[.${pki_admin_domain_name}]'.\n\n"\
+"    Finally, if an optional '-p <prefix>' is defined, this value WILL NOT\n"\
+"    be prepended in front of the mandatory '-f <configuration_file>'.\n\n" +\
+PKI_VERBOSITY
 
 
 # PKI Deployment "Helper" Messages
@@ -147,6 +162,9 @@ PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1 = "executing '%s'"
 PKIHELPER_CHMOD_2 = "chmod %o %s"
 PKIHELPER_CHOWN_3 = "chown %s:%s %s"
 PKIHELPER_CHOWN_H_3 = "chown -h %s:%s %s"
+PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2 = "the command-line parameter "\
+                                              "'%s' DOES NOT match the "\
+                                              "configuration file value '%s'!"
 PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2 = "copying '%s' --> '%s' "\
                                           "with slot substitution"
 PKIHELPER_CP_P_2 = "cp -p %s %s"
@@ -166,7 +184,7 @@ PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
 PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT = "port %s has invalid selinux "\
                                              "context %s"
 PKIHELPER_INVOKE_JYTHON_3 = "executing 'export %s;"\
-                            "jython %s %s <master_dictionary>'"
+                            "jython %s %s <master_dictionary> <sensitive_data>'"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
@@ -209,18 +227,11 @@ PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' "\
                                "Tomcat PKI subsystems"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
-PKIHELPER_UNDEFINED_ADMIN_PASSWORD_1 =\
-    "A value for 'pki_admin_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_BACKUP_PASSWORD_1 =\
-    "A value for 'pki_backup_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_CLIENT_PKCS12_PASSWORD_1 =\
-    "A value for 'pki_client_pkcs12_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_CLONE_PKCS12_PASSWORD_1 =\
-    "A value for 'pki_clone_pkcs12_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_DS_PASSWORD_1 =\
-    "A value for 'pki_ds_password' MUST be defined in '%s'"
-PKIHELPER_UNDEFINED_SECURITY_DOMAIN_PASSWORD_1 =\
-    "A value for 'pki_security_domain_password' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 =\
+    "Either a value for '%s' MUST be defined in '%s', or "\
+    "the randomly generated client pin MUST be used"
+PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 =\
+    "A value for '%s' MUST be defined in '%s'"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."
 PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."

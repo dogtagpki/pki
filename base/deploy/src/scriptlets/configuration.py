@@ -22,6 +22,7 @@
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
+from pkiconfig import pki_sensitive_dict as sensitive
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
@@ -37,7 +38,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not config.pki_dry_run_flag:
             # Place "slightly" less restrictive permissions on
             # the top-level client directory ONLY
-            util.directory.create(master['pki_client_path'],
+            util.directory.create(master['pki_client_dir'],
                 uid=0, gid=0,
                 perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
             # Since 'certutil' does NOT strip the 'token=' portion of
@@ -46,7 +47,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # allowing 'certutil' to generate the security databases
             util.password.create_password_conf(
                 master['pki_client_password_conf'],
-                master['pki_client_pin'], pin_sans_token=True)
+                sensitive['pki_client_database_password'], pin_sans_token=True)
             util.file.modify(master['pki_client_password_conf'],
                              uid=0, gid=0)
             # Similarly, create a simple password file containing the
@@ -54,12 +55,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # into a PKCS #12 file
             util.password.create_client_pkcs12_password_conf(
                 master['pki_client_pkcs12_password_conf'])
-            util.file.modify(master['pki_client_pkcs12_password_conf'],
-                             uid=0, gid=0)
-            util.directory.create(master['pki_client_database_path'],
+            util.file.modify(master['pki_client_pkcs12_password_conf'])
+            util.directory.create(master['pki_client_database_dir'],
                                   uid=0, gid=0)
             util.certutil.create_security_databases(
-                master['pki_client_database_path'],
+                master['pki_client_database_dir'],
                 master['pki_client_cert_database'],
                 master['pki_client_key_database'],
                 master['pki_client_secmod_database'],
@@ -73,14 +73,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # allowing 'certutil' to generate the security databases
             util.password.create_password_conf(
                 master['pki_client_password_conf'],
-                master['pki_client_pin'], pin_sans_token=True)
+                sensitive['pki_client_database_password'], pin_sans_token=True)
             # Similarly, create a simple password file containing the
             # PKCS #12 password used when exporting the "Admin Certificate"
             # into a PKCS #12 file
             util.password.create_client_pkcs12_password_conf(
                 master['pki_client_pkcs12_password_conf'])
             util.certutil.create_security_databases(
-                master['pki_client_database_path'],
+                master['pki_client_database_dir'],
                 master['pki_client_cert_database'],
                 master['pki_client_key_database'],
                 master['pki_client_secmod_database'],
@@ -130,10 +130,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.CONFIGURATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        util.file.modify(master['pki_client_password_conf'],
-                         uid=0, gid=0)
-        util.file.modify(master['pki_client_pkcs12_password_conf'],
-                         uid=0, gid=0)
+        if util.file.exists(master['pki_client_password_conf']):
+            util.file.modify(master['pki_client_password_conf'],
+                             uid=0, gid=0)
+        if util.file.exists(master['pki_client_pkcs12_password_conf']):
+            util.file.modify(master['pki_client_pkcs12_password_conf'],
+                             uid=0, gid=0)
         # ALWAYS Restart this Apache/Tomcat PKI Process
         util.systemd.restart()
         return self.rv
@@ -144,20 +146,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
                util.instance.apache_instances() == 1:
-                util.directory.delete(master['pki_client_path'])
+                if util.directory.exists(master['pki_client_dir']):
+                    util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() == 1:
-                util.directory.delete(master['pki_client_path'])
+                if util.directory.exists(master['pki_client_dir']):
+                    util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
                util.instance.apache_instances() == 0:
-                util.directory.delete(master['pki_client_path'])
+                if util.directory.exists(master['pki_client_dir']):
+                    util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
                  util.instance.tomcat_instances() == 0:
-                util.directory.delete(master['pki_client_path'])
+                if util.directory.exists(master['pki_client_dir']):
+                    util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
         return self.rv

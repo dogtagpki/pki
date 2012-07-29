@@ -34,8 +34,39 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self):
         config.pki_log.info(log.ADMIN_DOMAIN_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # establish top-level infrastructure base
+        # NOTE:  It was determined that since the "pkidestroy" command
+        #        relies upon a symbolic link to a replica of the original
+        #        "pkideployment.cfg" configuration file used by the
+        #        "pkispawn" command of an instance, it is necessary to
+        #        create any required instance and subsystem directories
+        #        in this top-level "infrastructure_layout" scriptlet
+        #        (rather than the "instance_layout" and "subsystem_layout"
+        #        scriptlets) so that a copy of this configuration file can
+        #        be saved, and the required symbolic link can be created.
+        #
+        # establish the top-level infrastructure, instance, and subsystem
+        # registry directories for storage of a copy of the original
+        # "pkideployment.cfg" configuration file used to spawn this instance,
+        # and save a copy of this file
+        util.directory.create(master['pki_registry_path'])
+        util.directory.create(master['pki_instance_type_registry_path'])
+        util.directory.create(master['pki_instance_registry_path'])
+        util.directory.create(master['pki_subsystem_registry_path'])
+        util.file.copy(master['pki_deployment_cfg'],
+                       master['pki_deployment_cfg_replica'])
+        # establish top-level infrastructure, instance, and subsystem
+        # base directories and create the "registry" symbolic link that
+        # the "pkidestroy" executable relies upon
         util.directory.create(master['pki_path'])
+        util.directory.create(master['pki_instance_path'])
+        util.directory.create(master['pki_subsystem_path'])
+        util.symlink.create(master['pki_instance_registry_path'],
+                            master['pki_subsystem_registry_link'])
+        #
+        # NOTE:  If "infrastructure_layout" scriptlet execution has been
+        #        successfully executed to this point, the "pkidestroy" command
+        #        may always be utilized to remove the entire infrastructure.
+        #
         # no need to establish top-level infrastructure logs
         # since it now stores 'pkispawn'/'pkidestroy' logs
         # and will already exist
@@ -44,8 +75,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if master['pki_configuration_path'] !=\
            config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
             util.directory.create(master['pki_configuration_path'])
-        # establish top-level infrastructure registry
-        util.directory.create(master['pki_registry_path'])
         return self.rv
 
     def respawn(self):
@@ -82,10 +111,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     util.directory.delete(master['pki_configuration_path'])
                 # remove top-level infrastructure registry
                 util.directory.delete(master['pki_registry_path'])
-                if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                    util.file.delete(
-                        master['pki_target_tomcat_conf_instance_id'])
-
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
@@ -102,7 +127,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     util.directory.delete(master['pki_configuration_path'])
                 # remove top-level infrastructure registry
                 util.directory.delete(master['pki_registry_path'])
-                if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                    util.file.delete(
-                        master['pki_target_tomcat_conf_instance_id'])
         return self.rv

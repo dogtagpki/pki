@@ -154,23 +154,6 @@ import pkimessages as log
 
 
 # PKI Deployment Jython Helper Functions
-def extract_sensitive_data(configuration_file):
-    "Read 'sensitive' configuration file section into a dictionary"
-    try:
-        parser = ConfigParser.ConfigParser()
-        # Make keys case-sensitive!
-        parser.optionxform = str
-        parser.read(configuration_file)
-        # return dict(parser._sections['Sensitive'])
-        dictionary = {}
-        for option in parser.options('Sensitive'):
-            dictionary[option] = parser.get('Sensitive', option)
-        return dictionary
-    except ConfigParser.ParsingError, err:
-        javasystem.out.println(log.PKI_JYTHON_EXCEPTION_PARSER + " '" +\
-                               configuration_file + "':  " + str(err))
-        javasystem.exit(1)
-
 def generateCRMFRequest(token, keysize, subjectdn, dualkey):
         kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA)
         x = Integer(keysize)
@@ -285,7 +268,7 @@ class rest_client:
             e.printStackTrace()
             javasystem.exit(1)
 
-    def construct_pki_configuration_data(self, master, token):
+    def construct_pki_configuration_data(self, master, sensitive, token):
         data = None
         if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
             print "%s %s '%s'" %\
@@ -293,10 +276,9 @@ class rest_client:
                    log.PKI_JYTHON_CONSTRUCTING_PKI_DATA,
                    master['pki_subsystem'])
         if not master['pki_dry_run_flag']:
-            sensitive = extract_sensitive_data(master['pki_deployment_cfg'])
             data = ConfigurationData()
             # Miscellaneous Configuration Information
-            data.setPin(master['pki_one_time_pin'])
+            data.setPin(sensitive['pki_one_time_pin'])
             data.setToken(ConfigurationData.TOKEN_DEFAULT)
             if master['pki_instance_type'] == "Tomcat":
                 data.setSubsystemName(master['pki_subsystem_name'])
@@ -390,7 +372,7 @@ class rest_client:
             if master['pki_instance_type'] == "Tomcat":
                 if config.str2bool(master['pki_backup_keys']):
                     data.setBackupKeys("true")
-                    data.setBackupFile(master['pki_backup_file'])
+                    data.setBackupFile(master['pki_backup_keys_p12'])
                     data.setBackupPassword(
                         sensitive['pki_backup_password'])
                 else:
@@ -569,7 +551,7 @@ class rest_client:
             data.setSystemCerts(systemCerts)
         return data
 
-    def configure_pki_data(self, data, master):
+    def configure_pki_data(self, data, master, sensitive):
         if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
             print "%s %s '%s'" %\
                   (log.PKI_JYTHON_INDENTATION_2,
@@ -577,7 +559,6 @@ class rest_client:
                    master['pki_subsystem'])
         if not master['pki_dry_run_flag']:
             try:
-                sensitive = extract_sensitive_data(master['pki_deployment_cfg'])
                 response = self.client.configure(data)
                 javasystem.out.println(log.PKI_JYTHON_RESPONSE_STATUS +\
                                        " " + response.getStatus())
@@ -595,7 +576,7 @@ class rest_client:
                     javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
                                            cdata.getRequest())
                 # Store the Administration Certificate in a file
-                admin_cert_file = os.path.join(master['pki_client_path'],
+                admin_cert_file = os.path.join(master['pki_client_dir'],
                                                master['pki_client_admin_cert'])
                 javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
                                        " " + "'" + admin_cert_file + "'")
@@ -626,7 +607,7 @@ class rest_client:
                           "-f" + " " +\
                           master['pki_client_password_conf'] + " " +\
                           "-d" + " " +\
-                          master['pki_client_database_path'] + " " +\
+                          master['pki_client_database_dir'] + " " +\
                           "-a" + " " +\
                           "-i" + " " +\
                           admin_cert_file
@@ -643,7 +624,7 @@ class rest_client:
                           re.sub("&#39;", "'", master['pki_admin_nickname']) +\
                           "\"" + " " +\
                           "-d" + " " +\
-                          master['pki_client_database_path'] + " " +\
+                          master['pki_client_database_dir'] + " " +\
                           "-k" + " " +\
                           master['pki_client_password_conf'] + " " +\
                           "-w" + " " +\

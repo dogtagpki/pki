@@ -24,6 +24,8 @@ import ConfigParser
 import argparse
 import logging
 import os
+import random
+import string
 import sys
 import time
 
@@ -36,16 +38,20 @@ import pkimessages as log
 # PKI Deployment Helper Functions
 def process_command_line_arguments(argv):
     "Read and process command-line options"
+    config.pki_deployment_executable = os.path.basename(argv[0])
     description = None
-    if os.path.basename(argv[0]) == 'pkispawn':
+    if config.pki_deployment_executable == 'pkispawn':
         description = 'PKI Instance Installation and Configuration'
-    elif os.path.basename(argv[0]) == 'pkidestroy':
+        epilog = log.PKISPAWN_EPILOG
+    elif config.pki_deployment_executable == 'pkidestroy':
         description = 'PKI Instance Removal'
+        epilog = log.PKIDESTROY_EPILOG
     parser = argparse.ArgumentParser(
                  description=description,
                  add_help=False,
                  formatter_class=argparse.RawDescriptionHelpFormatter,
-                 epilog=log.PKI_VERBOSITY)
+                 epilog=epilog)
+    # Establish 'Mandatory' command-line options
     mandatory = parser.add_argument_group('mandatory arguments')
     mandatory.add_argument('-s',
                            dest='pki_subsystem', action='store',
@@ -53,12 +59,20 @@ def process_command_line_arguments(argv):
                            required=True, metavar='<subsystem>',
                            help='where <subsystem> is '
                                 'CA, KRA, OCSP, RA, TKS, or TPS')
-    if os.path.basename(argv[0]) == 'pkispawn':
+    if config.pki_deployment_executable == 'pkispawn':
         mandatory.add_argument('-f',
                                dest='pkideployment_cfg', action='store',
                                nargs=1, required=True, metavar='<file>',
-                               help='specifies configuration filename')
-
+                               help='configuration filename '
+                                    '(MUST specify complete path)')
+    elif config.pki_deployment_executable == 'pkidestroy':
+        mandatory.add_argument('-i',
+                               dest='pki_deployed_instance_name',
+                               action='store',
+                               nargs=1, metavar='<instance>',
+                               help='FORMAT:  ${pki_instance_name}'
+                                    '[.${pki_admin_domain_name}]')
+    # Establish 'Optional' command-line options
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--dry_run',
                           dest='pki_dry_run_flag', action='store_true',
@@ -66,73 +80,40 @@ def process_command_line_arguments(argv):
     optional.add_argument('-h', '--help',
                           dest='help', action='help',
                           help='show this help message and exit')
-    if os.path.basename(argv[0]) == 'pkispawn':
+    if config.pki_deployment_executable == 'pkispawn':
         optional.add_argument('-u',
                               dest='pki_update_flag', action='store_true',
                               help='update instance of specified subsystem')
     optional.add_argument('-v',
                           dest='pki_verbosity', action='count',
                           help='display verbose information (details below)')
-    custom = parser.add_argument_group('custom arguments '
-                                       '(OVERRIDES configuration file values)')
-    if os.path.basename(argv[0]) == 'pkispawn':
-        custom.add_argument('-i',
-                            dest='custom_pki_instance_name', action='store',
-                            nargs=1, metavar='<instance>',
-                            help='PKI instance name '
-                                 '(MUST specify REQUIRED ports)')
-        custom.add_argument('-d',
-                            dest='custom_pki_admin_domain_name', action='store',
-                            nargs=1, metavar='<admin_domain>',
-                            help='PKI admin domain name (instance name suffix)')
-        custom.add_argument('--http_port',
-                            dest='custom_pki_http_port', action='store',
-                            nargs=1, metavar='<port>',
-                            help='HTTP port (CA, KRA, OCSP, RA, TKS, TPS)')
-        custom.add_argument('--https_port',
-                            dest='custom_pki_https_port', action='store',
-                            nargs=1, metavar='<port>',
-                            help='HTTPS port (CA, KRA, OCSP, RA, TKS, TPS)')
-        custom.add_argument('--ajp_port',
-                            dest='custom_pki_ajp_port', action='store',
-                            nargs=1, metavar='<port>',
-                            help='AJP port (CA, KRA, OCSP, TKS)')
-    elif os.path.basename(argv[0]) == 'pkidestroy':
-        custom.add_argument('-i',
-                            dest='custom_pki_instance_name', action='store',
-                            nargs=1, metavar='<instance>',
-                            help='PKI instance name')
-        custom.add_argument('-d',
-                            dest='custom_pki_admin_domain_name', action='store',
-                            nargs=1, metavar='<admin_domain>',
-                            help='PKI admin domain name (instance name suffix)')
-
+    # Establish 'Test' command-line options
     test = parser.add_argument_group('test arguments')
     test.add_argument('-p',
                       dest='pki_root_prefix', action='store',
                       nargs=1, metavar='<prefix>',
                       help='directory prefix to specify local directory '
                            '[TEST ONLY]')
+    # Parse command-line options
     args = parser.parse_args()
-
+    # Process 'Mandatory' command-line options
+    #    '-s'
     config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
+    if config.pki_deployment_executable == 'pkispawn':
+        #    '-f'
+        config.pkideployment_cfg = str(args.pkideployment_cfg).strip('[\']')
+    elif config.pki_deployment_executable == 'pkidestroy':
+        #    '-i'
+        config.pki_deployed_instance_name =\
+            str(args.pki_deployed_instance_name).strip('[\']')
+    # Process 'Optional' command-line options
+    #    '--dry_run'
     if args.pki_dry_run_flag:
         config.pki_dry_run_flag = args.pki_dry_run_flag
-    if not args.pki_root_prefix is None:
-        config.pki_root_prefix = str(args.pki_root_prefix).strip('[\']')
-    if config.pki_root_prefix is None or\
-       len(config.pki_root_prefix) == 0:
-        config.pki_root_prefix = ""
-    elif not os.path.exists(config.pki_root_prefix) or\
-         not os.path.isdir(config.pki_root_prefix):
-        print "ERROR:  " +\
-              log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %\
-              config.pki_root_prefix
-        print
-        parser.print_help()
-        parser.exit(-1);
-    if os.path.basename(argv[0]) == 'pkispawn':
+    if config.pki_deployment_executable == 'pkispawn':
+        #    '-u'
         config.pki_update_flag = args.pki_update_flag
+    #    '-v'
     if args.pki_verbosity == 1:
         config.pki_jython_log_level = config.PKI_JYTHON_INFO_LOG_LEVEL
         config.pki_console_log_level = logging.INFO
@@ -155,151 +136,47 @@ def process_command_line_arguments(argv):
         config.pki_jython_log_level = config.PKI_JYTHON_WARNING_LOG_LEVEL
         config.pki_console_log_level = logging.WARNING
         config.pki_log_level = logging.INFO
-    if not args.custom_pki_instance_name is None:
-        config.custom_pki_instance_name =\
-            str(args.custom_pki_instance_name).strip('[\']')
-    if not args.custom_pki_admin_domain_name is None:
-        config.custom_pki_admin_domain_name =\
-            str(args.custom_pki_admin_domain_name).strip('[\']')
-    if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-        if not config.custom_pki_instance_name is None:
-            default_pki_instance_name = config.custom_pki_instance_name
-        else:
-            default_pki_instance_name =\
-                config.PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME
-        if not config.custom_pki_admin_domain_name is None:
-            default_pki_instance_path =\
-                config.pki_root_prefix +\
-                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                default_pki_instance_name + "." +\
-                config.custom_pki_admin_domain_name + "/" +\
-                config.pki_subsystem.lower()
-        else:
-            default_pki_instance_path =\
-                config.pki_root_prefix +\
-                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                default_pki_instance_name + "/" +\
-                config.pki_subsystem.lower()
-    elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-        if not config.custom_pki_instance_name is None:
-            default_pki_instance_name = config.custom_pki_instance_name
-        else:
-            default_pki_instance_name =\
-                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME
-        if not config.custom_pki_admin_domain_name is None:
-            default_pki_instance_path =\
-                config.pki_root_prefix +\
-                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                default_pki_instance_name + "." +\
-                config.custom_pki_admin_domain_name + "/" +\
-                config.pki_subsystem.lower()
-        else:
-            default_pki_instance_path =\
-                config.pki_root_prefix +\
-                config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                default_pki_instance_name + "/" +\
-                config.pki_subsystem.lower()
-    if os.path.basename(argv[0]) == 'pkispawn':
-        if args.pki_update_flag:
-            # "respawn"
-            if not os.path.exists(default_pki_instance_path):
-                print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
-                      (config.pki_subsystem, default_pki_instance_name)
-                print
-                parser.exit(-1);
-        else:
-            # "spawn"
-            if os.path.exists(default_pki_instance_path):
-                print "ERROR:  " + log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 %\
-                      (config.pki_subsystem, default_pki_instance_name)
-                print
-                parser.exit(-1);
-        config.pkideployment_cfg = str(args.pkideployment_cfg).strip('[\']')
-        if not args.custom_pki_http_port is None:
-            config.custom_pki_http_port =\
-                str(args.custom_pki_http_port).strip('[\']')
-        if not args.custom_pki_https_port is None:
-            config.custom_pki_https_port =\
-                str(args.custom_pki_https_port).strip('[\']')
-        if not args.custom_pki_ajp_port is None:
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                config.custom_pki_ajp_port =\
-                    str(args.custom_pki_ajp_port).strip('[\']')
-            else:
-                print "ERROR:  " +\
-                      log.PKI_CUSTOM_TOMCAT_AJP_PORT_1 %\
-                      config.pki_subsystem
-                print
-                parser.print_help()
-                parser.exit(-1);
-        if not args.custom_pki_instance_name is None or\
-           not args.custom_pki_http_port is None or\
-           not args.custom_pki_https_port is None or\
-           not args.custom_pki_ajp_port is None:
-            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                if args.custom_pki_instance_name is None or\
-                   args.custom_pki_http_port is None or\
-                   args.custom_pki_https_port is None:
-                    print "ERROR:  " + log.PKI_CUSTOM_APACHE_INSTANCE_1 %\
-                          config.pki_subsystem
-                    print
-                    parser.print_help()
-                    parser.exit(-1);
-            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if args.custom_pki_instance_name is None or\
-                   args.custom_pki_http_port is None or\
-                   args.custom_pki_https_port is None or\
-                   args.custom_pki_ajp_port is None:
-                    print "ERROR:  " + log.PKI_CUSTOM_TOMCAT_INSTANCE_1 %\
-                          config.pki_subsystem
-                    print
-                    parser.print_help()
-                    parser.exit(-1);
-    elif os.path.basename(argv[0]) == 'pkidestroy':
-        # NOTE:  When performing 'pkidestroy', a 'pki_instance_name' and/or
-        #        a 'pki_admin_domain_name' MUST be explicitly specified if
-        #        a PKI instance has NOT been installed in the default location
-        #        using the default PKI instance name!
-        if not os.path.exists(default_pki_instance_path):
-            print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
-                  (config.pki_subsystem, default_pki_instance_name)
+    # Process 'Test' command-line options
+    #    '-p'
+    if not args.pki_root_prefix is None:
+        config.pki_root_prefix = str(args.pki_root_prefix).strip('[\']')
+    # Validate command-line options
+    if config.pki_root_prefix is None or\
+       len(config.pki_root_prefix) == 0:
+        config.pki_root_prefix = ""
+    elif not os.path.exists(config.pki_root_prefix) or\
+         not os.path.isdir(config.pki_root_prefix):
+        print "ERROR:  " +\
+              log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %\
+              config.pki_root_prefix
+        print
+        parser.print_help()
+        parser.exit(-1);
+    if config.pki_deployment_executable == 'pkidestroy':
+        # verify that previously deployed instance exists
+        deployed_pki_instance_path = config.pki_root_prefix +\
+                                     config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                                     config.pki_deployed_instance_name
+        if not os.path.exists(deployed_pki_instance_path):
+            print "ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %\
+                  deployed_pki_instance_path
             print
             parser.exit(-1);
-        if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            if not config.custom_pki_admin_domain_name is None:
-                default_pki_instance_registry_path =\
-                    config.pki_root_prefix +\
-                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME + "/" +\
-                    default_pki_instance_name + "." +\
-                    config.custom_pki_admin_domain_name + "/" +\
-                    config.pki_subsystem.lower()
-            else:
-                default_pki_instance_registry_path =\
-                    config.pki_root_prefix +\
-                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME + "/" +\
-                    default_pki_instance_name + "/" +\
-                    config.pki_subsystem.lower()
-        elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if not config.custom_pki_admin_domain_name is None:
-                default_pki_instance_registry_path =\
-                    config.pki_root_prefix +\
-                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME + "/" +\
-                    default_pki_instance_name + "." +\
-                    config.custom_pki_admin_domain_name + "/" +\
-                    config.pki_subsystem.lower()
-            else:
-                default_pki_instance_registry_path =\
-                    config.pki_root_prefix +\
-                    config.PKI_DEPLOYMENT_REGISTRY_ROOT + "/" +\
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME + "/" +\
-                    default_pki_instance_name + "/" +\
-                    config.pki_subsystem.lower()
+        # verify that previously deployed subsystem for this instance exists
+        deployed_pki_subsystem_path = deployed_pki_instance_path + "/" +\
+                                      config.pki_subsystem.lower()
+        if not os.path.exists(deployed_pki_subsystem_path):
+            print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
+                  (config.pki_subsystem, deployed_pki_instance_path)
+            print
+            parser.exit(-1);
+        # establish complete path to previously deployed configuration file
         config.pkideployment_cfg =\
-            default_pki_instance_registry_path + "/" +\
+            deployed_pki_subsystem_path + "/" +\
+            "registry" + "/" +\
+            config.pki_subsystem.lower() + "/" +\
             config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+    # always verify that configuration file exists
     if not os.path.exists(config.pkideployment_cfg) or\
        not os.path.isfile(config.pkideployment_cfg):
         print "ERROR:  " +\
@@ -354,6 +231,8 @@ def compose_pki_master_dictionary():
     try:
         config.pki_master_dict = dict()
         # 'pkispawn'/'pkirespawn'/'pkidestroy' name/value pairs
+        config.pki_master_dict['pki_deployment_executable'] =\
+            config.pki_deployment_executable
         config.pki_master_dict['pki_install_time'] = config.pki_install_time
         config.pki_master_dict['pki_timestamp'] = config.pki_timestamp
         config.pki_master_dict['pki_certificate_timestamp'] =\
@@ -362,13 +241,27 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_hostname'] = config.pki_hostname
         config.pki_master_dict['pki_dns_domainname'] =\
             config.pki_dns_domainname
-        config.pki_master_dict['pki_pin'] = config.pki_pin
-        config.pki_master_dict['pki_client_pin'] = config.pki_client_pin
-        config.pki_master_dict['pki_one_time_pin'] = config.pki_one_time_pin
         config.pki_master_dict['pki_dry_run_flag'] = config.pki_dry_run_flag
         config.pki_master_dict['pki_jython_log_level'] =\
             config.pki_jython_log_level
         config.pki_master_dict['pki_deployment_cfg'] = config.pkideployment_cfg
+        config.pki_master_dict['pki_deployed_instance_name'] =\
+            config.pki_deployed_instance_name
+        # Generate random 'pin's for use as security database passwords
+        # and add these to the "sensitive" key value pairs read in from
+        # the configuration file
+        pin_low  = 100000000000
+        pin_high = 999999999999
+        config.pki_sensitive_dict['pki_pin'] =\
+            random.randint(pin_low, pin_high)
+        config.pki_sensitive_dict['pki_client_pin'] =\
+            random.randint(pin_low, pin_high)
+        # Generate a one-time pin to be used prior to configuration
+        # and add this to the "sensitive" key value pairs read in from
+        # the configuration file
+        config.pki_sensitive_dict['pki_one_time_pin'] =\
+            ''.join(random.choice(string.ascii_letters + string.digits)\
+            for x in range(20))
         # Configuration file name/value pairs
         #     NEVER add "sensitive" key value pairs to the master dictionary!!!
         config.pki_master_dict.update(config.pki_common_dict)
@@ -420,7 +313,7 @@ def compose_pki_master_dictionary():
         #     OLD:  "pki-${pki_subsystem}"
         #           (e. g. Tomcat:  "pki-ca", "pki-kra", "pki-ocsp", "pki-tks")
         #           (e. g. Apache:  "pki-ra", "pki-tps")
-        #     NEW:  "[${pki_admin_domain_name}-]${pki_instance_name}"
+        #     NEW:  "${pki_instance_name}[.${pki_admin_domain_name}]"
         #           (e. g. Tomcat:  "pki-tomcat", "pki-tomcat.example.com")
         #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
         #
@@ -487,7 +380,7 @@ def compose_pki_master_dictionary():
                              "lib")
             config.pki_master_dict['pki_tomcat_systemd'] =\
                 config.PKI_DEPLOYMENT_TOMCAT_SYSTEMD
-            config.pki_master_dict['pki_war_path'] =\
+            config.pki_master_dict['pki_war_source_dir'] =\
                 os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
                              config.pki_master_dict['pki_subsystem'].lower(),
                              "war")
@@ -496,8 +389,8 @@ def compose_pki_master_dictionary():
                              config.pki_master_dict['pki_subsystem'].lower(),
                              "webapps")
             config.pki_master_dict['pki_war'] =\
-                os.path.join(config.pki_master_dict['pki_war_path'],
-                             config.pki_master_dict['pki_war_name'])
+                os.path.join(config.pki_master_dict['pki_war_source_dir'],
+                             config.pki_master_dict['pki_war_file'])
             config.pki_master_dict['pki_source_catalina_properties'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "catalina.properties")
@@ -932,6 +825,9 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_subsystem_log_path'] =\
             os.path.join(config.pki_master_dict['pki_instance_log_path'],
                          config.pki_master_dict['pki_subsystem'].lower())
+        config.pki_master_dict['pki_subsystem_archive_log_path'] =\
+            os.path.join(config.pki_master_dict['pki_subsystem_log_path'],
+                         "archive")
         # Instance-based PKI subsystem configuration name/value pairs
         config.pki_master_dict['pki_subsystem_configuration_path'] =\
             os.path.join(
@@ -983,6 +879,9 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_subsystem_logs_link'] =\
             os.path.join(config.pki_master_dict['pki_subsystem_path'],
                          "logs")
+        config.pki_master_dict['pki_subsystem_registry_link'] =\
+            os.path.join(config.pki_master_dict['pki_subsystem_path'],
+                         "registry")
         # PKI Target (war file) name/value pairs
         if config.pki_master_dict['pki_subsystem'] in\
            config.PKI_TOMCAT_SUBSYSTEMS:
@@ -1232,13 +1131,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['PKI_AJP_REDIRECT_PORT_SLOT'] =\
                 config.pki_master_dict['pki_https_port']
             config.pki_master_dict['PKI_CERT_DB_PASSWORD_SLOT'] =\
-                config.pki_master_dict['pki_pin']
+                config.pki_sensitive_dict['pki_pin']
             config.pki_master_dict['PKI_CFG_PATH_NAME_SLOT'] =\
                 config.pki_master_dict['pki_target_cs_cfg']
-            config.pki_master_dict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] =\
-                "-->"
-            config.pki_master_dict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] =\
-                "-->"
             config.pki_master_dict\
             ['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] =\
                 "-->"
@@ -1272,10 +1167,6 @@ def compose_pki_master_dictionary():
                              "tomcat")
             config.pki_master_dict['PKI_MACHINE_NAME_SLOT'] =\
                 config.pki_master_dict['pki_hostname']
-            config.pki_master_dict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] =\
-                "<!--"
-            config.pki_master_dict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] =\
-                "<!--"
             config.pki_master_dict\
             ['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] =\
                 "<!--"
@@ -1285,14 +1176,34 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['PKI_PIDDIR_SLOT'] =\
                 os.path.join("/var/run/pki",
                              "tomcat")
-            config.pki_master_dict['PKI_PROXY_SECURE_PORT_SLOT'] =\
-                config.pki_master_dict['pki_proxy_https_port']
+            if config.str2bool(config.pki_master_dict['pki_enable_proxy']):
+                config.pki_master_dict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] =\
+                    ""
+                config.pki_master_dict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] =\
+                    ""
+                config.pki_master_dict['PKI_PROXY_SECURE_PORT_SLOT'] =\
+                    config.pki_master_dict['pki_proxy_https_port']
+                config.pki_master_dict['PKI_PROXY_UNSECURE_PORT_SLOT'] =\
+                    config.pki_master_dict['pki_proxy_http_port']
+                config.pki_master_dict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] =\
+                    ""
+                config.pki_master_dict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] =\
+                    ""
+            else:
+                config.pki_master_dict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] =\
+                    "-->"
+                config.pki_master_dict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] =\
+                    "-->"
+                config.pki_master_dict['PKI_PROXY_SECURE_PORT_SLOT'] = ""
+                config.pki_master_dict['PKI_PROXY_UNSECURE_PORT_SLOT'] = ""
+                config.pki_master_dict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] =\
+                    "<!--"
+                config.pki_master_dict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] =\
+                    "<!--"
             config.pki_master_dict['PKI_TMPDIR_SLOT'] =\
                 config.pki_master_dict['pki_tomcat_tmpdir_path']
-            config.pki_master_dict['PKI_PROXY_UNSECURE_PORT_SLOT'] =\
-                config.pki_master_dict['pki_proxy_http_port']
             config.pki_master_dict['PKI_RANDOM_NUMBER_SLOT'] =\
-                config.pki_master_dict['pki_one_time_pin']
+                config.pki_sensitive_dict['pki_one_time_pin']
             config.pki_master_dict['PKI_SECURE_PORT_SLOT'] =\
                 config.pki_master_dict['pki_https_port']
             config.pki_master_dict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] =\
@@ -1427,72 +1338,58 @@ def compose_pki_master_dictionary():
                 "password.conf")
         # Client NSS security database name/value pairs
         #
-        #     The following variable is established via the specified PKI
+        #     The following variables are established via the specified PKI
         #     deployment configuration file and is NOT redefined below:
         #
         #         config.pki_sensitive_dict['pki_client_pkcs12_password']
+        #         config.pki_master_dict['pki_client_database_purge']
         #
-        config.pki_master_dict['pki_client_path'] =\
-            os.path.join(
-                "/tmp",
-                config.pki_master_dict['pki_instance_id'] + "_" + "client")
+        #     The following variables are established via the specified PKI
+        #     deployment configuration file and potentially overridden below:
+        #
+        #         config.pki_sensitive_dict['pki_client_database_password']
+        #         config.pki_master_dict['pki_client_dir']
+        #
+        if not len(config.pki_sensitive_dict['pki_client_database_password']):
+            # use randomly generated client 'pin'
+            config.pki_sensitive_dict['pki_client_database_password'] =\
+                str(config.pki_sensitive_dict['pki_client_pin'])
+        if not len(config.pki_master_dict['pki_client_dir']):
+            config.pki_master_dict['pki_client_dir'] =\
+                os.path.join(
+                    "/tmp",
+                    config.pki_master_dict['pki_instance_id'] + "_" + "client")
+        if not len(config.pki_master_dict['pki_client_database_dir']):
+            config.pki_master_dict['pki_client_database_dir'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_dir'],
+                    "alias")
         config.pki_master_dict['pki_client_password_conf'] =\
             os.path.join(
-                config.pki_master_dict['pki_client_path'],
+                config.pki_master_dict['pki_client_dir'],
                 "password.conf")
         config.pki_master_dict['pki_client_pkcs12_password_conf'] =\
             os.path.join(
-                config.pki_master_dict['pki_client_path'],
+                config.pki_master_dict['pki_client_dir'],
                 "pkcs12_password.conf")
-        config.pki_master_dict['pki_client_database_path'] =\
-            os.path.join(
-                config.pki_master_dict['pki_client_path'],
-                "alias")
         config.pki_master_dict['pki_client_cert_database'] =\
-            os.path.join(config.pki_master_dict['pki_client_database_path'],
+            os.path.join(config.pki_master_dict['pki_client_database_dir'],
                          "cert8.db")
         config.pki_master_dict['pki_client_key_database'] =\
-            os.path.join(config.pki_master_dict['pki_client_database_path'],
+            os.path.join(config.pki_master_dict['pki_client_database_dir'],
                          "key3.db")
         config.pki_master_dict['pki_client_secmod_database'] =\
-            os.path.join(config.pki_master_dict['pki_client_database_path'],
+            os.path.join(config.pki_master_dict['pki_client_database_dir'],
                          "secmod.db")
-        if config.pki_master_dict['pki_subsystem'] == "CA":
-            config.pki_master_dict['pki_client_admin_cert'] = "ca_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "ca_admin_cert.p12")
-        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-            config.pki_master_dict['pki_client_admin_cert'] = "kra_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "kra_admin_cert.p12")
-        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-            config.pki_master_dict['pki_client_admin_cert'] = "ocsp_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "ocsp_admin_cert.p12")
-        elif config.pki_master_dict['pki_subsystem'] == "RA":
-            config.pki_master_dict['pki_client_admin_cert'] = "ra_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "ra_admin_cert.p12")
-        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-            config.pki_master_dict['pki_client_admin_cert'] = "tks_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "tks_admin_cert.p12")
-        elif config.pki_master_dict['pki_subsystem'] == "TPS":
-            config.pki_master_dict['pki_client_admin_cert'] = "tps_admin.cert"
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_path'],
-                    "tps_admin_cert.p12")
+        config.pki_master_dict['pki_client_admin_cert'] =\
+            config.pki_master_dict['pki_subsystem'].lower() + "_" +\
+            "admin" + "." + "cert"
+        # NOTE:  ALWAYS store the PKCS #12 "client" Admin Cert file
+        #        in with the NSS "server" security databases
+        config.pki_master_dict['pki_client_admin_cert_p12'] =\
+            config.pki_master_dict['pki_database_path'] + "/" +\
+            config.pki_master_dict['pki_subsystem'].lower() + "_" +\
+            "admin" + "_" + "cert" + "." + "p12"
         # Jython scriptlet name/value pairs
         config.pki_master_dict['pki_jython_configuration_scriptlet'] =\
             os.path.join(sys.prefix,
@@ -1510,6 +1407,7 @@ def compose_pki_master_dictionary():
         # Jython scriptlet
         # 'Security Domain' Configuration name/value pairs
         # 'Subsystem Name'  Configuration name/value pairs
+        # 'Token'           Configuration name/value pairs
         #
         #     Apache - [RA], [TPS]
         #     Tomcat - [CA], [KRA], [OCSP], [TKS]
@@ -1525,9 +1423,14 @@ def compose_pki_master_dictionary():
         #     The following variables are established via the specified PKI
         #     deployment configuration file and are NOT redefined below:
         #
-        #         config.pki_master_dict['pki_security_domain_https_port']
+        #         config.pki_sensitive_dict['pki_clone_pkcs12_password']
         #         config.pki_sensitive_dict['pki_security_domain_password']
+        #         config.pki_sensitive_dict['pki_token_password']
+        #         config.pki_master_dict['pki_clone_pkcs12_path']
+        #         config.pki_master_dict['pki_clone_uri']
+        #         config.pki_master_dict['pki_security_domain_https_port']
         #         config.pki_master_dict['pki_security_domain_user']
+        #         config.pki_master_dict['pki_token_name']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
@@ -1536,7 +1439,23 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_security_domain_name']
         #         config.pki_master_dict['pki_subsystem_name']
         #
-        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+        if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
+            # PKI RA or TPS
+            config.pki_master_dict['pki_security_domain_type'] = "existing"
+            if not len(config.pki_master_dict['pki_security_domain_hostname']):
+                # Guess that it is the local host
+                config.pki_master_dict['pki_security_domain_hostname'] =\
+                    config.pki_master_dict['pki_hostname']
+            config.pki_master_dict['pki_security_domain_uri'] =\
+                "https" + "://" +\
+                config.pki_master_dict['pki_security_domain_hostname'] + ":" +\
+                config.pki_master_dict['pki_security_domain_https_port']
+            if not len(config.pki_master_dict['pki_security_domain_name']):
+                # Guess that security domain is on the local host
+                config.pki_master_dict['pki_security_domain_name'] =\
+                    config.pki_master_dict['pki_dns_domainname'] +\
+                    " " + "Security Domain"
+        elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             if config.pki_subsystem == "CA":
                 if config.str2bool(config.pki_master_dict['pki_external']):
                     # External CA
@@ -1591,6 +1510,12 @@ def compose_pki_master_dictionary():
                                 "Subordinate CA" + " " +\
                                 config.pki_master_dict['pki_hostname'] + " " +\
                                 config.pki_master_dict['pki_https_port']
+                        if not len(config.pki_master_dict\
+                                   ['pki_security_domain_name']):
+                            # Guess that security domain is on the local host
+                            config.pki_master_dict['pki_security_domain_name']\
+                                = config.pki_master_dict['pki_dns_domainname']\
+                                + " " + "Security Domain"
             else:
                 # PKI or Cloned KRA, OCSP, or TKS
                 config.pki_master_dict['pki_security_domain_type'] = "existing"
@@ -1604,6 +1529,13 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_security_domain_hostname'] +\
                     ":" +\
                     config.pki_master_dict['pki_security_domain_https_port']
+                if not config.str2bool(config.pki_master_dict['pki_clone']):
+                    if not len(config.pki_master_dict\
+                               ['pki_security_domain_name']):
+                        # Guess that security domain is on the local host
+                        config.pki_master_dict['pki_security_domain_name'] =\
+                            config.pki_master_dict['pki_dns_domainname'] +\
+                            " " + "Security Domain"
                 if config.pki_subsystem == "KRA":
                     if config.str2bool(config.pki_master_dict['pki_clone']):
                         # Cloned KRA
@@ -1667,10 +1599,11 @@ def compose_pki_master_dictionary():
         #     The following variables are established via the specified PKI
         #     deployment configuration file and are NOT redefined below:
         #
+        #         config.pki_sensitive_dict['pki_ds_password']
+        #         config.pki_master_dict['pki_clone_replication_security']
         #         config.pki_master_dict['pki_ds_bind_dn']
         #         config.pki_master_dict['pki_ds_ldap_port']
         #         config.pki_master_dict['pki_ds_ldaps_port']
-        #         config.pki_sensitive_dict['pki_ds_password']
         #         config.pki_master_dict['pki_ds_remove_data']
         #         config.pki_master_dict['pki_ds_secure_connection']
         #
@@ -1692,6 +1625,20 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_ds_hostname'] =\
                 config.pki_master_dict['pki_hostname']
         # Jython scriptlet
+        # 'External CA' Configuration name/value pairs
+        #
+        #     Tomcat - [External CA]
+        #
+        #     The following variables are established via the specified PKI
+        #     deployment configuration file and are NOT redefined below:
+        #
+        #        config.pki_master_dict['pki_external_ca_cert_chain_path']
+        #        config.pki_master_dict['pki_external_ca_cert_path']
+        #        config.pki_master_dict['pki_external_csr_path']
+        #        config.pki_master_dict['pki_external_step_two']
+        #
+
+        # Jython scriptlet
         # 'Backup' Configuration name/value pairs
         #
         #     Apache - [RA], [TPS]
@@ -1702,51 +1649,16 @@ def compose_pki_master_dictionary():
         #     The following variables are established via the specified PKI
         #     deployment configuration file and are NOT redefined below:
         #
-        #        config.pki_master_dict['pki_backup_keys']
         #        config.pki_sensitive_dict['pki_backup_password']
-        #
-        #     The following variables are established via the specified PKI
-        #     deployment configuration file and potentially overridden below:
-        #
-        #        config.pki_master_dict['pki_backup_file']
+        #        config.pki_master_dict['pki_backup_keys']
         #
         if config.str2bool(config.pki_master_dict['pki_backup_keys']):
-            if not len(config.pki_master_dict['pki_backup_file']):
-                if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                    if not config.str2bool(config.pki_master_dict['pki_clone']):
-                        if config.pki_master_dict['pki_subsystem'] == "CA":
-                            if config.str2bool(
-                                   config.pki_master_dict['pki_external']):
-                                # External CA
-                                config.pki_master_dict['pki_backup_file'] =\
-                                    "/tmp" + "/" + "externalca.p12" + "." +\
-                                    config.pki_master_dict['pki_timestamp']
-                            elif config.str2bool(
-                                     config.pki_master_dict['pki_subordinate']):
-                                # Subordinate CA
-                                config.pki_master_dict['pki_backup_file'] =\
-                                    "/tmp" + "/" + "subca.p12" + "." +\
-                                    config.pki_master_dict['pki_timestamp']
-                            else:
-                                # PKI CA
-                                config.pki_master_dict['pki_backup_file'] =\
-                                    "/tmp" + "/" + "ca.p12" + "." +\
-                                    config.pki_master_dict['pki_timestamp']
-                        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                            # PKI KRA
-                            config.pki_master_dict['pki_backup_file'] =\
-                                "/tmp" + "/" + "kra.p12" + "." +\
-                                config.pki_master_dict['pki_timestamp']
-                        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                            # PKI OCSP
-                            config.pki_master_dict['pki_backup_file'] =\
-                                "/tmp" + "/" + "ocsp.p12" + "." +\
-                                config.pki_master_dict['pki_timestamp']
-                        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                            # PKI TKS
-                            config.pki_master_dict['pki_backup_file'] =\
-                                "/tmp" + "/" + "tks.p12" + "." +\
-                                config.pki_master_dict['pki_timestamp']
+            # NOTE:  ALWAYS store the PKCS #12 backup keys file
+            #        in with the NSS "server" security databases
+            config.pki_master_dict['pki_backup_keys_p12'] =\
+                config.pki_master_dict['pki_database_path'] + "/" +\
+                config.pki_master_dict['pki_subsystem'].lower() + "_" +\
+                "backup" + "_" + "keys" + "." + "p12"
         # Jython scriptlet
         # 'Admin Certificate' Configuration name/value pairs
         #
@@ -1758,11 +1670,11 @@ def compose_pki_master_dictionary():
         #     The following variables are established via the specified PKI
         #     deployment configuration file and are NOT redefined below:
         #
+        #         config.pki_sensitive_dict['pki_admin_password']
         #         config.pki_master_dict['pki_admin_cert_request_type']
         #         config.pki_master_dict['pki_admin_dualkey']
         #         config.pki_master_dict['pki_admin_keysize']
         #         config.pki_master_dict['pki_admin_name']
-        #         config.pki_sensitive_dict['pki_admin_password']
         #         config.pki_master_dict['pki_admin_uid']
         #
         #     The following variables are established via the specified PKI
@@ -1794,13 +1706,22 @@ def compose_pki_master_dictionary():
             elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
                 if not config.str2bool(config.pki_master_dict['pki_clone']):
                     if config.pki_master_dict['pki_subsystem'] == "CA":
-                        # PKI CA, Subordinate CA, or External CA
-                        config.pki_master_dict['pki_admin_nickname'] =\
-                            "CA Administrator of Instance" + " " +\
-                            config.pki_master_dict['pki_instance_id'] +\
-                            "&#39;s" + " " +\
-                            config.pki_master_dict['pki_security_domain_name']\
-                            + " " + "ID"
+                        if config.str2bool(
+                            config.pki_master_dict['pki_external']):
+                             # External CA
+                             config.pki_master_dict['pki_admin_nickname'] =\
+                                 "CA Administrator of Instance" + " " +\
+                                 config.pki_master_dict['pki_instance_id'] +\
+                                 "&#39;s" + " " +\
+                                 "External CA ID"
+                        else:
+                            # PKI CA or Subordinate CA
+                            config.pki_master_dict['pki_admin_nickname'] =\
+                                "CA Administrator of Instance" + " " +\
+                                config.pki_master_dict['pki_instance_id'] +\
+                                "&#39;s" + " " +\
+                                config.pki_master_dict\
+                                ['pki_security_domain_name'] + " " + "ID"
                     elif config.pki_master_dict['pki_subsystem'] == "KRA":
                         # PKI KRA
                         config.pki_master_dict['pki_admin_nickname'] =\
@@ -1848,15 +1769,29 @@ def compose_pki_master_dictionary():
             elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
                 if not config.str2bool(config.pki_master_dict['pki_clone']):
                     if config.pki_master_dict['pki_subsystem'] == "CA":
-                        # PKI CA, Subordinate CA, or External CA
-                        config.pki_master_dict['pki_admin_subject_dn'] =\
-                            "cn=" + "CA Administrator of Instance" + " " +\
-                            config.pki_master_dict['pki_instance_id'] + "," +\
-                            "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                            "," + "e=" +\
-                            config.pki_master_dict['pki_admin_email'] +\
-                            "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
+                       if config.str2bool(
+                           config.pki_master_dict['pki_external']):
+                            # External CA
+                            config.pki_master_dict['pki_admin_subject_dn'] =\
+                                "cn=" + "CA Administrator of Instance" + " " +\
+                                config.pki_master_dict['pki_instance_id'] +\
+                                "," + "uid=" +\
+                                config.pki_master_dict['pki_admin_uid']\
+                                + "," + "e=" +\
+                                config.pki_master_dict['pki_admin_email'] +\
+                                "," + "o=" + "External CA"
+                       else:
+                            # PKI CA or Subordinate CA
+                            config.pki_master_dict['pki_admin_subject_dn'] =\
+                                "cn=" + "CA Administrator of Instance" + " " +\
+                                config.pki_master_dict['pki_instance_id'] +\
+                                "," + "uid=" +\
+                                config.pki_master_dict['pki_admin_uid']\
+                                + "," + "e=" +\
+                                config.pki_master_dict['pki_admin_email'] +\
+                                "," + "o=" +\
+                                config.pki_master_dict\
+                                ['pki_security_domain_name']
                     elif config.pki_master_dict['pki_subsystem'] == "KRA":
                         # PKI KRA
                         config.pki_master_dict['pki_admin_subject_dn'] =\
@@ -1928,10 +1863,7 @@ def compose_pki_master_dictionary():
                         if not len(config.pki_master_dict\
                                    ['pki_ca_signing_subject_dn']):
                             config.pki_master_dict['pki_ca_signing_subject_dn']\
-                                =  "cn=" + "External CA Signing Certificate" +\
-                                   "," + "o=" +\
-                                   config.pki_master_dict\
-                                   ['pki_security_domain_name']
+                                =  "cn=" + "External CA Signing Certificate"
                     elif config.str2bool(
                              config.pki_master_dict['pki_subordinate']):
                         # Subordinate CA
@@ -1998,10 +1930,7 @@ def compose_pki_master_dictionary():
                                    ['pki_ocsp_signing_subject_dn']):
                             config.pki_master_dict\
                             ['pki_ocsp_signing_subject_dn'] =\
-                                "cn=" + "External CA OCSP Signing Certificate"\
-                                + "," + "o=" +\
-                                config.pki_master_dict\
-                                ['pki_security_domain_name']
+                                "cn=" + "External CA OCSP Signing Certificate"
                     elif config.str2bool(
                              config.pki_master_dict['pki_subordinate']):
                         # Subordinate CA
@@ -2086,10 +2015,18 @@ def compose_pki_master_dictionary():
                     "," + "o=" +\
                     config.pki_master_dict['pki_security_domain_name']
             elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                config.pki_master_dict['pki_ssl_server_subject_dn'] =\
-                    "cn=" + config.pki_master_dict['pki_hostname'] +\
-                    "," + "o=" +\
-                    config.pki_master_dict['pki_security_domain_name']
+                if config.pki_master_dict['pki_subsystem'] == "CA" and\
+                   config.str2bool(config.pki_master_dict['pki_external']):
+                    # External CA
+                    config.pki_master_dict['pki_ssl_server_subject_dn'] =\
+                        "cn=" + config.pki_master_dict['pki_hostname'] +\
+                        "," + "o=" + "External CA"
+                else:
+                    # PKI or Cloned CA, KRA, OCSP, TKS, or Subordinate CA
+                    config.pki_master_dict['pki_ssl_server_subject_dn'] =\
+                        "cn=" + config.pki_master_dict['pki_hostname'] +\
+                        "," + "o=" +\
+                        config.pki_master_dict['pki_security_domain_name']
         config.pki_master_dict['pki_ssl_server_tag'] = "sslserver"
         if not len(config.pki_master_dict['pki_ssl_server_token']):
             config.pki_master_dict['pki_ssl_server_token'] =\
@@ -2156,10 +2093,7 @@ def compose_pki_master_dictionary():
                                config.pki_master_dict['pki_external']):
                             # External CA
                             config.pki_master_dict['pki_subsystem_subject_dn']\
-                                = "cn=" + "External CA Subsystem Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict\
-                                  ['pki_security_domain_name']
+                                = "cn=" + "External CA Subsystem Certificate"
                         elif config.str2bool(
                                  config.pki_master_dict['pki_subordinate']):
                             # Subordinate CA
@@ -2261,10 +2195,7 @@ def compose_pki_master_dictionary():
                             # External CA
                             config.pki_master_dict\
                             ['pki_audit_signing_subject_dn'] =\
-                                "cn=" + "External CA Audit Signing Certificate"\
-                                + "," + "o=" +\
-                                config.pki_master_dict\
-                                ['pki_security_domain_name']
+                                "cn=" + "External CA Audit Signing Certificate"
                         elif config.str2bool(
                                  config.pki_master_dict['pki_subordinate']):
                             # Subordinate CA
@@ -2392,6 +2323,31 @@ def compose_pki_master_dictionary():
                     if not len(config.pki_master_dict['pki_storage_token']):
                         config.pki_master_dict['pki_storage_token'] =\
                             "Internal Key Storage Token"
+        # Finalization name/value pairs
+        config.pki_master_dict['pki_deployment_cfg_replica'] =\
+            os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
+                         config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE)
+        config.pki_master_dict['pki_deployment_cfg_spawn_archive'] =\
+            config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+            "spawn" + "_" +\
+            config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE + "." +\
+            config.pki_master_dict['pki_timestamp']
+        config.pki_master_dict['pki_deployment_cfg_respawn_archive'] =\
+            config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+            "respawn" + "_" +\
+            config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE + "." +\
+            config.pki_master_dict['pki_timestamp']
+        config.pki_master_dict['pki_manifest'] =\
+            config.pki_master_dict['pki_subsystem_registry_path'] + "/" +\
+            "manifest"
+        config.pki_master_dict['pki_manifest_spawn_archive'] =\
+            config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+            "spawn" + "_" + "manifest" + "." +\
+            config.pki_master_dict['pki_timestamp']
+        config.pki_master_dict['pki_manifest_respawn_archive'] =\
+            config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+            "respawn" + "_" + "manifest" + "." +\
+            config.pki_master_dict['pki_timestamp']
     except OSError as exc:
         config.pki_log.error(log.PKI_OSERROR_1, exc,
                              extra=config.PKI_INDENTATION_LEVEL_2)

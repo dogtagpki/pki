@@ -65,8 +65,6 @@ class record(object):
 
 # PKI Deployment Manifest File Class
 class file:
-    """FUTURE:  Consider creating a single manifest file
-       that is always overwritten."""
     global database
     filename = None
 

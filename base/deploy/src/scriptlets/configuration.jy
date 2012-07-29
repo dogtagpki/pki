@@ -23,11 +23,15 @@ from com.netscape.cms.client.cli import ClientConfig
 def main(argv):
     rv = 0
 
-    # Establish 'master' as the PKI jython dictionary
+    # Establish 'master' and 'sensitive' as two separate PKI jython dictionaries
     master = dict()
+    sensitive = dict()
 
     # Import the master dictionary from 'pkispawn'
     master = pickle.loads(argv[1])
+
+    # Import the sensitive data dictionary from 'pkispawn'
+    sensitive = pickle.loads(argv[2])
 
     # Optionally enable a java debugger (e. g. - 'eclipse'):
     if config.str2bool(master['pki_enable_java_debugger']):
@@ -64,13 +68,13 @@ def main(argv):
 
     # Initialize token
     jyutil.security_databases.initialize_token(
-        master['pki_client_database_path'],
+        master['pki_client_database_dir'],
         master['pki_dry_run_flag'],
         master['pki_jython_log_level'])
 
     # Log into token
     token = jyutil.security_databases.log_into_token(
-                master['pki_client_database_path'],
+                master['pki_client_database_dir'],
                 master['pki_client_password_conf'],
                 master['pki_dry_run_flag'],
                 master['pki_jython_log_level'])
@@ -124,54 +128,18 @@ def main(argv):
                        log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
                 return self.rv
             else:
+                # CA
                 data = jyutil.rest_client.construct_pki_configuration_data(
-                           master, token)
-        elif master['pki_subsystem'] == "KRA":
-            if config.str2bool(master['pki_clone']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-            else:
-                print "%s '%s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-        elif master['pki_subsystem'] == "OCSP":
-            if config.str2bool(master['pki_clone']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-            else:
-                print "%s '%s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-        elif master['pki_subsystem'] == "TKS":
-            if config.str2bool(master['pki_clone']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-            else:
-                print "%s '%s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
+                           master, sensitive, token)
+        else:
+            # KRA, OCSP, or TKS
+            data = jyutil.rest_client.construct_pki_configuration_data(
+                       master, sensitive, token)
 
     # Formulate PKI Subsystem Configuration Data Response
     jyutil.rest_client.configure_pki_data(data,
-                                          master)
+                                          master,
+                                          sensitive)
 
 
 if __name__ == "__main__":

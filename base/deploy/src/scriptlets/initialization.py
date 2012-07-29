@@ -32,8 +32,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
-        # detect and avoid any namespace collisions
-        util.namespace.collision_detection()
         # begin official logging
         config.pki_log.info(log.PKISPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
@@ -41,6 +39,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" does NOT yet
+        # exist for this "instance"
+        util.instance.verify_subsystem_does_not_exist()
+        # detect and avoid any namespace collisions
+        util.namespace.collision_detection()
         # initialize 'uid' and 'gid'
         util.identity.add_uid_and_gid(master['pki_user'], master['pki_group'])
         # establish 'uid' and 'gid'
@@ -50,6 +53,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.configuration_file.verify_sensitive_data()
         # verify existence of MUTUALLY EXCLUSIVE configuration file data
         util.configuration_file.verify_mutually_exclusive_data()
+        # verify existence of PREDEFINED configuration file data
+        util.configuration_file.verify_predefined_configuration_file_data()
         # verify selinux context of selected ports
         util.configuration_file.populate_non_default_ports()
         util.configuration_file.verify_selinux_ports()
@@ -63,6 +68,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" currently EXISTS
+        # for this "instance"
+        util.instance.verify_subsystem_exists()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])
@@ -76,6 +84,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        # verify that this type of "subsystem" currently EXISTS
+        # for this "instance"
+        util.instance.verify_subsystem_exists()
+        # verify that the command-line parameters match the values
+        # that are present in the corresponding configuration file
+        util.configuration_file.verify_command_matches_configuration_file()
         # establish 'uid' and 'gid'
         util.identity.set_uid(master['pki_user'])
         util.identity.set_gid(master['pki_group'])

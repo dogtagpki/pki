@@ -107,28 +107,25 @@ pki_install_time = None
 pki_timestamp = None
 pki_architecture = None
 pki_hostname = None
-pki_pin = None
-pki_client_pin = None
-pki_one_time_pin = None
 
+
+# PKI Deployment Command-Line Variables
+pki_deployment_executable = None
 
 # PKI Deployment "Mandatory" Command-Line Variables
 pki_subsystem = None
 #     'pkispawn' ONLY
-pkideployment_cfg = "/usr/share/pki/deployment/config/pkideployment.cfg"
+pkideployment_cfg = None
+#     'pkidestroy' ONLY
+pki_deployed_instance_name = None
 
 # PKI Deployment "Optional" Command-Line Variables
 pki_dry_run_flag = False
-pki_root_prefix = None
+#     'pkispawn' ONLY
 pki_update_flag = False
 
-# PKI Deployment "Custom" Command-Line Variables
-custom_pki_admin_domain_name = None
-custom_pki_instance_name = None
-#     'pkispawn' ONLY
-custom_pki_http_port = None
-custom_pki_https_port = None
-custom_pki_ajp_port = None
+# PKI Deployment "Test" Command-Line Variables
+pki_root_prefix = None
 
 
 # PKI Deployment Helper Functions

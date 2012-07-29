@@ -34,15 +34,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self):
         config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # establish instance base
-        util.directory.create(master['pki_instance_path'])
         # establish instance logs
         util.directory.create(master['pki_instance_log_path'])
         # establish instance configuration
         util.directory.create(master['pki_instance_configuration_path'])
-        # establish instance registry
-        util.directory.create(master['pki_instance_type_registry_path'])
-        util.directory.create(master['pki_instance_registry_path'])
         # establish Apache/Tomcat specific instance
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish Tomcat instance base
@@ -256,6 +251,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
                 util.directory.delete(master['pki_instance_type_registry_path'])
+                # remove PKI 'tomcat.conf' instance file
+                util.file.delete(master['pki_target_tomcat_conf_instance_id'])
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
@@ -283,4 +280,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Tomcat instance registry
                 util.directory.delete(master['pki_instance_type_registry_path'])
+                # remove PKI 'tomcat.conf' instance file
+                util.file.delete(master['pki_target_tomcat_conf_instance_id'])
         return self.rv
