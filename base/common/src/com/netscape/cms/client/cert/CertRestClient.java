@@ -25,6 +25,7 @@ import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
+import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.csadmin.CMSRestClient;
@@ -53,11 +54,8 @@ public class CertRestClient extends CMSRestClient {
         return certClient.getCert(id);
     }
 
-    public CertDataInfos findCerts(String status) {
-        return certClient.listCerts(
-                status,
-                CertResource.DEFAULT_MAXRESULTS,
-                CertResource.DEFAULT_MAXTIME);
+    public CertDataInfos findCerts(CertSearchData data) {
+        return certClient.searchCerts(data, CertResource.DEFAULT_MAXRESULTS, CertResource.DEFAULT_MAXTIME);
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {

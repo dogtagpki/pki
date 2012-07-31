@@ -20,11 +20,15 @@
 // smaller classes
 package com.netscape.cms.servlet.cert.model;
 
+import java.io.Reader;
 import java.util.Calendar;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -493,11 +497,11 @@ public class CertSearchData {
 
     //Cert Type
 
-    String getCertTypeSubEmailCA() {
+    public String getCertTypeSubEmailCA() {
         return certTypeSubEmailCA;
     }
 
-    void setCertTypeSubEmailCA(String certTypeSubEmailCA) {
+    public void setCertTypeSubEmailCA(String certTypeSubEmailCA) {
         this.certTypeSubEmailCA = certTypeSubEmailCA;
     }
 
@@ -511,6 +515,10 @@ public class CertSearchData {
 
     public String getCertTypeSecureEmail() {
         return certTypeSecureEmail;
+    }
+
+    public void setCertTypeSecureEmail(String certTypeSecureEmail) {
+        this.certTypeSecureEmail = certTypeSecureEmail;
     }
 
     public String getCertTypeSSLClient() {
@@ -614,7 +622,7 @@ public class CertSearchData {
             filter.append("(x509cert.subject=*)");
             return;
         }
-        if (matchStr.equals(MATCH_EXACTLY)) {
+        if (matchStr != null && matchStr.equals(MATCH_EXACTLY)) {
             filter.append("(&");
             filter.append(lf);
             filter.append(")");
@@ -844,5 +852,11 @@ public class CertSearchData {
 
     public void setSearchFilter(String searchFilter) {
         this.searchFilter = searchFilter;
+    }
+
+    public static CertSearchData valueOf(Reader reader) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CertSearchData.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (CertSearchData) unmarshaller.unmarshal(reader);
     }
 }
