@@ -1225,6 +1225,37 @@ public final class UGSubsystem implements IUGSubsystem {
         return null;
     }
 
+    public Enumeration<IGroup> findGroupsByUser(String userDn) throws EUsrGrpException {
+        if (userDn == null) {
+            return null;
+        }
+
+        LDAPConnection ldapconn = null;
+
+        try {
+            String attrs[] = new String[2];
+
+            attrs[0] = "cn";
+            attrs[1] = "description";
+
+            ldapconn = getConn();
+            LDAPSearchResults res =
+                    ldapconn.search(getGroupBaseDN(), LDAPv2.SCOPE_SUB,
+                            "(&(objectclass=groupofuniquenames)(uniqueMember=" + userDn + "))",
+                            attrs, false);
+
+            return buildGroups(res);
+        } catch (LDAPException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+        } catch (ELdapException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+        } finally {
+            if (ldapconn != null)
+                returnConn(ldapconn);
+        }
+        return null;
+    }
+
     /**
      * builds an instance of a Group entry
      * @throws EUsrGrpException

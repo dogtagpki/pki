@@ -112,6 +112,10 @@ public class AuthToken implements IAuthToken {
         set(TOKEN_AUTHTIME, new Date());
     }
 
+    public Object get(String attrName) {
+        return mAttrs.get(attrName);
+    }
+
     public String getInString(String attrName) {
         return (String) mAttrs.get(attrName);
     }

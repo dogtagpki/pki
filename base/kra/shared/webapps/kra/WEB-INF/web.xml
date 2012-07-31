@@ -1010,13 +1010,13 @@
 
 
 <!-- Customized SSL Client auth login config 
-      uncomment to activate PKIJNDI realm as in conf/server.xml 
+      uncomment to activate PKI realm as in conf/server.xml
 -->
 
 <!--
 
 <login-config>
-   <realm-name>PKIJNDIRealm</realm-name> 
+   <realm-name>PKIRealm</realm-name>
    <auth-method>CLIENT-CERT</auth-method>
    <realm-name>Client Cert Protected Area</realm-name>
 </login-config>

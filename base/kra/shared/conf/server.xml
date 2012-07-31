@@ -235,51 +235,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
              resourceName="UserDatabase"/>
       -->
 
-      <!-- Custom PKIJNDI realm
-
-          Example:
-
-          <Realm className="com.netscape.cmscore.realm.PKIJNDIRealm" : classpath to realm
-          connectionURL="ldap://localhost:389" : standard JNDI connection URL
-          userBase="ou=people,dc=localhost-pki-kra" : standard JNDI userBase property
-          userSearch="(description={0})" : Attribute to search for user of incoming client auth certificate
-                                         : Use userSearch="(UID={0})" if wanting to search isolate user based on UID
-                                         : Also set the following: certUIDLabel="UID" or whatever the field containing
-                                         : the user's UID happens to be. This will cause the incoming's cert dn to be
-                                         : be searched for <certUIDLabel>=<uid value>
-
-          certAttrName="userCertificate" : Attribute containing user's client auth certificate
-          roleBase="ou=groups,dc=localhost-pki-kra" : Standard JNDI search base for roles or groups
-          roleName="cn" : Standard attribute name containg roles or groups
-          roleSubtree="true" : Standard JNDI roleSubtree property
-          roleSearch="(uniqueMember={0})" : How to search for a user in a specific role or group
-          connectionName="cn=Directory Manager" : Connection name, needs elevated privileges
-          connectionPassword="secret123" : Password for elevated user
-          aclBase ="cn=aclResources,dc=localhost-pki-kra" : Custom base location of PKI ACL's in directory
-          aclAttrName="resourceACLS" : Name of attribute containing PKI ACL's
-       />
-
-          Uncomment and customize  below to activate Realm.
-          Also umcomment Security Constraints and login config  values
-          in WEB-INF/web.xml as well.
-      --> 
-
       <!-- 
-      <Realm className="com.netscape.cmscore.realm.PKIJNDIRealm"
-          connectionURL="ldap://localhost:389"
-          userBase="ou=people,dc=localhost-pki-kra"
-          userSearch="(description={0})"
-          certAttrName="userCertificate"
-          roleBase="ou=groups,dc=localhost-pki-kra"
-          roleName="cn"
-          roleSubtree="true"
-          roleSearch="(uniqueMember={0})"
-          connectionName="cn=Directory Manager"
-          connectionPassword="netscape"
-          aclBase ="cn=aclResources,dc=localhost-pki-kra"
-          aclAttrName="resourceACLS"
-       />
-
+      <Realm className="com.netscape.cmscore.realm.PKIRealm" />
        -->
 
       <!-- Define the default virtual host

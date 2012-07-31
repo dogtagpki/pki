@@ -55,6 +55,15 @@ public interface IAuthToken {
      * @exception EBaseException on attribute handling errors.
      * @return the attribute value
      */
+    public Object get(String name);
+
+    /**
+     * Gets an attribute value.
+     *
+     * @param name the name of the attribute to return.
+     * @exception EBaseException on attribute handling errors.
+     * @return the attribute value
+     */
     public String getInString(String name);
 
     /**
