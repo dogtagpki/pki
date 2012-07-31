@@ -192,5 +192,5 @@ pki_master_jython_dict = None
 PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
 PKI_LOG_SELINUX_CONTEXT      = "pki_tomcat_log_t"
 PKI_CFG_SELINUX_CONTEXT      = "pki_tomcat_etc_rw_t"
-PKI_PORT_SELINUX_CONTEXT     = "pki_tomcat_port_t"
+PKI_PORT_SELINUX_CONTEXT     = "http_port_t"
 pki_selinux_config_ports = []

@@ -636,16 +636,16 @@ class configuration_file:
 
     def populate_non_default_ports(self):
         if master['pki_http_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT:
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT):
                 ports.append(master['pki_http_port'])
         if master['pki_https_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT:
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT):
                 ports.append(master['pki_https_port'])
         if master['pki_tomcat_server_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT:
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT):
                 ports.append(master['pki_tomcat_server_port'])
         if master['pki_ajp_port'] != \
-            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT:
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT):
                 ports.append(master['pki_ajp_port'])
         return
 

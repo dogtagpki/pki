@@ -19,11 +19,14 @@ template(`pki_tomcat_template',`
 		attribute pki_tomcat_executable, pki_tomcat_script, pki_tomcat_var_log;
 		type pki_tomcat_tomcat_exec_t;
                 type tomcat_exec_t;
-		type $1_port_t;
                 type rpm_var_lib_t;
                 type rpm_exec_t;
 		type setfiles_t;
                 type load_policy_t;
+                type mxi_port_t;
+                type http_cache_port_t;
+                type http_port_t;
+                type dns_port_t;
 	')
 	########################################
 	#
@@ -74,7 +77,11 @@ template(`pki_tomcat_template',`
 	allow $1_t self:tcp_socket create_stream_socket_perms;
 	allow $1_t self:process signull;
 
-	allow $1_t $1_port_t:tcp_socket {name_bind name_connect};
+        ## ports (these will be in the tomcat domain)
+        allow $1_t mxi_port_t : tcp_socket { name_bind name_connect };
+        allow $1_t http_cache_port_t : tcp_socket name_bind;
+        allow $1_t http_port_t : tcp_socket { name_bind name_connect };
+        allow $1_t dns_port_t : tcp_socket { recv_msg send_msg name_connect };
 
         # use rpm to look at velocity version in dtomcat-foo
         allow $1_t rpm_exec_t:file exec_file_perms;
@@ -150,7 +157,6 @@ template(`pki_tomcat_template',`
 	kernel_read_network_state($1_t)
 	kernel_read_system_state($1_t)
 	kernel_search_network_state($1_t)
-	# audit2allow
         kernel_signull_unlabeled($1_t)
 
 	auth_use_nsswitch($1_t)
@@ -161,6 +167,9 @@ template(`pki_tomcat_template',`
 	libs_use_shared_libs($1_t)
 
 	miscfiles_read_localization($1_t)
+        miscfiles_read_hwdata($1_t)
+        miscfiles_manage_cert_dirs($1_t)
+        miscfiles_manage_generic_cert_files($1_t)
 
 	logging_send_syslog_msg($1_t)
 
@@ -204,7 +213,6 @@ template(`pki_tomcat_template',`
         fs_getattr_xattr_fs($1_t)
         fs_read_hugetlbfs_files($1_t)
         hostname_exec($1_t)
-        miscfiles_read_hwdata($1_t)
         allow $1_t self:capability { setuid chown setgid fowner audit_write dac_override };
         allow $1_t self:netlink_audit_socket { nlmsg_relay create write read};
         kernel_read_kernel_sysctls($1_t)

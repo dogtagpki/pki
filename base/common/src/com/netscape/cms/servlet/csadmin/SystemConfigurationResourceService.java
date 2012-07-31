@@ -873,7 +873,7 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
                 throw new CMSException(Response.Status.BAD_REQUEST, "Invalid key backup file name");
             }
 
-            if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<=8)) {
+            if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<8)) {
                 throw new CMSException(Response.Status.BAD_REQUEST, "key backup password must be at least 8 characters");
             }
         } else {

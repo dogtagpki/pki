@@ -1,4 +1,4 @@
-policy_module(pki,10.0.5)
+policy_module(pki,10.0.6)
 
 attribute pki_tomcat_config;
 attribute pki_tomcat_executable;
@@ -21,8 +21,6 @@ files_type(pki_common_dev_t)
 type pki_tomcat_tomcat_exec_t;
 files_type(pki_tomcat_tomcat_exec_t)
 
-type pki_tomcat_port_t;
-corenet_port(pki_tomcat_port_t)
 pki_tomcat_template(pki_tomcat)
 
 # forward proxy
@@ -41,7 +39,7 @@ typealias pki_tomcat_etc_rw_t alias { pki_ca_etc_rw_t pki_kra_etc_rw_t pki_ocsp_
 typealias pki_tomcat_var_lib_t alias { pki_ca_var_lib_t pki_kra_var_lib_t pki_ocsp_var_lib_t pki_tks_var_lib_t };
 typealias pki_tomcat_var_run_t alias { pki_ca_var_run_t pki_kra_var_run_t pki_ocsp_var_run_t pki_tks_var_run_t };
 typealias pki_tomcat_log_t alias { pki_ca_log_t pki_kra_log_t pki_ocsp_log_t pki_tks_log_t };
-
+# typealias http_port_t alias { pki_ca_port_t pki_kra_port_t pki_ocsp_port_t pki_tks_port_t };
 attribute pki_ra_config;
 attribute pki_ra_executable;
 attribute pki_ra_var_lib;
