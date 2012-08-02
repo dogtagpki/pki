@@ -75,11 +75,37 @@ function keyTypeOptions (keyPurpose)
   if (keyFound == 0) {
     keyType = "RSA";
   }
-  if (navigator.appName == "Microsoft Internet Explorer") {
+  if ((navigator.appName == "Microsoft Internet Explorer") &&
+      ((navigator.appVersion).indexOf("NT 6.") == -1)) {
     keyType = "RSA";
   }
 
   return keyType;
+}
+
+function translateCurveName (name)
+{
+  var translated = "";
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    if (name == "nistp256" || name == "ECDSA_P256") {
+      translated = "ECDSA_P256";
+    } else if (name == "nistp384" || name == "ECDSA_P384") {
+      translated = "ECDSA_P384";
+    } else if (name == "nistp521" || name == "ECDSA_P521") {
+      translated = "ECDSA_P521";
+    }
+  } else {
+    if (name == "ECDSA_P256") {
+      translated = "nistp256";
+    } else if (name == "ECDSA_P384") {
+      translated = "nistp384";
+    } else if (name == "ECDSA_P521") {
+      translated = "nistp521";
+    } else {
+      translated = name;
+    }
+  }
+  return translated;
 }
 
 function keyLengthsCurvesOptions (keyPurpose)
@@ -111,23 +137,33 @@ function keyLengthsCurvesOptions (keyPurpose)
       }
     }
   }
-  if (navigator.appName == "Microsoft Internet Explorer") {
+  if ((navigator.appName == "Microsoft Internet Explorer") &&
+      ((navigator.appVersion).indexOf("NT 6.") == -1)) {
     keyType = "RSA";
   }
 
   var value = 0;
-  var included = true;
   var l = 0;
   for (l = 0 ; l < lengthsOrCurves.length; l++) {
+      var included = true;
 
       value = lengthsOrCurves[l];
 
       if (keyType != "EC" && !isNumeric(value)) {
           included = false;
+      } else if (keyType == "EC" &&
+                 navigator.appName == "Microsoft Internet Explorer" &&
+                 value != "nistp256" && value != "nistp384" && value != "nistp521" &
+                 value != "ECDSA_P256" && value != "ECDSA_P384" && value != "ECDSA_P521") {
+          included = false;
       }
 
       if (included) {
-          options += '<OPTION VALUE="' + value + '"';
+          if (keyType == "EC") {
+              options += '<OPTION VALUE="' + translateCurveName(value) + '"';
+          } else {
+              options += '<OPTION VALUE="' + value + '"';
+          }
           if (i == 0) {
               options += ' SELECTED';
           }
@@ -139,9 +175,14 @@ function keyLengthsCurvesOptions (keyPurpose)
      if (keyType != "EC") {
          options = '<OPTION VALUE=1024 SELECTED>1024';
      } else {
-         options = '<OPTION VALUE="nistp256">nistp256';
+         if (navigator.appName == "Microsoft Internet Explorer") {
+             options = '<OPTION VALUE="ECDSA_P256">nistp256';
+         } else {
+             options = '<OPTION VALUE="nistp256">nistp256';
+         }
      }
   }
+  //alert("options="+options);
 
   return options;
 }
@@ -355,13 +396,20 @@ Function checkRequest
   Dim osVersion
   Dim result
   Dim keyLen
+  Dim keyParameter
   Dim keyIndex
   Set TheForm = Document.ReqForm
 
   checkRequest = False
 
   keyIndex = TheForm.all.keyLength.options.selectedIndex
-  keyLen = CInt (TheForm.all.keyLength.options(keyIndex).value)
+  If (IsNumeric(TheForm.all.keyLength.options(keyIndex).value)) Then
+    keyLen = CInt (TheForm.all.keyLength.options(keyIndex).value)
+    keyParameter = ""
+  Else
+    keyLen = 0
+    keyParameter = TheForm.all.keyLength.options(keyIndex).value
+  End If
 
   osVersion = GetOSVersion()
 
@@ -451,6 +499,15 @@ Function checkRequest
       Exit Function
     End If
 
+    Set algobj = g_objClassFactory.CreateObject( "X509Enrollment.CObjectId" )
+    If IsObject(algobj) = False Then
+      result = MsgBox("Can't create OID Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
+      Exit Function
+    End If
+    algobj.InitializeFromAlgorithmName XCN_CRYPT_ANY_GROUP_ID, XCN_CRYPT_OID_INFO_PUBKEY_ANY, AlgorithmFlagsNone, keyParameter
+    privateKey.Algorithm = algobj
+
+
     privateKey.KeySpec= "1" 
 
   ' Pick the provider that is selected
@@ -458,7 +515,9 @@ Function checkRequest
     index = options.selectedIndex
     privateKey.ProviderType = index
     privateKey.ProviderName = options(index).text
-    privateKey.Length = keyLen
+    If keyLen > 0 Then
+      privateKey.Length = keyLen
+    End If
 
     szName = "0.9.2342.19200300.100.1.1=" & TheForm.uid.Value & ",E=" & TheForm.email.Value & ",CN=" & TheForm.cn.Value
 
@@ -757,9 +816,11 @@ Function FindProviders
             Dim selected 
             Dim selectedS 
             Dim selectedE 
-            selected = 0
-            selectedS = 0
-            selectedE = 0
+            Dim selectedEC 
+            selected = -1
+            selectedS = -1
+            selectedE = -1
+            selectedEC = -1
             For i = 0 to csps.Count-1
                
                 curName = csps.ItemByIndex(i).Name
@@ -778,15 +839,22 @@ Function FindProviders
                   If curName = "Microsoft Enhanced Cryptographic Provider v1.0" Then
                     selectedE = i
                   End If
+                  If curName = "Microsoft Software Key Storage Provider" Then
+                    selectedEC = i
+                  End If
                   'result = MsgBox(curName,0,"")
                 End If 
             Next
-            If selectedE > 0  Then
+            If selectedEC >= 0  Then
+              TheForm.cryptprovider.selectedIndex = selectedEC
+            ElseIf selectedE >= 0  Then
               TheForm.cryptprovider.selectedIndex = selectedE
-            ElseIf selectedS > 0  Then
+            ElseIf selectedS >= 0  Then
               TheForm.cryptprovider.selectedIndex = selectedS
-            Else
+            ElseIf selected >= 0  Then
               TheForm.cryptprovider.selectedIndex = selected
+            Else
+              TheForm.cryptprovider.selectedIndex = 0
             End If
         End If
 End Function
