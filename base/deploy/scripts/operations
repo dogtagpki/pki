@@ -40,6 +40,10 @@ case $command in
         # 1 generic or unspecified error (current practice)
         default_error=1
         ;;
+    start_all|stop_all|restart_all)
+        # 1 generic or unspecified error (current practice)
+        default_error=1
+        ;;
     reload)
         default_error=3
         ;;
@@ -148,6 +152,9 @@ usage()
     echo -n "{start"
     echo -n "|stop"
     echo -n "|restart"
+    echo -n "|start_all"
+    echo -n "|stop_all"
+    echo -n "|restart_all"
     echo -n "|condrestart"
     echo -n "|force-restart"
     echo -n "|try-restart"
@@ -164,6 +171,9 @@ usage_systemd()
     echo -n "{start"
     echo -n "|stop"
     echo -n "|restart"
+    echo -n "|start_all"
+    echo -n "|stop_all"
+    echo -n "|restart_all"
     echo -n "|condrestart"
     echo -n "|force-restart"
     echo -n "|try-restart"
@@ -921,6 +931,54 @@ start()
         return 5
     fi
 
+    # Source values associated with this particular PKI instance
+    [ -f ${PKI_REGISTRY_ENTRY} ] &&
+    . ${PKI_REGISTRY_ENTRY}
+
+    start_instance
+    rv=$?
+    if [ $rv = 6 ] ; then
+        # Since at least ONE configuration error exists, then there
+        # is at least ONE unconfigured instance from the PKI point
+        # of view.
+        #
+        # However, it must still be considered that the
+        # instance is "running" from the point of view of other
+        # OS programs such as 'chkconfig'.
+        #
+        # Therefore, ignore non-zero return codes resulting
+        # from configuration errors.
+        #
+
+        config_errors=`expr $config_errors + 1`
+        rv=0
+    elif [ $rv != 0 ] ; then
+        errors=`expr $errors + 1`
+        error_rv=$rv
+    fi
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt ${errors} ] ; then
+        touch ${lockfile}
+        chmod 00600 ${lockfile}
+    fi
+
+    return $rv
+}
+
+start_all()
+{
+    error_rv=0
+    rv=0
+    config_errors=0
+    errors=0
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
+        echo
+        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
+        # 5 program is not installed
+        return 5
+    fi
+
     if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ]; then
         echo "BEGIN STARTING '${PKI_TYPE}' INSTANCES:"
     fi
@@ -1011,6 +1069,37 @@ stop()
         return 5
     fi
 
+    # Source values associated with this particular PKI instance
+    [ -f ${PKI_REGISTRY_ENTRY} ] &&
+    . ${PKI_REGISTRY_ENTRY}
+
+    stop_instance
+    rv=$?
+    if [ $rv != 0 ] ; then
+        errors=`expr $errors + 1`
+        error_rv=$rv
+    fi
+
+    if [ ${errors} -eq 0 ] ; then
+        rm -f ${lockfile}
+    fi
+
+    return $rv
+}
+
+stop_all()
+{
+    error_rv=0
+    rv=0
+    errors=0
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
+        echo
+        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
+        # 5 program is not installed
+        return 5
+    fi
+
     if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
         echo "BEGIN SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S):"
     fi
@@ -1068,6 +1157,15 @@ restart()
     stop
     sleep 2
     start
+
+    return $?
+}
+
+restart_all()
+{
+    stop_all
+    sleep 2
+    start_all
 
     return $?
 }

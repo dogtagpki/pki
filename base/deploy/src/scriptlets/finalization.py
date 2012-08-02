@@ -129,18 +129,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Start this Apache/Tomcat PKI Process
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() >= 1:
+               util.instance.apache_instance_subsystems() >= 1:
                 util.systemd.start()
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() >= 1:
+                 util.instance.tomcat_instance_subsystems() >= 1:
                 util.systemd.start()
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() >= 0:
+               util.instance.apache_instance_subsystems() >= 0:
                 util.systemd.start()
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() >= 0:
+                 util.instance.tomcat_instance_subsystems() >= 0:
                 util.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             master['pki_subsystem'],

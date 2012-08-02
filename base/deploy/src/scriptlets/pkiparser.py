@@ -633,6 +633,10 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT,
                     "httpclient.jar")
+            config.pki_master_dict['pki_httpcore_jar'] =\
+                os.path.join(
+                    config.PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT,
+                    "httpcore.jar")
             config.pki_master_dict['pki_javassist_jar'] =\
                 os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
                              "javassist.jar")
@@ -722,6 +726,10 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
                     "httpclient.jar")
+            config.pki_master_dict['pki_httpcore_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_common_lib_path'],
+                    "httpcore.jar")
             config.pki_master_dict['pki_javassist_jar_link'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
@@ -1493,7 +1501,14 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_security_domain_uri'] =\
                         "https" + "://" +\
                         config.pki_master_dict['pki_security_domain_hostname']\
-                        + ":" + config.pki_security_domain_https_port
+                        + ":" +\
+                       config.pki_master_dict['pki_security_domain_https_port']
+                    if not len(config.pki_master_dict\
+                               ['pki_security_domain_name']):
+                        # Guess that security domain is on the local host
+                        config.pki_master_dict['pki_security_domain_name']\
+                            = config.pki_master_dict['pki_dns_domainname']\
+                            + " " + "Security Domain"
                     if config.str2bool(config.pki_master_dict['pki_clone']):
                         # Cloned CA
                         if not\
@@ -1510,12 +1525,6 @@ def compose_pki_master_dictionary():
                                 "Subordinate CA" + " " +\
                                 config.pki_master_dict['pki_hostname'] + " " +\
                                 config.pki_master_dict['pki_https_port']
-                        if not len(config.pki_master_dict\
-                                   ['pki_security_domain_name']):
-                            # Guess that security domain is on the local host
-                            config.pki_master_dict['pki_security_domain_name']\
-                                = config.pki_master_dict['pki_dns_domainname']\
-                                + " " + "Security Domain"
             else:
                 # PKI or Cloned KRA, OCSP, or TKS
                 config.pki_master_dict['pki_security_domain_type'] = "existing"
@@ -1529,13 +1538,11 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_security_domain_hostname'] +\
                     ":" +\
                     config.pki_master_dict['pki_security_domain_https_port']
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if not len(config.pki_master_dict\
-                               ['pki_security_domain_name']):
-                        # Guess that security domain is on the local host
-                        config.pki_master_dict['pki_security_domain_name'] =\
-                            config.pki_master_dict['pki_dns_domainname'] +\
-                            " " + "Security Domain"
+                if not len(config.pki_master_dict['pki_security_domain_name']):
+                    # Guess that security domain is on the local host
+                    config.pki_master_dict['pki_security_domain_name'] =\
+                        config.pki_master_dict['pki_dns_domainname'] +\
+                        " " + "Security Domain"
                 if config.pki_subsystem == "KRA":
                     if config.str2bool(config.pki_master_dict['pki_clone']):
                         # Cloned KRA
@@ -1614,9 +1621,17 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_ds_database']
         #         config.pki_master_dict['pki_ds_hostname']
         #
-        if not len(config.pki_master_dict['pki_ds_base_dn']):
-            config.pki_master_dict['pki_ds_base_dn'] =\
-                "o=" + config.pki_master_dict['pki_instance_id']
+        if not config.str2bool(config.pki_master_dict['pki_clone']):
+            if not len(config.pki_master_dict['pki_ds_base_dn']):
+                # if the instance is NOT a clone, create a default BASE DN
+                # of "o=${pki_instance_id}"; the reason that this default
+                # CANNOT be created if the instance is a clone is due to the
+                # fact that a master and clone MUST share the same BASE DN,
+                # and creating this default would prevent the ability to
+                # place a master and clone on the same machine (the method
+                # most often used for testing purposes)
+                config.pki_master_dict['pki_ds_base_dn'] =\
+                    "o=" + config.pki_master_dict['pki_instance_id']
         if not len(config.pki_master_dict['pki_ds_database']):
             config.pki_master_dict['pki_ds_database'] =\
                 config.pki_master_dict['pki_instance_id']

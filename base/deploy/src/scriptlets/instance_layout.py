@@ -85,6 +85,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_commons_codec_jar_link'])
             util.symlink.create(master['pki_httpclient_jar'],
                 master['pki_httpclient_jar_link'])
+            util.symlink.create(master['pki_httpcore_jar'],
+                master['pki_httpcore_jar_link'])
             util.symlink.create(master['pki_javassist_jar'],
                 master['pki_javassist_jar_link'])
             util.symlink.create(master['pki_resteasy_jaxrs_api_jar'],
@@ -188,6 +190,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.symlink.modify(master['pki_apache_commons_logging_jar_link'])
             util.symlink.modify(master['pki_commons_codec_jar_link'])
             util.symlink.modify(master['pki_httpclient_jar_link'])
+            util.symlink.modify(master['pki_httpcore_jar_link'])
             util.symlink.modify(master['pki_javassist_jar_link'])
             util.symlink.modify(master['pki_resteasy_jaxrs_api_jar_link'])
             util.symlink.modify(master['pki_jettison_jar_link'])
@@ -227,7 +230,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() == 0:
+               util.instance.apache_instance_subsystems() == 0:
                 # remove Apache instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Apache instance logs
@@ -236,9 +239,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Apache instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Apache instance registry
-                util.directory.delete(master['pki_instance_type_registry_path'])
+                util.directory.delete(master['pki_instance_registry_path'])
+                # remove Apache PKI registry (if empty)
+                if util.instance.apache_instances() == 0:
+                    util.directory.delete(
+                        master['pki_instance_type_registry_path'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() == 0:
+                 util.instance.tomcat_instance_subsystems() == 0:
                 # remove Tomcat instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Tomcat instance logs
@@ -249,14 +256,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.symlink.delete(
                     master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
-                # remove Tomcat instance registry
-                util.directory.delete(master['pki_instance_type_registry_path'])
                 # remove PKI 'tomcat.conf' instance file
                 util.file.delete(master['pki_target_tomcat_conf_instance_id'])
+                # remove Tomcat instance registry
+                util.directory.delete(master['pki_instance_registry_path'])
+                # remove Tomcat PKI registry (if empty)
+                if util.instance.tomcat_instances() == 0:
+                    util.directory.delete(
+                        master['pki_instance_type_registry_path'])
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() == 1:
+               util.instance.apache_instance_subsystems() == 1:
                 # remove Apache instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Apache instance logs
@@ -265,9 +276,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove Apache instance configuration
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove Apache instance registry
-                util.directory.delete(master['pki_instance_type_registry_path'])
+                util.directory.delete(master['pki_instance_registry_path'])
+                # remove Apache PKI registry (if empty)
+                if util.instance.apache_instances() == 1:
+                    util.directory.delete(
+                        master['pki_instance_type_registry_path'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() == 1:
+                 util.instance.tomcat_instance_subsystems() == 1:
                 # remove Tomcat instance base
                 util.directory.delete(master['pki_instance_path'])
                 # remove Tomcat instance logs
@@ -278,8 +293,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.symlink.delete(
                     master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
-                # remove Tomcat instance registry
-                util.directory.delete(master['pki_instance_type_registry_path'])
                 # remove PKI 'tomcat.conf' instance file
                 util.file.delete(master['pki_target_tomcat_conf_instance_id'])
+                # remove Tomcat instance registry
+                util.directory.delete(master['pki_instance_registry_path'])
+                # remove Tomcat PKI registry (if empty)
+                if util.instance.tomcat_instances() == 1:
+                    util.directory.delete(
+                        master['pki_instance_type_registry_path'])
         return self.rv

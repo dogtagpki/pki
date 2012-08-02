@@ -719,7 +719,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         String instanceRoot = cs.getString("instanceRoot");
 
-        FileInputStream fis = new FileInputStream(instanceRoot + "/alias/" + p12File);
+        FileInputStream fis = new FileInputStream(p12File);
         while (fis.available() > 0)
             fis.read(b);
         fis.close();

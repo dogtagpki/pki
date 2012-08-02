@@ -540,12 +540,92 @@ class configuration_file:
         #          ALL name/value pairs for the requested configuration
         #          scenario.  This should include checking for the
         #          "existence" of ALL required "name" parameters, as well as
-        #          the "existence", "type", and "correctness" of ALL required
-        #          "value" parameters.
+        #          the "existence", "type" (e. g. -  string, boolean, number,
+        #          etc.), and "correctness" (e. g. - file, directory, boolean
+        #          'True' or 'False', etc.) of ALL required "value" parameters.
         #
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            if config.str2bool(config.pki_master_dict['pki_clone']):
+            if config.str2bool(master['pki_clone']):
                 # Verify existence of clone parameters
+                if not master.has_key('pki_ds_base_dn') or\
+                   not len(master['pki_ds_base_dn']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_ds_base_dn",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_ds_ldap_port') or\
+                   not len(master['pki_ds_ldap_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_ds_ldap_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_ds_ldaps_port') or\
+                   not len(master['pki_ds_ldaps_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_ds_ldaps_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                # NOTE:  Although this will be checked prior to getting to
+                #        this method, this clone's 'pki_instance_name' MUST
+                #        be different from the master's 'pki_instance_name'
+                #        IF AND ONLY IF the master and clone are located on
+                #        the same host!
+                if not master.has_key('pki_ajp_port') or\
+                   not len(master['pki_ajp_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_ajp_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_http_port') or\
+                   not len(master['pki_http_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_http_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_https_port') or\
+                   not len(master['pki_https_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_https_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+                if not master.has_key('pki_tomcat_server_port') or\
+                   not len(master['pki_tomcat_server_port']):
+                    # FUTURE:  Check for unused port value
+                    #          (e. g. - must be different from master if the
+                    #                   master is located on the same host)
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_tomcat_server_port",
+                        master['pki_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
                 if not master.has_key('pki_clone_pkcs12_path') or\
                    not len(master['pki_clone_pkcs12_path']):
                     config.pki_log.error(
@@ -577,7 +657,7 @@ class configuration_file:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             elif master['pki_subsystem'] == "CA" and\
-                 config.str2bool(config.pki_master_dict['pki_external']):
+                 config.str2bool(master['pki_external']):
                 if not master.has_key('pki_external_step_two') or\
                    not len(master['pki_external_step_two']):
                     config.pki_log.error(
@@ -586,7 +666,7 @@ class configuration_file:
                         master['pki_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not config.str2bool(config.pki_master_dict['pki_step_two']):
+                if not config.str2bool(master['pki_step_two']):
                     if not master.has_key('pki_external_csr_path') or\
                        not len(master['pki_external_csr_path']):
                         config.pki_log.error(
@@ -735,7 +815,7 @@ class configuration_file:
 
 # PKI Deployment Instance Class
 class instance:
-    def apache_instances(self):
+    def apache_instance_subsystems(self):
         rv = 0
         try:
             # count number of PKI subsystems present
@@ -746,11 +826,11 @@ class instance:
                     rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'], rv - 1,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'],
                                      rv, extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
@@ -759,7 +839,41 @@ class instance:
             sys.exit(1)
         return rv
 
-    def pki_subsystem_instances(self):
+    def apache_instances(self):
+        rv = 0
+        try:
+            # Since ALL directories under the top-level PKI 'apache' registry
+            # directory SHOULD represent PKI Apache instances, and there
+            # shouldn't be any stray files or symbolic links at this level,
+            # simply count the number of PKI 'apache' instances (directories)
+            # present within the PKI 'apache' registry directory
+            for instance in\
+                os.listdir(master['pki_instance_type_registry_path']):
+                if os.path.isdir(
+                       os.path.join(master['pki_instance_type_registry_path'],
+                       instance)) and not\
+                   os.path.islink(
+                       os.path.join(master['pki_instance_type_registry_path'],
+                       instance)):
+                    rv = rv + 1
+            # always display correct information (even during dry_run)
+            if config.pki_dry_run_flag and rv > 0:
+                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
+                                     master['pki_instance_type_registry_path'],
+                                     rv - 1,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+            else:
+                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
+                                     master['pki_instance_type_registry_path'],
+                                     rv,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        return rv
+
+    def pki_instance_subsystems(self):
         rv = 0
         try:
             # Since ALL directories within the top-level PKI infrastructure
@@ -780,11 +894,11 @@ class instance:
                                 rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'], rv - 1,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
-                config.pki_log.debug(log.PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'], rv,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
@@ -793,7 +907,7 @@ class instance:
             sys.exit(1)
         return rv
 
-    def tomcat_instances(self):
+    def tomcat_instance_subsystems(self):
         rv = 0
         try:
             # count number of PKI subsystems present
@@ -804,13 +918,47 @@ class instance:
                     rv = rv + 1
             # always display correct information (even during dry_run)
             if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'], rv - 1,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
+                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
                                      master['pki_instance_path'],
                                      rv, extra=config.PKI_INDENTATION_LEVEL_2)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+        return rv
+
+    def tomcat_instances(self):
+        rv = 0
+        try:
+            # Since ALL directories under the top-level PKI 'tomcat' registry
+            # directory SHOULD represent PKI Tomcat instances, and there
+            # shouldn't be any stray files or symbolic links at this level,
+            # simply count the number of PKI 'tomcat' instances (directories)
+            # present within the PKI 'tomcat' registry directory
+            for instance in\
+                os.listdir(master['pki_instance_type_registry_path']):
+                if os.path.isdir(
+                       os.path.join(master['pki_instance_type_registry_path'],
+                       instance)) and not\
+                   os.path.islink(
+                       os.path.join(master['pki_instance_type_registry_path'],
+                       instance)):
+                    rv = rv + 1
+            # always display correct information (even during dry_run)
+            if config.pki_dry_run_flag and rv > 0:
+                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
+                                     master['pki_instance_type_registry_path'],
+                                     rv - 1,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+            else:
+                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
+                                     master['pki_instance_type_registry_path'],
+                                     rv,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)

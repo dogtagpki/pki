@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -191,7 +192,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
             String tokenn = config.getString("preop.module.token");
             if (tokenn.equals("Internal Key Storage Token")) {
-                ConfigurationUtils.restoreCertsFromP12(path, pwd);
+                String instanceRoot = config.getString("instanceRoot");
+                String p12File = instanceRoot + File.separator + "alias" +
+                                 File.separator + path;
+                ConfigurationUtils.restoreCertsFromP12(p12File, pwd);
             }
 
             String subsystemtype = config.getString("preop.subsystem.select", "");

@@ -88,10 +88,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Start/Restart this Apache/Tomcat PKI Process
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                apache_instances = util.instance.apache_instances()
-                if apache_instances == 1:
+                apache_instance_subsystems =\
+                    util.instance.apache_instance_subsystems()
+                if apache_instance_subsystems == 1:
                     util.systemd.start()
-                elif apache_instances > 1:
+                elif apache_instance_subsystems > 1:
                     util.systemd.restart()
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 # Optionally prepare to enable a java debugger
@@ -99,18 +100,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if config.str2bool(master['pki_enable_java_debugger']):
                     config.prepare_for_an_external_java_debugger(
                         master['pki_target_tomcat_conf_instance_id'])
-                tomcat_instances = util.instance.tomcat_instances()
-                if tomcat_instances == 1:
+                tomcat_instance_subsystems =\
+                    util.instance.tomcat_instance_subsystems()
+                if tomcat_instance_subsystems == 1:
                     util.systemd.start()
-                elif tomcat_instances > 1:
+                elif tomcat_instance_subsystems > 1:
                     util.systemd.restart()
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                apache_instances = util.instance.apache_instances()
-                if apache_instances == 0:
+                apache_instance_subsystems =\
+                    util.instance.apache_instance_subsystems()
+                if apache_instance_subsystems == 0:
                     util.systemd.start()
-                elif apache_instances > 0:
+                elif apache_instance_subsystems > 0:
                     util.systemd.restart()
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 # Optionally prepare to enable a java debugger
@@ -118,10 +121,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if config.str2bool(master['pki_enable_java_debugger']):
                     config.prepare_for_an_external_java_debugger(
                         master['pki_target_tomcat_conf_instance_id'])
-                tomcat_instances = util.instance.tomcat_instances()
-                if tomcat_instances == 0:
+                tomcat_instance_subsystems =\
+                    util.instance.tomcat_instance_subsystems()
+                if tomcat_instance_subsystems == 0:
                     util.systemd.start()
-                elif tomcat_instances > 0:
+                elif tomcat_instance_subsystems > 0:
                     util.systemd.restart()
         # Pass control to the Java servlet via Jython 2.2 'configuration.jy'
         util.jython.invoke(master['pki_jython_configuration_scriptlet'])
@@ -145,24 +149,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() == 1:
+               util.instance.apache_instance_subsystems() == 1:
                 if util.directory.exists(master['pki_client_dir']):
                     util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() == 1:
+                 util.instance.tomcat_instance_subsystems() == 1:
                 if util.directory.exists(master['pki_client_dir']):
                     util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instances() == 0:
+               util.instance.apache_instance_subsystems() == 0:
                 if util.directory.exists(master['pki_client_dir']):
                     util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instances() == 0:
+                 util.instance.tomcat_instance_subsystems() == 0:
                 if util.directory.exists(master['pki_client_dir']):
                     util.directory.delete(master['pki_client_dir'])
                 util.symlink.delete(master['pki_systemd_service_link'])

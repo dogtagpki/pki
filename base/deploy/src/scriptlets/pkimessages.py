@@ -139,8 +139,10 @@ PKI_VERBOSITY
 
 
 # PKI Deployment "Helper" Messages
-PKIHELPER_APACHE_INSTANCES_2 = "instance '%s' contains '%d' "\
-                               "Apache PKI subsystems"
+PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
+                                         "Apache PKI subsystems"
+PKIHELPER_APACHE_INSTANCES_2 = "PKI Apache registry '%s' contains '%d' "\
+                               "Apache PKI instances"
 PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = "applying in-place "\
                                       "slot substitutions on '%s'"
 PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = "certutil:  Missing "\
@@ -214,7 +216,7 @@ PKIHELPER_NAMESPACE_RESERVED_NAME_2 = "PKI instance '%s' is already a "\
 PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
-PKIHELPER_PKI_SUBSYSTEM_INSTANCES_2 = "instance '%s' contains '%d' "\
+PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
                                       "PKI subsystems"
 PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
@@ -223,8 +225,10 @@ PKIHELPER_RMDIR_1 = "rmdir %s"
 PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
 PKIHELPER_SLOT_SUBSTITUTION_2 = "slot substitution: '%s' ==> '%s'"
 PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
-PKIHELPER_TOMCAT_INSTANCES_2 = "instance '%s' contains '%d' "\
-                               "Tomcat PKI subsystems"
+PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
+                                         "Tomcat PKI subsystems"
+PKIHELPER_TOMCAT_INSTANCES_2 = "PKI Tomcat registry '%s' contains '%d' "\
+                               "Tomcat PKI instances"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 =\

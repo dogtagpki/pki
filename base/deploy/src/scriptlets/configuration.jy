@@ -97,42 +97,35 @@ def main(argv):
                   (log.PKI_JYTHON_INDENTATION_2,
                    master['pki_subsystem'],
                    log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-            return self.rv
+            return rv
         elif master['pki_subsystem'] == "TPS":
             print "%s '%s' %s" %\
                   (log.PKI_JYTHON_INDENTATION_2,
                    master['pki_subsystem'],
                    log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-            return self.rv
+            return rv
     elif master['pki_instance_type'] == "Tomcat":
         if master['pki_subsystem'] == "CA":
-            if config.str2bool(master['pki_clone']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_CLONED_PKI_SUBSYSTEM,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
-            elif config.str2bool(master['pki_external']):
+            if config.str2bool(master['pki_external']):
                 print "%s '%s %s' %s" %\
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_EXTERNAL_CA,
                        master['pki_subsystem'],
                        log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
+                return rv
             elif config.str2bool(master['pki_subordinate']):
                 print "%s '%s %s' %s" %\
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_SUBORDINATE_CA,
                        master['pki_subsystem'],
                        log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return self.rv
+                return rv
             else:
-                # CA
+                # PKI or Cloned CA
                 data = jyutil.rest_client.construct_pki_configuration_data(
                            master, sensitive, token)
         else:
-            # KRA, OCSP, or TKS
+            # PKI or Cloned KRA, OCSP, or TKS
             data = jyutil.rest_client.construct_pki_configuration_data(
                        master, sensitive, token)
 

@@ -98,7 +98,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove top-level infrastructure base
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_subsystem_instances() == 0:
+               util.instance.pki_instance_subsystems() == 0:
                 # remove top-level infrastructure base
                 util.directory.delete(master['pki_path'])
                 # do NOT remove top-level infrastructure logs
@@ -114,7 +114,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             # ALWAYS display correct information (even during dry_run)
             if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_subsystem_instances() == 1:
+               util.instance.pki_instance_subsystems() == 1:
                 # remove top-level infrastructure base
                 util.directory.delete(master['pki_path'])
                 # do NOT remove top-level infrastructure logs
