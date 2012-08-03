@@ -687,7 +687,7 @@ def compose_pki_master_dictionary():
                              "scannotation.jar")
             config.pki_master_dict['pki_tomcatjss_jar'] =\
                 os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                             "tomcatjss.jar")
+                             "tomcat7jss.jar")
             config.pki_master_dict['pki_velocity_jar'] =\
                 os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
                              "velocity.jar")
