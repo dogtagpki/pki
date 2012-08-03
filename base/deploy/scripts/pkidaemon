@@ -56,20 +56,6 @@ case $command in
         stop
         exit $?
         ;;
-    start_all)
-        start_all
-        exit $?
-        ;;
-    restart_all)
-        restart_all
-        exit $?
-        ;;
-    stop_all)
-        echo "An exit status of '143' refers to the 'systemd' method of using"\
-             "'SIGTERM' to shutdown a Java process and can safely be ignored."
-        stop_all
-        exit $?
-        ;;
     condrestart|force-restart|try-restart)
         [ ! -f ${lockfile} ] || restart
         echo "The '${command}' action is TBD."
