@@ -2414,7 +2414,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Agent Services</web-resource-name>
-            <url-pattern>/rest/agent/certs/*</url-pattern>
+            <url-pattern>/rest/agent/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
