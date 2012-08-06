@@ -79,6 +79,7 @@ public class CertResourceService extends CMSResourceService implements CertResou
     ICertificateAuthority authority;
     ICertificateRepository repo;
 
+    public final static int DEFAULT_SIZE = 20;
 
     public CertResourceService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
@@ -330,18 +331,48 @@ public class CertResourceService extends CMSResourceService implements CertResou
     }
 
     @Override
-    public CertDataInfos searchCerts(CertSearchData data, int maxResults, int maxTime) {
+    public CertDataInfos searchCerts(CertSearchData data, Integer start, Integer size) {
         if (data == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
         String filter = createSearchFilter(data);
-        CertDataInfos infos;
 
+        CertDataInfos infos = new CertDataInfos();
+
+        Enumeration<ICertRecord> e = null;
         try {
-            infos = getCertList(filter, maxResults, maxTime);
-        } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
+
+            e = repo.findCertRecords(filter);
+
+            int i = 0;
+
+            // skip to the start of the page
+            for (; i < start && e.hasMoreElements(); i++)
+                e.nextElement();
+
+            // return entries up to the page size
+            for (; i < start + size && e.hasMoreElements(); i++) {
+                ICertRecord user = e.nextElement();
+                infos.addCertData(createCertDataInfo(user));
+            }
+
+            // count the total entries
+            for (; e.hasMoreElements(); i++)
+                e.nextElement();
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
+                infos.addLink(new Link("prev", uri));
+            }
+
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
+                infos.addLink(new Link("next", uri));
+            }
+        } catch (EBaseException e1) {
+            throw new CMSException("Error listing certs in CertsResourceService.listCerts!" + e.toString());
         }
 
         return infos;

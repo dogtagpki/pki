@@ -54,8 +54,8 @@ public class CertRestClient extends CMSRestClient {
         return certClient.getCert(id);
     }
 
-    public CertDataInfos findCerts(CertSearchData data) {
-        return certClient.searchCerts(data, CertResource.DEFAULT_MAXRESULTS, CertResource.DEFAULT_MAXTIME);
+    public CertDataInfos findCerts(CertSearchData data, Integer start, Integer size) {
+        return certClient.searchCerts(data, start, size);
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {

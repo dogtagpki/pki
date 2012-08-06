@@ -103,10 +103,16 @@ public class CertFindCLI extends CLI {
             searchData = new CertSearchData();
             searchData.setSerialNumberRangeInUse(true);
         }
+        String s = cmd.getOptionValue("start");
+        Integer start = s == null ? null : Integer.valueOf(s);
+
+        s = cmd.getOptionValue("size");
+        Integer size = s == null ? null : Integer.valueOf(s);
+
         addSearchAttribute(cmd, searchData);
         CertDataInfos certs = null;
         try {
-            certs = parent.client.findCerts(searchData);
+            certs = parent.client.findCerts(searchData, start, size);
         } catch (CMSException e) {
             System.err.println("Error: Cannot list certificates. " + e.getMessage());
             System.exit(-1);
@@ -135,6 +141,15 @@ public class CertFindCLI extends CLI {
     public void addOptions() {
 
         Option option = null;
+
+        //pagination options
+        option = new Option(null, "start", true, "Page start");
+        option.setArgName("start");
+        options.addOption(option);
+
+        option = new Option(null, "size", true, "Page size");
+        option.setArgName("size");
+        options.addOption(option);
 
         //help
         options.addOption(null, "help", false, "Show help options");

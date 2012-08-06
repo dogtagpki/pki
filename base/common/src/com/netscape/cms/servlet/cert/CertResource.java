@@ -21,25 +21,25 @@ import com.netscape.cms.servlet.request.model.CertRequestInfo;
 @Path("")
 public interface CertResource {
 
-    public static final int DEFAULT_MAXTIME = 10;
-    public static final int DEFAULT_MAXRESULTS = 100;
+    public static final int DEFAULT_MAXTIME = 0;
+    public static final int DEFAULT_MAXRESULTS = 20;
 
     @GET
     @Path("certs")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos listCerts(
-                                 @QueryParam("status") String status,
-                                 @DefaultValue(""+DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
-                                 @DefaultValue(""+DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
+            @QueryParam("status") String status,
+            @DefaultValue("" + DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
+            @DefaultValue("" + DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
 
     @POST
     @Path("certs/search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos searchCerts(
-                                CertSearchData data,
-                                @DefaultValue(""+DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
-                                @DefaultValue(""+DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
+            CertSearchData data,
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
 
     @GET
     @Path("certs/{id}")

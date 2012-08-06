@@ -17,20 +17,20 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
-import com.netscape.cms.servlet.base.model.Link;
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 @XmlRootElement(name = "CertDataInfos")
 public class CertDataInfos {
 
-    protected Collection<CertDataInfo> certInfos;
-    protected List<Link> links;
+    protected Collection<CertDataInfo> certInfos = new ArrayList<CertDataInfo>();
+    protected List<Link> links = new ArrayList<Link>();
 
     /**
      * @return the CertInfos
@@ -62,29 +62,11 @@ public class CertDataInfos {
         this.links = links;
     }
 
-    @XmlTransient
-    public String getNext() {
-        if (links == null) {
-            return null;
-        }
-        for (Link link : links) {
-            if ("next".equals(link.getRelationship())) {
-                return link.getHref();
-            }
-        }
-        return null;
+    public void addCertData(CertDataInfo certInfo){
+        this.certInfos.add(certInfo);
     }
 
-    @XmlTransient
-    public String getPrevious() {
-        if (links == null) {
-            return null;
-        }
-        for (Link link : links) {
-            if ("previous".equals(link.getRelationship())) {
-                return link.getHref();
-            }
-        }
-        return null;
+    public void addLink(Link link) {
+        this.links.add(link);
     }
 }
