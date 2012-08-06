@@ -122,6 +122,7 @@ typedef struct {
 */
 
 #define MOD_TPS_CONFIG_KEY tps_module
+APLOG_USE_MODULE(tps);
 
 static const char MOD_TPS_CONFIG_KEY_NAME[] = "tps_module";
 
@@ -315,7 +316,7 @@ mod_tps_initialize( apr_pool_t *p,
    } else {
         /* Log information regarding this failure. */
         ap_log_error( "mod_tps_initialize",
-                      __LINE__, APLOG_ERR, 0, sv,
+                      __LINE__, APLOG_MODULE_INDEX, APLOG_ERR, 0, sv,
                       "The tps module was installed incorrectly since the "
                       "parameter named '%s' is missing from the Apache "
                       "Configuration file!",
@@ -337,7 +338,7 @@ mod_tps_initialize( apr_pool_t *p,
     if( status != RA_INITIALIZATION_SUCCESS ) {
         /* Log information regarding this failure. */
         ap_log_error( "mod_tps_initialize",
-                      __LINE__, APLOG_ERR, 0, sv,
+                      __LINE__, APLOG_MODULE_INDEX, APLOG_ERR, 0, sv,
                       "The tps module was installed incorrectly "
                       "since the file named '%s' does not exist!",
                       cfg_path_file );
@@ -368,7 +369,7 @@ mod_tps_initialize( apr_pool_t *p,
 
     if (status !=  RA_INITIALIZATION_SUCCESS ) {
         ap_log_error( "mod_tps_initialize",
-                      __LINE__, APLOG_ERR, 0, sv,
+                      __LINE__, APLOG_MODULE_INDEX, APLOG_ERR, 0, sv,
                       "The tps module failed to do the initializeInChild tasks. ");
         printf( "\nUnable to start Apache:\n"
                 "    The tps module failed to do the initializeInChild tasks. ");
@@ -636,7 +637,7 @@ static void mod_tps_init_child(apr_pool_t *p, server_rec *sv)
          if (status !=  RA_INITIALIZATION_SUCCESS) {
         /* Need to shut down, the child was not initialized properly. */
            ap_log_error( "mod_tps_init_child",
-                      __LINE__, APLOG_ERR, 0, sv,
+                      __LINE__, APLOG_MODULE_INDEX, APLOG_ERR, 0, sv,
                       "The tps module failed to do the initializeInChild tasks. ");
            printf( "\nUnable to start Apache:\n"
                 "    The tps module failed to do the initializeInChild tasks. ");

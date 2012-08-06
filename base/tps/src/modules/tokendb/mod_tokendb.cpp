@@ -111,7 +111,7 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
         msg1,"\";\n", JS_STOP ); \
     buf = getData( errorTemplate, injection ); \
     ap_log_error( ( const char * ) "tus", __LINE__, \
-        APLOG_ERR, 0, rq->server, \
+        APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server, \
         ( const char * ) msg2 ); \
     ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
 
@@ -123,14 +123,14 @@ extern TOKENDB_PUBLIC char *nss_var_lookup( apr_pool_t *p, server_rec *s,
         "\";\n", JS_STOP ); \
     buf = getData( errorTemplate, injection ); \
     ap_log_error( ( const char * ) "tus", __LINE__, \
-        APLOG_ERR, 0, rq->server, \
+        APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server, \
         ( const char * ) msg2, \
         ldap_err2string( status ) ); \
     ( void ) ap_rwrite( ( const void * ) buf, PL_strlen( buf ), rq );
 
 #define post_ldap_error(msg) \
     ap_log_error( ( const char * ) "tus", __LINE__, \
-        APLOG_ERR, 0, rq->server, \
+        APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server, \
         (const char *) msg,  ldap_err2string( status ) );
 
 #define get_cfg_string(cname, vname) \
@@ -302,6 +302,7 @@ typedef struct {
 */
 
 #define MOD_TOKENDB_CONFIG_KEY tokendb_module
+APLOG_USE_MODULE(tokendb);
 
 static const char MOD_TOKENDB_CONFIG_KEY_NAME[] = "tokendb_module";
 
@@ -2482,7 +2483,7 @@ mod_tokendb_initialize( apr_pool_t *p,
    } else {
         /* Log information regarding this failure. */
         ap_log_error( "mod_tokendb_initialize",
-                      __LINE__, APLOG_ERR, 0, sv,
+                      __LINE__, APLOG_MODULE_INDEX, APLOG_ERR, 0, sv,
                       "The tokendb module was installed incorrectly since the "
                       "parameter named '%s' is missing from the Apache "
                       "Configuration file!",
@@ -3751,7 +3752,7 @@ mod_tokendb_handler( request_rec *rq )
 
             PR_snprintf((char *)msg, 256,
               "'%s' marked token physically damaged", userid);
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated",
                      msg, cuidUserId, tokenType);
 
             /* get the certificates on this lost token */
@@ -3817,13 +3818,13 @@ mod_tokendb_handler( request_rec *rq )
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Errors in marking certificate on_hold '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid, 
                                   "Failure", "revoked_on_hold", serial, connid, statusString); 
                             } else {
                                 PR_snprintf((char *)msg, 256, "Errors in revoking certificate '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid, 
                                   "Failure", "revoke", serial, connid, statusString); 
@@ -3832,14 +3833,14 @@ mod_tokendb_handler( request_rec *rq )
                             // update certificate status
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked_on_hold" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid, 
                                   "Success", "revoked_on_hold", serial, connid, ""); 
                             } else {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid, 
@@ -3897,7 +3898,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked physically damaged, rc=-1");
 
                 PR_snprintf((char *)msg, 256, "Failed to update token status as physically damaged");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3908,7 +3909,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "Failed to create LDAPMod" );
 
                 ( void ) ap_rwrite( ( const void * ) buf,
@@ -3927,7 +3928,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked physically damaged, rc>0");
 
                 PR_snprintf((char *)msg, 256, "Failed to update token status as physically damaged");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -3939,7 +3940,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "LDAP error: %s", 
                               ldap_err2string( rc ) );
 
@@ -3958,7 +3959,7 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pString, "token marked physically damaged");
 
             PR_snprintf((char *)msg, 256, "Token marked as physically damaged");
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success",
                      msg, cuidUserId, tokenType);
 
         /* Is this token permanently lost? */
@@ -3971,7 +3972,7 @@ mod_tokendb_handler( request_rec *rq )
               PR_snprintf((char *)msg, 256,
                 "'%s' marked token terminated", userid);             
             }
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated",
                      msg, cuidUserId, tokenType);
 
             /* get the certificates on this lost token */
@@ -4040,13 +4041,13 @@ mod_tokendb_handler( request_rec *rq )
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Errors in marking certificate on_hold '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Failure", "revoked_on_hold", serial, connid, statusString);
                             } else {
                                 PR_snprintf((char *)msg, 256, "Errors in revoking certificate '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Failure", "revoke", serial, connid, statusString);
@@ -4055,14 +4056,14 @@ mod_tokendb_handler( request_rec *rq )
                             // update certificate status
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked_on_hold" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Success", "revoked_on_hold", serial, connid, "");                 
                             } else {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
@@ -4133,7 +4134,7 @@ mod_tokendb_handler( request_rec *rq )
                     RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked permanently lost, rc=-1");
                     PR_snprintf((char *)msg, 256, "Failure in updating token status to permanently lost");
                 }
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4144,7 +4145,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "Failed to create LDAPMod" );
 
                 ( void ) ap_rwrite( ( const void * ) buf,
@@ -4163,7 +4164,7 @@ mod_tokendb_handler( request_rec *rq )
                     RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked permanently lost, rc>0");
                     PR_snprintf((char *)msg, 256, "Failure in updating token status to permanently lost");
                 }
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4175,7 +4176,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "LDAP error: %s",
                               ldap_err2string( rc ) );
 
@@ -4195,7 +4196,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pString, "token marked permanently lost");
                 PR_snprintf((char *)msg, 256, "Token marked permanently lost");
             }
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success",
                  msg, cuidUserId, tokenType);
 
         /* Is this token temporarily lost? */
@@ -4203,7 +4204,7 @@ mod_tokendb_handler( request_rec *rq )
             bool revocation_errors = false;
             PR_snprintf((char *)msg, 256,
               "'%s' marked token temporarily lost", userid);
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated",
                      msg, cuidUserId, tokenType);
 
             /* all certs on the token are revoked (onHold) */
@@ -4277,13 +4278,13 @@ mod_tokendb_handler( request_rec *rq )
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Errors in marking certificate on_hold '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Failure", "revoked_on_hold", serial, connid, statusString);
                             } else {
                                 PR_snprintf((char *)msg, 256, "Errors in revoking certificate '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Failure", "revoke", serial, connid, statusString);
@@ -4293,14 +4294,14 @@ mod_tokendb_handler( request_rec *rq )
                             // update certificate status
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked_on_hold", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked_on_hold" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Success", "revoked_on_hold", serial, connid, "");
                             } else {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "revoked" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
@@ -4349,7 +4350,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked temporarily lost failed, failed to revoke certificates");
                 
                 PR_snprintf((char *)msg, 256, "Failed to revoke certificates");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 error_out("Errors in revoking certificates.", "Errors in revoking certificates.");
@@ -4365,7 +4366,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked temporarily lost, rc=-1");
 
                 PR_snprintf((char *)msg, 256, "Failed to update token status as temporarily lost");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4376,7 +4377,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "Failed to create LDAPMod" );
 
                 ( void ) ap_rwrite( ( const void * ) buf,
@@ -4390,7 +4391,7 @@ mod_tokendb_handler( request_rec *rq )
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "token marked temporarily lost, rc>0");
 
                 PR_snprintf((char *)msg, 256, "Failed to update token status as temporarily lost");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -4402,7 +4403,7 @@ mod_tokendb_handler( request_rec *rq )
                 buf = getData( errorTemplate, injection );
 
                 ap_log_error( ( const char * ) "tus", __LINE__,
-                              APLOG_ERR, 0, rq->server,
+                              APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                               ( const char * ) "LDAP error: %s",
                               ldap_err2string( rc ) );
 
@@ -4417,7 +4418,7 @@ mod_tokendb_handler( request_rec *rq )
             }
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pString, "token marked temporarily lost");
             PR_snprintf((char *)msg, 256, "Token marked temporarily lost");
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success",
                  msg, cuidUserId, tokenType);
 
         /* Is this temporarily lost token found? */
@@ -4425,7 +4426,7 @@ mod_tokendb_handler( request_rec *rq )
 
             PR_snprintf((char *)msg, 256,
               "'%s' marked lost token found", userid);
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated",
                      msg, cuidUserId, tokenType);
 
             tokendbDebug( "The temporarily lost token is found.\n" );
@@ -4490,14 +4491,14 @@ mod_tokendb_handler( request_rec *rq )
 
                         if (statusNum == 0) {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as active", attr_cn);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                             update_cert_status( attr_cn, "active" );
 
                             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                               "Success", "unrevoke", serial, connid, "");
                         } else {
                             PR_snprintf((char *)msg, 256, "Errors in unrevoking Certificate '%s': %s", attr_cn, statusString);
-                            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                               "Failure", "unrevoke", serial, connid, statusString);
@@ -4544,7 +4545,7 @@ mod_tokendb_handler( request_rec *rq )
             if( rc == -1 ) {
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "lost token marked found, rc=-1");
                 PR_snprintf((char *)msg, 256, "Failed to update lost token status as found");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 error_out("Failed to create LDAPMod: ", "Failed to create LDAPMod");
@@ -4556,7 +4557,7 @@ mod_tokendb_handler( request_rec *rq )
             } else if( rc > 0 ) {
                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Failure", oString, pString, "lost token marked found, rc>0");
                 PR_snprintf((char *)msg, 256, "Failed to update lost token status as found");
-                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure",
+                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure",
                      msg, cuidUserId, tokenType);
 
                 ldap_error_out("LDAP mod error: ", "LDAP error: %s");
@@ -4568,7 +4569,7 @@ mod_tokendb_handler( request_rec *rq )
             }
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pString, "lost token marked found");
             PR_snprintf((char *)msg, 256, "Lost token marked found");
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success",
                  msg, cuidUserId, tokenType);
 
         /* Does this temporarily lost token become permanently lost? */
@@ -4576,7 +4577,7 @@ mod_tokendb_handler( request_rec *rq )
 
             PR_snprintf((char *)msg, 256,
               "'%s' marked lost token permanently lost", userid);
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated",
                      msg, cuidUserId, tokenType);
 
             tokendbDebug( "Change the revocation reason from onHold "
@@ -4655,7 +4656,7 @@ mod_tokendb_handler( request_rec *rq )
                                                              statusString );
                             if (statusNum == 0) {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as active", attr_cn);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
                                 update_cert_status( attr_cn, "active" );
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
@@ -4669,21 +4670,21 @@ mod_tokendb_handler( request_rec *rq )
                                                            statusString );
                                 if (statusNum == 0) {
                                     PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
-                                    RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
+                                    RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);
                                     update_cert_status( attr_cn, "revoked" );
 
                                     RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                       "Success", "revoke", serial, connid, "");
                                 } else {
                                     PR_snprintf((char *)msg, 256, "Errors in revoking Certificate '%s' : %s", attr_cn, statusString);
-                                    RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                    RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                     RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                       "Failure", "revoke", serial, connid, statusString);
                                 }
                             } else {
                                 PR_snprintf((char *)msg, 256, "Errors in unrevoking Certificate '%s' : %s", attr_cn, statusString);
-                                RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
+                                RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "failure", msg, cuidUserId, attr_tokenType);
 
                                 RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CERT_STATUS_CHANGE, userid,
                                   "Failure", "unrevoke", serial, connid, statusString);
@@ -4732,7 +4733,7 @@ mod_tokendb_handler( request_rec *rq )
             RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pString, "lost token marked permanently lost");
 
             PR_snprintf((char *)msg, 256, "Lost token marked permanently lost");
-            RA::tdb_activity(rq->connection->remote_ip, cuid, "do_token", "success",
+            RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success",
                      msg, cuidUserId, tokenType);
         } else {
             // invalid operation or transition
@@ -6053,7 +6054,7 @@ mod_tokendb_handler( request_rec *rq )
 
             // TODO: error check to confirm that search filter is non-empty
             ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
+                          APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                           ( const char * ) "LDAP filter: %s", complete_filter);
 
             status = find_tus_certificate_entries_by_order_no_vlv( complete_filter,
@@ -6061,7 +6062,7 @@ mod_tokendb_handler( request_rec *rq )
                                                                    0 );
         } else if( PL_strstr( query, "op=view_certificate" )) {
             ap_log_error( ( const char * ) "tus", __LINE__,
-                          APLOG_ERR, 0, rq->server,
+                          APLOG_MODULE_INDEX, APLOG_ERR, 0, rq->server,
                           ( const char * ) "LDAP filter: %s", complete_filter);
 
             status = find_tus_certificate_entries_by_order( complete_filter,
@@ -6581,7 +6582,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 512,
             "'%s' has added profile %s to user %s", userid, profile, uid);
-        RA::tdb_activity(rq->connection->remote_ip, "", "add_profile", "success", msg, uid, NO_TOKEN_TYPE);
+        RA::tdb_activity(rq->connection->client_ip, "", "add_profile", "success", msg, uid, NO_TOKEN_TYPE);
 
         PR_snprintf(oString, 512, "userid;;%s", uid);
         PR_snprintf(pString, 512, "profile;;%s", profile);
@@ -6780,7 +6781,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 512,
             "'%s' has modified user %s", userid, uid);
-        RA::tdb_activity(rq->connection->remote_ip, "", "modify_user", "success", msg, uid, NO_TOKEN_TYPE);
+        RA::tdb_activity(rq->connection->client_ip, "", "modify_user", "success", msg, uid, NO_TOKEN_TYPE);
 
         PR_snprintf(injection, MAX_INJECTION_SIZE,
                     "/tus/tus?op=edit_user&uid=%s&flash=User+record+%s+has+been+updated", 
@@ -6849,7 +6850,7 @@ mod_tokendb_handler( request_rec *rq )
 
         RA::Audit(EV_CONFIG_TOKEN, AUDIT_MSG_CONFIG, userid, "Agent", "Success", oString, pLongString, "token record modified");
         PR_snprintf((char *)msg, 256, "Token record modified by %s", userid);
-        RA::tdb_activity(rq->connection->remote_ip, cuid, "save", "success",
+        RA::tdb_activity(rq->connection->client_ip, cuid, "save", "success",
             msg, cuidUserId, tokenType);
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
@@ -6956,7 +6957,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 256,
             "'%s' has deleted user %s", userid, uid);
-        RA::tdb_activity(rq->connection->remote_ip, "", "delete_user", "success", msg, uid, NO_TOKEN_TYPE);
+        RA::tdb_activity(rq->connection->client_ip, "", "delete_user", "success", msg, uid, NO_TOKEN_TYPE);
         PR_snprintf(oString, 512, "uid;;%s", uid);
         RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, "", "tokendb user deleted"); 
 
@@ -7042,7 +7043,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 512,
             "'%s' has created new user %s", userid, uid);
-        RA::tdb_activity(rq->connection->remote_ip, "", "add_user", "success", msg, uid, NO_TOKEN_TYPE);
+        RA::tdb_activity(rq->connection->client_ip, "", "add_user", "success", msg, uid, NO_TOKEN_TYPE);
 
         RA::Audit(EV_CONFIG_ROLE, AUDIT_MSG_CONFIG, userid, "Admin", "success", oString, pString, "tokendb user added"); 
 
@@ -7178,7 +7179,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 256,
             "'%s' has created new token", userid);
-        RA::tdb_activity(rq->connection->remote_ip, filter, "add", "token", msg, "success", tokenType);
+        RA::tdb_activity(rq->connection->client_ip, filter, "add", "token", msg, "success", tokenType);
 
         PR_snprintf( injection, MAX_INJECTION_SIZE,
                      "%s%s%s%s%s%s%s%s%s%s%s", JS_START,
@@ -7218,7 +7219,7 @@ mod_tokendb_handler( request_rec *rq )
 
         PR_snprintf((char *)msg, 256,
             "'%s' has deleted token", userid);
-        RA::tdb_activity(rq->connection->remote_ip, filter, "delete", "token", msg, "", tokenType);
+        RA::tdb_activity(rq->connection->client_ip, filter, "delete", "token", msg, "", tokenType);
 
         PR_snprintf(oString, 512, "token_id;;%s", filter);
         status = delete_tus_db_entry( userid, filter );
@@ -7364,7 +7365,7 @@ mod_tokendb_handler( request_rec *rq )
 
             RA::Audit(EV_CONFIG_AUDIT, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", pString, "audit log config modified");
             PR_snprintf((char *)msg, 512, "'%s' has modified audit log config: %s", userid, pString);
-               RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
+               RA::tdb_activity(rq->connection->client_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
         }
 
         char *logSigningInterval_str = get_post_field(post, "logSigningInterval", SHORT_LEN);
@@ -7374,7 +7375,7 @@ mod_tokendb_handler( request_rec *rq )
         if ((logSigningInterval>=0) &&(logSigningInterval != RA::m_flush_interval)) {
             RA::SetFlushInterval(logSigningInterval);
             PR_snprintf((char *)msg, 512, "'%s' has modified the  audit log signing interval to %d seconds", userid, logSigningInterval);
-            RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
+            RA::tdb_activity(rq->connection->client_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
 
             PR_snprintf(pString, 512, "logging.audit.flush.interval;;%d", logSigningInterval);
             RA::Audit(EV_CONFIG_AUDIT, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", pString, "audit log configuration modified");
@@ -7387,7 +7388,7 @@ mod_tokendb_handler( request_rec *rq )
         if ((logSigningBufferSize >= 512) && (logSigningBufferSize != (int) RA::m_buffer_size)) {
             RA::SetBufferSize(logSigningBufferSize);
             PR_snprintf((char *)msg, 512, "'%s' has modified the  audit log signing buffer size to %d bytes", userid, logSigningBufferSize);
-            RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
+            RA::tdb_activity(rq->connection->client_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
 
             PR_snprintf(pString, 512, "logging.audit.buffer.size;;%d", logSigningBufferSize);
             RA::Audit(EV_CONFIG_AUDIT, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", pString, "audit log configuration modified");
@@ -7420,7 +7421,7 @@ mod_tokendb_handler( request_rec *rq )
 
             PR_snprintf((char *)msg, 512,
             "'%s' has modified audit signing configuration", userid);
-            RA::tdb_activity(rq->connection->remote_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
+            RA::tdb_activity(rq->connection->client_ip, "", "modify_audit_signing", "success", msg, userid, NO_TOKEN_TYPE);
 
             PR_snprintf(pLongString, 4096, "logging.audit.selected.events;;%s", new_selected);
             RA::Audit(EV_CONFIG_AUDIT, AUDIT_MSG_CONFIG, userid, "Admin", "Success", "", pLongString, "audit log configuration modified");
@@ -7650,7 +7651,7 @@ static const char *mod_tokendb_get_config_path_file( cmd_parms *cmd,
                                                      const char *tokendbconf )
 {
     if( cmd->path ) {
-        ap_log_error( APLOG_MARK, APLOG_ERR, 0, NULL,
+        ap_log_error( APLOG_MARK, APLOG_ERR, APLOG_MODULE_INDEX, 0, NULL,
                       "The %s config param cannot be specified "
                       "in a Directory section.",
                       cmd->directive->directive );

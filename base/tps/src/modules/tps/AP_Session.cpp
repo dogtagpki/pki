@@ -128,7 +128,7 @@ AP_Session::~AP_Session()
 
 char *AP_Session::GetRemoteIP()
 {
-    return ( m_rq->connection->remote_ip );
+    return ( m_rq->connection->client_ip );
 }
 
 
