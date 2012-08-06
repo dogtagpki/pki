@@ -134,6 +134,7 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
 //-->
 </SCRIPT>
 
+<!--
 <OBJECT
 	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
 	CODEBASE="/xenroll.dll"
@@ -142,6 +143,19 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
 
 <OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
 </OBJECT>
+-->
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+  if ((navigator.appVersion).indexOf("NT 6.") > -1) {
+    document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
+  } else {
+    document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
+  }
+}
+//-->
+</SCRIPT>
 
 <SCRIPT LANGUAGE=VBS>
 <!--
@@ -178,8 +192,9 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
                GetOSVersion = 5
         End Function
 
-	Sub ImportCertificate
-		Dim pkcs7
+	'Sub ImportCertificate
+	Sub ImportCertificate (pkcs7)
+		'Dim pkcs7
                 Dim res
                 Dim osVersion
 
@@ -187,7 +202,8 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
                 osVersion = GetOSVersion()
                  
 		'Convert the cert to PKCS7 format
-		pkcs7 = result.header.pkcs7ChainBase64
+		'pkcs7 = result.header.pkcs7ChainBase64
+		'ret = MsgBox(pkcs7, 0, "Import PKCS7 Cert")
 		If (IsEmpty(pkcs7) OR theError <> 0) Then
 			ret = MsgBox("Could not convert certificate to PKCS7 format", 0, "Import Cert")
 			Exit Sub
@@ -232,8 +248,18 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
                 End If
 	End Sub
 
-	ImportCertificate()
+	'ImportCertificate()
 -->
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+//<!--
+if (navigator.appName == "Microsoft Internet Explorer") {
+  var pkcs7 = result.header.pkcs7ChainBase64;
+  //alert("pkcs7="+pkcs7);
+  ImportCertificate(pkcs7);
+}
+//-->
 </SCRIPT>
 
 </font>
