@@ -218,6 +218,7 @@ template(`pki_tomcat_template',`
         kernel_read_kernel_sysctls($1_t)
         selinux_get_enforce_mode($1_t)
         dirsrv_manage_var_lib($1_t)
+        tomcat_search_cache($1_t)
 
         # write to /var/log/pki for spawn and destroy
         allow $1_t pki_log_t:dir {getattr search};

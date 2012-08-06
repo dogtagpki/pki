@@ -756,7 +756,7 @@ start_instance()
             export SERVICE_NAME=$PKI_INSTANCE_ID
 
             if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
-                /usr/bin/runcon -t pki_${PKI_SUBSYSTEM_TYPE}_script_t \
+                /usr/bin/runcon -t pki_tomcat_script_t \
                      $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             else
