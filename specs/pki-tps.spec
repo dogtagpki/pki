@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          9.0.7
-Release:          1%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -44,6 +44,8 @@ Requires:         initscripts
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+Patch0:	          0001-Port-TPS-to-httpd-2.4.patch
 
 %global overview                                                          \
 Certificate System (CS) is an enterprise software system designed         \
@@ -97,6 +99,10 @@ ${overview}
 
 
 %setup -q -n %{name}-%{version}
+
+%if 0%{?fedora} >= 18
+%patch0 -p2 -b .f18
+%endif
 
 cat << \EOF > %{name}-prov
 #!/bin/sh
@@ -215,6 +221,18 @@ fi
 
 
 %changelog
+* Tue Aug  7 2012 Nathan Kinder <nkinder@redhat.com> 9.0.7-4
+- The API changed between httpd 2.2 and 2.4.  We now need to pass
+  the module index to ap_log_error() when calling it.  The remote_ip
+  member of the connection struct also was renamed to client_ip.
+  (Patch for Fedora 18 only)
+
+* Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.0.7-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 9.0.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Thu Sep 22 2011 Jack Magne <jmagne@redhat.com> 9.0.7-1
 - Bugzilla Bug #730146 - SSL handshake picks non-FIPS ciphers in FIPS mode (cfu)
 - Bugzilla Bug #730162 - TPS/TKS token enrollment failure in FIPS mode
