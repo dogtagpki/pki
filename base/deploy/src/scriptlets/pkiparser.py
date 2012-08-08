@@ -1455,157 +1455,57 @@ def compose_pki_master_dictionary():
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
         #
+        #         config.pki_master_dict['pki_issuing_ca']
         #         config.pki_master_dict['pki_security_domain_hostname']
         #         config.pki_master_dict['pki_security_domain_name']
         #         config.pki_master_dict['pki_subsystem_name']
         #
-        if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-            # PKI RA or TPS
+        if not len(config.pki_master_dict['pki_subsystem_name']):
+            config.pki_master_dict['pki_subsystem_name'] =\
+                config.pki_subsystem + " " +\
+                config.pki_master_dict['pki_hostname'] + " " +\
+                config.pki_master_dict['pki_https_port']
+        if config.pki_subsystem != "CA" or\
+           config.str2bool(config.pki_master_dict['pki_clone']) or\
+           config.str2bool(config.pki_master_dict['pki_subordinate']):
+            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+            # Subordinate CA
             config.pki_master_dict['pki_security_domain_type'] = "existing"
-            if not len(config.pki_master_dict['pki_security_domain_hostname']):
-                # Guess that it is the local host
+            if not len(config.pki_master_dict['pki_security_domain_name']):
+                # Guess that the security domain resides on the local host
+                config.pki_master_dict['pki_security_domain_name'] =\
+                    config.pki_master_dict['pki_dns_domainname'] + " " +\
+                    "Security Domain"
+            if not\
+               len(config.pki_master_dict['pki_security_domain_hostname']):
+                # Guess that the security domain resides on the local host
                 config.pki_master_dict['pki_security_domain_hostname'] =\
                     config.pki_master_dict['pki_hostname']
             config.pki_master_dict['pki_security_domain_uri'] =\
                 "https" + "://" +\
                 config.pki_master_dict['pki_security_domain_hostname'] + ":" +\
                 config.pki_master_dict['pki_security_domain_https_port']
+            if not len(config.pki_master_dict['pki_issuing_ca']):
+                # Guess that it is the same as the
+                # config.pki_master_dict['pki_security_domain_uri']
+                config.pki_master_dict['pki_issuing_ca'] =\
+                    config.pki_master_dict['pki_security_domain_uri']
+        elif config.str2bool(config.pki_master_dict['pki_external']):
+            # External CA
+            #
+            #     NOTE:  External CA's DO NOT require a security domain
+            #
+            if not len(config.pki_master_dict['pki_issuing_ca']):
+                config.pki_master_dict['pki_issuing_ca'] = "External CA"
+        else:
+            # PKI CA
+            config.pki_master_dict['pki_security_domain_type'] = "new"
             if not len(config.pki_master_dict['pki_security_domain_name']):
-                # Guess that security domain is on the local host
+                # Guess that the security domain resides on the local host
                 config.pki_master_dict['pki_security_domain_name'] =\
-                    config.pki_master_dict['pki_dns_domainname'] +\
-                    " " + "Security Domain"
-        elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if config.pki_subsystem == "CA":
-                if config.str2bool(config.pki_master_dict['pki_external']):
-                    # External CA
-                    #
-                    # NOTE:  External CA's DO NOT require a security domain
-                    if not len(config.pki_master_dict['pki_subsystem_name']):
-                        config.pki_master_dict['pki_subsystem_name'] =\
-                            "External CA" + " " +\
-                            config.pki_master_dict['pki_hostname'] + " " +\
-                            config.pki_master_dict['pki_https_port']
-                elif not config.str2bool(config.pki_master_dict['pki_clone'])\
-                     and not\
-                     config.str2bool(config.pki_master_dict['pki_subordinate']):
-                    # PKI CA
-                    config.pki_master_dict['pki_security_domain_type'] = "new"
-                    if not len(config.pki_master_dict\
-                               ['pki_security_domain_name']):
-                        config.pki_master_dict['pki_security_domain_name'] =\
-                            config.pki_master_dict['pki_dns_domainname'] +\
-                            " " + "Security Domain"
-                    if not len(config.pki_master_dict['pki_subsystem_name']):
-                        config.pki_master_dict['pki_subsystem_name'] =\
-                            "PKI CA" + " " +\
-                            config.pki_master_dict['pki_hostname'] + " " +\
-                            config.pki_master_dict['pki_https_port']
-                else:
-                    # PKI Cloned or Subordinate CA
-                    config.pki_master_dict['pki_security_domain_type'] =\
-                        "existing"
-                    if not len(config.pki_master_dict\
-                               ['pki_security_domain_hostname']):
-                        # Guess that it is the local host
-                        config.pki_master_dict['pki_security_domain_hostname']\
-                            = config.pki_master_dict['pki_hostname']
-                    config.pki_master_dict['pki_security_domain_uri'] =\
-                        "https" + "://" +\
-                        config.pki_master_dict['pki_security_domain_hostname']\
-                        + ":" +\
-                       config.pki_master_dict['pki_security_domain_https_port']
-                    if not len(config.pki_master_dict\
-                               ['pki_security_domain_name']):
-                        # Guess that security domain is on the local host
-                        config.pki_master_dict['pki_security_domain_name']\
-                            = config.pki_master_dict['pki_dns_domainname']\
-                            + " " + "Security Domain"
-                    if config.str2bool(config.pki_master_dict['pki_clone']):
-                        # Cloned CA
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "Cloned CA" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                    else:
-                        # Subordinate CA
-                        if not\
-                           len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "Subordinate CA" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-            else:
-                # PKI or Cloned KRA, OCSP, or TKS
-                config.pki_master_dict['pki_security_domain_type'] = "existing"
-                if not len(config.pki_master_dict\
-                           ['pki_security_domain_hostname']):
-                    # Guess that it is the local host
-                    config.pki_master_dict['pki_security_domain_hostname'] =\
-                        config.pki_master_dict['pki_hostname']
-                config.pki_master_dict['pki_security_domain_uri'] =\
-                    "https" + "://" +\
-                    config.pki_master_dict['pki_security_domain_hostname'] +\
-                    ":" +\
-                    config.pki_master_dict['pki_security_domain_https_port']
-                if not len(config.pki_master_dict['pki_security_domain_name']):
-                    # Guess that security domain is on the local host
-                    config.pki_master_dict['pki_security_domain_name'] =\
-                        config.pki_master_dict['pki_dns_domainname'] +\
-                        " " + "Security Domain"
-                if config.pki_subsystem == "KRA":
-                    if config.str2bool(config.pki_master_dict['pki_clone']):
-                        # Cloned KRA
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "Cloned KRA" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                    else:
-                        # PKI KRA
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "PKI KRA" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                elif config.pki_subsystem == "OCSP":
-                    if config.str2bool(config.pki_master_dict['pki_clone']):
-                        # Cloned OCSP
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "Cloned OCSP" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                    else:
-                        # PKI OCSP
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "PKI OCSP" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                elif config.pki_subsystem == "TKS":
-                    if config.str2bool(config.pki_master_dict['pki_clone']):
-                        # Cloned TKS
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "Cloned TKS" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
-                    else:
-                        # PKI TKS
-                        if not\
-                            len(config.pki_master_dict['pki_subsystem_name']):
-                            config.pki_master_dict['pki_subsystem_name'] =\
-                                "PKI TKS" + " " +\
-                                config.pki_master_dict['pki_hostname'] + " " +\
-                                config.pki_master_dict['pki_https_port']
+                    config.pki_master_dict['pki_dns_domainname'] + " " +\
+                    "Security Domain"
         # Jython scriptlet
         # 'Directory Server' Configuration name/value pairs
         #

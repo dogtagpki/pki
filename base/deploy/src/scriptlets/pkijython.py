@@ -180,7 +180,7 @@ def generateCRMFRequest(token, keysize, subjectdn, dualkey):
         # 1st : Encryption key
         s1.addElement(crmfMsg)
         # 2nd : Signing Key
-        if dualkey:
+        if config.str2bool(dualkey):
             javasystem.out.println(log.PKI_JYTHON_IS_DUALKEY)
             seq1 = SEQUENCE()
             certReqSigning = CertRequest(INTEGER(1), certTemplate, seq1)
@@ -338,36 +338,28 @@ class rest_client:
                         data.setIsClone("false")
             # Security Domain Information
             #
-            # NOTE:  External CA's DO NOT require a security domain
-            if master['pki_instance_type'] == "Tomcat":
-                if master['pki_subsystem'] == "CA":
-                    if not config.str2bool(master['pki_clone']) and\
-                       not config.str2bool(master['pki_subordinate']):
-                        # PKI CA
-                        data.setSecurityDomainType(
-                            ConfigurationData.NEW_DOMAIN)
-                        data.setSecurityDomainName(
-                            master['pki_security_domain_name'])
-                    else:
-                        # PKI Cloned or Subordinate CA
-                        data.setSecurityDomainType(
-                            ConfigurationData.EXISTING_DOMAIN)
-                        data.setSecurityDomainUri(
-                            master['pki_security_domain_uri'])
-                        data.setSecurityDomainUser(
-                            master['pki_security_domain_user'])
-                        data.setSecurityDomainPassword(
-                            sensitive['pki_security_domain_password'])
-                else:
-                    # PKI KRA, OCSP, or TKS
-                    data.setSecurityDomainType(
-                        ConfigurationData.EXISTING_DOMAIN)
-                    data.setSecurityDomainUri(
-                        master['pki_security_domain_uri'])
-                    data.setSecurityDomainUser(
-                        master['pki_security_domain_user'])
-                    data.setSecurityDomainPassword(
-                        sensitive['pki_security_domain_password'])
+            #     NOTE:  External CA's DO NOT require a security domain
+            #
+            if master['pki_subsystem'] != "CA" or\
+               config.str2bool(master['pki_clone']) or\
+               config.str2bool(master['pki_subordinate']):
+                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+                # Subordinate CA
+                data.setSecurityDomainType(
+                    ConfigurationData.EXISTING_DOMAIN)
+                data.setSecurityDomainUri(
+                    master['pki_security_domain_uri'])
+                data.setSecurityDomainUser(
+                    master['pki_security_domain_user'])
+                data.setSecurityDomainPassword(
+                    sensitive['pki_security_domain_password'])
+            elif not config.str2bool(master['pki_external']):
+                # PKI CA
+                data.setSecurityDomainType(
+                    ConfigurationData.NEW_DOMAIN)
+                data.setSecurityDomainName(
+                    master['pki_security_domain_name'])
             # Directory Server Information
             if master['pki_subsystem'] != "RA":
                 data.setDsHost(master['pki_ds_hostname'])
@@ -420,6 +412,15 @@ class rest_client:
                     else:
                         javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
                         javasystem.exit(1)
+            # Issuing CA Information
+            if master['pki_subsystem'] != "CA" or\
+               config.str2bool(master['pki_clone']) or\
+               config.str2bool(master['pki_subordinate']) or\
+               config.str2bool(master['pki_external']):
+                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+                # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
+                # Subordinate CA, or External CA
+                data.setIssuingCA(master['pki_issuing_ca'])
             # Create system certs
             systemCerts = ArrayList()
             # Create 'CA Signing Certificate'
