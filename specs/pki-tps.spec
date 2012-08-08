@@ -101,7 +101,7 @@ ${overview}
 %setup -q -n %{name}-%{version}
 
 %if 0%{?fedora} >= 18
-%patch0 -p2 -b .f18
+%patch0 -p1 -b .f18
 %endif
 
 cat << \EOF > %{name}-prov
