@@ -83,6 +83,14 @@ public interface IPublisherProcessor extends ISubsystem {
     public Hashtable getRuleInsts();
 
     /**
+     * Adds rule instance to the instance list.
+     * @param insName rule instance name
+     * @param c config store
+     */
+    public void addRuleInstance(String insName, IConfigStore c) throws
+            EBaseException;
+
+    /**
      *
      * Returns Hashtable of mapper plugins.
      */
@@ -106,6 +114,14 @@ public interface IPublisherProcessor extends ISubsystem {
      * Returns Hashtable of rule publisher instances.
      */
     public Hashtable getPublisherInsts();
+
+    /**
+     * Adds publisher instance to the instance list.
+     * @param insName publisher instance name
+     * @param c config store
+     */
+    public void addPublisherInstance(String insName, IConfigStore c) throws
+            EBaseException;
 
     /**
      *
