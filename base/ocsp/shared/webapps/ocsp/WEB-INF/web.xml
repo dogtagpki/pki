@@ -410,7 +410,7 @@
 
    <context-param>
       <param-name>resteasy.servlet.mapping.prefix</param-name>
-      <param-value>/pki</param-value>
+      <param-value>/rest</param-value>
    </context-param>
 
    <context-param>
@@ -431,7 +431,7 @@
 
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/pki/*</url-pattern>
+      <url-pattern>/rest/*</url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
