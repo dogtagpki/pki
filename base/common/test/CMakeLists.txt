@@ -28,50 +28,24 @@ find_file(PKI_CMSBUNDLE_JAR
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
-# TODO: create CMake function to find all Java files
-set(pki-common-test_SRCS
-    com/netscape/certsrv/app/CMSEngineDefaultStub.java
-    com/netscape/certsrv/authentication/AuthTokenTest.java
-    com/netscape/certsrv/logging/LoggerDefaultStub.java
-    com/netscape/certsrv/request/AgentApprovalsTest.java
-    com/netscape/cmscore/dbs/CertRecordListTest.java
-    com/netscape/cmscore/dbs/DBRegistryDefaultStub.java
-    com/netscape/cmscore/dbs/DBRegistryTest.java
-    com/netscape/cmscore/dbs/DBSSessionDefaultStub.java
-    com/netscape/cmscore/dbs/DBSubsystemDefaultStub.java
-    com/netscape/cmscore/dbs/DBVirtualListDefaultStub.java
-    com/netscape/cmscore/dbs/RequestRecordDefaultStub.java
-    com/netscape/cmscore/request/DBDynAttrMapperDefaultStub.java
-    com/netscape/cmscore/request/ExtAttrDynMapperTest.java
-    com/netscape/cmscore/request/ExtDataHashtableTest.java
-    com/netscape/cmscore/request/RequestDefaultStub.java
-    com/netscape/cmscore/request/RequestModDefaultStub.java
-    com/netscape/cmscore/request/RequestQueueTest.java
-    com/netscape/cmscore/request/RequestRecordTest.java
-    com/netscape/cmscore/request/RequestTest.java
-    com/netscape/cmscore/test/CMSBaseTestCase.java
-    com/netscape/cmscore/test/TestHelper.java
-)
-
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
-    ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
-    ${PKI_TEST_JAR} ${JUNIT_JAR}
-)
-
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-
-# build test jar file
-# TODO: create CMake function to compile without building jar file
+# build pki-common-test
 # TODO: build test only when the test is invoked
-set(CMAKE_JAR_CLASSES_PREFIX com/netscape)
-add_jar(pki-common-test ${pki-common-test_SRCS})
-add_dependencies(pki-common-test
-    pki-nsutil pki-cmsutil
-    pki-certsrv pki-cms pki-cmscore pki-cmsbundle
-    pki-test
+javac(pki-common-test-classes
+    SOURCES
+        com/netscape/certsrv/*.java
+        com/netscape/cmscore/*.java
+    CLASSPATH
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
+        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JUNIT_JAR}
+        ${CMAKE_BINARY_DIR}/test/classes
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/test/classes
+    DEPENDS
+        pki-test-classes
+        pki-nsutil pki-cmsutil
+        pki-certsrv pki-cms pki-cmscore pki-cmsbundle
 )
 
 # create test target
@@ -79,12 +53,11 @@ add_dependencies(pki-common-test
 # TODO: create CMake function to find all JUnit test classes
 add_junit_test(test-pki-common
     CLASSPATH
-        ${pki-common-test_JAR_FILE}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
-        ${PKI_TEST_JAR} ${JUNIT_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JUNIT_JAR}
+        ${CMAKE_BINARY_DIR}/test/classes
     TESTS
         com.netscape.certsrv.authentication.AuthTokenTest
         com.netscape.certsrv.request.AgentApprovalsTest

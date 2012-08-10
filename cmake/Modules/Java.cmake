@@ -67,6 +67,8 @@ function(javac target)
 
     add_custom_target(${target} ALL DEPENDS ${depends})
 
+    file(MAKE_DIRECTORY ${output_dir})
+
     add_custom_command(
         TARGET ${target}
         COMMAND ${CMAKE_COMMAND}
@@ -77,6 +79,7 @@ function(javac target)
             -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
         COMMAND ${CMAKE_Java_COMPILER}
             ${CMAKE_JAVA_COMPILE_FLAGS}
+            -encoding UTF-8
             -cp ${native_classpath}
             -d ${output_dir}
             @${file_list}
