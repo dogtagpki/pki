@@ -76,41 +76,47 @@ find_file(SYMKEY_JAR
 )
 
 
-# identify java sources
-set(pki-kra_java_SRCS
-    com/netscape/kra/KeyRecoveryAuthority.java
-    com/netscape/kra/KeyRecoveryAuthorityApplication.java
-    com/netscape/kra/EnrollmentService.java
-    com/netscape/kra/RecoveryService.java
-    com/netscape/kra/SecurityDataRecoveryService.java
-    com/netscape/kra/TokenKeyRecoveryService.java
-    com/netscape/kra/EncryptionUnit.java
-    com/netscape/kra/KRAService.java
-    com/netscape/kra/NetkeyKeygenService.java
-    com/netscape/kra/SecurityDataService.java
-    com/netscape/kra/KRANotify.java
-    com/netscape/kra/KRAPolicy.java
-    com/netscape/kra/TransportKeyUnit.java
-    com/netscape/kra/StorageKeyUnit.java
-    com/netscape/kra/ArchiveOptions.java
+# build pki-kra
+javac(pki-kra-classes
+    SOURCES
+        com/netscape/kra/*.java
+    CLASSPATH
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
+        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
 )
 
+jar(pki-kra-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-kra-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/kra/*.class
+    DEPENDS
+        pki-kra-classes
+)
 
-# set classpath
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
-    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-    ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
+link(pki-kra
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+    DEST
+        pki-kra-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-kra-jar
+)
 
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-kra-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
 
-# set version
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-
-
-# build pki-kra.jar
-add_jar(pki-kra ${pki-kra_java_SRCS})
-add_dependencies(pki-kra symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
-install_jar(pki-kra ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_KRA_JAR ${pki-kra_JAR_FILE} CACHE INTERNAL "pki-kra jar file")
-
+set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar CACHE INTERNAL "pki-kra jar file")

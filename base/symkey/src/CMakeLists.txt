@@ -8,17 +8,49 @@ find_file(JSS_JAR
     /usr/share/java
 )
 
-set(symkey_java_SRCS
-    com/netscape/symkey/SessionKey.java
+# build symkey
+javac(symkey-classes
+    SOURCES
+        com/netscape/symkey/*.java
+    CLASSPATH
+        ${JSS_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
 )
 
-set(CMAKE_JNI_TARGET TRUE)
-set(CMAKE_JAVA_INCLUDE_PATH ${JSS_JAR})
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
+jar(symkey-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/symkey-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/symkey/*.class
+    DEPENDS
+        symkey-classes
+)
 
-add_jar(symkey ${symkey_java_SRCS})
-install_jar(symkey ${LIB_INSTALL_DIR}/symkey)
-install_jni_symlink(symkey ${JAVA_LIB_INSTALL_DIR})
+link(symkey
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/symkey.jar
+    DEST
+        symkey-${APPLICATION_VERSION}.jar
+    DEPENDS
+        symkey-jar
+)
 
-set(SYMKEY_JAVA_OBJECT_DIR ${symkey_CLASS_DIR} PARENT_SCOPE)
-set(SYMKEY_JAR ${symkey_JAR_FILE} CACHE INTERNAL "symkey jar file")
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/symkey.jar
+        ${CMAKE_BINARY_DIR}/dist/symkey-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${LIB_INSTALL_DIR}/symkey
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/symkey.jar
+    DESTINATION
+        ${JAVA_LIB_INSTALL_DIR}
+)
+
+set(SYMKEY_JAR ${CMAKE_BINARY_DIR}/dist/symkey.jar CACHE INTERNAL "symkey jar file")

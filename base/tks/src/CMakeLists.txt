@@ -77,28 +77,47 @@ find_file(SYMKEY_JAR
 )
 
 
-# identify java sources
-set(pki-tks_java_SRCS
-    com/netscape/tks/TKSAuthority.java
-    com/netscape/tks/TKSApplication.java
+# build pki-tks
+javac(pki-tks-classes
+    SOURCES
+        com/netscape/tks/*.java
+    CLASSPATH
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
+        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
 )
 
+jar(pki-tks-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-tks-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/tks/*.class
+    DEPENDS
+        pki-tks-classes
+)
 
-# set classpath
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
-    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-    ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
+link(pki-tks
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+    DEST
+        pki-tks-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-tks-jar
+)
 
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tks-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
 
-# set version
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-
-
-# build pki-tks.jar
-add_jar(pki-tks ${pki-tks_java_SRCS})
-add_dependencies(pki-tks symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
-install_jar(pki-tks ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_TKS_JAR ${pki-tks_JAR_FILE} CACHE INTERNAL "pki-tks jar file")
-
+set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks jar file")

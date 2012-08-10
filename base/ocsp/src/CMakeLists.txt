@@ -76,31 +76,47 @@ find_file(SYMKEY_JAR
 )
 
 
-# identify java sources
-set(pki-ocsp_java_SRCS
-    com/netscape/ocsp/OCSPResources.java
-    com/netscape/ocsp/OCSPAuthority.java
-    com/netscape/ocsp/OCSPApplication.java
-    com/netscape/ocsp/SigningUnit.java
-    com/netscape/ocsp/EOCSPException.java
+# build pki-ocsp
+javac(pki-ocsp-classes
+    SOURCES
+        com/netscape/ocsp/*.java
+    CLASSPATH
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
+        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
 )
 
+jar(pki-ocsp-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-ocsp-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/ocsp/*.class
+    DEPENDS
+        pki-ocsp-classes
+)
 
-# set classpath
-set(CMAKE_JAVA_INCLUDE_PATH
-    ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
-    ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-    ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
+link(pki-ocsp
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
+    DEST
+        pki-ocsp-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-ocsp-jar
+)
 
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-ocsp-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
 
-# set version
-set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
-
-
-# build pki-ocsp.jar
-add_jar(pki-ocsp ${pki-ocsp_java_SRCS})
-add_dependencies(pki-ocsp symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
-install_jar(pki-ocsp ${JAVA_JAR_INSTALL_DIR}/pki)
-set(PKI_OCSP_JAR ${pki-ocsp_JAR_FILE} CACHE INTERNAL "pki-ocsp jar file")
-
+set(PKI_OCSP_JAR ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar CACHE INTERNAL "pki-ocsp jar file")
