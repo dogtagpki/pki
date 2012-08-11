@@ -6,21 +6,21 @@ import java.util.Iterator;
 
 import org.jboss.resteasy.client.ClientResponse;
 
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyDataInfos;
+import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.system.SystemCertificateResource;
 import com.netscape.cms.client.ClientConfig;
 import com.netscape.cms.client.PKIClient;
-import com.netscape.cms.servlet.admin.SystemCertificateResource;
-import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.key.KeyResource;
-import com.netscape.cms.servlet.key.model.KeyData;
-import com.netscape.cms.servlet.key.model.KeyDataInfo;
-import com.netscape.cms.servlet.key.model.KeyDataInfos;
-import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
-import com.netscape.cms.servlet.request.model.KeyRequestInfos;
-import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.util.Utils;
 
 public class DRMClient  extends PKIClient {

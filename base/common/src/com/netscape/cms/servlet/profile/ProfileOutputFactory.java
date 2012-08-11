@@ -22,10 +22,10 @@ import java.util.Locale;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.profile.model.ProfileAttribute;
-import com.netscape.cms.servlet.profile.model.ProfileOutput;
 
 public class ProfileOutputFactory {
 

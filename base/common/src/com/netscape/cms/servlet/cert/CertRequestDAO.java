@@ -32,21 +32,20 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.request.CMSRequestInfo;
+import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cms.servlet.request.RequestNotFoundException;
-import com.netscape.cms.servlet.request.model.CMSRequestInfo;
-import com.netscape.cms.servlet.request.model.CMSRequestInfos;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
-import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
-
 
 /**
  * @author alee

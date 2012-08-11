@@ -22,11 +22,11 @@ import java.util.Locale;
 
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.PolicyDefault;
+import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.profile.model.PolicyDefault;
-import com.netscape.cms.servlet.profile.model.ProfileAttribute;
 
 public class PolicyDefaultFactory {
 

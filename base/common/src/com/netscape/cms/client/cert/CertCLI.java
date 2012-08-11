@@ -23,11 +23,11 @@ import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.cert.CertDataInfo;
+import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.cert.model.CertDataInfo;
-import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 /**
  * @author Endi S. Dewata

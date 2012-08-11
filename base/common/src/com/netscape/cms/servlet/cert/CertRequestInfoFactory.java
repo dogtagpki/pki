@@ -28,12 +28,13 @@ import netscape.security.x509.X509CertImpl;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestResource;
+import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.request.CertRequestResource;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 public class CertRequestInfoFactory {
 

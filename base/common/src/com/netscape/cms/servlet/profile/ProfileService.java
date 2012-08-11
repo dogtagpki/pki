@@ -32,11 +32,13 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.profile.ProfileData;
+import com.netscape.certsrv.profile.ProfileDataInfo;
+import com.netscape.certsrv.profile.ProfileDataInfos;
+import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.profile.ProfileNotFoundException;
+import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.profile.model.ProfileData;
-import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
-import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
-import com.netscape.cms.servlet.profile.model.ProfileInput;
 
 /**
  * @author alee

@@ -19,21 +19,21 @@ package com.netscape.cms.client.cert;
 
 import java.net.URISyntaxException;
 
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.cert.CertDataInfos;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertRequestResource;
+import com.netscape.certsrv.cert.CertResource;
+import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.cert.CertRevokeRequest;
+import com.netscape.certsrv.cert.CertSearchRequest;
+import com.netscape.certsrv.cert.CertUnrevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.ClientConfig;
 import com.netscape.cms.client.PKIClient;
-import com.netscape.cms.servlet.cert.CertResource;
-import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertSearchRequest;
-import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.request.CertRequestResource;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
-import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 /**
  * @author Endi S. Dewata
@@ -70,11 +70,11 @@ public class CertClient extends PKIClient {
         return certClient.unrevokeCert(id, request);
     }
 
-    public CertRequestInfos enrollRequest(CertEnrollmentRequest data){
+    public CertRequestInfos enrollRequest(CertEnrollmentRequest data) {
         return certRequestResource.enrollCert(data);
     }
 
-    public CertReviewResponse reviewRequest(RequestId id){
+    public CertReviewResponse reviewRequest(RequestId id) {
         return certRequestResource.reviewRequest(id);
     }
 

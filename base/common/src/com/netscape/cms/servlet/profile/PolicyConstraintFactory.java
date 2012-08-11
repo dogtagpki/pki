@@ -21,9 +21,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.profile.IPolicyConstraint;
+import com.netscape.certsrv.profile.PolicyConstraint;
+import com.netscape.certsrv.profile.PolicyConstraintValue;
 import com.netscape.certsrv.property.Descriptor;
-import com.netscape.cms.servlet.profile.model.PolicyConstraint;
-import com.netscape.cms.servlet.profile.model.PolicyConstraintValue;
 
 public class PolicyConstraintFactory {
 

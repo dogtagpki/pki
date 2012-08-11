@@ -36,17 +36,18 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyDataInfos;
+import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.key.model.KeyData;
-import com.netscape.cms.servlet.key.model.KeyDataInfo;
-import com.netscape.cms.servlet.key.model.KeyDataInfos;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
-import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**

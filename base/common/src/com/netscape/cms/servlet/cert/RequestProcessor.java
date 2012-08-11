@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -46,6 +47,10 @@ import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
+import com.netscape.certsrv.profile.PolicyDefault;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileOutput;
+import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -53,11 +58,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
-import com.netscape.cms.servlet.profile.model.PolicyDefault;
-import com.netscape.cms.servlet.profile.model.ProfileAttribute;
-import com.netscape.cms.servlet.profile.model.ProfileOutput;
-import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class RequestProcessor extends CertProcessor {
 
@@ -410,7 +410,7 @@ public class RequestProcessor extends CertProcessor {
         // put request policy defaults in a local hash
         HashMap<String, String> policyData = new HashMap<String,String>();
         for (ProfilePolicySet policySet: data.getPolicySets()) {
-            for (com.netscape.cms.servlet.profile.model.ProfilePolicy policy: policySet.getPolicies()) {
+            for (com.netscape.certsrv.profile.ProfilePolicy policy: policySet.getPolicies()) {
                 PolicyDefault def = policy.getDef();
                 List<ProfileAttribute> attrs = def.getAttributes();
                 for (ProfileAttribute attr: attrs) {

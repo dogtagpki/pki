@@ -28,14 +28,14 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Link;
+import com.netscape.certsrv.request.CMSRequestInfo;
+import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.model.Link;
-import com.netscape.cms.servlet.request.model.CMSRequestInfo;
-import com.netscape.cms.servlet.request.model.CMSRequestInfos;
 
 /**
  * @author alee

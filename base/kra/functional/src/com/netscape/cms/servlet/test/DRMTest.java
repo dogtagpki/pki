@@ -38,15 +38,15 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.client.ClientConfig;
 import com.netscape.cms.client.kra.DRMClient;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.key.model.KeyData;
-import com.netscape.cms.servlet.key.model.KeyDataInfo;
-import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.RequestNotFoundException;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 

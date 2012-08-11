@@ -32,19 +32,20 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.CMSRequestInfo;
+import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.model.CMSRequestInfo;
-import com.netscape.cms.servlet.request.model.CMSRequestInfos;
-import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
-import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
-import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 
 /**
  * @author alee

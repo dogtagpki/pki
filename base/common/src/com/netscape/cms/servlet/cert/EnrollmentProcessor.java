@@ -30,15 +30,15 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
-import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class EnrollmentProcessor extends CertProcessor {
 

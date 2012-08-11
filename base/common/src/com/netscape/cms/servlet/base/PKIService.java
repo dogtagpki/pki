@@ -36,9 +36,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.servlet.cert.model.CertData;
 
 /**
  * Base class for CMS RESTful resources

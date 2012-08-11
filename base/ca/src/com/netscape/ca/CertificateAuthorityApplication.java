@@ -5,12 +5,12 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
 import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserService;
-import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.cert.CertService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.profile.ProfileService;

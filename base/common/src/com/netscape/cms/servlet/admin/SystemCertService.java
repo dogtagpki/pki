@@ -24,10 +24,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.certsrv.system.SystemCertificateResource;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.cert.model.CertData;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.

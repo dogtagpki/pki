@@ -10,10 +10,10 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.base.PKIException;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class CertRequestApproveCLI extends CLI {
     CertCLI parent;

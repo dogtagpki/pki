@@ -26,20 +26,22 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertRequestResource;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.BadRequestException;
-import com.netscape.cms.servlet.base.PKIException;
+import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
-import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**

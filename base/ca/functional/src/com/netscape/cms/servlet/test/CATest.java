@@ -33,24 +33,24 @@ import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.cert.CertDataInfo;
+import com.netscape.certsrv.cert.CertDataInfos;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertNotFoundException;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.profile.ProfileData;
+import com.netscape.certsrv.profile.ProfileDataInfo;
+import com.netscape.certsrv.profile.ProfileDataInfos;
+import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.client.ClientConfig;
 import com.netscape.cms.client.ca.CAClient;
-import com.netscape.cms.servlet.cert.CertNotFoundException;
-import com.netscape.cms.servlet.cert.model.CertDataInfo;
-import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertSearchRequest;
-import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.profile.model.ProfileData;
-import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
-import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
-import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.request.RequestNotFoundException;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
-import com.netscape.cms.servlet.request.model.CertRequestInfo;
-import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CATest {
 

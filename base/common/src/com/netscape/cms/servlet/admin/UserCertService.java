@@ -40,6 +40,7 @@ import org.mozilla.jss.crypto.InternalCertificate;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ICertPrettyPrint;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -50,7 +51,6 @@ import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;

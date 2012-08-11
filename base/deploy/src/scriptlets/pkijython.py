@@ -96,6 +96,7 @@ jarLoad.addFile("/usr/share/java/resteasy/resteasy-jaxrs.jar")
 jarLoad.addFile("/usr/share/java/resteasy/resteasy-jettison-provider.jar")
 jarLoad.addFile("/usr/share/java/scannotation.jar")
 #     PKI Jars
+jarLoad.addFile("/usr/share/java/pki/pki-certsrv.jar")
 jarLoad.addFile("/usr/share/java/pki/pki-cms.jar")
 jarLoad.addFile("/usr/share/java/pki/pki-cmsutil.jar")
 jarLoad.addFile("/usr/share/java/pki/pki-nsutil.jar")
@@ -141,9 +142,9 @@ from org.mozilla.jss.util import Password
 
 # PKI Java Imports
 from com.netscape.cms.client.system import SystemConfigClient
-from com.netscape.cms.servlet.csadmin.model import SystemCertData
-from com.netscape.cms.servlet.csadmin.model import ConfigurationRequest
-from com.netscape.cms.servlet.csadmin.model import ConfigurationResponse
+from com.netscape.certsrv.system import SystemCertData
+from com.netscape.certsrv.system import ConfigurationRequest
+from com.netscape.certsrv.system import ConfigurationResponse
 from com.netscape.cmsutil.util import Utils
 from netscape.security.x509 import X500Name
 

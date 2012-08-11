@@ -23,7 +23,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.ClientErrorInterceptor;
 
-import com.netscape.cms.servlet.base.PKIException;
+import com.netscape.certsrv.base.PKIException;
 
 public class PKIErrorInterceptor implements ClientErrorInterceptor {
 

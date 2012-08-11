@@ -29,10 +29,13 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
@@ -41,9 +44,6 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
 import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.profile.model.ProfileAttribute;
-import com.netscape.cms.servlet.profile.model.ProfileOutput;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 /**
  * This servlet approves profile-based request.

@@ -24,14 +24,16 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.PKIException;
+import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
-import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
-import com.netscape.cms.servlet.request.model.KeyRequestInfos;
-import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**

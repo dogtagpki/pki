@@ -27,11 +27,17 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.Nonces;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfilePolicy;
+import com.netscape.certsrv.profile.PolicyConstraint;
+import com.netscape.certsrv.profile.PolicyDefault;
+import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.profile.ProfilePolicy;
+import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -39,12 +45,6 @@ import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
-import com.netscape.cms.servlet.profile.model.PolicyConstraint;
-import com.netscape.cms.servlet.profile.model.PolicyDefault;
-import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.profile.model.ProfilePolicy;
-import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class CertReviewResponseFactory {
 
@@ -154,8 +154,8 @@ public class CertReviewResponseFactory {
                 String id = policyIds.nextElement();
                 CMS.debug("policyId:" + id);
                 IProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
-                com.netscape.cms.servlet.profile.model.ProfilePolicy dataPolicy =
-                        new com.netscape.cms.servlet.profile.model.ProfilePolicy();
+                com.netscape.certsrv.profile.ProfilePolicy dataPolicy =
+                        new com.netscape.certsrv.profile.ProfilePolicy();
 
                 //populate defaults
                 IPolicyDefault def = policy.getDefault();
