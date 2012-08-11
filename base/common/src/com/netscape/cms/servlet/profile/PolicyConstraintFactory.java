@@ -15,13 +15,15 @@
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.profile.model;
+package com.netscape.cms.servlet.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.property.Descriptor;
+import com.netscape.cms.servlet.profile.model.PolicyConstraint;
+import com.netscape.cms.servlet.profile.model.PolicyConstraintValue;
 
 public class PolicyConstraintFactory {
 

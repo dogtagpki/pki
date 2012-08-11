@@ -1,4 +1,4 @@
-package com.netscape.cms.servlet.profile.model;
+package com.netscape.cms.servlet.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -7,6 +7,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.profile.model.ProfileInput;
 
 public class ProfileInputFactory {
 

@@ -45,7 +45,6 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
-import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;

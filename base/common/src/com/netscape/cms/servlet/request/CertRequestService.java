@@ -35,11 +35,11 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.BadRequestException;
 import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.request.model.CertReviewResponse;
-import com.netscape.cms.servlet.request.model.CertRequestDAO;
+import com.netscape.cms.servlet.cert.CertRequestDAO;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**

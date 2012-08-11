@@ -45,7 +45,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
-import com.netscape.cms.servlet.request.model.CertEnrollmentRequestFactory;
 
 public class RenewalProcessor extends CertProcessor {
 

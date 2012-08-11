@@ -52,13 +52,12 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cms.servlet.profile.model.PolicyDefault;
 import com.netscape.cms.servlet.profile.model.ProfileAttribute;
 import com.netscape.cms.servlet.profile.model.ProfileOutput;
-import com.netscape.cms.servlet.profile.model.ProfileOutputFactory;
 import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
 import com.netscape.cms.servlet.request.model.CertReviewResponse;
-import com.netscape.cms.servlet.request.model.CertReviewResponseFactory;
 
 public class RequestProcessor extends CertProcessor {
 

@@ -15,7 +15,7 @@
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.profile.model;
+package com.netscape.cms.servlet.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -25,6 +25,8 @@ import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.profile.model.PolicyDefault;
+import com.netscape.cms.servlet.profile.model.ProfileAttribute;
 
 public class PolicyDefaultFactory {
 

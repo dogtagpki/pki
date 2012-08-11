@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.key;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,8 +37,14 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.key.KeyResource;
+import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cms.servlet.request.KeyRequestResource;
+import com.netscape.cms.servlet.request.model.CMSRequestInfo;
+import com.netscape.cms.servlet.request.model.CMSRequestInfos;
+import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
+import com.netscape.cms.servlet.request.model.KeyRequestInfo;
+import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 
 /**
  * @author alee

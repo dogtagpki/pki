@@ -15,7 +15,7 @@
 //(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.cert;
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -36,14 +36,15 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
+import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
+import com.netscape.cms.servlet.profile.ProfileInputFactory;
 import com.netscape.cms.servlet.profile.model.PolicyConstraint;
-import com.netscape.cms.servlet.profile.model.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.model.PolicyDefault;
-import com.netscape.cms.servlet.profile.model.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.profile.model.ProfileInputFactory;
 import com.netscape.cms.servlet.profile.model.ProfilePolicy;
 import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class CertReviewResponseFactory {
 

@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.cert;
 
 import java.math.BigInteger;
 
@@ -32,8 +32,8 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.request.CertRequestResource;
+import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 public class CertRequestInfoFactory {
 

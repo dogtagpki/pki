@@ -15,7 +15,7 @@
 //(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.cert;
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -25,8 +25,9 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.profile.ProfileInputFactory;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.profile.model.ProfileInputFactory;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CertEnrollmentRequestFactory {
 

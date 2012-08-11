@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.cert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +37,15 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.cert.EnrollmentProcessor;
-import com.netscape.cms.servlet.cert.RenewalProcessor;
-import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cms.servlet.request.RequestNotFoundException;
+import com.netscape.cms.servlet.request.model.CMSRequestInfo;
+import com.netscape.cms.servlet.request.model.CMSRequestInfos;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
+import com.netscape.cms.servlet.request.model.CertRequestInfo;
+import com.netscape.cms.servlet.request.model.CertRequestInfos;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 
 /**

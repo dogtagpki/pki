@@ -64,7 +64,6 @@ import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.processors.Processor;
-import com.netscape.cms.servlet.request.model.CertRequestDAO;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRetrievalRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;

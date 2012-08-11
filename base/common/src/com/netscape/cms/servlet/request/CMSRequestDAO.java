@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request.model;
+package com.netscape.cms.servlet.request;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -34,6 +34,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.model.Link;
+import com.netscape.cms.servlet.request.model.CMSRequestInfo;
+import com.netscape.cms.servlet.request.model.CMSRequestInfos;
 
 /**
  * @author alee
@@ -161,6 +163,6 @@ public abstract class CMSRequestDAO {
         return false;
     }
 
-    abstract  CMSRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo);
+    protected abstract CMSRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo);
 }
 
