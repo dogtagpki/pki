@@ -45,7 +45,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -123,7 +123,7 @@ public class UserService extends PKIService implements UserResource {
             return response;
 
         } catch (Exception e) {
-            throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
         }
     }
 
@@ -142,7 +142,7 @@ public class UserService extends PKIService implements UserResource {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user;
@@ -150,13 +150,13 @@ public class UserService extends PKIService implements UserResource {
             try {
                 user = userGroupManager.getUser(userID);
             } catch (Exception e) {
-                throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
             }
 
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
 
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
             }
 
             UserData userData = createUserData(user);
@@ -175,11 +175,11 @@ public class UserService extends PKIService implements UserResource {
 
             return userData;
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             throw e;
 
         } catch (Exception e) {
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -207,19 +207,19 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             if (userID.indexOf(BACK_SLASH) != -1) {
                 // backslashes (BS) are not allowed
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS"));
             }
 
             if (userID.equals(SYSTEM_USER)) {
                 // backslashes (BS) are not allowed
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", userID));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", userID));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", userID));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -229,7 +229,7 @@ public class UserService extends PKIService implements UserResource {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "full name");
 
                 log(ILogger.LL_FAILURE, msg);
-                throw new CMSException(msg);
+                throw new PKIException(msg);
 
             } else {
                 user.setFullName(fname);
@@ -292,27 +292,27 @@ public class UserService extends PKIService implements UserResource {
                 log(ILogger.LL_FAILURE, e.toString());
 
                 if (user.getUserID() == null) {
-                    throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "uid"));
+                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "uid"));
                 } else {
-                    throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
                 }
 
             } catch (LDAPException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_USER_FAIL", e.toString()));
-                throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
 
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
-                throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
             }
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
             throw e;
 
         } catch (EBaseException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -337,7 +337,7 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -388,16 +388,16 @@ public class UserService extends PKIService implements UserResource {
 
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
-                throw new CMSException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
             }
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             auditModifyUser(userID, userData, ILogger.FAILURE);
             throw e;
 
         } catch (EBaseException e) {
             auditModifyUser(userID, userData, ILogger.FAILURE);
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -425,7 +425,7 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             // get list of groups, and see if uid belongs to any
@@ -435,7 +435,7 @@ public class UserService extends PKIService implements UserResource {
                 groups = userGroupManager.findGroups("*");
 
             } catch (Exception e) {
-                throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
             }
 
             try {
@@ -452,10 +452,10 @@ public class UserService extends PKIService implements UserResource {
                 auditDeleteUser(userID, ILogger.SUCCESS);
 
             } catch (Exception e) {
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_FAIL_USER_RMV"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_FAIL_USER_RMV"));
             }
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             auditDeleteUser(userID, ILogger.FAILURE);
             throw e;
         }

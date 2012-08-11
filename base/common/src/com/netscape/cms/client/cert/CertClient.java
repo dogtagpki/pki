@@ -25,15 +25,15 @@ import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.request.CertRequestResource;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 /**
  * @author Endi S. Dewata
@@ -50,11 +50,11 @@ public class CertClient extends PKIClient {
         certRequestResource = createProxy(CertRequestResource.class);
     }
 
-    public CertificateData getCert(CertId id) {
+    public CertData getCert(CertId id) {
         return certClient.getCert(id);
     }
 
-    public CertDataInfos findCerts(CertSearchData data, Integer start, Integer size) {
+    public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
         return certClient.searchCerts(data, start, size);
     }
 
@@ -70,15 +70,15 @@ public class CertClient extends PKIClient {
         return certClient.unrevokeCert(id, request);
     }
 
-    public CertRequestInfos enrollRequest(EnrollmentRequestData data){
+    public CertRequestInfos enrollRequest(CertEnrollmentRequest data){
         return certRequestResource.enrollCert(data);
     }
 
-    public AgentEnrollmentRequestData reviewRequest(RequestId id){
+    public CertReviewResponse reviewRequest(RequestId id){
         return certRequestResource.reviewRequest(id);
     }
 
-    public void approveRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void approveRequest(RequestId id, CertReviewResponse data) {
         certRequestResource.approveRequest(id, data);
     }
 }

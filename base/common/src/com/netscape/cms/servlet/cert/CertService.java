@@ -54,19 +54,19 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.BadRequestException;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.base.UnauthorizedException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.request.model.CertRequestDAO;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
-import com.netscape.cms.servlet.request.model.CertRetrievalRequestData;
+import com.netscape.cms.servlet.request.model.CertRetrievalRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -93,22 +93,22 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertificateData getCert(CertId id) {
+    public CertData getCert(CertId id) {
         validateRequest(id);
 
-        CertRetrievalRequestData data = new CertRetrievalRequestData();
+        CertRetrievalRequest data = new CertRetrievalRequest();
         data.setCertId(id);
 
-        CertificateData certData = null;
+        CertData certData = null;
 
         try {
             certData = getCert(data);
         } catch (EDBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
         } catch (EBaseException e) {
-            throw new CMSException("Problem returning certificate: " + id);
+            throw new PKIException("Problem returning certificate: " + id);
         } catch (CertificateEncodingException e) {
-            throw new CMSException("Problem encoding certificate searched for: " + id);
+            throw new PKIException("Problem encoding certificate searched for: " + id);
         }
 
         return certData;
@@ -152,7 +152,7 @@ public class CertService extends PKIService implements CertResource {
             processor.setAuthority(authority);
 
         } catch (EBaseException e) {
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         try {
@@ -190,7 +190,7 @@ public class CertService extends PKIService implements CertResource {
 
             processor.auditChangeRequest(ILogger.SUCCESS);
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             processor.log(ILogger.LL_FAILURE, e.getMessage());
             processor.auditChangeRequest(ILogger.FAILURE);
             throw e;
@@ -199,13 +199,13 @@ public class CertService extends PKIService implements CertResource {
             processor.log(ILogger.LL_FAILURE, "Error " + e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
 
         } catch (IOException e) {
             processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
             processor.auditChangeRequest(ILogger.FAILURE);
 
-            throw new CMSException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+            throw new PKIException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
         }
 
         // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
@@ -221,7 +221,7 @@ public class CertService extends PKIService implements CertResource {
             processor.log(ILogger.LL_FAILURE, "Error " + e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         try {
@@ -230,7 +230,7 @@ public class CertService extends PKIService implements CertResource {
             return dao.getRequest(certRequest.getRequestId(), uriInfo);
 
         } catch (EBaseException e) {
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -249,7 +249,7 @@ public class CertService extends PKIService implements CertResource {
             processor.setAuthority(authority);
 
         } catch (EBaseException e) {
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         try {
@@ -262,7 +262,7 @@ public class CertService extends PKIService implements CertResource {
             processor.log(ILogger.LL_FAILURE, "Error " + e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
@@ -278,7 +278,7 @@ public class CertService extends PKIService implements CertResource {
             processor.log(ILogger.LL_FAILURE, "Error " + e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         try {
@@ -287,7 +287,7 @@ public class CertService extends PKIService implements CertResource {
             return dao.getRequest(certRequest.getRequestId(), uriInfo);
 
         } catch (EBaseException e) {
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -306,7 +306,7 @@ public class CertService extends PKIService implements CertResource {
         return filter;
     }
 
-    private String createSearchFilter(CertSearchData data) {
+    private String createSearchFilter(CertSearchRequest data) {
         if (data == null) {
             return null;
         }
@@ -325,13 +325,13 @@ public class CertService extends PKIService implements CertResource {
             infos = getCertList(filter, maxResults, maxTime);
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new CMSException("Error listing certs in CertsResourceService.listCerts!");
+            throw new PKIException("Error listing certs in CertsResourceService.listCerts!");
         }
         return infos;
     }
 
     @Override
-    public CertDataInfos searchCerts(CertSearchData data, Integer start, Integer size) {
+    public CertDataInfos searchCerts(CertSearchRequest data, Integer start, Integer size) {
         if (data == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -372,7 +372,7 @@ public class CertService extends PKIService implements CertResource {
                 infos.addLink(new Link("next", uri));
             }
         } catch (EBaseException e1) {
-            throw new CMSException("Error listing certs in CertsResourceService.listCerts!" + e.toString());
+            throw new PKIException("Error listing certs in CertsResourceService.listCerts!" + e.toString());
         }
 
         return infos;
@@ -412,14 +412,14 @@ public class CertService extends PKIService implements CertResource {
         return ret;
     }
 
-    public CertificateData getCert(CertRetrievalRequestData data) throws EBaseException, CertificateEncodingException {
+    public CertData getCert(CertRetrievalRequest data) throws EBaseException, CertificateEncodingException {
         CertId certId = data.getCertId();
 
         //find the cert in question
         ICertRecord record = repo.readCertificateRecord(certId.toBigInteger());
         X509CertImpl cert = record.getCertificate();
 
-        CertificateData certData = new CertificateData();
+        CertData certData = new CertData();
 
         certData.setSerialNumber(certId);
 

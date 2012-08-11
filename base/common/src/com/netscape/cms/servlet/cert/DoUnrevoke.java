@@ -50,7 +50,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -274,7 +274,7 @@ public class DoUnrevoke extends CMSServlet {
             processor.log(ILogger.LL_FAILURE, "Error " + e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
 
         // change audit processing from "REQUEST" to "REQUEST_PROCESSED"

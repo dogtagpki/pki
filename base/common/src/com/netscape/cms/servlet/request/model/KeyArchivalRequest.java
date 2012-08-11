@@ -23,17 +23,17 @@ package com.netscape.cms.servlet.request.model;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name="SecurityDataArchivalRequest")
+@XmlRootElement(name="KeyArchivalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ArchivalRequestData {
+public class KeyArchivalRequest {
 
     private static final String CLIENT_ID = "clientID";
     private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
@@ -52,11 +52,11 @@ public class ArchivalRequestData {
     @XmlElement
     protected String wrappedPrivateData;
 
-    public ArchivalRequestData() {
+    public KeyArchivalRequest() {
         // required for JAXB (defaults)
     }
 
-    public ArchivalRequestData(MultivaluedMap<String, String> form) {
+    public KeyArchivalRequest(MultivaluedMap<String, String> form) {
         clientId = form.getFirst(CLIENT_ID);
         transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
         dataType = form.getFirst(DATA_TYPE);

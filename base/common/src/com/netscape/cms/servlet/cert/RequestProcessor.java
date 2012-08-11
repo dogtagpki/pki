@@ -57,7 +57,7 @@ import com.netscape.cms.servlet.profile.model.ProfileAttribute;
 import com.netscape.cms.servlet.profile.model.ProfileOutput;
 import com.netscape.cms.servlet.profile.model.ProfileOutputFactory;
 import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertReviewResponseFactory;
 
 public class RequestProcessor extends CertProcessor {
@@ -66,19 +66,19 @@ public class RequestProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    public AgentEnrollmentRequestData processRequest(CMSRequest cmsReq, IRequest request, String op) throws EBaseException {
+    public CertReviewResponse processRequest(CMSRequest cmsReq, IRequest request, String op) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
 
         String profileId = ireq.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
-        AgentEnrollmentRequestData data = CertReviewResponseFactory.create(cmsReq, profile, nonces, locale);
+        CertReviewResponse data = CertReviewResponseFactory.create(cmsReq, profile, nonces, locale);
 
         processRequest(req, data, request, op);
         return data;
     }
 
-    public void processRequest(HttpServletRequest request, AgentEnrollmentRequestData data, IRequest req, String op)
+    public void processRequest(HttpServletRequest request, CertReviewResponse data, IRequest req, String op)
             throws EBaseException {
         try {
             startTiming("approval");
@@ -355,7 +355,7 @@ public class RequestProcessor extends CertProcessor {
      * @exception EProfileException an error related to this profile has
      *                occurred
      */
-    private void approveRequest(IRequest req, AgentEnrollmentRequestData data, IProfile profile, Locale locale)
+    private void approveRequest(IRequest req, CertReviewResponse data, IProfile profile, Locale locale)
             throws EProfileException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -404,7 +404,7 @@ public class RequestProcessor extends CertProcessor {
         }
     }
 
-    private void updateValues(AgentEnrollmentRequestData data, IRequest req,
+    private void updateValues(CertReviewResponse data, IRequest req,
             IProfile profile, Locale locale)
             throws ERejectException, EDeferException, EPropertyException {
 
@@ -443,7 +443,7 @@ public class RequestProcessor extends CertProcessor {
 
     }
 
-    private void updateNotes(AgentEnrollmentRequestData data, IRequest req) {
+    private void updateNotes(CertReviewResponse data, IRequest req) {
         String notes = data.getRequestNotes();
 
         if (notes != null) {

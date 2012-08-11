@@ -30,10 +30,10 @@ import org.apache.commons.cli.ParseException;
 
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 
 /**
  * @author Endi S. Dewata
@@ -56,7 +56,7 @@ public class CertFindCLI extends CLI {
         addOptions();
 
         CommandLine cmd = null;
-        CertSearchData searchData = null;
+        CertSearchRequest searchData = null;
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
@@ -84,7 +84,7 @@ public class CertFindCLI extends CLI {
             FileReader reader = null;
             try {
                 reader = new FileReader(fileName);
-                searchData = CertSearchData.valueOf(reader);
+                searchData = CertSearchRequest.valueOf(reader);
             } catch (FileNotFoundException e) {
                 System.err.println("Error: " + e.getMessage());
                 System.exit(-1);
@@ -100,7 +100,7 @@ public class CertFindCLI extends CLI {
                     }
             }
         } else {
-            searchData = new CertSearchData();
+            searchData = new CertSearchRequest();
             searchData.setSerialNumberRangeInUse(true);
         }
         String s = cmd.getOptionValue("start");
@@ -113,7 +113,7 @@ public class CertFindCLI extends CLI {
         CertDataInfos certs = null;
         try {
             certs = parent.client.findCerts(searchData, start, size);
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             System.err.println("Error: Cannot list certificates. " + e.getMessage());
             System.exit(-1);
         }
@@ -267,7 +267,7 @@ public class CertFindCLI extends CLI {
         options.addOption(option);
     }
 
-    public void addSearchAttribute(CommandLine cmd, CertSearchData csd) {
+    public void addSearchAttribute(CommandLine cmd, CertSearchRequest csd) {
         if (cmd.hasOption("minSerialNumber")) {
             csd.setSerialNumberRangeInUse(true);
             csd.setSerialFrom(cmd.getOptionValue("minSerialNumber"));

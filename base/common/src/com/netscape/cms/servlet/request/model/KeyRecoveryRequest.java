@@ -23,9 +23,9 @@ package com.netscape.cms.servlet.request.model;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -37,9 +37,9 @@ import com.netscape.certsrv.request.RequestIdAdapter;
  * @author alee
  *
  */
-@XmlRootElement(name="SecurityDataRecoveryRequest")
+@XmlRootElement(name="KeyRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RecoveryRequestData {
+public class KeyRecoveryRequest {
 
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
@@ -64,11 +64,11 @@ public class RecoveryRequestData {
     @XmlElement
     protected String nonceData;
 
-    public RecoveryRequestData() {
+    public KeyRecoveryRequest() {
         // required for JAXB (defaults)
     }
 
-    public RecoveryRequestData(MultivaluedMap<String, String> form) {
+    public KeyRecoveryRequest(MultivaluedMap<String, String> form) {
         if (form.containsKey(KEY_ID)) {
             keyId = new KeyId(form.getFirst(KEY_ID));
         }

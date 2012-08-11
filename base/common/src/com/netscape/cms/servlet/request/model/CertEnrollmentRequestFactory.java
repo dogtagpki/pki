@@ -30,11 +30,11 @@ import com.netscape.cms.servlet.profile.model.ProfileInputFactory;
 
 public class CertEnrollmentRequestFactory {
 
-    public static EnrollmentRequestData create(CMSRequest cmsReq, IProfile profile, Locale locale)
+    public static CertEnrollmentRequest create(CMSRequest cmsReq, IProfile profile, Locale locale)
             throws EProfileException {
         IArgBlock params = cmsReq.getHttpParams();
 
-        EnrollmentRequestData ret = new EnrollmentRequestData();
+        CertEnrollmentRequest ret = new CertEnrollmentRequest();
         ret.setProfileId(profile.getId());
 
         // populate profile inputs

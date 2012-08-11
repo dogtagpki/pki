@@ -3,9 +3,9 @@ package com.netscape.cms.servlet.request;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 
-public class RequestNotFoundException extends CMSException {
+public class RequestNotFoundException extends PKIException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 

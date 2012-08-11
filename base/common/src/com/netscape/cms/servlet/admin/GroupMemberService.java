@@ -43,7 +43,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -81,13 +81,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
 
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
             }
 
             GroupMemberCollection response = new GroupMemberCollection();
@@ -120,12 +120,12 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
 
             return response;
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
-            throw new CMSException(getUserMessage("CMS_INTERNAL_ERROR"));
+            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
         }
     }
 
@@ -141,13 +141,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
             }
 
             String memberID = groupMemberData.getID();
@@ -199,14 +199,14 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             auditAddGroupMember(groupID, groupMemberData, ILogger.FAILURE);
             throw e;
 
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditAddGroupMember(groupID, groupMemberData, ILogger.FAILURE);
-            throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
         }
     }
 
@@ -289,13 +289,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
             }
 
             Enumeration<String> e = group.getMemberNames();
@@ -307,14 +307,14 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
                 return groupMemberData;
             }
 
-            throw new CMSException("Group member not found");
+            throw new PKIException("Group member not found");
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             throw e;
 
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
-            throw new CMSException(e.getMessage());
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -329,13 +329,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new CMSException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new CMSException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
             }
 
             String member = groupMemberData.getID();
@@ -351,14 +351,14 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
 
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.SUCCESS);
 
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.FAILURE);
             throw e;
 
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.FAILURE);
-            throw new CMSException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
         }
     }
 

@@ -44,7 +44,7 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 import com.netscape.cms.servlet.request.model.CertEnrollmentRequestFactory;
 
 public class RenewalProcessor extends CertProcessor {
@@ -61,7 +61,7 @@ public class RenewalProcessor extends CertProcessor {
             throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
         }
 
-        EnrollmentRequestData data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
+        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
 
         //only used in renewal
         data.setSerialNum(req.getParameter("serial_num"));
@@ -78,7 +78,7 @@ public class RenewalProcessor extends CertProcessor {
      * Things to note:
      * * the renew request will contain the original profile instead of the new
      */
-    public HashMap<String, Object> processRenewal(EnrollmentRequestData data, HttpServletRequest request)
+    public HashMap<String, Object> processRenewal(CertEnrollmentRequest data, HttpServletRequest request)
             throws EBaseException {
         try {
             if (CMS.debugOn()) {

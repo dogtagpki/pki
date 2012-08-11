@@ -12,10 +12,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.request.model.ArchivalRequestData;
+import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
-import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 
 @Path("agent/keyrequests")
 public interface KeyRequestResource {
@@ -62,7 +62,7 @@ public interface KeyRequestResource {
     @Path("archive")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfo archiveKey(ArchivalRequestData data);
+    public KeyRequestInfo archiveKey(KeyArchivalRequest data);
 
     //Recovery - used to test integration with a browser
     @POST
@@ -75,7 +75,7 @@ public interface KeyRequestResource {
     @Path("recover")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfo recoverKey(RecoveryRequestData data);
+    public KeyRequestInfo recoverKey(KeyRecoveryRequest data);
 
     @POST
     @Path("{id}/approve")

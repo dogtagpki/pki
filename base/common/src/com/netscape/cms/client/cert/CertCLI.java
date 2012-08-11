@@ -26,7 +26,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 /**
@@ -114,7 +114,7 @@ public class CertCLI extends CLI {
     }
 
     public static void printCertData(
-            CertificateData certData,
+            CertData certData,
             boolean showPrettyPrint,
             boolean showEncoded) {
 

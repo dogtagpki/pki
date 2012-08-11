@@ -127,7 +127,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info for the request submitted.
      * @throws EBaseException
      */
-    public KeyRequestInfo submitRequest(ArchivalRequestData data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestInfo submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
         String clientId = data.getClientId();
         String wrappedSecurityData = data.getWrappedPrivateData();
         String dataType = data.getDataType();
@@ -158,7 +158,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info on the recovery request created
      * @throws EBaseException
      */
-    public KeyRequestInfo submitRequest(RecoveryRequestData data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestInfo submitRequest(KeyRecoveryRequest data, UriInfo uriInfo) throws EBaseException {
         // set data using request.setExtData(field, data)
 
         String wrappedSessionKeyStr = data.getTransWrappedSessionKey();

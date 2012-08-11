@@ -38,7 +38,7 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 
 /**
  * Base class for CMS RESTful resources
@@ -90,9 +90,9 @@ public class PKIService {
         return builder.build();
     }
 
-    public CertificateData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
+    public CertData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
             throws CertificateEncodingException {
-        CertificateData data = new CertificateData();
+        CertData data = new CertData();
         String b64 = HEADER + CMS.BtoA(cert.getEncoded()) + TRAILER;
         data.setEncoded(b64);
         return data;

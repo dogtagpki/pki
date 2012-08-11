@@ -13,9 +13,9 @@ import javax.ws.rs.core.MediaType;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 @Path("")
@@ -37,14 +37,14 @@ public interface CertResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos searchCerts(
-            CertSearchData data,
+            CertSearchRequest data,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("certs/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public CertificateData getCert(@PathParam("id") CertId id);
+    public CertData getCert(@PathParam("id") CertId id);
 
     @POST
     @Path("agent/certs/{id}/revoke-ca")

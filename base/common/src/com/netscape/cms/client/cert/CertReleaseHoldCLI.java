@@ -28,7 +28,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 
 /**
@@ -73,7 +73,7 @@ public class CertReleaseHoldCLI extends CLI {
 
         if (!cmd.hasOption("force")) {
 
-            CertificateData certData = parent.client.getCert(certID);
+            CertData certData = parent.client.getCert(certID);
 
             System.out.println("Placing certificate off-hold:");
 
@@ -99,7 +99,7 @@ public class CertReleaseHoldCLI extends CLI {
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
             MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
-            CertificateData certData = parent.client.getCert(certID);
+            CertData certData = parent.client.getCert(certID);
             CertCLI.printCertData(certData, false, false);
 
         } else {

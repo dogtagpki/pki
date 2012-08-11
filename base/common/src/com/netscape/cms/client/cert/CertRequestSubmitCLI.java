@@ -15,7 +15,7 @@ import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CertRequestSubmitCLI extends CLI {
 
@@ -46,7 +46,7 @@ public class CertRequestSubmitCLI extends CLI {
             System.exit(-1);
         }
 
-        EnrollmentRequestData erd = null;
+        CertEnrollmentRequest erd = null;
 
         try {
             erd = getEnrollmentRequest(cLineArgs[0]);
@@ -62,12 +62,12 @@ public class CertRequestSubmitCLI extends CLI {
         }
     }
 
-    private EnrollmentRequestData getEnrollmentRequest(String fileName) throws JAXBException, FileNotFoundException {
-        EnrollmentRequestData erd = null;
-        JAXBContext context = JAXBContext.newInstance(EnrollmentRequestData.class);
+    private CertEnrollmentRequest getEnrollmentRequest(String fileName) throws JAXBException, FileNotFoundException {
+        CertEnrollmentRequest erd = null;
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         FileInputStream fis = new FileInputStream(fileName);
-        erd = (EnrollmentRequestData) unmarshaller.unmarshal(fis);
+        erd = (CertEnrollmentRequest) unmarshaller.unmarshal(fis);
         return erd;
     }
 

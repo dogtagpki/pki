@@ -43,7 +43,7 @@ import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.model.ProfileAttribute;
 import com.netscape.cms.servlet.profile.model.ProfileOutput;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 /**
  * This servlet approves profile-based request.
@@ -103,7 +103,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         // set request in cmsReq for later retrieval
         cmsReq.setIRequest(req);
 
-        AgentEnrollmentRequestData data = null;
+        CertReviewResponse data = null;
         try {
             data = processor.processRequest(cmsReq, req, op);
         } catch (EAuthException e) {

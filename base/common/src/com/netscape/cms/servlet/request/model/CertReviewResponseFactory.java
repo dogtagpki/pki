@@ -47,8 +47,8 @@ import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
 
 public class CertReviewResponseFactory {
 
-    public static AgentEnrollmentRequestData create(IRequest request, IProfile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
-        AgentEnrollmentRequestData ret = new AgentEnrollmentRequestData();
+    public static CertReviewResponse create(IRequest request, IProfile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
+        CertReviewResponse ret = new CertReviewResponse();
 
         if (request.getRequestType().equals("renewal")) {
             ret.setIsRenewal(true);
@@ -127,13 +127,13 @@ public class CertReviewResponseFactory {
         return ret;
     }
 
-    public static AgentEnrollmentRequestData create(CMSRequest cmsReq, IProfile profile, Nonces nonces, Locale locale)
+    public static CertReviewResponse create(CMSRequest cmsReq, IProfile profile, Nonces nonces, Locale locale)
             throws EPropertyException, EProfileException {
         HttpServletRequest req = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
         IArgBlock params = cmsReq.getHttpParams();
 
-        AgentEnrollmentRequestData ret = new AgentEnrollmentRequestData();
+        CertReviewResponse ret = new CertReviewResponse();
         ret.setProfileId(profile.getId());
         ret.setRequestNotes(req.getParameter("requestNotes"));
         ret.setRequestId(ireq.getRequestId());

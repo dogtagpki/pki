@@ -12,8 +12,8 @@ import org.apache.commons.cli.ParseException;
 
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.base.PKIException;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class CertRequestApproveCLI extends CLI {
     CertCLI parent;
@@ -42,14 +42,14 @@ public class CertRequestApproveCLI extends CLI {
             printHelp();
             System.exit(-1);
         }
-        AgentEnrollmentRequestData reviewInfo = null;
+        CertReviewResponse reviewInfo = null;
         try {
-            JAXBContext context = JAXBContext.newInstance(AgentEnrollmentRequestData.class);
+            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             FileInputStream fis = new FileInputStream(cLineArgs[0].trim());
-            reviewInfo = (AgentEnrollmentRequestData) unmarshaller.unmarshal(fis);
+            reviewInfo = (CertReviewResponse) unmarshaller.unmarshal(fis);
             parent.client.approveRequest(reviewInfo.getRequestId(), reviewInfo);
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
         } catch (JAXBException e) {

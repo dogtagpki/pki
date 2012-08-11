@@ -58,9 +58,9 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.csadmin.SystemConfigClient;
-import com.netscape.cms.servlet.csadmin.model.CertData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
+import com.netscape.cms.servlet.csadmin.model.SystemCertData;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationResponse;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -195,7 +195,7 @@ public class ConfigurationTest {
             System.exit(1);
         }
 
-        ConfigurationData data = null;
+        ConfigurationRequest data = null;
         switch (testnum) {
         case 1:
             data = constructCAData(host, port, pin, db_dir, token_pwd, token);
@@ -226,14 +226,14 @@ public class ConfigurationTest {
             System.exit(1);
         }
 
-        ConfigurationResponseData response = client.configure(data);
+        ConfigurationResponse response = client.configure(data);
 
         System.out.println("status: " + response.getStatus());
         System.out.println("adminCert: " + response.getAdminCert().getCert());
-        Collection<CertData> certs = response.getSystemCerts();
-        Iterator<CertData> iterator = certs.iterator();
+        Collection<SystemCertData> certs = response.getSystemCerts();
+        Iterator<SystemCertData> iterator = certs.iterator();
         while (iterator.hasNext()) {
-            CertData cdata = iterator.next();
+            SystemCertData cdata = iterator.next();
             System.out.println("tag: " + cdata.getTag());
             System.out.println("cert: " + cdata.getCert());
             System.out.println("request: " + cdata.getRequest());
@@ -241,16 +241,16 @@ public class ConfigurationTest {
 
     }
 
-    private static ConfigurationData constructCAData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-        data.setSecurityDomainType(ConfigurationData.NEW_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("Testca2 security domain");
         data.setIsClone("false");
         data.setHierarchy("root");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test ca subsystem");
 
         data.setDsHost(host);
@@ -279,8 +279,8 @@ public class ConfigurationTest {
         data.setAdminCertRequestType("crmf");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -292,7 +292,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert2 = new CertData();
+        SystemCertData cert2 = new SystemCertData();
         cert2.setTag("ocsp_signing");
         cert2.setKeyAlgorithm("SHA256withRSA");
         cert2.setKeySize("2048");
@@ -303,7 +303,7 @@ public class ConfigurationTest {
         cert2.setToken("Internal Key Storage Token");
         systemCerts.add(cert2);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -313,7 +313,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -323,7 +323,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -339,20 +339,20 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructSubCAData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructSubCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.EXISTING_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
         data.setIsClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test subca subsystem");
 
         data.setDsHost(host);
@@ -383,8 +383,8 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -396,7 +396,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert2 = new CertData();
+        SystemCertData cert2 = new SystemCertData();
         cert2.setTag("ocsp_signing");
         cert2.setKeyAlgorithm("SHA256withRSA");
         cert2.setKeySize("2048");
@@ -407,7 +407,7 @@ public class ConfigurationTest {
         cert2.setToken("Internal Key Storage Token");
         systemCerts.add(cert2);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -417,7 +417,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -427,7 +427,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -443,18 +443,18 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructExternalCADataPart1(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructExternalCADataPart1(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.NEW_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("External CA security domain");
 
         data.setIsClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test external ca subsystem");
 
         data.setDsHost(host);
@@ -485,8 +485,8 @@ public class ConfigurationTest {
         data.setIssuingCA("External CA");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -498,7 +498,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert2 = new CertData();
+        SystemCertData cert2 = new SystemCertData();
         cert2.setTag("ocsp_signing");
         cert2.setKeyAlgorithm("SHA256withRSA");
         cert2.setKeySize("2048");
@@ -509,7 +509,7 @@ public class ConfigurationTest {
         cert2.setToken("Internal Key Storage Token");
         systemCerts.add(cert2);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -519,7 +519,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -529,7 +529,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -545,18 +545,18 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructExternalCADataPart2(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructExternalCADataPart2(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token, String extCertFile, String extChainFile)
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.NEW_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("External CA security domain");
 
         data.setIsClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test external ca subsystem");
 
         data.setDsHost(host);
@@ -588,8 +588,8 @@ public class ConfigurationTest {
         data.setStepTwo("true");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -617,7 +617,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert2 = new CertData();
+        SystemCertData cert2 = new SystemCertData();
         cert2.setTag("ocsp_signing");
         cert2.setKeyAlgorithm("SHA256withRSA");
         cert2.setKeySize("2048");
@@ -628,7 +628,7 @@ public class ConfigurationTest {
         cert2.setToken("Internal Key Storage Token");
         systemCerts.add(cert2);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -638,7 +638,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -648,7 +648,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -664,12 +664,12 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructCloneCAData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructCloneCAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
-        data.setSecurityDomainType(ConfigurationData.EXISTING_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
@@ -680,7 +680,7 @@ public class ConfigurationTest {
         data.setP12Password("redhat123");
 
         data.setHierarchy("root");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test clone ca subsystem");
 
         data.setDsHost(host);
@@ -695,8 +695,8 @@ public class ConfigurationTest {
         data.setBackupKeys("false");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert3 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -711,19 +711,19 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructKRAData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructKRAData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.EXISTING_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
         data.setIsClone("false");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test kra subsystem");
 
         data.setDsHost(host);
@@ -754,8 +754,8 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("transport");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -767,7 +767,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert2 = new CertData();
+        SystemCertData cert2 = new SystemCertData();
         cert2.setTag("storage");
         cert2.setKeyAlgorithm("SHA256withRSA");
         cert2.setKeySize("2048");
@@ -778,7 +778,7 @@ public class ConfigurationTest {
         cert2.setToken("Internal Key Storage Token");
         systemCerts.add(cert2);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -788,7 +788,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -798,7 +798,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -814,19 +814,19 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructOCSPData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructOCSPData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.EXISTING_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
         data.setIsClone("false");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test ocsp subsystem");
 
         data.setDsHost(host);
@@ -857,8 +857,8 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
-        CertData cert1 = new CertData();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
         cert1.setKeySize("2048");
@@ -870,7 +870,7 @@ public class ConfigurationTest {
 
         systemCerts.add(cert1);
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -880,7 +880,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -890,7 +890,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");
@@ -906,19 +906,19 @@ public class ConfigurationTest {
         return data;
     }
 
-    private static ConfigurationData constructTKSData(String host, String port, String pin, String db_dir,
+    private static ConfigurationRequest constructTKSData(String host, String port, String pin, String db_dir,
             String token_pwd, CryptoToken token) throws NoSuchAlgorithmException, TokenException, IOException,
             InvalidBERException {
-        ConfigurationData data = new ConfigurationData();
+        ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
 
-        data.setSecurityDomainType(ConfigurationData.EXISTING_DOMAIN);
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN);
         data.setSecurityDomainUri("https://" + host + ":9225");
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
         data.setIsClone("false");
-        data.setToken(ConfigurationData.TOKEN_DEFAULT);
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test tks subsystem");
 
         data.setDsHost(host);
@@ -949,9 +949,9 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<CertData> systemCerts = new ArrayList<CertData>();
+        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
 
-        CertData cert3 = new CertData();
+        SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
         cert3.setKeySize("2048");
@@ -961,7 +961,7 @@ public class ConfigurationTest {
         cert3.setToken("Internal Key Storage Token");
         systemCerts.add(cert3);
 
-        CertData cert4 = new CertData();
+        SystemCertData cert4 = new SystemCertData();
         cert4.setTag("subsystem");
         cert4.setKeyAlgorithm("SHA256withRSA");
         cert4.setKeySize("2048");
@@ -971,7 +971,7 @@ public class ConfigurationTest {
         cert4.setToken("Internal Key Storage Token");
         systemCerts.add(cert4);
 
-        CertData cert5 = new CertData();
+        SystemCertData cert5 = new SystemCertData();
         cert5.setTag("audit_signing");
         cert5.setKeyAlgorithm("SHA256withRSA");
         cert5.setKeySize("2048");

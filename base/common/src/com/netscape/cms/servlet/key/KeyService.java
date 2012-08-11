@@ -47,7 +47,7 @@ import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
-import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -71,7 +71,7 @@ public class KeyService extends PKIService implements KeyResource{
      * @param data
      * @return
      */
-    public KeyData retrieveKey(RecoveryRequestData data) {
+    public KeyData retrieveKey(KeyRecoveryRequest data) {
         // auth and authz
         KeyId keyId = validateRequest(data);
         KeyData keyData;
@@ -90,11 +90,11 @@ public class KeyService extends PKIService implements KeyResource{
 
     // retrieval - used to test integration with a browser
     public KeyData retrieveKey(MultivaluedMap<String, String> form) {
-        RecoveryRequestData data = new RecoveryRequestData(form);
+        KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return retrieveKey(data);
     }
 
-    public KeyData getKey(KeyId keyId, RecoveryRequestData data) throws EBaseException {
+    public KeyData getKey(KeyId keyId, KeyRecoveryRequest data) throws EBaseException {
         KeyData keyData;
 
         RequestId rId = data.getRequestId();
@@ -192,7 +192,7 @@ public class KeyService extends PKIService implements KeyResource{
         return keyData;
     }
 
-    private KeyId validateRequest(RecoveryRequestData data) {
+    private KeyId validateRequest(KeyRecoveryRequest data) {
 
         // confirm request exists
         RequestId reqId = data.getRequestId();

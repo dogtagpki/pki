@@ -14,7 +14,7 @@
 //
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
-// --- END COPYRIGHT BLOCK --- 
+// --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin.model;
 
 import java.security.cert.CertificateEncodingException;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Vector;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -37,30 +38,30 @@ import com.netscape.cms.servlet.csadmin.Cert;
  * @author alee
  *
  */
-@XmlRootElement(name="ConfigurationResponseData")
+@XmlRootElement(name="ConfigurationResponse")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ConfigurationResponseData {
-    
+public class ConfigurationResponse {
+
     @XmlElementRef
-    protected Collection<CertData> systemCerts;
-    
+    protected Collection<SystemCertData> systemCerts;
+
     @XmlElement
-    protected CertData adminCert;
-    
+    protected SystemCertData adminCert;
+
     @XmlElement
     protected String status;
-    
-    public ConfigurationResponseData() {
-        systemCerts = new ArrayList<CertData>();
-        adminCert = new CertData();
+
+    public ConfigurationResponse() {
+        systemCerts = new ArrayList<SystemCertData>();
+        adminCert = new SystemCertData();
     }
-    
+
     public void setSystemCerts(Vector<Cert> certs) {
         systemCerts.clear();
         Enumeration<Cert> e = certs.elements();
         while (e.hasMoreElements()) {
             Cert cert = e.nextElement();
-            CertData cdata = new CertData();
+            SystemCertData cdata = new SystemCertData();
             cdata.setCert(cert.getCert());
             cdata.setRequest(cert.getRequest());
             cdata.setTag(cert.getCertTag());
@@ -68,32 +69,32 @@ public class ConfigurationResponseData {
             systemCerts.add(cdata);
         }
     }
-    
+
     /**
      * @return the systemCerts
      */
-    public Collection<CertData> getSystemCerts() {
+    public Collection<SystemCertData> getSystemCerts() {
         return systemCerts;
     }
 
     /**
      * @param systemCerts the systemCerts to set
      */
-    public void setSystemCerts(Collection<CertData> systemCerts) {
+    public void setSystemCerts(Collection<SystemCertData> systemCerts) {
         this.systemCerts = systemCerts;
     }
 
     /**
      * @return the adminCert
      */
-    public CertData getAdminCert() {
+    public SystemCertData getAdminCert() {
         return adminCert;
     }
 
     /**
      * @param adminCert the adminCert to set
      */
-    public void setAdminCert(CertData adminCert) {
+    public void setAdminCert(SystemCertData adminCert) {
         this.adminCert = adminCert;
     }
 

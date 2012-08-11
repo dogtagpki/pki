@@ -23,7 +23,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.ClientErrorInterceptor;
 
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 
 public class PKIErrorInterceptor implements ClientErrorInterceptor {
 
@@ -41,15 +41,15 @@ public class PKIErrorInterceptor implements ClientErrorInterceptor {
         if (contentType == null || !contentType.startsWith(MediaType.APPLICATION_XML))
             return;
 
-        CMSException exception;
+        PKIException exception;
 
         try {
             // Requires RESTEasy 2.3.2
             // https://issues.jboss.org/browse/RESTEASY-652
-            CMSException.Data data = response.getEntity(CMSException.Data.class);
+            PKIException.Data data = response.getEntity(PKIException.Data.class);
 
             Class<?> clazz = Class.forName(data.className);
-            exception = (CMSException) clazz.getConstructor(CMSException.Data.class).newInstance(data);
+            exception = (PKIException) clazz.getConstructor(PKIException.Data.class).newInstance(data);
 
         } catch (Exception e) {
             e.printStackTrace();

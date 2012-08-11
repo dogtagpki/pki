@@ -42,7 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CertProcessor extends Processor {
 
@@ -73,7 +73,7 @@ public class CertProcessor extends Processor {
         }
     }
 
-    private void setInputsIntoRequest(EnrollmentRequestData data, IProfile profile, IRequest req) {
+    private void setInputsIntoRequest(CertEnrollmentRequest data, IProfile profile, IRequest req) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
@@ -269,7 +269,7 @@ public class CertProcessor extends Processor {
         return errorCode;
     }
 
-    protected void populateRequests(EnrollmentRequestData data, boolean isRenewal,
+    protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
             IProfile profile, IProfileContext ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
             IRequest[] reqs) throws EBaseException {

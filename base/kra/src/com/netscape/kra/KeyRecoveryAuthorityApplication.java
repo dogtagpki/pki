@@ -10,7 +10,7 @@ import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
 import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserService;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.key.KeyService;
 import com.netscape.cms.servlet.request.KeyRequestService;
@@ -38,7 +38,7 @@ public class KeyRecoveryAuthorityApplication extends Application {
         classes.add(SystemCertService.class);
 
         // exception mapper
-        classes.add(CMSException.Mapper.class);
+        classes.add(PKIException.Mapper.class);
 
     }
 

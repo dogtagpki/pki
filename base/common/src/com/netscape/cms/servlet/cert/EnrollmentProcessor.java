@@ -38,7 +38,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 import com.netscape.cms.servlet.request.model.CertEnrollmentRequestFactory;
 
 public class EnrollmentProcessor extends CertProcessor {
@@ -47,7 +47,7 @@ public class EnrollmentProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    private void setInputsIntoContext(EnrollmentRequestData data, IProfile profile, IProfileContext ctx) {
+    private void setInputsIntoContext(CertEnrollmentRequest data, IProfile profile, IProfileContext ctx) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
@@ -97,7 +97,7 @@ public class EnrollmentProcessor extends CertProcessor {
             throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
         }
 
-        EnrollmentRequestData data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
+        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
         return processEnrollment(data, cmsReq.getHttpReq());
     }
 
@@ -118,7 +118,7 @@ public class EnrollmentProcessor extends CertProcessor {
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
-    public HashMap<String, Object> processEnrollment(EnrollmentRequestData data, HttpServletRequest request)
+    public HashMap<String, Object> processEnrollment(CertEnrollmentRequest data, HttpServletRequest request)
             throws EBaseException {
 
         try {

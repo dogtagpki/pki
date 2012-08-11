@@ -26,53 +26,42 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "CertRetrievalRequest")
+@XmlRootElement(name = "ProfileRetrievalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CertRetrievalRequestData {
+public class ProfileRetrievalRequest {
 
-    private static final String CERT_ID = "certId";
-
-    @XmlElement
-    @XmlJavaTypeAdapter(CertIdAdapter.class)
-    protected CertId certId;
+    private static final String PROFILE_ID = "profileId";
 
     @XmlElement
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
-    protected RequestId requestId;
+    protected String profileId;
 
-    public CertRetrievalRequestData() {
+    public ProfileRetrievalRequest() {
         // required for JAXB (defaults)
     }
 
-    public CertRetrievalRequestData(MultivaluedMap<String, String> form) {
-        if (form.containsKey(CERT_ID)) {
-            certId = new CertId(form.getFirst(CERT_ID));
+    public ProfileRetrievalRequest(MultivaluedMap<String, String> form) {
+        if (form.containsKey(PROFILE_ID)) {
+            profileId = form.getFirst(PROFILE_ID);
         }
     }
 
     /**
-     * @return the CertId
+     * @return the ProfileId
      */
-    public CertId getCertId() {
-        return certId;
+    public String getProfileId() {
+        return profileId;
     }
 
     /**
-     * @param CertId the CertId to set
+     * @param ProfileId the ProfileId to set
      */
-    public void setCertId(CertId certId) {
-        this.certId = certId;
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
     }
 
 }

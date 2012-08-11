@@ -29,10 +29,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 @Path("")
 public interface CertRequestResource {
@@ -66,7 +66,7 @@ public interface CertRequestResource {
     @GET
     @Path("agent/certrequests/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public AgentEnrollmentRequestData reviewRequest(@PathParam("id") RequestId id);
+    public CertReviewResponse reviewRequest(@PathParam("id") RequestId id);
 
     // Enrollment - used to test integration with a browser
     @POST
@@ -79,40 +79,40 @@ public interface CertRequestResource {
     @Path("certrequests")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public CertRequestInfos enrollCert(EnrollmentRequestData data);
+    public CertRequestInfos enrollCert(CertEnrollmentRequest data);
 
     @POST
     @Path("agent/certrequests/{id}/approve")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void approveRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/reject")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void rejectRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/cancel")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void cancelRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/update")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void updateRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/validate")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void validateRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/unassign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void unassignRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/assign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void assignRequest(@PathParam("id") RequestId id, AgentEnrollmentRequestData data);
+    public void assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 }

@@ -39,7 +39,7 @@ import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AgentEnrollmentRequestData extends EnrollmentRequestData {
+public class CertReviewResponse extends CertEnrollmentRequest {
 
     @XmlElement(name="ProfilePolicySet")
     protected List<ProfilePolicySet> policySets = new ArrayList<ProfilePolicySet>();
@@ -198,7 +198,7 @@ public class AgentEnrollmentRequestData extends EnrollmentRequestData {
 
     public String toString() {
         try {
-            JAXBContext context = JAXBContext.newInstance(AgentEnrollmentRequestData.class);
+            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 

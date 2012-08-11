@@ -10,17 +10,17 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.key.KeyResource;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.cms.servlet.request.KeyRequestResource;
-import com.netscape.cms.servlet.request.model.ArchivalRequestData;
+import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
-import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.util.Utils;
 
 public class DRMClient  extends PKIClient {
@@ -39,9 +39,9 @@ public class DRMClient  extends PKIClient {
 
     public String getTransportCert() {
         @SuppressWarnings("unchecked")
-        ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient
+        ClientResponse<CertData> response = (ClientResponse<CertData>) systemCertClient
                 .getTransportCert();
-        CertificateData certData = getEntity(response);
+        CertData certData = getEntity(response);
         String transportCert = certData.getEncoded();
         return transportCert;
     }
@@ -56,7 +56,7 @@ public class DRMClient  extends PKIClient {
 
     public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType) {
         // create archival request
-        ArchivalRequestData data = new ArchivalRequestData();
+        KeyArchivalRequest data = new KeyArchivalRequest();
         String req1 = Utils.base64encode(encoded);
         data.setWrappedPrivateData(req1);
         data.setClientId(clientId);
@@ -83,7 +83,7 @@ public class DRMClient  extends PKIClient {
 
     public KeyRequestInfo requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
-        RecoveryRequestData data = new RecoveryRequestData();
+        KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
         if (rpwd != null) {
             data.setSessionWrappedPassphrase(Utils.base64encode(rpwd));
@@ -106,7 +106,7 @@ public class DRMClient  extends PKIClient {
 
     public KeyData retrieveKey(KeyId keyId, RequestId requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
-        RecoveryRequestData data = new RecoveryRequestData();
+        KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
         data.setRequestId(requestId);
         if (rkey != null) {

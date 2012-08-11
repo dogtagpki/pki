@@ -38,17 +38,17 @@ import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
  * @author alee
  *
  */
-@XmlRootElement(name = "CertificateData")
-public class CertificateData {
+@XmlRootElement(name = "CertData")
+public class CertData {
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;
 
     static {
         try {
-            marshaller = JAXBContext.newInstance(CertificateData.class).createMarshaller();
+            marshaller = JAXBContext.newInstance(CertData.class).createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(CertificateData.class).createUnmarshaller();
+            unmarshaller = JAXBContext.newInstance(CertData.class).createUnmarshaller();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -181,7 +181,7 @@ public class CertificateData {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        CertificateData other = (CertificateData) obj;
+        CertData other = (CertData) obj;
         if (encoded == null) {
             if (other.encoded != null)
                 return false;
@@ -241,9 +241,9 @@ public class CertificateData {
         }
     }
 
-    public static CertificateData valueOf(String string) throws Exception {
+    public static CertData valueOf(String string) throws Exception {
         try {
-            return (CertificateData)unmarshaller.unmarshal(new StringReader(string));
+            return (CertData)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
         }
@@ -268,7 +268,7 @@ public class CertificateData {
         out.println("bFBr+Gwk2VF2wJvOhTXU2hN8sfkkd9clzIXuL8WCDhWk1bY=");
         out.println("-----END CERTIFICATE-----");
 
-        CertificateData before = new CertificateData();
+        CertData before = new CertData();
         before.setSerialNumber(new CertId("12512514865863765114"));
         before.setIssuerDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
@@ -277,7 +277,7 @@ public class CertificateData {
         String string = before.toString();
         System.out.println(string);
 
-        CertificateData after = CertificateData.valueOf(string);
+        CertData after = CertData.valueOf(string);
         System.out.println(before.equals(after));
     }
 }

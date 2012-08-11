@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 /**
  * @author Endi S. Dewata
  */
-public class UnauthorizedException extends CMSException {
+public class UnauthorizedException extends PKIException {
 
     private static final long serialVersionUID = -2025082875126996556L;
 

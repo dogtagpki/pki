@@ -30,9 +30,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author alee
  *
  */
-@XmlRootElement(name="ConfigurationData")
+@XmlRootElement(name="ConfigurationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ConfigurationData {
+public class ConfigurationRequest {
     private static final String PIN = "pin";
     private static final String TOKEN = "token";
     private static final String TOKEN_PASSWORD = "tokenPassword";
@@ -152,7 +152,7 @@ public class ConfigurationData {
     protected String replicationSecurity;
 
     @XmlElementRef
-    protected Collection<CertData> systemCerts;
+    protected Collection<SystemCertData> systemCerts;
 
     @XmlElement
     protected String issuingCA;
@@ -193,11 +193,11 @@ public class ConfigurationData {
     @XmlElement
     protected String stepTwo;
 
-    public ConfigurationData() {
+    public ConfigurationRequest() {
         // required for JAXB
     }
 
-    public ConfigurationData(MultivaluedMap<String, String> form) {
+    public ConfigurationRequest(MultivaluedMap<String, String> form) {
         pin = form.getFirst(PIN);
         token = form.getFirst(TOKEN);
         tokenPassword = form.getFirst(TOKEN_PASSWORD);
@@ -533,7 +533,7 @@ public class ConfigurationData {
      *
      * @return systemCerts
      */
-    public Collection<CertData> getSystemCerts() {
+    public Collection<SystemCertData> getSystemCerts() {
         return systemCerts;
     }
 
@@ -541,7 +541,7 @@ public class ConfigurationData {
      *
      * @param systemCerts
      */
-    public void setSystemCerts(Collection<CertData> systemCerts) {
+    public void setSystemCerts(Collection<SystemCertData> systemCerts) {
         this.systemCerts = systemCerts;
     }
 

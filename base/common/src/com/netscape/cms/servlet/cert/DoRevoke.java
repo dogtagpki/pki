@@ -65,7 +65,7 @@ import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -473,7 +473,7 @@ public class DoRevoke extends CMSServlet {
                         processor.addCertificateToRevoke(targetCert);
                         rarg.addStringValue("error", null);
 
-                    } catch (CMSException ex) {
+                    } catch (PKIException ex) {
                         rarg.addStringValue("error", ex.getMessage());
                     }
 

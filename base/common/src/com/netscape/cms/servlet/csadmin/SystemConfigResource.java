@@ -25,8 +25,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationResponse;
 import com.netscape.cms.servlet.csadmin.model.DomainInfo;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
 import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
@@ -35,19 +35,19 @@ import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
  * @author alee
  */
 @Path("installer")
-public interface SystemConfigurationResource {
+public interface SystemConfigResource {
 
     @POST
     @Path("configure")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
-    public ConfigurationResponseData configure(MultivaluedMap<String, String> form);
+    public ConfigurationResponse configure(MultivaluedMap<String, String> form);
 
     @POST
     @Path("configure")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConfigurationResponseData configure(ConfigurationData data);
+    public ConfigurationResponse configure(ConfigurationRequest data);
 
     @POST
     @Path("installToken")

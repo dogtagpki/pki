@@ -141,9 +141,9 @@ from org.mozilla.jss.util import Password
 
 # PKI Java Imports
 from com.netscape.cms.servlet.csadmin import SystemConfigClient
-from com.netscape.cms.servlet.csadmin.model import CertData
-from com.netscape.cms.servlet.csadmin.model import ConfigurationData
-from com.netscape.cms.servlet.csadmin.model import ConfigurationResponseData
+from com.netscape.cms.servlet.csadmin.model import SystemCertData
+from com.netscape.cms.servlet.csadmin.model import ConfigurationRequest
+from com.netscape.cms.servlet.csadmin.model import ConfigurationResponse
 from com.netscape.cmsutil.util import Utils
 from netscape.security.x509 import X500Name
 
@@ -276,10 +276,10 @@ class rest_client:
                    log.PKI_JYTHON_CONSTRUCTING_PKI_DATA,
                    master['pki_subsystem'])
         if not master['pki_dry_run_flag']:
-            data = ConfigurationData()
+            data = ConfigurationRequest()
             # Miscellaneous Configuration Information
             data.setPin(sensitive['pki_one_time_pin'])
-            data.setToken(ConfigurationData.TOKEN_DEFAULT)
+            data.setToken(ConfigurationRequest.TOKEN_DEFAULT)
             if master['pki_instance_type'] == "Tomcat":
                 data.setSubsystemName(master['pki_subsystem_name'])
                 if master['pki_subsystem'] == "CA":
@@ -347,7 +347,7 @@ class rest_client:
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
                 # Subordinate CA
                 data.setSecurityDomainType(
-                    ConfigurationData.EXISTING_DOMAIN)
+                    ConfigurationRequest.EXISTING_DOMAIN)
                 data.setSecurityDomainUri(
                     master['pki_security_domain_uri'])
                 data.setSecurityDomainUser(
@@ -357,7 +357,7 @@ class rest_client:
             elif not config.str2bool(master['pki_external']):
                 # PKI CA
                 data.setSecurityDomainType(
-                    ConfigurationData.NEW_DOMAIN)
+                    ConfigurationRequest.NEW_DOMAIN)
                 data.setSecurityDomainName(
                     master['pki_security_domain_name'])
             # Directory Server Information
@@ -428,7 +428,7 @@ class rest_client:
                 if not config.str2bool(master['pki_clone']):
                     if master['pki_subsystem'] == "CA":
                         # External CA, Subordinate CA, or PKI CA
-                        cert1 = CertData()
+                        cert1 = SystemCertData()
                         cert1.setTag(master['pki_ca_signing_tag'])
                         cert1.setKeyAlgorithm(
                             master['pki_ca_signing_key_algorithm'])
@@ -446,7 +446,7 @@ class rest_client:
                     if master['pki_subsystem'] == "CA" or\
                        master['pki_subsystem'] == "OCSP":
                         # External CA, Subordinate CA, PKI CA, or PKI OCSP
-                        cert2 = CertData()
+                        cert2 = SystemCertData()
                         cert2.setTag(master['pki_ocsp_signing_tag'])
                         cert2.setKeyAlgorithm(
                             master['pki_ocsp_signing_key_algorithm'])
@@ -464,7 +464,7 @@ class rest_client:
             #     PKI CA, PKI KRA, PKI OCSP, PKI TKS,
             #     PKI CA CLONE, PKI KRA CLONE, PKI OCSP CLONE, PKI TKS CLONE,
             #     External CA, or Subordinate CA
-            cert3 = CertData()
+            cert3 = SystemCertData()
             cert3.setTag(master['pki_ssl_server_tag'])
             cert3.setKeyAlgorithm(master['pki_ssl_server_key_algorithm'])
             cert3.setKeySize(master['pki_ssl_server_key_size'])
@@ -476,7 +476,7 @@ class rest_client:
             # Create 'Subsystem Certificate'
             if master['pki_instance_type'] == "Apache":
                 # PKI RA or PKI TPS
-                cert4 = CertData()
+                cert4 = SystemCertData()
                 cert4.setTag(master['pki_subsystem_tag'])
                 cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
                 cert4.setKeySize(master['pki_subsystem_key_size'])
@@ -489,7 +489,7 @@ class rest_client:
                 if not config.str2bool(master['pki_clone']):
                     # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
                     # External CA, or Subordinate CA
-                    cert4 = CertData()
+                    cert4 = SystemCertData()
                     cert4.setTag(master['pki_subsystem_tag'])
                     cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
                     cert4.setKeySize(master['pki_subsystem_key_size'])
@@ -502,7 +502,7 @@ class rest_client:
             if master['pki_instance_type'] == "Apache":
                 if master['pki_subsystem'] != "RA":
                     # PKI TPS
-                    cert5 = CertData()
+                    cert5 = SystemCertData()
                     cert5.setTag(master['pki_audit_signing_tag'])
                     cert5.setKeyAlgorithm(
                         master['pki_audit_signing_key_algorithm'])
@@ -518,7 +518,7 @@ class rest_client:
                 if not config.str2bool(master['pki_clone']):
                     # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
                     # External CA, or Subordinate CA
-                    cert5 = CertData()
+                    cert5 = SystemCertData()
                     cert5.setTag(master['pki_audit_signing_tag'])
                     cert5.setKeyAlgorithm(
                         master['pki_audit_signing_key_algorithm'])
@@ -535,7 +535,7 @@ class rest_client:
                 if not config.str2bool(master['pki_clone']):
                     if master['pki_subsystem'] == "KRA":
                         # PKI KRA
-                        cert6 = CertData()
+                        cert6 = SystemCertData()
                         cert6.setTag(master['pki_transport_tag'])
                         cert6.setKeyAlgorithm(
                             master['pki_transport_key_algorithm'])
@@ -552,7 +552,7 @@ class rest_client:
                 if not config.str2bool(master['pki_clone']):
                     if master['pki_subsystem'] == "KRA":
                         # PKI KRA
-                        cert7 = CertData()
+                        cert7 = SystemCertData()
                         cert7.setTag(master['pki_storage_tag'])
                         cert7.setKeyAlgorithm(
                             master['pki_storage_key_algorithm'])

@@ -12,7 +12,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
-import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 
 @Path("agent/keys")
 public interface KeyResource {
@@ -37,7 +37,7 @@ public interface KeyResource {
     @Path("retrieve")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyData retrieveKey(RecoveryRequestData data);
+    public KeyData retrieveKey(KeyRecoveryRequest data);
 
     // retrieval - used to test integration with a browser
     @POST

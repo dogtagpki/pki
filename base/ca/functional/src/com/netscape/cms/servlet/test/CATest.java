@@ -39,17 +39,17 @@ import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertNotFoundException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
 import com.netscape.cms.servlet.request.RequestNotFoundException;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CATest {
 
@@ -172,7 +172,7 @@ public class CATest {
         //Get a CertInfo
         int certIdToPrint = 1;
         CertId id = new CertId(certIdToPrint);
-        CertificateData certData = null;
+        CertData certData = null;
         try {
             certData = client.getCertData(id);
         } catch (CertNotFoundException e) {
@@ -186,7 +186,7 @@ public class CATest {
         //Get a CertInfo
         int certIdBadToPrint = 9999999;
         CertId certIdBad = new CertId(certIdBadToPrint);
-        CertificateData certDataBad = null;
+        CertData certDataBad = null;
         try {
             certDataBad = client.getCertData(certIdBad);
         } catch (CertNotFoundException e) {
@@ -209,15 +209,15 @@ public class CATest {
 
         //Initiate a Certificate Enrollment
 
-        EnrollmentRequestData data = createUserCertEnrollment();
+        CertEnrollmentRequest data = createUserCertEnrollment();
         enrollAndApproveCertRequest(client, data);
 
         // submit a RA authenticated user cert request
-        EnrollmentRequestData rdata = createRAUserCertEnrollment();
+        CertEnrollmentRequest rdata = createRAUserCertEnrollment();
         enrollCertRequest(client, rdata);
 
         // now try a manually approved server cert
-        EnrollmentRequestData serverData = createServerCertEnrollment();
+        CertEnrollmentRequest serverData = createServerCertEnrollment();
         enrollAndApproveCertRequest(client,serverData);
 
         // submit using an agent approval profile
@@ -226,7 +226,7 @@ public class CATest {
 
         //Perform a sample certificate search with advanced search terms
 
-        CertSearchData searchData = new CertSearchData();
+        CertSearchRequest searchData = new CertSearchRequest();
         searchData.setSerialNumberRangeInUse(true);
         searchData.setSerialFrom("9999");
         searchData.setSerialTo("99990");
@@ -252,7 +252,7 @@ public class CATest {
 
         //Perform another sample certificate search with advanced search terms
 
-        searchData = new CertSearchData();
+        searchData = new CertSearchRequest();
         searchData.setSubjectInUse(true);
         searchData.setEmail("jmagne@redhat.com");
         searchData.setMatchExactly(true);
@@ -275,7 +275,7 @@ public class CATest {
 
     }
 
-    private static void enrollAndApproveCertRequest(CAClient client, EnrollmentRequestData data) {
+    private static void enrollAndApproveCertRequest(CAClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollCertificate(data);
@@ -287,7 +287,7 @@ public class CATest {
         for (CertRequestInfo info : reqInfo.getRequests()) {
             printRequestInfo(info);
 
-            AgentEnrollmentRequestData reviewData = client.reviewRequest(info.getRequestId());
+            CertReviewResponse reviewData = client.reviewRequest(info.getRequestId());
             log(reviewData.toString());
 
             reviewData.setRequestNotes("This is an approval message");
@@ -295,7 +295,7 @@ public class CATest {
         }
     }
 
-    private static void enrollCertRequest(CAClient client, EnrollmentRequestData data) {
+    private static void enrollCertRequest(CAClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollCertificate(data);
@@ -309,8 +309,8 @@ public class CATest {
         }
     }
 
-    private static EnrollmentRequestData createUserCertEnrollment() {
-        EnrollmentRequestData data = new EnrollmentRequestData();
+    private static CertEnrollmentRequest createUserCertEnrollment() {
+        CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caUserCert");
         data.setIsRenewal(false);
 
@@ -340,8 +340,8 @@ public class CATest {
         return data;
     }
 
-    private static EnrollmentRequestData createRAUserCertEnrollment() {
-        EnrollmentRequestData data = new EnrollmentRequestData();
+    private static CertEnrollmentRequest createRAUserCertEnrollment() {
+        CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caDualRAuserCert");
         data.setIsRenewal(false);
 
@@ -365,8 +365,8 @@ public class CATest {
         return data;
     }
 
-    private static EnrollmentRequestData createServerCertEnrollment() {
-        EnrollmentRequestData data = new EnrollmentRequestData();
+    private static CertEnrollmentRequest createServerCertEnrollment() {
+        CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caServerCert");
         data.setIsRenewal(false);
 
@@ -505,7 +505,7 @@ public class CATest {
 
     }
 
-    private static void printCertificate(CertificateData info) {
+    private static void printCertificate(CertData info) {
 
         if (info == null) {
             log("No CertificateData: ");

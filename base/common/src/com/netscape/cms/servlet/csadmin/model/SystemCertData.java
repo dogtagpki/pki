@@ -14,8 +14,8 @@
 //
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
-// --- END COPYRIGHT BLOCK --- 
- 
+// --- END COPYRIGHT BLOCK ---
+
 package com.netscape.cms.servlet.csadmin.model;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -28,63 +28,63 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author alee
  *
  */
-@XmlRootElement(name="CertData")
+@XmlRootElement(name="SystemCertData")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CertData {
+public class SystemCertData {
     public static final String TAG = "tag";
     public static final String NICKNAME = "nickname";
     public static final String TOKEN = "token";
     public static final String KEY_TYPE = "keyType";
     public static final String KEY_ALGORITHM = "keyAlgorithm";
-    public static final String SIGNING_ALGORITHM = "signingAlgorithm";    
+    public static final String SIGNING_ALGORITHM = "signingAlgorithm";
     public static final String KEY_SIZE = "keySize";
     public static final String KEY_CURVENAME = "keyCurveName";
     public static final String REQUEST = "request";
     public static final String SUBJECT_DN = "subjectDN";
     public static final String CERT = "cert";
     public static final String CERT_CHAIN = "certChain";
-    
+
     @XmlElement
     protected String tag;
-    
+
     @XmlElement
     protected String nickname;
-    
+
     @XmlElement
     protected String token;
-    
+
     @XmlElement
     protected String keyType;
-    
+
     @XmlElement
     protected String keyAlgorithm;
-    
+
     @XmlElement
     protected String signingAlgorithm;
-    
+
     @XmlElement
     protected String keySize;
-    
+
     @XmlElement
     protected String keyCurveName;
-    
+
     @XmlElement
     protected String request;
-    
+
     @XmlElement
     protected String subjectDN;
-    
+
     @XmlElement
     protected String cert;
-    
+
     @XmlElement
     protected String certChain;
-    
-    public CertData() {
+
+    public SystemCertData() {
         // required for JAXB
     }
-    
-    public CertData(MultivaluedMap<String, String> form) {
+
+    public SystemCertData(MultivaluedMap<String, String> form) {
         tag = form.getFirst(TAG);
         nickname = form.getFirst(NICKNAME);
         token = form.getFirst(TOKEN);
@@ -266,5 +266,5 @@ public class CertData {
     public void setCertChain(String certChain) {
         this.certChain = certChain;
     }
-    
+
 }

@@ -19,9 +19,9 @@ package com.netscape.cms.servlet.profile;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 
-public class ProfileNotFoundException extends CMSException {
+public class ProfileNotFoundException extends PKIException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 

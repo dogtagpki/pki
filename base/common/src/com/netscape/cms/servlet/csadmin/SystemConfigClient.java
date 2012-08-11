@@ -20,8 +20,8 @@ package com.netscape.cms.servlet.csadmin;
 import java.net.URISyntaxException;
 
 import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationResponse;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
 import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
 
@@ -32,15 +32,15 @@ import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
  */
 public class SystemConfigClient extends PKIClient {
 
-    private SystemConfigurationResource configClient;
+    private SystemConfigResource configClient;
 
     public SystemConfigClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
-        configClient = createProxy(SystemConfigurationResource.class);
+        configClient = createProxy(SystemConfigResource.class);
     }
 
-    public ConfigurationResponseData configure(ConfigurationData data) {
+    public ConfigurationResponse configure(ConfigurationRequest data) {
         return configClient.configure(data);
     }
 

@@ -27,7 +27,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
@@ -41,7 +41,7 @@ public class SystemCertService extends PKIService implements SystemCertificateRe
      * Used to retrieve the transport certificate
      */
     public Response getTransportCert() {
-        CertificateData cert = null;
+        CertData cert = null;
         IKeyRecoveryAuthority kra = null;
 
         // auth and authz

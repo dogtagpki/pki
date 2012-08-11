@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.request.model.ArchivalRequestData;
+import com.netscape.cms.servlet.request.model.KeyArchivalRequest;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
-import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cms.servlet.request.model.KeyRecoveryRequest;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -52,7 +52,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // log error
             e.printStackTrace();
-            throw new CMSException(e.getMessage(), e);
+            throw new PKIException(e.getMessage(), e);
         }
         if (info == null) {
             // request does not exist
@@ -63,11 +63,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     // Archiving - used to test integration with a browser
     public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form) {
-        ArchivalRequestData data = new ArchivalRequestData(form);
+        KeyArchivalRequest data = new KeyArchivalRequest(form);
         return archiveKey(data);
     }
 
-    public KeyRequestInfo archiveKey(ArchivalRequestData data) {
+    public KeyRequestInfo archiveKey(KeyArchivalRequest data) {
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
@@ -91,11 +91,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     //Recovery - used to test integration with a browser
     public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form) {
-        RecoveryRequestData data = new RecoveryRequestData(form);
+        KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return recoverKey(data);
     }
 
-    public KeyRequestInfo recoverKey(RecoveryRequestData data) {
+    public KeyRequestInfo recoverKey(KeyRecoveryRequest data) {
         // auth and authz
 
         //Check for entirely illegal data combination here

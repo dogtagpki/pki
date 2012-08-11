@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.base;
 import javax.ws.rs.core.Response;
 
-public class BadRequestException extends CMSException {
+public class BadRequestException extends PKIException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 

@@ -20,9 +20,9 @@ package com.netscape.cms.servlet.cert;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 
-public class CertNotFoundException extends CMSException {
+public class CertNotFoundException extends PKIException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 

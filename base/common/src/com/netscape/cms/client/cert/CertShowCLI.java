@@ -27,7 +27,7 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertData;
 
 /**
  * @author Endi S. Dewata
@@ -78,7 +78,7 @@ public class CertShowCLI extends CLI {
         CertId certID = new CertId(cmdArgs[0]);
         String file = cmd.getOptionValue("output");
 
-        CertificateData certData = parent.client.getCert(certID);
+        CertData certData = parent.client.getCert(certID);
 
         String encoded = certData.getEncoded();
         if (encoded != null && file != null) {

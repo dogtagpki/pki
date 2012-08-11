@@ -47,9 +47,9 @@ import com.netscape.cms.servlet.profile.model.ProfileOutput;
  *
  */
 
-@XmlRootElement(name = "EnrollmentRequest")
+@XmlRootElement(name = "CertEnrollmentRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class EnrollmentRequestData {
+public class CertEnrollmentRequest {
 
     private static final String PROFILE_ID = "profileId";
     private static final String RENEWAL = "renewal";
@@ -76,11 +76,11 @@ public class EnrollmentRequestData {
     @XmlElement(name = "Output")
     protected List<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
 
-    public EnrollmentRequestData() {
+    public CertEnrollmentRequest() {
         // required for jaxb
     }
 
-    public EnrollmentRequestData(MultivaluedMap<String, String> form) {
+    public CertEnrollmentRequest(MultivaluedMap<String, String> form) {
         profileId = form.getFirst(PROFILE_ID);
         String renewalStr = form.getFirst(RENEWAL);
         serialNum = form.getFirst(SERIAL_NUM);
@@ -211,7 +211,7 @@ public class EnrollmentRequestData {
     }
 
     public static void main(String args[]) throws Exception {
-        EnrollmentRequestData data = new EnrollmentRequestData();
+        CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caUserCert");
         data.setIsRenewal(false);
 
@@ -240,7 +240,7 @@ public class EnrollmentRequestData {
         submitter.setInputAttr("requestor_phone", "650-555-5555");
 
         try {
-            JAXBContext context = JAXBContext.newInstance(EnrollmentRequestData.class);
+            JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 

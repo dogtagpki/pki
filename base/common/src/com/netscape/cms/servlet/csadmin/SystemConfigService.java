@@ -52,14 +52,14 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.servlet.base.CMSException;
+import com.netscape.cms.servlet.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.csadmin.model.CertData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
-import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationResponse;
 import com.netscape.cms.servlet.csadmin.model.DomainInfo;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
 import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
+import com.netscape.cms.servlet.csadmin.model.SystemCertData;
+import com.netscape.cms.servlet.csadmin.model.ConfigurationRequest;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -67,7 +67,7 @@ import com.netscape.cmsutil.util.Utils;
  * @author alee
  *
  */
-public class SystemConfigService extends PKIService implements SystemConfigurationResource {
+public class SystemConfigService extends PKIService implements SystemConfigResource {
     IConfigStore cs;
     String csType;
     String csState;
@@ -95,8 +95,8 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(javax.ws.rs.core.MultivaluedMap)
      */
     @Override
-    public ConfigurationResponseData configure(MultivaluedMap<String, String> form) {
-        ConfigurationData data = new ConfigurationData(form);
+    public ConfigurationResponse configure(MultivaluedMap<String, String> form) {
+        ConfigurationRequest data = new ConfigurationRequest(form);
         return configure(data);
     }
 
@@ -104,9 +104,9 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
      */
     @Override
-    public ConfigurationResponseData configure(ConfigurationData data){
+    public ConfigurationResponse configure(ConfigurationRequest data){
         if (csState.equals("1")) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "System is already configured");
+            throw new PKIException(Response.Status.BAD_REQUEST, "System is already configured");
         }
 
         String certList;
@@ -114,34 +114,34 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             certList = cs.getString("preop.cert.list");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Unable to get certList from config file");
+            throw new PKIException("Unable to get certList from config file");
         }
 
         validateData(data);
-        ConfigurationResponseData response = new ConfigurationResponseData();
+        ConfigurationResponse response = new ConfigurationResponse();
 
         // specify module and log into token
         String token = data.getToken();
         if (token == null) {
-            token = ConfigurationData.TOKEN_DEFAULT;
+            token = ConfigurationRequest.TOKEN_DEFAULT;
         }
         cs.putString("preop.module.token", token);
 
-        if (! token.equals(ConfigurationData.TOKEN_DEFAULT)) {
+        if (! token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
             try {
                 CryptoManager cryptoManager = CryptoManager.getInstance();
                 CryptoToken ctoken = cryptoManager.getTokenByName(token);
                 String tokenpwd = data.getTokenPassword();
                 ConfigurationUtils.loginToken(ctoken, tokenpwd);
             } catch (NotInitializedException e) {
-                throw new CMSException("Token is not initialized");
+                throw new PKIException("Token is not initialized");
             } catch (NoSuchTokenException e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Invalid Token provided. No such token.");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid Token provided. No such token.");
             } catch (TokenException e) {
                 e.printStackTrace();
-                throw new CMSException("Token Exception" + e);
+                throw new PKIException("Token Exception" + e);
             } catch (IncorrectPasswordException e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Incorrect Password provided for token.");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Incorrect Password provided for token.");
             }
         }
 
@@ -150,7 +150,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
         String securityDomainName = data.getSecurityDomainName();
         String securityDomainURL = data.getSecurityDomainUri();
         String domainXML = null;
-        if (securityDomainType.equals(ConfigurationData.NEW_DOMAIN)) {
+        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             cs.putString("preop.securitydomain.select", "new");
             cs.putString("securitydomain.select", "new");
             cs.putString("preop.securitydomain.name", securityDomainName);
@@ -181,7 +181,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Failed to import certificate chain from security domain master: " + e);
+                throw new PKIException("Failed to import certificate chain from security domain master: " + e);
             }
 
             // log onto security domain and get token
@@ -192,11 +192,11 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Failed to obtain installation token from security domain: " + e);
+                throw new PKIException("Failed to obtain installation token from security domain: " + e);
             }
 
             if (installToken == null) {
-                throw new CMSException("Failed to obtain installation token from security domain");
+                throw new PKIException("Failed to obtain installation token from security domain");
             }
             CMS.setConfigSDSessionId(installToken);
 
@@ -205,7 +205,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Failed to obtain security domain decriptor from security domain master: " + e);
+                throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
             }
         }
 
@@ -245,11 +245,11 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Error in determining whether clone URI is valid");
+                throw new PKIException("Error in determining whether clone URI is valid");
             }
 
             if (!validCloneUri) {
-                throw new CMSException(Response.Status.BAD_REQUEST,
+                throw new PKIException(Response.Status.BAD_REQUEST,
                         "Invalid clone URI provided.  Does not match the available subsystems in the security domain");
             }
 
@@ -258,7 +258,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                     ConfigurationUtils.importCertChain(masterHost, masterPort, "/ca/ee/ca/getCertChain", "clone");
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new CMSException("Failed to import certificate chain from master" + e);
+                    throw new PKIException("Failed to import certificate chain from master" + e);
                 }
             }
 
@@ -266,25 +266,25 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.getConfigEntriesFromMaster();
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Failed to obtain configuration entries from the master for cloning " + e);
+                throw new PKIException("Failed to obtain configuration entries from the master for cloning " + e);
             }
 
             // restore certs from P12 file
-            if (token.equals(ConfigurationData.TOKEN_DEFAULT)) {
+            if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
                 String p12File = data.getP12File();
                 String p12Pass = data.getP12Password();
                 try {
                     ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new CMSException("Failed to restore certificates from p12 file" + e);
+                    throw new PKIException("Failed to restore certificates from p12 file" + e);
                 }
             }
 
             boolean cloneReady = ConfigurationUtils.isCertdbCloned();
             if (!cloneReady) {
                 CMS.debug("clone does not have all the certificates.");
-                throw new CMSException("Clone does not have all the required certificates");
+                throw new PKIException("Clone does not have all the required certificates");
             }
         }
 
@@ -299,7 +299,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 cs.putString("preop.hierarchy.select", "join");
                 cs.putString("hierarchy.select", "Subordinate");
             } else {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Invalid hierarchy provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid hierarchy provided");
             }
         }
 
@@ -316,7 +316,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             cs.commit(false);
         } catch (EBaseException e2) {
             e2.printStackTrace();
-            throw new CMSException("Unable to commit config parameters to file");
+            throw new PKIException("Unable to commit config parameters to file");
         }
 
         if (data.getIsClone().equals("true")) {
@@ -333,12 +333,12 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             }
 
             if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
-                throw new CMSException(Response.Status.BAD_REQUEST,
+                throw new PKIException(Response.Status.BAD_REQUEST,
                         "Master and clone must not share the same internal database");
             }
 
             if (!masterbasedn.equals(data.getBaseDN())) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Master and clone should have the same base DN");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Master and clone should have the same base DN");
             }
 
             String masterReplicationPort = data.getMasterReplicationPort();
@@ -390,7 +390,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.reInitSubsystem(csType);
             }
         } catch (Exception e) {
-            throw new CMSException("Error in populating database" + e);
+            throw new PKIException("Error in populating database" + e);
         }
 
         // SizePanel, NamePanel, CertRequestPanel
@@ -433,7 +433,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 }
             }
         } catch (Exception e) {
-            throw new CMSException("Error in obtaining certificate chain from issuing CA: " + e);
+            throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
         }
 
         boolean hasSigningCert = false;
@@ -445,9 +445,9 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 boolean enable = cs.getBoolean("preop.cert." + ct + ".enable", true);
                 if (!enable) continue;
 
-                Collection<CertData> certData = data.getSystemCerts();
-                Iterator<CertData> iterator = certData.iterator();
-                CertData cdata = null;
+                Collection<SystemCertData> certData = data.getSystemCerts();
+                Iterator<SystemCertData> iterator = certData.iterator();
+                SystemCertData cdata = null;
                 while (iterator.hasNext()) {
                     cdata = iterator.next();
                     if (cdata.getTag().equals(ct)) break;
@@ -521,7 +521,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                         if (cdata.getCertChain() != null) {
                             certObj.setCertChain(cdata.getCertChain());
                         } else {
-                            throw new CMSException(Response.Status.BAD_REQUEST, "CertChain not provided");
+                            throw new PKIException(Response.Status.BAD_REQUEST, "CertChain not provided");
                         }
                     }
                 }
@@ -533,13 +533,13 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
 
         } catch (NumberFormatException e) {
             // move these validations to validate()?
-            throw new CMSException(Response.Status.BAD_REQUEST, "Non-integer value for key size");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Non-integer value for key size");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            throw new CMSException(Response.Status.BAD_REQUEST, "Invalid algorithm " + e);
+            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid algorithm " + e);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Error in setting certificate names and key sizes: " + e);
+            throw new PKIException("Error in setting certificate names and key sizes: " + e);
         }
 
         // submitting to external ca
@@ -557,10 +557,10 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.setCertPermissions(cert.getCertTag());
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Error in confguring system certificates" + e);
+                throw new PKIException("Error in confguring system certificates" + e);
             }
             if (ret != 0) {
-                throw new CMSException("Error in confguring system certificates");
+                throw new PKIException("Error in confguring system certificates");
             }
         }
         response.setSystemCerts(certs);
@@ -571,7 +571,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 ConfigurationUtils.backupKeys(data.getBackupPassword(), data.getBackupFile());
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Error in creating pkcs12 to backup keys and certs: " + e);
+                throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
             }
         }
 
@@ -617,14 +617,14 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
 
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Error in creating admin user: " + e);
+                throw new PKIException("Error in creating admin user: " + e);
             }
         }
 
         // Done Panel
         // Create or update security domain
         try {
-            if (securityDomainType.equals(ConfigurationData.NEW_DOMAIN)) {
+            if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 ConfigurationUtils.createSecurityDomain();
             } else {
                 ConfigurationUtils.updateSecurityDomain();
@@ -634,7 +634,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             cs.commit(false);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Error while updating security domain: " + e);
+            throw new PKIException("Error while updating security domain: " + e);
         }
 
         // need to push connector information to the CA
@@ -653,7 +653,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Errors in pushing KRA connector information to the CA: " + e);
+            throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
         }
 
         // import the CA certificate into the OCSP
@@ -667,7 +667,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Errors in configuring CA publishing to OCSP: " + e);
+            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
 
         if (!data.getIsClone().equals("true")) {
@@ -677,7 +677,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new CMSException("Errors in updating next serial number ranges in DB: " + e);
+                throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
             }
         }
 
@@ -695,12 +695,12 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             }
         } catch (Exception e1) {
             e1.printStackTrace();
-            throw new CMSException("Errors in determining if security domain host is a master CA");
+            throw new PKIException("Errors in determining if security domain host is a master CA");
         }
 
         try {
             String dbuser = csType + "-" + CMS.getEEHost() + "-" + CMS.getEESSLPort();
-            if (! securityDomainType.equals(ConfigurationData.NEW_DOMAIN)) {
+            if (! securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 ConfigurationUtils.setupDBUser(dbuser);
             }
             IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
@@ -708,7 +708,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             system.addCertSubjectDN(user);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CMSException("Errors in creating or updating dbuser: " + e);
+            throw new PKIException("Errors in creating or updating dbuser: " + e);
         }
 
         cs.putInteger("cs.state", 1);
@@ -720,7 +720,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             ConfigurationUtils.removePreopConfigEntries();
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new CMSException("Errors when removing preop config entries: " + e);
+            throw new PKIException("Errors when removing preop config entries: " + e);
         }
 
         // Create an empty file that designates the fact that although
@@ -734,7 +734,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
         return response;
     }
 
-    private void validateData(ConfigurationData data) {
+    private void validateData(ConfigurationRequest data) {
         // get required info from CS.cfg
         String preopPin;
         try {
@@ -742,35 +742,35 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
         } catch (Exception e) {
             CMS.debug("validateData: Failed to get required config form CS.cfg");
             e.printStackTrace();
-            throw new CMSException("Unable to retrieve required configuration from configuration files");
+            throw new PKIException("Unable to retrieve required configuration from configuration files");
         }
 
         // get the preop pin and validate it
         String pin = data.getPin();
         if (pin == null) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "No preop pin provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "No preop pin provided");
         }
         if (!preopPin.equals(pin)) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Incorrect pin provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Incorrect pin provided");
         }
 
         // validate security domain settings
         String domainType = data.getSecurityDomainType();
         if (domainType == null) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Security Domain Type not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Security Domain Type not provided");
         }
 
-        if (domainType.equals(ConfigurationData.NEW_DOMAIN)) {
+        if (domainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             if (!csType.equals("CA")) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "New Domain is only valid for CA subsytems");
+                throw new PKIException(Response.Status.BAD_REQUEST, "New Domain is only valid for CA subsytems");
             }
             if (data.getSecurityDomainName() == null) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Security Domain Name is not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Security Domain Name is not provided");
             }
-        } else if (domainType.equals(ConfigurationData.EXISTING_DOMAIN)) {
+        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
             String domainURI = data.getSecurityDomainUri();
             if (domainURI == null) {
-                throw new CMSException(Response.Status.BAD_REQUEST,
+                throw new PKIException(Response.Status.BAD_REQUEST,
                         "Existing security domain requested, but no security domain URI provided");
             }
 
@@ -778,40 +778,40 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
                 @SuppressWarnings("unused")
                 URL admin_u = new URL(domainURI);  // check for invalid URL
             } catch (MalformedURLException e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Invalid security domain URI");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid security domain URI");
             }
             if ((data.getSecurityDomainUser() == null) || (data.getSecurityDomainPassword() == null)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Security domain user or password not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Security domain user or password not provided");
             }
 
         } else {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Invalid security domain URI provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid security domain URI provided");
         }
 
         if ((data.getSubsystemName() == null) || (data.getSubsystemName().length() ==0)) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Invalid or no subsystem name provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid or no subsystem name provided");
         }
 
         if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
             String cloneUri = data.getCloneUri();
             if (cloneUri == null) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Clone selected, but no clone URI provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Clone selected, but no clone URI provided");
             }
             try {
                 @SuppressWarnings("unused")
                 URL url = new URL(cloneUri); // check for invalid URL
                 // confirm protocol is https
             } catch (MalformedURLException e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Invalid clone URI");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid clone URI");
             }
 
-            if (data.getToken().equals(ConfigurationData.TOKEN_DEFAULT)) {
+            if (data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
                 if (data.getP12File() == null) {
-                    throw new CMSException(Response.Status.BAD_REQUEST, "P12 filename not provided");
+                    throw new PKIException(Response.Status.BAD_REQUEST, "P12 filename not provided");
                 }
 
                 if (data.getP12Password() == null) {
-                    throw new CMSException(Response.Status.BAD_REQUEST, "P12 password not provided");
+                    throw new PKIException(Response.Status.BAD_REQUEST, "P12 password not provided");
                 }
             }
         } else {
@@ -820,33 +820,33 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
 
         String dsHost = data.getDsHost();
         if (dsHost == null || dsHost.length() == 0) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database host not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database host not provided");
         }
 
         try {
             Integer.parseInt(data.getDsPort());  // check for errors
         } catch (NumberFormatException e) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database port is invalid");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database port is invalid");
         }
 
         String basedn = data.getBaseDN();
         if (basedn == null || basedn.length() == 0) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
         }
 
         String binddn = data.getBindDN();
         if (binddn == null || binddn.length() == 0) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
         }
 
         String database = data.getDatabase();
         if (database == null || database.length() == 0) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
         }
 
         String bindpwd = data.getBindpwd();
         if (bindpwd == null || bindpwd.length() == 0) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
         }
 
         String masterReplicationPort = data.getMasterReplicationPort();
@@ -854,7 +854,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             try {
                 Integer.parseInt(masterReplicationPort); // check for errors
             } catch (NumberFormatException e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Master replication port is invalid");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Master replication port is invalid");
             }
         }
 
@@ -863,48 +863,48 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
             try {
                 Integer.parseInt(cloneReplicationPort); // check for errors
             } catch (Exception e) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Clone replication port is invalid");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Clone replication port is invalid");
             }
         }
 
         if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
             if ((data.getBackupFile() == null) || (data.getBackupFile().length()<=0)) {
                 //TODO: also check for valid path, perhaps by touching file there
-                throw new CMSException(Response.Status.BAD_REQUEST, "Invalid key backup file name");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid key backup file name");
             }
 
             if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<8)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "key backup password must be at least 8 characters");
+                throw new PKIException(Response.Status.BAD_REQUEST, "key backup password must be at least 8 characters");
             }
         } else {
             data.setBackupKeys("false");
         }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Hierarchy is requred for CA, not provided");
+            throw new PKIException(Response.Status.BAD_REQUEST, "Hierarchy is requred for CA, not provided");
         }
 
         if (data.getIsClone().equals("false")) {
             if ((data.getAdminUID() == null) || (data.getAdminUID().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin UID not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
             }
             if ((data.getAdminPassword() == null) || (data.getAdminPassword().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin Password not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin Password not provided");
             }
             if ((data.getAdminEmail() == null) || (data.getAdminEmail().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin UID not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
             }
             if ((data.getAdminName() == null) || (data.getAdminName().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin name not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin name not provided");
             }
             if ((data.getAdminCertRequest() == null) || (data.getAdminCertRequest().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin cert request not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request not provided");
             }
             if ((data.getAdminCertRequestType() == null) || (data.getAdminCertRequestType().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin cert request type not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request type not provided");
             }
             if ((data.getAdminSubjectDN() == null) || (data.getAdminSubjectDN().length()==0)) {
-                throw new CMSException(Response.Status.BAD_REQUEST, "Admin subjectDN not provided");
+                throw new PKIException(Response.Status.BAD_REQUEST, "Admin subjectDN not provided");
             }
         }
 
@@ -928,7 +928,7 @@ public class SystemConfigService extends PKIService implements SystemConfigurati
         try {
             ip = InetAddress.getByName(host).toString();
         } catch (UnknownHostException e) {
-            throw new CMSException(Response.Status.BAD_REQUEST, "Unable to resolve host " + host +
+            throw new PKIException(Response.Status.BAD_REQUEST, "Unable to resolve host " + host +
                     "to an IP address: " + e);
         }
         int index = ip.indexOf("/");

@@ -26,42 +26,53 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestIdAdapter;
 
 /**
  * @author alee
  *
  */
-@XmlRootElement(name = "ProfileRetrievalRequest")
+@XmlRootElement(name = "CertRetrievalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProfileRetrievalRequestData {
+public class CertRetrievalRequest {
 
-    private static final String PROFILE_ID = "profileId";
+    private static final String CERT_ID = "certId";
 
     @XmlElement
-    protected String profileId;
+    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    protected CertId certId;
 
-    public ProfileRetrievalRequestData() {
+    @XmlElement
+    @XmlJavaTypeAdapter(RequestIdAdapter.class)
+    protected RequestId requestId;
+
+    public CertRetrievalRequest() {
         // required for JAXB (defaults)
     }
 
-    public ProfileRetrievalRequestData(MultivaluedMap<String, String> form) {
-        if (form.containsKey(PROFILE_ID)) {
-            profileId = form.getFirst(PROFILE_ID);
+    public CertRetrievalRequest(MultivaluedMap<String, String> form) {
+        if (form.containsKey(CERT_ID)) {
+            certId = new CertId(form.getFirst(CERT_ID));
         }
     }
 
     /**
-     * @return the ProfileId
+     * @return the CertId
      */
-    public String getProfileId() {
-        return profileId;
+    public CertId getCertId() {
+        return certId;
     }
 
     /**
-     * @param ProfileId the ProfileId to set
+     * @param CertId the CertId to set
      */
-    public void setProfileId(String profileId) {
-        this.profileId = profileId;
+    public void setCertId(CertId certId) {
+        this.certId = certId;
     }
 
 }

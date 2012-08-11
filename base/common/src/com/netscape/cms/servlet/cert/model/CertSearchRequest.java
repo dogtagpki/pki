@@ -40,9 +40,9 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author jmagne
  *
  */
-@XmlRootElement(name = "CertSearchData")
+@XmlRootElement(name = "CertSearchRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CertSearchData {
+public class CertSearchRequest {
 
     private final static String MATCH_EXACTLY = "exact";
     //Serial Number
@@ -537,7 +537,7 @@ public class CertSearchData {
         this.certTypeSSLServer = SSLServer;
     }
 
-    public CertSearchData() {
+    public CertSearchRequest() {
         // required for JAXB (defaults)
     }
 
@@ -548,7 +548,7 @@ public class CertSearchData {
         }
     }
 
-    public CertSearchData(MultivaluedMap<String, String> form) {
+    public CertSearchRequest(MultivaluedMap<String, String> form) {
     }
 
     public String buildFilter() {
@@ -854,9 +854,9 @@ public class CertSearchData {
         this.searchFilter = searchFilter;
     }
 
-    public static CertSearchData valueOf(Reader reader) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(CertSearchData.class);
+    public static CertSearchRequest valueOf(Reader reader) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CertSearchRequest.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (CertSearchData) unmarshaller.unmarshal(reader);
+        return (CertSearchRequest) unmarshaller.unmarshal(reader);
     }
 }

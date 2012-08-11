@@ -25,17 +25,17 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
-import com.netscape.cms.servlet.cert.model.CertSearchData;
-import com.netscape.cms.servlet.cert.model.CertificateData;
+import com.netscape.cms.servlet.cert.model.CertSearchRequest;
+import com.netscape.cms.servlet.cert.model.CertData;
 import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.profile.ProfileResource;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
 import com.netscape.cms.servlet.request.CertRequestResource;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequest;
 
 public class CAClient extends PKIClient {
 
@@ -65,7 +65,7 @@ public class CAClient extends PKIClient {
         return certClient.listCerts(status, 100, 10);
     }
 
-    public CertDataInfos searchCerts(CertSearchData data) {
+    public CertDataInfos searchCerts(CertSearchRequest data) {
         return certClient.searchCerts(data, 100, 10);
     }
 
@@ -82,7 +82,7 @@ public class CAClient extends PKIClient {
         return profileClient.retrieveProfile(id);
     }
 
-    public CertificateData getCertData(CertId id) {
+    public CertData getCertData(CertId id) {
 
         if (id == null) {
             return null;
@@ -92,7 +92,7 @@ public class CAClient extends PKIClient {
 
     }
 
-    public CertRequestInfos enrollCertificate(EnrollmentRequestData data) {
+    public CertRequestInfos enrollCertificate(CertEnrollmentRequest data) {
         if (data == null) {
             return null;
         }
@@ -107,34 +107,34 @@ public class CAClient extends PKIClient {
         return certRequestClient.getRequestInfo(id);
     }
 
-    public AgentEnrollmentRequestData reviewRequest(RequestId id) {
+    public CertReviewResponse reviewRequest(RequestId id) {
         if (id == null) {
             return null;
         }
         return certRequestClient.reviewRequest(id);
     }
 
-    public void approveRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void approveRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.approveRequest(id, data);
     }
 
-    public void rejectRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void rejectRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.rejectRequest(id, data);
     }
 
-    public void cancelRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void cancelRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.cancelRequest(id, data);
     }
 
-    public void updateRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void updateRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.updateRequest(id, data);
     }
 
-    public void validateRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void validateRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.validateRequest(id, data);
     }
 
-    public void unassignRequest(RequestId id, AgentEnrollmentRequestData data) {
+    public void unassignRequest(RequestId id, CertReviewResponse data) {
         certRequestClient.unassignRequest(id, data);
     }
 

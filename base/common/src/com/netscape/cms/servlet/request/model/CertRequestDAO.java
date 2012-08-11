@@ -138,7 +138,7 @@ public class CertRequestDAO extends CMSRequestDAO {
      * @return info for specific request
      * @throws EBaseException
      */
-    public AgentEnrollmentRequestData reviewRequest(HttpServletRequest servletRequest, RequestId id,
+    public CertReviewResponse reviewRequest(HttpServletRequest servletRequest, RequestId id,
             UriInfo uriInfo, Locale locale) throws EBaseException {
         IRequest request = queue.findRequest(id);
         if (request == null) {
@@ -146,14 +146,14 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
         String profileId = request.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
-        AgentEnrollmentRequestData info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
+        CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
         if (ca.noncesEnabled()) {
             addNonce(info, servletRequest);
         }
         return info;
     }
 
-    private void addNonce(AgentEnrollmentRequestData info, HttpServletRequest servletRequest) throws EBaseException {
+    private void addNonce(CertReviewResponse info, HttpServletRequest servletRequest) throws EBaseException {
         if (nonces != null) {
             long n = random.nextLong();
             long m = nonces.addNonce(n, Processor.getSSLClientCertificate(servletRequest));
@@ -171,7 +171,7 @@ public class CertRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      * @throws ServletException
      */
-    public CertRequestInfos submitRequest(EnrollmentRequestData data, HttpServletRequest request, UriInfo uriInfo,
+    public CertRequestInfos submitRequest(CertEnrollmentRequest data, HttpServletRequest request, UriInfo uriInfo,
             Locale locale) throws EBaseException {
         HashMap<String, Object> results = null;
         if (data.getIsRenewal()) {
@@ -196,7 +196,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         return ret;
     }
 
-    public void changeRequestState(RequestId id, HttpServletRequest request, AgentEnrollmentRequestData data,
+    public void changeRequestState(RequestId id, HttpServletRequest request, CertReviewResponse data,
             Locale locale, String op) throws EBaseException {
         IRequest ireq = queue.findRequest(id);
         if (ireq == null) {

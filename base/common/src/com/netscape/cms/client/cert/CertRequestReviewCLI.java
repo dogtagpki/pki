@@ -14,8 +14,8 @@ import org.apache.commons.cli.ParseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.cli.CLI;
 import com.netscape.cms.client.cli.MainCLI;
-import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
+import com.netscape.cms.servlet.base.PKIException;
+import com.netscape.cms.servlet.request.model.CertReviewResponse;
 
 public class CertRequestReviewCLI extends CLI {
 
@@ -71,16 +71,16 @@ public class CertRequestReviewCLI extends CLI {
             System.exit(-1);
         }
 
-        AgentEnrollmentRequestData reviewInfo = null;
+        CertReviewResponse reviewInfo = null;
         try {
             reviewInfo = parent.client.reviewRequest(reqId);
-        } catch (CMSException e) {
+        } catch (PKIException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
         }
 
         try {
-            JAXBContext context = JAXBContext.newInstance(AgentEnrollmentRequestData.class);
+            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
