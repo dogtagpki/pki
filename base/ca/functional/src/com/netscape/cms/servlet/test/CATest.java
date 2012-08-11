@@ -148,13 +148,13 @@ public class CATest {
             log("Exception in logging into token:" + e.toString());
         }
 
-        CARestClient client;
+        CAClient client;
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
             config.setCertNickname(clientCertNickname);
 
-            client = new CARestClient(config);
+            client = new CAClient(config);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -275,7 +275,7 @@ public class CATest {
 
     }
 
-    private static void enrollAndApproveCertRequest(CARestClient client, EnrollmentRequestData data) {
+    private static void enrollAndApproveCertRequest(CAClient client, EnrollmentRequestData data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollCertificate(data);
@@ -295,7 +295,7 @@ public class CATest {
         }
     }
 
-    private static void enrollCertRequest(CARestClient client, EnrollmentRequestData data) {
+    private static void enrollCertRequest(CAClient client, EnrollmentRequestData data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollCertificate(data);
@@ -560,7 +560,7 @@ public class CATest {
 
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("CARestClient Test:", options);
+        formatter.printHelp("CAClient Test:", options);
         System.exit(1);
     }
 

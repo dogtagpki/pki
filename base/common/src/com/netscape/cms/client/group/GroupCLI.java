@@ -34,7 +34,7 @@ import com.netscape.cms.client.cli.MainCLI;
 public class GroupCLI extends CLI {
 
     public MainCLI parent;
-    public GroupRestClient client;
+    public GroupClient client;
 
     public GroupCLI(MainCLI parent) {
         super("group", "Group management commands");
@@ -74,7 +74,7 @@ public class GroupCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new GroupRestClient(parent.config);
+        client = new GroupClient(parent.config);
         client.setVerbose(verbose);
 
         if (args.length == 0) {

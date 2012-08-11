@@ -52,7 +52,7 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.cms.client.cli.ClientConfig;
 
-public abstract class CMSRestClient {
+public abstract class PKIClient {
 
     protected boolean verbose;
 
@@ -62,7 +62,7 @@ public abstract class CMSRestClient {
     protected ClientErrorHandler errorHandler;
     protected ClientExecutor executor;
 
-    public CMSRestClient(ClientConfig config) {
+    public PKIClient(ClientConfig config) {
         this.config = config;
 
         DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -147,7 +147,7 @@ public abstract class CMSRestClient {
 
         executor = new ApacheHttpClient4Executor(httpClient);
         providerFactory = ResteasyProviderFactory.getInstance();
-        providerFactory.addClientErrorInterceptor(new CMSErrorInterceptor());
+        providerFactory.addClientErrorInterceptor(new PKIErrorInterceptor());
         errorHandler = new ClientErrorHandler(providerFactory.getClientErrorInterceptors());
     }
 

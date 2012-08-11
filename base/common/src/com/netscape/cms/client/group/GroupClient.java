@@ -28,17 +28,17 @@ import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupMemberResource;
 import com.netscape.certsrv.group.GroupResource;
 import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.CMSRestClient;
+import com.netscape.cms.servlet.csadmin.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupRestClient extends CMSRestClient {
+public class GroupClient extends PKIClient {
 
     public GroupResource groupClient;
     public GroupMemberResource groupMemberClient;
 
-    public GroupRestClient(ClientConfig config) throws URISyntaxException {
+    public GroupClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
         groupClient = createProxy(GroupResource.class);

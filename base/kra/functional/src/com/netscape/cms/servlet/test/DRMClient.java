@@ -11,7 +11,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.cli.ClientConfig;
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
-import com.netscape.cms.servlet.csadmin.CMSRestClient;
+import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.key.KeyResource;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
@@ -23,13 +23,13 @@ import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 import com.netscape.cmsutil.util.Utils;
 
-public class DRMRestClient  extends CMSRestClient {
+public class DRMClient  extends PKIClient {
 
     private KeyResource keyClient;
     private KeyRequestResource keyRequestClient;
     private SystemCertificateResource systemCertClient;
 
-    public DRMRestClient(ClientConfig config) throws URISyntaxException {
+    public DRMClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
         systemCertClient = createProxy(SystemCertificateResource.class);

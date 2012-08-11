@@ -28,17 +28,17 @@ import com.netscape.certsrv.user.UserCollection;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.CMSRestClient;
+import com.netscape.cms.servlet.csadmin.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserRestClient extends CMSRestClient {
+public class UserClient extends PKIClient {
 
     public UserResource userClient;
     public UserCertResource userCertClient;
 
-    public UserRestClient(ClientConfig config) throws URISyntaxException {
+    public UserClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
         userClient = createProxy(UserResource.class);

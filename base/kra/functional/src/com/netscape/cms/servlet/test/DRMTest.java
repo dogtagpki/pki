@@ -194,13 +194,13 @@ public class DRMTest {
         // Set base URI and get client
 
 
-        DRMRestClient client;
+        DRMClient client;
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/kra");
             config.setCertNickname(clientCertNickname);
 
-            client = new DRMRestClient(config);
+            client = new DRMClient(config);
 
         } catch (Exception e) {
             e.printStackTrace();

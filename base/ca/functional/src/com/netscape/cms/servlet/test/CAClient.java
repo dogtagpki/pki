@@ -27,7 +27,7 @@ import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertSearchData;
 import com.netscape.cms.servlet.cert.model.CertificateData;
-import com.netscape.cms.servlet.csadmin.CMSRestClient;
+import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.profile.ProfileResource;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
@@ -37,13 +37,13 @@ import com.netscape.cms.servlet.request.model.CertRequestInfo;
 import com.netscape.cms.servlet.request.model.CertRequestInfos;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
 
-public class CARestClient extends CMSRestClient {
+public class CAClient extends PKIClient {
 
     private CertResource certClient;
     private CertRequestResource certRequestClient;
     private ProfileResource profileClient;
 
-    public CARestClient(ClientConfig config) throws URISyntaxException {
+    public CAClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
         certRequestClient = createProxy(CertRequestResource.class);

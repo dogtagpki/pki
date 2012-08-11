@@ -140,7 +140,7 @@ from org.mozilla.jss.util import Password
 
 
 # PKI Java Imports
-from com.netscape.cms.servlet.csadmin import ConfigurationRESTClient
+from com.netscape.cms.servlet.csadmin import SystemConfigClient
 from com.netscape.cms.servlet.csadmin.model import CertData
 from com.netscape.cms.servlet.csadmin.model import ConfigurationData
 from com.netscape.cms.servlet.csadmin.model import ConfigurationResponseData
@@ -262,7 +262,7 @@ class rest_client:
                        log.PKI_JYTHON_INITIALIZING_REST_CLIENT,
                        client_config.serverURI)
             if not pki_dry_run_flag:
-                self.client = ConfigurationRESTClient(client_config)
+                self.client = SystemConfigClient(client_config)
             return self.client
         except URISyntaxException, e:
             e.printStackTrace()

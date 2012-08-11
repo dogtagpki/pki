@@ -34,7 +34,7 @@ import com.netscape.cms.client.cli.MainCLI;
 public class UserCLI extends CLI {
 
     public MainCLI parent;
-    public UserRestClient client;
+    public UserClient client;
 
     public UserCLI(MainCLI parent) {
         super("user", "User management commands");
@@ -75,7 +75,7 @@ public class UserCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new UserRestClient(parent.config);
+        client = new UserClient(parent.config);
         client.setVerbose(verbose);
 
         if (args.length == 0) {

@@ -35,7 +35,7 @@ import com.netscape.cms.servlet.request.model.CertRequestInfo;
 public class CertCLI extends CLI {
 
     public MainCLI parent;
-    public CertRestClient client;
+    public CertClient client;
 
     public CertCLI(MainCLI parent) {
         super("cert", "Certificate management commands");
@@ -75,7 +75,7 @@ public class CertCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new CertRestClient(parent.config);
+        client = new CertClient(parent.config);
         client.setVerbose(verbose);
 
         if (args.length == 0) {

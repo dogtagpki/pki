@@ -12,7 +12,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
@@ -25,24 +25,21 @@ import org.jboss.resteasy.client.core.ClientErrorInterceptor;
 
 import com.netscape.cms.servlet.base.CMSException;
 
-/**
- * @author alee
- *
- */
-public class ConfigurationErrorInterceptor implements ClientErrorInterceptor {
+public class PKIErrorInterceptor implements ClientErrorInterceptor {
 
     public void handle(ClientResponse<?> response) {
 
         // handle HTTP code 4xx and 5xx
         int code = response.getResponseStatus().getStatusCode();
-        if (code < 400) return;
+        if (code < 400)
+            return;
 
         MultivaluedMap<String, String> headers = response.getHeaders();
         String contentType = headers.getFirst("Content-Type");
 
         // handle XML content only
-        System.out.println("Content-type: "+contentType);
-        if (!contentType.startsWith(MediaType.APPLICATION_XML)) return;
+        if (contentType == null || !contentType.startsWith(MediaType.APPLICATION_XML))
+            return;
 
         CMSException exception;
 

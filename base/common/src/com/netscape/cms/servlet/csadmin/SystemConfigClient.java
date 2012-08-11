@@ -30,11 +30,11 @@ import com.netscape.cms.servlet.csadmin.model.InstallTokenRequest;
  * @author alee
  *
  */
-public class ConfigurationRESTClient extends CMSRestClient {
+public class SystemConfigClient extends PKIClient {
 
     private SystemConfigurationResource configClient;
 
-    public ConfigurationRESTClient(ClientConfig config) throws URISyntaxException {
+    public SystemConfigClient(ClientConfig config) throws URISyntaxException {
         super(config);
 
         configClient = createProxy(SystemConfigurationResource.class);

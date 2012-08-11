@@ -299,7 +299,7 @@ public class ConfigurationUtils {
         ClientConfig config = new ClientConfig();
         config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
 
-        ConfigurationRESTClient client = new ConfigurationRESTClient(config);
+        SystemConfigClient client = new SystemConfigClient(config);
 
         InstallToken token = client.getInstallToken(data);
 

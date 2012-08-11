@@ -57,7 +57,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.ConfigurationRESTClient;
+import com.netscape.cms.servlet.csadmin.SystemConfigClient;
 import com.netscape.cms.servlet.csadmin.model.CertData;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
@@ -184,12 +184,12 @@ public class ConfigurationTest {
             System.out.println("Exception in logging into token:" + e.toString());
         }
 
-        ConfigurationRESTClient client = null;
+        SystemConfigClient client = null;
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/" + cstype);
 
-            client = new ConfigurationRESTClient(config);
+            client = new SystemConfigClient(config);
         } catch (URISyntaxException e1) {
             e1.printStackTrace();
             System.exit(1);
