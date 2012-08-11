@@ -34,7 +34,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.BadRequestException;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
 import com.netscape.cms.servlet.request.model.CertRequestDAO;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;
@@ -46,7 +46,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author alee
  *
  */
-public class CertRequestResourceService extends CMSResourceService implements CertRequestResource {
+public class CertRequestService extends PKIService implements CertRequestResource {
 
     /**
      * Used to retrieve key request info for a specific request

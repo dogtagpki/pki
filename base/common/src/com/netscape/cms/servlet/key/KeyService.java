@@ -41,7 +41,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
@@ -54,13 +54,13 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author alee
  *
  */
-public class KeyResourceService extends CMSResourceService implements KeyResource{
+public class KeyService extends PKIService implements KeyResource{
 
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
 
-    public KeyResourceService() {
+    public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();

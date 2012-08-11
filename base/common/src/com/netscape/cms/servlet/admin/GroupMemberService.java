@@ -44,12 +44,12 @@ import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupMemberResourceService extends CMSResourceService implements GroupMemberResource {
+public class GroupMemberService extends PKIService implements GroupMemberResource {
 
     public final static int DEFAULT_SIZE = 20;
 

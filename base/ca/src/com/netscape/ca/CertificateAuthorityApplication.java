@@ -5,16 +5,16 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.netscape.cms.servlet.admin.GroupMemberResourceService;
-import com.netscape.cms.servlet.admin.GroupResourceService;
-import com.netscape.cms.servlet.admin.SystemCertificateResourceService;
-import com.netscape.cms.servlet.admin.UserCertResourceService;
-import com.netscape.cms.servlet.admin.UserResourceService;
+import com.netscape.cms.servlet.admin.GroupMemberService;
+import com.netscape.cms.servlet.admin.GroupService;
+import com.netscape.cms.servlet.admin.SystemCertService;
+import com.netscape.cms.servlet.admin.UserCertService;
+import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.cert.CertResourceService;
-import com.netscape.cms.servlet.csadmin.SystemConfigurationResourceService;
-import com.netscape.cms.servlet.profile.ProfileResourceService;
-import com.netscape.cms.servlet.request.CertRequestResourceService;
+import com.netscape.cms.servlet.cert.CertService;
+import com.netscape.cms.servlet.csadmin.SystemConfigService;
+import com.netscape.cms.servlet.profile.ProfileService;
+import com.netscape.cms.servlet.request.CertRequestService;
 
 public class CertificateAuthorityApplication extends Application {
     private Set<Object> singletons = new HashSet<Object>();
@@ -22,23 +22,23 @@ public class CertificateAuthorityApplication extends Application {
 
     public CertificateAuthorityApplication() {
         // installer
-        classes.add(SystemConfigurationResourceService.class);
+        classes.add(SystemConfigService.class);
 
         // certs and requests
-        classes.add(CertResourceService.class);
-        classes.add(CertRequestResourceService.class);
+        classes.add(CertService.class);
+        classes.add(CertRequestService.class);
 
         // profile management
-        classes.add(ProfileResourceService.class);
+        classes.add(ProfileService.class);
 
         // user and group management
-        classes.add(GroupMemberResourceService.class);
-        classes.add(GroupResourceService.class);
-        classes.add(UserCertResourceService.class);
-        classes.add(UserResourceService.class);
+        classes.add(GroupMemberService.class);
+        classes.add(GroupService.class);
+        classes.add(UserCertService.class);
+        classes.add(UserService.class);
 
         // system certs
-        classes.add(SystemCertificateResourceService.class);
+        classes.add(SystemCertService.class);
 
         // exception mapper
         classes.add(CMSException.Mapper.class);

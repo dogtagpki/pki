@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 
 /**
@@ -35,7 +35,7 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
  * @author alee
  *
  */
-public class SystemCertificateResourceService extends CMSResourceService implements SystemCertificateResource {
+public class SystemCertService extends PKIService implements SystemCertificateResource {
 
     /**
      * Used to retrieve the transport certificate

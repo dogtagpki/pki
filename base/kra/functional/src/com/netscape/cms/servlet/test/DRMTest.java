@@ -40,7 +40,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.request.KeyRequestResource;
@@ -209,8 +209,8 @@ public class DRMTest {
 
         // Test 1: Get transport certificate from DRM
         transportCert = client.getTransportCert();
-        transportCert = transportCert.substring(CMSResourceService.HEADER.length(),
-                                                transportCert.indexOf(CMSResourceService.TRAILER));
+        transportCert = transportCert.substring(PKIService.HEADER.length(),
+                                                transportCert.indexOf(PKIService.TRAILER));
 
         log("Transport Cert retrieved from DRM: " + transportCert);
 

@@ -46,13 +46,13 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserResourceService extends CMSResourceService implements UserResource {
+public class UserService extends PKIService implements UserResource {
 
     public final static int DEFAULT_SIZE = 20;
 

@@ -45,7 +45,7 @@ import com.netscape.cms.servlet.profile.model.ProfileInputFactory;
 import com.netscape.cms.servlet.profile.model.ProfilePolicy;
 import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
 
-public class AgentEnrollmentRequestDataFactory {
+public class CertReviewResponseFactory {
 
     public static AgentEnrollmentRequestData create(IRequest request, IProfile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
         AgentEnrollmentRequestData ret = new AgentEnrollmentRequestData();

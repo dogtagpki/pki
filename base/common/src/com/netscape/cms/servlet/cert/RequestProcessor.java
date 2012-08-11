@@ -58,7 +58,7 @@ import com.netscape.cms.servlet.profile.model.ProfileOutput;
 import com.netscape.cms.servlet.profile.model.ProfileOutputFactory;
 import com.netscape.cms.servlet.profile.model.ProfilePolicySet;
 import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestData;
-import com.netscape.cms.servlet.request.model.AgentEnrollmentRequestDataFactory;
+import com.netscape.cms.servlet.request.model.CertReviewResponseFactory;
 
 public class RequestProcessor extends CertProcessor {
 
@@ -72,7 +72,7 @@ public class RequestProcessor extends CertProcessor {
 
         String profileId = ireq.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
-        AgentEnrollmentRequestData data = AgentEnrollmentRequestDataFactory.create(cmsReq, profile, nonces, locale);
+        AgentEnrollmentRequestData data = CertReviewResponseFactory.create(cmsReq, profile, nonces, locale);
 
         processRequest(req, data, request, op);
         return data;

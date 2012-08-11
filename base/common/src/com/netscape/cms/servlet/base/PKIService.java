@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
  * @author alee
  *
  */
-public class CMSResourceService {
+public class PKIService {
 
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";

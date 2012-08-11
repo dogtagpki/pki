@@ -32,7 +32,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileSubsystem;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfo;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;
@@ -42,7 +42,7 @@ import com.netscape.cms.servlet.profile.model.ProfileInput;
  * @author alee
  *
  */
-public class ProfileResourceService extends CMSResourceService implements ProfileResource {
+public class ProfileService extends PKIService implements ProfileResource {
 
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
 

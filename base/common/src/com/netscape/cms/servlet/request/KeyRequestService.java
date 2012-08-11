@@ -26,7 +26,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
@@ -38,7 +38,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author alee
  *
  */
-public class KeyRequestResourceService extends CMSResourceService implements KeyRequestResource {
+public class KeyRequestService extends PKIService implements KeyRequestResource {
 
     /**
      * Used to retrieve key request info for a specific request

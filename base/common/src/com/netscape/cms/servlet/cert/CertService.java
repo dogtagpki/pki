@@ -55,7 +55,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.BadRequestException;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.base.UnauthorizedException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
@@ -74,14 +74,14 @@ import com.netscape.cmsutil.util.Utils;
  * @author alee
  *
  */
-public class CertResourceService extends CMSResourceService implements CertResource {
+public class CertService extends PKIService implements CertResource {
 
     ICertificateAuthority authority;
     ICertificateRepository repo;
 
     public final static int DEFAULT_SIZE = 20;
 
-    public CertResourceService() {
+    public CertService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
         repo = authority.getCertificateRepository();
     }

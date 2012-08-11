@@ -5,13 +5,13 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.netscape.cms.servlet.admin.GroupMemberResourceService;
-import com.netscape.cms.servlet.admin.GroupResourceService;
-import com.netscape.cms.servlet.admin.SystemCertificateResourceService;
-import com.netscape.cms.servlet.admin.UserCertResourceService;
-import com.netscape.cms.servlet.admin.UserResourceService;
+import com.netscape.cms.servlet.admin.GroupMemberService;
+import com.netscape.cms.servlet.admin.GroupService;
+import com.netscape.cms.servlet.admin.SystemCertService;
+import com.netscape.cms.servlet.admin.UserCertService;
+import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.csadmin.SystemConfigurationResourceService;
+import com.netscape.cms.servlet.csadmin.SystemConfigService;
 
 public class TKSApplication extends Application {
 
@@ -20,16 +20,16 @@ public class TKSApplication extends Application {
 
     public TKSApplication() {
         // installer
-        classes.add(SystemConfigurationResourceService.class);
+        classes.add(SystemConfigService.class);
 
         // user and group management
-        classes.add(GroupMemberResourceService.class);
-        classes.add(GroupResourceService.class);
-        classes.add(UserCertResourceService.class);
-        classes.add(UserResourceService.class);
+        classes.add(GroupMemberService.class);
+        classes.add(GroupService.class);
+        classes.add(UserCertService.class);
+        classes.add(UserService.class);
 
         // system certs
-        classes.add(SystemCertificateResourceService.class);
+        classes.add(SystemCertService.class);
 
         // exception mapper
         classes.add(CMSException.Mapper.class);

@@ -41,13 +41,13 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupResourceService extends CMSResourceService implements GroupResource {
+public class GroupService extends PKIService implements GroupResource {
 
     public final static int DEFAULT_SIZE = 20;
 

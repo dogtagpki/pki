@@ -45,7 +45,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cms.servlet.request.model.EnrollmentRequestData;
-import com.netscape.cms.servlet.request.model.EnrollmentRequestDataFactory;
+import com.netscape.cms.servlet.request.model.CertEnrollmentRequestFactory;
 
 public class RenewalProcessor extends CertProcessor {
 
@@ -61,7 +61,7 @@ public class RenewalProcessor extends CertProcessor {
             throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
         }
 
-        EnrollmentRequestData data = EnrollmentRequestDataFactory.create(cmsReq, profile, locale);
+        EnrollmentRequestData data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
 
         //only used in renewal
         data.setSerialNum(req.getParameter("serial_num"));

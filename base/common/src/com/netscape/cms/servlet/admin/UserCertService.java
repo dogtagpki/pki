@@ -51,14 +51,14 @@ import com.netscape.certsrv.user.UserCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserCertResourceService extends CMSResourceService implements UserCertResource {
+public class UserCertService extends PKIService implements UserCertResource {
 
     public final static int DEFAULT_SIZE = 20;
 

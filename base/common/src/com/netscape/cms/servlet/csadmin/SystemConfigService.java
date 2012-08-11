@@ -53,7 +53,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSException;
-import com.netscape.cms.servlet.base.CMSResourceService;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.model.CertData;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationData;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationResponseData;
@@ -67,7 +67,7 @@ import com.netscape.cmsutil.util.Utils;
  * @author alee
  *
  */
-public class SystemConfigurationResourceService extends CMSResourceService implements SystemConfigurationResource {
+public class SystemConfigService extends PKIService implements SystemConfigurationResource {
     IConfigStore cs;
     String csType;
     String csState;
@@ -79,7 +79,7 @@ public class SystemConfigurationResourceService extends CMSResourceService imple
             "restart_server_after_configuration";
     private Random random = null;
 
-    public SystemConfigurationResourceService() throws EPropertyNotFound, EBaseException {
+    public SystemConfigService() throws EPropertyNotFound, EBaseException {
         cs = CMS.getConfigStore();
         csType = cs.getString("cs.type");
         csState = cs.getString("cs.state");

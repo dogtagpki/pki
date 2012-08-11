@@ -28,7 +28,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.model.ProfileInput;
 import com.netscape.cms.servlet.profile.model.ProfileInputFactory;
 
-public class EnrollmentRequestDataFactory {
+public class CertEnrollmentRequestFactory {
 
     public static EnrollmentRequestData create(CMSRequest cmsReq, IProfile profile, Locale locale)
             throws EProfileException {
