@@ -173,6 +173,7 @@ install(
 
 set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
 
+
 # build pki-cms
 javac(pki-cms-classes
     SOURCES
@@ -333,3 +334,35 @@ install(
 )
 
 set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
+
+
+# build pki-client
+jar(pki-client-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-client-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cms/client/*.class
+    DEPENDS
+        pki-cms
+)
+
+link(pki-client
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-client.jar
+    DEST
+        pki-client-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-client-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-client.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-client-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_CLIENT_JAR ${CMAKE_BINARY_DIR}/dist/pki-client.jar CACHE INTERNAL "pki-client jar file")

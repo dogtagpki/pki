@@ -97,7 +97,7 @@ jarLoad.addFile("/usr/share/java/resteasy/resteasy-jettison-provider.jar")
 jarLoad.addFile("/usr/share/java/scannotation.jar")
 #     PKI Jars
 jarLoad.addFile("/usr/share/java/pki/pki-certsrv.jar")
-jarLoad.addFile("/usr/share/java/pki/pki-cms.jar")
+jarLoad.addFile("/usr/share/java/pki/pki-client.jar")
 jarLoad.addFile("/usr/share/java/pki/pki-cmsutil.jar")
 jarLoad.addFile("/usr/share/java/pki/pki-nsutil.jar")
 #     JSS JNI Jars

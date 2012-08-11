@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}21%{?prerel}%{?dist}
+Release:          %{?relprefix}22%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1260,6 +1260,8 @@ fi
 %endif
 %{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
+%{_javadir}/pki/pki-client-%{version}.jar
+%{_javadir}/pki/pki-client.jar
 %{_javadir}/pki/pki-cms-%{version}.jar
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle-%{version}.jar
@@ -1424,6 +1426,9 @@ fi
 
 
 %changelog
+* Mon Aug 13 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.22.a1
+- Added pki-client.jar.
+
 * Fri Jul 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.21.a1
 - Merged pki-jndi-realm.jar into pki-cmscore.jar.
 

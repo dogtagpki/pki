@@ -72,7 +72,7 @@ if( $ARCHITECTURE eq "i386" ) {
 ###############################################################################
 
 $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
-                . "/usr/share/java/${PRODUCT}/pki-cms.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-client.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
                 . "/usr/share/java/apache-commons-cli.jar:"
                 . "/usr/share/java/apache-commons-codec.jar:"
