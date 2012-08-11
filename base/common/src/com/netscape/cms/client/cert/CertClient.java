@@ -21,14 +21,14 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.client.cli.ClientConfig;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.PKIClient;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertRevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertUnrevokeRequest;
 import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.request.CertRequestResource;
 import com.netscape.cms.servlet.request.model.CertReviewResponse;
 import com.netscape.cms.servlet.request.model.CertRequestInfo;

@@ -140,7 +140,7 @@ from org.mozilla.jss.util import Password
 
 
 # PKI Java Imports
-from com.netscape.cms.servlet.csadmin import SystemConfigClient
+from com.netscape.cms.client.system import SystemConfigClient
 from com.netscape.cms.servlet.csadmin.model import SystemCertData
 from com.netscape.cms.servlet.csadmin.model import ConfigurationRequest
 from com.netscape.cms.servlet.csadmin.model import ConfigurationResponse

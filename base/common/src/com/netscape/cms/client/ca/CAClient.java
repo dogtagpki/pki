@@ -15,19 +15,19 @@
 //(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.test;
+package com.netscape.cms.client.ca;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.client.cli.ClientConfig;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.PKIClient;
 import com.netscape.cms.servlet.cert.CertResource;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;
 import com.netscape.cms.servlet.cert.model.CertSearchRequest;
 import com.netscape.cms.servlet.cert.model.CertData;
-import com.netscape.cms.servlet.csadmin.PKIClient;
 import com.netscape.cms.servlet.profile.ProfileResource;
 import com.netscape.cms.servlet.profile.model.ProfileData;
 import com.netscape.cms.servlet.profile.model.ProfileDataInfos;

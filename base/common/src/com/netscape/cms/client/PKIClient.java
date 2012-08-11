@@ -1,4 +1,4 @@
-package com.netscape.cms.servlet.csadmin;
+package com.netscape.cms.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +50,6 @@ import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
-import com.netscape.cms.client.cli.ClientConfig;
 
 public abstract class PKIClient {
 

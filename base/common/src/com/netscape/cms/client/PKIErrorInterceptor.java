@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.csadmin;
+package com.netscape.cms.client;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;

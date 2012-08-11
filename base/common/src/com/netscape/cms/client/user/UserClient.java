@@ -27,8 +27,8 @@ import com.netscape.certsrv.user.UserCertResource;
 import com.netscape.certsrv.user.UserCollection;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.PKIClient;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.PKIClient;
 
 /**
  * @author Endi S. Dewata

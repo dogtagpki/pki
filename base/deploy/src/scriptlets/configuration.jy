@@ -17,7 +17,7 @@ from java.lang import System as javasystem
 
 
 # PKI Java Imports
-from com.netscape.cms.client.cli import ClientConfig
+from com.netscape.cms.client import ClientConfig
 
 
 def main(argv):

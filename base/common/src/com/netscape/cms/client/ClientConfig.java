@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cms.client.cli;
+package com.netscape.cms.client;
 
 import java.io.StringReader;
 import java.io.StringWriter;

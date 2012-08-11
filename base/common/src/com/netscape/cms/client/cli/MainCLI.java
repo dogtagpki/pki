@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cms.client.ClientConfig;
 import com.netscape.cms.client.cert.CertCLI;
 import com.netscape.cms.client.group.GroupCLI;
 import com.netscape.cms.client.user.UserCLI;

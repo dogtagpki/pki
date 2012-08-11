@@ -35,7 +35,8 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.client.cli.ClientConfig;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.ca.CAClient;
 import com.netscape.cms.servlet.cert.CertNotFoundException;
 import com.netscape.cms.servlet.cert.model.CertDataInfo;
 import com.netscape.cms.servlet.cert.model.CertDataInfos;

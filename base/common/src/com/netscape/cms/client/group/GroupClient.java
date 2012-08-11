@@ -27,8 +27,8 @@ import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupMemberResource;
 import com.netscape.certsrv.group.GroupResource;
-import com.netscape.cms.client.cli.ClientConfig;
-import com.netscape.cms.servlet.csadmin.PKIClient;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.PKIClient;
 
 /**
  * @author Endi S. Dewata

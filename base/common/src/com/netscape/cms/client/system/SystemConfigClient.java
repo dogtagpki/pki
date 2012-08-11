@@ -15,11 +15,13 @@
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.csadmin;
+package com.netscape.cms.client.system;
 
 import java.net.URISyntaxException;
 
-import com.netscape.cms.client.cli.ClientConfig;
+import com.netscape.cms.client.ClientConfig;
+import com.netscape.cms.client.PKIClient;
+import com.netscape.cms.servlet.csadmin.SystemConfigResource;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.model.ConfigurationResponse;
 import com.netscape.cms.servlet.csadmin.model.InstallToken;
