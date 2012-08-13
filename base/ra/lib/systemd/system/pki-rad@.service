@@ -1,0 +1,12 @@
+[Unit]
+Description=PKI Registration Authority Server %i
+After=pki-rad.target
+BindTo=pki-rad.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/pkicontrol start ra %i
+ExecStop=/usr/bin/pkicontrol stop ra %i
+
+[Install]
+WantedBy=multi-user.target

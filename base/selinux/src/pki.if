@@ -168,7 +168,7 @@ template(`pki_tomcat_template',`
 
 	miscfiles_read_localization($1_t)
         miscfiles_read_hwdata($1_t)
-        miscfiles_manage_cert_dirs($1_t)
+        miscfiles_manage_generic_cert_dirs($1_t)
         miscfiles_manage_generic_cert_files($1_t)
 
 	logging_send_syslog_msg($1_t)

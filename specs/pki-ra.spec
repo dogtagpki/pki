@@ -7,7 +7,7 @@
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}2%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -16,6 +16,11 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+# specify '_unitdir' macro for platforms that don't use 'systemd'
+%if 0%{?rhel} || 0%{?fedora} < 16
+%define           _unitdir /lib/systemd/system
+%endif
 
 BuildRequires:    cmake
 BuildRequires:    nspr-devel
@@ -31,16 +36,15 @@ Requires:         pki-setup
 Requires:         perl-DBD-SQLite
 Requires:         sqlite
 Requires:         /usr/sbin/sendmail
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
 Requires:         initscripts
 %endif
 
@@ -109,7 +113,8 @@ chmod +x %{__perl_requires}
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_RA:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_RA:BOOL=ON .. \
+    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir}
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -146,7 +151,14 @@ echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfile
 echo "D /var/run/pki/ra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
 %endif
 
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_initrddir}/pki-rad
+%else
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-rad.target.wants
+%{__rm} -rf %{buildroot}%{_unitdir}
+%endif
 
+%if 0%{?rhel} || 0%{?fedora} < 16
 %post
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-rad || :
@@ -164,11 +176,55 @@ if [ "$1" -ge "1" ] ; then
     /sbin/service pki-rad condrestart >/dev/null 2>&1 || :
 fi
 
+%else
+%post
+# Attempt to update ALL old "RA" instances to "systemd"
+if [ -d /etc/sysconfig/pki/ra ]; then
+    for inst in `ls /etc/sysconfig/pki/ra`; do
+        if [ ! -e "/etc/systemd/system/pki-rad.target.wants/pki-rad@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-rad@.service" \
+                  "/etc/systemd/system/pki-rad.target.wants/pki-rad@${inst}.service"
+
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-rad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-rad@${inst}.service || :
+            else
+                echo "pkicreate.systemd.servicename=pki-rad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+%preun
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-rad.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-rad.target > /dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-rad.target >/dev/null 2>&1 || :
+fi
+%endif
+
 
 %files
 %defattr(-,root,root,-)
 %doc base/ra/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-rad.target.wants
+%{_unitdir}/pki-rad@.service
+%{_unitdir}/pki-rad.target
+%else
 %{_initrddir}/pki-rad
+%endif
 %dir %{_datadir}/pki/ra
 %{_datadir}/pki/ra/conf/
 %{_datadir}/pki/ra/docroot/
@@ -188,6 +244,10 @@ fi
 
 
 %changelog
+* Mon Aug 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.a1
+- Added systemd scripts
+- Ported config files and init scripts to apache 2.4
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 
