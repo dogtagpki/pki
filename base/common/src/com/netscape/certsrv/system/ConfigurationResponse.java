@@ -20,8 +20,6 @@ package com.netscape.certsrv.system;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -32,7 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.cms.servlet.csadmin.Cert;
 
 /**
  * @author alee
@@ -54,20 +51,6 @@ public class ConfigurationResponse {
     public ConfigurationResponse() {
         systemCerts = new ArrayList<SystemCertData>();
         adminCert = new SystemCertData();
-    }
-
-    public void setSystemCerts(Vector<Cert> certs) {
-        systemCerts.clear();
-        Enumeration<Cert> e = certs.elements();
-        while (e.hasMoreElements()) {
-            Cert cert = e.nextElement();
-            SystemCertData cdata = new SystemCertData();
-            cdata.setCert(cert.getCert());
-            cdata.setRequest(cert.getRequest());
-            cdata.setTag(cert.getCertTag());
-            cdata.setCertChain(cert.getCertChain());
-            systemCerts.add(cdata);
-        }
     }
 
     /**

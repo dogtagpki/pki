@@ -545,7 +545,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // submitting to external ca
         if ((data.getIssuingCA()!= null) && data.getIssuingCA().equals("External CA") && (!hasSigningCert)) {
-            response.setSystemCerts(certs);
+            response.setSystemCerts(SystemCertDataFactory.create(certs));
             return response;
         }
 
@@ -564,7 +564,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new PKIException("Error in confguring system certificates");
             }
         }
-        response.setSystemCerts(certs);
+        response.setSystemCerts(SystemCertDataFactory.create(certs));
 
         // BackupKeyCertPanel/SavePKCS12Panel
         if (data.getBackupKeys().equals("true")) {
