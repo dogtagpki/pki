@@ -30,6 +30,7 @@
 #include "apdu/List_Objects_APDU.h"
 #include "apdu/Create_Object_APDU.h"
 #include "apdu/Generate_Key_APDU.h"
+#include "apdu/Generate_Key_ECC_APDU.h"
 #include "apdu/External_Authenticate_APDU.h"
 #include "apdu/Initialize_Update_APDU.h"
 #include "apdu/Lifecycle_APDU.h"
@@ -583,7 +584,7 @@ RA_Conn::CreateAPDU (RA_Token * tok, Buffer & in_apdu_data, Buffer & mac)
 	}
 
     }
-  else if (((BYTE *) apdu_data)[1] == 0x0C)
+  else if ((((BYTE *) apdu_data)[1] == 0x0C) || (((BYTE *) apdu_data)[1] == 0x0D)) // for both RSA (0x0C) and ECC (0x0D)
     {
       /* Generate_Key_APDU */
       BYTE p[2];
@@ -602,9 +603,16 @@ RA_Conn::CreateAPDU (RA_Token * tok, Buffer & in_apdu_data, Buffer & mac)
 				      ((BYTE *) apdu_data)[11 + wc_len + 1],
 				      (unsigned int) ((BYTE *) apdu_data)[11 +
 									  wc_len]);
-      apdu =
-	new Generate_Key_APDU (p[0], p[1], alg, keysize, option, type,
+      if (((BYTE *) apdu_data)[1] == 0x0D) {
+          apdu =
+	          new Generate_Key_ECC_APDU (p[0], p[1], alg, keysize, option, type,
 			       *wrapped_challenge, *key_check);
+      } else {
+          apdu =
+          	  new Generate_Key_APDU (p[0], p[1], alg, keysize, option, type,
+			       *wrapped_challenge, *key_check);
+      }
+
       if (wrapped_challenge != NULL)
 	{
 	  delete wrapped_challenge;
