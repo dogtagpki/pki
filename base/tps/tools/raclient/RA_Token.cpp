@@ -25,6 +25,7 @@
 #include "apdu/APDU_Response.h"
 #include "apdu/Initialize_Update_APDU.h"
 #include "apdu/Generate_Key_APDU.h"
+#include "apdu/Generate_Key_ECC_APDU.h"
 #include "apdu/Put_Key_APDU.h"
 #include "apdu/Select_APDU.h"
 #include "apdu/Get_Data_APDU.h"
@@ -39,8 +40,102 @@
 #include "keyhi.h"
 #include "nss.h"
 #include "cert.h"
+#include "secoidt.h"
 
+#define VERBOSE
 //#define VERIFY_PROOF
+
+#define DEFAULT_CURVE_OID_TAG  SEC_OID_SECG_EC_SECP192R1
+/* #define DEFAULT_CURVE_OID_TAG  SEC_OID_SECG_EC_SECP160R1 */
+
+/* curveNameTagPair is borrowed from certutil */
+typedef struct curveNameTagPairStr {
+    char *curveName;
+    SECOidTag curveOidTag;
+} CurveNameTagPair;
+
+static CurveNameTagPair nameTagPair[] =
+{ 
+  { "sect163k1", SEC_OID_SECG_EC_SECT163K1},
+  { "nistk163", SEC_OID_SECG_EC_SECT163K1},
+  { "sect163r1", SEC_OID_SECG_EC_SECT163R1},
+  { "sect163r2", SEC_OID_SECG_EC_SECT163R2},
+  { "nistb163", SEC_OID_SECG_EC_SECT163R2},
+  { "sect193r1", SEC_OID_SECG_EC_SECT193R1},
+  { "sect193r2", SEC_OID_SECG_EC_SECT193R2},
+  { "sect233k1", SEC_OID_SECG_EC_SECT233K1},
+  { "nistk233", SEC_OID_SECG_EC_SECT233K1},
+  { "sect233r1", SEC_OID_SECG_EC_SECT233R1},
+  { "nistb233", SEC_OID_SECG_EC_SECT233R1},
+  { "sect239k1", SEC_OID_SECG_EC_SECT239K1},
+  { "sect283k1", SEC_OID_SECG_EC_SECT283K1},
+  { "nistk283", SEC_OID_SECG_EC_SECT283K1},
+  { "sect283r1", SEC_OID_SECG_EC_SECT283R1},
+  { "nistb283", SEC_OID_SECG_EC_SECT283R1},
+  { "sect409k1", SEC_OID_SECG_EC_SECT409K1},
+  { "nistk409", SEC_OID_SECG_EC_SECT409K1},
+  { "sect409r1", SEC_OID_SECG_EC_SECT409R1},
+  { "nistb409", SEC_OID_SECG_EC_SECT409R1},
+  { "sect571k1", SEC_OID_SECG_EC_SECT571K1},
+  { "nistk571", SEC_OID_SECG_EC_SECT571K1},
+  { "sect571r1", SEC_OID_SECG_EC_SECT571R1},
+  { "nistb571", SEC_OID_SECG_EC_SECT571R1},
+  { "secp160k1", SEC_OID_SECG_EC_SECP160K1},
+  { "secp160r1", SEC_OID_SECG_EC_SECP160R1},
+  { "secp160r2", SEC_OID_SECG_EC_SECP160R2},
+  { "secp192k1", SEC_OID_SECG_EC_SECP192K1},
+  { "secp192r1", SEC_OID_SECG_EC_SECP192R1},
+  { "nistp192", SEC_OID_SECG_EC_SECP192R1},
+  { "secp224k1", SEC_OID_SECG_EC_SECP224K1},
+  { "secp224r1", SEC_OID_SECG_EC_SECP224R1},
+  { "nistp224", SEC_OID_SECG_EC_SECP224R1},
+  { "secp256k1", SEC_OID_SECG_EC_SECP256K1},
+  { "secp256r1", SEC_OID_SECG_EC_SECP256R1},
+  { "nistp256", SEC_OID_SECG_EC_SECP256R1},
+  { "secp384r1", SEC_OID_SECG_EC_SECP384R1},
+  { "nistp384", SEC_OID_SECG_EC_SECP384R1},
+  { "secp521r1", SEC_OID_SECG_EC_SECP521R1},
+  { "nistp521", SEC_OID_SECG_EC_SECP521R1},
+
+  { "prime192v1", SEC_OID_ANSIX962_EC_PRIME192V1 },
+  { "prime192v2", SEC_OID_ANSIX962_EC_PRIME192V2 },
+  { "prime192v3", SEC_OID_ANSIX962_EC_PRIME192V3 },
+  { "prime239v1", SEC_OID_ANSIX962_EC_PRIME239V1 },
+  { "prime239v2", SEC_OID_ANSIX962_EC_PRIME239V2 },
+  { "prime239v3", SEC_OID_ANSIX962_EC_PRIME239V3 },
+
+  { "c2pnb163v1", SEC_OID_ANSIX962_EC_C2PNB163V1 },
+  { "c2pnb163v2", SEC_OID_ANSIX962_EC_C2PNB163V2 },
+  { "c2pnb163v3", SEC_OID_ANSIX962_EC_C2PNB163V3 },
+  { "c2pnb176v1", SEC_OID_ANSIX962_EC_C2PNB176V1 },
+  { "c2tnb191v1", SEC_OID_ANSIX962_EC_C2TNB191V1 },
+  { "c2tnb191v2", SEC_OID_ANSIX962_EC_C2TNB191V2 },
+  { "c2tnb191v3", SEC_OID_ANSIX962_EC_C2TNB191V3 },
+  { "c2onb191v4", SEC_OID_ANSIX962_EC_C2ONB191V4 },
+  { "c2onb191v5", SEC_OID_ANSIX962_EC_C2ONB191V5 },
+  { "c2pnb208w1", SEC_OID_ANSIX962_EC_C2PNB208W1 },
+  { "c2tnb239v1", SEC_OID_ANSIX962_EC_C2TNB239V1 },
+  { "c2tnb239v2", SEC_OID_ANSIX962_EC_C2TNB239V2 },
+  { "c2tnb239v3", SEC_OID_ANSIX962_EC_C2TNB239V3 },
+  { "c2onb239v4", SEC_OID_ANSIX962_EC_C2ONB239V4 },
+  { "c2onb239v5", SEC_OID_ANSIX962_EC_C2ONB239V5 },
+  { "c2pnb272w1", SEC_OID_ANSIX962_EC_C2PNB272W1 },
+  { "c2pnb304w1", SEC_OID_ANSIX962_EC_C2PNB304W1 },
+  { "c2tnb359v1", SEC_OID_ANSIX962_EC_C2TNB359V1 },
+  { "c2pnb368w1", SEC_OID_ANSIX962_EC_C2PNB368W1 },
+  { "c2tnb431r1", SEC_OID_ANSIX962_EC_C2TNB431R1 },
+
+  { "secp112r1", SEC_OID_SECG_EC_SECP112R1},
+  { "secp112r2", SEC_OID_SECG_EC_SECP112R2},
+  { "secp128r1", SEC_OID_SECG_EC_SECP128R1},
+  { "secp128r2", SEC_OID_SECG_EC_SECP128R2},
+
+  { "sect113r1", SEC_OID_SECG_EC_SECT113R1},
+  { "sect113r2", SEC_OID_SECG_EC_SECT113R2},
+  { "sect131r1", SEC_OID_SECG_EC_SECT131R1},
+  { "sect131r2", SEC_OID_SECG_EC_SECT131R2},
+};
+
 
 static BYTE
 ToVal (char c)
@@ -134,6 +229,7 @@ RA_Token::RA_Token ()
   m_pin = PL_strdup ("password");
   m_object_len = 0;
   m_object = NULL;
+  m_tokenpassword = NULL;
 }
 
 
@@ -833,36 +929,71 @@ GetMusclePublicKeyData (SECKEYPublicKey * pubKey, int keylen)
 }
 
 static Buffer
-Sign (SECKEYPrivateKey * privKey, Buffer & blob)
+GetMusclePublicKeyDataEC (SECKEYPublicKey * pubKey, int keylen)
 {
-  SECStatus status;
+  Buffer pk = 
+          Buffer ((BYTE *) pubKey->u.ec.publicValue.data, pubKey->u.ec.publicValue.len);
+
+  Buffer blob = Buffer (1, (BYTE) 0) +
+	      Buffer (1, (BYTE) 0x0a) +  /* key type EC */
+	      Buffer (1, (BYTE) (keylen / 256)) + /* key size */
+	      Buffer (1, (BYTE) (keylen % 256)) +
+	      Buffer (1, (BYTE) (pk.size() >> 8) & 0xff) + /*pubkey blob len*/ 
+          Buffer (1, (BYTE) pk.size() & 0xff) + pk; 
+Output("pk =");
+    printBuf(&pk);
+  return pk;
+}
+
+static Buffer
+Sign (SECOidTag sigAlg, SECKEYPrivateKey * privKey, Buffer & blob)
+{
+  SECStatus status = SECFailure;
 
   SECItem sigitem;
-  int signature_len;
+  int signature_len = 0;;
 
   signature_len = PK11_SignatureLen (privKey);
   sigitem.len = signature_len;
   sigitem.data = (unsigned char *) PORT_Alloc (signature_len);
 
   status = SEC_SignData (&sigitem, (BYTE *) blob, blob.size (), privKey,
-			 SEC_OID_ISO_SHA_WITH_RSA_SIGNATURE);
-  if (status != SECSuccess)
-    {
-      printf ("Signing error\n");
-      if (sigitem.data != NULL)
-	{
-	  PORT_Free (sigitem.data);
-	  sigitem.data = NULL;
-	}
-      return Buffer (16, (BYTE) 0);	// sucks
-    }
+			 sigAlg);
+
+  if (status != SECSuccess) {
+       char buffer[1024];
+       PR_GetErrorText (buffer);
+
+       printf ("Signing error:%d %s\n",PR_GetError(), buffer);
+       if (sigitem.data != NULL) {
+           PORT_Free (sigitem.data);
+	       sigitem.data = NULL;
+        }
+
+      /*fake proof for ECC until it works*/
+      char fake_proof [] = {
+            0x30 ,0x44 ,0x02 ,0x20 ,0x00,
+            0xd6 ,0xc2 ,0x08 ,0x34 ,0x79 ,0x28 ,0x2e ,0x5f ,0x70 ,0xe5,
+            0x38 ,0x1d ,0x84 ,0xa9 ,0x40 ,0x05 ,0x65 ,0x67 ,0x0f ,0x65,
+            0x46 ,0x5d ,0xf7 ,0x68 ,0x37 ,0x86 ,0x0b ,0x66 ,0xf7 ,0x71,
+            0x0e ,0x02 ,0x20 ,0x3f ,0x48 ,0xdf ,0x29 ,0xa1 ,0x0e ,0xfb,
+            0xdf ,0x38 ,0x26 ,0x9d ,0x54 ,0x01 ,0xbc ,0xb6 ,0x9d ,0xc0,
+            0xbf ,0x27 ,0x29 ,0x95 ,0x97 ,0x3c ,0x2f ,0xef ,0xb1 ,0xd2,
+            0xdc ,0x9f ,0xcb ,0x03 ,0x8d
+      };
+
+/*      return Buffer (16, (BYTE) 0);	// sucks*/
+
+      Output("returning fake proof");
+      return Buffer ((BYTE *)fake_proof, (unsigned int)sizeof(fake_proof));
+  }
 
   Buffer proof = Buffer (sigitem.data, signature_len);
-  if (sigitem.data != NULL)
-    {
+  if (sigitem.data != NULL) {
       PORT_Free (sigitem.data);
       sigitem.data = NULL;
-    }
+  }
+  Output("returning real proof");
   return proof;
 }
 
@@ -884,6 +1015,31 @@ GetKeyBlob (int keysize, SECKEYPublicKey * pubKey)
 }
 
 static Buffer
+GetKeyBlobEC (int keysize, SECKEYPublicKey * pubKey)
+{
+    Buffer pubKeyBlob = 
+          Buffer ((BYTE *) pubKey->u.ec.publicValue.data, pubKey->u.ec.publicValue.len);
+#ifdef VERBOSE
+Output("in GetKeyBlobEC, pubkey blob len =%d", pubKeyBlob.size());
+#endif
+
+    Buffer blob = Buffer (1, (BYTE) 0) +
+	      Buffer (1, (BYTE) 0x0a) +  /* key type EC */
+	      Buffer (1, (BYTE) (keysize / 256)) + /* key size */
+	      Buffer (1, (BYTE) (keysize % 256)) +
+	      Buffer (1, (BYTE) (pubKeyBlob.size() >> 8) & 0xff) + /*pubkey blob len*/ 
+          Buffer (1, (BYTE) pubKeyBlob.size() & 0xff) +
+          pubKeyBlob;
+
+#ifdef VERBOSE
+Output("GetKeyBlobEC: blob =");
+printBuf(&blob);
+#endif
+    return blob;
+
+}
+
+static Buffer
 GetSignBlob (Buffer & muscle_public_key, Buffer & challenge)
 {
   int i, j;
@@ -898,9 +1054,14 @@ GetSignBlob (Buffer & muscle_public_key, Buffer & challenge)
     {
       ((BYTE *) data)[i] = ((BYTE *) challenge)[j];
     }
+Output("datablob =");
+    printBuf(&data);
   return data;
 }
 
+/*
+ * for RSA keys
+ */
 APDU_Response *
 RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 			      NameValueSet * vars, NameValueSet * params)
@@ -957,8 +1118,10 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 
   /* generate key pair */
   char *keygen_param = params->GetValue ("keygen");
+ 
   if (keygen_param == NULL || (strcmp (keygen_param, "true") == 0))
     {
+      Output("keygen is true");
       privKey = PK11_GenerateKeyPair (slot, mechanism,
 				      x_params, &pubKey,
 				      PR_FALSE /*isPerm */ ,
@@ -966,12 +1129,14 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 				      NULL /*wincx */ );
       if (privKey == NULL)
 	{
+      Output("privKey NULL");
 	  // printf("privKey == NULL\n");
 	  buffer_size = 1024;	/* testing */
 	}
       else
 	{
 
+    Output("privKey not NULL");
 	  /* put key in the buffer */
 	  // printf("modulus len %d\n", pubKey->u.rsa.modulus.len);
 	  // printf("exponent len %d\n", pubKey->u.rsa.publicExponent.len);
@@ -1001,7 +1166,7 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 	  Buffer data_blob = GetSignBlob ( /*muscle_public_key */ blob,
 					  challenge);
 //              printf("after getsignblob, blob size =%d",blob.size());
-	  Buffer proof = Sign (privKey, data_blob);
+	  Buffer proof = Sign (SEC_OID_ISO_SHA_WITH_RSA_SIGNATURE, privKey, data_blob);
 //              printf("begin verifying proof");
 	  unsigned char *pkeyb = (unsigned char *) (BYTE *) data_blob;
 	  int pkeyb_len = data_blob.size ();
@@ -1036,6 +1201,7 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 	      return apdu_resp;
 
 	    }
+      Output("after VerifyProof");
 
 	  m_buffer =
 	    Buffer (1, (BYTE) (blob.size () / 256)) +
@@ -1049,8 +1215,9 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
     }
   else
     {
-      // fake key
-      BYTE fake_key[] = {
+      Output("keygen is false");
+      // fake RSA key
+      BYTE fake_RSA_key[] = {
 	0x00, 0x8b, 0x00, 0x01, 0x04, 0x00, 0x00, 0x80, 0x9f, 0xf9,
 	0x6e, 0xa6, 0x6c, 0xd9, 0x4b, 0x5c, 0x1a, 0xb6, 0xd8, 0x78,
 	0xd2, 0xaf, 0x45, 0xd5, 0xce, 0x8a, 0xee, 0x69, 0xfc, 0xdb,
@@ -1068,16 +1235,363 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 	0x01, 0x00, 0x80, 0x58, 0x06, 0x40, 0x4e, 0x05, 0xd8, 0x54,
 	0x87, 0xb1, 0x5b, 0xfc, 0x67, 0x95, 0xe5
       };
-      m_buffer = Buffer ((BYTE *) fake_key, sizeof fake_key);
+
+      m_buffer = Buffer ((BYTE *) fake_RSA_key, sizeof fake_RSA_key);
       buffer_size = m_buffer.size ();
     }
 
-
+  Output("creating new APDU_Response, data = ");
   Buffer data = Buffer (1, (BYTE) (buffer_size >> 8) & 0xff) +	// key length
     Buffer (1, (BYTE) buffer_size & 0xff) +	// key length 
     Buffer (1, (BYTE) 0x90) + Buffer (1, (BYTE) 0x00);
+  printBuf(&data);
+
   APDU_Response *apdu_resp = new APDU_Response (data);
   return apdu_resp;
+}
+
+
+SECKEYECParams * 
+RA_Token::getECParams(const char *curve)
+{
+/*This function is borrowed from certutil*/
+    SECKEYECParams *ecparams = NULL;
+    SECOidData *oidData = NULL;
+    SECOidTag curveOidTag = SEC_OID_UNKNOWN; /* default */
+    int i, numCurves;
+
+    if (curve != NULL) {
+        numCurves = sizeof(nameTagPair)/sizeof(CurveNameTagPair);
+        for (i = 0; ((i < numCurves) && (curveOidTag == SEC_OID_UNKNOWN)); 
+            i++) {
+            if (PL_strcmp(curve, nameTagPair[i].curveName) == 0)
+              curveOidTag = nameTagPair[i].curveOidTag;
+        }
+    }
+
+    /* Return NULL if curve name is not recognized */
+    if ((curveOidTag == SEC_OID_UNKNOWN) || 
+    (oidData = SECOID_FindOIDByTag(curveOidTag)) == NULL) {
+        fprintf(stderr, "Unrecognized elliptic curve %s\n", curve);
+        return NULL;
+    }
+
+    ecparams = SECITEM_AllocItem(NULL, NULL, (2 + oidData->oid.len));
+
+    /* 
+     * ecparams->data needs to contain the ASN encoding of an object ID (OID)
+     * representing the named curve. The actual OID is in 
+     * oidData->oid.data so we simply prepend 0x06 and OID length
+     */
+    ecparams->data[0] = SEC_ASN1_OBJECT_ID;
+    ecparams->data[1] = oidData->oid.len;
+    memcpy(ecparams->data + 2, oidData->oid.data, oidData->oid.len);
+
+    return ecparams;
+}
+
+static int ReadLine(PRFileDesc *f, char *buf, int buf_len, int *removed_return)
+{
+    char *cur = buf;
+    int sum = 0;
+    PRInt32 rc;
+
+    if (removed_return != NULL) {
+        *removed_return = 0;
+    }
+    while (1) {
+        rc = PR_Read(f, cur, 1);
+        if (rc == -1 || rc == 0)
+            break;
+        if (*cur == '\r') {
+            continue;
+        }
+        if (*cur == '\n') {
+            *cur = '\0';
+            if (removed_return != NULL) {
+                *removed_return = 1;
+            }
+            break;
+       }
+       sum++;
+       cur++;
+    }
+    return sum;
+}
+
+
+char *
+RA_Token::getModulePasswordText(PK11SlotInfo *slot, PRBool retry, void *arg) {
+    secuPWData *pwdata = (secuPWData *)arg;
+    if (pwdata->data != NULL) {
+        return PL_strdup(pwdata->data);
+    } else {
+        Output("getModulePasswordText: password not found");
+        return NULL;
+    }
+}
+
+/*
+ * for EC keys
+ */
+APDU_Response *
+RA_Token::ProcessGenerateKeyECC (Generate_Key_ECC_APDU * apdu,
+        NameValueSet * vars, NameValueSet * params)
+{
+    CK_MECHANISM_TYPE mechanism = CKM_EC_KEY_PAIR_GEN;
+    SECKEYPrivateKey *privKey = NULL;
+    SECKEYPublicKey *pubKey = NULL;
+    PK11SlotInfo *slot =  NULL;
+    int buffer_size = 0;
+
+    // for testing only
+#ifdef VERBOSE
+    Output ("RA_Token::ProcessGenerateKeyECC");
+#endif
+    if (vars->GetValueAsBool("test_enable", 0) == 1) {
+        if (vars->GetValueAsBool("test_apdu_gk_return_enable", 0) == 1) {
+          Buffer *data = ToBuffer (vars->GetValue ("test_apdu_gk_return"));
+          APDU_Response *apdu_resp = new APDU_Response (*data);
+          return apdu_resp;
+        }
+    }
+
+    if (VerifyMAC (apdu) != 1) {
+        Buffer data = Buffer (1, (BYTE) 0x6a) + Buffer (1, (BYTE) 0x88);
+        APDU_Response *apdu_resp = new APDU_Response (data);
+        return apdu_resp;
+    }
+
+    Buffer req = apdu->GetData ();
+    BYTE *raw = (BYTE *) req;
+    int keysize = (((BYTE *) req)[1] << 8) + ((BYTE *) req)[2];
+#ifdef VERBOSE
+    Output("Requested key size: %d", keysize);
+#endif
+    char *keycurve = NULL;
+    /* only three curves are supported by token */
+    if (keysize == 256) {
+        keycurve = "nistp256";
+    } else if (keysize == 384) {
+        keycurve = "nistp384";
+    } else if (keysize == 521) {
+        keycurve = "nistp521";
+    } else {
+        Output("unsupported key size: %d, default to nistp256", keysize);
+        keycurve = "nistp256";
+    }
+
+    int wrapped_challenge_len = ((BYTE *) req)[5];
+#ifdef VERBOSE
+    printf("Challenged Size=%d\n", wrapped_challenge_len);
+#endif
+    Buffer wrapped_challenge = Buffer ((BYTE *) & raw[6],
+        wrapped_challenge_len);
+
+    PK11AttrFlags attrFlags = 0;
+
+    /* generate key pair */
+    char *keygen_param = params->GetValue ("keygen");
+ 
+    if (keygen_param == NULL || (strcmp (keygen_param, "true") == 0)) {
+#ifdef VERBOSE
+        Output("EC keygen is true");
+#endif
+        /*
+         * slotnamefile contains the actual slot name.
+         * This is to overcome the issue with spaces in a token name
+         */
+        char *slotnamefile = params->GetValue("slotnamefile");
+        int removed_return = 0;
+        char slotname[500] = "internal";
+        PRFileDesc *fd_slotname = (PRFileDesc *) NULL;
+        if (slotnamefile == NULL) {
+            slot = PK11_GetInternalKeySlot();
+        } else {
+            fd_slotname = PR_Open(slotnamefile, PR_RDWR, 00400|00200);
+            int n = ReadLine(fd_slotname, slotname, 500, &removed_return);
+            slot = PK11_FindSlotByName(slotname);
+        }
+
+        Output("slotname=%s ",slotname);
+        if (slot == NULL) {
+            Output("slot NULL");
+            exit(1);
+        } else {
+            Output("using slot : %s", slotname);
+        }
+
+        RA_Token::m_tokenpassword = params->GetValue("tokpasswd");
+        /* log into token using plaintext*/
+        secuPWData pwdata = {pwdata.PW_NONE, 0};
+        pwdata.source = pwdata.PW_PLAINTEXT;
+        pwdata.data = RA_Token::m_tokenpassword;
+        PK11_SetPasswordFunc(RA_Token::getModulePasswordText);
+
+        if (PK11_NeedLogin(slot)) {
+            Output("slot needs login");
+            SECStatus rv = SECFailure;
+            rv  = PK11_Authenticate(slot, PR_TRUE, &pwdata);
+            Output("after PK11_Authenticate");
+            if (rv == SECSuccess) {
+                Output("token authenticated\n");
+            } else {
+                Output("Could not get password for %s",
+                    PK11_GetTokenName(slot));
+            }
+            if (PK11_IsLoggedIn(slot, &pwdata)) {
+                Output("token logged in");
+            } else {
+                Output("token not logged in");
+            }
+        }
+
+        SECKEYECParams *ecparams = getECParams(keycurve);
+        if (ecparams == NULL) {
+            Output("getECParams() returns NULL");
+            exit(1);
+        } else {
+            Output("getECParams() returns not NULL");
+        }
+
+        Output("before calling PK11_GenerateKeyPair");
+        privKey = PK11_GenerateKeyPair(slot,
+                                          mechanism,
+                                          ecparams,
+                                          &pubKey,
+                                          PR_TRUE /*isPerm*/,
+                                          PR_TRUE /*isSensitive*/,
+                                          &pwdata /*wincx*/);
+        Output("after calling PK11_GenerateKeyPair");
+
+        if (ecparams) {
+            SECITEM_FreeItem((SECItem *)ecparams, PR_TRUE);
+        }
+        if ((privKey == NULL) || (pubKey == NULL)) {
+            /*not good. should bail*/
+            Output("privKey == NULL, fatal error.");
+            exit(1);
+        } else {
+#ifdef VERBOSE
+Output("privKey not NULL");
+#endif
+            /* put key in the buffer */
+            Buffer blob = GetKeyBlobEC (keysize, pubKey);
+
+/*
+ * The key generation operation creates a proof-of-location for the
+ * newly generated key. This proof is a signature computed with the 
+ * new private key using the ECDSA_SHA1signature algorithm.  The 
+ * signature is computed over the Muscle Key Blob representation of 
+ * the new public key and the challenge sent in the key generation 
+ * request.  These two data fields are concatenated together to form
+ * the input to the signature, without any other data or length fields.
+ */
+
+            Buffer challenge = Buffer (16, (BYTE) 0x00);
+#ifdef VERBOSE
+            printf("Encrypted Enrollment Challenge:\n");
+            wrapped_challenge.dump();
+#endif
+            Util::DecryptData (m_kek_key, wrapped_challenge, challenge);
+
+#ifdef VERBOSE
+            printf("Enrollment Challenge:\n");
+            challenge.dump();
+            printf("after challenge dump");
+#endif
+            Buffer muscle_public_key = GetMusclePublicKeyDataEC (pubKey, keysize);
+#ifdef VERBOSE
+            printf("after muscle_public_key get, muscle_public_key size=%d", muscle_public_key.size());
+#endif
+            Buffer data_blob = GetSignBlob ( /*muscle_public_key */ blob,
+                challenge);
+            Output("after getsignblob, blob size =%d",blob.size());
+            Buffer proof = Sign (SEC_OID_ANSIX962_ECDSA_SHA1_SIGNATURE, privKey, data_blob);
+
+#ifdef VERBOSE
+            printf("begin verifying proof");
+#endif
+            unsigned char *pkeyb = (unsigned char *) (BYTE *) data_blob;
+            int pkeyb_len = data_blob.size ();
+
+Output("skipping VerifyProof");
+#ifdef VERIFY_PROOF
+            SECItem siProof;
+            siProof.type = (SECItemType) 0;
+            siProof.data = (unsigned char *) proof;
+            siProof.len = proof.size ();
+
+            if (VerifyProof (pubKey, &siProof, pkeyb_len, pkeyb, &challenge) != 1)
+            {
+
+            Output ("VerifyProof failed");
+            Buffer data = Buffer (1, (BYTE) 0x6a) + Buffer (1, (BYTE) 0x88);
+            APDU_Response *apdu_resp = new APDU_Response (data);
+            return apdu_resp;
+
+            }
+
+Output("after VerifyProof");
+Output("blob.size=%d", blob.size());
+Output("pkeyb_len=", pkeyb_len);
+Output("proof.size=", proof.size());
+#endif /*VERIFY_PROOF */
+
+            /* ECC format */
+            m_buffer =
+                Buffer (1, (BYTE) (blob.size () / 256)) +
+            Buffer (1, (BYTE) (blob.size () % 256)) +
+                Buffer (blob) +
+            Buffer (1, (BYTE) (proof.size () / 256)) +
+            Buffer (1, (BYTE) (proof.size () % 256)) + Buffer (proof);
+            buffer_size = m_buffer.size ();
+        }  // if private key not NULL
+
+    } else {
+        Output("keygen is false, using fake EC key with nistp256");
+
+        // fake/static EC key
+        BYTE fake_EC_key[] = {
+            0x00, 0x47, // total length
+            0x00, 0x0a, // EC
+            0x01, 0x00, // keysize == 256
+            0x00, 0x41, // length of pubkey
+            // pubkey
+            0x04, 0xd2,
+            0x26 ,0x83 ,0x36 ,0x80 ,0x33 ,0x2d ,0x26 ,0xda ,0x76 ,0x97,
+            0xbb ,0x0b ,0xc8 ,0xc3 ,0x86 ,0xc9 ,0x70 ,0x36 ,0x9b ,0x40,
+            0x4c ,0xa4 ,0xec ,0x3a ,0x0b ,0xa5 ,0x89 ,0x67 ,0xde ,0xc4,
+            0x89 ,0x47 ,0x28 ,0x15 ,0xdd ,0x74 ,0x4b ,0xf8 ,0x21 ,0x18,
+            0x40 ,0x06 ,0xf9 ,0x28 ,0xc4 ,0x62 ,0x26 ,0xa1 ,0x59 ,0x59,
+            0x85 ,0x62 ,0xaf ,0xd0 ,0x5d ,0x43 ,0xde ,0xd7 ,0xb4 ,0xcf,
+            0xc5 ,0x5b ,0xee,
+            // proof size
+            0x00, 0x46,
+            //proof
+            0x30 ,0x44 ,0x02 ,0x20 ,0x00,
+            0xd6 ,0xc2 ,0x08 ,0x34 ,0x79 ,0x28 ,0x2e ,0x5f ,0x70 ,0xe5,
+            0x38 ,0x1d ,0x84 ,0xa9 ,0x40 ,0x05 ,0x65 ,0x67 ,0x0f ,0x65,
+            0x46 ,0x5d ,0xf7 ,0x68 ,0x37 ,0x86 ,0x0b ,0x66 ,0xf7 ,0x71,
+            0x0e ,0x02 ,0x20 ,0x3f ,0x48 ,0xdf ,0x29 ,0xa1 ,0x0e ,0xfb,
+            0xdf ,0x38 ,0x26 ,0x9d ,0x54 ,0x01 ,0xbc ,0xb6 ,0x9d ,0xc0,
+            0xbf ,0x27 ,0x29 ,0x95 ,0x97 ,0x3c ,0x2f ,0xef ,0xb1 ,0xd2,
+            0xdc ,0x9f ,0xcb ,0x03 ,0x8d
+          };
+
+          m_buffer = Buffer ((BYTE *) fake_EC_key, sizeof fake_EC_key);
+          buffer_size = m_buffer.size ();
+    }
+
+    Output("creating new APDU_Response, data = ");
+    Buffer data =
+         Buffer (1, (BYTE) (buffer_size >> 8) & 0xff) +  // key length
+        Buffer (1, (BYTE) buffer_size & 0xff) +  // key length 
+        Buffer (1, (BYTE) 0x90) + Buffer (1, (BYTE) 0x00);
+    printBuf(&data);
+
+    APDU_Response *apdu_resp = new APDU_Response (data);
+    return apdu_resp;
 }
 
 APDU_Response *
@@ -1994,6 +2508,10 @@ RA_Token::Process (APDU * apdu, NameValueSet * vars, NameValueSet * params)
   else if (apdu->GetType () == APDU_GENERATE_KEY)
     {
       resp = ProcessGenerateKey ((Generate_Key_APDU *) apdu, vars, params);
+    }
+  else if (apdu->GetType () == APDU_GENERATE_KEY_ECC)
+    {
+      resp = ProcessGenerateKeyECC ((Generate_Key_ECC_APDU *) apdu, vars, params);
     }
   else if (apdu->GetType () == APDU_IMPORT_KEY_ENC)
     {
