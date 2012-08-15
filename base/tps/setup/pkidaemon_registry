@@ -62,7 +62,7 @@ export RESTART_SERVER
 # available, but does not work with some modules (such as PHP).
 # The service must be stopped before changing this variable.
 #
-PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd.worker
+PKI_HTTPD=${PKI_FORTITUDE_DIR}/sbin/httpd
 export PKI_HTTPD
 
 #

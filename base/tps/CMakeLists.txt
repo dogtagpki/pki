@@ -43,6 +43,19 @@ add_subdirectory(tools)
 add_subdirectory(doc)
 add_subdirectory(setup)
 
+# install systemd scripts
+install(
+    FILES
+        lib/systemd/system/pki-tpsd.target
+        lib/systemd/system/pki-tpsd@.service
+    DESTINATION
+        ${SYSTEMD_LIB_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
 # install init script
 install(
     FILES
@@ -206,3 +219,8 @@ install(
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console/js
 )
 
+install(
+    DIRECTORY
+    DESTINATION
+        ${SYSTEMD_ETC_INSTALL_DIR}/pki-tpsd.target.wants
+)
