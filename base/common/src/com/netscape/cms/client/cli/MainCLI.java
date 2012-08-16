@@ -92,7 +92,7 @@ public class MainCLI extends CLI {
         option.setArgName("hostname");
         options.addOption(option);
 
-        option = new Option("p", true, "Port (default: 9180)");
+        option = new Option("p", true, "Port (default: 8080)");
         option.setArgName("port");
         options.addOption(option);
 
