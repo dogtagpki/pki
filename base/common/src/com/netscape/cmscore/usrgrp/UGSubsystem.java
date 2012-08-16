@@ -152,7 +152,6 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             if (mLdapConnFactory != null) {
                 mLdapConnFactory.reset();
-                mLdapConnFactory = null;
             }
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LDAP_SHUT", e.toString()));

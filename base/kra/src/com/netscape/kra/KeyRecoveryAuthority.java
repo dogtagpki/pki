@@ -456,14 +456,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (!mInitialized)
             return;
 
-        mTransportKeyUnit.shutdown();
-        mStorageKeyUnit.shutdown();
+        if (mTransportKeyUnit != null) {
+            mTransportKeyUnit.shutdown();
+        }
+
+        if (mStorageKeyUnit != null) {
+            mStorageKeyUnit.shutdown();
+        }
+
         if (mKeyDB != null) {
             mKeyDB.shutdown();
-            mKeyDB = null;
         }
+
         getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
                 ILogger.LL_INFO, mName.toString() + " is stopped");
+
         mInitialized = false;
     }
 

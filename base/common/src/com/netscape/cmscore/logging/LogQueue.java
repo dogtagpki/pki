@@ -66,7 +66,6 @@ public class LogQueue implements ILogQueue {
         for (int i = 0; i < mListeners.size(); i++) {
             mListeners.elementAt(i).shutdown();
         }
-        mListeners = null;
     }
 
     /**

@@ -114,12 +114,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      */
     public void shutdown() {
         mOCclassNames.clear();
-        mOCclassNames = null;
         mOCldapNames.clear();
-        mOCldapNames = null;
         mAttrufNames.clear();
-        mAttrufNames = null;
-        mConverter = null;
     }
 
     /**

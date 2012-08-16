@@ -408,10 +408,11 @@ public class PublisherProcessor implements
             CMS.debug("No LdapPublishing enabled");
         }
 
+        LdapRequestListener listener = null;
         if (mConfig.getBoolean(PROP_ENABLE, false)) {
-            mLdapRequestListener = new LdapRequestListener();
-            mLdapRequestListener.init(this, mLdapConfig);
-            mAuthority.registerRequestListener(mLdapRequestListener);
+            listener = new LdapRequestListener();
+            listener.init(this, mLdapConfig);
+            mAuthority.registerRequestListener(listener);
             IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
             if (queueConfig != null) {
                 boolean isPublishingQueueEnabled = queueConfig.getBoolean("enable", false);
@@ -431,6 +432,7 @@ public class PublisherProcessor implements
                                                 savePublishingStatus);
             }
         }
+        mLdapRequestListener = listener;
     }
 
     public void shutdown() {
@@ -439,7 +441,7 @@ public class PublisherProcessor implements
             if (mLdapConnModule != null) {
                 mLdapConnModule.getLdapConnFactory().reset();
             }
-            if (mLdapRequestListener != null) {
+            if (mAuthority != null && mLdapRequestListener != null) {
                 //mLdapRequestListener.shutdown();
                 mAuthority.removeRequestListener(mLdapRequestListener);
             }

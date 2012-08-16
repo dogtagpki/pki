@@ -833,7 +833,6 @@ public class DBSubsystem implements IDBSubsystem {
         try {
             if (mLdapConnFactory != null) {
                 mLdapConnFactory.reset();
-                mLdapConnFactory = null;
             }
         } catch (ELdapException e) {
 

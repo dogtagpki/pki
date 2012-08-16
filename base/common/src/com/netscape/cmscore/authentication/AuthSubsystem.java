@@ -466,11 +466,8 @@ public class AuthSubsystem implements IAuthSubsystem {
 
             mgr.shutdown();
         }
-
         mAuthMgrPlugins.clear();
-        mAuthMgrPlugins = null;
         mAuthMgrInsts.clear();
-        mAuthMgrInsts = null;
     }
 
     public Hashtable<String, AuthMgrPlugin> getPlugins() {

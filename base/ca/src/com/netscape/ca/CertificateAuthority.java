@@ -527,20 +527,19 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             CRLIssuingPoint point = (CRLIssuingPoint) enums.nextElement();
             point.shutdown();
         }
+        mCRLIssuePoints.clear();
 
         if (mMasterCRLIssuePoint != null) {
             mMasterCRLIssuePoint.shutdown();
         }
 
-        mSigningUnit = null;
-        mOCSPSigningUnit = null;
-        mCRLSigningUnit = null;
         if (mCertRepot != null) {
             mCertRepot.shutdown();
-            mCertRepot = null;
         }
-        mCRLRepot = null;
-        mPublisherProcessor.shutdown();
+
+        if (mPublisherProcessor != null) {
+            mPublisherProcessor.shutdown();
+        }
     }
 
     /**
@@ -1695,12 +1694,12 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         }
 
         // a Master/full crl must exist.
+        CRLIssuingPoint masterCRLIssuePoint = null;
 
         while (issuePointIdEnum.hasMoreElements()) {
             String issuePointId = issuePointIdEnum.nextElement();
 
-            CMS.debug(
-                    "initializing crl issue point " + issuePointId);
+            CMS.debug("initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
             Class<CRLIssuingPoint> issuePointClass = null;
@@ -1713,9 +1712,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 issuePoint = issuePointClass.newInstance();
                 issuePoint.init(this, issuePointId, issuePointConfig);
                 mCRLIssuePoints.put(issuePointId, issuePoint);
-                if (mMasterCRLIssuePoint == null &&
+
+                if (masterCRLIssuePoint == null &&
                         issuePointId.equals(PROP_MASTER_CRL))
-                    mMasterCRLIssuePoint = issuePoint;
+                    masterCRLIssuePoint = issuePoint;
+
             } catch (ClassNotFoundException e) {
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
@@ -1730,6 +1731,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                                 issuePointId, e.toString()));
             }
         }
+
+        mMasterCRLIssuePoint = masterCRLIssuePoint;
 
         /*
          if (mMasterCRLIssuePoint == null) {

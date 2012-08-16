@@ -246,8 +246,7 @@ public class PasswdUserDBAuthentication implements IAuthManager {
     public void shutdown() {
         try {
             // disconnect all outstanding connections in the factory
-            mConnFactory.reset();
-            mConnFactory = null;
+            if (mConnFactory != null) mConnFactory.reset();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, e.toString());
         }

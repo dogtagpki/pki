@@ -216,11 +216,9 @@ public class ProfileSubsystem implements IProfileSubsystem {
      * <P>
      */
     public void shutdown() {
-        mProfileIds.removeAllElements();
+        mProfileIds.clear();
         mProfiles.clear();
-        mProfiles = null;
         mProfileClassIds.clear();
-        mProfileClassIds = null;
     }
 
     /**

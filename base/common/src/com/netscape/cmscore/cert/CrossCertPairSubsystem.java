@@ -480,8 +480,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * Stops this system.
      */
     public synchronized void shutdown() {
-        mCa = null;
-        mPublisherProcessor = null;
         if (mLdapConnFactory != null) {
             try {
                 mLdapConnFactory.reset();
@@ -489,7 +487,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 CMS.debug("CrossCertPairSubsystem shutdown exception: " + e.toString());
             }
         }
-        mLdapConnFactory = null;
     }
 
     /*

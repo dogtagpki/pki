@@ -414,9 +414,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * <P>
      */
     public void shutdown() {
-        for (Enumeration<String> e = mAuthzMgrInsts.keys(); e.hasMoreElements();) {
-
-            IAuthzManager mgr = get(e.nextElement());
+        for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
+            IAuthzManager mgr = proxy.getAuthzManager();
 
             //String infoMsg =
             //        "Shutting down authz manager instance " + mgr.getName();
@@ -426,8 +425,6 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         }
         mAuthzMgrPlugins.clear();
         mAuthzMgrInsts.clear();
-        mAuthzMgrPlugins = null;
-        mAuthzMgrInsts = null;
     }
 
     public Hashtable<String, AuthzMgrPlugin> getPlugins() {

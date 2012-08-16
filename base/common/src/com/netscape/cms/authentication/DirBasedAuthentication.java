@@ -435,7 +435,6 @@ public abstract class DirBasedAuthentication
         try {
             if (mConnFactory != null) {
                 mConnFactory.reset();
-                mConnFactory = null;
             }
         } catch (ELdapException e) {
             // ignore

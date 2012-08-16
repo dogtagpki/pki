@@ -246,7 +246,6 @@ public class PluginRegistry implements IPluginRegistry {
      */
     public void shutdown() {
         mTypes.clear();
-        mTypes = null;
     }
 
     /**

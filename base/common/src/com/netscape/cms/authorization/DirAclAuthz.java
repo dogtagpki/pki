@@ -343,8 +343,7 @@ public class DirAclAuthz extends AAclAuthz
         }
 
         try {
-            mLdapConnFactory.reset();
-            mLdapConnFactory = null;
+            if (mLdapConnFactory != null) mLdapConnFactory.reset();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR", e.toString()));
         }
