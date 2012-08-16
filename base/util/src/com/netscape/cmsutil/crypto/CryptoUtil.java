@@ -659,7 +659,7 @@ public class CryptoUtil {
     }
 
     public static X509CertInfo createX509CertInfo(X509Key x509key,
-            int serialno, String issuername, String subjname, 
+            BigInteger serialno, String issuername, String subjname,
             Date notBefore, Date notAfter)
         throws IOException, 
                 CertificateException, 
@@ -675,7 +675,7 @@ public class CryptoUtil {
     }
 
     public static X509CertInfo createX509CertInfo(X509Key x509key,
-            int serialno, String issuername, String subjname, 
+            BigInteger serialno, String issuername, String subjname,
             Date notBefore, Date notAfter, String alg)
         throws IOException, 
                 CertificateException, 
