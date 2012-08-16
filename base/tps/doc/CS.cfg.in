@@ -377,7 +377,7 @@ preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.sslserver.dn=CN=[SERVER_NAME], OU=[PKI_INSTANCE_ID]
 preop.cert.sslserver.keysize.customsize=2048
 preop.cert.sslserver.keysize.size=2048
-preop.cert.sslserver.keysize.select=custom
+preop.cert.sslserver.keysize.select=default
 preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_ID]
 preop.cert.sslserver.profile=caInternalAuthServerCert
 preop.cert.sslserver.subsystem=tps
@@ -388,7 +388,7 @@ preop.cert.subsystem.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.subsystem.dn=CN=TPS Subsystem Certificate, OU=[PKI_INSTANCE_ID]
 preop.cert.subsystem.keysize.customsize=2048
 preop.cert.subsystem.keysize.size=2048
-preop.cert.subsystem.keysize.select=custom
+preop.cert.subsystem.keysize.select=default
 preop.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_ID]
 preop.cert.subsystem.profile=caInternalAuthSubsystemCert
 preop.cert.subsystem.subsystem=tps
@@ -399,7 +399,7 @@ preop.cert.audit_signing.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.audit_signing.dn=CN=TPS Audit Signing Certificate, OU=[PKI_INSTANCE_ID]
 preop.cert.audit_signing.keysize.customsize=2048
 preop.cert.audit_signing.keysize.size=2048
-preop.cert.audit_signing.keysize.select=custom
+preop.cert.audit_signing.keysize.select=default
 preop.cert.audit_signing.nickname=auditSigningCert cert-[PKI_INSTANCE_ID]
 preop.cert.audit_signing.profile=caInternalAuthAuditSigningCert
 preop.cert.audit_signing.subsystem=tps

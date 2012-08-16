@@ -91,13 +91,21 @@ sub update
         my $select = $q->param($certtag.'_choice');
         my $keytype = $q->param($certtag.'_keytype');
         my $size = $q->param($certtag.'_custom_size');
+        my $defaultSize = getDefaultSize($keytype);
 
         &PKI::TPS::Wizard::debug_log("SizePanel: update $certtag _choice=$select $certtag _keytype=$keytype customsize= $size");
 
         $::config->put("preop.keysize.select", $select);
         $::config->put("preop.cert.".$certtag.".keysize.select", $select);
 
-        if (! isSupportedSize($keytype, $size)) {
+        # sizematch is for checking if it's supported
+        my $sizematch = "";
+        if ($select eq "default") {
+            $sizematch = "$defaultSize";
+        } else {
+            $sizematch = "$size";
+        }
+        if (! isSupportedSize($keytype, $sizematch)) {
             &PKI::TPS::Wizard::debug_log("SizePanel: update size $size not supported");
             return 0;
         }
@@ -105,7 +113,6 @@ sub update
             $::config->put("preop.cert.".$certtag.".keytype", $keytype);
 
         if ($select eq "default") {
-            my $defaultSize = getDefaultSize($keytype);
             &PKI::TPS::Wizard::debug_log("SizePanel: update in default, defaultsize = $defaultSize");
             $::config->put("preop.keysize.customsize", $defaultSize);
             $::config->put("preop.keysize.size", $defaultSize);
@@ -134,7 +141,7 @@ sub getDefaultSize {
     my $keytype = $_[0];
 
     if ($keytype eq "ecc") {
-        return 256;
+        return "nistp256";
     } elsif ($keytype eq "rsa") {
         return 2048;
     }
@@ -147,26 +154,48 @@ sub isSupportedSize {
     my $keytype = $_[0];
     my $size = $_[1];
 
-    if (($keytype eq "ecc") && ($size ne "256")) {
-        &PKI::TPS::Wizard::debug_log("SizePanel: isSupportedSize ECC only supports size 256");
-        $::symbol{errorString} = "Unsupported Size $size. ECC only supports size 256";
+    if ($keytype eq "ecc") {
+        my $keys_ecc_curve_list = $::config->get("keys.ecc.curve.list");
+        if ($keys_ecc_curve_list eq "") {
+            $keys_ecc_curve_list = "nistp256,nistp384,nistp521,sect163k1,nistk163,sect163r1,sect163r2,nistb163,sect193r1,sect193r2,sect233k1,nistk233,sect233r1,nistb233,sect239k1,sect283k1,nistk283,sect283r1,nistb283,sect409k1,nistk409,sect409r1,nistb409,sect571k1,nistk571,sect571r1,nistb571,secp160k1,secp160r1,secp160r2,secp192k1,secp192r1,nistp192,secp224k1,secp224r1,nistp224,secp256k1,secp256r1,secp384r1,secp521r1,prime192v1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2";
+        }
+        my @curves = split(/,/, $keys_ecc_curve_list);
+        my $numcurves = @curves;
+        foreach my $curve (@curves) {
+           if ($size eq $curve) {
+               #found curve
+               return 1;
+           } 
+        }
+        &PKI::TPS::Wizard::debug_log("SizePanel: isSupportedSize: curve $size unsupported");
+        $::symbol{errorString} = "Unsupported curve $size. ECC only supports the the curves listed in Details";
+        return 0;
+    } else {
+        #RSA 
+        my $keys_rsa_size_list = $::config->get("keys.rsa.size.list");
+        if ($keys_rsa_size_list eq "") {
+            $keys_rsa_size_list = "1024,2048,3072,4096";
+        }
+        my @strengths = split(/,/, $keys_rsa_size_list);
+        my $numstrengths = @strengths;
+        foreach my $strength (@strengths) {
+           if ($size eq $strength) {
+               #found strength
+               return 1;
+           } 
+        }
+
+        # wrong size
+        $::symbol{errorString} = "Unsupported Size $size. RSA only supports the sizes listed in Details";
         return 0;
     }
-
-    if (($size eq "256") || ($size eq "512") || ($size eq "1024") ||
-        ($size eq "2048") || ($size eq "4096")) {
-        return 1;
-    }
-    # wrong size
-    $::symbol{errorString} = "Unsupported Size $size. RSA only supports sizes 256, 512, 1024, 2048, and 4096";
-    return 0;
 }
 
 sub display
 {
     my ($q) = @_;
 
-    &PKI::TPS::Wizard::debug_log("SizePanel: display");
+    &PKI::TPS::Wizard::debug_log("SizePanel: display begins");
 
     my $done = $::config->get("preop.SizePanel.done");
     &PKI::TPS::Wizard::debug_log("SizePanel: display is panel done? $done");
@@ -217,26 +246,54 @@ sub display
         &PKI::TPS::Wizard::debug_log("SizePanel: display keysize select= $select");
         $::symbol{select} = $select;
     }
+
     my $default_size = $::config->get("preop.keysize.size");
     if ($default_size eq "") {
         $::symbol{default_keysize} = 2048;
     } else {
         $::symbol{default_keysize} = $default_size;
     }
-    my $default_ecc_size =  $::config->get("preop.keysize.ecc.size");
-    if ($default_ecc_size eq "") {
-        $::symbol{default_ecc_keysize} = 256;
+
+    #keys.ecc.curve.default=nistp256
+    #keys.ecc.curve.display.list=nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2
+    #keys.ecc.curve.list=nistp256,nistp384,nistp521,sect163k1,nistk163,sect163r1,sect163r2,nistb163,sect193r1,sect193r2,sect233k1,nistk233,sect233r1,nistb233,sect239k1,sect283k1,nistk283,sect283r1,nistb283,sect409k1,nistk409,sect409r1,nistb409,sect571k1,nistk571,sect571r1,nistb571,secp160k1,secp160r1,secp160r2,secp192k1,secp192r1,nistp192,secp224k1,secp224r1,nistp224,secp256k1,secp256r1,secp384r1,secp521r1,prime192v1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2
+    my $keys_ecc_curve_list = $::config->get("keys.ecc.curve.list");
+    if ($keys_ecc_curve_list eq "") {
+        $::symbol{keys_ecc_curve_list} = "nistp256,nistp384,nistp521,sect163k1,nistk163,sect163r1,sect163r2,nistb163,sect193r1,sect193r2,sect233k1,nistk233,sect233r1,nistb233,sect239k1,sect283k1,nistk283,sect283r1,nistb283,sect409k1,nistk409,sect409r1,nistb409,sect571k1,nistk571,sect571r1,nistb571,secp160k1,secp160r1,secp160r2,secp192k1,secp192r1,nistp192,secp224k1,secp224r1,nistp224,secp256k1,secp256r1,secp384r1,secp521r1,prime192v1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2";
     } else {
-        $::symbol{default_ecc_keysize} = $default_ecc_size;
+        $::symbol{keys_ecc_curve_list} = $keys_ecc_curve_list;
+    }
+
+    my $keys_ecc_curve_display_list = $::config->get("keys.ecc.curve.display.list");
+    if ($keys_ecc_curve_display_list eq "") {
+        $::symbol{keys_ecc_curve_display_list} = "nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2"
+    } else {
+        $::symbol{keys_ecc_curve_display_list} = $keys_ecc_curve_display_list;
+    }
+
+    my $default_ecc_size =  $::config->get("preop.keysize.ecc.size");
+    if (($default_ecc_size eq "") || ($default_ecc_size eq "256")) {
+        $::symbol{default_ecc_curvename} = "nistp256";
+    } else {
+        $::symbol{default_ecc_curvename} = $default_ecc_size;
     }
 
     my $custom_size = $::config->get("preop.keysize.customsize");
-    if ($custom_size eq "") {
-        $::symbol{custom_size} = 2048;
+#just leave custom size blank if not set
+    if ($custom_size ne "") {
+        $::symbol{custom_size} = $custom_size;
     } else {
-        $::symbol{custom_size} = $default_size;
+        $::symbol{custom_size} = "enter size for RSA or curve name for ECC";
     }
 
+    my $keys_rsa_size_display_list = $::config->get("keys.rsa.size.list");
+    if ($keys_rsa_size_display_list eq "") {
+        $::symbol{keys_rsa_size_display_list} = "1024,2048,3072,4096";
+    } else {
+        $::symbol{keys_rsa_size_display_list} = $keys_rsa_size_display_list;
+    }
+
+    &PKI::TPS::Wizard::debug_log("SizePanel: display ends");
 
     return 1;
 }
