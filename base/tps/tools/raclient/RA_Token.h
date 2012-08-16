@@ -62,6 +62,7 @@
 #include "apdu/List_Objects_APDU.h"
 #include "apdu/Create_Pin_APDU.h"
 #include "apdu/Generate_Key_APDU.h"
+#include "apdu/Generate_Key_ECC_APDU.h"
 #include "apdu/Select_APDU.h"
 #include "apdu/Delete_File_APDU.h"
 #include "apdu/Get_Version_APDU.h"
@@ -75,6 +76,7 @@ typedef enum {
         mac,
         kek
         } keyType;
+
 
 class RA_Token
 {
@@ -103,6 +105,17 @@ class RA_Token
 	  void SetMinorVersion(int v);
 	  BYTE GetLifeCycleState();
   public:
+typedef struct {
+    enum {
+    PW_NONE = 0,
+    PW_FROMFILE = 1,
+    PW_PLAINTEXT = 2,
+    PW_EXTERNAL = 3
+    } source;
+    char *data;
+} secuPWData;
+
+     static char *getModulePasswordText(PK11SlotInfo *slot, PRBool retry, void *arg);
           int VerifyMAC(APDU *apdu);
           void ComputeAPDUMac(APDU *apdu, Buffer &new_mac);
           PK11SymKey *CreateSessionKey(keyType keytype,
@@ -189,6 +202,9 @@ class RA_Token
 	  APDU_Response *ProcessGenerateKey(Generate_Key_APDU *apdu,
 			  NameValueSet *vars,
 			  NameValueSet *params);
+	  APDU_Response *ProcessGenerateKeyECC(Generate_Key_ECC_APDU *apdu,
+			  NameValueSet *vars,
+			  NameValueSet *params);
 	  APDU_Response *ProcessImportKeyEnc(Import_Key_Enc_APDU *apdu,
 			  NameValueSet *vars,
 			  NameValueSet *params);
@@ -198,28 +214,34 @@ class RA_Token
 	  APDU_Response *ProcessPutKey(Put_Key_APDU *apdu,
 			  NameValueSet *vars,
 			  NameValueSet *params);
+
+#define DEFAULT_CURVE_OID_TAG  SEC_OID_SECG_EC_SECP192R1
+/* #define DEFAULT_CURVE_OID_TAG  SEC_OID_SECG_EC_SECP160R1 */
+
+      static SECKEYECParams *getECParams(const char *curve);
   public:
-	  Buffer m_card_challenge;
-	  Buffer m_host_challenge;
-          PK11SymKey *m_session_key;
-          PK11SymKey *m_enc_session_key;
-	  Buffer m_icv;
-	  Buffer m_cuid;
-	  Buffer m_msn;
-	  Buffer m_version;
-	  Buffer m_key_info;
-	  Buffer m_auth_key;
-	  Buffer m_mac_key;
-	  Buffer m_kek_key;
-	  Buffer m_buffer;
-	  BYTE m_lifecycle_state;
-	  char *m_pin;
-          Buffer* m_object;
-          int m_major_version;
-          int m_minor_version;
-          int m_object_len;
-          int m_chunk_len;
-          char m_objectid[3];
+      Buffer m_card_challenge;
+      Buffer m_host_challenge;
+      PK11SymKey *m_session_key;
+      PK11SymKey *m_enc_session_key;
+      Buffer m_icv;
+      Buffer m_cuid;
+      Buffer m_msn;
+      Buffer m_version;
+      Buffer m_key_info;
+      Buffer m_auth_key;
+      Buffer m_mac_key;
+      Buffer m_kek_key;
+      Buffer m_buffer;
+      BYTE m_lifecycle_state;
+      char *m_pin;
+      Buffer* m_object;
+      int m_major_version;
+      int m_minor_version;
+      int m_object_len;
+      int m_chunk_len;
+      char m_objectid[3];
+      char *m_tokenpassword;
 };
 
 #endif /* RA_TOKEN_H */

@@ -79,6 +79,7 @@ set(tps_library_SRCS
     apdu/Get_Data_APDU.cpp
     apdu/External_Authenticate_APDU.cpp
     apdu/Generate_Key_APDU.cpp
+    apdu/Generate_Key_ECC_APDU.cpp
     apdu/Read_Buffer_APDU.cpp
     apdu/Read_Object_APDU.cpp
     apdu/Write_Object_APDU.cpp
