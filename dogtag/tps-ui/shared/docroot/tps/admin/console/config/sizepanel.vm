@@ -1,17 +1,18 @@
 <!-- --- BEGIN COPYRIGHT BLOCK ---
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; version 2 of the License.
-
-     This program is distributed in the hope that it will be useful,
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation.
+     
+     This library is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
-
-     You should have received a copy of the GNU General Public License along
-     with this program; if not, write to the Free Software Foundation, Inc.,
-     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+     
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA  02110-1301  USA 
+     
      Copyright (C) 2007 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
@@ -29,6 +30,10 @@ div#simple
 </style>
 
 <SCRIPT type="text/JavaScript">
+var keys_ecc_curve_list="$keys_ecc_curve_list";
+var keys_ecc_curve_display_list = "$keys_ecc_curve_display_list";
+var keys_rsa_size_display_list = "$keys_rsa_size_display_list";
+
 function myOnLoad() {
 }
 
@@ -69,11 +74,14 @@ function toggleLayer1(whichLayer)
 function keyTypeChange()
 {
   var form = document.forms[0];
+
   var keyTypeSelect = document.forms[0].elements['keytype'];
   for (var i = 0; i < form.length; i++) {
     var name = form[i].name;
     if (name.indexOf('_keytype') != -1) {
-      form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+      if (keyTypeSelect.value.indexOf('ecc') != -1) {
+        form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+      }
     }
   }
 }
@@ -120,8 +128,41 @@ function textChange()
   }
 }
 
+function displayCurveList()
+{
+  var list = keys_ecc_curve_display_list.split(",");
+  var linelen = 0;
+  for (var i=0; i < list.length -1 ; i++) {
+    document.write(list[i] + ",");
+    linelen = linelen + list[i].length;
+    if (linelen >= 60) {
+      document.write("<br/>");
+      linelen=0;
+    }
+  }
+  document.write(list[list.length -1]);
+}
+
+function displayStrengthList()
+{
+  var list = keys_rsa_size_display_list.split(",");
+  var linelen = 0;
+  for (var i=0; i < list.length -1 ; i++) {
+    document.write(list[i] + ",");
+    linelen = linelen + list[i].length;
+    if (linelen >= 60) {
+      document.write("<br/>");
+      linelen=0;
+    }
+  }
+  document.write(list[list.length -1]);
+}
+
 </SCRIPT>
 Select the key pair type(s) and associated key pair size(s) from the pulldown menus. <a href="javascript:toggle_details();">[Details]</a>
+<p>
+Note that only RSA is supported for the audit_signing certificate at this point
+<p>
 <SCRIPT type="text/JavaScript">
 function toggle_details()
 {
@@ -132,13 +173,32 @@ function toggle_details()
     d.style.display="block";
   }
 }
-</script>
+</SCRIPT>
 <div id=details style="display: none;">
-<p>
-Each key pair is comprised of a <b><i>key type</i></b> and a <b><i>key size</i></b>. Based upon the key type selected from the first pulldown menu, associated key sizes (in bits) will be selectable from the second pulldown menu.
-<p>
-Within each key pair type (but not comparable between two different key pair types), the size of the key is a measure of how secure a given system is (i.e. - the longer the key pair size, the more secure the system). Unfortunately, longer key pair sizes increase the time required to perform operations such as signing certificates.
-<p>
+<p> 
+Each certificate can have its own key pair generated with its own independent settings or common settings can be applied to all key pairs. At minimum, each key pair has to define what <i>type</i> it is by identifying a cipher family and then has to set a <i>strength</i> for that key.
+</p>
+<ul>
+<li>
+<b><i>Key Type</i></b>. Sets the cipher family to use to generate the key pair. RSA and ECC key types have slightly different strength options.
+</li>
+<li>
+<b><i>RSA strength: Key Size</i></b>. Sets the key length for the generated pair. The key length can be one of the lenghs listed below.  Longer keys are stronger, which makes them more secure.
+However, longer key pair sizes also increase the time required to perform operations such as signing certificates, so long keys can affect performance.
+<br/><ul style="list-style:none"><li><i>
+<SCRIPT type="text/JavaScript">
+displayStrengthList();
+</SCRIPT></i></li></ul>
+</li>
+<li>
+<b><i>ECC strength: Curve Name</i></b>. Sets the curve algorithm to use, which can be any one of the curves listed below.  The curves that are included in parenthesis are equivalent - and either name can be used.  Note that not all curves may be supported by the token.
+<br/><ul style="list-style:none"><li><i>
+<SCRIPT type="text/JavaScript">
+displayCurveList();
+</SCRIPT></i></li></ul>
+</li>
+</ul>
+<br/>
 </div>
 #if ($errorString != "")
 <img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
@@ -161,27 +221,30 @@ Within each key pair type (but not comparable between two different key pair typ
       </tr>
 </table>
 <p>
+
+<p>
     <input
 #if ($select == "default")
  checked
 #end
- onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC)</b>.
+ onChange="defaultChange()" type=radio name="choice" value="default"><b>Use the default key size ($default_keysize  bits for RSA; curve $default_ecc_curvename  for ECC)</b>.
     <p>
     <input
 #if ($select == "custom")
  checked
 #end
- onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following custom key size:</b>
+ onChange="customChange()" type=radio name="choice" value="custom"><b>Use the following custom key strength:</b>
                                                                                 
     <p>
 <table width=100% class="details">
       <tr>
-        <th>Key Size:</th>
-        <td><input onChange="textChange()" type="text" size="20" name="custom_size" value="2048" /></td>
+        <th>Key Size or Curve (see Details above):</th>
+        <td><input onChange="textChange()" type="text" size="20" name="custom_size" value="" /></td>
       </tr>
 </table>
-</div>
 <p>
+</div>
+
 <div id="advance">
 <p>
 <table width=100%>
@@ -189,13 +252,18 @@ Within each key pair type (but not comparable between two different key pair typ
   <td align=right><a href="javascript:toggleLayer1('simple');toggleLayer('advance');" title="Simple">[Simple]</a></td>
 </tr>
 </table>
+
 #foreach ($item in $certs)
 <H2>Key for $item.getUserFriendlyName()</H2>
 <p>
 <table width=100% class="details">
       <tr>
         <th width="30%">Key Type:</th>
+#if ($item.getCertTag() == "audit_signing")
+        <td><select name="$item.getCertTag()_keytype"><option value=rsa>RSA</option></select></td>
+#else
         <td><select name="$item.getCertTag()_keytype"><option value=rsa>RSA</option><option value=ecc>ECC</option></select></td>
+#end
       </tr>
 </table>
 <p>
@@ -203,23 +271,24 @@ Within each key pair type (but not comparable between two different key pair typ
 #if ($item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits for RSA, $default_ecc_keysize bits for ECC).
+ type=radio name=$item.getCertTag()_choice value="default"><b>Use the default key size ($default_keysize bits for RSA, curve $default_ecc_curvename for ECC).
     <p>
     <input
 #if (!$item.useDefaultKey())
  checked
 #end
- type=radio name=$item.getCertTag()_choice value="custom"><b>Use the following custom key size:</b>
+ type=radio name=$item.getCertTag()_choice value="custom"><b>Use the following custom key strength:</b>
                                                                                 
     <p>
 <table width=100% class="details">
       <tr>
-        <th>Key Size:</th>
-        <td><input type="text" size="20" name=$item.getCertTag()_custom_size value="$item.getCustomKeysize()" /></td>
+        <th>Key Size or Curve (see Details above):</th>
+        <td><input type="text" size="20" name=$item.getCertTag()_custom_size value="" /></td>
       </tr>
 </table>
 #end
 </div>
+
 <br/>
 <br/>
 <br/>
