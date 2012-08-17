@@ -216,14 +216,38 @@ PKIHELPER_NAMESPACE_RESERVED_NAME_2 = "PKI instance '%s' is already a "\
 PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
+PKIHELPER_PASSWORD_NOT_FOUND_1 = "no password found for '%s'!"
 PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
                                       "PKI subsystems"
 PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
+PKIHELPER_SECURITY_DOMAIN_CONTACT_1 =\
+    "contacting the security domain master to update security domain '%s'"
+PKIHELPER_SECURITY_DOMAIN_UNDEFINED =\
+    "No security domain defined.\n"\
+    "If this is an unconfigured instance, then that is OK.\n"\
+    "Otherwise, manually delete the entry from the security domain master."
+PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 =\
+    "security domain '%s' may be offline or unreachable!"
+PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2 =\
+    "this '%s' entry may not be registered with security domain '%s'!"
+PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 =\
+    "this '%s' entry will NOT be deleted from security domain '%s'!"
+PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 =\
+    "updateDomainXML FAILED to delete this '%s' entry from "\
+    "security domain '%s': '%s'"
+PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2 =\
+    "updateDomainXML SUCCESSFULLY deleted this '%s' entry from "\
+    "security domain '%s'"
 PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
 PKIHELPER_SLOT_SUBSTITUTION_2 = "slot substitution: '%s' ==> '%s'"
+PKIHELPER_SSLGET_OUTPUT_1 = "\n"\
+    "Dump of 'sslget' output:\n"\
+    "=====================================================\n"\
+    "%s\n"\
+    "====================================================="
 PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
 PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
                                          "Tomcat PKI subsystems"
@@ -236,6 +260,7 @@ PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 =\
     "the randomly generated client pin MUST be used"
 PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 =\
     "A value for '%s' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."
 PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."

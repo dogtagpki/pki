@@ -89,7 +89,8 @@ public class UpdateNumberRange extends CMSServlet {
         IAuthToken authToken = authenticate(cmsReq);
         if (authToken == null) {
             CMS.debug("UpdateNumberRange process: authToken is null");
-            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated");
+            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated",
+                        null);
         }
 
         AuthzToken authzToken = null;

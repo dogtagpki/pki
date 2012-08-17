@@ -7,7 +7,7 @@
 
 Name:             pki-tps
 Version:          10.0.0
-Release:          %{?relprefix}2%{?prerel}%{?dist}
+Release:          %{?relprefix}3%{?prerel}%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -24,7 +24,7 @@ BuildRequires:    cmake
 BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
-BuildRequires:    httpd-devel
+BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -38,10 +38,11 @@ Requires:         mod_perl
 Requires:         mod_revocator
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
-Requires:         pki-native-tools
-Requires:         pki-selinux
+Requires:         pki-deploy >= 10.0.0
+Requires:         pki-native-tools >= 10.0.0
+Requires:         pki-selinux >= 10.0.0
 Requires:         pki-setup
-Requires:         pki-tps-theme >= 9.0.0
+Requires:         pki-tps-theme >= 10.0.0
 
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -279,6 +280,10 @@ fi
 
 
 %changelog
+* Thu Aug 16 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
+- Changed 'httpd-devel' build-time dependency to require '2.4.2'
+- Added 'pki-deploy' runtime dependency
+
 * Mon Aug 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.a1
 - Added systemd scripts
 - Ported config files and init scripts to apache 2.4

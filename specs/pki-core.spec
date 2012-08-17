@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}22%{?prerel}%{?dist}
+Release:          %{?relprefix}23%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -74,11 +74,11 @@ BuildRequires:    tomcatjss >= 2.0.0
 %endif
 %endif
 # Add the following build-time requirements to support the "pki-deploy" package
-BuildRequires:    pki-common-theme
-BuildRequires:    pki-ca-theme
-BuildRequires:    pki-kra-theme
-BuildRequires:    pki-ocsp-theme
-BuildRequires:    pki-tks-theme
+BuildRequires:    pki-common-theme >= 10.0.0
+BuildRequires:    pki-ca-theme >= 10.0.0
+BuildRequires:    pki-kra-theme >= 10.0.0
+BuildRequires:    pki-ocsp-theme >= 10.0.0
+BuildRequires:    pki-tks-theme >= 10.0.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -117,7 +117,6 @@ to manage enterprise Public Key Infrastructure (PKI) deployments.      \
                                                                        \
 PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
-  * pki-deploy                                                         \
   * pki-setup                                                          \
   * pki-symkey                                                         \
   * pki-native-tools                                                   \
@@ -128,6 +127,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-common                                                         \
   * pki-common-javadoc                                                 \
   * pki-selinux                                                        \
+  * pki-deploy                                                         \
   * pki-ca                                                             \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
@@ -173,20 +173,6 @@ ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
 %{nil}
 
 %description %{overview}
-
-
-%package -n       pki-deploy
-Summary:          Certificate System - PKI Instance Deployment Scripts
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-%description -n   pki-deploy
-PKI deployment scripts are used to create and remove instances from PKI deployments.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
 
 
 %package -n       pki-setup
@@ -356,9 +342,8 @@ Requires:         java >= 1:1.6.0
 Requires:         javassist
 Requires:         jettison
 Requires:         jython >= 2.2.1
-Requires:         pki-common-theme >= 9.0.0
+Requires:         pki-common-theme >= 10.0.0
 Requires:         pki-java-tools = %{version}-%{release}
-Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
@@ -370,6 +355,7 @@ Requires:         %{_javadir}/xml-commons-resolver.jar
 Requires:         velocity
 %if 0%{?fedora} >= 17
 Requires:         resteasy >= 2.3.2-1
+Requires:         tomcatjss >= 7.0.0
 %endif
 %if 0%{?fedora} >= 18
 Requires:         apache-commons-lang
@@ -467,6 +453,23 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
+%package -n       pki-deploy
+Summary:          Certificate System - PKI Instance Deployment Scripts
+Group:            System Environment/Base
+
+BuildArch:        noarch
+
+Requires:         pki-common = %{version}-%{release}
+
+%description -n   pki-deploy
+PKI deployment scripts are used to create and remove instances from
+PKI deployments.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
 Group:            System Environment/Daemons
@@ -474,8 +477,8 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-ca-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
+Requires:         pki-ca-theme >= 10.0.0
+Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -523,8 +526,8 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-kra-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
+Requires:         pki-kra-theme >= 10.0.0
+Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -578,8 +581,8 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-ocsp-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
+Requires:         pki-ocsp-theme >= 10.0.0
+Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -640,8 +643,8 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-tks-theme >= 9.0.0
-Requires:         pki-common = %{version}-%{release}
+Requires:         pki-tks-theme >= 10.0.0
+Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 %if 0%{?fedora} >= 16
@@ -1127,41 +1130,6 @@ fi
 ##        PKI deployment process
 %endif
 
-%files -n pki-deploy
-%defattr(-,root,root,-)
-%doc base/deploy/LICENSE
-%{_bindir}/pkispawn
-%{_bindir}/pkidestroy
-#%{_bindir}/pki-setup-proxy
-%dir %{python_sitelib}/pki
-%{python_sitelib}/pki/_*
-%{python_sitelib}/pki/deployment/
-%dir %{_datadir}/pki
-%dir %{_datadir}/pki/deployment
-%{_datadir}/pki/deployment/config/
-%dir %{_datadir}/pki/deployment/spawn
-%{_datadir}/pki/deployment/spawn/ca/
-%{_datadir}/pki/deployment/spawn/kra/
-%{_datadir}/pki/deployment/spawn/ocsp/
-%{_datadir}/pki/deployment/spawn/ra/
-%{_datadir}/pki/deployment/spawn/tks/
-%{_datadir}/pki/deployment/spawn/tps/
-%dir %{_datadir}/pki/deployment/destroy
-%{_datadir}/pki/deployment/destroy/ca/
-%{_datadir}/pki/deployment/destroy/kra/
-%{_datadir}/pki/deployment/destroy/ocsp/
-%{_datadir}/pki/deployment/destroy/ra/
-%{_datadir}/pki/deployment/destroy/tks/
-%{_datadir}/pki/deployment/destroy/tps/
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/operations
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
-%{_bindir}/pkidaemon
-%endif
-
-
 %files -n pki-setup
 %defattr(-,root,root,-)
 %doc base/setup/LICENSE
@@ -1297,6 +1265,41 @@ fi
 %{_datadir}/selinux/modules/pki.pp
 
 
+%files -n pki-deploy
+%defattr(-,root,root,-)
+%doc base/deploy/LICENSE
+%{_bindir}/pkispawn
+%{_bindir}/pkidestroy
+#%{_bindir}/pki-setup-proxy
+%dir %{python_sitelib}/pki
+%{python_sitelib}/pki/_*
+%{python_sitelib}/pki/deployment/
+%dir %{_datadir}/pki
+%dir %{_datadir}/pki/deployment
+%{_datadir}/pki/deployment/config/
+%dir %{_datadir}/pki/deployment/spawn
+%{_datadir}/pki/deployment/spawn/ca/
+%{_datadir}/pki/deployment/spawn/kra/
+%{_datadir}/pki/deployment/spawn/ocsp/
+%{_datadir}/pki/deployment/spawn/ra/
+%{_datadir}/pki/deployment/spawn/tks/
+%{_datadir}/pki/deployment/spawn/tps/
+%dir %{_datadir}/pki/deployment/destroy
+%{_datadir}/pki/deployment/destroy/ca/
+%{_datadir}/pki/deployment/destroy/kra/
+%{_datadir}/pki/deployment/destroy/ocsp/
+%{_datadir}/pki/deployment/destroy/ra/
+%{_datadir}/pki/deployment/destroy/tks/
+%{_datadir}/pki/deployment/destroy/tps/
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/operations
+%dir %{_localstatedir}/lock/pki
+%dir %{_localstatedir}/run/pki
+%if 0%{?fedora} >= 16
+%{_bindir}/pkidaemon
+%endif
+
+
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
@@ -1426,6 +1429,12 @@ fi
 
 
 %changelog
+* Thu Aug 16 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.23.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
+- Changed Dogtag 10 build-time and runtime requirements for 'pki-deploy'
+- Altered PKI Package Dependency Chain (top-to-bottom):
+  pki-ca, pki-kra, pki-ocsp, pki-tks --> pki-deploy --> pki-common
+
 * Mon Aug 13 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.22.a1
 - Added pki-client.jar.
 

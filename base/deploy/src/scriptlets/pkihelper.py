@@ -27,6 +27,7 @@ import os
 import fileinput
 import pickle
 import random
+import re
 import shutil
 import string
 import subprocess
@@ -46,6 +47,7 @@ from pkiconfig import pki_slots_dict as slots
 from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
 import pkimessages as log
+from pkiparser import read_simple_configuration_file
 
 
 # PKI Deployment Helper Functions
@@ -2400,6 +2402,193 @@ class certutil:
         return
 
 
+# PKI Deployment Security Domain Class
+class security_domain:
+    def deregister(self, critical_failure=False):
+        try:
+            # process this PKI subsystem instance's 'CS.cfg'
+            cs_cfg = read_simple_configuration_file(master['pki_target_cs_cfg'])
+
+            # assign key name/value pairs
+            machinename = cs_cfg.get('service.machineName')
+            sport = cs_cfg.get('service.securityDomainPort')
+            ncsport = cs_cfg.get('service.non_clientauth_securePort', '')
+            sechost = cs_cfg.get('securitydomain.host')
+            httpport = cs_cfg.get('securitydomain.httpport')
+            seceeport = cs_cfg.get('securitydomain.httpseeport')
+            secagentport = cs_cfg.get('securitydomain.httpsagentport')
+            secadminport = cs_cfg.get('securitydomain.httpsadminport')
+            secname = cs_cfg.get('securitydomain.name', 'unknown')
+            secselect = cs_cfg.get('securitydomain.select')
+            adminsport = cs_cfg.get('pkicreate.admin_secure_port', '')
+            typeval = cs_cfg.get('cs.type', '')
+            agentsport = cs_cfg.get('pkicreate.agent_secure_port', '')
+            token_pwd = None
+
+            # retrieve subsystem nickname
+            subsystemnick_param = typeval.lower() + ".cert.subsystem.nickname"
+            subsystemnick = cs_cfg.get(subsystemnick_param)
+            if subsystemnick is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
+                    typeval,
+                    secname,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    sys.exit(-1)
+                else:
+                    return
+
+            # retrieve name of token based upon type (hardware/software)
+            if ':' in subsystemnick:
+                token_name = subsystemnick.split(':')[0]
+            else:
+                token_name = "internal"
+
+            # NOTE:  Don't check for the existence of 'httpport', as this will
+            #        be undefined for a Security Domain that has been migrated!
+            if sechost is None or\
+               seceeport is None or\
+               secagentport is None or\
+               secadminport is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
+                    typeval,
+                    secname,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_SECURITY_DOMAIN_UNDEFINED,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    sys.exit(-1)
+                else:
+                    return
+
+            if secselect != "new":
+                # This is not a domain master, so we need to update the master
+                config.pki_log.info(log.PKIHELPER_SECURITY_DOMAIN_CONTACT_1,
+                                    secname,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                listval = typeval.lower() + "List"
+                urlheader = "https://{}:{}".format(sechost, seceeport)
+                urlagentheader = "https://{}:{}".format(sechost, secagentport)
+                urladminheader = "https://{}:{}".format(sechost, secadminport)
+                updateURL = "/ca/agent/ca/updateDomainXML"
+
+                # process this PKI subsystem instance's 'password.conf'
+                #
+                #     REMINDER:  NEVER log this 'sensitive' information!
+                #
+                if os.path.exists(master['pki_shared_password_conf']) and\
+                   os.path.isfile(master['pki_shared_password_conf']) and\
+                   os.access(master['pki_shared_password_conf'], os.R_OK):
+                    tokens = read_simple_configuration_file(
+                                 master['pki_shared_password_conf'])
+                    hardware_token = "hardware-" + token_name
+                    if tokens.has_key(hardware_token):
+                        token_name = hardware_token
+                        token_pwd = tokens[hardware_token]
+                    elif tokens.has_key(token_name):
+                        token_pwd = tokens[token_name]
+
+                if token_pwd is None or token_pwd == '':
+                    # 'pkiremove' prompts with
+                    # "What is the password for this token?"
+                    config.pki_log.warning(
+                        log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
+                        typeval,
+                        secname,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    config.pki_log.error(log.PKIHELPER_PASSWORD_NOT_FOUND_1,
+                                         token_name,
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                    if critical_failure == True:
+                        sys.exit(-1)
+                    else:
+                        return
+
+                params = "name=" + "\"" + master['pki_instance_path'] + "\"" +\
+                         "&type=" + str(typeval) +\
+                         "&list=" + str(listval) +\
+                         "&host=" + str(machinename) +\
+                         "&sport=" + str(sport) +\
+                         "&ncsport=" + str(ncsport) +\
+                         "&adminsport=" + str(adminsport) +\
+                         "&agentsport=" + str(agentsport) +\
+                         "&operation=remove"
+
+                # Compose this "sslget" command
+                #
+                #     REMINDER:  NEVER log this command as it contains
+                #                an exposed password in plaintext!
+                #
+                command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
+                          "-v -r '{}' {}:{} 2>&1".format(
+                              subsystemnick, token_pwd,
+                              master['pki_database_path'],
+                              params, updateURL,
+                              sechost, secagentport)
+                # update domainXML
+                if not config.pki_dry_run_flag:
+                    # Execute this "sslget" command
+                    output = subprocess.check_output(command,
+                                                     stderr=subprocess.STDOUT,
+                                                     shell=True)
+                    config.pki_log.debug(log.PKIHELPER_SSLGET_OUTPUT_1,
+                                         output,
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                    # Search the output for Status
+                    status = re.findall("\<Status\>(.*?)\<\/Status\>", output)
+                    if not status:
+                        config.pki_log.warning(
+                            log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
+                            secname,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        if critical_failure == True:
+                            sys.exit(-1)
+                    elif status[0] != "0":
+                        error = re.findall("\<Error\>(.*?)\<\/Error\>", output)
+                        if not error:
+                            error = ""
+                        config.pki_log.warning(
+                            log.PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2,
+                            typeval,
+                            secname,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        config.pki_log.error(
+                            log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
+                            typeval,
+                            secname,
+                            error[0],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        if critical_failure == True:
+                            sys.exit(-1)
+                    else:
+                        config.pki_log.info(
+                            log.PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2,
+                            typeval,
+                            secname,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.warning(
+                log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
+                typeval,
+                secname,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.warning(
+                log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
+                secname,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(-1)
+        return
+
+
 # PKI Deployment 'systemd' Execution Management Class
 class systemd:
     def start(self, critical_failure=True):
@@ -2535,5 +2724,6 @@ symlink = symlink()
 war = war()
 password = password()
 certutil = certutil()
+security_domain = security_domain()
 systemd = systemd()
 jython = jython()

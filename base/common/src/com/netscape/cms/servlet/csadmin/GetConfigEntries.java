@@ -88,7 +88,8 @@ public class GetConfigEntries extends CMSServlet {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
+                        null);
             return;
         }
 

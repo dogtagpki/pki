@@ -72,7 +72,8 @@ public class DownloadPKCS12 extends CMSServlet {
         String pin = (String) httpReq.getSession().getAttribute("pin");
         if (pin == null) {
             CMS.debug("DownloadPKCS12 process: Failed to get the pin from the cookie.");
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
+                        null);
             return;
         }
 
@@ -84,7 +85,8 @@ public class DownloadPKCS12 extends CMSServlet {
 
         if (!pin.equals(cspin)) {
             CMS.debug("DownloadPKCS12 process: Wrong pin");
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
+                        null);
             return;
         }
 

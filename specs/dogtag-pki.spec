@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}5%{?prerel}%{?dist}
+Release:          %{?relprefix}6%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -41,7 +41,7 @@ BuildArch:        noarch
 %define pki_tks_version            10.0.0
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
-%define tomcatjss_version          6.0.2
+%define tomcatjss_version          7.0.0
 %else
 %if 0%{?fedora} >= 16
 %define dogtag_pki_theme_version   10.0.0
@@ -97,6 +97,7 @@ Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 # of ALL Dogtag PKI core packages
 Requires:         pki-ca >= %{pki_core_version}
 Requires:         pki-common >= %{pki_core_version}
+Requires:         pki-deploy >= %{pki_core_version}
 Requires:         pki-java-tools >= %{pki_core_version}
 Requires:         pki-native-tools >= %{pki_core_version}
 Requires:         pki-selinux >= %{pki_core_version}
@@ -198,6 +199,10 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Aug 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
+- Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
+- Added 'pki-deploy' runtime dependency
+
 * Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.5.a1
 - Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
 
