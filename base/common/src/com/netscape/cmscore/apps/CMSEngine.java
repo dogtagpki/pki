@@ -1722,7 +1722,8 @@ public class CMSEngine implements ICMSEngine {
         BufferedReader bf = null;
         try {
             // PID file is be created by wrapper script (e.g. /usr/sbin/tomcat6)
-            String dir = mConfig.getString("pidDir");
+            // The default is for dogtag 9 systems which did not have this paramater
+            String dir = mConfig.getString("pidDir", "/var/run");
             String name = dir+File.separator+instanceId+".pid";
 
             if (dir == null) return pid;
