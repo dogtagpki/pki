@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}6%{?prerel}%{?dist}
+Release:          %{?relprefix}7%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -96,15 +96,14 @@ Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
 Requires:         pki-ca >= %{pki_core_version}
-Requires:         pki-common >= %{pki_core_version}
-Requires:         pki-deploy >= %{pki_core_version}
+Requires:         pki-server >= %{pki_core_version}
 Requires:         pki-java-tools >= %{pki_core_version}
 Requires:         pki-native-tools >= %{pki_core_version}
 Requires:         pki-selinux >= %{pki_core_version}
 Requires:         pki-setup >= %{pki_core_version}
 Requires:         pki-silent >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
-Requires:         pki-util >= %{pki_core_version}
+Requires:         pki-base >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
@@ -199,6 +198,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
+- Replaced pki-util, pki-deploy, pki-common with pki-base and pki-server
+
 * Tue Aug 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
 - Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
 - Added 'pki-deploy' runtime dependency

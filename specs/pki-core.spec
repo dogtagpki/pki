@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}23%{?prerel}%{?dist}
+Release:          %{?relprefix}24%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -73,7 +73,7 @@ BuildRequires:    tomcatjss >= 2.0.0
 %endif
 %endif
 %endif
-# Add the following build-time requirements to support the "pki-deploy" package
+# Add the following build-time requirements to support the "pki-server" package
 BuildRequires:    pki-common-theme >= 10.0.0
 BuildRequires:    pki-ca-theme >= 10.0.0
 BuildRequires:    pki-kra-theme >= 10.0.0
@@ -120,14 +120,13 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-setup                                                          \
   * pki-symkey                                                         \
   * pki-native-tools                                                   \
-  * pki-util                                                           \
   * pki-util-javadoc                                                   \
   * pki-java-tools                                                     \
   * pki-java-tools-javadoc                                             \
-  * pki-common                                                         \
+  * pki-base                                                           \
   * pki-common-javadoc                                                 \
   * pki-selinux                                                        \
-  * pki-deploy                                                         \
+  * pki-server                                                         \
   * pki-ca                                                             \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
@@ -152,10 +151,10 @@ Certificate System instances consisting of the following components:   \
 Additionally, PKI Core contains the following fundamental packages     \
 required ONLY by ALL java-based Tomcat Certificate System instances:   \
                                                                        \
-  * pki-common                                                         \
+  * pki-symkey                                                         \
+  * pki-base                                                           \
+  * pki-server                                                         \
   * pki-java-tools                                                     \
-  * pki-symkey (ONLY required for TKS subsystems)                      \
-  * pki-util                                                           \
                                                                        \
 PKI Core also includes the following components:                       \
                                                                        \
@@ -239,48 +238,11 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-util
-Summary:          Certificate System - PKI Utility Framework
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         java >= 1:1.6.0
-Requires:         ldapjdk
-Requires:         apache-commons-codec
-%if 0%{?fedora} >= 16
-Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-24
-%else
-%if 0%{?fedora} >= 15
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
-%endif
-%endif
-
-%description -n   pki-util
-The PKI Utility Framework is required by the following four PKI subsystems:
-
-    the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager, and
-    the Token Key Service (TKS).
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-util-javadoc
 Summary:          Certificate System - PKI Utility Framework Javadocs
 Group:            Documentation
 
 BuildArch:        noarch
-
-Requires:         pki-util = %{version}-%{release}
 
 %description -n   pki-util-javadoc
 This documentation pertains exclusively to version %{version} of
@@ -299,7 +261,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-native-tools = %{version}-%{release}
-Requires:         pki-util = %{version}-%{release}
+Requires:         pki-base = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
 %else
@@ -321,8 +283,6 @@ Group:            Documentation
 
 BuildArch:        noarch
 
-Requires:         pki-java-tools = %{version}-%{release}
-
 %description -n   pki-java-tools-javadoc
 This documentation pertains exclusively to version %{version} of
 the PKI Java-Based Tools.
@@ -332,88 +292,55 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-common
-Summary:          Certificate System - PKI Common Framework
+%package -n       pki-base
+Summary:          Certificate System - PKI Framework
 Group:            System Environment/Base
 
 BuildArch:        noarch
 
+Obsoletes:        pki-common < %{version}-%{release}
+Obsoletes:        pki-util < %{version}-%{release}
+
+Requires:         apache-commons-codec
+Requires:         apache-commons-lang
+Requires:         apache-commons-logging
 Requires:         java >= 1:1.6.0
 Requires:         javassist
 Requires:         jettison
-Requires:         jython >= 2.2.1
-Requires:         pki-common-theme >= 10.0.0
-Requires:         pki-java-tools = %{version}-%{release}
-Requires:         pki-setup = %{version}-%{release}
-Requires:         %{_javadir}/ldapjdk.jar
-Requires:         %{_javadir}/velocity.jar
+Requires:         ldapjdk
 Requires:         %{_javadir}/xalan-j2.jar
 Requires:         %{_javadir}/xalan-j2-serializer.jar
 Requires:         %{_javadir}/xerces-j2.jar
 Requires:         %{_javadir}/xml-commons-apis.jar
 Requires:         %{_javadir}/xml-commons-resolver.jar
-Requires:         velocity
 %if 0%{?fedora} >= 17
 Requires:         resteasy >= 2.3.2-1
-Requires:         tomcatjss >= 7.0.0
 %endif
 %if 0%{?fedora} >= 18
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
+Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-24
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
-Requires:         tomcatjss >= 7.0.0
 %else
 %if 0%{?fedora} >= 16
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
+Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-24
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
-Requires:         tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
+Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-24
-Requires:         tomcatjss >= 6.0.0
 %else
 %if 0%{?fedora} >= 14
-Requires:         apache-commons-lang
-Requires:         apache-commons-logging
+Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
-Requires:         tomcatjss >= 2.0.0
 %else
-Requires:         jakarta-commons-lang
-Requires:         jakarta-commons-logging
+Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
-Requires:         tomcatjss >= 2.0.0
 %endif
 %endif
 %endif
 %endif
 
-%description -n   pki-common
-The PKI Common Framework is required by the following four PKI subsystems:
-
-    the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager, and
-    the Token Key Service (TKS).
-
+%description -n   pki-base
+The PKI Framework contains the common and client libraries and utilities.
 This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
@@ -425,13 +352,72 @@ Group:            Documentation
 
 BuildArch:        noarch
 
-Requires:         pki-common = %{version}-%{release}
-
 %description -n   pki-common-javadoc
 This documentation pertains exclusively to version %{version} of
 the PKI Common Framework.
 
 This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-server
+Summary:          Certificate System - PKI Server Framework
+Group:            System Environment/Base
+
+BuildArch:        noarch
+
+Obsoletes:        pki-deploy < %{version}-%{release}
+
+Requires:         jython >= 2.2.1
+Requires:         pki-common-theme >= 10.0.0
+Requires:         pki-base = %{version}-%{release}
+Requires:         pki-selinux = %{version}-%{release}
+Requires:         velocity
+%if 0%{?fedora} >= 17
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+Requires:         tomcatjss >= 7.0.0
+%else
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+Requires:         tomcatjss >= 6.0.2
+%else
+%if 0%{?fedora} >= 15
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+Requires:         tomcatjss >= 6.0.0
+%else
+%if 0%{?fedora} >= 14
+Requires:         tomcatjss >= 2.0.0
+%else
+Requires:         tomcatjss >= 2.0.0
+%endif
+%endif
+%endif
+%endif
+
+%description -n   pki-server
+The PKI Server Framework is required by the following four PKI subsystems:
+
+    the Certificate Authority (CA),
+    the Data Recovery Manager (DRM),
+    the Online Certificate Status Protocol (OCSP) Manager, and
+    the Token Key Service (TKS).
+
+This package is a part of the PKI Core used by the Certificate System.
+The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
 
@@ -453,23 +439,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-deploy
-Summary:          Certificate System - PKI Instance Deployment Scripts
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         pki-common = %{version}-%{release}
-
-%description -n   pki-deploy
-PKI deployment scripts are used to create and remove instances from
-PKI deployments.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
 Group:            System Environment/Daemons
@@ -478,8 +447,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-ca-theme >= 10.0.0
-Requires:         pki-deploy = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -527,8 +495,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-kra-theme >= 10.0.0
-Requires:         pki-deploy = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -582,8 +549,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-ocsp-theme >= 10.0.0
-Requires:         pki-deploy = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -644,8 +610,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-tks-theme >= 10.0.0
-Requires:         pki-deploy = %{version}-%{release}
-Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -700,7 +665,7 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-common = %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 
 %description -n   pki-silent
 The PKI Silent Installer may be used to "automatically" configure
@@ -1056,7 +1021,7 @@ fi
 %fix_tomcat_log tks
 
 
-## %post -n pki-common
+## %post -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
@@ -1090,7 +1055,7 @@ if [ $1 = 0 ] ; then
 fi
 
 
-## %preun -n pki-common
+## %preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
@@ -1124,7 +1089,7 @@ if [ "$1" -ge "1" ] ; then
 fi
 
 
-## %postun -n pki-common
+## %postun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
@@ -1168,15 +1133,6 @@ fi
 %{_datadir}/pki/native-tools/
 
 
-%files -n pki-util
-%defattr(-,root,root,-)
-%doc base/util/LICENSE
-%dir %{_javadir}/pki
-%{_javadir}/pki/pki-cmsutil-%{version}.jar
-%{_javadir}/pki/pki-cmsutil.jar
-%{_javadir}/pki/pki-nsutil-%{version}.jar
-%{_javadir}/pki/pki-nsutil.jar
-
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
@@ -1218,39 +1174,18 @@ fi
 %endif
 
 
-%files -n pki-common
+%files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
-%if 0%{?fedora} >= 16
-%dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
-%{_unitdir}/pki-tomcatd@.service
-%{_unitdir}/pki-tomcatd.target
-%endif
+%dir %{_javadir}/pki
+%{_javadir}/pki/pki-cmsutil-%{version}.jar
+%{_javadir}/pki/pki-cmsutil.jar
+%{_javadir}/pki/pki-nsutil-%{version}.jar
+%{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
 %{_javadir}/pki/pki-client-%{version}.jar
 %{_javadir}/pki/pki-client.jar
-%{_javadir}/pki/pki-cms-%{version}.jar
-%{_javadir}/pki/pki-cms.jar
-%{_javadir}/pki/pki-cmsbundle-%{version}.jar
-%{_javadir}/pki/pki-cmsbundle.jar
-%{_javadir}/pki/pki-cmscore-%{version}.jar
-%{_javadir}/pki/pki-cmscore.jar
-%dir %{_localstatedir}/lock/pki/tomcat
-%dir %{_localstatedir}/run/pki/tomcat
-
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-%endif
-
-%{_datadir}/pki/setup/
-%dir %{_datadir}/pki/shared
-%{_datadir}/pki/shared/conf/
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-common-javadoc
@@ -1259,13 +1194,7 @@ fi
 %endif
 
 
-%files -n pki-selinux
-%defattr(-,root,root,-)
-%doc base/selinux/LICENSE
-%{_datadir}/selinux/modules/pki.pp
-
-
-%files -n pki-deploy
+%files -n pki-server
 %defattr(-,root,root,-)
 %doc base/deploy/LICENSE
 %{_bindir}/pkispawn
@@ -1298,6 +1227,38 @@ fi
 %if 0%{?fedora} >= 16
 %{_bindir}/pkidaemon
 %endif
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
+%{_unitdir}/pki-tomcatd@.service
+%{_unitdir}/pki-tomcatd.target
+%endif
+%{_javadir}/pki/pki-cms-%{version}.jar
+%{_javadir}/pki/pki-cms.jar
+%{_javadir}/pki/pki-cmsbundle-%{version}.jar
+%{_javadir}/pki/pki-cmsbundle.jar
+%{_javadir}/pki/pki-cmscore-%{version}.jar
+%{_javadir}/pki/pki-cmscore.jar
+%dir %{_localstatedir}/lock/pki/tomcat
+%dir %{_localstatedir}/run/pki/tomcat
+
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+%endif
+
+%{_datadir}/pki/setup/
+%dir %{_datadir}/pki/shared
+%{_datadir}/pki/shared/conf/
+
+
+%files -n pki-selinux
+%defattr(-,root,root,-)
+%doc base/selinux/LICENSE
+%{_datadir}/selinux/modules/pki.pp
 
 
 %files -n pki-ca
@@ -1429,6 +1390,11 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.24.a1
+- Split pki-common into pki-base and pki-server.
+- Merged pki-util into pki-base.
+- Merged pki-deploy into pki-server.
+
 * Thu Aug 16 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.23.a1
 - Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 17
 - Changed Dogtag 10 build-time and runtime requirements for 'pki-deploy'

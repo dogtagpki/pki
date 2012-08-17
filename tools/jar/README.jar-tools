@@ -252,10 +252,10 @@ Summary:
      jss
      ldapjdk
      apache-commons-codec
-     pki-common
+     pki-server
      pki-console
      pki-symkey
-     pki-util
+     pki-base
      tomcat5-jsp-2.0-api
      tomcat5-servlet-2.4-api
      tomcat6-jsp-2.1-api

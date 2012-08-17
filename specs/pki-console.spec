@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}5%{?prerel}%{?dist}
+Release:          %{?relprefix}6%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -31,11 +31,11 @@ BuildRequires:    junit4
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    pki-util >= 9.0.15
+BuildRequires:    pki-base >= 9.0.15
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    pki-util
+BuildRequires:    pki-base
 %endif
 
 Requires:         idm-console-framework
@@ -100,6 +100,9 @@ cd build
 
 
 %changelog
+* Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.6.a1
+- Replaced pki-util with pki-base
+
 * Thu Jul 12 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
 - Added option to build without Javadoc
 
