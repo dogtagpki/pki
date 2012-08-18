@@ -7,7 +7,7 @@
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -30,7 +30,6 @@ Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         pki-server >= 10.0.0
-Requires:         pki-native-tools >= 10.0.0
 Requires:         pki-ra-theme >= 10.0.0
 Requires:         pki-setup
 Requires:         perl-DBD-SQLite
@@ -67,7 +66,7 @@ For deployment purposes, an RA requires the following components from the PKI
 Core package:
 
   * pki-setup
-  * pki-native-tools
+  * pki-tools
   * pki-selinux
 
 and can also make use of the following optional components from the PKI Core
@@ -244,6 +243,9 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
+- Removed direct dependency on 'pki-native-tools'.
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
 - Replaced 'pki-deploy' with 'pki-server'.
 

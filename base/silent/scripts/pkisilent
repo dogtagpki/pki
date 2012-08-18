@@ -34,7 +34,7 @@ sub invalid_architecture()
 {
     print "\n";
     print "ERROR:  pkisilent does not execute on this architecture\n";
-    print "ERROR:  check to make sure pki-native-tools package is installed!\n";
+    print "ERROR:  check to make sure pki-tools package is installed!\n";
     print "\n";
 }
 

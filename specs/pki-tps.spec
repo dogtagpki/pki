@@ -7,7 +7,7 @@
 
 Name:             pki-tps
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -39,7 +39,6 @@ Requires:         mod_revocator
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
 Requires:         pki-server >= 10.0.0
-Requires:         pki-native-tools >= 10.0.0
 Requires:         pki-setup
 Requires:         pki-tps-theme >= 10.0.0
 
@@ -80,7 +79,7 @@ For deployment purposes, a TPS requires the following components from the \
 PKI Core package:                                                         \
                                                                           \
   * pki-setup                                                             \
-  * pki-native-tools                                                      \
+  * pki-tools                                                             \
   * pki-selinux                                                           \
                                                                           \
 and can also make use of the following optional components from the       \
@@ -279,6 +278,9 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
+- Removed direct dependency on 'pki-native-tools'.
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
 - Replaced 'pki-deploy' with 'pki-server'.
 

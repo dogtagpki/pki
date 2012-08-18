@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}24%{?prerel}%{?dist}
+Release:          %{?relprefix}25%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -119,12 +119,11 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
   * pki-setup                                                          \
   * pki-symkey                                                         \
-  * pki-native-tools                                                   \
   * pki-util-javadoc                                                   \
-  * pki-java-tools                                                     \
   * pki-java-tools-javadoc                                             \
   * pki-base                                                           \
   * pki-common-javadoc                                                 \
+  * pki-tools                                                          \
   * pki-selinux                                                        \
   * pki-server                                                         \
   * pki-ca                                                             \
@@ -143,7 +142,7 @@ For deployment purposes, PKI Core contains fundamental packages        \
 required by BOTH native-based Apache AND java-based Tomcat             \
 Certificate System instances consisting of the following components:   \
                                                                        \
-  * pki-native-tools                                                   \
+  * pki-tools                                                          \
   * pki-selinux                                                        \
   * pki-setup                                                          \
   * pki-silent (required for IPA deployments; optional otherwise)      \
@@ -153,8 +152,8 @@ required ONLY by ALL java-based Tomcat Certificate System instances:   \
                                                                        \
   * pki-symkey                                                         \
   * pki-base                                                           \
+  * pki-tools                                                          \
   * pki-server                                                         \
-  * pki-java-tools                                                     \
                                                                        \
 PKI Core also includes the following components:                       \
                                                                        \
@@ -221,23 +220,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-native-tools
-Summary:          Certificate System - Native Tools
-Group:            System Environment/Base
-
-Requires:         openldap-clients
-Requires:         nss
-Requires:         nss-tools
-
-%description -n   pki-native-tools
-These platform-dependent PKI executables are used to help make
-Certificate System into a more complete and robust PKI solution.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-util-javadoc
 Summary:          Certificate System - PKI Utility Framework Javadocs
 Group:            Documentation
@@ -247,30 +229,6 @@ BuildArch:        noarch
 %description -n   pki-util-javadoc
 This documentation pertains exclusively to version %{version} of
 the PKI Utility Framework.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-java-tools
-Summary:          Certificate System - PKI Java-Based Tools
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         java >= 1:1.6.0
-Requires:         pki-native-tools = %{version}-%{release}
-Requires:         pki-base = %{version}-%{release}
-%if 0%{?fedora} >= 16
-Requires:         jpackage-utils >= 0:1.7.5-10
-%else
-Requires:         jpackage-utils
-%endif
-
-%description -n   pki-java-tools
-These platform-independent PKI executables are used to help make
-Certificate System into a more complete and robust PKI solution.
 
 This package is a part of the PKI Core used by the Certificate System.
 
@@ -361,6 +319,33 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
+%package -n       pki-tools
+Summary:          Certificate System - PKI Tools
+Group:            System Environment/Base
+
+Obsoletes:        pki-native-tools < %{version}-%{release}
+Obsoletes:        pki-java-tools < %{version}-%{release}
+
+Requires:         openldap-clients
+Requires:         nss
+Requires:         nss-tools
+Requires:         java >= 1:1.6.0
+Requires:         pki-base = %{version}-%{release}
+%if 0%{?fedora} >= 16
+Requires:         jpackage-utils >= 0:1.7.5-10
+%else
+Requires:         jpackage-utils
+%endif
+
+%description -n   pki-tools
+This package contains PKI executables that can be used to help make
+Certificate System into a more complete and robust PKI solution.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+
 %package -n       pki-server
 Summary:          Certificate System - PKI Server Framework
 Group:            System Environment/Base
@@ -372,6 +357,7 @@ Obsoletes:        pki-deploy < %{version}-%{release}
 Requires:         jython >= 2.2.1
 Requires:         pki-common-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
+Requires:         pki-tools = %{version}-%{release}
 Requires:         pki-selinux = %{version}-%{release}
 Requires:         velocity
 %if 0%{?fedora} >= 17
@@ -1121,51 +1107,12 @@ fi
 %{_libdir}/symkey/
 
 
-%files -n pki-native-tools
-%defattr(-,root,root,-)
-%doc base/native-tools/LICENSE base/native-tools/doc/README
-%{_bindir}/p7tool
-%{_bindir}/revoker
-%{_bindir}/setpin
-%{_bindir}/sslget
-%{_bindir}/tkstool
-%dir %{_datadir}/pki
-%{_datadir}/pki/native-tools/
-
-
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-util-%{version}/
 %endif
 
-
-%files -n pki-java-tools
-%defattr(-,root,root,-)
-%doc base/java-tools/LICENSE
-%{_bindir}/AtoB
-%{_bindir}/AuditVerify
-%{_bindir}/BtoA
-%{_bindir}/CMCEnroll
-%{_bindir}/CMCRequest
-%{_bindir}/CMCResponse
-%{_bindir}/CMCRevoke
-%{_bindir}/CRMFPopClient
-%{_bindir}/DRMTool
-%{_bindir}/ExtJoiner
-%{_bindir}/GenExtKeyUsage
-%{_bindir}/GenIssuerAltNameExt
-%{_bindir}/GenSubjectAltNameExt
-%{_bindir}/HttpClient
-%{_bindir}/OCSPClient
-%{_bindir}/PKCS10Client
-%{_bindir}/PKCS12Export
-%{_bindir}/PrettyPrintCert
-%{_bindir}/PrettyPrintCrl
-%{_bindir}/TokenInfo
-%{_javadir}/pki/pki-tools-%{version}.jar
-%{_javadir}/pki/pki-tools.jar
-%{_datadir}/pki/java-tools/
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-java-tools-javadoc
@@ -1192,6 +1139,41 @@ fi
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-common-%{version}/
 %endif
+
+
+%files -n pki-tools
+%defattr(-,root,root,-)
+%doc base/native-tools/LICENSE base/native-tools/doc/README
+%{_bindir}/p7tool
+%{_bindir}/revoker
+%{_bindir}/setpin
+%{_bindir}/sslget
+%{_bindir}/tkstool
+%dir %{_datadir}/pki
+%{_datadir}/pki/native-tools/
+%{_bindir}/AtoB
+%{_bindir}/AuditVerify
+%{_bindir}/BtoA
+%{_bindir}/CMCEnroll
+%{_bindir}/CMCRequest
+%{_bindir}/CMCResponse
+%{_bindir}/CMCRevoke
+%{_bindir}/CRMFPopClient
+%{_bindir}/DRMTool
+%{_bindir}/ExtJoiner
+%{_bindir}/GenExtKeyUsage
+%{_bindir}/GenIssuerAltNameExt
+%{_bindir}/GenSubjectAltNameExt
+%{_bindir}/HttpClient
+%{_bindir}/OCSPClient
+%{_bindir}/PKCS10Client
+%{_bindir}/PKCS12Export
+%{_bindir}/PrettyPrintCert
+%{_bindir}/PrettyPrintCrl
+%{_bindir}/TokenInfo
+%{_javadir}/pki/pki-tools-%{version}.jar
+%{_javadir}/pki/pki-tools.jar
+%{_datadir}/pki/java-tools/
 
 
 %files -n pki-server
@@ -1390,6 +1372,10 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.25.a1
+- Merged pki-native-tools and pki-java-tools into pki-tools.
+- Modified pki-server to depend on pki-tools.
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.24.a1
 - Split pki-common into pki-base and pki-server.
 - Merged pki-util into pki-base.

@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}7%{?prerel}%{?dist}
+Release:          %{?relprefix}8%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -97,8 +97,7 @@ Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 # of ALL Dogtag PKI core packages
 Requires:         pki-ca >= %{pki_core_version}
 Requires:         pki-server >= %{pki_core_version}
-Requires:         pki-java-tools >= %{pki_core_version}
-Requires:         pki-native-tools >= %{pki_core_version}
+Requires:         pki-tools >= %{pki_core_version}
 Requires:         pki-selinux >= %{pki_core_version}
 Requires:         pki-setup >= %{pki_core_version}
 Requires:         pki-silent >= %{pki_core_version}
@@ -198,6 +197,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
+- Replaced pki-native-tools and pki-java-tools with pki-tools
+
 * Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
 - Replaced pki-util, pki-deploy, pki-common with pki-base and pki-server
 
