@@ -141,7 +141,7 @@ from org.mozilla.jss.util import Password
 
 
 # PKI Java Imports
-from com.netscape.cms.client.system import SystemConfigClient
+from com.netscape.certsrv.system import SystemConfigClient
 from com.netscape.certsrv.system import SystemCertData
 from com.netscape.certsrv.system import ConfigurationRequest
 from com.netscape.certsrv.system import ConfigurationResponse

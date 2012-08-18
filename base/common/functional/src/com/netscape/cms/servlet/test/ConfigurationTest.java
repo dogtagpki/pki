@@ -56,11 +56,11 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.cms.client.ClientConfig;
-import com.netscape.cms.client.system.SystemConfigClient;
+import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.util.Utils;
 
 /**

@@ -8,6 +8,20 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
+find_file(APACHE_COMMONS_CLI_JAR
+    NAMES
+        apache-commons-cli.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(APACHE_COMMONS_LANG_JAR
+    NAMES
+        apache-commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
@@ -31,18 +45,56 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        /usr/share/java/resteasy
+)
+
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs.jar
+    PATHS
+        /usr/share/java/resteasy
+)
+
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        /usr/share/java/resteasy
+)
+
+find_file(HTTPCLIENT_JAR
+    NAMES
+        httpclient.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
+find_file(HTTPCORE_JAR
+    NAMES
+        httpcore.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
 # build pki-tools
 javac(pki-tools-classes
     SOURCES
         com/netscape/cmstools/*.java
     CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
+        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil
+        pki-nsutil pki-cmsutil pki-certsrv
 )
 
 jar(pki-tools-jar
@@ -89,9 +141,12 @@ if(WITH_JAVADOC)
         SUBPACKAGES
             com.netscape.cmstools
         CLASSPATH
-            ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+            ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
             ${XALAN_JAR} ${XERCES_JAR}
             ${JSS_JAR} ${COMMONS_CODEC_JAR}
+            ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+            ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         OPTIONS
             -windowtitle 'pki-java-tools'
             -doctitle '<h1>pki-java-tools</h1>'

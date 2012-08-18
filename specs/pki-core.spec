@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}25%{?prerel}%{?dist}
+Release:          %{?relprefix}26%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1084,7 +1084,6 @@ fi
 %files -n pki-setup
 %defattr(-,root,root,-)
 %doc base/setup/LICENSE
-%{_bindir}/pki
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
@@ -1131,8 +1130,6 @@ fi
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
-%{_javadir}/pki/pki-client-%{version}.jar
-%{_javadir}/pki/pki-client.jar
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-common-javadoc
@@ -1144,6 +1141,7 @@ fi
 %files -n pki-tools
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
+%{_bindir}/pki
 %{_bindir}/p7tool
 %{_bindir}/revoker
 %{_bindir}/setpin
@@ -1372,6 +1370,9 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.26.a1
+- Split pki-client.jar into pki-certsrv.jar and pki-tools.jar.
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.25.a1
 - Merged pki-native-tools and pki-java-tools into pki-tools.
 - Modified pki-server to depend on pki-tools.

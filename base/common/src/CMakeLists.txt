@@ -30,13 +30,6 @@ find_file(COMMONS_HTTPCLIENT_JAR
         /usr/share/java
 )
 
-find_file(APACHE_COMMONS_CLI_JAR
-    NAMES
-        apache-commons-cli.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(APACHE_COMMONS_LANG_JAR
     NAMES
         apache-commons-lang.jar
@@ -133,7 +126,7 @@ javac(pki-certsrv-classes
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${APACHE_COMMONS_LANG_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -182,7 +175,7 @@ javac(pki-cms-classes
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${APACHE_COMMONS_LANG_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -233,7 +226,7 @@ if(WITH_JAVADOC)
             ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
             ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-            ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+            ${APACHE_COMMONS_LANG_JAR}
             ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
             ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -264,7 +257,7 @@ javac(pki-cmscore-classes
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
+        ${APACHE_COMMONS_LANG_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -334,35 +327,3 @@ install(
 )
 
 set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
-
-
-# build pki-client
-jar(pki-client-jar
-    CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-client-${APPLICATION_VERSION}.jar
-    INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
-    FILES
-        com/netscape/cms/client/*.class
-    DEPENDS
-        pki-cms
-)
-
-link(pki-client
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-client.jar
-    DEST
-        pki-client-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-client-jar
-)
-
-install(
-    FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-client.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-client-${APPLICATION_VERSION}.jar
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-set(PKI_CLIENT_JAR ${CMAKE_BINARY_DIR}/dist/pki-client.jar CACHE INTERNAL "pki-client jar file")
