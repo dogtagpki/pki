@@ -58,7 +58,17 @@ Please go to the <A href="https://$host:$port/$systemType/services"><b>services 
 #end
 <br/>
 To create additional instances, type "/usr/bin/pkicreate" on the command line.
-<br>
 #if ($systemType != "tps")
+<br>
 To start the administration console, type "/usr/bin/pkiconsole" on the command line.
+<br/>
+#end
+#if (($systemType == "kra") && ($info != ""))
+<hr>
+<br>
+<b>Important warning</b> reported by Certificate Authority:<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>$info</b>
+<br/>
+<br>
+This instance of Data Recovery Manager (DRM) is not connected to any Certificate Authority (CA).  Please consult the product documentation for the manual procedure of connecting a DRM to a CA.
+<br/>
 #end

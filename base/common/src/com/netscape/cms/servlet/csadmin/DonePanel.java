@@ -438,13 +438,18 @@ public class DonePanel extends WizardPanelBase {
 
         // need to push connector information to the CA
         if (type.equals("KRA") && !ca_host.equals("")) {
+            boolean connectorUpdated = true;
             try {
                 updateConnectorInfo(ownagenthost, ownagentsport);
+                CMS.debug("DonePanel: connector information updated.");
             } catch (IOException e) {
                 context.put("errorString", "Failed to update connector information.");
-                return;
+                context.put("info", "Failed to update connector information. "+e.getMessage());
+                connectorUpdated = false;
+                CMS.debug("DonePanel: exception in updating connector information. "+e.getMessage());
+                //return;
             }
-            setupClientAuthUser();
+            if (connectorUpdated) setupClientAuthUser();
         } // if KRA
 
         // import the CA certificate into the OCSP
