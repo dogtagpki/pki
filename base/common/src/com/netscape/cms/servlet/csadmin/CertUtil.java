@@ -345,8 +345,8 @@ public class CertUtil {
                 CMS.debug("Creating local certificate... issuerdn=" + issuerdn);
                 CMS.debug("Creating local certificate... dn=" + dn);
 
-				info = CryptoUtil.createX509CertInfo(x509key, serialNo,
-						issuerdn, dn, date, date, keyAlgorithm);
+                info = CryptoUtil.createX509CertInfo(x509key, serialNo,
+                        issuerdn, dn, date, date, keyAlgorithm);
             }
             CMS.debug("Cert Template: " + info.toString());
 
