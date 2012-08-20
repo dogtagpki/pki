@@ -51,6 +51,7 @@ public class UpdateConnector extends CMSServlet {
      */
     private static final long serialVersionUID = 972871860008509849L;
     private final static String SUCCESS = "0";
+    private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
 
     public UpdateConnector() {
@@ -121,42 +122,47 @@ public class UpdateConnector extends CMSServlet {
             return;
         }
 
-        IConfigStore cs = CMS.getConfigStore();
+        // check if connector exists
+        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        ICAService caService = (ICAService)ca.getCAService();
+        boolean connectorExists = (caService.getKRAConnector() != null)? true:false;
+        if (connectorExists) {
+            CMS.debug("UpdateConnector: KRA connector already exists");
+        } else {
+            IConfigStore cs = CMS.getConfigStore();
 
-        @SuppressWarnings("unchecked")
-        Enumeration<String> list = httpReq.getParameterNames();
-        while (list.hasMoreElements()) {
-            String name = list.nextElement();
-            String val = httpReq.getParameter(name);
-            if (name != null && name.startsWith("ca.connector")) {
-                CMS.debug("Adding connector update name=" + name + " val=" + val);
-                cs.putString(name, val);
-            } else {
-                CMS.debug("Skipping connector update name=" + name + " val=" + val);
+            @SuppressWarnings("unchecked")
+            Enumeration<String> list = httpReq.getParameterNames();
+            while (list.hasMoreElements()) {
+                String name = list.nextElement();
+                String val = httpReq.getParameter(name);
+                if (name != null && name.startsWith("ca.connector")) {
+                    CMS.debug("Adding connector update name=" + name + " val=" + val);
+                    cs.putString(name, val);
+                } else {
+                    CMS.debug("Skipping connector update name=" + name + " val=" + val);
+                }
             }
-        }
 
-        try {
-            String nickname = cs.getString("ca.subsystem.nickname", "");
-            String tokenname = cs.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("Internal Key Storage Token"))
-                nickname = tokenname + ":" + nickname;
-            cs.putString("ca.connector.KRA.nickName", nickname);
-            cs.commit(false);
-        } catch (Exception e) {
-        }
+            try {
+                String nickname = cs.getString("ca.subsystem.nickname", "");
+                String tokenname = cs.getString("ca.subsystem.tokenname", "");
+                if (!tokenname.equals("Internal Key Storage Token"))
+                    nickname = tokenname + ":" + nickname;
+                cs.putString("ca.connector.KRA.nickName", nickname);
+                cs.commit(false);
+            } catch (Exception e) {
+            }
 
-        // start the connector
-        try {
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    CMS.getSubsystem("ca");
-            ICAService caService = (ICAService) ca.getCAService();
-            IConnector kraConnector = caService.getConnector(
-                    cs.getSubStore("ca.connector.KRA"));
-            caService.setKRAConnector(kraConnector);
-            kraConnector.start();
-        } catch (Exception e) {
-            CMS.debug("Failed to start connector " + e);
+            // start the connector
+            try {
+                IConnector kraConnector = caService.getConnector(
+                        cs.getSubStore("ca.connector.KRA"));
+                caService.setKRAConnector(kraConnector);
+                kraConnector.start();
+            } catch (Exception e) {
+                CMS.debug("Failed to start connector " + e);
+            }
         }
 
         // send success status back to the requestor
@@ -165,7 +171,12 @@ public class UpdateConnector extends CMSServlet {
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
+            if (connectorExists) {
+                xmlObj.addItemToContainer(root, "Status", FAILED);
+                xmlObj.addItemToContainer(root, "Error", "DRM connector already exists.");
+            } else {
+                xmlObj.addItemToContainer(root, "Status", SUCCESS);
+            }
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);

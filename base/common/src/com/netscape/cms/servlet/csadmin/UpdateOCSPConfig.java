@@ -116,24 +116,22 @@ public class UpdateOCSPConfig extends CMSServlet {
 
         String ocsphost = httpReq.getParameter("ocsp_host");
         String ocspport = httpReq.getParameter("ocsp_port");
+        String ocspname = ocsphost.replace('.', '-')+"-"+ocspport;
+        String publisherPrefix = "ca.publish.publisher.instance.OCSPPublisher-"+ocspname;
+        String rulePrefix = "ca.publish.rule.instance.ocsprule-"+ocspname;
         try {
             cs.putString("ca.publish.enable", "true");
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.host",
-                    ocsphost);
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.port",
-                    ocspport);
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.nickName",
-                    nickname);
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.path",
-                    "/ocsp/agent/ocsp/addCRL");
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.pluginName", "OCSPPublisher");
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.enableClientAuth", "true");
-            cs.putString("ca.publish.rule.instance.ocsprule.enable", "true");
-            cs.putString("ca.publish.rule.instance.ocsprule.mapper", "NoMap");
-            cs.putString("ca.publish.rule.instance.ocsprule.pluginName", "Rule");
-            cs.putString("ca.publish.rule.instance.ocsprule.publisher",
-                    "OCSPPublisher");
-            cs.putString("ca.publish.rule.instance.ocsprule.type", "crl");
+            cs.putString(publisherPrefix+".host", ocsphost);
+            cs.putString(publisherPrefix+".port", ocspport);
+            cs.putString(publisherPrefix+".nickName", nickname);
+            cs.putString(publisherPrefix+".path", "/ocsp/agent/ocsp/addCRL");
+            cs.putString(publisherPrefix+".pluginName", "OCSPPublisher");
+            cs.putString(publisherPrefix+".enableClientAuth", "true");
+            cs.putString(rulePrefix+".enable", "true");
+            cs.putString(rulePrefix+".mapper", "NoMap");
+            cs.putString(rulePrefix+".pluginName", "Rule");
+            cs.putString(rulePrefix+".publisher", "OCSPPublisher-"+ocspname);
+            cs.putString(rulePrefix+".type", "crl");
             cs.commit(false);
             // insert info
             CMS.debug("UpdateOCSPConfig: Sending response");

@@ -178,6 +178,7 @@ public class DonePanel extends WizardPanelBase {
                 ConfigurationUtils.setupClientAuthUser();
             }
         } catch (Exception e) {
+            context.put("info", "Failed to update connector information. "+e.getMessage());
             CMS.debug("DonePanel - update(): Error while pushing KRA connectot information to the CA: " + e);
             e.printStackTrace();
         }
