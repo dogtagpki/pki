@@ -406,17 +406,10 @@ def compose_pki_master_dictionary():
                              "lib")
             config.pki_master_dict['pki_tomcat_systemd'] =\
                 config.PKI_DEPLOYMENT_TOMCAT_SYSTEMD
-            config.pki_master_dict['pki_war_source_dir'] =\
-                os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                             config.pki_master_dict['pki_subsystem'].lower(),
-                             "war")
             config.pki_master_dict['pki_source_webapps_path'] =\
                 os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
                              config.pki_master_dict['pki_subsystem'].lower(),
                              "webapps")
-            config.pki_master_dict['pki_war'] =\
-                os.path.join(config.pki_master_dict['pki_war_source_dir'],
-                             config.pki_master_dict['pki_war_file'])
             config.pki_master_dict['pki_source_catalina_properties'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "catalina.properties")

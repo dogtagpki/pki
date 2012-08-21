@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}26%{?prerel}%{?dist}
+Release:          %{?relprefix}27%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -73,12 +73,6 @@ BuildRequires:    tomcatjss >= 2.0.0
 %endif
 %endif
 %endif
-# Add the following build-time requirements to support the "pki-server" package
-BuildRequires:    pki-common-theme >= 10.0.0
-BuildRequires:    pki-ca-theme >= 10.0.0
-BuildRequires:    pki-kra-theme >= 10.0.0
-BuildRequires:    pki-ocsp-theme >= 10.0.0
-BuildRequires:    pki-tks-theme >= 10.0.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -786,21 +780,6 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
 fi                                                                           \
 )
 
-# Create PKI subsystem "war" files
-for subsystem in ca kra ocsp tks; do
-    echo "Constructing '${subsystem}.war' . . ."
-    %{__mkdir_p} %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/admin %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/css %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/common-ui/img %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{_datadir}/pki/${subsystem}-ui/webapps/${subsystem}/* %{buildroot}%{_datadir}/pki/${subsystem}/war
-    %{__cp} -r %{buildroot}%{_datadir}/pki/${subsystem}/webapps/${subsystem}/WEB-INF %{buildroot}%{_datadir}/pki/${subsystem}/war
-    cd %{buildroot}%{_datadir}/pki/${subsystem}/war
-    jar -cvMf ../${subsystem}.war *
-    %{__rm} -rf %{buildroot}%{_datadir}/pki/${subsystem}/war/*
-    %{__mv} ../${subsystem}.war %{buildroot}%{_datadir}/pki/${subsystem}/war
-done
-
 %pre -n pki-selinux
 %saveFileContext targeted
 
@@ -1259,7 +1238,6 @@ fi
 %dir %{_datadir}/pki/ca/profiles
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/setup/
-%{_datadir}/pki/ca/war/
 %{_datadir}/pki/ca/webapps/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
@@ -1288,7 +1266,6 @@ fi
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
-%{_datadir}/pki/kra/war/
 %{_datadir}/pki/kra/webapps/
 %dir %{_localstatedir}/lock/pki/kra
 %dir %{_localstatedir}/run/pki/kra
@@ -1317,7 +1294,6 @@ fi
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
-%{_datadir}/pki/ocsp/war/
 %{_datadir}/pki/ocsp/webapps/
 %dir %{_localstatedir}/lock/pki/ocsp
 %dir %{_localstatedir}/run/pki/ocsp
@@ -1346,7 +1322,6 @@ fi
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
-%{_datadir}/pki/tks/war/
 %{_datadir}/pki/tks/webapps/
 %dir %{_localstatedir}/lock/pki/tks
 %dir %{_localstatedir}/run/pki/tks
@@ -1370,6 +1345,9 @@ fi
 
 
 %changelog
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.27.a1
+- Moved webapp creation code into pkispawn.
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.26.a1
 - Split pki-client.jar into pki-certsrv.jar and pki-tools.jar.
 

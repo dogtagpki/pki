@@ -19,6 +19,10 @@
 # All rights reserved.
 #
 
+# System Imports
+import os
+
+
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
@@ -27,18 +31,38 @@ import pkimessages as log
 import pkiscriptlet
 
 
-# PKI Deployment War Explosion Scriptlet
+# PKI Web Application Deployment Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_log.info(log.WAR_EXPLOSION_SPAWN_1, __name__,
+            config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             # deploy war file
             util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
-            util.war.explode(master['pki_war'],
-                             master['pki_tomcat_webapps_subsystem_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui"),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    master['pki_subsystem'].lower() + "-ui",
+                    "webapps",
+                    master['pki_subsystem'].lower()),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    master['pki_subsystem'].lower(),
+                    "webapps",
+                    master['pki_subsystem'].lower()),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
             util.directory.create(
                 master['pki_tomcat_webapps_subsystem_webinf_classes_path'])
             util.directory.create(
@@ -62,12 +86,32 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def respawn(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_log.info(log.WAR_EXPLOSION_RESPAWN_1, __name__,
+            config.pki_log.info(log.WEBAPP_DEPLOYMENT_RESPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             # redeploy war file
             util.directory.modify(master['pki_tomcat_webapps_subsystem_path'])
-            util.war.explode(master['pki_war'],
-                             master['pki_tomcat_webapps_subsystem_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui"),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    master['pki_subsystem'].lower() + "-ui",
+                    "webapps",
+                    master['pki_subsystem'].lower()),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    master['pki_subsystem'].lower(),
+                    "webapps",
+                    master['pki_subsystem'].lower()),
+                master['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
             # update Tomcat webapps subsystem WEB-INF lib symbolic links
             if master['pki_subsystem'] == "CA":
                 util.symlink.modify(master['pki_ca_jar_link'])
@@ -83,7 +127,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_log.info(log.WAR_EXPLOSION_DESTROY_1, __name__,
+            config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             util.directory.delete(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv

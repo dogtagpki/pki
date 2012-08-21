@@ -86,7 +86,7 @@ install(
         src/scriptlets/selinux_setup.py
         src/scriptlets/slot_substitution.py
         src/scriptlets/subsystem_layout.py
-        src/scriptlets/war_explosion.py
+        src/scriptlets/webapp_deployment.py
     DESTINATION
         ${PYTHON_SITE_PACKAGES}/pki/deployment
     PERMISSIONS
@@ -149,8 +149,8 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/040_war_explosion\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webapp_deployment.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/spawn/${TOMCAT_SUBSYSTEM}/040_webapp_deployment\")"
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
@@ -192,8 +192,8 @@ foreach(TOMCAT_SUBSYSTEM ${TOMCAT_SUBSYSTEMS})
     )
     install(CODE "execute_process(COMMAND
         ${CMAKE_COMMAND} -E create_symlink
-        \"${PYTHON_SITE_PACKAGES}/pki/deployment/war_explosion.py\"
-        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_war_explosion\")"
+        \"${PYTHON_SITE_PACKAGES}/pki/deployment/webapp_deployment.py\"
+        \"\$ENV{DESTDIR}${DATA_INSTALL_DIR}/deployment/destroy/${TOMCAT_SUBSYSTEM}/940_webapp_deployment\")"
     )
 #   install(CODE "execute_process(COMMAND
 #       ${CMAKE_COMMAND} -E create_symlink
