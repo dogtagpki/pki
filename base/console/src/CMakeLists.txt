@@ -107,7 +107,7 @@ javac(pki-console-classes
         pki-common-classes
 )
 
-# package common and console classes
+# package common and console classes and resources
 jar(pki-console-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
@@ -116,18 +116,12 @@ jar(pki-console-jar
     FILES
         com/netscape/admin/certsrv/*.class
         com/netscape/certsrv/common/*.class
-    DEPENDS
-        pki-console-classes pki-common-classes
-)
-
-# package console resources
-jar(pki-console-resources
-    UPDATE
-        ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_CURRENT_SOURCE_DIR}
     FILES
         com/netscape/admin/certsrv/images/*.gif
     DEPENDS
-        pki-console-jar
+        pki-console-classes pki-common-classes
 )
 
 link(pki-console
@@ -136,7 +130,7 @@ link(pki-console
     DEST
         pki-console-${APPLICATION_VERSION}.jar
     DEPENDS
-        pki-console-resources
+        pki-console-jar
 )
 
 install(

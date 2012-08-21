@@ -91,7 +91,7 @@ endfunction(javac)
 
 function(jar target)
 
-    set(input_dir ${CMAKE_CURRENT_SOURCE_DIR})
+    set(size 0)
 
     foreach (arg ${ARGN})
 
@@ -103,49 +103,86 @@ function(jar target)
             set(param ${arg})
             set(operation "u")
 
-        elseif (arg MATCHES "(INPUT_DIR|FILES|EXCLUDE|DEPENDS)")
+        elseif (arg STREQUAL "EXTRACT")
+            set(param ${arg})
+            set(operation "x")
+
+        elseif (arg MATCHES "(OPTIONS|PARAMS|INPUT_DIR|FILES|EXCLUDE|DEPENDS)")
             set(param ${arg})
 
         else ()
 
-            if (param MATCHES "(CREATE|UPDATE)")
-                set(output ${arg})
+            if (param MATCHES "(CREATE|UPDATE|EXTRACT)")
+                set(options f)
+                set(params ${arg})
+
+            elseif (param STREQUAL "OPTIONS")
+                set(options ${options}${arg})
+
+            elseif (param STREQUAL "PARAMS")
+                set(params ${params} ${arg})
 
             elseif (param STREQUAL "INPUT_DIR")
-                set(input_dir ${arg})
+                set(counter ${size})
+                set(input_dir_${counter} ${arg})
+                math(EXPR size "${counter} + 1")
 
             elseif (param STREQUAL "FILES")
-                list(APPEND files ${arg})
+                if (NOT DEFINED counter)
+                    set(counter 0)
+                endif(NOT DEFINED counter)
+
+                list(APPEND files_${counter} ${arg})
 
             elseif (param STREQUAL "EXCLUDE")
-                list(APPEND exclude ${arg})
+                list(APPEND exclude_${counter} ${arg})
 
             elseif (param STREQUAL "DEPENDS")
                 list(APPEND depends ${arg})
 
-            endif(param MATCHES "(CREATE|UPDATE)")
+            endif(param MATCHES "(CREATE|UPDATE|EXTRACT)")
 
         endif(arg STREQUAL "CREATE")
 
     endforeach(arg)
 
-    set(file_list "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
-
     add_custom_target(${target} ALL DEPENDS ${depends})
 
-    add_custom_command(
-        TARGET ${target}
-        COMMAND ${CMAKE_COMMAND}
-            -Doutput=${file_list}
-            -Dinput_dir=${input_dir}
-            -Dfiles="${files}"
-            -Dexclude="${exclude}"
-            -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
-        COMMAND ${CMAKE_Java_ARCHIVE}
-            -${operation}f ${output}
-            -C ${input_dir} @${file_list}
-        WORKING_DIRECTORY ${input_dir}
-    )
+    foreach(i RANGE ${counter})
+
+        # by default use the current source dir
+        if (NOT DEFINED input_dir_${counter})
+            set(input_dir_${counter} ${CMAKE_CURRENT_SOURCE_DIR})
+        endif(NOT DEFINED input_dir_${counter})
+
+        # by default include all files
+        if (NOT DEFINED files_${i})
+            set(files_${i} "*")
+        endif(NOT DEFINED files_${i})
+
+        # if i == 0 do the original operation
+        # otherwise, do an update operation
+        if (${i} GREATER 0)
+            set(operation "u")
+        endif(${i} GREATER 0)
+
+        set(file_list_${i} "${CMAKE_CURRENT_BINARY_DIR}/${target}-${i}.files")
+
+        add_custom_command(
+            TARGET ${target}
+            COMMAND ${CMAKE_COMMAND}
+                -Doutput=${file_list_${i}}
+                -Dinput_dir=${input_dir_${i}}
+                -Dfiles="${files_${i}}"
+                -Dexclude="${exclude_${i}}"
+                -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
+            COMMAND ${CMAKE_Java_ARCHIVE}
+                -${operation}${options} ${params}
+                @${file_list_${i}}
+            WORKING_DIRECTORY ${input_dir_${i}}
+        )
+
+    endforeach(i RANGE ${counter})
 
 endfunction(jar)
 
