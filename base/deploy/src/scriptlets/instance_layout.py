@@ -97,18 +97,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_jss_jar_link'])
             util.symlink.create(master['pki_ldapjdk_jar'],
                 master['pki_ldapjdk_jar_link'])
-            util.symlink.create(master['pki_certsrv_jar'],
-                master['pki_certsrv_jar_link'])
-            util.symlink.create(master['pki_cmsbundle'],
-                master['pki_cmsbundle_jar_link'])
-            util.symlink.create(master['pki_cmscore'],
-                master['pki_cmscore_jar_link'])
-            util.symlink.create(master['pki_cms'],
-                master['pki_cms_jar_link'])
-            util.symlink.create(master['pki_cmsutil'],
-                master['pki_cmsutil_jar_link'])
-            util.symlink.create(master['pki_nsutil'],
-                master['pki_nsutil_jar_link'])
+            util.symlink.create(master['pki_tomcat_jar'],
+                master['pki_tomcat_jar_link'])
             util.symlink.create(master['pki_resteasy_atom_provider_jar'],
                 master['pki_resteasy_atom_provider_jar_link'])
             util.symlink.create(master['pki_resteasy_jaxb_provider_jar'],

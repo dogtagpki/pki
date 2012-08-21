@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmscore.realm;
+package com.netscape.cms.tomcat;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;

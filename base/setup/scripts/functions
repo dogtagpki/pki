@@ -955,7 +955,8 @@ verify_symlinks()
         [jss4.jar]=${jni_dir}/jss4.jar
         [tomcatjss.jar]=/usr/share/java/tomcatjss.jar
         # Dogtag 9 -> Dogtag 10
-        [apache-commons-codec.jar]=/usr/share/java/commons-codec.jar)
+        [apache-commons-codec.jar]=/usr/share/java/commons-codec.jar
+        [pki-tomcat.jar]=/usr/share/java/pki/pki-tomcat.jar)
 
     # '${pki_webapps_jar_dir}' symlinks
     webapps_jar_symlinks=(

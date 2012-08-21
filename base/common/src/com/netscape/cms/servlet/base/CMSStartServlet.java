@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.realm.PKIRealm;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -89,10 +91,16 @@ public class CMSStartServlet extends HttpServlet {
                 }
             }
         }
+
         try {
             CMS.start(path);
         } catch (EBaseException e) {
         }
+
+        // Register realm for this subsystem
+        String context = getServletContext().getContextPath();
+        if (context.startsWith("/")) context = context.substring(1);
+        ProxyRealm.registerRealm(context, new PKIRealm());
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)

@@ -689,6 +689,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_nsutil'] =\
                 os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                              "pki-nsutil.jar")
+            config.pki_master_dict['pki_tomcat_jar'] =\
+                os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
+                             "pki-tomcat.jar")
             config.pki_master_dict['pki_resteasy_atom_provider_jar'] =\
                 os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
                              "resteasy-atom-provider.jar")
@@ -768,30 +771,10 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
                     "ldapjdk.jar")
-            config.pki_master_dict['pki_certsrv_jar_link'] =\
+            config.pki_master_dict['pki_tomcat_jar_link'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-certsrv.jar")
-            config.pki_master_dict['pki_cmsbundle_jar_link'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-cmsbundle.jar")
-            config.pki_master_dict['pki_cmscore_jar_link'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-cmscore.jar")
-            config.pki_master_dict['pki_cms_jar_link'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-cms.jar")
-            config.pki_master_dict['pki_cmsutil_jar_link'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-cmsutil.jar")
-            config.pki_master_dict['pki_nsutil_jar_link'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_common_lib_path'],
-                    "pki-nsutil.jar")
+                    "pki-tomcat.jar")
             config.pki_master_dict['pki_resteasy_atom_provider_jar_link'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_common_lib_path'],
@@ -931,58 +914,66 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
                     "WEB-INF",
                     "lib")
+            config.pki_master_dict['pki_certsrv_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-certsrv.jar")
+            config.pki_master_dict['pki_cmsbundle_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-cmsbundle.jar")
+            config.pki_master_dict['pki_cmscore_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-cmscore.jar")
+            config.pki_master_dict['pki_cms_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-cms.jar")
+            config.pki_master_dict['pki_cmsutil_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-cmsutil.jar")
+            config.pki_master_dict['pki_nsutil_jar_link'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
+                    "pki-nsutil.jar")
             # Tomcat PKI subsystem war file convenience symbolic links
             if config.pki_master_dict['pki_subsystem'] == "CA":
                 config.pki_master_dict['pki_ca_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                                  "pki-ca.jar")
-                # config.pki_master_dict['pki_ca_jar_link'] =\
-                #     os.path.join(
-                #         config.pki_master_dict\
-                #         ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                #         "pki-ca.jar")
                 config.pki_master_dict['pki_ca_jar_link'] =\
                     os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
+                        config.pki_master_dict\
+                        ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
                         "pki-ca.jar")
             elif config.pki_master_dict['pki_subsystem'] == "KRA":
                 config.pki_master_dict['pki_kra_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                                  "pki-kra.jar")
-                # config.pki_master_dict['pki_kra_jar_link'] =\
-                #     os.path.join(
-                #         config.pki_master_dict\
-                #         ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                #         "pki-kra.jar")
                 config.pki_master_dict['pki_kra_jar_link'] =\
                     os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
+                        config.pki_master_dict\
+                        ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
                         "pki-kra.jar")
             elif config.pki_master_dict['pki_subsystem'] == "OCSP":
                 config.pki_master_dict['pki_ocsp_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                                  "pki-ocsp.jar")
-                # config.pki_master_dict['pki_ocsp_jar_link'] =\
-                #     os.path.join(
-                #         config.pki_master_dict\
-                #         ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                #         "pki-ocsp.jar")
                 config.pki_master_dict['pki_ocsp_jar_link'] =\
                     os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
+                        config.pki_master_dict\
+                        ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
                         "pki-ocsp.jar")
             elif config.pki_master_dict['pki_subsystem'] == "TKS":
                 config.pki_master_dict['pki_tks_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                                  "pki-tks.jar")
-                # config.pki_master_dict['pki_tks_jar_link'] =\
-                #     os.path.join(
-                #         config.pki_master_dict\
-                #         ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                #         "pki-tks.jar")
                 config.pki_master_dict['pki_tks_jar_link'] =\
                     os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
+                        config.pki_master_dict\
+                        ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
                         "pki-tks.jar")
         # PKI Target (slot substitution) name/value pairs
         config.pki_master_dict['pki_target_cs_cfg'] =\

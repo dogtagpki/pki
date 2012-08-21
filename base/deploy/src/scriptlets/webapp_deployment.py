@@ -68,6 +68,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(
                 master['pki_tomcat_webapps_subsystem_webinf_lib_path'])
             # establish Tomcat webapps subsystem WEB-INF lib symbolic links
+            util.symlink.create(master['pki_certsrv_jar'],
+                master['pki_certsrv_jar_link'])
+            util.symlink.create(master['pki_cmsbundle'],
+                master['pki_cmsbundle_jar_link'])
+            util.symlink.create(master['pki_cmscore'],
+                master['pki_cmscore_jar_link'])
+            util.symlink.create(master['pki_cms'],
+                master['pki_cms_jar_link'])
+            util.symlink.create(master['pki_cmsutil'],
+                master['pki_cmsutil_jar_link'])
+            util.symlink.create(master['pki_nsutil'],
+                master['pki_nsutil_jar_link'])
             if master['pki_subsystem'] == "CA":
                 util.symlink.create(master['pki_ca_jar'],
                                     master['pki_ca_jar_link'])

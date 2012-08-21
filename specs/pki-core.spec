@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}27%{?prerel}%{?dist}
+Release:          %{?relprefix}28%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1197,6 +1197,8 @@ fi
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
+%{_javadir}/pki/pki-tomcat-%{version}.jar
+%{_javadir}/pki/pki-tomcat.jar
 %dir %{_localstatedir}/lock/pki/tomcat
 %dir %{_localstatedir}/run/pki/tomcat
 
@@ -1345,6 +1347,9 @@ fi
 
 
 %changelog
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.28.a1
+- Added pki-tomcat.jar.
+
 * Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.27.a1
 - Moved webapp creation code into pkispawn.
 

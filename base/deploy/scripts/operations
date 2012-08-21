@@ -951,11 +951,10 @@ verify_symlinks()
     pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_ID}"
     pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
     pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_ID}.service"
-    # FUTURE: "pki_<pki_subsystem>_webapps_jar_dir" directories
-    pki_ca_jar_dir="${pki_common_jar_dir}"
-    pki_kra_jar_dir="${pki_common_jar_dir}"
-    pki_ocsp_jar_dir="${pki_common_jar_dir}"
-    pki_tks_jar_dir="${pki_common_jar_dir}"
+    pki_ca_jar_dir="${PKI_INSTANCE_PATH}/webapps/ca/WEB-INF/lib"
+    pki_kra_jar_dir="${PKI_INSTANCE_PATH}/webapps/kra/WEB-INF/lib"
+    pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/webapps/ocsp/WEB-INF/lib"
+    pki_tks_jar_dir="${PKI_INSTANCE_PATH}/webapps/tks/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
@@ -977,7 +976,14 @@ verify_symlinks()
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
     # '${pki_ca_jar_dir}' symlinks
-    ca_jar_symlinks[pki-ca.jar]=/usr/share/java/pki/pki-ca.jar
+    ca_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-ca.jar]=${java_dir}/pki/pki-ca.jar)
 
     # '${PKI_INSTANCE_PATH}/kra' symlinks
     kra_symlinks=(
@@ -988,7 +994,14 @@ verify_symlinks()
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
     # '${pki_kra_jar_dir}' symlinks
-    kra_jar_symlinks[pki-kra.jar]=/usr/share/java/pki/pki-kra.jar
+    kra_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-kra.jar]=${java_dir}/pki/pki-kra.jar)
 
     # '${PKI_INSTANCE_PATH}/ocsp' symlinks
     ocsp_symlinks=(
@@ -999,7 +1012,14 @@ verify_symlinks()
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
     # '${pki_ocsp_jar_dir}' symlinks
-    ocsp_jar_symlinks[pki-ocsp.jar]=/usr/share/java/pki/pki-ocsp.jar
+    ocsp_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-ocsp.jar]=${java_dir}/pki/pki-ocsp.jar)
 
     # '${PKI_INSTANCE_PATH}/tks' symlinks
     tks_symlinks=(
@@ -1010,7 +1030,14 @@ verify_symlinks()
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
     # '${pki_tks_jar_dir}' symlinks
-    tks_jar_symlinks[pki-tks.jar]=/usr/share/java/pki/pki-tks.jar
+    tks_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-tks.jar]=${java_dir}/pki/pki-tks.jar)
 
     # '${pki_common_jar_dir}' symlinks
     common_jar_symlinks=(
@@ -1025,12 +1052,7 @@ verify_symlinks()
         [jettison.jar]=${java_dir}/jettison.jar
         [jss4.jar]=${jni_dir}/jss4.jar
         [ldapjdk.jar]=${java_dir}/ldapjdk.jar
-        [pki-certsrv.jar]=/usr/share/java/pki/pki-certsrv.jar
-        [pki-cms.jar]=/usr/share/java/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=/usr/share/java/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=/usr/share/java/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=/usr/share/java/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=/usr/share/java/pki/pki-nsutil.jar
+        [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
         [resteasy-atom-provider.jar]=${resteasy_java_dir}/resteasy-atom-provider.jar
         [resteasy-jaxb-provider.jar]=${resteasy_java_dir}/resteasy-jaxb-provider.jar
         [resteasy-jaxrs.jar]=${resteasy_java_dir}/resteasy-jaxrs.jar

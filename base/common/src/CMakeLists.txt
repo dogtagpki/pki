@@ -171,6 +171,8 @@ set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki
 javac(pki-cms-classes
     SOURCES
         com/netscape/cms/*.java
+    EXCLUDE
+        com/netscape/cms/tomcat/*.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
@@ -192,6 +194,8 @@ jar(pki-cms-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/cms/*.class
+    EXCLUDE
+        com/netscape/cms/tomcat/*.class
     DEPENDS
         pki-cms-classes
 )
@@ -249,12 +253,55 @@ if(WITH_JAVADOC)
 endif(WITH_JAVADOC)
 
 
+# build pki-tomcat
+javac(pki-tomcat-classes
+    SOURCES
+        com/netscape/cms/tomcat/*.java
+    CLASSPATH
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+    OUTPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-cms
+)
+
+jar(pki-tomcat-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat-${APPLICATION_VERSION}.jar
+    INPUT_DIR
+        ${CMAKE_BINARY_DIR}/classes
+    FILES
+        com/netscape/cms/tomcat/*.class
+    DEPENDS
+        pki-tomcat-classes
+)
+
+link(pki-tomcat
+    SOURCE
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+    DEST
+        pki-tomcat-${APPLICATION_VERSION}.jar
+    DEPENDS
+        pki-tomcat-jar
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat-${APPLICATION_VERSION}.jar
+    DESTINATION
+        ${JAVA_JAR_INSTALL_DIR}/pki
+)
+
+set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar CACHE INTERNAL "pki-tomcat jar file")
+
+
 # build pki-cmscore
 javac(pki-cmscore-classes
     SOURCES
         com/netscape/cmscore/*.java
     CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
         ${APACHE_COMMONS_LANG_JAR}
@@ -264,7 +311,7 @@ javac(pki-cmscore-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil pki-certsrv pki-cms
+        pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-tomcat
 )
 
 jar(pki-cmscore-jar
