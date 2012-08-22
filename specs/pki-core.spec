@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.20
-Release:          2%{?dist}
+Version:          9.0.22
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -749,9 +749,12 @@ fi
 
 
 %changelog
-* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.20-2
+* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.22-1
 - Reverted selinux changes that broke f16 selinux policy.
 - Reapplied those changes as a modified patch to f17 build.
+
+* Fri Jul 20 2012 Ade Lee <alee@redhat.com> 9.0.21-1
+- Bugzilla Bug #841996 - latest selinux policy fix breaks dogtag
 
 * Mon May 7 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.20-1
 - New official build
