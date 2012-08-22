@@ -2778,6 +2778,17 @@ sub process_pki_files_and_symlinks
                              "${db_password}\n",
                              $default_file_permissions, $pki_user, $pki_group);
 
+    ## Populate systemd links
+    if ($use_systemd) {
+        return 0 if !create_symlink(
+            "${pki_subsystem_systemd_wants_path}/${pki_instance_systemd_service_name}",
+            "$pki_subsystem_systemd_service_path",
+             $root_user, $root_group);
+
+        # reload systemd configuration
+        run_command("/bin/systemctl --system daemon-reload");
+    }
+
     ## Populate instances (RA, TPS instances)
     if ($subsystem_type eq $RA || $subsystem_type eq $TPS) {
         # create an empty file called "pwcache.conf" for this
@@ -2801,16 +2812,6 @@ sub process_pki_files_and_symlinks
         # to find our tomcat6 configuration file in /etc/sysconfig
         return 0 if !create_symlink($pki_instance_initscript_path, $tomcat6_initscript_path,
                                     $root_user, $root_group);
-        if ($use_systemd) {
-            return 0 if !create_symlink(
-                "${pki_subsystem_systemd_wants_path}/${pki_instance_systemd_service_name}", 
-                "$pki_subsystem_systemd_service_path",
-                 $root_user, $root_group);
-            
-            # reload systemd configuration
-            run_command("/bin/systemctl --system daemon-reload"); 
-
-        }
 
         return 0 if !create_directory($webinf_lib_instance_path,
                                       $default_dir_permissions, $pki_user, $pki_group);

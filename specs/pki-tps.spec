@@ -1,12 +1,17 @@
 Name:             pki-tps
 Version:          9.0.7
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
 Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+# specify '_unitdir' macro for platforms that don't use 'systemd'
+%if 0%{?rhel} || 0%{?fedora} < 16
+%define           _unitdir /lib/systemd/system
+%endif
 
 BuildRequires:    cmake
 BuildRequires:    apr-devel
@@ -30,16 +35,16 @@ Requires:         pki-native-tools
 Requires:         pki-selinux
 Requires:         pki-setup
 Requires:         pki-tps-theme >= 9.0.0
+
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
 Requires(post):   chkconfig
 Requires(preun):  chkconfig
 Requires(preun):  initscripts
 Requires(postun): initscripts
-%if 0%{?fedora} >= 15
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
 Requires:         initscripts
 %endif
 
@@ -130,7 +135,8 @@ chmod +x %{__perl_requires}
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TPS:BOOL=ON ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TPS:BOOL=ON .. \
+    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir}
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -171,7 +177,14 @@ echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 %endif
 
+%if 0%{?fedora} >= 16
+%{__rm} %{buildroot}%{_initrddir}/pki-tpsd
+%else
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tpsd.target.wants
+%{__rm} -rf %{buildroot}%{_unitdir}
+%endif
 
+%if 0%{?rhel} || 0%{?fedora} < 16
 %post
 /sbin/ldconfig
 # This adds the proper /etc/rc*.d links for the script
@@ -190,11 +203,54 @@ if [ "$1" -ge "1" ] ; then
     /sbin/service pki-tpsd condrestart >/dev/null 2>&1 || :
 fi
 
+%else
+%post
+# Attempt to update ALL old "TPS" instances to "systemd"
+if [ -d /etc/sysconfig/pki/tps ]; then
+    for inst in `ls /etc/sysconfig/pki/tps`; do
+        if [ ! -e "/etc/systemd/system/pki-tpsd.target.wants/pki-tpsd@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-tpsd@.service" \
+                  "/etc/systemd/system/pki-tpsd.target.wants/pki-tpsd@${inst}.service"
+
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-tpsd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-tpsd@${inst}.service || :
+            else
+                echo "pkicreate.systemd.servicename=pki-tpsd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+%preun
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-tpsd.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-tpsd.target > /dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-tpsd.target >/dev/null 2>&1 || :
+fi
+%endif
 
 %files
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
+%{_unitdir}/pki-tpsd@.service
+%{_unitdir}/pki-tpsd.target
+%else
 %{_initrddir}/pki-tpsd
+%endif
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
@@ -221,6 +277,9 @@ fi
 
 
 %changelog
+* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.7-5
+- Added systemd scripts
+
 * Tue Aug  7 2012 Nathan Kinder <nkinder@redhat.com> 9.0.7-4
 - The API changed between httpd 2.2 and 2.4.  We now need to pass
   the module index to ap_log_error() when calling it.  The remote_ip

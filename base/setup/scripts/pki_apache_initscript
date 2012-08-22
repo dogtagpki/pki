@@ -74,13 +74,13 @@ start()
     rv=$?
     if [ ${rv} = 0 ] ; then	
 	if [ ${ARCHITECTURE} = "i386" ] ; then
-	    LANG=${PKI_HTTPD_LANG} daemon runcon -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
+	    LANG=${PKI_HTTPD_LANG} daemon runcon -t ${PKI_SELINUX_TYPE} -r system_r -- ${httpd} ${PKI_OPTIONS}
             rv=$?
 	    # overwrite output from "daemon"
 	    echo -n $"Starting ${prog}: "
 	elif [ ${ARCHITECTURE} = "x86_64" ] ; then
 	    # NOTE:  "daemon" is incompatible with "httpd" on 64-bit architectures
-	    LANG=${PKI_HTTPD_LANG} runcon -t ${PKI_SELINUX_TYPE} -- ${httpd} ${PKI_OPTIONS}
+	    LANG=${PKI_HTTPD_LANG} runcon -t ${PKI_SELINUX_TYPE} -r system_r -- ${httpd} ${PKI_OPTIONS}
             rv=$?
 	fi
     else
