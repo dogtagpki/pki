@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.20
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -49,7 +49,7 @@ BuildRequires:    tomcatjss >= 2.0.0
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
 Patch0:	          %{name}-selinux-Dogtag-9-f16.patch
-Patch1:	          %{name}-selinux-Dogtag-9-f17-1.patch
+Patch1:	          %{name}-selinux-Dogtag-9-f17-2.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -749,6 +749,10 @@ fi
 
 
 %changelog
+* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.20-2
+- Reverted selinux changes that broke f16 selinux policy.
+- Reapplied those changes as a modified patch to f17 build.
+
 * Mon May 7 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.20-1
 - New official build
 

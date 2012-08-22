@@ -1,0 +1,68 @@
+From acca26e34d31e5f898465f0725f750ad53201f93 Mon Sep 17 00:00:00 2001
+From: Ade Lee <alee@redhat.com>
+Date: Wed, 22 Aug 2012 08:53:39 -0400
+Subject: [PATCH] Patch for f17 selinux policy
+
+---
+ base/selinux/src/pki.if | 21 +++++++++++++++++++++
+ base/selinux/src/pki.te |  2 +-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/base/selinux/src/pki.if b/base/selinux/src/pki.if
+index 0709176ea2e4ad3eea12430a9a653fd9bfef7e3a..7c20ef0bc5bda7612262949b540b93e535bbe169 100644
+--- a/base/selinux/src/pki.if
++++ b/base/selinux/src/pki.if
+@@ -38,12 +38,18 @@ template(`pki_ca_template',`
+         gen_require(`
+                 type java_exec_t;
+                 type initrc_t;
++                type tomcat_exec_t;
++                type tomcat_cache_t;
+         ')
+         domtrans_pattern($1_script_t, java_exec_t, $1_t)
+ 
+         role system_r types $1_script_t;
+         allow $1_t java_exec_t:file entrypoint;
+         allow initrc_t $1_script_t:process transition;
++        can_exec($1_t, tomcat_exec_t)
++        miscfiles_read_hwdata($1_t)
++        allow pki_ca_t tomcat_cache_t:dir {getattr search};
++        #tomcat_search_cache($1_t)
+ 
+ 	type $1_etc_rw_t, pki_ca_config;
+ 	files_type($1_etc_rw_t)
+@@ -206,6 +212,21 @@ template(`pki_ca_template',`
+         optional_policy(`
+             unconfined_domain($1_script_t)
+         ')
++
++        # tomcat6 init scripts do runuser and touch lockfile
++        allow $1_t self:capability { setuid chown setgid fowner audit_write dac_override };
++        allow $1_t self:netlink_audit_socket { nlmsg_relay create read write };
++        consoletype_exec($1_t)
++        fs_read_hugetlbfs_files($1_t)
++        hostname_exec($1_t)
++        kernel_read_kernel_sysctls($1_t)
++        fs_getattr_xattr_fs($1_t)
++
++        # java (mislabeled as lib_t?) calls build_classpath
++        libs_exec_lib_files($1_t)
++
++        selinux_get_enforce_mode($1_t)
++
+ ')
+ 
+ ########################################
+diff --git a/base/selinux/src/pki.te b/base/selinux/src/pki.te
+index 089859c8532c9d7d274d65ddd749a17ad630a63b..99ec98eb08c468c02e880d393423b47e49b04cc6 100644
+--- a/base/selinux/src/pki.te
++++ b/base/selinux/src/pki.te
+@@ -1,4 +1,4 @@
+-policy_module(pki,9.0.2)
++policy_module(pki,9.0.5)
+ 
+ attribute pki_ca_config;
+ attribute pki_ca_executable;
+-- 
+1.7.11.2
+
