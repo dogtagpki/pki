@@ -38,18 +38,12 @@ template(`pki_ca_template',`
         gen_require(`
                 type java_exec_t;
                 type initrc_t;
-                type tomcat_exec_t;
-                type tomcat_cache_t;
         ')
         domtrans_pattern($1_script_t, java_exec_t, $1_t)
 
         role system_r types $1_script_t;
         allow $1_t java_exec_t:file entrypoint;
         allow initrc_t $1_script_t:process transition;
-        can_exec($1_t, tomcat_exec_t)
-        miscfiles_read_hwdata($1_t)
-        allow pki_ca_t tomcat_cache_t:dir {getattr search};
-        #tomcat_search_cache($1_t)
 
 	type $1_etc_rw_t, pki_ca_config;
 	files_type($1_etc_rw_t)
@@ -96,6 +90,7 @@ template(`pki_ca_template',`
         # for file signing
         corenet_tcp_connect_http_port($1_t)
 
+	# This is for /etc/$1/tomcat.conf:
 	can_exec($1_t, $1_tomcat_exec_t)
         allow $1_t $1_tomcat_exec_t:file {getattr read};
 
