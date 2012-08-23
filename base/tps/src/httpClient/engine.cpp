@@ -183,21 +183,22 @@ int ssl3Suites[] = {
 };
 
 int tlsSuites[] = {
-//    TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
-//    TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
-//    TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+    TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
+    TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,
+    TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
     TLS_RSA_WITH_AES_128_CBC_SHA,
     TLS_RSA_WITH_AES_256_CBC_SHA,
     TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,
     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-//    TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
-//    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-//    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+    TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
     TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
     TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
     TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-    TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+    TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+    0
 };
 
 void disableAllCiphersOnSocket(PRFileDesc* sock) {
@@ -539,6 +540,9 @@ void __EXPORT setDefaultAllTLSCiphers() {
             alg);
         SSL_CipherPrefSetDefault(tlsSuites[i++], PR_TRUE);
 	}
+    RA::Debug( LL_PER_PDU,
+        "setDefaultAllTLSCiphers",
+        "number of ciphers set:%d", i);
 }
  
 /**
@@ -557,7 +561,6 @@ PRFileDesc * Engine::_doConnect(PRNetAddr *addr, PRBool SSLOn,
 	PRFileDesc *tcpsock = NULL;
 	PRFileDesc *sock = NULL;
 
-    SSL_CipherPrefSetDefault(0xC005 /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
     setDefaultAllTLSCiphers();
 
     tcpsock = PR_OpenTCPSocket(addr->raw.family);
@@ -734,6 +737,7 @@ PSHttpResponse * HttpEngine::makeRequest( PSHttpRequest &request,
 	char *nickName = request.getCertNickName();
 
 	char *serverName = (char *)server.getAddr();
+
     sock = _doConnect( &addr, request.isSSL(), 0, 0,nickName, 0, serverName );
 
     if ( sock != NULL) {
