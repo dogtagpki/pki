@@ -1183,7 +1183,7 @@ public class ConfigurationUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            CMS.debug("Failed to import ldif files" + e);
+            CMS.debug("Failed to import ldif files: " + e);
             releaseConnection(conn);
             throw new IOException("Failed to import ldif files");
         }
@@ -1202,9 +1202,12 @@ public class ConfigurationUtils {
         String database = cs.getString("internaldb.database");
         String instancePath = cs.getString("instanceRoot");
         String instanceId = cs.getString("instanceId");
-        String dbuser = "uid=" + cs.getString("cs.type") + "-" + cs.getString("machineName") + "-"
+        String cstype = cs.getString("cs.type");
+
+        String dbuser = "uid=" + cstype + "-" + cs.getString("machineName") + "-"
                 + cs.getString("service.securePort") + ",ou=people," + baseDN;
-        String configDir = instancePath + File.separator + "conf";
+
+        String configDir = instancePath + File.separator + cstype.toLowerCase() + File.separator + "conf";
 
         StringTokenizer tokenizer = new StringTokenizer(v, ",");
         while (tokenizer.hasMoreTokens()) {
