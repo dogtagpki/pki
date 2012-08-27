@@ -680,7 +680,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
         }
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
-        document.writeln('<KEYGEN name=' + inputListSet[n].inputId + '>');
+        document.writeln('<KEYGEN name="' + inputListSet[n].inputId + '" challenge="none" keytype="'+keyTypeOptions("")+'">');
       }
     } else if (inputListSet[n].inputSyntax == 'dual_keygen_request_type') {
       keygen_request = 'true';
