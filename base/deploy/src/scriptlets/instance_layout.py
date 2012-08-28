@@ -19,12 +19,17 @@
 # All rights reserved.
 #
 
+# System Imports
+import os
+
+
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
+import os
 
 
 # PKI Deployment Instance Layout Scriptlet
@@ -50,6 +55,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy(master['pki_source_webapps_root_web_xml'],
                            master['pki_tomcat_webapps_root_webinf_web_xml'],
                            overwrite_flag=True)
+            util.directory.create(master['pki_tomcat_webapps_common_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui"),
+                master['pki_tomcat_webapps_common_path'],
+                overwrite_flag=True)
             util.directory.create(master['pki_tomcat_work_path'])
             util.directory.create(master['pki_tomcat_work_catalina_path'])
             util.directory.create(master['pki_tomcat_work_catalina_host_path'])
@@ -150,6 +162,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.modify(master['pki_tomcat_common_path'])
             util.directory.modify(master['pki_tomcat_common_lib_path'])
             util.directory.modify(master['pki_tomcat_webapps_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui"),
+                master['pki_tomcat_webapps_common_path'],
+                overwrite_flag=True)
             util.directory.modify(master['pki_tomcat_webapps_root_path'])
             util.directory.modify(master['pki_tomcat_webapps_root_webinf_path'])
             util.file.copy(master['pki_source_webapps_root_web_xml'],

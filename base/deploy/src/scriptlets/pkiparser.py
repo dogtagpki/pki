@@ -566,6 +566,9 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_tomcat_webapps_root_path'] =\
                 os.path.join(config.pki_master_dict['pki_tomcat_webapps_path'],
                              "ROOT")
+            config.pki_master_dict['pki_tomcat_webapps_common_path'] =\
+                os.path.join(config.pki_master_dict['pki_tomcat_webapps_path'],
+                             "pki")
             config.pki_master_dict['pki_tomcat_webapps_root_webinf_path'] =\
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_webapps_root_path'],
