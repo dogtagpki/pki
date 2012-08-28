@@ -69,7 +69,7 @@ def process_command_line_arguments(argv):
         mandatory.add_argument('-i',
                                dest='pki_deployed_instance_name',
                                action='store',
-                               nargs=1, metavar='<instance>',
+                               nargs=1, required=True, metavar='<instance>',
                                help='FORMAT:  ${pki_instance_name}'
                                     '[.${pki_admin_domain_name}]')
     # Establish 'Optional' command-line options

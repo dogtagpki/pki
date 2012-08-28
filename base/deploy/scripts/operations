@@ -767,12 +767,425 @@ display_instance_status()
     return $rv
 }
 
+make_symlink()
+{
+    symlink="${1}"
+    target="${2}"
+    user="${3}"
+    group="${4}"
+
+    rv=0
+
+    echo "INFO:  Attempting to create '${symlink}' -> '${target}' . . ."
+    # Check to make certain that the expected target exists.
+    #
+    #     NOTE:  The symbolic link does NOT exist at this point.
+    #
+    if [ -e ${target} ]; then
+        # Check that the expected target is fully resolvable!
+        if [ ! `readlink -qe ${target}` ]; then
+            # Issue an ERROR that the target to which the
+            # symbolic link is expected to point is NOT fully resolvable!
+            echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+                 "since target '${target}' is NOT fully resolvable!"
+            rv=1
+        else
+            # Attempt to create a symbolic link and 'chown' it.
+            ln -s ${target} ${symlink}
+            rv=$?
+            if [ $rv -eq 0 ]; then
+                # NOTE:  Ignore 'chown' errors.
+                chown -h ${user}:${group} ${symlink}
+                echo "SUCCESS:  Created '${symlink}' -> '${target}'"
+            else
+                echo "ERROR:  Failed to create '${symlink}' -> '${target}'!"
+                rv=1
+            fi
+        fi
+    else
+        # Issue an ERROR that the target to which the
+        # symbolic link is expected to point does NOT exist.
+        echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+             "since target '${target}' does NOT exist!"
+        rv=1
+    fi
+
+    return $rv
+}
+
+check_symlinks()
+{
+    # declare -p symlinks
+    path="${1}"
+    user="${2}"
+    group="${3}"
+
+    rv=0
+
+    # process key/value pairs (symlink/target) in the associative array
+    for key in "${!symlinks[@]}"
+    do
+        symlink="${path}/${key}"
+        target=${symlinks[${key}]}
+        if [ -e ${symlink} ]; then
+            if [ -h ${symlink} ]; then
+                current_target=`readlink ${symlink}`
+                # Verify that the current target to which the
+                # symlink points is the expected target
+                if [ ${current_target} == ${target} ]; then
+                    # Check to make certain that the expected target exists.
+                    if [ -e ${target} ]; then
+                        # Check that the expected target is fully resolvable!
+                        if [ ! `readlink -qe ${target}` ]; then
+                            # Issue an ERROR that the target to which the
+                            # symbolic link is expected to point is NOT
+                            # fully resolvable!
+                            echo "WARNING:  Symbolic link '${symlink}'"\
+                                 "exists, but is a dangling symlink!"\
+                            echo "ERROR:  Unable to create"\
+                                 "'${symlink}' -> '${target}'"\
+                                 "since target '${target}' is NOT fully"\
+                                 "resolvable!"
+                            rv=1
+                        else
+                            # ALWAYS run 'chown' on an existing '${symlink}'
+                            # that points to a fully resolvable '${target}'
+                            #
+                            #     NOTE:  Ignore 'chown' errors.
+                            #
+                            chown -h ${user}:${group} ${symlink}
+                            # echo "SUCCESS:  '${symlink}' -> '${target}'"
+                        fi
+                    else
+                        # Issue an ERROR that the target to which the
+                        # symbolic link is expected to point does NOT exist.
+                        echo "WARNING:  Symbolic link '${symlink}'"\
+                             "exists, but is a dangling symlink!"\
+                        echo "ERROR:  Unable to create"\
+                             "'${symlink}' -> '${target}'"\
+                             "since target '${target}' does NOT exist!"
+                        rv=1
+                    fi
+                else
+                    # Attempt to remove this symbolic link and
+                    # issue a WARNING that a new symbolic link is
+                    # being created to point to the expected target
+                    # rather than the current target to which it
+                    # points.
+                    echo "WARNING:  Attempting to change symbolic link"\
+                         "'${symlink}' to point to target '${target}'"\
+                         "INSTEAD of current target '${current_target}'!"
+                    rm ${symlink}
+                    rv=$?
+                    if [ $rv -ne 0 ]; then
+                        echo "ERROR:  Failed to remove"\
+                             "'${symlink}' -> '${current_target}'!"
+                        rv=1
+                    else
+                        echo "INFO:  Removed"\
+                             "'${symlink}' -> '${current_target}'!"
+                        # Attempt to create the symbolic link and chown it.
+                        make_symlink ${symlink} ${target} ${user} ${group}
+                        rv=$?
+                    fi
+                fi
+            elif [ -f ${symlink} ]; then
+                # Issue a WARNING that the administrator may have replaced
+                # the symbolic link with a file for debugging purposes.
+                echo "WARNING:  '${symlink}' exists but is NOT a symbolic link!"
+            else
+                # Issue an ERROR that the symbolic link has been replaced
+                # by something unusable (such as a directory).
+                echo "ERROR:  '${symlink}' exists but is NOT a symbolic link!"
+                rv=1
+            fi
+        else
+            # Issue a WARNING that this symbolic link does not exist.
+            echo "WARNING:  Symbolic link '${symlink}' does NOT exist!"
+            # Attempt to create the symbolic link and chown it.
+            make_symlink ${symlink} ${target} ${user} ${group}
+            rv=$?
+        fi
+    done
+
+    return $rv
+}
+
+# Detect and correct any missing or incorrect symlinks.
+#
+#     Use the following command to locate PKI 'instance' symlinks:
+#
+#        find ${PKI_INSTANCE_PATH} -type l | sort | xargs file
+#
+verify_symlinks()
+{
+    # declare associative arrays
+    declare -A base_symlinks
+    declare -A root_symlinks
+    declare -A ca_symlinks
+    declare -A kra_symlinks
+    declare -A ocsp_symlinks
+    declare -A tks_symlinks
+    declare -A common_jar_symlinks
+    declare -A ca_jar_symlinks
+    declare -A kra_jar_symlinks
+    declare -A ocsp_jar_symlinks
+    declare -A tks_jar_symlinks
+    declare -A systemd_symlinks
+
+    # Dogtag 10 Conditional Variables
+    if [ ${ARCHITECTURE} == "x86_64" ]; then
+        jni_dir="/usr/lib64/java"
+    else
+        jni_dir="/usr/lib/java"
+    fi
+
+    # Dogtag 10 Symbolic Link Target Variables
+    java_dir="/usr/share/java"
+    pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d@.service"
+    resteasy_java_dir="/usr/share/java/resteasy"
+    systemd_dir="/lib/systemd/system"
+
+    # Dogtag 10 Symbolic Link Variables
+    pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
+    pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_ID}"
+    pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
+    pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_ID}.service"
+    # FUTURE: "pki_<pki_subsystem>_webapps_jar_dir" directories
+    pki_ca_jar_dir="${pki_common_jar_dir}"
+    pki_kra_jar_dir="${pki_common_jar_dir}"
+    pki_ocsp_jar_dir="${pki_common_jar_dir}"
+    pki_tks_jar_dir="${pki_common_jar_dir}"
+
+    # '${PKI_INSTANCE_PATH}' symlinks
+    base_symlinks=(
+        [alias]=/etc/pki/${PKI_INSTANCE_ID}/alias
+        [bin]=/usr/share/tomcat/bin
+        [conf]=/etc/pki/${PKI_INSTANCE_ID}
+        [lib]=/usr/share/tomcat/lib
+        [logs]=/var/log/pki/${PKI_INSTANCE_ID})
+
+    # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)
+    root_symlinks[${PKI_INSTANCE_ID}]=/usr/sbin/tomcat-sysd
+
+    # '${PKI_INSTANCE_PATH}/ca' symlinks
+    ca_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_ID}/ca
+        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/ca
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_ca_jar_dir}' symlinks
+    ca_jar_symlinks[pki-ca.jar]=/usr/share/java/pki/pki-ca.jar
+
+    # '${PKI_INSTANCE_PATH}/kra' symlinks
+    kra_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_ID}/kra
+        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/kra
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_kra_jar_dir}' symlinks
+    kra_jar_symlinks[pki-kra.jar]=/usr/share/java/pki/pki-kra.jar
+
+    # '${PKI_INSTANCE_PATH}/ocsp' symlinks
+    ocsp_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_ID}/ocsp
+        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/ocsp
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_ocsp_jar_dir}' symlinks
+    ocsp_jar_symlinks[pki-ocsp.jar]=/usr/share/java/pki/pki-ocsp.jar
+
+    # '${PKI_INSTANCE_PATH}/tks' symlinks
+    tks_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_ID}/tks
+        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/tks
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_tks_jar_dir}' symlinks
+    tks_jar_symlinks[pki-tks.jar]=/usr/share/java/pki/pki-tks.jar
+
+    # '${pki_common_jar_dir}' symlinks
+    common_jar_symlinks=(
+        [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
+        [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
+        [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
+        [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
+        [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar
+        [httpcore.jar]=${java_dir}/httpcomponents/httpcore.jar
+        [javassist.jar]=${java_dir}/javassist.jar
+        [jaxrs-api.jar]=${resteasy_java_dir}/jaxrs-api.jar
+        [jettison.jar]=${java_dir}/jettison.jar
+        [jss4.jar]=${jni_dir}/jss4.jar
+        [ldapjdk.jar]=${java_dir}/ldapjdk.jar
+        [pki-certsrv.jar]=/usr/share/java/pki/pki-certsrv.jar
+        [pki-cms.jar]=/usr/share/java/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=/usr/share/java/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=/usr/share/java/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=/usr/share/java/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=/usr/share/java/pki/pki-nsutil.jar
+        [resteasy-atom-provider.jar]=${resteasy_java_dir}/resteasy-atom-provider.jar
+        [resteasy-jaxb-provider.jar]=${resteasy_java_dir}/resteasy-jaxb-provider.jar
+        [resteasy-jaxrs.jar]=${resteasy_java_dir}/resteasy-jaxrs.jar
+        [resteasy-jettison-provider.jar]=${resteasy_java_dir}/resteasy-jettison-provider.jar
+        [scannotation.jar]=${java_dir}/scannotation.jar
+        [symkey.jar]=${jni_dir}/symkey.jar
+        [tomcatjss.jar]=${java_dir}/tomcat7jss.jar
+        [velocity.jar]=${java_dir}/velocity.jar
+        [xerces-j2.jar]=${java_dir}/xerces-j2.jar
+        [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
+        [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
+
+    # '${pki_systemd_dir}' symlinks
+    systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}
+
+    # Detect and correct 'Tomcat' symbolic links
+    #
+    #     (1) convert the specified associative array into a string
+    #     (2) create a new global 'symlinks' associative array from this
+    #         specified string which will be used by the "check_symlinks()"
+    #         subroutine
+    #     (3) call "check_symlinks()" with the appropriate arguments to
+    #         detect and correct this specified associative array;
+    #         "check_symlinks()" returns 0 on success and 1 on failure
+    #
+    if [ ${PKI_WEB_SERVER_TYPE} == 'tomcat' ]; then
+        # Detect and correct 'base_symlinks'
+        base_symlinks_string=$(declare -p base_symlinks)
+        eval "declare -A symlinks=${base_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'root_symlinks'
+        root_symlinks_string=$(declare -p root_symlinks)
+        eval "declare -A symlinks=${root_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} "root" "root"
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/ca ]; then
+            # Detect and correct 'ca_symlinks'
+            ca_symlinks_string=$(declare -p ca_symlinks)
+            eval "declare -A symlinks=${ca_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/ca ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'ca_jar_symlinks'
+            ca_jar_symlinks_string=$(declare -p ca_jar_symlinks)
+            eval "declare -A symlinks=${ca_jar_symlinks_string#*=}"
+            check_symlinks ${pki_ca_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/kra ]; then
+            # Detect and correct 'kra_symlinks'
+            kra_symlinks_string=$(declare -p kra_symlinks)
+            eval "declare -A symlinks=${kra_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/kra ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'kra_jar_symlinks'
+            kra_jar_symlinks_string=$(declare -p kra_jar_symlinks)
+            eval "declare -A symlinks=${kra_jar_symlinks_string#*=}"
+            check_symlinks ${pki_kra_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/ocsp ]; then
+            # Detect and correct 'ocsp_symlinks'
+            ocsp_symlinks_string=$(declare -p ocsp_symlinks)
+            eval "declare -A symlinks=${ocsp_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/ocsp ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'ocsp_jar_symlinks'
+            ocsp_jar_symlinks_string=$(declare -p ocsp_jar_symlinks)
+            eval "declare -A symlinks=${ocsp_jar_symlinks_string#*=}"
+            check_symlinks ${pki_ocsp_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
+            # Detect and correct 'tks_symlinks'
+            tks_symlinks_string=$(declare -p tks_symlinks)
+            eval "declare -A symlinks=${tks_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/tks ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+            # Detect and correct 'tks_jar_symlinks'
+            tks_jar_symlinks_string=$(declare -p tks_jar_symlinks)
+            eval "declare -A symlinks=${tks_jar_symlinks_string#*=}"
+            check_symlinks ${pki_tks_jar_dir} ${PKI_USER} ${PKI_GROUP}
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        fi
+
+        # Detect and correct 'common_jar_symlinks'
+        common_jar_symlinks_string=$(declare -p common_jar_symlinks)
+        eval "declare -A symlinks=${common_jar_symlinks_string#*=}"
+        check_symlinks ${pki_common_jar_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'systemd_symlinks'
+        systemd_symlinks_string=$(declare -p systemd_symlinks)
+        eval "declare -A symlinks=${systemd_symlinks_string#*=}"
+        check_symlinks ${pki_systemd_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+    fi
+
+    return 0
+}
+
 start_instance()
 {
     rv=0
 
     if [ -f ${RESTART_SERVER} ] ; then
         rm -f ${RESTART_SERVER}
+    fi
+
+    # Verify symbolic links (detecting and correcting them if possible)
+    verify_symlinks
+    rv=$?
+    if [ $rv -ne 0 ] ; then
+        return $rv
     fi
 
     # Invoke the initscript for this instance

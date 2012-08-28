@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
-# 
+#
 # Status Exit Codes
 #
 #  0 program is running or service is OK
@@ -203,7 +203,7 @@ if [ $SYSTEMD ]; then
             exit 4
         fi
     fi
-else  
+else
     if [ $# -lt 1 ] ; then
         # 3 unimplemented feature (for example, "reload")
         #     [insufficient arguments]
@@ -738,6 +738,395 @@ display_instance_status()
     return $rv
 }
 
+make_symlink()
+{
+    symlink="${1}"
+    target="${2}"
+    user="${3}"
+    group="${4}"
+
+    rv=0
+
+    echo "INFO:  Attempting to create '${symlink}' -> '${target}' . . ."
+    # Check to make certain that the expected target exists.
+    #
+    #     NOTE:  The symbolic link does NOT exist at this point.
+    #
+    if [ -e ${target} ]; then
+        # Check that the expected target is fully resolvable!
+        if [ ! `readlink -qe ${target}` ]; then
+            # Issue an ERROR that the target to which the
+            # symbolic link is expected to point is NOT fully resolvable!
+            echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+                 "since target '${target}' is NOT fully resolvable!"
+            rv=1
+        else
+            # Attempt to create a symbolic link and 'chown' it.
+            ln -s ${target} ${symlink}
+            rv=$?
+            if [ $rv -eq 0 ]; then
+                # NOTE:  Ignore 'chown' errors.
+                chown -h ${user}:${group} ${symlink}
+                echo "SUCCESS:  Created '${symlink}' -> '${target}'"
+            else
+                echo "ERROR:  Failed to create '${symlink}' -> '${target}'!"
+                rv=1
+            fi
+        fi
+    else
+        # Issue an ERROR that the target to which the
+        # symbolic link is expected to point does NOT exist.
+        echo "ERROR:  Failed making '${symlink}' -> '${target}'"\
+             "since target '${target}' does NOT exist!"
+        rv=1
+    fi
+
+    return $rv
+}
+
+check_symlinks()
+{
+    # declare -p symlinks
+    path="${1}"
+    user="${2}"
+    group="${3}"
+
+    rv=0
+
+    # process key/value pairs (symlink/target) in the associative array
+    for key in "${!symlinks[@]}"
+    do
+        symlink="${path}/${key}"
+        target=${symlinks[${key}]}
+        if [ -e ${symlink} ]; then
+            if [ -h ${symlink} ]; then
+                current_target=`readlink ${symlink}`
+                # Verify that the current target to which the
+                # symlink points is the expected target
+                if [ ${current_target} == ${target} ]; then
+                    # Check to make certain that the expected target exists.
+                    if [ -e ${target} ]; then
+                        # Check that the expected target is fully resolvable!
+                        if [ ! `readlink -qe ${target}` ]; then
+                            # Issue an ERROR that the target to which the
+                            # symbolic link is expected to point is NOT
+                            # fully resolvable!
+                            echo "WARNING:  Symbolic link '${symlink}'"\
+                                 "exists, but is a dangling symlink!"\
+                            echo "ERROR:  Unable to create"\
+                                 "'${symlink}' -> '${target}'"\
+                                 "since target '${target}' is NOT fully"\
+                                 "resolvable!"
+                            rv=1
+                        else
+                            # ALWAYS run 'chown' on an existing '${symlink}'
+                            # that points to a fully resolvable '${target}'
+                            #
+                            #     NOTE:  Ignore 'chown' errors.
+                            #
+                            chown -h ${user}:${group} ${symlink}
+                            # echo "SUCCESS:  '${symlink}' -> '${target}'"
+                        fi
+                    else
+                        # Issue an ERROR that the target to which the
+                        # symbolic link is expected to point does NOT exist.
+                        echo "WARNING:  Symbolic link '${symlink}'"\
+                             "exists, but is a dangling symlink!"\
+                        echo "ERROR:  Unable to create"\
+                             "'${symlink}' -> '${target}'"\
+                             "since target '${target}' does NOT exist!"
+                        rv=1
+                    fi
+                else
+                    # Attempt to remove this symbolic link and
+                    # issue a WARNING that a new symbolic link is
+                    # being created to point to the expected target
+                    # rather than the current target to which it
+                    # points.
+                    echo "WARNING:  Attempting to change symbolic link"\
+                         "'${symlink}' to point to target '${target}'"\
+                         "INSTEAD of current target '${current_target}'!"
+                    rm ${symlink}
+                    rv=$?
+                    if [ $rv -ne 0 ]; then
+                        echo "ERROR:  Failed to remove"\
+                             "'${symlink}' -> '${current_target}'!"
+                        rv=1
+                    else
+                        echo "INFO:  Removed"\
+                             "'${symlink}' -> '${current_target}'!"
+                        # Attempt to create the symbolic link and chown it.
+                        make_symlink ${symlink} ${target} ${user} ${group}
+                        rv=$?
+                    fi
+                fi
+            elif [ -f ${symlink} ]; then
+                # Issue a WARNING that the administrator may have replaced
+                # the symbolic link with a file for debugging purposes.
+                echo "WARNING:  '${symlink}' exists but is NOT a symbolic link!"
+            else
+                # Issue an ERROR that the symbolic link has been replaced
+                # by something unusable (such as a directory).
+                echo "ERROR:  '${symlink}' exists but is NOT a symbolic link!"
+                rv=1
+            fi
+        else
+            # Issue a WARNING that this symbolic link does not exist.
+            echo "WARNING:  Symbolic link '${symlink}' does NOT exist!"
+            # Attempt to create the symbolic link and chown it.
+            make_symlink ${symlink} ${target} ${user} ${group}
+            rv=$?
+        fi
+    done
+
+    return $rv
+}
+
+# Detect and correct any missing or incorrect symlinks.
+#
+#     Use the following command to locate PKI 'instance' symlinks:
+#
+#        find ${PKI_INSTANCE_PATH} -type l | sort | xargs file
+#
+verify_symlinks()
+{
+    declare -A apache_symlinks
+    declare -A perl_symlinks
+    declare -A base_symlinks
+    declare -A root_symlinks
+    declare -A common_jar_symlinks
+    declare -A webapps_jar_symlinks
+    declare -A systemd_symlinks
+
+    # Dogtag 9 Conditional Variables
+    if [ ${ARCHITECTURE} == "x86_64" ]; then
+        jni_dir="/usr/lib64/java"
+    else
+        jni_dir="/usr/lib/java"
+    fi
+    if   [ ${PKI_SUBSYSTEM_TYPE} == "ca" ]; then
+        pki_systemd_link="pki-cad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-cad@.service"
+    elif [ ${PKI_SUBSYSTEM_TYPE} == "kra" ]; then
+        pki_systemd_link="pki-krad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-krad@.service"
+    elif [ ${PKI_SUBSYSTEM_TYPE} == "ocsp" ]; then
+        pki_systemd_link="pki-ocspd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-ocspd@.service"
+    elif [ ${PKI_SUBSYSTEM_TYPE} == "ra" ]; then
+        pki_systemd_link="pki-rad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-rad@.service"
+    elif [ ${PKI_SUBSYSTEM_TYPE} == "tks" ]; then
+        pki_systemd_link="pki-tksd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-tksd@.service"
+    elif [ ${PKI_SUBSYSTEM_TYPE} == "tps" ]; then
+        pki_systemd_link="pki-tpsd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_service="pki-tpsd@.service"
+    fi
+
+    # Dogtag 9 Symbolic Link Target Variables
+    systemd_dir="/lib/systemd/system"
+
+    # Dogtag 9 Symbolic Link Variables
+    pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
+    # pki_registry_dir="/etc/sysconfig/pki/${PKI_SUBSYSTEM_TYPE}/${PKI_INSTANCE_ID}"
+    pki_systemd_dir="/etc/systemd/system/pki-cad.target.wants"
+    pki_webapps_jar_dir="${PKI_INSTANCE_PATH}/webapps/${PKI_SUBSYSTEM_TYPE}/WEB-INF/lib"
+
+    # '${PKI_INSTANCE_PATH}' symlinks
+    apache_symlinks=(
+        [conf]=/etc/${PKI_INSTANCE_ID}
+        [logs]=/var/log/${PKI_INSTANCE_ID}
+        [run]=/var/run/pki/${PKI_SUBSYSTEM_TYPE})
+
+    base_symlinks=(
+        [conf]=/etc/${PKI_INSTANCE_ID}
+        [logs]=/var/log/${PKI_INSTANCE_ID})
+
+    # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)
+    root_symlinks[${PKI_INSTANCE_ID}]=/usr/sbin/tomcat6-sysd
+
+    # '${PKI_INSTANCE_PATH}/lib' symlinks
+    perl_symlinks[perl]=/usr/share/pki/${PKI_SUBSYSTEM_TYPE}/lib/perl
+
+    # '${pki_common_jar_dir}' symlinks
+    common_jar_symlinks=(
+        [apache-commons-logging.jar]=/usr/share/java/apache-commons-logging.jar
+        [jss4.jar]=${jni_dir}/jss4.jar
+        [tomcatjss.jar]=/usr/share/java/tomcatjss.jar
+        # Dogtag 9 -> Dogtag 10
+        [apache-commons-codec.jar]=/usr/share/java/commons-codec.jar)
+
+    # '${pki_webapps_jar_dir}' symlinks
+    webapps_jar_symlinks=(
+        [apache-commons-collections.jar]=/usr/share/java/apache-commons-collections.jar
+        [apache-commons-lang.jar]=/usr/share/java/apache-commons-lang.jar
+        [ldapjdk.jar]=/usr/share/java/ldapjdk.jar
+        # [osutil.jar]=${jni_dir}/osutil.jar
+        [${PKI_INSTANCE_ID}.jar]=/usr/share/java/pki/${PKI_INSTANCE_ID}.jar
+        [pki-certsrv.jar]=/usr/share/java/pki/pki-certsrv.jar
+        [pki-cms.jar]=/usr/share/java/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=/usr/share/java/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=/usr/share/java/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=/usr/share/java/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=/usr/share/java/pki/pki-nsutil.jar
+        [symkey.jar]=${jni_dir}/symkey.jar
+        [velocity.jar]=/usr/share/java/velocity.jar
+        [xerces-j2.jar]=/usr/share/java/xerces-j2.jar
+        [xml-commons-apis.jar]=/usr/share/java/xml-commons-apis.jar
+        [xml-commons-resolver.jar]=/usr/share/java/xml-commons-resolver.jar)
+
+    # '${pki_systemd_dir}' symlinks
+    systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}
+
+    # Detect and correct PKI subsystem 'instance' symbolic links
+    #
+    #     (1) convert the specified associative array into a string
+    #     (2) create a new global 'symlinks' associative array from this
+    #         specified string which will be used by the "check_symlinks()"
+    #         subroutine
+    #     (3) call "check_symlinks()" with the appropriate arguments to
+    #         detect and correct this specified associative array;
+    #         "check_symlinks()" returns 0 on success and 1 on failure
+    #
+    if   [ "${PKI_SUBSYSTEM_TYPE}" == "ra"   ]  ||
+         [ "${PKI_SUBSYSTEM_TYPE}" == "tps"  ]
+    then
+        # Detect and correct 'apache_symlinks'
+        apache_symlinks_string=$(declare -p apache_symlinks)
+        eval "declare -A symlinks=${apache_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'perl_symlinks'
+        perl_symlinks_string=$(declare -p perl_symlinks)
+        eval "declare -A symlinks=${perl_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH}/lib ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        if [ "${PKI_SUBSYSTEM_TYPE}" == "tps"  ]; then
+            # ALWAYS recreate this "convenience" link and 'chown' it
+            # NOTE:  Ignore 'chown' errors.
+            cd ${PKI_INSTANCE_PATH}/docroot ;
+            ln -s tokendb tus ;
+            rv=$?
+            if [ $rv -eq 0 ]; then
+                chown -h ${PKI_USER}:${PKI_GROUP} tus
+                # echo "SUCCESS:  Created 'tus' -> 'tokendb'"
+            else
+                echo "ERROR:  Failed to create 'tus' -> 'tokendb' convenience"
+                echo "        symbolic link for '${PKI_INSTANCE_ID}'!"
+                return 1
+            fi
+        fi
+    elif [ "${PKI_SUBSYSTEM_TYPE}" == "ca"   ]  ||
+         [ "${PKI_SUBSYSTEM_TYPE}" == "kra"  ]  ||
+         [ "${PKI_SUBSYSTEM_TYPE}" == "ocsp" ]  ||
+         [ "${PKI_SUBSYSTEM_TYPE}" == "tks"  ]
+    then
+        # Detect and correct 'base_symlinks'
+        base_symlinks_string=$(declare -p base_symlinks)
+        eval "declare -A symlinks=${base_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'root_symlinks'
+        root_symlinks_string=$(declare -p root_symlinks)
+        eval "declare -A symlinks=${root_symlinks_string#*=}"
+        check_symlinks ${PKI_INSTANCE_PATH} "root" "root"
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'common_jar_symlinks'
+        common_jar_symlinks_string=$(declare -p common_jar_symlinks)
+        eval "declare -A symlinks=${common_jar_symlinks_string#*=}"
+        check_symlinks ${pki_common_jar_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'webapps_jar_symlinks'
+        webapps_jar_symlinks_string=$(declare -p webapps_jar_symlinks)
+        eval "declare -A symlinks=${webapps_jar_symlinks_string#*=}"
+        check_symlinks ${pki_webapps_jar_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+
+        # Detect and correct 'systemd_symlinks'
+        systemd_symlinks_string=$(declare -p systemd_symlinks)
+        eval "declare -A symlinks=${systemd_symlinks_string#*=}"
+        check_symlinks ${pki_systemd_dir} ${PKI_USER} ${PKI_GROUP}
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+    fi
+
+    return 0
+}
+
+# NOTE:  This code will NOT be executed if the file called
+#        '${PKI_INSTANCE_PATH}/conf/DOGTAG_10_UPDATE_MARKER' exists!
+update_cs_cfg_for_dogtag_10()
+{
+    # declare a simple array (to maintain specified parameter order)
+    # and specify Dogtag 10 'CS.cfg' specific parameters (CA specific)
+    declare -a dogtag_10_cs_cfg_parameters=(
+        processor.caDoRevoke.authorityId=ca
+        processor.caDoRevoke.authzMgr=BasicAclAuthz
+        processor.caDoRevoke.authzResourceName=certServer.ee.certificates
+        processor.caDoRevoke.getClientCert=false
+        processor.caDoRevoke-agent.authMgr=certUserDBAuthMgr
+        processor.caDoRevoke-agent.authorityId=ca
+        processor.caDoRevoke-agent.authzMgr=BasicAclAuthz
+        processor.caDoRevoke-agent.authzResourceName=certServer.ca.certificates
+        processor.caDoRevoke-agent.getClientCert=true
+        processor.caDoUnrevoke.authMgr=certUserDBAuthMgr
+        processor.caDoUnrevoke.authorityId=ca
+        processor.caDoUnrevoke.authzMgr=BasicAclAuthz
+        processor.caDoUnrevoke.authzResourceName=certServer.ca.certificate
+        processor.caDoUnrevoke.getClientCert=true
+        processor.caProfileProcess.authMgr=certUserDBAuthMgr
+        processor.caProfileProcess.authorityId=ca
+        processor.caProfileProcess.authzMgr=BasicAclAuthz
+        processor.caProfileProcess.authzResourceName=certServer.ca.request.profile
+        processor.caProfileProcess.getClientCert=true
+        processor.caProfileSubmit.authorityId=ca
+        processor.caProfileSubmit.authzMgr=BasicAclAuthz
+        processor.caProfileSubmit.authzResourceName=certServer.ee.profile
+        processor.caProfileSubmit.getClientCert=false)
+
+    # Append ANY missing Dogtag 10 CFG parameter to the end of the 'CS.cfg'
+    for key in "${!dogtag_10_cs_cfg_parameters[@]}"
+    do
+        line="${dogtag_10_cs_cfg_parameters[${key}]}"
+        grep -q ${line} ${pki_instance_configuration_file}
+        rv=$?
+        if [ ${rv} -ne 0 ] ; then
+            echo "INFO:  Appending '${line}' to"\
+                 "'${pki_instance_configuration_file}'"
+            echo ${line} >> ${pki_instance_configuration_file}
+        fi
+    done
+
+    # Create a MARKER to indicate that this update has been completed
+    touch ${PKI_INSTANCE_PATH}/conf/DOGTAG_10_UPDATE_MARKER
+}
+
 start_instance()
 {
     rv=0
@@ -746,11 +1135,25 @@ start_instance()
         rm -f ${RESTART_SERVER}
     fi
 
+    # Verify symbolic links (detecting and correcting them if possible)
+    verify_symlinks
+    rv=$?
+    if [ $rv -ne 0 ] ; then
+        return $rv
+    fi
+
     # Invoke the initscript for this instance
     case $PKI_SUBSYSTEM_TYPE in
         ca|kra|ocsp|tks)
 
-            # We must export the service name so that the systemd version 
+            # If required, update 'CS.cfg' from Dogtag 9 -> Dogtag 10
+            if   [ ${PKI_SUBSYSTEM_TYPE} == "ca" ]  &&
+                 [ ! -e ${PKI_INSTANCE_PATH}/conf/DOGTAG_10_UPDATE_MARKER ]
+            then
+                 update_cs_cfg_for_dogtag_10
+            fi
+
+            # We must export the service name so that the systemd version
             # of the tomcat6 init script knows which instance specific
             # configuration file to source.
             export SERVICE_NAME=$PKI_INSTANCE_ID
@@ -760,7 +1163,7 @@ start_instance()
                      $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             else
-                $PKI_INSTANCE_INITSCRIPT start 
+                $PKI_INSTANCE_INITSCRIPT start
                 rv=$?
             fi
             ;;
@@ -1065,9 +1468,9 @@ registry_status()
 
         case $PKI_SUBSYSTEM_TYPE in
             ca|kra|ocsp|tks)
-                if [ $SYSTEMD ]; then 
+                if [ $SYSTEMD ]; then
                     display_instance_status_systemd
-                else 
+                else
                     display_instance_status
                 fi
                 rv=$?
