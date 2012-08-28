@@ -33,7 +33,7 @@ install(
     DESTINATION
         ${DATA_INSTALL_DIR}/shared/
     PATTERN
-        "lib/" EXCLUDE
+        "lib/*" EXCLUDE
 )
 
 # install empty directories

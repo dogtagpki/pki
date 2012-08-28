@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}30%{?prerel}%{?dist}
+Release:          %{?relprefix}31%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1163,7 +1163,7 @@ fi
 
 %{_datadir}/pki/setup/
 %dir %{_datadir}/pki/shared
-%{_datadir}/pki/shared/conf/
+%{_datadir}/pki/shared/
 
 
 %files -n pki-selinux
@@ -1304,6 +1304,9 @@ fi
 
 
 %changelog
+* Wed Sep 12 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.31.a1
+- Fixed pki-server to include everything in shared dir.
+
 * Tue Sep 11 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.30.a1
 - Added build dependency on redhat-rpm-config.
 

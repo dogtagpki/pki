@@ -65,10 +65,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf'],
                 overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_index_jsp'],
-                master['pki_target_index_jsp'],
-                overwrite_flag=True)
             util.file.apply_slot_substitution(
                 master['pki_target_auth_properties'])
             util.file.apply_slot_substitution(
@@ -125,10 +121,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.copy_with_slot_substitution(
                 master['pki_source_tomcat_conf'],
                 master['pki_target_tomcat_conf'],
-                overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_index_jsp'],
-                master['pki_target_index_jsp'],
                 overwrite_flag=True)
             util.file.apply_slot_substitution(
                 master['pki_target_auth_properties'])

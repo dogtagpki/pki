@@ -406,9 +406,9 @@ def compose_pki_master_dictionary():
                              "lib")
             config.pki_master_dict['pki_tomcat_systemd'] =\
                 config.PKI_DEPLOYMENT_TOMCAT_SYSTEMD
-            config.pki_master_dict['pki_source_webapps_path'] =\
+            config.pki_master_dict['pki_shared_webapps_path'] =\
                 os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                             config.pki_master_dict['pki_subsystem'].lower(),
+                             "shared",
                              "webapps")
             config.pki_master_dict['pki_source_catalina_properties'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
@@ -425,15 +425,6 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_source_tomcat_conf'] =\
                 os.path.join(config.pki_master_dict['pki_source_shared_path'],
                              "tomcat.conf")
-            config.pki_master_dict['pki_source_index_jsp'] =\
-                os.path.join(config.pki_master_dict['pki_source_webapps_path'],
-                             "ROOT",
-                             "index.jsp")
-            config.pki_master_dict['pki_source_webapps_root_web_xml'] =\
-                os.path.join(config.pki_master_dict['pki_source_webapps_path'],
-                             "ROOT",
-                             "WEB-INF",
-                             "web.xml")
             if config.pki_master_dict['pki_subsystem'] == "CA":
                 config.pki_master_dict['pki_source_emails'] =\
                     os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
@@ -573,11 +564,6 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_tomcat_webapps_root_path'],
                     "WEB-INF")
-            config.pki_master_dict['pki_tomcat_webapps_root_webinf_web_xml'] =\
-                os.path.join(
-                    config.pki_master_dict\
-                    ['pki_tomcat_webapps_root_webinf_path'],
-                    "web.xml")
             config.pki_master_dict['pki_tomcat_work_path'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
                              "work")
@@ -1012,10 +998,6 @@ def compose_pki_master_dictionary():
                 os.path.join(
                     config.pki_master_dict['pki_instance_configuration_path'],
                     "tomcat.conf")
-            config.pki_master_dict['pki_target_index_jsp'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_tomcat_webapps_root_path'],
-                    "index.jsp")
             # in-place slot substitution name/value pairs
             config.pki_master_dict['pki_target_auth_properties'] =\
                 os.path.join(
