@@ -389,8 +389,10 @@ PK11SymKey *DeriveKey(PK11SymKey *cardKey, const Buffer& hostChallenge, const Bu
     param.data = (unsigned char*)&string;
     param.len = sizeof(string);
 
-    invalid_mechanism = PR_FALSE;
+    invalid_mechanism = PR_TRUE;
 
+    /* When NSS gets full ability to perform this mechanism in soft token, revisit this code to make sure it works. */
+    /*
     tmp1 = PK11_Derive( master , CKM_DES_ECB_ENCRYPT_DATA , &param , CKM_CONCATENATE_BASE_AND_KEY  , CKA_DERIVE, 0);
 
     if ( tmp1 == NULL) {
@@ -401,7 +403,7 @@ PK11SymKey *DeriveKey(PK11SymKey *cardKey, const Buffer& hostChallenge, const Bu
     } else {
        PR_fprintf(PR_STDOUT,"DeriveKey: Successfully created key using encrypt and derive method! \n");
     }
-
+    */
     if ( invalid_mechanism == PR_FALSE) {
 
         string.pData = &derivationData[EIGHT_BYTES];
