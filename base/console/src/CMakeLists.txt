@@ -9,6 +9,14 @@ find_file(PKI_NSUTIL_JAR
         /usr/share/java/pki
 )
 
+find_file(PKI_CERTSRV_JAR
+    NAMES
+        pki-certsrv.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java/pki
+)
+
 
 # '/usr/share/java' jars
 find_file(BASE_JAR
@@ -76,21 +84,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-# build common classes
-javac(pki-common-classes
-    SOURCE_DIR
-        ${CMAKE_SOURCE_DIR}/base/common/src
-    SOURCES
-        com/netscape/certsrv/common/*.java
-    CLASSPATH
-        ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
-        ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-        ${PKI_NSUTIL_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR}
-    OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
-)
-
 # build console classes
 javac(pki-console-classes
     SOURCES
@@ -99,15 +92,13 @@ javac(pki-console-classes
         ${CMAKE_BINARY_DIR}/classes
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-        ${PKI_NSUTIL_JAR}
+        ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
-    DEPENDS
-        pki-common-classes
 )
 
-# package common and console classes and resources
+# package console classes and resources
 jar(pki-console-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
@@ -115,13 +106,12 @@ jar(pki-console-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/admin/certsrv/*.class
-        com/netscape/certsrv/common/*.class
     INPUT_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}
     FILES
         com/netscape/admin/certsrv/images/*.gif
     DEPENDS
-        pki-console-classes pki-common-classes
+        pki-console-classes
 )
 
 link(pki-console

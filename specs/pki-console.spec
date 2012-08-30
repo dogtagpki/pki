@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}6%{?prerel}%{?dist}
+Release:          %{?relprefix}7%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -31,7 +31,7 @@ BuildRequires:    junit4
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    pki-base >= 9.0.15
+BuildRequires:    pki-base >= 10.0.0
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-24
@@ -41,6 +41,7 @@ BuildRequires:    pki-base
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
 Requires:         ldapjdk
+Requires:         pki-base >= 10.0.0
 Requires:         pki-console-theme >= 9.0.0
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 1.7.5-10
@@ -100,6 +101,9 @@ cd build
 
 
 %changelog
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
+- Added runtime dependency on pki-base
+
 * Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.6.a1
 - Replaced pki-util with pki-base
 
