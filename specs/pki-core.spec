@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}28%{?prerel}%{?dist}
+Release:          %{?relprefix}29%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -113,10 +113,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
   * pki-setup                                                          \
   * pki-symkey                                                         \
-  * pki-util-javadoc                                                   \
-  * pki-java-tools-javadoc                                             \
   * pki-base                                                           \
-  * pki-common-javadoc                                                 \
   * pki-tools                                                          \
   * pki-selinux                                                        \
   * pki-server                                                         \
@@ -124,6 +121,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
   * pki-tks                                                            \
+  * pki-javadoc                                                        \
                                                                        \
 which comprise the following corresponding PKI subsystems:             \
                                                                        \
@@ -151,9 +149,7 @@ required ONLY by ALL java-based Tomcat Certificate System instances:   \
                                                                        \
 PKI Core also includes the following components:                       \
                                                                        \
-  * pki-common-javadoc                                                 \
-  * pki-java-tools-javadoc                                             \
-  * pki-util-javadoc                                                   \
+  * pki-javadoc                                                        \
                                                                        \
 Finally, for deployment purposes, Certificate System requires ONE AND  \
 ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
@@ -214,36 +210,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-util-javadoc
-Summary:          Certificate System - PKI Utility Framework Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-%description -n   pki-util-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Utility Framework.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-java-tools-javadoc
-Summary:          Certificate System - PKI Java-Based Tools Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-%description -n   pki-java-tools-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Java-Based Tools.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-base
 Summary:          Certificate System - PKI Framework
 Group:            System Environment/Base
@@ -293,21 +259,6 @@ Requires:         jss >= 4.2.6-17
 
 %description -n   pki-base
 The PKI Framework contains the common and client libraries and utilities.
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-common-javadoc
-Summary:          Certificate System - PKI Common Framework Javadocs
-Group:            Documentation
-
-BuildArch:        noarch
-
-%description -n   pki-common-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Common Framework.
-
 This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
@@ -658,6 +609,25 @@ including:
     the Registration Authority (RA),
     the Token Key Service (TKS), and/or
     the Token Processing System (TPS).
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-javadoc
+Summary:          Certificate System - PKI Framework Javadocs
+Group:            Documentation
+
+BuildArch:        noarch
+
+Obsoletes:        pki-util-javadoc < %{version}-%{release}
+Obsoletes:        pki-java-tools-javadoc < %{version}-%{release}
+Obsoletes:        pki-common-javadoc < %{version}-%{release}
+
+%description -n   pki-javadoc
+This documentation pertains exclusively to version %{version} of
+the PKI Framework and Tools.
 
 This package is a part of the PKI Core used by the Certificate System.
 
@@ -1085,20 +1055,6 @@ fi
 %{_libdir}/symkey/
 
 
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-util-javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/pki-util-%{version}/
-%endif
-
-
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-java-tools-javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/pki-java-tools-%{version}/
-%endif
-
-
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
@@ -1109,13 +1065,6 @@ fi
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
-
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
-%files -n pki-common-javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/pki-common-%{version}/
-%endif
-
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -1346,7 +1295,17 @@ fi
 %{_datadir}/pki/silent/
 
 
+%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
+%files -n pki-javadoc
+%defattr(-,root,root,-)
+%{_javadocdir}/pki-%{version}/
+%endif
+
+
 %changelog
+* Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.29.a1
+- Merged Javadoc packages.
+
 * Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.28.a1
 - Added pki-tomcat.jar.
 

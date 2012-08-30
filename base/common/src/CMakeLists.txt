@@ -219,39 +219,6 @@ install(
 
 set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
 
-if(WITH_JAVADOC)
-    javadoc(pki-common-javadoc
-        DEST
-            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-common-${APPLICATION_VERSION}
-        SUBPACKAGES
-            com.netscape.certsrv
-            com.netscape.cms
-        CLASSPATH
-            ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-            ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-            ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-            ${APACHE_COMMONS_LANG_JAR}
-            ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-            ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        OPTIONS
-            -windowtitle 'pki-common'
-            -doctitle '<h1>pki-common</h1>'
-            -author
-            -use
-            -version
-        DEPENDS
-            pki-cms pki-certsrv
-    )
-
-    install(
-        FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-common-${APPLICATION_VERSION}
-        DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/share/javadoc
-    )
-endif(WITH_JAVADOC)
-
 
 # build pki-tomcat
 javac(pki-tomcat-classes

@@ -41,6 +41,9 @@ PKI_CORE_VERSION="10.0.0.a1"
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
 PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools deploy selinux ca kra ocsp tks silent"
 
+if [ "$JAVADOC" = "" ]; then
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
+fi
 
 ##
 ## Establish the TARGET files/directories of the 'pki-core' source/spec files

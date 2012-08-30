@@ -133,34 +133,3 @@ install(
 )
 
 set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar CACHE INTERNAL "pki-tools jar file")
-
-if(WITH_JAVADOC)
-    javadoc(pki-tools-javadoc
-        DEST
-            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-java-tools-${APPLICATION_VERSION}
-        SUBPACKAGES
-            com.netscape.cmstools
-        CLASSPATH
-            ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
-            ${XALAN_JAR} ${XERCES_JAR}
-            ${JSS_JAR} ${COMMONS_CODEC_JAR}
-            ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
-            ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        OPTIONS
-            -windowtitle 'pki-java-tools'
-            -doctitle '<h1>pki-java-tools</h1>'
-            -author
-            -use
-            -version
-        DEPENDS
-            pki-tools
-    )
-
-    install(
-        FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-java-tools-${APPLICATION_VERSION}
-        DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/share/javadoc
-    )
-endif(WITH_JAVADOC)
