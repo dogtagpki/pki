@@ -2753,16 +2753,20 @@ RA_Status RA_Processor::Format(RA_Session *session, NameValueSet *extensions, bo
     }
 
     if (RA::ra_is_token_present(cuid)) {
-       RA::Debug("RA_Processor::Format",
-	      "Found token %s", cuid);
+        int token_status = RA::ra_get_token_status(cuid);
 
-      if (RA::ra_is_tus_db_entry_disabled(cuid)) {
-        RA::Error("RA_Format_Processor::Process",
-                        "CUID %s Disabled", cuid);
-        status = STATUS_ERROR_DISABLED_TOKEN;
-        PR_snprintf(audit_msg, 512, "CUID %s Disabled, status=STATUS_ERROR_DISABLED_TOKEN", cuid);
-        goto loser;
-      }
+       RA::Debug("RA_Processor::Format",
+              "Found token %s status %d", cuid, token_status);
+
+      // Check for transition to 0/UNINITIALIZED status.
+      
+      if (token_status == -1 || !RA::transition_allowed(token_status, 0)) {
+          RA::Error("RA_Format_Processor::Process",
+              "Operation for CUID %s Disabled", cuid);
+              status = STATUS_ERROR_DISABLED_TOKEN;
+              PR_snprintf(audit_msg, 512, "Operation for CUID %s Disabled, illegal transition attempted %d:%d.", cuid, token_status, 0);
+              goto loser;
+      }  
     } else {
        RA::Debug("RA_Processor::Format",
 	      "Not Found token %s", cuid);

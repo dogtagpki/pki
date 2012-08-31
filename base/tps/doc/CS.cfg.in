@@ -1581,7 +1581,17 @@ tps._002=# tps.cert.list=sslserver,subsystem,audit_signing
 tps._003=# tps.cert.sslserver.nickname=xxx
 tps._005=# tps.cert.subsystem.nickname=xxx
 tps._007=# tps.cert.audit_signing.nickname=xxx
-tps._009=########################################
+tps._008=# operations.allowedTransitions:
+tps._009=#   - token operations, like formatting and enrollment have transitions between the following states
+tps._010=#     TOKEN_UNINITIALIZED = 0,
+tps._011=#     TOKEN_DAMAGED =1,
+tps._012=#     TOKEN_PERM_LOST=2,
+tps._013=#     TOKEN_TEMP_LOST=3,
+tps._014=#     TOKEN_FOUND =4,
+tps._015=#     TOKEN_TEMP_LOST_PERM_LOST =5,
+tps._016=#     TOKEN_TERMINATED = 6
+tps._017=# Sample: tps.operations.allowedTransitions=0:0,0:4,4:6,6:0
+tps._018=########################################
 tps.cert.list=sslserver,subsystem,audit_signing
 tps.cert.sslserver.nickname=[HSM_LABEL][NICKNAME]
 tps.cert.subsystem.nickname=[HSM_LABEL][NICKNAME]
