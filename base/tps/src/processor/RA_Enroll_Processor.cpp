@@ -1989,11 +1989,19 @@ TPS_PUBLIC RA_Status RA_Enroll_Processor::Process(RA_Session *session, NameValue
     }
 
     if (RA::ra_is_token_present(cuid)) {
-        RA::Debug(FN, "Found token %s", cuid);
-        if (RA::ra_is_tus_db_entry_disabled(cuid)) {
-            RA::Error(FN, "CUID %s Disabled", cuid);
+
+        int token_status = RA::ra_get_token_status(cuid);
+
+         // As far as the ui states, state "enrolled" maps to the state of "FOUND" or 4;
+
+         RA::Debug(FN, "Found token %s status %d", cuid, token_status);
+
+        int STATUS_FOUND = 4;
+        if (token_status == -1 || !RA::transition_allowed(token_status, STATUS_FOUND)) {
+            RA::Error(FN, "Operation for CUID %s Disabled illegal transition attempted %d:%d", cuid,token_status, STATUS_FOUND);
             status = STATUS_ERROR_DISABLED_TOKEN;
-            PR_snprintf(audit_msg, 512, "token disabled");
+
+            PR_snprintf(audit_msg, 512, "Operation for CUID %s Disabled, illegal transition attempted %d:%d.", cuid,token_status, STATUS_FOUND);
             goto loser;
         }
 

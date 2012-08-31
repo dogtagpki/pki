@@ -200,6 +200,7 @@ class RA
 	  TPS_PUBLIC static int ra_is_token_pin_resetable(char *cuid);
 	  TPS_PUBLIC static int ra_is_token_present(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_reenroll(char *cuid);
+          TPS_PUBLIC static int ra_get_token_status(char *cuid);
 	  TPS_PUBLIC static int ra_allow_token_renew(char *cuid);
           TPS_PUBLIC static int ra_force_token_format(char *cuid);
 	  TPS_PUBLIC static int ra_is_update_pin_resetable_policy(char *cuid);
@@ -300,6 +301,8 @@ class RA
 
       static const char *CFG_IPUBLISHER_LIB;
       static const char *CFG_IPUBLISHER_FACTORY;
+      static const char *CFG_TOKENDB_ALLOWED_TRANSITIONS;
+      static const char *CFG_OPERATIONS_ALLOWED_TRANSITIONS;
 
   public:
 	  static const char *TKS_RESPONSE_STATUS;
@@ -368,6 +371,9 @@ class RA
       TPS_PUBLIC static SECCertificateUsage getCertificateUsage(const char *certusage);
       TPS_PUBLIC static bool verifySystemCertByNickname(const char *nickname, const char *certUsage);
       TPS_PUBLIC static bool verifySystemCerts();
+
+      static bool transition_allowed(int oldState, int newState);
+      static int get_token_state(char *state, char *reason);
    
 };
 
