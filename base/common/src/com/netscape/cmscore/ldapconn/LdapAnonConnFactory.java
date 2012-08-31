@@ -365,9 +365,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         // this returned connection might authenticate as someone other than
         // anonymonus. Reset it to anonymous first before it returns
-        // to the pool.
+        // to the pool.  Do this by calling connect() again on this connection
+        // to avoid doing an explicit anonymous bind
         try {
-            anon.authenticate(null, null);
+            anon.connect(mConnInfo.getHost(), mConnInfo.getPort());
 
             // return conn.
             CMS.debug("returnConn: mNumConns now " + mNumConns);
