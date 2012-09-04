@@ -11,12 +11,12 @@ BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
 %if 0%{?fedora} >= 17
-%define dogtag_pki_theme_version   9.0.11
+%define dogtag_pki_theme_version   9.0.12
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
 %define osutil_version             2.0.2
 %define pki_core_version           9.0.18
-%define pki_kra_version            9.0.10
+%define pki_kra_version            9.0.12
 %define pki_ocsp_version           9.0.9
 %define pki_ra_version             9.0.4
 %define pki_tks_version            9.0.9
@@ -25,12 +25,12 @@ BuildArch:        noarch
 %define tomcatjss_version          6.0.2
 %else
 %if 0%{?fedora} >= 16
-%define dogtag_pki_theme_version   9.0.11
+%define dogtag_pki_theme_version   9.0.12
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
 %define osutil_version             2.0.2
 %define pki_core_version           9.0.18
-%define pki_kra_version            9.0.10
+%define pki_kra_version            9.0.12
 %define pki_ocsp_version           9.0.9
 %define pki_ra_version             9.0.4
 %define pki_tks_version            9.0.9

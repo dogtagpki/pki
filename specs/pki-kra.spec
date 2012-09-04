@@ -1,6 +1,6 @@
 Name:             pki-kra
-Version:          9.0.11
-Release:          2%{?dist}
+Version:          9.0.12
+Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -253,7 +253,7 @@ fi
 
 
 %changelog
-* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.11-2
+* Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.12-1
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 
 * Fri Mar 16 2012 Ade Lee <alee@redhat.com> 9.0.11-1
