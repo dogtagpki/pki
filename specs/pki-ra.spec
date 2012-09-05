@@ -1,6 +1,6 @@
 Name:             pki-ra
-Version:          9.0.4
-Release:          2%{?dist}
+Version:          9.0.5
+Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -236,7 +236,7 @@ fi
 
 
 %changelog
-* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.4-2
+* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.5-1
 - Added systemd scripts
 
 * Thu Sep 22 2011 Ade Lee <alee@redhat.com> 9.0.4-1

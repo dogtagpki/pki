@@ -1,6 +1,6 @@
 Name:             pki-tps
-Version:          9.0.7
-Release:          5%{?dist}
+Version:          9.0.8
+Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -277,7 +277,7 @@ fi
 
 
 %changelog
-* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.7-5
+* Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.8-1
 - Added systemd scripts
 
 * Tue Aug  7 2012 Nathan Kinder <nkinder@redhat.com> 9.0.7-4

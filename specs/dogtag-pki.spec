@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          9.0.0
-Release:          11%{?dist}
+Release:          12%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -15,12 +15,12 @@ BuildArch:        noarch
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.18
+%define pki_core_version           9.0.22
 %define pki_kra_version            9.0.12
-%define pki_ocsp_version           9.0.9
-%define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.9
-%define pki_tps_version            9.0.7
+%define pki_ocsp_version           9.0.10
+%define pki_ra_version             9.0.5
+%define pki_tks_version            9.0.10
+%define pki_tps_version            9.0.8
 %define pki_console_version        9.0.5
 %define tomcatjss_version          6.0.2
 %else
@@ -29,12 +29,12 @@ BuildArch:        noarch
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.18
+%define pki_core_version           9.0.22
 %define pki_kra_version            9.0.12
-%define pki_ocsp_version           9.0.9
-%define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.9
-%define pki_tps_version            9.0.7
+%define pki_ocsp_version           9.0.10
+%define pki_ra_version             9.0.5
+%define pki_tks_version            9.0.10
+%define pki_tps_version            9.0.8
 %define pki_console_version        9.0.5
 %define tomcatjss_version          6.0.2
 %else
@@ -194,6 +194,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Sep  4 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-12
+- Updated PKI versions on Fedora 16/Fedora 17 to coincide with latest packages
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.0-11
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 
