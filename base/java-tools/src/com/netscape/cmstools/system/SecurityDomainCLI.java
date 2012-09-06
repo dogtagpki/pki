@@ -22,7 +22,10 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
+import com.netscape.certsrv.system.SecurityDomainHost;
+import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -39,6 +42,7 @@ public class SecurityDomainCLI extends CLI {
         this.parent = parent;
 
         addModule(new SecurityDomainGetInstallTokenCLI(this));
+        addModule(new SecurityDomainShowCLI(this));
     }
 
     public void printHelp() {
@@ -87,6 +91,29 @@ public class SecurityDomainCLI extends CLI {
             System.err.println("Error: Invalid command \"" + command + "\"");
             printHelp();
             System.exit(1);
+        }
+    }
+
+    public static void printSecurityDomain(DomainInfo domain) {
+        System.out.println("  Domain: " + domain.getName());
+        System.out.println();
+
+        for (SecurityDomainSubsystem subsystem : domain.getSubsystems()) {
+
+            SecurityDomainHost[] hosts = subsystem.getHosts();
+            if (hosts.length == 0) continue;
+
+            System.out.println("  " + subsystem.getName() + " Subsystem:");
+            System.out.println();
+
+            for (SecurityDomainHost host : hosts) {
+                System.out.println("    Host ID: " + host.getId());
+                System.out.println("    Hostname: " + host.getHostname());
+                System.out.println("    Port: " + host.getPort());
+                System.out.println("    Secure Port: " + host.getSecurePort());
+                if (host.getDomainManager() != null) System.out.println("    Domain Manager: " + host.getDomainManager());
+                System.out.println();
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.csadmin;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainResource;
 import com.netscape.cms.servlet.base.PKIService;
@@ -36,6 +37,17 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale());
             return processor.getInstallToken(user, hostname, subsystem);
+
+        } catch (EBaseException e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DomainInfo getDomainInfo() throws PKIException {
+        try {
+            SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale());
+            return processor.getDomainInfo();
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage(), e);

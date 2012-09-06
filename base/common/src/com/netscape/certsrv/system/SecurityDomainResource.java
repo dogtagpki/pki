@@ -35,4 +35,9 @@ public interface SecurityDomainResource {
     public InstallToken getInstallToken(
             @QueryParam("hostname") String hostname,
             @QueryParam("subsystem") String subsystem);
+
+    @GET
+    @Path("domainInfo")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public DomainInfo getDomainInfo();
 }

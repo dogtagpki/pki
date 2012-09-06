@@ -50,7 +50,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
-import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -911,11 +910,4 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
     }
-
-    @Override
-    public DomainInfo getDomainInfo() {
-        // TODO Auto-generated method stub for a RESTful method that returns the security domain
-        return null;
-    }
-
 }

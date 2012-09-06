@@ -89,7 +89,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Remplaces a policy rule identified by the given name.
      *
-     * @param name The name of the rule to be replaced.
+     * @param id The name of the rule to be replaced.
      * @param rule The rule to be replaced.
      */
     public void replaceRule(String ruleName, IPolicyRule rule) {
@@ -107,7 +107,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Removes a policy rule identified by the given name.
      *
-     * @param name The name of the rule to be removed.
+     * @param id The name of the rule to be removed.
      */
     public void removeRule(String ruleName) {
         int index = mRuleNames.indexOf(ruleName);
@@ -123,7 +123,7 @@ public class PolicySet implements IPolicySet {
      * Returns the rule identified by a given name.
      * <P>
      *
-     * @param name The name of the rule to be return.
+     * @param id The name of the rule to be return.
      * @return The rule identified by the given name or null if none exists.
      */
     public IPolicyRule getRule(String ruleName) {

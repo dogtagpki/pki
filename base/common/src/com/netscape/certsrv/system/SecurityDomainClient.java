@@ -39,4 +39,8 @@ public class SecurityDomainClient extends PKIClient {
     public InstallToken getInstallToken(String hostname, String subsystem) {
         return client.getInstallToken(hostname, subsystem);
     }
+
+    public DomainInfo getDomainInfo() {
+        return client.getDomainInfo();
+    }
 }
