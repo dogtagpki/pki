@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          9.0.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -18,6 +18,9 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
+%if 0%{?fedora} == 16
+BuildRequires:    systemd-units
+%endif
 
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
@@ -236,6 +239,10 @@ fi
 
 
 %changelog
+* Thu Sep  6 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-2
+- Added 'systemd-units' buildtime requirement on Fedora 16
+  (required by Koji)
+
 * Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.5-1
 - Added systemd scripts
 
