@@ -17,35 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author alee
- *
  */
-@XmlRootElement(name="InstallToken")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class InstallToken {
+@Path("securityDomain")
+public interface SecurityDomainResource {
 
-    @XmlElement
-    private String token;
-
-    public InstallToken(String token) {
-        this.token = token;
-    }
-
-    public InstallToken() {
-        // required by jaxb
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
+    @GET
+    @Path("installToken")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public InstallToken getInstallToken(
+            @QueryParam("hostname") String hostname,
+            @QueryParam("subsystem") String subsystem);
 }

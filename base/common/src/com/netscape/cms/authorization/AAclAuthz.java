@@ -521,7 +521,7 @@ public abstract class AAclAuthz {
             log(ILogger.LL_INFO, infoMsg);
             return;
         } else {
-            Object[] params = new Object[2];
+            String[] params = new String[2];
 
             params[0] = name;
             params[1] = perm;
@@ -530,7 +530,7 @@ public abstract class AAclAuthz {
                     CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION",
-                        (String[]) params));
+                        params));
         }
     }
 

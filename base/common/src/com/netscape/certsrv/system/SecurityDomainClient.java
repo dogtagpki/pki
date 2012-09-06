@@ -17,35 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.net.URISyntaxException;
+
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+
 
 /**
  * @author alee
- *
  */
-@XmlRootElement(name="InstallToken")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class InstallToken {
+public class SecurityDomainClient extends PKIClient {
 
-    @XmlElement
-    private String token;
+    private SecurityDomainResource client;
 
-    public InstallToken(String token) {
-        this.token = token;
+    public SecurityDomainClient(ClientConfig config) throws URISyntaxException {
+        super(config);
+
+        client = createProxy(SecurityDomainResource.class);
     }
 
-    public InstallToken() {
-        // required by jaxb
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    public InstallToken getInstallToken(String hostname, String subsystem) {
+        return client.getInstallToken(hostname, subsystem);
     }
 }

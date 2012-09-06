@@ -33,6 +33,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.group.GroupCLI;
+import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
@@ -47,6 +48,7 @@ public class MainCLI extends CLI {
 
         addModule(new CertCLI(this));
         addModule(new GroupCLI(this));
+        addModule(new SecurityDomainCLI(this));
         addModule(new UserCLI(this));
     }
 

@@ -18,10 +18,8 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -46,7 +44,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -54,8 +51,6 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.DomainInfo;
-import com.netscape.certsrv.system.InstallToken;
-import com.netscape.certsrv.system.InstallTokenRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -906,35 +901,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
 
-    }
-
-    @Override
-    public InstallToken getInstallToken(InstallTokenRequest data) {
-        // TODO Figure out how to do authentication here based on user/pass
-        // For now, allow all user/pass to be valid
-        CMS.debug("getInstallToken(): starting");
-        String user = data.getUser();
-        String host = data.getHost();
-        String subsystem = data.getSubsystem();
-        String groupname = ConfigurationUtils.getGroupName(user, subsystem);
-
-        // assign cookie
-        long num = random.nextLong();
-        String cookie = num + "";
-        ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
-        String ip;
-        try {
-            ip = InetAddress.getByName(host).toString();
-        } catch (UnknownHostException e) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Unable to resolve host " + host +
-                    "to an IP address: " + e);
-        }
-        int index = ip.indexOf("/");
-        if (index > 0)  ip = ip.substring(index + 1);
-
-        ctable.addEntry(cookie, ip, user, groupname);
-
-        return new InstallToken(cookie);
     }
 
     @Override

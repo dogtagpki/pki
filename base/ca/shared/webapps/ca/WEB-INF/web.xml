@@ -2411,6 +2411,19 @@
         </user-data-constraint>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Security Domain Services</web-resource-name>
+            <url-pattern>/rest/securityDomain/installToken</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
     <login-config>
         <realm-name>Certificate Authority</realm-name>
     </login-config>

@@ -146,8 +146,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.InstallToken;
-import com.netscape.certsrv.system.InstallTokenRequest;
-import com.netscape.certsrv.system.SystemConfigClient;
+import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -322,17 +321,17 @@ public class ConfigurationUtils {
         }
         String csType = cs.getString("cs.type");
 
-        InstallTokenRequest data = new InstallTokenRequest(user, passwd, csType, CMS.getEEHost(), CMS.getAdminPort());
-
         ClientConfig config = new ClientConfig();
         config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
+        config.setUsername(user);
+        config.setPassword(passwd);
 
-        SystemConfigClient client = new SystemConfigClient(config);
+        SecurityDomainClient client = new SecurityDomainClient(config);
 
-        InstallToken token = null;
         try {
-            token = client.getInstallToken(data);
+            InstallToken token = client.getInstallToken(sdhost, csType);
             return token.getToken();
+
         } catch (ClientResponseFailure e) {
             if (e.getResponse().getResponseStatus() == Response.Status.NOT_FOUND) {
                 // try the old servlet

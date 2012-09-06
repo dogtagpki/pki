@@ -44,12 +44,6 @@ public interface SystemConfigResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ConfigurationResponse configure(ConfigurationRequest data);
 
-    @POST
-    @Path("installToken")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public InstallToken getInstallToken(InstallTokenRequest data);
-
     @GET
     @Path("domainInfo")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

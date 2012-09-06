@@ -40,8 +40,4 @@ public class SystemConfigClient extends PKIClient {
     public ConfigurationResponse configure(ConfigurationRequest data) {
         return configClient.configure(data);
     }
-
-    public InstallToken getInstallToken(InstallTokenRequest data) {
-        return configClient.getInstallToken(data);
-    }
 }
