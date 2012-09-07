@@ -964,7 +964,7 @@ verify_symlinks()
         [apache-commons-lang.jar]=/usr/share/java/apache-commons-lang.jar
         [ldapjdk.jar]=/usr/share/java/ldapjdk.jar
         # [osutil.jar]=${jni_dir}/osutil.jar
-        [${PKI_INSTANCE_ID}.jar]=/usr/share/java/pki/${PKI_INSTANCE_ID}.jar
+        [pki-${PKI_SUBSYSTEM_TYPE}.jar]=/usr/share/java/pki/pki-${PKI_SUBSYSTEM_TYPE}.jar
         [pki-certsrv.jar]=/usr/share/java/pki/pki-certsrv.jar
         [pki-cms.jar]=/usr/share/java/pki/pki-cms.jar
         [pki-cmsbundle.jar]=/usr/share/java/pki/pki-cmsbundle.jar
