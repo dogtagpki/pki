@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.22
+Version:          9.0.23
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -749,6 +749,10 @@ fi
 
 
 %changelog
+* Fri Sep  7 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.23-1
+- TRAC Ticket #301 - Need to modify init scripts to verify needed symlinks
+  in an instance (support for non-default instance names)
+
 * Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.22-1
 - Reverted selinux changes that broke f16 selinux policy.
 - Reapplied those changes as a modified patch to f17 build.
