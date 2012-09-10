@@ -255,27 +255,10 @@ public class CMSEngine implements ICMSEngine {
         mOwner = owner;
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
-        String sd = mConfig.getString("securitydomain.select", "");
         // my default is 1 day
         String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
         String secdomain_source = config.getString("securitydomain.source", "memory");
         String secdomain_check_interval = config.getString("securitydomain.checkinterval", "5000");
-
-        if ((state == 1) && (!sd.equals("existing"))) {
-            // check session domain table only if this is a
-            // configured security domain host
-
-            if (secdomain_source.equals("ldap")) {
-                mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-            } else {
-                mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-            }
-
-            mSDTimer = new Timer();
-            SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
-
-            mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
-        }
 
         String tsClass = config.getString("timeSourceClass", null);
 
@@ -325,6 +308,25 @@ public class CMSEngine implements ICMSEngine {
         }
         parseServerXML();
         fixProxyPorts();
+
+        String sd = mConfig.getString("securitydomain.select", "");
+
+        if ((state == 1) && (!sd.equals("existing"))) {
+            // check session domain table only if this is a
+            // configured security domain host
+
+            if (secdomain_source.equals("ldap")) {
+                mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            } else {
+                mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            }
+
+            mSDTimer = new Timer();
+            SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
+
+            mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
+        }
+
     }
 
     /**
