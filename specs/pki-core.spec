@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}29%{?prerel}%{?dist}
+Release:          %{?relprefix}30%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -30,6 +30,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # tomcatjss requires versioning since version 2.0.0 requires tomcat6
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-codec
 BuildRequires:    nspr-devel
@@ -1303,6 +1304,9 @@ fi
 
 
 %changelog
+* Tue Sep 11 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.30.a1
+- Added build dependency on redhat-rpm-config.
+
 * Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.29.a1
 - Merged Javadoc packages.
 
