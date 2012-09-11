@@ -721,4 +721,46 @@ public class ConfigurationRequest {
         this.stepTwo = stepTwo;
     }
 
+    @Override
+    public String toString() {
+        return "ConfigurationRequest [pin=XXXX" +
+               ", token=" + token + ", tokenPassword=XXXX" +
+               ", securityDomainType=" + securityDomainType +
+               ", securityDomainUri=" + securityDomainUri +
+               ", securityDomainName=" + securityDomainName +
+               ", securityDomainUser=" + securityDomainUser +
+               ", securityDomainPassword=XXXX" +
+               ", isClone=" + isClone +
+               ", cloneUri=" + cloneUri +
+               ", subsystemName=" + subsystemName +
+               ", p12File=" + p12File +
+               ", p12Password=XXXX" +
+               ", hierarchy=" + hierarchy +
+               ", dsHost=" + dsHost +
+               ", dsPort=" + dsPort +
+               ", baseDN=" + baseDN +
+               ", bindDN=" + bindDN +
+               ", bindpwd=XXXX" +
+               ", database=" + database +
+               ", secureConn=" + secureConn +
+               ", removeData=" + removeData +
+               ", masterReplicationPort=" + masterReplicationPort +
+               ", cloneReplicationPort=" + cloneReplicationPort +
+               ", replicationSecurity=" + replicationSecurity +
+               ", systemCerts=" + systemCerts +
+               ", issuingCA=" + issuingCA +
+               ", backupKeys=" + backupKeys +
+               ", backupPassword=XXXX" +
+               ", backupFile=" + backupFile +
+               ", adminUID=" + adminUID +
+               ", adminPassword=XXXX" +
+               ", adminEmail=" + adminEmail +
+               ", adminCertRequest=" + adminCertRequest +
+               ", adminCertRequestType=" + adminCertRequestType +
+               ", adminSubjectDN=" + adminSubjectDN +
+               ", adminName=" + adminName +
+               ", adminProfileID=" + adminProfileID +
+               ", stepTwo=" + stepTwo + "]";
+    }
+
 }

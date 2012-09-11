@@ -86,8 +86,8 @@ def main(argv):
     # Establish REST Client
     client = jyutil.rest_client.initialize(
                  client_config,
-                 master['pki_dry_run_flag'],
-                 master['pki_jython_log_level'])
+                 master,
+                 sensitive)
 
     # Construct PKI Subsystem Configuration Data
     data = None
@@ -123,17 +123,13 @@ def main(argv):
             else:
                 # PKI or Cloned CA
                 data = jyutil.rest_client.construct_pki_configuration_data(
-                           master, sensitive, token)
+                           token)
         else:
             # PKI or Cloned KRA, OCSP, or TKS
-            data = jyutil.rest_client.construct_pki_configuration_data(
-                       master, sensitive, token)
+            data = jyutil.rest_client.construct_pki_configuration_data(token)
 
     # Formulate PKI Subsystem Configuration Data Response
-    jyutil.rest_client.configure_pki_data(data,
-                                          master,
-                                          sensitive)
-
+    jyutil.rest_client.configure_pki_data(data)
 
 if __name__ == "__main__":
     main(sys.argv)

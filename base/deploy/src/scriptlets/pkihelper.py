@@ -2562,7 +2562,7 @@ class security_domain:
                             log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
                             typeval,
                             secname,
-                            error[0],
+                            error,
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         if critical_failure == True:
                             sys.exit(-1)

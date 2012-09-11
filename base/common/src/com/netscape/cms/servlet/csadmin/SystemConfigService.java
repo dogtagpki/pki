@@ -118,6 +118,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Unable to get certList from config file");
         }
 
+        CMS.debug("SystemConfigService(): configure() called");
+        CMS.debug(data.toString());
+
         validateData(data);
         ConfigurationResponse response = new ConfigurationResponse();
 
@@ -700,7 +703,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         try {
-            String dbuser = csType + "-" + CMS.getEEHost() + "-" + CMS.getEESSLPort();
+            String dbuser = csType + "-" + CMS.getEEHost() + "-" + cs.getString("service.securePort");
             if (! securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 ConfigurationUtils.setupDBUser(dbuser);
             }

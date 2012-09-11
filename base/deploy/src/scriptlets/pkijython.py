@@ -254,23 +254,115 @@ class security_databases:
 # PKI Deployment 'REST Client' Class
 class rest_client:
     client = None
+    master = None
+    sensitive = None
 
-    def initialize(self, client_config, pki_dry_run_flag, log_level):
+    def initialize(self, client_config, master, sensitive):
         try:
+            self.master = master
+            self.sensitive = sensitive
+            log_level = master['pki_jython_log_level']
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
                 print "%s %s '%s'" %\
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_INITIALIZING_REST_CLIENT,
                        client_config.serverURI)
-            if not pki_dry_run_flag:
+            if not master['pki_dry_run_flag']:
                 self.client = SystemConfigClient(client_config)
             return self.client
         except URISyntaxException, e:
             e.printStackTrace()
             javasystem.exit(1)
 
-    def construct_pki_configuration_data(self, master, sensitive, token):
+    def set_existing_security_domain(self, data):
+        data.setSecurityDomainType(ConfigurationRequest.EXISTING_DOMAIN)
+        data.setSecurityDomainUri(self.master['pki_security_domain_uri'])
+        data.setSecurityDomainUser(self.master['pki_security_domain_user'])
+        data.setSecurityDomainPassword(
+            self.sensitive['pki_security_domain_password'])
+
+    def set_new_security_domain(self, data):
+        data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN)
+        data.setSecurityDomainName(self.master['pki_security_domain_name'])
+
+    def set_cloning_parameters(self, data):
+        data.setIsClone("true")
+        data.setCloneUri(self.master['pki_clone_uri'])
+        data.setP12File(self.master['pki_clone_pkcs12_path'])
+        data.setP12Password(self.sensitive['pki_clone_pkcs12_password'])
+        data.setReplicationSecurity(
+            self.master['pki_clone_replication_security'])
+        if self.master['pki_clone_replication_master_port']:
+            data.setMasterReplicationPort(
+                self.master['pki_clone_replication_master_port'])
+        if self.master['pki_clone_replication_clone_port']:
+            data.setCloneReplicationPort(
+                self.master['pki_clone_replication_clone_port'])
+
+    def set_database_parameters(self, data):
+        data.setDsHost(self.master['pki_ds_hostname'])
+        data.setDsPort(self.master['pki_ds_ldap_port'])
+        data.setBaseDN(self.master['pki_ds_base_dn'])
+        data.setBindDN(self.master['pki_ds_bind_dn'])
+        data.setDatabase(self.master['pki_ds_database'])
+        data.setBindpwd(self.sensitive['pki_ds_password'])
+        if config.str2bool(self.master['pki_ds_remove_data']):
+            data.setRemoveData("true")
+        else:
+            data.setRemoveData("false")
+        if config.str2bool(self.master['pki_ds_secure_connection']):
+            data.setSecureConn("true")
+        else:
+            data.setSecureConn("false")
+
+    def set_backup_parameters(self, data):
+        if config.str2bool(self.master['pki_backup_keys']):
+            data.setBackupKeys("true")
+            data.setBackupFile(self.master['pki_backup_keys_p12'])
+            data.setBackupPassword(self.sensitive['pki_backup_password'])
+        else:
+            data.setBackupKeys("false")
+
+    def set_admin_parameters(self, token, data):
+        data.setAdminEmail(self.master['pki_admin_email'])
+        data.setAdminName(self.master['pki_admin_name'])
+        data.setAdminPassword(self.sensitive['pki_admin_password'])
+        data.setAdminProfileID(self.master['pki_admin_profile_id'])
+        data.setAdminUID(self.master['pki_admin_uid'])
+        data.setAdminSubjectDN(self.master['pki_admin_subject_dn'])
+        if self.master['pki_admin_cert_request_type'] == "crmf":
+            data.setAdminCertRequestType("crmf")
+            if config.str2bool(self.master['pki_admin_dualkey']):
+                crmf_request = generateCRMFRequest(
+                                   token,
+                                   self.master['pki_admin_keysize'],
+                                   self.master['pki_admin_subject_dn'],
+                                   "true")
+            else:
+                crmf_request = generateCRMFRequest(
+                                   token,
+                                   self.master['pki_admin_keysize'],
+                                   self.master['pki_admin_subject_dn'],
+                                   "false")
+            data.setAdminCertRequest(crmf_request)
+        else:
+            javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
+            javasystem.exit(1)
+
+    def create_system_cert(self, tag):
+        cert = SystemCertData()
+        cert.setTag(self.master["pki_%s_tag" % tag])
+        cert.setKeyAlgorithm(self.master["pki_%s_key_algorithm" % tag])
+        cert.setKeySize(self.master["pki_%s_key_size" % tag])
+        cert.setKeyType(self.master["pki_%s_key_type" % tag])
+        cert.setNickname(self.master["pki_%s_nickname" % tag])
+        cert.setSubjectDN(self.master["pki_%s_subject_dn" % tag])
+        cert.setToken(self.master["pki_%s_token" % tag])
+        return cert
+
+    def construct_pki_configuration_data(self, token):
         data = None
+        master = self.master
         if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
             print "%s %s '%s'" %\
                   (log.PKI_JYTHON_INDENTATION_2,
@@ -278,141 +370,57 @@ class rest_client:
                    master['pki_subsystem'])
         if not master['pki_dry_run_flag']:
             data = ConfigurationRequest()
+
             # Miscellaneous Configuration Information
-            data.setPin(sensitive['pki_one_time_pin'])
+            data.setPin(self.sensitive['pki_one_time_pin'])
             data.setToken(ConfigurationRequest.TOKEN_DEFAULT)
+            data.setSubsystemName(master['pki_subsystem_name'])
+
+            # Hierarchy
             if master['pki_instance_type'] == "Tomcat":
-                data.setSubsystemName(master['pki_subsystem_name'])
                 if master['pki_subsystem'] == "CA":
                     if config.str2bool(master['pki_clone']):
                         # Cloned CA
+                        # alee - is this correct?
                         data.setHierarchy("root")
-                        data.setIsClone("true")
-                        data.setCloneUri(master['pki_clone_uri'])
-                        data.setP12File(master['pki_clone_pkcs12_path'])
-                        data.setP12Password(
-                            sensitive['pki_clone_pkcs12_password'])
                     elif config.str2bool(master['pki_external']):
                         # External CA
                         data.setHierarchy("join")
-                        data.setIsClone("false")
                     elif config.str2bool(master['pki_subordinate']):
                         # Subordinate CA
                         data.setHierarchy("join")
-                        data.setIsClone("false")
                     else:
                         # PKI CA
                         data.setHierarchy("root")
-                        data.setIsClone("false")
-                elif master['pki_subsystem'] == "KRA":
-                    if config.str2bool(master['pki_clone']):
-                        # Cloned KRA
-                        data.setIsClone("true")
-                        data.setCloneUri(master['pki_clone_uri'])
-                        data.setP12File(master['pki_clone_pkcs12_path'])
-                        data.setP12Password(
-                            sensitive['pki_clone_pkcs12_password'])
-                    else:
-                        # PKI KRA
-                        data.setIsClone("false")
-                elif master['pki_subsystem'] == "OCSP":
-                    if config.str2bool(master['pki_clone']):
-                        # Cloned OCSP
-                        data.setIsClone("true")
-                        data.setCloneUri(master['pki_clone_uri'])
-                        data.setP12File(master['pki_clone_pkcs12_path'])
-                        data.setP12Password(
-                            sensitive['pki_clone_pkcs12_password'])
-                    else:
-                        # PKI OCSP
-                        data.setIsClone("false")
-                elif master['pki_subsystem'] == "TKS":
-                    if config.str2bool(master['pki_clone']):
-                        # Cloned TKS
-                        data.setIsClone("true")
-                        data.setCloneUri(master['pki_clone_uri'])
-                        data.setP12File(master['pki_clone_pkcs12_path'])
-                        data.setP12Password(
-                            sensitive['pki_clone_pkcs12_password'])
-                    else:
-                        # PKI TKS
-                        data.setIsClone("false")
-            # Security Domain Information
-            #
-            #     NOTE:  External CA's DO NOT require a security domain
-            #
+
+            # Cloning parameters
+            if master['pki_instance_type'] == "Tomcat":
+                if config.str2bool(master['pki_clone']):
+                    self.set_cloning_parameters(data)
+                else:
+                    data.setIsClone("false")
+
+            # Security Domain
             if master['pki_subsystem'] != "CA" or\
                config.str2bool(master['pki_clone']) or\
                config.str2bool(master['pki_subordinate']):
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
                 # Subordinate CA
-                data.setSecurityDomainType(
-                    ConfigurationRequest.EXISTING_DOMAIN)
-                data.setSecurityDomainUri(
-                    master['pki_security_domain_uri'])
-                data.setSecurityDomainUser(
-                    master['pki_security_domain_user'])
-                data.setSecurityDomainPassword(
-                    sensitive['pki_security_domain_password'])
+                self.set_existing_security_domain(data)
             elif not config.str2bool(master['pki_external']):
                 # PKI CA
-                data.setSecurityDomainType(
-                    ConfigurationRequest.NEW_DOMAIN)
-                data.setSecurityDomainName(
-                    master['pki_security_domain_name'])
-            # Directory Server Information
+                self.set_new_security_domain(data)
+
             if master['pki_subsystem'] != "RA":
-                data.setDsHost(master['pki_ds_hostname'])
-                data.setDsPort(master['pki_ds_ldap_port'])
-                data.setBaseDN(master['pki_ds_base_dn'])
-                data.setBindDN(master['pki_ds_bind_dn'])
-                data.setDatabase(master['pki_ds_database'])
-                data.setBindpwd(sensitive['pki_ds_password'])
-                if config.str2bool(master['pki_ds_remove_data']):
-                    data.setRemoveData("true")
-                else:
-                    data.setRemoveData("false")
-                if config.str2bool(master['pki_ds_secure_connection']):
-                    data.setSecureConn("true")
-                else:
-                    data.setSecureConn("false")
-            # Backup Information
+                self.set_database_parameters(data)
+
             if master['pki_instance_type'] == "Tomcat":
-                if config.str2bool(master['pki_backup_keys']):
-                    data.setBackupKeys("true")
-                    data.setBackupFile(master['pki_backup_keys_p12'])
-                    data.setBackupPassword(
-                        sensitive['pki_backup_password'])
-                else:
-                    data.setBackupKeys("false")
-            # Admin Information
-            if master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    data.setAdminEmail(master['pki_admin_email'])
-                    data.setAdminName(master['pki_admin_name'])
-                    data.setAdminPassword(sensitive['pki_admin_password'])
-                    data.setAdminProfileID(master['pki_admin_profile_id'])
-                    data.setAdminUID(master['pki_admin_uid'])
-                    data.setAdminSubjectDN(master['pki_admin_subject_dn'])
-                    if master['pki_admin_cert_request_type'] == "crmf":
-                        data.setAdminCertRequestType("crmf")
-                        if config.str2bool(master['pki_admin_dualkey']):
-                            crmf_request = generateCRMFRequest(
-                                               token,
-                                               master['pki_admin_keysize'],
-                                               master['pki_admin_subject_dn'],
-                                               "true")
-                        else:
-                            crmf_request = generateCRMFRequest(
-                                               token,
-                                               master['pki_admin_keysize'],
-                                               master['pki_admin_subject_dn'],
-                                               "false")
-                        data.setAdminCertRequest(crmf_request)
-                    else:
-                        javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
-                        javasystem.exit(1)
+                self.set_backup_parameters(data)
+
+            if not config.str2bool(master['pki_clone']):
+                self.set_admin_parameters(token, data)
+
             # Issuing CA Information
             if master['pki_subsystem'] != "CA" or\
                config.str2bool(master['pki_clone']) or\
@@ -422,154 +430,60 @@ class rest_client:
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
                 # Subordinate CA, or External CA
                 data.setIssuingCA(master['pki_issuing_ca'])
+
             # Create system certs
             systemCerts = ArrayList()
+
             # Create 'CA Signing Certificate'
-            if master['pki_instance_type'] == "Tomcat":
+            if master['pki_subsystem'] == "CA":
                 if not config.str2bool(master['pki_clone']):
-                    if master['pki_subsystem'] == "CA":
-                        # External CA, Subordinate CA, or PKI CA
-                        cert1 = SystemCertData()
-                        cert1.setTag(master['pki_ca_signing_tag'])
-                        cert1.setKeyAlgorithm(
-                            master['pki_ca_signing_key_algorithm'])
-                        cert1.setKeySize(master['pki_ca_signing_key_size'])
-                        cert1.setKeyType(master['pki_ca_signing_key_type'])
-                        cert1.setNickname(master['pki_ca_signing_nickname'])
-                        cert1.setSigningAlgorithm(
-                            master['pki_ca_signing_signing_algorithm'])
-                        cert1.setSubjectDN(master['pki_ca_signing_subject_dn'])
-                        cert1.setToken(master['pki_ca_signing_token'])
-                        systemCerts.add(cert1)
+                    cert = self.create_system_cert("ca_signing")
+                    cert.setSigningAlgorithm(
+                        master['pki_ca_signing_signing_algorithm'])
+                    systemCerts.add(cert)
+
             # Create 'OCSP Signing Certificate'
-            if master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    if master['pki_subsystem'] == "CA" or\
-                       master['pki_subsystem'] == "OCSP":
-                        # External CA, Subordinate CA, PKI CA, or PKI OCSP
-                        cert2 = SystemCertData()
-                        cert2.setTag(master['pki_ocsp_signing_tag'])
-                        cert2.setKeyAlgorithm(
-                            master['pki_ocsp_signing_key_algorithm'])
-                        cert2.setKeySize(master['pki_ocsp_signing_key_size'])
-                        cert2.setKeyType(master['pki_ocsp_signing_key_type'])
-                        cert2.setNickname(master['pki_ocsp_signing_nickname'])
-                        cert2.setSigningAlgorithm(
-                            master['pki_ocsp_signing_signing_algorithm'])
-                        cert2.setSubjectDN(
-                            master['pki_ocsp_signing_subject_dn'])
-                        cert2.setToken(master['pki_ocsp_signing_token'])
-                        systemCerts.add(cert2)
+            if not config.str2bool(master['pki_clone']):
+                if master['pki_subsystem'] == "CA" or\
+                   master['pki_subsystem'] == "OCSP":
+                    # External CA, Subordinate CA, PKI CA, or PKI OCSP
+                    cert2 = self.create_system_cert("ocsp_signing")
+                    cert2.setSigningAlgorithm(
+                        master['pki_ocsp_signing_signing_algorithm'])
+                    systemCerts.add(cert2)
+
             # Create 'SSL Server Certificate'
-            #     PKI RA, PKI TPS,
-            #     PKI CA, PKI KRA, PKI OCSP, PKI TKS,
-            #     PKI CA CLONE, PKI KRA CLONE, PKI OCSP CLONE, PKI TKS CLONE,
-            #     External CA, or Subordinate CA
-            cert3 = SystemCertData()
-            cert3.setTag(master['pki_ssl_server_tag'])
-            cert3.setKeyAlgorithm(master['pki_ssl_server_key_algorithm'])
-            cert3.setKeySize(master['pki_ssl_server_key_size'])
-            cert3.setKeyType(master['pki_ssl_server_key_type'])
-            cert3.setNickname(master['pki_ssl_server_nickname'])
-            cert3.setSubjectDN(master['pki_ssl_server_subject_dn'])
-            cert3.setToken(master['pki_ssl_server_token'])
+            # all subsystems
+            cert3 = self.create_system_cert("ssl_server")
             systemCerts.add(cert3)
+
             # Create 'Subsystem Certificate'
-            if master['pki_instance_type'] == "Apache":
-                # PKI RA or PKI TPS
-                cert4 = SystemCertData()
-                cert4.setTag(master['pki_subsystem_tag'])
-                cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
-                cert4.setKeySize(master['pki_subsystem_key_size'])
-                cert4.setKeyType(master['pki_subsystem_key_type'])
-                cert4.setNickname(master['pki_subsystem_nickname'])
-                cert4.setSubjectDN(master['pki_subsystem_subject_dn'])
-                cert4.setToken(master['pki_subsystem_token'])
+            if not config.str2bool(master['pki_clone']):
+                cert4 = self.create_system_cert("subsystem")
                 systemCerts.add(cert4)
-            elif master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
-                    # External CA, or Subordinate CA
-                    cert4 = SystemCertData()
-                    cert4.setTag(master['pki_subsystem_tag'])
-                    cert4.setKeyAlgorithm(master['pki_subsystem_key_algorithm'])
-                    cert4.setKeySize(master['pki_subsystem_key_size'])
-                    cert4.setKeyType(master['pki_subsystem_key_type'])
-                    cert4.setNickname(master['pki_subsystem_nickname'])
-                    cert4.setSubjectDN(master['pki_subsystem_subject_dn'])
-                    cert4.setToken(master['pki_subsystem_token'])
-                    systemCerts.add(cert4)
+
             # Create 'Audit Signing Certificate'
-            if master['pki_instance_type'] == "Apache":
+            if not config.str2bool(master['pki_clone']):
                 if master['pki_subsystem'] != "RA":
-                    # PKI TPS
-                    cert5 = SystemCertData()
-                    cert5.setTag(master['pki_audit_signing_tag'])
-                    cert5.setKeyAlgorithm(
-                        master['pki_audit_signing_key_algorithm'])
-                    cert5.setKeySize(master['pki_audit_signing_key_size'])
-                    cert5.setKeyType(master['pki_audit_signing_key_type'])
-                    cert5.setNickname(master['pki_audit_signing_nickname'])
-                    cert5.setKeyAlgorithm(
+                    cert5 = self.create_system_cert("audit_signing")
+                    cert5.setSigningAlgorithm(
                         master['pki_audit_signing_signing_algorithm'])
-                    cert5.setSubjectDN(master['pki_audit_signing_subject_dn'])
-                    cert5.setToken(master['pki_audit_signing_token'])
                     systemCerts.add(cert5)
-            elif master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    # PKI CA, PKI KRA, PKI OCSP, PKI TKS,
-                    # External CA, or Subordinate CA
-                    cert5 = SystemCertData()
-                    cert5.setTag(master['pki_audit_signing_tag'])
-                    cert5.setKeyAlgorithm(
-                        master['pki_audit_signing_key_algorithm'])
-                    cert5.setKeySize(master['pki_audit_signing_key_size'])
-                    cert5.setKeyType(master['pki_audit_signing_key_type'])
-                    cert5.setNickname(master['pki_audit_signing_nickname'])
-                    cert5.setKeyAlgorithm(
-                        master['pki_audit_signing_signing_algorithm'])
-                    cert5.setSubjectDN(master['pki_audit_signing_subject_dn'])
-                    cert5.setToken(master['pki_audit_signing_token'])
-                    systemCerts.add(cert5)
-            # Create 'DRM Transport Certificate'
-            if master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    if master['pki_subsystem'] == "KRA":
-                        # PKI KRA
-                        cert6 = SystemCertData()
-                        cert6.setTag(master['pki_transport_tag'])
-                        cert6.setKeyAlgorithm(
-                            master['pki_transport_key_algorithm'])
-                        cert6.setKeySize(master['pki_transport_key_size'])
-                        cert6.setKeyType(master['pki_transport_key_type'])
-                        cert6.setNickname(master['pki_transport_nickname'])
-                        cert6.setKeyAlgorithm(
-                            master['pki_transport_signing_algorithm'])
-                        cert6.setSubjectDN(master['pki_transport_subject_dn'])
-                        cert6.setToken(master['pki_transport_token'])
-                        systemCerts.add(cert6)
-            # Create 'DRM Storage Certificate'
-            if master['pki_instance_type'] == "Tomcat":
-                if not config.str2bool(master['pki_clone']):
-                    if master['pki_subsystem'] == "KRA":
-                        # PKI KRA
-                        cert7 = SystemCertData()
-                        cert7.setTag(master['pki_storage_tag'])
-                        cert7.setKeyAlgorithm(
-                            master['pki_storage_key_algorithm'])
-                        cert7.setKeySize(master['pki_storage_key_size'])
-                        cert7.setKeyType(master['pki_storage_key_type'])
-                        cert7.setNickname(master['pki_storage_nickname'])
-                        cert7.setKeyAlgorithm(
-                            master['pki_storage_signing_algorithm'])
-                        cert7.setSubjectDN(master['pki_storage_subject_dn'])
-                        cert7.setToken(master['pki_storage_token'])
-                        systemCerts.add(cert7)
-            # Create system certs
+
+            # Create DRM Transport and storage Certificates
+            if not config.str2bool(master['pki_clone']):
+                if master['pki_subsystem'] == "KRA":
+                    cert6 = self.create_system_cert("transport")
+                    systemCerts.add(cert6)
+
+                    cert7 = self.create_system_cert("storage")
+                    systemCerts.add(cert7)
+
             data.setSystemCerts(systemCerts)
         return data
 
-    def configure_pki_data(self, data, master, sensitive):
+    def configure_pki_data(self, data):
+        master = self.master
         if master['pki_jython_log_level'] >= config.PKI_JYTHON_INFO_LOG_LEVEL:
             print "%s %s '%s'" %\
                   (log.PKI_JYTHON_INDENTATION_2,
