@@ -7,7 +7,7 @@
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}5%{?prerel}%{?dist}
+Release:          %{?relprefix}6%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -195,6 +195,9 @@ if [ -d /etc/sysconfig/pki/ra ]; then
                 echo "pkicreate.systemd.servicename=pki-rad@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-rad@${inst}.service
         fi
     done
 fi
@@ -243,6 +246,10 @@ fi
 
 
 %changelog
+* Tue Sep 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
+- TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
+  upon RPM "update" . . .
+
 * Mon Aug 20 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.a1
 - Removed direct dependency on 'pki-native-tools'.
 

@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}31%{?prerel}%{?dist}
+Release:          %{?relprefix}32%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -866,6 +866,9 @@ if [ -d /etc/sysconfig/pki/ca ]; then
                 echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-cad@${inst}.service
         fi
     done
 fi
@@ -894,6 +897,9 @@ if [ -d /etc/sysconfig/pki/kra ]; then
                 echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-krad@${inst}.service
         fi
     done
 fi
@@ -922,6 +928,9 @@ if [ -d /etc/sysconfig/pki/ocsp ]; then
                 echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-ocspd@${inst}.service
         fi
     done
 fi
@@ -950,6 +959,9 @@ if [ -d /etc/sysconfig/pki/tks ]; then
                 echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
                      /var/lib/${inst}/conf/CS.cfg || :
             fi
+        else
+            # Conditionally restart this Dogtag 9 instance
+            /bin/systemctl condrestart pki-tksd@${inst}.service
         fi
     done
 fi
@@ -1106,8 +1118,8 @@ fi
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/deploy/LICENSE
-%{_bindir}/pkispawn
-%{_bindir}/pkidestroy
+%{_sbindir}/pkispawn
+%{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
 %dir %{python_sitelib}/pki
 %{python_sitelib}/pki/_*
@@ -1304,6 +1316,12 @@ fi
 
 
 %changelog
+* Wed Sep 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.32.a1
+- TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
+  upon RPM "update" . . .
+- TRAC Ticket #317 - Dogtag 10: Move "pkispawn"/"pkidestroy"
+  from /usr/bin to /usr/sbin . . .
+
 * Wed Sep 12 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.31.a1
 - Fixed pki-server to include everything in shared dir.
 

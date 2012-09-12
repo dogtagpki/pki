@@ -23,9 +23,19 @@ set(APACHE_SUBSYSTEMS
 
 install(
     FILES
-        scripts/pkidaemon
         src/pkispawn
         src/pkidestroy
+    DESTINATION
+        ${SBIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    FILES
+        scripts/pkidaemon
     DESTINATION
         ${BIN_INSTALL_DIR}
     PERMISSIONS
