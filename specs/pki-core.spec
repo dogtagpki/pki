@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}32%{?prerel}%{?dist}
+Release:          %{?relprefix}33%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -29,6 +29,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # tomcatjss requires versioning since version 2.0.0 requires tomcat6
 BuildRequires:    cmake
+BuildRequires:    zip
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
@@ -220,6 +221,7 @@ BuildArch:        noarch
 Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
+Conflicts:        freeipa-server < 3.0.0
 Requires:         apache-commons-codec
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
@@ -1316,6 +1318,10 @@ fi
 
 
 %changelog
+* Thu Sep 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.33.a1
+- Added Conflicts for IPA 2.X
+- Added build requires for zip to work around mock problem
+
 * Wed Sep 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.32.a1
 - TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
   upon RPM "update" . . .
