@@ -147,7 +147,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        util.security_domain.deregister()
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
                util.instance.apache_instance_subsystems() == 1:

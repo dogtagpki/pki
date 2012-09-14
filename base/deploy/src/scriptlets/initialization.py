@@ -95,6 +95,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.identity.set_gid(master['pki_group'])
         # get ports to remove selinux context
         util.configuration_file.populate_non_default_ports()
+        # de-register instance from its Security Domain
+        #
+        #     NOTE:  Since the security domain of an instance must be up
+        #            and running in order to be de-registered, this step
+        #            must be done PRIOR to instance shutdown because this
+        #            instance's security domain may be a part of a
+        #            tightly-coupled shared instance.
+        #
+        util.security_domain.deregister()
         # ALWAYS Stop this Apache/Tomcat PKI Process
         util.systemd.stop()
         return self.rv
