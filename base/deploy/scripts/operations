@@ -961,7 +961,6 @@ verify_symlinks()
         [alias]=/etc/pki/${PKI_INSTANCE_ID}/alias
         [bin]=/usr/share/tomcat/bin
         [conf]=/etc/pki/${PKI_INSTANCE_ID}
-        [lib]=/usr/share/tomcat/lib
         [logs]=/var/log/pki/${PKI_INSTANCE_ID})
 
     # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)

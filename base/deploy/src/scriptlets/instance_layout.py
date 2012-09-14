@@ -45,9 +45,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.directory.create(master['pki_instance_configuration_path'])
         # establish Apache/Tomcat specific instance
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            # establish Tomcat instance configuration
+            util.directory.copy(master['pki_source_shared_path'],
+                                master['pki_instance_configuration_path'],
+                                overwrite_flag=True)
             # establish Tomcat instance base
             util.directory.create(master['pki_tomcat_common_path'])
             util.directory.create(master['pki_tomcat_common_lib_path'])
+            # establish Tomcat instance library
+            util.directory.create(master['pki_instance_lib'])
+            for name in os.listdir(master['pki_tomcat_lib_path']):
+                util.symlink.create(
+                    os.path.join(
+                        master['pki_tomcat_lib_path'],
+                        name),
+                    os.path.join(
+                        master['pki_instance_lib'],
+                        name))
+            util.symlink.create(master['pki_instance_conf_log4j_properties'],
+                                master['pki_instance_lib_log4j_properties'])
             util.directory.create(master['pki_tomcat_tmpdir_path'])
             util.directory.create(master['pki_tomcat_webapps_path'])
             util.directory.create(master['pki_tomcat_webapps_common_path'])
@@ -74,19 +90,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(
                 master['pki_tomcat_work_catalina_host_subsystem_path'])
             # establish Tomcat instance logs
-            # establish Tomcat instance configuration
-            util.directory.copy(master['pki_source_shared_path'],
-                                master['pki_instance_configuration_path'],
-                                overwrite_flag=True)
             # establish Tomcat instance registry
             # establish Tomcat instance convenience symbolic links
             util.symlink.create(master['pki_tomcat_bin_path'],
                                 master['pki_tomcat_bin_link'])
-            util.symlink.create(master['pki_tomcat_lib_path'],
-                                master['pki_tomcat_lib_link'])
-            util.symlink.create(master['pki_instance_log4j_properties'],
-                                master['pki_tomcat_lib_log4j_properties_link'],
-                                uid=0, gid=0)
             util.symlink.create(master['pki_tomcat_systemd'],
                                 master['pki_instance_systemd_link'],
                                 uid=0, gid=0)
@@ -166,6 +173,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # update Tomcat instance base
             util.directory.modify(master['pki_tomcat_common_path'])
             util.directory.modify(master['pki_tomcat_common_lib_path'])
+            util.directory.modify(master['pki_instance_lib'])
+            util.directory.modify(master['pki_instance_lib_log4j_properties'])
             util.directory.modify(master['pki_tomcat_webapps_path'])
             util.directory.copy(
                 os.path.join(
@@ -195,9 +204,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # update Tomcat instance registry
             # update Tomcat instance convenience symbolic links
             util.symlink.modify(master['pki_tomcat_bin_link'])
-            util.symlink.modify(master['pki_tomcat_lib_link'])
-            util.symlink.modify(master['pki_tomcat_lib_log4j_properties_link'],
-                                uid=0, gid=0)
             util.symlink.modify(master['pki_instance_systemd_link'],
                                 uid=0, gid=0)
             # update Tomcat instance common lib jar symbolic links
@@ -274,8 +280,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration
-                util.symlink.delete(
-                    master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove PKI 'tomcat.conf' instance file
                 util.file.delete(master['pki_target_tomcat_conf_instance_id'])
@@ -311,8 +315,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove shared NSS security database path for this instance
                 util.directory.delete(master['pki_database_path'])
                 # remove Tomcat instance configuration
-                util.symlink.delete(
-                    master['pki_tomcat_lib_log4j_properties_link'])
                 util.directory.delete(master['pki_instance_configuration_path'])
                 # remove PKI 'tomcat.conf' instance file
                 util.file.delete(master['pki_target_tomcat_conf_instance_id'])

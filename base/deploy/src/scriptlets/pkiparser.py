@@ -587,7 +587,7 @@ def compose_pki_master_dictionary():
                     config.pki_master_dict['pki_subsystem'].lower())
             # Tomcat instance log name/value pairs
             # Tomcat instance configuration name/value pairs
-            config.pki_master_dict['pki_instance_log4j_properties'] =\
+            config.pki_master_dict['pki_instance_conf_log4j_properties'] =\
                 os.path.join(
                     config.pki_master_dict['pki_instance_configuration_path'],
                     "log4j.properties")
@@ -604,11 +604,11 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_tomcat_bin_link'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
                              "bin")
-            config.pki_master_dict['pki_tomcat_lib_link'] =\
+            config.pki_master_dict['pki_instance_lib'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
                              "lib")
-            config.pki_master_dict['pki_tomcat_lib_log4j_properties_link'] =\
-                os.path.join(config.pki_master_dict['pki_tomcat_lib_path'],
+            config.pki_master_dict['pki_instance_lib_log4j_properties'] =\
+                os.path.join(config.pki_master_dict['pki_instance_lib'],
                              "log4j.properties")
             config.pki_master_dict['pki_instance_systemd_link'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
