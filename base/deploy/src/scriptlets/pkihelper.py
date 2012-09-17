@@ -1224,12 +1224,12 @@ class directory:
                                 #            systems since 'chmod' CANNOT be
                                 #            run directly against symbolic
                                 #            links!
-                                # chown -h <uid>:<gid> <link>
+                                # chown -h <uid>:<gid> <symlink>
                                 config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
-                                    uid, gid, link,
+                                    uid, gid, symlink,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
                                 if not config.pki_dry_run_flag:
-                                    os.lchown(link, uid, gid)
+                                    os.lchown(symlink, uid, gid)
                                 # Store record in installation manifest
                                 record = manifest.record()
                                 record.name = name

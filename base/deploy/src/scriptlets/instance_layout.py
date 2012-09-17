@@ -125,8 +125,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_resteasy_jettison_provider_jar_link'])
             util.symlink.create(master['pki_scannotation_jar'],
                 master['pki_scannotation_jar_link'])
-            util.symlink.create(master['pki_symkey_jar'],
-                master['pki_symkey_jar_link'])
+            if master['pki_subsystem'] == 'TKS':
+                util.symlink.create(master['pki_symkey_jar'],
+                    master['pki_symkey_jar_link'])
             util.symlink.create(master['pki_tomcatjss_jar'],
                 master['pki_tomcatjss_jar_link'])
             util.symlink.create(master['pki_velocity_jar'],
@@ -225,7 +226,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.symlink.modify(
                 master['pki_resteasy_jettison_provider_jar_link'])
             util.symlink.modify(master['pki_scannotation_jar_link'])
-            util.symlink.modify(master['pki_symkey_jar_link'])
+            if master['pki_subsystem'] == 'TKS':
+                util.symlink.modify(master['pki_symkey_jar_link'])
             util.symlink.modify(master['pki_tomcatjss_jar_link'])
             util.symlink.modify(master['pki_velocity_jar_link'])
             util.symlink.modify(master['pki_xerces_j2_jar_link'])
@@ -245,6 +247,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+        if master['pki_subsystem'] == 'TKS':
+            util.symlink.delete(master['pki_symkey_jar_link'])
         if not config.pki_dry_run_flag:
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
                util.instance.apache_instance_subsystems() == 0:

@@ -1058,12 +1058,15 @@ verify_symlinks()
         [resteasy-jaxrs.jar]=${resteasy_java_dir}/resteasy-jaxrs.jar
         [resteasy-jettison-provider.jar]=${resteasy_java_dir}/resteasy-jettison-provider.jar
         [scannotation.jar]=${java_dir}/scannotation.jar
-        [symkey.jar]=${jni_dir}/symkey.jar
         [tomcatjss.jar]=${java_dir}/tomcat7jss.jar
         [velocity.jar]=${java_dir}/velocity.jar
         [xerces-j2.jar]=${java_dir}/xerces-j2.jar
         [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
         [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
+
+    if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
+        common_jar_symlinks[symkey.jar]=${jni_dir}/symkey.jar
+    fi
 
     # '${pki_systemd_dir}' symlinks
     systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}

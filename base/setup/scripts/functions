@@ -971,11 +971,14 @@ verify_symlinks()
         [pki-cmscore.jar]=/usr/share/java/pki/pki-cmscore.jar
         [pki-cmsutil.jar]=/usr/share/java/pki/pki-cmsutil.jar
         [pki-nsutil.jar]=/usr/share/java/pki/pki-nsutil.jar
-        [symkey.jar]=${jni_dir}/symkey.jar
         [velocity.jar]=/usr/share/java/velocity.jar
         [xerces-j2.jar]=/usr/share/java/xerces-j2.jar
         [xml-commons-apis.jar]=/usr/share/java/xml-commons-apis.jar
         [xml-commons-resolver.jar]=/usr/share/java/xml-commons-resolver.jar)
+
+    if [ "${PKI_SUBSYSTEM_TYPE}" == "tks"  ]; then
+        webapps_jar_symlinks[symkey.jar]=${jni_dir}/symkey.jar
+    fi
 
     # '${pki_systemd_dir}' symlinks
     systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}
