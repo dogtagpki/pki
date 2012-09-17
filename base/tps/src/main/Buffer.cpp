@@ -222,6 +222,16 @@ Buffer::string()
     return s;
 }
 
+TPS_PUBLIC unsigned char*
+Buffer::getBuf() {
+    return (unsigned char *) buf;
+}
+
+TPS_PUBLIC unsigned int
+Buffer::getLen() {
+    return len;
+}
+
 TPS_PUBLIC char *
 Buffer::toHex()
 {

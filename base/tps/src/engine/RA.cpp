@@ -1302,7 +1302,7 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
 	                      char **publicKey_s,
                           char **wrappedPrivateKey_s,
                           char **ivParam_s, const char *connId,
-                          bool archive, int keysize)
+                          bool archive, int keysize, bool isECC)
 {
 
 	const char *FN="RA::ServerSideKeyGen";
@@ -1372,8 +1372,27 @@ void RA::ServerSideKeyGen(RA_Session *session, const char* cuid,
     RA::Debug(LL_PER_CONNECTION, FN,
 		"wrappedDESKey_s=%s", wrappedDESKey_s);
 
-    PR_snprintf((char *)body, MAX_BODY_LEN, 
-		"archive=%s&CUID=%s&userid=%s&keysize=%d&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, keysize, wrappedDESKey_s);
+    if (isECC) {
+        char *eckeycurve = NULL;
+        if (keysize == 521) {
+            eckeycurve = "nistp521";
+        } else if (keysize == 384) {
+            eckeycurve = "nistp384";
+        } else if (keysize == 256) {
+            eckeycurve = "nistp256";
+        } else {
+            RA::Debug(LL_PER_CONNECTION, FN,
+                "unrecognized ECC keysize %d, setting to nistp256", keysize);
+            keysize = 256;
+            eckeycurve = "nistp256";
+        }
+        PR_snprintf((char *)body, MAX_BODY_LEN, 
+           "archive=%s&CUID=%s&userid=%s&keytype=EC&eckeycurve=%s&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, eckeycurve, wrappedDESKey_s);
+    } else {
+        PR_snprintf((char *)body, MAX_BODY_LEN, 
+           "archive=%s&CUID=%s&userid=%s&keysize=%d&keytype=RSA&drm_trans_desKey=%s",archive?"true":"false",cuid, userid, keysize, wrappedDESKey_s);
+    }
+
     RA::Debug(LL_PER_CONNECTION, FN, 
 		"sending to DRM: query=%s", body);
 
@@ -3678,6 +3697,18 @@ loser:
     }
 
     return newKey;
+}
+
+bool RA::isAlgorithmECC(BYTE alg)
+{
+    bool result = false;
+
+    if (alg == ALG_EC_F2M || alg == ALG_EC_FP)
+       result = true;
+
+    RA::Debug(LL_PER_SERVER, "RA::isAlgorithmECC", " alg: %d result: %d", alg, result);
+
+    return result;
 }
 
 bool RA::transition_allowed(int oldState, int newState) 

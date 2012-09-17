@@ -153,6 +153,8 @@ public interface IRequest {
     public final static String NETKEY_ATTR_ENC_PRIVKEY_FLAG ="encryptPrivKey";
     public final static String NETKEY_ATTR_USER_CERT = "cert";
     public final static String NETKEY_ATTR_KEY_SIZE = "keysize";
+    public final static String NETKEY_ATTR_KEY_TYPE = "keytype";
+    public final static String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
 
     // requestor type values.
     public static final String REQUESTOR_EE = "EE";

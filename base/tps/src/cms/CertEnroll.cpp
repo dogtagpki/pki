@@ -19,6 +19,7 @@
 // --- END COPYRIGHT BLOCK ---
 
 #include <string.h>
+#include <assert.h>
 
 #include "main/RA_Session.h"
 #include "main/RA_Msg.h"
@@ -35,6 +36,7 @@
 #include "base64.h"
 #include "nssb64.h"
 #include "prlock.h"
+#include "secoidt.h"
 
 #include "main/Memory.h"
 
@@ -48,6 +50,131 @@ ReturnStatus verifyProof(SECKEYPublicKey* , SECItem* ,
 #else /* !XP_WIN32 */
 #define TOKENDB_PUBLIC
 #endif /* !XP_WIN32 */
+
+//ECC curve information
+
+typedef struct curveNameTagPairStr {
+    char *curveName;
+    SECOidTag curveOidTag;
+} CurveNameTagPair;
+
+
+static CurveNameTagPair nameTagPair[] =
+{ 
+  { "prime192v1", SEC_OID_ANSIX962_EC_PRIME192V1 },
+  { "prime192v2", SEC_OID_ANSIX962_EC_PRIME192V2 },
+  { "prime192v3", SEC_OID_ANSIX962_EC_PRIME192V3 },
+  { "prime239v1", SEC_OID_ANSIX962_EC_PRIME239V1 },
+  { "prime239v2", SEC_OID_ANSIX962_EC_PRIME239V2 },
+  { "prime239v3", SEC_OID_ANSIX962_EC_PRIME239V3 },
+  { "prime256v1", SEC_OID_ANSIX962_EC_PRIME256V1 },
+
+  { "secp112r1", SEC_OID_SECG_EC_SECP112R1},
+  { "secp112r2", SEC_OID_SECG_EC_SECP112R2},
+  { "secp128r1", SEC_OID_SECG_EC_SECP128R1},
+  { "secp128r2", SEC_OID_SECG_EC_SECP128R2},
+  { "secp160k1", SEC_OID_SECG_EC_SECP160K1},
+  { "secp160r1", SEC_OID_SECG_EC_SECP160R1},
+  { "secp160r2", SEC_OID_SECG_EC_SECP160R2},
+  { "secp192k1", SEC_OID_SECG_EC_SECP192K1},
+  { "secp192r1", SEC_OID_ANSIX962_EC_PRIME192V1 },
+  { "nistp192", SEC_OID_ANSIX962_EC_PRIME192V1 },
+  { "secp224k1", SEC_OID_SECG_EC_SECP224K1},
+  { "secp224r1", SEC_OID_SECG_EC_SECP224R1},
+  { "nistp224", SEC_OID_SECG_EC_SECP224R1},
+  { "secp256k1", SEC_OID_SECG_EC_SECP256K1},
+  { "secp256r1", SEC_OID_ANSIX962_EC_PRIME256V1 },
+  { "nistp256", SEC_OID_ANSIX962_EC_PRIME256V1 },
+  { "secp384r1", SEC_OID_SECG_EC_SECP384R1},
+  { "nistp384", SEC_OID_SECG_EC_SECP384R1},
+  { "secp521r1", SEC_OID_SECG_EC_SECP521R1},
+  { "nistp521", SEC_OID_SECG_EC_SECP521R1},
+
+  { "c2pnb163v1", SEC_OID_ANSIX962_EC_C2PNB163V1 },
+  { "c2pnb163v2", SEC_OID_ANSIX962_EC_C2PNB163V2 },
+  { "c2pnb163v3", SEC_OID_ANSIX962_EC_C2PNB163V3 },
+  { "c2pnb176v1", SEC_OID_ANSIX962_EC_C2PNB176V1 },
+  { "c2tnb191v1", SEC_OID_ANSIX962_EC_C2TNB191V1 },
+  { "c2tnb191v2", SEC_OID_ANSIX962_EC_C2TNB191V2 },
+  { "c2tnb191v3", SEC_OID_ANSIX962_EC_C2TNB191V3 },
+  { "c2onb191v4", SEC_OID_ANSIX962_EC_C2ONB191V4 },
+  { "c2onb191v5", SEC_OID_ANSIX962_EC_C2ONB191V5 },
+  { "c2pnb208w1", SEC_OID_ANSIX962_EC_C2PNB208W1 },
+  { "c2tnb239v1", SEC_OID_ANSIX962_EC_C2TNB239V1 },
+  { "c2tnb239v2", SEC_OID_ANSIX962_EC_C2TNB239V2 },
+  { "c2tnb239v3", SEC_OID_ANSIX962_EC_C2TNB239V3 },
+  { "c2onb239v4", SEC_OID_ANSIX962_EC_C2ONB239V4 },
+  { "c2onb239v5", SEC_OID_ANSIX962_EC_C2ONB239V5 },
+  { "c2pnb272w1", SEC_OID_ANSIX962_EC_C2PNB272W1 },
+  { "c2pnb304w1", SEC_OID_ANSIX962_EC_C2PNB304W1 },
+  { "c2tnb359v1", SEC_OID_ANSIX962_EC_C2TNB359V1 },
+  { "c2pnb368w1", SEC_OID_ANSIX962_EC_C2PNB368W1 },
+  { "c2tnb431r1", SEC_OID_ANSIX962_EC_C2TNB431R1 },
+
+  { "sect113r1", SEC_OID_SECG_EC_SECT113R1},
+  { "sect113r2", SEC_OID_SECG_EC_SECT113R2},
+  { "sect131r1", SEC_OID_SECG_EC_SECT131R1},
+  { "sect131r2", SEC_OID_SECG_EC_SECT131R2},
+  { "sect163k1", SEC_OID_SECG_EC_SECT163K1},
+  { "nistk163", SEC_OID_SECG_EC_SECT163K1},
+  { "sect163r1", SEC_OID_SECG_EC_SECT163R1},
+  { "sect163r2", SEC_OID_SECG_EC_SECT163R2},
+  { "nistb163", SEC_OID_SECG_EC_SECT163R2},
+  { "sect193r1", SEC_OID_SECG_EC_SECT193R1},
+  { "sect193r2", SEC_OID_SECG_EC_SECT193R2},
+  { "sect233k1", SEC_OID_SECG_EC_SECT233K1},
+  { "nistk233", SEC_OID_SECG_EC_SECT233K1},
+  { "sect233r1", SEC_OID_SECG_EC_SECT233R1},
+  { "nistb233", SEC_OID_SECG_EC_SECT233R1},
+  { "sect239k1", SEC_OID_SECG_EC_SECT239K1},
+  { "sect283k1", SEC_OID_SECG_EC_SECT283K1},
+  { "nistk283", SEC_OID_SECG_EC_SECT283K1},
+  { "sect283r1", SEC_OID_SECG_EC_SECT283R1},
+  { "nistb283", SEC_OID_SECG_EC_SECT283R1},
+  { "sect409k1", SEC_OID_SECG_EC_SECT409K1},
+  { "nistk409", SEC_OID_SECG_EC_SECT409K1},
+  { "sect409r1", SEC_OID_SECG_EC_SECT409R1},
+  { "nistb409", SEC_OID_SECG_EC_SECT409R1},
+  { "sect571k1", SEC_OID_SECG_EC_SECT571K1},
+  { "nistk571", SEC_OID_SECG_EC_SECT571K1},
+  { "sect571r1", SEC_OID_SECG_EC_SECT571R1},
+  { "nistb571", SEC_OID_SECG_EC_SECT571R1},
+
+};
+
+SECKEYECParams * 
+CertEnroll::encode_ec_params(char *curve)
+{
+    SECKEYECParams *ecparams;
+    SECOidData *oidData = NULL;
+    SECOidTag curveOidTag = SEC_OID_UNKNOWN; /* default */
+    int i, numCurves;
+  
+    if (curve && *curve) {
+        numCurves = sizeof(nameTagPair)/sizeof(CurveNameTagPair);
+        for (i = 0; ((i < numCurves) && (curveOidTag == SEC_OID_UNKNOWN)); 
+             i++) {
+            if (PL_strcmp(curve, nameTagPair[i].curveName) == 0)
+                curveOidTag = nameTagPair[i].curveOidTag;
+        }
+    }
+  
+    if ((curveOidTag == SEC_OID_UNKNOWN) || 
+        (oidData = SECOID_FindOIDByTag(curveOidTag)) == NULL) {
+        return NULL;
+    }
+  
+    ecparams = SECITEM_AllocItem(NULL, NULL, (2 + oidData->oid.len));
+  
+    if (!ecparams)
+      return NULL;
+  
+    ecparams->data[0] = SEC_ASN1_OBJECT_ID;
+    ecparams->data[1] = oidData->oid.len;
+    memcpy(ecparams->data + 2, oidData->oid.data, oidData->oid.len);
+  
+    return ecparams;
+}
 
 /**
  * Constructs handle for Certificate Enrollment
@@ -328,8 +455,20 @@ Buffer * CertEnroll::EnrollCertificate(
  * Short     Exponent Length
  * 
  * Byte[]     Exponent
+ *
+ *
+ *   ECC KeyBlob Format (ECC Public Key)
+ *   ----------------------------------
+ *
+ *  Byte     Encoding (0 for plaintext)
  * 
- *  
+ *  Byte     Key Type (10 for ECC public)
+ *
+ *  Short    Key Length (256, 384, 521 high byte first)
+ *
+ *  Byte[]     Key (W)
+ *
+ *
  * Signature Format (Proof)
  * ---------------------------------------
  *  
@@ -369,7 +508,7 @@ Buffer * CertEnroll::EnrollCertificate(
  ******/
 
 SECKEYPublicKey *CertEnroll::ParsePublicKeyBlob(unsigned char *blob,
-                             Buffer *challenge)
+                             Buffer *challenge, bool isECC)
 {
     char configname[5000];
     SECKEYPublicKey *pk = NULL;
@@ -404,7 +543,7 @@ SECKEYPublicKey *CertEnroll::ParsePublicKeyBlob(unsigned char *blob,
     pkeyb_len = (unsigned short) ((len0 << 8) | (len1 & 0xFF));
 
     RA::Debug(LL_PER_PDU, "CertEnroll::ParsePublicKeyBlob",
-          "pkeyb_len =%d",pkeyb_len);
+          "pkeyb_len =%d isECC: %d",pkeyb_len, isECC);
 
     if (pkeyb_len <= 0) {
       RA::Error("CertEnroll::ParsePublicKeyBlob", "public key blob length = %d", pkeyb_len);
@@ -431,51 +570,112 @@ SECKEYPublicKey *CertEnroll::ParsePublicKeyBlob(unsigned char *blob,
 
     // convert pkeyb to pkey
     // 1 byte encoding, 1 byte key type, 2 bytes key length, then the key
+
+    // for ECC
+    unsigned short ecc_pkey_len = 0;
+    // ecc key blob
+    unsigned char *eccpb = NULL;
+
+    // for RSA
+    unsigned short mod_len = 0;
+    unsigned short exp_len = 0;
+    // public key mod blob
+    unsigned char * modb = NULL;
+    // public key exp blob
+    unsigned char * expb = NULL;
+
     unsigned short pkey_offset = 4;
-    // now, convert lengths for modulus and exponent
     len0 = pkeyb[pkey_offset];
     len1 = pkeyb[pkey_offset + 1];
-    unsigned short mod_len = (len0 << 8 | len1);
 
-    len0 = pkeyb[pkey_offset + 2 + mod_len];
-    len1 = pkeyb[pkey_offset + 2 + mod_len + 1];
-    unsigned short exp_len = (len0 << 8 | len1);
+    if (!isECC) {
+        // now, convert lengths for modulus and exponent
+        mod_len = (len0 << 8 | len1);
 
+        len0 = pkeyb[pkey_offset + 2 + mod_len];
+        len1 = pkeyb[pkey_offset + 2 + mod_len + 1];
+        exp_len = (len0 << 8 | len1);
 
-    // public key mod blob
-    unsigned char * modb = &pkeyb[pkey_offset + 2];
+        modb = &pkeyb[pkey_offset + 2];
+        expb = &pkeyb[pkey_offset + 2 + mod_len + 2];
 
-    // public key exp blob
-    unsigned char * expb = &pkeyb[pkey_offset + 2 + mod_len + 2];
+    } else {
+        ecc_pkey_len = (len0 << 8  | len1);
+        eccpb = &pkeyb[pkey_offset + 2];
+    }
 
     // construct SECItem
+
+    // for RSA
     SECItem siMod;
-    siMod.type = (SECItemType) 0;
-    siMod.data = (unsigned char *) modb;
-    siMod.len = mod_len;
-
     SECItem siExp;
-    siExp.type = (SECItemType) 0;
-    siExp.data = (unsigned char *)expb;
-    siExp.len = exp_len;
-
-    // construct SECKEYRSAPublicKeyStr
     SECKEYRSAPublicKeyStr rsa_pks;
-    rsa_pks.modulus = siMod;
-    rsa_pks.publicExponent = siExp;
 
-    // construct SECKEYPublicKey
-    // this is to be returned
+    // for ECC
+    SECItem eccValue;
+    SECKEYECPublicKeyStr  ecc_pks;
+    SECKEYECParams *ecc_key_params = NULL;
+
     pk = (SECKEYPublicKey *) malloc(sizeof(SECKEYPublicKey));
-    pk->keyType = rsaKey;
-    pk->pkcs11Slot = NULL;
-    pk->pkcs11ID = CK_INVALID_HANDLE;
-    pk->u.rsa = rsa_pks;
+
+    assert(pk);
+
+    if (!isECC) {
+
+        siMod.type = (SECItemType) 0;
+        siMod.data = (unsigned char *) modb;
+        siMod.len = mod_len;
+
+        siExp.type = (SECItemType) 0;
+        siExp.data = (unsigned char *)expb;
+        siExp.len = exp_len;
+
+        // construct SECKEYRSAPublicKeyStr
+        rsa_pks.modulus = siMod;
+        rsa_pks.publicExponent = siExp;
+
+        pk->keyType = rsaKey;
+        pk->pkcs11Slot = NULL;
+        pk->pkcs11ID = CK_INVALID_HANDLE;
+        pk->u.rsa = rsa_pks;
+    }  else {
+        // ECC
+        len0 = blob[pkeyb_len_offset +4];
+        len1 = blob[pkeyb_len_offset +5];
+        int keyCurveSize =  (len0 << 8  | len1);
+
+        RA::Debug(LL_PER_PDU, "CertEnroll::ParsePublicKeyBlob",
+          "keyCurveSize =%d",keyCurveSize);
+
+        char curve[56] = "";
+        snprintf(curve, 56, "nistp%d",keyCurveSize ); 
+
+        ecc_key_params = encode_ec_params(curve);
+
+        if (ecc_key_params == NULL) {
+            free(pk);
+            pk = NULL;
+            return NULL;
+        }
+
+        eccValue.type = (SECItemType) 0;
+        eccValue.data = (unsigned char *) eccpb;
+        eccValue.len  = ecc_pkey_len;
+
+        ecc_pks.size = keyCurveSize;
+        ecc_pks.publicValue = eccValue;
+        ecc_pks.DEREncodedParams = *ecc_key_params; 
+
+        pk->keyType = ecKey;
+        pk->pkcs11Slot = NULL;
+        pk->pkcs11ID = CK_INVALID_HANDLE;
+        pk->u.ec = ecc_pks;
+    }
 
     PR_snprintf((char *)configname, 256, "general.verifyProof");
     int verifyProofEnable = RA::GetConfigStore()->GetConfigAsInt(configname, 0x1);
     if (verifyProofEnable) {
-      rs = verifyProof(pk, &siProof, pkeyb_len, pkeyb, challenge);
+      rs = verifyProof(pk, &siProof, pkeyb_len, pkeyb, challenge, isECC);
       if (rs.status == PR_FAILURE) {
         RA::Error("CertEnroll::ParsePublicKeyBlob",
           "verify proof failed");
@@ -485,6 +685,32 @@ SECKEYPublicKey *CertEnroll::ParsePublicKeyBlob(unsigned char *blob,
     }
 
     return pk;
+}
+
+/*
+ * for debugging tokens
+ * -- list out all tokens and thier login status
+ */
+static SECStatus
+ListModules(void)
+{
+    PK11SlotList *list;
+    PK11SlotListElement *le;
+
+    /* get them all! */
+    list = PK11_GetAllTokens(CKM_INVALID_MECHANISM,PR_FALSE,PR_FALSE,NULL);
+    if (list == NULL) return SECFailure;
+
+    /* look at each slot*/
+    for (le = list->head ; le; le = le->next) {
+        RA::Debug( LL_PER_PDU, "CertEnroll::ListModules",
+          "    slot: %s\n, loggedIn? %d, token: %s\n", PK11_GetSlotName(le->slot),
+           (PK11_IsLoggedIn(le->slot, NULL) == PR_TRUE)? 1:0,
+           PK11_GetTokenName(le->slot));
+    }
+    PK11_FreeSlotList(list);
+
+    return SECSuccess;
 }
 
 
@@ -502,18 +728,24 @@ SECKEYPublicKey *CertEnroll::ParsePublicKeyBlob(unsigned char *blob,
  */
 ReturnStatus CertEnroll::verifyProof(SECKEYPublicKey* pk, SECItem* siProof,
              unsigned short pkeyb_len, unsigned char* pkeyb,
-             Buffer* challenge) {
+             Buffer* challenge, bool isECC) {
 
     ReturnStatus rs;
     VFYContext * vc = NULL;
     rs.statusNum = ::VRFY_SUCCESS;
     rs.status = PR_SUCCESS;
 
+    // ListModules();
+
     // verify proof (signature)
     RA::Debug(LL_PER_PDU, "CertEnroll::verifyProof",
           "verify proof begins");
 
-    vc = VFY_CreateContext(pk, siProof, SEC_OID_ISO_SHA_WITH_RSA_SIGNATURE, NULL);
+    if(isECC) {
+        vc = VFY_CreateContext(pk, siProof, SEC_OID_ANSIX962_ECDSA_SHA1_SIGNATURE , NULL);
+    } else {
+        vc = VFY_CreateContext(pk, siProof, SEC_OID_ISO_SHA_WITH_RSA_SIGNATURE, NULL);
+    }
 
     if (vc == NULL) {
         RA::Error("CertEnroll::verifyProof",
@@ -530,14 +762,15 @@ ReturnStatus CertEnroll::verifyProof(SECKEYPublicKey* pk, SECItem* siProof,
     int i =0; 
     for (i = 0; i<pkeyb_len; i++) {
         proof[i] = pkeyb[i];
+        RA::Debug(LL_PER_PDU,"CertEnroll::VerifyProof", "proof[%d]=%x", i, proof[i]);
     }
-    //    RA::DebugBuffer("CertEnroll::VerifyProof","VerifyProof:: challenge =", challenge);
+        RA::DebugBuffer("CertEnroll::VerifyProof","VerifyProof:: challenge =", challenge);
     unsigned char* chal = (unsigned char *)(BYTE *) (*challenge);
     unsigned int j = 0;
     for (j=0; j < challenge->size(); i++, j++) {
         proof[i] = chal[j];
-	//	RA::Debug(LL_PER_PDU, "CertEnroll::VerifyProof","proof[%d]= %x",
-	//		  i, proof[i]);
+		RA::Debug(LL_PER_PDU, "CertEnroll::VerifyProof","proof[%d]= %x",
+			  i, proof[i]);
     }
 
     SECStatus vs = VFY_Begin(vc);
@@ -547,7 +780,7 @@ ReturnStatus CertEnroll::verifyProof(SECKEYPublicKey* pk, SECItem* siProof,
           vs = VFY_End(vc);
           if (vs == SECFailure) {
             RA::Error("CertEnroll::verifyProof",
-                "VFY_End() failed pkeyb_len=%d challenge_size=%d", pkeyb_len, challenge->size());
+                "VFY_End() failed pkeyb_len=%d challenge_size=%d error=%d", pkeyb_len, challenge->size(),PR_GetError());
             rs.statusNum = ::VFY_UPDATE_FAILURE;
             rs.status = PR_FAILURE;
           }

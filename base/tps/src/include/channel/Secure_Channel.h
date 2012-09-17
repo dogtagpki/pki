@@ -125,10 +125,18 @@ class Secure_Channel : public Channel
           int CreatePKCS11CertAttrs(TokenKeyType type, const char *id, const char *label, Buffer *keyid);
           Buffer CreatePKCS11PriKeyAttrsBuffer(TokenKeyType type, const char *id, const char *label, Buffer *keyid, 
                 Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix);
+
+          Buffer CreatePKCS11ECCPriKeyAttrsBuffer(TokenKeyType type, const char *id, const char *label, Buffer *keyid,
+                SECKEYECParams *ecParams, const char *opType, const char *tokenType, const char *keyTypePrefix);  
+
           int CreatePKCS11PriKeyAttrs(TokenKeyType type, const char *id, const char *label, Buffer *keyid, 
                 Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix);
           Buffer CreatePKCS11PubKeyAttrsBuffer(TokenKeyType type, const char *id, const char *label, Buffer *keyid,
                 Buffer *exponent, Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix);
+
+          Buffer CreatePKCS11ECCPubKeyAttrsBuffer(TokenKeyType key_type, const char *id, const char *label, Buffer *keyid, SECKEYECPublicKey *publicKey,
+                 SECKEYECParams *ecParams, const char *opType, const char *tokenType, const char *keyTypePrefix);
+
           int CreatePKCS11PubKeyAttrs(TokenKeyType type, const char *id, const char *label, Buffer *keyid,
                 Buffer *exponent, Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix);
 	  APDU_Response *SendTokenAPU(APDU *apdu);

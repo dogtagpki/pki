@@ -190,6 +190,7 @@ void ObjectSpec::ParseAttributes(char *objectID, ObjectSpec *ObjectSpec, Buffer 
 		case CKA_KEY_TYPE:
 			type = DATATYPE_INTEGER;
 			data = b->substr(curpos+6, 4);
+                        found = 1;
 			/* build by PKCS11 */
 			break;
 		case CKA_CLASS:
@@ -208,6 +209,18 @@ void ObjectSpec::ParseAttributes(char *objectID, ObjectSpec *ObjectSpec, Buffer 
 			data = b->substr(curpos+6, 4);
 			/* build by PKCS11 */
 			break;
+
+        case CKA_EC_PARAMS:
+            type = DATATYPE_STRING;
+            data = b->substr(curpos+6, attribute_size);
+            found = 1;
+            break;
+
+        case CKA_EC_POINT:
+            type = DATATYPE_STRING;
+            data = b->substr(curpos+6, attribute_size);
+            found = 1;
+            break;
 		default:
 			RA::Debug("ObjectSpec::ParseKeyBlob", 
 				"skipped attribute_id = %lx", 
