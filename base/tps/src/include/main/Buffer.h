@@ -167,6 +167,9 @@ class Buffer {
      */
     TPS_PUBLIC void replace(unsigned int i, const BYTE* cpy, unsigned int n);
 
+    TPS_PUBLIC unsigned char* getBuf();
+    TPS_PUBLIC unsigned int getLen();
+
     /**
      * returns a hex version of the buffer
      */

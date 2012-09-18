@@ -150,6 +150,8 @@ public interface IRequest extends Serializable {
     public final static String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
     public final static String NETKEY_ATTR_USER_CERT = "cert";
     public final static String NETKEY_ATTR_KEY_SIZE = "keysize";
+    public final static String NETKEY_ATTR_KEY_TYPE = "keytype";
+    public final static String NETKEY_ATTR_KEY_EC_CURVE = "eckeycurve";
 
     //Security Data request attributes
     public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";

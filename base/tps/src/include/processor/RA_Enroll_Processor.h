@@ -50,40 +50,40 @@
 
 class RA_Enroll_Processor : public RA_Processor
 {
-	public:
-		TPS_PUBLIC RA_Enroll_Processor();
-		TPS_PUBLIC ~RA_Enroll_Processor();
-	public:
-		int ParsePublicKeyBlob(unsigned char *blob,
-				unsigned char *challenge,
-				SECKEYPublicKey *pk);
-		RA_Status DoEnrollment(AuthParams *login, RA_Session *session,
-				CERTCertificate **certificates,
-				char **origins,
-				char **ktypes,
-				int pkcs11obj,
-				PKCS11Obj * pkcs_objx,
-				NameValueSet *extensions,
-				int index, int keyTypeNum,
-				int start_progress,
-				int end_progress,
-				Secure_Channel *channel, Buffer *wrapped_challenge,
-				const char *tokenType,
-				const char *keyType,
-				Buffer *key_check,
-				Buffer *plaintext_challenge,
-				const char *cuid,
-				const char *msn,
-				const char *khex,
-				TokenKeyType key_type,
-				const char *profileId,
-				const char *userid,
-				const char *cert_id,
-				const char *publisher_id,
-				const char *cert_attr_id,
-				const char *pri_attr_id,
-				const char *pub_attr_id,
-				BYTE se_p1, BYTE se_p2, int keysize, const char *connid, const char *keyTypePrefix,char * applet_version);
+    public:
+        TPS_PUBLIC RA_Enroll_Processor();
+        TPS_PUBLIC ~RA_Enroll_Processor();
+    public:
+        int ParsePublicKeyBlob(unsigned char *blob,
+            unsigned char *challenge,
+        SECKEYPublicKey *pk);
+        RA_Status DoEnrollment(AuthParams *login, RA_Session *session,
+            CERTCertificate **certificates,
+            char **origins,
+            char **ktypes,
+            int pkcs11obj,
+            PKCS11Obj * pkcs_objx,
+            NameValueSet *extensions,
+            int index, int keyTypeNum,
+            int start_progress,
+            int end_progress,
+            Secure_Channel *channel, Buffer *wrapped_challenge,
+            const char *tokenType,
+            const char *keyType,
+            Buffer *key_check,
+            Buffer *plaintext_challenge,
+            const char *cuid,
+            const char *msn,
+            const char *khex,
+            TokenKeyType key_type,
+            const char *profileId,
+            const char *userid,
+            const char *cert_id,
+            const char *publisher_id,
+            const char *cert_attr_id,
+            const char *pri_attr_id,
+            const char *pub_attr_id,
+            BYTE se_p1, BYTE se_p2, BYTE algorithm, int keysize, const char *connid, const char *keyTypePrefix,char * applet_version);
 
         bool DoRenewal(const char *connid,
                 const char *profileId,

@@ -24,6 +24,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Hashtable;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -31,6 +32,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -61,6 +63,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
     protected IAuthSubsystem mAuthSubsystem = null;
     protected ILogger mLogger = CMS.getLogger();
+    private Hashtable supportedECCurves_ht = null;
 
     /**
      * Constructs GenerateKeyPair servlet.
@@ -73,6 +76,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mConfig = config;
+        IConfigStore sconfig = CMS.getConfigStore();
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
@@ -80,6 +84,21 @@ public class GenerateKeyPairServlet extends CMSServlet {
                     CMS.getSubsystem(authority);
 
         mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        // supported EC cuves by the smart cards
+        String curveList = null;
+        try {
+            curveList = sconfig.getString("kra.keygen.curvelist",
+                              "nistp256,nistp384,nistp521");
+        } catch (EBaseException e) {
+            curveList = "nistp256,nistp384,nistp521";
+        }
+
+        supportedECCurves_ht = new Hashtable();
+        String[] supportedECCurves = curveList.split(",");
+        for ( int i = 0; i < supportedECCurves.length; i++) {
+            supportedECCurves_ht.put(supportedECCurves[i], supportedECCurves[i]);
+        }
+
     }
 
     /**
@@ -119,6 +138,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String rdesKeyString = req.getParameter("drm_trans_desKey");
         String rArchive = req.getParameter("archive");
         String rKeysize = req.getParameter("keysize");
+        String rKeytype = req.getParameter("keytype");
+        String rKeycurve = req.getParameter("eckeycurve");
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
@@ -130,8 +151,27 @@ public class GenerateKeyPairServlet extends CMSServlet {
             missingParam = true;
         }
 
-        if ((rKeysize == null) || (rKeysize.equals(""))) {
+        // keysize is for non-EC (EC uses keycurve)
+        if (!rKeytype.equals("EC") && ((rKeysize == null) || (rKeysize.equals("")))) {
             rKeysize = "1024"; // default to 1024
+        }
+
+        // if not specified, default to RSA
+        if ((rKeytype == null) || (rKeytype.equals(""))) {
+            rKeytype = "RSA";
+        }
+        if (rKeytype.equals("EC")) {
+            if ((rKeycurve == null) || (rKeycurve.equals(""))) {
+                rKeycurve = "nistp256";
+            }
+            // is the specified curve supported?
+            boolean isSupportedCurve = supportedECCurves_ht.containsKey(rKeycurve);
+            if (isSupportedCurve == false) {
+                CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): unsupported curve:"+ rKeycurve);
+                missingParam = true;
+            } else {
+                CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): curve to be generated:"+ rKeycurve);
+            }
         }
 
         if ((rdesKeyString == null) ||
@@ -154,6 +194,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
             thisreq.setExtData(IRequest.NETKEY_ATTR_ARCHIVE_FLAG, rArchive);
             thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_SIZE, rKeysize);
+            thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_TYPE, rKeytype);
+            thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_EC_CURVE, rKeycurve);
 
             queue.processRequest(thisreq);
             Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);

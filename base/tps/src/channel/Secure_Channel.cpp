@@ -38,6 +38,7 @@
 #include "apdu/Read_Object_APDU.h"
 #include "apdu/Write_Object_APDU.h"
 #include "apdu/Generate_Key_APDU.h"
+#include "apdu/Generate_Key_ECC_APDU.h"
 #include "apdu/Put_Key_APDU.h"
 #include "apdu/Delete_File_APDU.h"
 #include "apdu/Load_File_APDU.h"
@@ -142,6 +143,7 @@ int Secure_Channel::ComputeAPDU(APDU *apdu)
       }
     }
 
+    RA::Debug(LL_PER_PDU,"Secure_Channel::ComputeAPDU","Completed apdu.");
     rc = 1;
  loser: 
     if( mac != NULL ) {
@@ -180,6 +182,8 @@ Buffer *Secure_Channel::ComputeAPDUMac(APDU *apdu)
     apdu->SetMAC(*mac);
     m_icv = *mac;
 
+    RA::DebugBuffer("Secure_Channel::ComputeAPDUMac ", "mac",
+                       mac);
     return mac;
 } /* EncodeAPDUMac */
 
@@ -1340,6 +1344,8 @@ int Secure_Channel::StartEnrollment(BYTE p1, BYTE p2, Buffer *wrapped_challenge,
 {
     int rc = -1;
     Generate_Key_APDU *generate_key_apdu = NULL;
+    Generate_Key_ECC_APDU *generate_key_ecc_apdu = NULL;
+
     APDU_Response *response = NULL;
     RA_Token_PDU_Request_Msg *token_pdu_request_msg = NULL;
     RA_Token_PDU_Response_Msg *token_pdu_response_msg = NULL;
@@ -1348,9 +1354,19 @@ int Secure_Channel::StartEnrollment(BYTE p1, BYTE p2, Buffer *wrapped_challenge,
 
     RA::Debug("Secure_Channel::GenerateKey",
         "Secure_Channel::GenerateKey");
-    generate_key_apdu = new Generate_Key_APDU(p1, p2, alg, keysize, option,
-        alg, *wrapped_challenge, *key_check);
-    rc = ComputeAPDU(generate_key_apdu);
+
+    bool isECC = RA::isAlgorithmECC(alg);
+
+    if (isECC) {
+        generate_key_ecc_apdu = new Generate_Key_ECC_APDU(p1, p2, alg, keysize, option,
+            alg, *wrapped_challenge, *key_check);
+        rc = ComputeAPDU(generate_key_ecc_apdu);
+    } else {
+        generate_key_apdu = new Generate_Key_APDU(p1, p2, alg, keysize, option,
+            alg, *wrapped_challenge, *key_check);
+        rc = ComputeAPDU(generate_key_apdu);
+    }
+
     if (rc == -1)
       goto loser;
 
@@ -1358,8 +1374,15 @@ int Secure_Channel::StartEnrollment(BYTE p1, BYTE p2, Buffer *wrapped_challenge,
     mac = ComputeAPDUMac(generate_key_apdu);
     generate_key_apdu->SetMAC(*mac);
     */
-    token_pdu_request_msg = new RA_Token_PDU_Request_Msg(
-        generate_key_apdu);
+
+    if (generate_key_ecc_apdu != NULL ) {
+        token_pdu_request_msg = new RA_Token_PDU_Request_Msg(
+            generate_key_ecc_apdu);
+    } else {
+        token_pdu_request_msg = new RA_Token_PDU_Request_Msg(
+            generate_key_apdu);
+    }
+
     m_session->WriteMsg(token_pdu_request_msg);
     RA::Debug("Secure_Channel::GenerateKey",
         "Sent token_pdu_request_msg");
@@ -2177,9 +2200,9 @@ Buffer Secure_Channel::CreatePKCS11CertAttrsBuffer(TokenKeyType key_type, const 
     Buffer b(256);       // allocate some space
     b.resize(7);         // this keeps the allocated space around
 
-  RA::Debug("Secure_Channel::CreatePKCS11CertAttrs", "id=%s", id);
-  RA::Debug("Secure_Channel::CreatePKCS11CertAttrs", "label=%s", label);
-  RA::DebugBuffer("Secure_Channel::CreatePKCS11CertAttrs", "keyid", keyid);
+    RA::Debug("Secure_Channel::CreatePKCS11CertAttrsBuffer", "id=%s", id);
+  RA::Debug("Secure_Channel::CreatePKCS11CertAttrsBuffer", "label=%s", label);
+  RA::DebugBuffer("Secure_Channel::CreatePKCS11CertAttrsBuffer", "keyid", keyid);
     AppendAttribute(b, CKA_LABEL, strlen(label), (BYTE*)label);
     // hash of pubk
     AppendAttribute(b, CKA_ID,  keyid->size(), (BYTE*)*keyid);
@@ -2301,6 +2324,7 @@ mine:
         M 00020001010000000100010100000100
         M 00040000000000000000000403000000
 */
+
 Buffer Secure_Channel::CreatePKCS11PriKeyAttrsBuffer(TokenKeyType key_type, const char *id, const char *label, Buffer *keyid, 
                 Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix)
 {
@@ -2383,6 +2407,39 @@ int Secure_Channel::CreatePKCS11PriKeyAttrs(TokenKeyType key_type, const char *i
 
 } /* CreatePKCS11PriKeyAttrs */
 
+Buffer Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer(TokenKeyType type, const char *id, const char *label, Buffer *keyid,
+                SECKEYECParams *ecParams, const char *opType, const char *tokenType, const char *keyTypePrefix)
+{
+
+    BYTE keytype[8] = { 3,0,0,0 };
+    BYTE p11class[4] = { 3,0,0,0 };
+
+    Buffer b(256);               // allocate some space
+    b.resize(7);                 // this keeps the allocated space around
+
+    if (label != NULL)
+        RA::Debug("Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer", "label=%s", label);
+    if (keyid != NULL)
+        RA::DebugBuffer("Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer", "keyid", keyid);
+    if (id != NULL)
+        RA::Debug("Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer", "id=%s",id);
+
+    AppendAttribute(b,CKA_KEY_TYPE, 4, keytype);
+    AppendAttribute(b,CKA_CLASS, 4, p11class );
+    // hash of pubk
+    AppendAttribute(b,CKA_ID, keyid->size(),   (BYTE*)*keyid);
+
+    AppendAttribute(b,CKA_EC_PARAMS, ecParams->len, ecParams->data);
+    AppendKeyCapabilities(b, opType, tokenType, keyTypePrefix, "private");
+
+    FinalizeBuffer(b, id);
+
+    RA::DebugBuffer("Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer", "buffer", &b);
+
+    return b;
+
+}
+
 /*
 Public Key: (k1)
 CKA_PUBLIC_EXPONENT(0x0122)
@@ -2460,6 +2517,43 @@ Buffer Secure_Channel::CreatePKCS11PubKeyAttrsBuffer(TokenKeyType key_type, cons
 
     return b;
 } /* CreatePKCS11PubKeyAttrs */
+
+
+Buffer Secure_Channel::CreatePKCS11ECCPubKeyAttrsBuffer(TokenKeyType key_type, const char *id, const char *label, Buffer *keyid,
+                  SECKEYECPublicKey *publicKey, SECKEYECParams *ecParams, const char *opType, const char *tokenType, const char *keyTypePrefix)
+{
+    BYTE p11class[4] = { 2,0,0,0 };
+    // BYTE ZERO[1] = { 0 };
+    // BYTE ONE[1] = { 1 };
+    // char configname[256];
+
+    BYTE keytype[4] = { 3,0,0,0 };
+    Buffer b(256);        // allocate some space
+    b.resize(7);          // this keeps the allocated space around
+
+    if (label != NULL)
+        RA::Debug("Secure_Channel::CreatePKCS11ECCPubAttrsBuffer", "label=%s", label);
+    if (keyid != NULL)
+        RA::DebugBuffer("Secure_Channel::CreatePKCS11ECCPubAttrsBuffer", "keyid", keyid);
+
+     // XXX TUES
+    // hash of pubk
+    AppendAttribute(b,CKA_ID,  keyid->size(), (BYTE*)*keyid);
+    AppendAttribute(b, CKA_CLASS, 4, p11class );  // type of object
+    AppendAttribute(b,CKA_KEY_TYPE, 4, keytype);  // CKK_EC key type
+    AppendAttribute(b,CKA_EC_PARAMS, ecParams->len, (BYTE *) ecParams->data);
+    AppendAttribute(b, CKA_EC_POINT, publicKey->publicValue.len, (BYTE *) publicKey->publicValue.data);
+
+    AppendKeyCapabilities(b, opType, tokenType, keyTypePrefix, "public");
+
+    FinalizeBuffer(b, id);
+
+    RA::DebugBuffer("Secure_Channel::CreatePKCS11ECCPubAttrsBuffer", "buffer", &b);
+
+    return b;
+} /* CreatePKCS11ECCPubKeyAttrs */
+
+
 
 int Secure_Channel::CreatePKCS11PubKeyAttrs(TokenKeyType key_type, const char *id, const char *label, Buffer *keyid,
                 Buffer *exponent, Buffer *modulus, const char *opType, const char *tokenType, const char *keyTypePrefix)

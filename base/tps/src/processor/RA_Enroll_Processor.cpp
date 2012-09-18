@@ -184,7 +184,7 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 		const char *cert_attr_id, 
 		const char *pri_attr_id,
 		const char *pub_attr_id, 
-		BYTE se_p1, BYTE se_p2, int keysize, const char *connid, const char *keyTypePrefix,char * applet_version)
+		BYTE se_p1, BYTE se_p2, BYTE algorithm,  int keysize, const char *connid, const char *keyTypePrefix,char * applet_version)
 {
     RA_Status status = STATUS_NO_ERROR;
     int rc = -1;
@@ -230,6 +230,9 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
     float progress_block_size = (float) (end_progress - start_progress) / keyTypeNum;
     RA::Debug(LL_PER_CONNECTION,FN,
 	            "Start of keygen/certificate enrollment");
+
+    bool isECC = RA::isAlgorithmECC(algorithm);
+    SECKEYECParams  *eccParams = NULL;
 
     // get key version for audit logs
     if (channel != NULL) {
@@ -288,8 +291,8 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 		 (progress_block_size * 15/100) /* progress */, 
 		 "PROGRESS_KEY_GENERATION");
 
-    if (key_type == KEY_TYPE_ENCRYPTION) {// do serverSide keygen?
-                                                                                
+    if (key_type == KEY_TYPE_ENCRYPTION) {
+      // do serverSide keygen?
       PR_snprintf((char *)configname, 256, "%s.serverKeygen.enable", keyTypePrefix);
       RA::Debug(LL_PER_CONNECTION,FN,
 		"looking for config %s", configname);
@@ -300,57 +303,58 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 
     if (serverKeygen) {
       RA::Debug(LL_PER_CONNECTION,FN,
-		"Private key is to be generated on server");
+        "Private key is to be generated on server");
 
       PR_snprintf((char *)configname, 256, "%s.serverKeygen.drm.conn", keyTypePrefix);
       RA::Debug(LL_PER_CONNECTION,FN,
-		"looking for config %s", configname);
+        "looking for config %s", configname);
       drmconnid = RA::GetConfigStore()->GetConfigAsString(configname);
 
       PR_snprintf((char *)configname, 256, "%s.serverKeygen.archive", keyTypePrefix);
       bool archive = RA::GetConfigStore()->GetConfigAsBool(configname, true);
 
       RA::Debug(LL_PER_CONNECTION,FN,
-		"calling ServerSideKeyGen with userid =%s, archive=%s", userid, archive? "true":"false");
+        "calling ServerSideKeyGen with userid =%s, archive=%s", userid, archive? "true":"false");
 
       RA::ServerSideKeyGen(session, cuid, userid,
                            channel->getDrmWrappedDESKey(), &pKey,
                            &wrappedPrivKey, &ivParam, drmconnid,
-                           archive, keysize);
+                           archive, keysize, isECC);
 
       if (pKey == NULL) {
-	    RA::Error(LL_PER_CONNECTION,FN,
-		"Failed to generate key on server. Please check DRM.");
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"ServerSideKeyGen called, pKey is NULL");
-	  status = STATUS_ERROR_MAC_ENROLL_PDU;
+        RA::Error(LL_PER_CONNECTION,FN,
+          "Failed to generate key on server. Please check DRM.");
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "ServerSideKeyGen called, pKey is NULL");
+        status = STATUS_ERROR_MAC_ENROLL_PDU;
 
         PR_snprintf(audit_msg, 512, "ServerSideKeyGen called, failed to generate key on server");
-	goto loser;
-      } else
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"key value = %s", pKey);
+        goto loser;
+      } else {
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "key value = %s", pKey);
+      }
 
 
       if (wrappedPrivKey == NULL) {
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"ServerSideKeyGen called, wrappedPrivKey is NULL");
-	status = STATUS_ERROR_MAC_ENROLL_PDU;
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "ServerSideKeyGen called, wrappedPrivKey is NULL");
+        status = STATUS_ERROR_MAC_ENROLL_PDU;
         PR_snprintf(audit_msg, 512, "ServerSideKeyGen called, wrappedPrivKey is NULL");
-	goto loser;
-      } else
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"wrappedPrivKey = %s", wrappedPrivKey);
+        goto loser;
+      } else {
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "wrappedPrivKey = %s", wrappedPrivKey);
+      }
 
       if (ivParam == NULL) {
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"ServerSideKeyGen called, ivParam is NULL");
-	status = STATUS_ERROR_MAC_ENROLL_PDU;
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "ServerSideKeyGen called, ivParam is NULL");
+        status = STATUS_ERROR_MAC_ENROLL_PDU;
         PR_snprintf(audit_msg, 512, "ServerSideKeyGen called, ivParam is NULL");
-	goto loser;
+        goto loser;
       } else
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"ivParam = %s", ivParam);
+        RA::Debug(LL_PER_CONNECTION,FN, "ivParam = %s", ivParam);
 
       /*
        * the following code converts b64-encoded public key info into SECKEYPublicKey
@@ -359,39 +363,47 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
       SECItem der;
       CERTSubjectPublicKeyInfo* spki = NULL;
                
+      Buffer *decodePubKey = Util::URLDecode(pKey);
+      char *pKey_ascii = NULL;
+      if (decodePubKey != NULL) {
+          pKey_ascii = 
+              BTOA_DataToAscii(decodePubKey->getBuf(), decodePubKey->size());
+            
+      } else {
+          PR_snprintf(audit_msg, 512, "ServerSideKeyGen: failed to URL decode public key");
+        goto loser;
+      }
+
       der.type = (SECItemType) 0; /* initialize it, since convertAsciiToItem does not set it */
-      rv = ATOB_ConvertAsciiToItem (&der, pKey);
+      rv = ATOB_ConvertAsciiToItem (&der, pKey_ascii);
       if (rv != SECSuccess){
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"failed to convert b64 private key to binary");
-	SECITEM_FreeItem(&der, PR_FALSE);
-	  status = STATUS_ERROR_MAC_ENROLL_PDU;
-        PR_snprintf(audit_msg, 512, "ServerSideKeyGen: failed to convert b64 private key to binary");
-	goto loser;
-      }else {
-	RA::Debug(LL_PER_CONNECTION,FN,
-		"decoded private key as: secitem (len=%d)",der.len);
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "failed to convert b64 public key to binary");
+        SECITEM_FreeItem(&der, PR_FALSE);
+        status = STATUS_ERROR_MAC_ENROLL_PDU;
+          PR_snprintf(audit_msg, 512, "ServerSideKeyGen: failed to convert b64 public key to binary");
+        goto loser;
+      } else {
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "decoded public key as: secitem (len=%d)",der.len);
 
-	spki = SECKEY_DecodeDERSubjectPublicKeyInfo(&der);
+        spki = SECKEY_DecodeDERSubjectPublicKeyInfo(&der);
 
-	if (spki != NULL) {
-	  RA::Debug(LL_PER_CONNECTION,FN,
-		"Successfully decoded DER SubjectPublicKeyInfo structure");
-	  pk_p = SECKEY_ExtractPublicKey(spki);
-	  if (pk_p != NULL)
-	    RA::Debug(LL_PER_CONNECTION,FN,
-		"Successfully extracted public key from SPKI structure");
-	  else
-	    RA::Debug(LL_PER_CONNECTION,FN,
-		"Failed to extract public key from SPKI");
-	} else {
-	  RA::Debug(LL_PER_CONNECTION,FN,
-		"Failed to decode SPKI structure");
-	}
+        if (spki != NULL) {
+          RA::Debug(LL_PER_CONNECTION,FN,
+            "Successfully decoded DER SubjectPublicKeyInfo structure");
+          pk_p = SECKEY_ExtractPublicKey(spki);
+          if (pk_p != NULL)
+            RA::Debug(LL_PER_CONNECTION,FN, "Successfully extracted public key from SPKI structure");
+          else
+            RA::Debug(LL_PER_CONNECTION,FN, "Failed to extract public key from SPKI");
+        } else {
+          RA::Debug(LL_PER_CONNECTION,FN,
+            "Failed to decode SPKI structure");
+        }
 
-	SECITEM_FreeItem(&der, PR_FALSE);
-    	SECKEY_DestroySubjectPublicKeyInfo(spki);
-	
+        SECITEM_FreeItem(&der, PR_FALSE);
+            SECKEY_DestroySubjectPublicKeyInfo(spki);
       }
 
     } else { //generate keys on token
@@ -404,6 +416,11 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
       if(key_check && key_check->size())
          alg = 0x81;
 
+
+      if (isECC) {
+         alg = algorithm;
+      }
+
       len = channel->StartEnrollment(
         se_p1, se_p2,
         wrapped_challenge,
@@ -412,7 +429,7 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
         0x00 /* option */);
 
       RA::Debug(LL_PER_CONNECTION,FN,
-		"channel->StartEnrollment returned length of public key blob: len=%d", len);
+          "channel->StartEnrollment returned length of public key blob: len=%d", len);
 
 	StatusUpdate(session, extensions,
 			start_progress + (index * progress_block_size) + 
@@ -460,6 +477,8 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
           plaintext_challenge);
 
 
+      // We have received the public key blob for ECC
+
       // send status update to the client
 	StatusUpdate(session, extensions,
 			start_progress + (index * progress_block_size) + 
@@ -471,7 +490,7 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 
       pk_p = certEnroll->ParsePublicKeyBlob(
                 (unsigned char *)(BYTE *)*public_key /*blob*/, 
-                plaintext_challenge);
+                plaintext_challenge, isECC);
 
       if (pk_p == NULL) {
 	    RA::Error(LL_PER_CONNECTION,FN,
@@ -550,8 +569,10 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
         goto loser;
     }
 
-    si_mod = pk_p->u.rsa.modulus;
-    modulus = new Buffer((BYTE*) si_mod.data, si_mod.len);
+    if (!isECC) {
+        si_mod = pk_p->u.rsa.modulus;
+        modulus = new Buffer((BYTE*) si_mod.data, si_mod.len);
+    }
 
     /* 
      * RFC 3279
@@ -569,14 +590,14 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
     si_kid = PK11_MakeIDFromPubKey(&spkix->subjectPublicKey);
     spkix->subjectPublicKey.len <<= 3;
 
-
     keyid = new Buffer((BYTE*) si_kid->data, si_kid->len);
 
-    si_exp = pk_p->u.rsa.publicExponent;
-    exponent =  new Buffer((BYTE*) si_exp.data, si_exp.len);
-
-    RA::Debug(LL_PER_CONNECTION,FN,
-	      "Keyid, modulus and exponent have been extracted from public key");
+    if (!isECC) {
+        si_exp = pk_p->u.rsa.publicExponent;
+        exponent =  new Buffer((BYTE*) si_exp.data, si_exp.len);
+        RA::Debug(LL_PER_CONNECTION,FN,
+            "Keyid, modulus and exponent have been extracted from public key");
+    }
 
     SECKEY_DestroySubjectPublicKeyInfo(spkix);
 
@@ -788,67 +809,77 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 
     /* write certificate from CA to netkey */
     if (pkcs11obj_enable) {
-	ObjectSpec *objSpec = 
-		ObjectSpec::ParseFromTokenData(
-				(cert_id[0] << 24) +
-				(cert_id[1] << 16),
-				cert);
-	pkcs_objx->AddObjectSpec(objSpec);
+        ObjectSpec *objSpec = 
+          ObjectSpec::ParseFromTokenData(
+           (cert_id[0] << 24) +
+           (cert_id[1] << 16),
+           cert);
+       pkcs_objx->AddObjectSpec(objSpec);
     } else {
-    	RA::Debug(LL_PER_CONNECTION,FN,
-		"About to create certificate object on token");
-    	rc = channel->CreateCertificate(cert_id, cert);
-    	if (rc == -1) {
-       	 	RA::Error(LL_PER_CONNECTION,FN,
-		"Failed to create certificate object on token");
-        	status = STATUS_ERROR_MAC_ENROLL_PDU;
-                PR_snprintf(audit_msg, 512, "Failed to create certificate object on token");
-        	goto loser;
-    	}
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "About to create certificate object on token");
+        rc = channel->CreateCertificate(cert_id, cert);
+        if (rc == -1) {
+          RA::Error(LL_PER_CONNECTION,FN,
+            "Failed to create certificate object on token");
+          status = STATUS_ERROR_MAC_ENROLL_PDU;
+            PR_snprintf(audit_msg, 512, "Failed to create certificate object on token");
+          goto loser;
+        }
     }
 
     // build label
     PR_snprintf((char *)configname, 256, "%s.%s.keyGen.%s.label", 
-		    OP_PREFIX, tokenType, keyType);
+      OP_PREFIX, tokenType, keyType);
     RA::Debug(LL_PER_CONNECTION,FN,
-		"label '%s'", configname);
+      "label '%s'", configname);
     pattern = RA::GetConfigStore()->GetConfigAsString(configname);
     label = MapPattern(&nv, (char *) pattern);
 
     if (pkcs11obj_enable) {
-    	Buffer b = channel->CreatePKCS11CertAttrsBuffer(
-			key_type, cert_attr_id, label, keyid);
-	ObjectSpec *objSpec = 
-		ObjectSpec::ParseFromTokenData(
-				(cert_attr_id[0] << 24) +
-				(cert_attr_id[1] << 16),
-				&b);
-	pkcs_objx->AddObjectSpec(objSpec);
+        Buffer b = channel->CreatePKCS11CertAttrsBuffer(
+                        key_type, cert_attr_id, label, keyid);
+        ObjectSpec *objSpec = 
+                ObjectSpec::ParseFromTokenData(
+                                (cert_attr_id[0] << 24) +
+                                (cert_attr_id[1] << 16),
+                                &b);
+        pkcs_objx->AddObjectSpec(objSpec);
     } else {
-    	RA::Debug(LL_PER_CONNECTION,FN,
-		"About to create PKCS#11 certificate Attributes");
-    	rc = channel->CreatePKCS11CertAttrs(key_type, cert_attr_id, label, keyid);
-    	if (rc == -1) {
-       	 RA::Error(LL_PER_CONNECTION,FN,
-		"PKCS11 Certificate attributes creation failed");
-        	status = STATUS_ERROR_MAC_ENROLL_PDU;
+        RA::Debug(LL_PER_CONNECTION,FN,
+            "About to create PKCS#11 certificate Attributes");
+        rc = channel->CreatePKCS11CertAttrs(key_type, cert_attr_id, label, keyid);
+        if (rc == -1) {
+            RA::Error(LL_PER_CONNECTION,FN,
+                "PKCS11 Certificate attributes creation failed");
+            status = STATUS_ERROR_MAC_ENROLL_PDU;
                 PR_snprintf(audit_msg, 512, "PKCS11 Certificate attributes creation failed");
-        	goto loser;
-    	}
+           goto loser;
+        }
     }
 
     if (pkcs11obj_enable) {
-    	RA::Debug(LL_PER_CONNECTION,FN,
-		"Create PKCS11 Private Key Attributes Buffer");
-    	Buffer b = channel->CreatePKCS11PriKeyAttrsBuffer(key_type, 
-			pri_attr_id, label, keyid, modulus, OP_PREFIX, 
-			tokenType, keyTypePrefix);
-	ObjectSpec *objSpec = 
-		ObjectSpec::ParseFromTokenData(
-				(pri_attr_id[0] << 24) +
-				(pri_attr_id[1] << 16),
-				&b);
-	pkcs_objx->AddObjectSpec(objSpec);
+        RA::Debug(LL_PER_CONNECTION,FN,
+          "Create PKCS11 Private Key Attributes Buffer");
+
+        Buffer b;
+        if (!isECC) {
+            b = channel->CreatePKCS11PriKeyAttrsBuffer(key_type,
+                        pri_attr_id, label, keyid, modulus, OP_PREFIX,
+                        tokenType, keyTypePrefix);
+
+        } else { //isECC
+            eccParams  =   &pk_p->u.ec.DEREncodedParams;
+            b = channel->CreatePKCS11ECCPriKeyAttrsBuffer(key_type,     
+                        pri_attr_id, label, keyid, eccParams, OP_PREFIX,
+                        tokenType, keyTypePrefix);
+        }
+        ObjectSpec *objSpec = 
+                ObjectSpec::ParseFromTokenData( 
+                                (pri_attr_id[0] << 24) +
+                                (pri_attr_id[1] << 16),
+                                &b);
+        pkcs_objx->AddObjectSpec(objSpec);
     } else {
     	RA::Debug(LL_PER_CONNECTION,FN,
 		"Create PKCS11 Private Key Attributes");
@@ -863,27 +894,34 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
     }
 
     if (pkcs11obj_enable) {
-    	Buffer b = channel->CreatePKCS11PubKeyAttrsBuffer(key_type, 
-			pub_attr_id, label, keyid, 
-           exponent, modulus, OP_PREFIX, tokenType, keyTypePrefix);
-	ObjectSpec *objSpec = 
-		ObjectSpec::ParseFromTokenData(
-				(pub_attr_id[0] << 24) +
-				(pub_attr_id[1] << 16),
-				&b);
-	pkcs_objx->AddObjectSpec(objSpec);
+        Buffer b;
+        if (!isECC) {
+            b = channel->CreatePKCS11PubKeyAttrsBuffer(key_type, 
+                pub_attr_id, label, keyid, 
+                exponent, modulus, OP_PREFIX, tokenType, keyTypePrefix);
+        } else {
+            b = channel->CreatePKCS11ECCPubKeyAttrsBuffer(key_type,
+                        pub_attr_id, label, keyid,&pk_p->u.ec, eccParams,
+                        OP_PREFIX, tokenType, keyTypePrefix);
+        }
+        ObjectSpec *objSpec = 
+            ObjectSpec::ParseFromTokenData(
+               (pub_attr_id[0] << 24) +
+               (pub_attr_id[1] << 16),
+               &b);
+        pkcs_objx->AddObjectSpec(objSpec);
     } else {
-    	RA::Debug(LL_PER_CONNECTION,FN,
-		"Create PKCS11 Public Key Attributes");
-    	rc = channel->CreatePKCS11PubKeyAttrs(key_type, pub_attr_id, label, keyid, 
+        RA::Debug(LL_PER_CONNECTION,FN,
+            "Create PKCS11 Public Key Attributes");
+        rc = channel->CreatePKCS11PubKeyAttrs(key_type, pub_attr_id, label, keyid, 
            exponent, modulus, OP_PREFIX, tokenType, keyTypePrefix);
-    	if (rc == -1) {
-        	RA::Error(LL_PER_CONNECTION,FN,
-			"PKCS11 public key attributes creation failed");
-        	status = STATUS_ERROR_MAC_ENROLL_PDU;
+        if (rc == -1) {
+            RA::Error(LL_PER_CONNECTION,FN,
+                "PKCS11 public key attributes creation failed");
+            status = STATUS_ERROR_MAC_ENROLL_PDU;
                 PR_snprintf(audit_msg, 512, "PKCS11 public key attributes creation failed");
-        	goto loser;
-    	}
+            goto loser;
+        }
     }
     RA::Debug(LL_PER_CONNECTION,FN, "End of keygen/certificate enrollment");
 
@@ -983,10 +1021,13 @@ loser:
     }
     if (pk_p != NULL) {
         if (serverKeygen) {
+            RA::Debug(LL_PER_CONNECTION,FN,"DoEnrollment about to call SECKEY_DestroyPublicKey on pk_p");
             SECKEY_DestroyPublicKey(pk_p);
         } else {
+            RA::Debug(LL_PER_CONNECTION,FN,"DoEnrollment about to call free on pk_p");
             free(pk_p);
         }
+
         pk_p = NULL;
     }
     return status;
@@ -3063,6 +3104,11 @@ bool RA_Enroll_Processor::GenerateCertificate(AuthParams *login, int keyTypeNum,
     PR_snprintf((char *)configname, 256, "%s.keySize", keyTypePrefix);
     int keySize = RA::GetConfigStore()->GetConfigAsInt(configname, 1024);
 
+
+    PR_snprintf((char *)configname, 256, "%s.alg", keyTypePrefix);
+    //Default RSA_CRT=2
+    BYTE algorithm = (BYTE) RA::GetConfigStore()->GetConfigAsInt(configname, 2);
+
     PR_snprintf((char *)configname, 256, "%s.publisherId", keyTypePrefix);
     const char *publisherId = RA::GetConfigStore()->GetConfigAsString(configname, NULL);
 
@@ -3113,7 +3159,7 @@ bool RA_Enroll_Processor::GenerateCertificate(AuthParams *login, int keyTypeNum,
           msn,
           khex, (TokenKeyType)keyTypeEnum, profileId, userid, certId,publisherId, certAttrId, priKeyAttrId,
           pubKeyAttrId, (keyUser << 4)+priKeyNumber,
-          (keyUsage << 4)+pubKeyNumber, keySize, caconnid, keyTypePrefix,(char *)final_applet_version);
+          (keyUsage << 4)+pubKeyNumber, algorithm, keySize, caconnid, keyTypePrefix,(char *)final_applet_version);
 
     if (o_status != STATUS_NO_ERROR) {
         r = false;
