@@ -39,6 +39,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class EnrollmentProcessor extends CertProcessor {
 
@@ -69,7 +70,7 @@ public class EnrollmentProcessor extends CertProcessor {
                     if (dataInputs.containsKey(inputName)) {
                         // all subject name parameters start with sn_, no other input parameters do
                         if (inputName.matches("^sn_.*")) {
-                            ctx.set(inputName, escapeValueRfc1779(dataInputs.get(inputName), false).toString());
+                            ctx.set(inputName, LDAPUtil.escapeDN(dataInputs.get(inputName)));
                         } else {
                             ctx.set(inputName, dataInputs.get(inputName));
                         }

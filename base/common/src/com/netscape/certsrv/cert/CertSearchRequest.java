@@ -824,12 +824,12 @@ public class CertSearchRequest {
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param, false)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param)));
                 lf.append(",*)");
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param, false)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param)));
                 lf.append(")");
                 lf.append(")");
             } else {
@@ -837,7 +837,7 @@ public class CertSearchRequest {
                 lf.append(avaName);
                 lf.append("=");
                 lf.append("*");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param, false)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(param)));
                 lf.append("*)");
             }
         }

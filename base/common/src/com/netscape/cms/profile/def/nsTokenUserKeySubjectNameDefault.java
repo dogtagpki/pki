@@ -40,6 +40,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * This class implements an enrollment default policy
@@ -429,8 +430,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                     String[] sla = la.getStringValueArray();
                     CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "
                             + mLdapStringAttrs[i] +
-                            "=" + escapeValueRfc1779(sla[0], false).toString());
-                    request.setExtData(mLdapStringAttrs[i], escapeValueRfc1779(sla[0], false).toString());
+                            "=" + LDAPUtil.escapeDN(sla[0]));
+                    request.setExtData(mLdapStringAttrs[i], LDAPUtil.escapeDN(sla[0]));
                 }
             }
             CMS.debug("pattern = " + pattern);

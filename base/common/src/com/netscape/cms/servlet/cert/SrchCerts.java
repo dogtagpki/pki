@@ -58,6 +58,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * Search for certificates matching complex query filter
@@ -224,12 +225,12 @@ public class SrchCerts extends CMSServlet {
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(escapeValueRfc1779(val, true));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
                 lf.append(",*)");
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(escapeValueRfc1779(val, true));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
                 lf.append(")");
                 lf.append(")");
             } else {
@@ -237,7 +238,7 @@ public class SrchCerts extends CMSServlet {
                 lf.append(avaName);
                 lf.append("=");
                 lf.append("*");
-                lf.append(escapeValueRfc1779(val, true));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
                 lf.append("*)");
             }
         }

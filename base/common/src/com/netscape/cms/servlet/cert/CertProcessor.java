@@ -43,6 +43,7 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class CertProcessor extends Processor {
 
@@ -98,8 +99,7 @@ public class CertProcessor extends Processor {
                             // special characters in subject names parameters must be escaped
                             if (inputName.matches("^sn_.*")) {
                                 req.setExtData(inputName,
-                                        escapeValueRfc1779(dataInputs.get(inputName), false)
-                                        .toString());
+                                        LDAPUtil.escapeDN(dataInputs.get(inputName)));
                             } else {
                                 req.setExtData(inputName, dataInputs.get(inputName));
                             }
