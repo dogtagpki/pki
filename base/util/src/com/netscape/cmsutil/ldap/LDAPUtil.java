@@ -60,6 +60,13 @@ public class LDAPUtil {
         return sb.toString();
     }
 
+    /**
+     * This method escapes special characters for LDAP DN (RFC 1779).
+     */
+    public static String escapeDN(Object value) {
+        return LDAPUtil.escapeDN(value.toString(),  false);
+    }
+
     public static String escapeDN(String v, boolean doubleEscape) {
         StringBuffer result = new StringBuffer();
 

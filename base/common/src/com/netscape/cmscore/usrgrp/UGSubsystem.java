@@ -51,6 +51,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * This class defines low-level LDAP usr/grp management
@@ -237,7 +238,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             ldapconn = getConn();
-            String filter = LDAP_ATTR_USER_CERT_STRING + "=" + getCertificateString(cert);
+            String filter = LDAP_ATTR_USER_CERT_STRING + "=" + LDAPUtil.escapeFilter(getCertificateString(cert));
             LDAPSearchResults res =
                     ldapconn.search(getUserBaseDN(),
                             LDAPConnection.SCOPE_SUB, filter, null, false);
@@ -684,7 +685,7 @@ public final class UGSubsystem implements IUGSubsystem {
             }
         }
 
-        LDAPEntry entry = new LDAPEntry("uid=" + id.getUserID() +
+        LDAPEntry entry = new LDAPEntry("uid=" + LDAPUtil.escapeDN(id.getUserID()) +
                 "," + getUserBaseDN(), attrs);
         // for audit log
         SessionContext sessionContext = SessionContext.getContext();
@@ -741,7 +742,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             try {
                 ldapconn = getConn();
-                ldapconn.modify("uid=" + user.getUserID() +
+                ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
                         "," + getUserBaseDN(), addCert);
                 // for audit log
                 SessionContext sessionContext = SessionContext.getContext();
@@ -790,7 +791,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             try {
                 ldapconn = getConn();
-                ldapconn.modify("uid=" + user.getUserID() +
+                ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
                         "," + getUserBaseDN(), addCert);
                 // for audit log
                 SessionContext sessionContext = SessionContext.getContext();
@@ -870,7 +871,7 @@ public final class UGSubsystem implements IUGSubsystem {
             try {
                 ldapconn = getConn();
 
-                String dn = "uid=" + user.getUserID() + "," + getUserBaseDN();
+                String dn = "uid=" + LDAPUtil.escapeDN(user.getUserID()) + "," + getUserBaseDN();
 
                 try {
                     // remove seeAlso attribute
@@ -944,10 +945,10 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             ldapconn = getConn();
-            String groupDN = "cn=" + grp.getGroupID() +
+            String groupDN = "cn=" + LDAPUtil.escapeDN(grp.getGroupID()) +
                     "," + getGroupBaseDN();
             LDAPAttribute memberAttr = new LDAPAttribute(
-                    "uniquemember", "uid=" + userid + "," + getUserBaseDN());
+                    "uniquemember", "uid=" + LDAPUtil.escapeDN(userid) + "," + getUserBaseDN());
             LDAPModification singleChange = new LDAPModification(
                     LDAPModification.ADD, memberAttr);
 
@@ -971,10 +972,10 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             ldapconn = getConn();
-            String groupDN = "cn=" + grp.getGroupID() +
+            String groupDN = "cn=" + LDAPUtil.escapeDN(grp.getGroupID()) +
                     "," + getGroupBaseDN();
             LDAPAttribute memberAttr = new LDAPAttribute(
-                    "uniquemember", "uid=" + userid + "," + getUserBaseDN());
+                    "uniquemember", "uid=" + LDAPUtil.escapeDN(userid) + "," + getUserBaseDN());
             LDAPModification singleChange = new LDAPModification(
                     LDAPModification.DELETE, memberAttr);
 
@@ -1003,7 +1004,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             ldapconn = getConn();
-            ldapconn.delete("uid=" + userid + "," + getUserBaseDN());
+            ldapconn.delete("uid=" + LDAPUtil.escapeDN(userid) + "," + getUserBaseDN());
             // for audit log
             SessionContext sessionContext = SessionContext.getContext();
             String adminId = (String) sessionContext.get(SessionContext.USER_ID);
@@ -1068,7 +1069,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     try {
                         LDAPModification singleChange = new LDAPModification(
                                 LDAPModification.DELETE, new LDAPAttribute("telephonenumber"));
-                        ldapconn.modify("uid=" + user.getUserID() +
+                        ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
                                 "," + getUserBaseDN(), singleChange);
                     } catch (LDAPException e) {
                         if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
@@ -1087,7 +1088,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     try {
                         LDAPModification singleChange = new LDAPModification(
                                 LDAPModification.DELETE, new LDAPAttribute("userstate"));
-                        ldapconn.modify("uid=" + user.getUserID() +
+                        ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
                                 "," + getUserBaseDN(), singleChange);
                     } catch (LDAPException e) {
                         if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
@@ -1119,7 +1120,7 @@ public final class UGSubsystem implements IUGSubsystem {
              * }
              * }
              **/
-            ldapconn.modify("uid=" + user.getUserID() +
+            ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
                     "," + getUserBaseDN(), attrs);
             // for audit log
             SessionContext sessionContext = SessionContext.getContext();
@@ -1240,7 +1241,7 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn = getConn();
             LDAPSearchResults res =
                     ldapconn.search(getGroupBaseDN(), LDAPv2.SCOPE_SUB,
-                            "(&(objectclass=groupofuniquenames)(uniqueMember=" + userDn + "))",
+                            "(&(objectclass=groupofuniquenames)(uniqueMember=" + LDAPUtil.escapeFilter(userDn) + "))",
                             attrs, false);
 
             return buildGroups(res);
@@ -1341,15 +1342,15 @@ public final class UGSubsystem implements IUGSubsystem {
      * NOTE - this takes just the group name.
      */
     public IGroup getGroupFromName(String name) {
-        return getGroup("cn=" + name + "," + getGroupBaseDN());
+        return getGroup("cn=" + LDAPUtil.escapeDN(name) + "," + getGroupBaseDN());
     }
 
     /**
      * Retrieves a group from LDAP
      * NOTE - LH This takes a full LDAP DN.
      */
-    public IGroup getGroup(String name) {
-        if (name == null) {
+    public IGroup getGroup(String groupDN) {
+        if (groupDN == null) {
             return null;
         }
 
@@ -1358,7 +1359,7 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             ldapconn = getConn();
             // read the group object
-            LDAPSearchResults res = ldapconn.search(name,
+            LDAPSearchResults res = ldapconn.search(groupDN,
                     LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
             Enumeration<IGroup> e = buildGroups(res);
 
@@ -1448,7 +1449,7 @@ public final class UGSubsystem implements IUGSubsystem {
      * by running an ldap search for the user in the group
      */
     protected boolean isMemberOfLdapGroup(String userid, String groupname) {
-        String basedn = "cn=" + groupname + ",ou=groups," + mBaseDN;
+        String basedn = "cn=" + LDAPUtil.escapeDN(groupname) + ",ou=groups," + mBaseDN;
         LDAPConnection ldapconn = null;
         boolean founduser = false;
         try {
@@ -1461,7 +1462,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             ldapconn = getConn();
 
-            String filter = "(uniquemember=" + userid + ")";
+            String filter = "(uniquemember=" + LDAPUtil.escapeFilter(userid) + ")";
             Debug.trace("authorization search base: " + basedn);
             Debug.trace("authorization search filter: " + filter);
             LDAPSearchResults res =
@@ -1525,12 +1526,12 @@ public final class UGSubsystem implements IUGSubsystem {
                     String name = e.nextElement();
 
                     // DOES NOT SUPPORT NESTED GROUPS...
-                    attrMembers.addValue("uid=" + name + "," +
+                    attrMembers.addValue("uid=" + LDAPUtil.escapeDN(name) + "," +
                             getUserBaseDN());
                 }
                 attrs.add(attrMembers);
             }
-            LDAPEntry entry = new LDAPEntry("cn=" + grp.getGroupID() +
+            LDAPEntry entry = new LDAPEntry("cn=" + LDAPUtil.escapeDN(grp.getGroupID()) +
                     "," + getGroupBaseDN(), attrs);
 
             ldapconn = getConn();
@@ -1563,7 +1564,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         try {
             ldapconn = getConn();
-            ldapconn.delete("cn=" + name + "," + getGroupBaseDN());
+            ldapconn.delete("cn=" + LDAPUtil.escapeDN(name) + "," + getGroupBaseDN());
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
 
@@ -1603,7 +1604,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     String name = e.nextElement();
 
                     // DOES NOT SUPPORT NESTED GROUPS...
-                    attrMembers.addValue("uid=" + name + "," +
+                    attrMembers.addValue("uid=" + LDAPUtil.escapeDN(name) + "," +
                             getUserBaseDN());
                 }
                 mod.add(LDAPModification.REPLACE, attrMembers);
@@ -1617,7 +1618,7 @@ public final class UGSubsystem implements IUGSubsystem {
             }
 
             ldapconn = getConn();
-            ldapconn.modify("cn=" + grp.getGroupID() +
+            ldapconn.modify("cn=" + LDAPUtil.escapeDN(grp.getGroupID()) +
                     "," + getGroupBaseDN(), mod);
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
@@ -1666,7 +1667,7 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             ldapconn = getConn();
             LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(uid=" + u + ")", null, false);
+                    LDAPv2.SCOPE_SUB, "(uid=" + LDAPUtil.escapeFilter(u) + ")", null, false);
 
             if (res.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
