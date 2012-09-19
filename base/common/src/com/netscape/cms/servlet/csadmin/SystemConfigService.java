@@ -703,13 +703,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         try {
-            String dbuser = csType + "-" + CMS.getEEHost() + "-" + cs.getString("service.securePort");
-            if (! securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-                ConfigurationUtils.setupDBUser(dbuser);
-            }
-            IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-            IUser user = system.getUser(dbuser);
-            system.addCertSubjectDN(user);
+            ConfigurationUtils.setupDBUser();
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException("Errors in creating or updating dbuser: " + e);

@@ -106,6 +106,8 @@ public class AuditFormat {
             "Admin UID: {0} removed User UID: {1} from group: {2}";
     public static final String ADDCERTSUBJECTDNFORMAT =
             "Admin UID: {0} added cert subject DN for User UID: {1}. cert DN: {2}";
+    public static final String REMOVECERTSUBJECTDNFORMAT =
+            "Admin UID: {0} removed cert subject DN for User UID: {1}. cert DN: {2}";
 
     // LDAP publishing
     public static final String LDAP_PUBLISHED_FORMAT =

@@ -31,8 +31,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.property.PropertySet;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.wizard.WizardServlet;
 import com.netscape.cmsutil.util.Utils;
 
@@ -225,16 +223,8 @@ public class DonePanel extends WizardPanelBase {
             e.printStackTrace();
         }
 
-        String dbuser = null;
         try {
-            dbuser = cs.getString("cs.type") + "-" + cs.getString("machineName") + "-"
-                    + cs.getString("service.securePort");
-            if (!sdtype.equals("new")) {
-                ConfigurationUtils.setupDBUser(dbuser);
-            }
-            IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-            IUser user = system.getUser(dbuser);
-            system.addCertSubjectDN(user);
+            ConfigurationUtils.setupDBUser();
         } catch (Exception e) {
             e.printStackTrace();
             CMS.debug("DonePanel - update(): Unable to create or update dbuser" + e);

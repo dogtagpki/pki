@@ -144,6 +144,7 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.InstallTokenRequest;
 import com.netscape.certsrv.system.SystemConfigClient;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
@@ -170,6 +171,7 @@ public class ConfigurationUtils {
     public static String AUTH_FAILURE = "2";
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
+    public static final String DBUSER = "pkidbuser";
 
     public static boolean loginToken(CryptoToken token, String tokPwd) throws TokenException,
             IncorrectPasswordException {
@@ -717,8 +719,6 @@ public class ConfigurationUtils {
             BadPaddingException, NotInitializedException, NicknameConflictException, UserCertConflictException,
             NoSuchItemOnTokenException, InvalidBERException, IOException {
         byte b[] = new byte[1000000];
-        IConfigStore cs = CMS.getConfigStore();
-        String instanceRoot = cs.getString("instanceRoot");
 
         FileInputStream fis = new FileInputStream(p12File);
         while (fis.available() > 0)
@@ -1204,8 +1204,7 @@ public class ConfigurationUtils {
         String instanceId = cs.getString("instanceId");
         String cstype = cs.getString("cs.type");
 
-        String dbuser = "uid=" + LDAPUtil.escapeDN(cstype + "-" + cs.getString("machineName") + "-"
-                + cs.getString("service.securePort")) + ",ou=people," + baseDN;
+        String dbuser = "uid=" + DBUSER + ",ou= people," + baseDN;
 
         String configDir = instancePath + File.separator + cstype.toLowerCase() + File.separator + "conf";
 
@@ -3389,19 +3388,28 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void setupDBUser(String dbuser) throws CertificateException, LDAPException, EBaseException,
+    public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
         IUGSubsystem system =
                 (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
 
+        try {
+            @SuppressWarnings("unused")
+            Enumeration<IUser> dbusers = system.findUsers(DBUSER);
+            CMS.debug("DB User already exists: " + DBUSER);
+            return;
+        } catch (EUsrGrpException e) {
+            CMS.debug("Creating DB User: " + DBUSER);
+        }
+
         String b64 = getSubsystemCert();
         if (b64 == null) {
             CMS.debug("setupDBUser(): failed to fetch subsystem cert");
-            return;
+            throw new EBaseException("setupDBUser(): failed to fetch subsystem cert");
         }
 
-        IUser user = system.createUser(dbuser);
-        user.setFullName(dbuser);
+        IUser user = system.createUser(DBUSER);
+        user.setFullName(DBUSER);
         user.setEmail("");
         user.setPassword("");
         user.setUserType("agentType");
@@ -3414,6 +3422,36 @@ public class ConfigurationUtils {
         CMS.debug("setupDBUser(): successfully added the user");
         system.addUserCert(user);
         CMS.debug("setupDBUser(): successfully add the user certificate");
+
+        // set subject dn
+        system.addCertSubjectDN(user);
+
+        // remove old db users
+        CMS.debug("Removing seeAlso from old dbusers");
+        removeOldDBUsers(certs[0].getSubjectDN().toString());
+    }
+
+    public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
+        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+        IConfigStore cs = CMS.getConfigStore();
+        String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
+        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory();
+        dbFactory.init(dbCfg);
+        LDAPConnection conn = dbFactory.getConn();
+
+        String filter = "(&(seeAlso=" + LDAPUtil.escapeFilter(subjectDN) + ")(!(uid=" + DBUSER + ")))";
+        String[] attrs = null;
+        LDAPSearchResults res = conn.search(userbasedn, LDAPConnection.SCOPE_SUB, filter,
+                attrs, false);
+        if (res != null) {
+            while (res.hasMoreElements()) {
+                String uid = (String) res.next().getAttribute("uid").getStringValues().nextElement();
+                IUser user = system.getUser(uid);
+                CMS.debug("removeOldDUsers: Removing seeAlso from " + uid);
+                system.removeCertSubjectDN(user);
+            }
+        }
     }
 
     public static String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,

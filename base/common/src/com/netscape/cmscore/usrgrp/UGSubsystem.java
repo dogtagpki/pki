@@ -820,6 +820,54 @@ public final class UGSubsystem implements IUGSubsystem {
         return;
     }
 
+    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException {
+        User user = (User) identity;
+
+        if (user == null) {
+            CMS.debug("removeCertSubjectDN: null user passed in");
+            return;
+        }
+
+        X509Certificate cert[] = null;
+        LDAPModificationSet delAttr = new LDAPModificationSet();
+
+        if ((cert = user.getX509Certificates()) != null) {
+            LDAPAttribute attrCertDNStr = new LDAPAttribute(LDAP_ATTR_CERTDN);
+            attrCertDNStr.addValue(cert[0].getSubjectDN().toString());
+            delAttr.add(LDAPModification.DELETE, attrCertDNStr);
+
+            LDAPConnection ldapconn = null;
+
+            try {
+                ldapconn = getConn();
+                ldapconn.modify("uid=" + LDAPUtil.escapeDN(user.getUserID()) +
+                        "," + getUserBaseDN(), delAttr);
+                // for audit log
+                SessionContext sessionContext = SessionContext.getContext();
+                String adminId = (String) sessionContext.get(SessionContext.USER_ID);
+
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
+                        AuditFormat.LEVEL, AuditFormat.REMOVECERTSUBJECTDNFORMAT,
+                        new Object[] { adminId, user.getUserID(),
+                                cert[0].getSubjectDN().toString() }
+                        );
+
+            } catch (LDAPException e) {
+                if (Debug.ON) {
+                    e.printStackTrace();
+                }
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                throw e;
+            } catch (ELdapException e) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            } finally {
+                if (ldapconn != null)
+                    returnConn(ldapconn);
+            }
+        }
+        return;
+    }
+
     /**
      * Removes a user certificate for a user entry
      * given a user certificate DN (actually, a combination of version,
