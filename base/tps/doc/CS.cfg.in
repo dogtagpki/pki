@@ -1593,6 +1593,7 @@ tps._015=#     TOKEN_TEMP_LOST_PERM_LOST =5,
 tps._016=#     TOKEN_TERMINATED = 6
 tps._017=# Sample: tps.operations.allowedTransitions=0:0,0:4,4:6,6:0
 tps._018=########################################
+tps.operations.allowedTransitions=0:0,0:4,4:0
 tps.cert.list=sslserver,subsystem,audit_signing
 tps.cert.sslserver.nickname=[HSM_LABEL][NICKNAME]
 tps.cert.subsystem.nickname=[HSM_LABEL][NICKNAME]
