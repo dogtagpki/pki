@@ -367,7 +367,7 @@ Show certificates revoked by:</font>&nbsp;
 <tr>
 <FORM NAME="revokedOnCritForm">
 <td>
-<INPUT TYPE="CHECKBOX" NAME="inUse">
+<INPUT TYPE="CHECKBOX" NAME="inUse" onClick="clickedOnTimeRangeCheckBox(document.revokedOnCritForm.inUse, document.revokedOnFrom, document.revokedOnTo);">
 </td>
 <td align="left" colspan="2">
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
@@ -433,23 +433,11 @@ Show certificates revoked during the period:</font>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 1);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -512,23 +500,11 @@ Show certificates revoked during the period:</font>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 1);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -697,7 +673,7 @@ Show certificates issued according to the profile:</font>&nbsp;
 
 <tr>
 <FORM NAME="issuedOnCritForm">
-<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse" onClick="clickedOnTimeRangeCheckBox(document.issuedOnCritForm.inUse, document.issuedOnFrom, document.issuedOnTo);"></td>
 <td colspan="2">
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
 Show certificates issued during the period:</font></td>
@@ -761,23 +737,11 @@ Show certificates issued during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 1);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -840,23 +804,11 @@ Show certificates issued during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 1);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -961,7 +913,7 @@ function issuedOnCrit()
 <table border="0" cellspacing="2" cellpadding="2">
 <tr>
 <FORM NAME="validNotBeforeCritForm">
-<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse" onClick="clickedOnTimeRangeCheckBox(document.validNotBeforeCritForm.inUse, document.validNotBeforeFrom, document.validNotBeforeTo);"></td>
 <td align="left" colspan="2">
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
 Show certificates effective during the period:</font></td>
@@ -1025,23 +977,11 @@ Show certificates effective during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 10);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -1104,23 +1044,11 @@ Show certificates effective during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 10);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -1180,7 +1108,7 @@ function validNotBeforeCrit()
 <table border="0" cellspacing="2" cellpadding="2">
 <tr>
 <FORM NAME="validNotAfterCritForm">
-<td><INPUT TYPE="CHECKBOX" NAME="inUse"></td>
+<td><INPUT TYPE="CHECKBOX" NAME="inUse" onClick="clickedOnTimeRangeCheckBox(document.validNotAfterCritForm.inUse, document.validNotAfterFrom, document.validNotAfterTo);"></td>
 <td align="left" colspan="2">
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
 Show certificates expired during the period:</font></td>
@@ -1244,23 +1172,11 @@ Show certificates expired during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 10);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
@@ -1323,23 +1239,11 @@ Show certificates expired during the period:</font></td>
 <OPTION VALUE=11>December
 </SELECT>
 <SELECT NAME="year">
-<OPTION VALUE=0>
-<OPTION VALUE=1997>1997
-<OPTION VALUE=1998>1998
-<OPTION VALUE=1999>1999
-<OPTION VALUE=2000>2000
-<OPTION VALUE=2001>2001
-<OPTION VALUE=2002>2002
-<OPTION VALUE=2003>2003
-<OPTION VALUE=2004>2004
-<OPTION VALUE=2005>2005
-<OPTION VALUE=2006>2006
-<OPTION VALUE=2007>2007
-<OPTION VALUE=2008>2008
-<OPTION VALUE=2009>2009
-<OPTION VALUE=2010>2010
-<OPTION VALUE=2011>2011
-<OPTION VALUE=2012>2012
+<SCRIPT type="text/javascript">
+//<!--
+generateYearOptions(10, 10);
+//-->
+</SCRIPT>
 </SELECT>
 </FORM>
 </td>
