@@ -337,6 +337,49 @@ function daysToSeconds(days){
     return 3600 * 24 * days;
 }
  
+function clickedOnTimeRangeCheckBox(inUse, start, end)
+{
+    if (inUse.checked) {
+        var date = new Date();
+        if (start.day.options[start.day.selectedIndex].value == 0) {
+            start.day.selectedIndex = date.getDate();
+        }
+        if (end.day.options[end.day.selectedIndex].value == 0) {
+            end.day.selectedIndex = date.getDate();
+        }
+        if (start.month.options[start.month.selectedIndex].value == 13) {
+            start.month.selectedIndex = date.getMonth() + 1;
+        }
+        if (end.month.options[end.month.selectedIndex].value == 13) {
+            end.month.selectedIndex = date.getMonth() + 1;
+        }
+        if (start.year.options[start.year.selectedIndex].value == 0) {
+            for (var i = 0; i < start.year.options.length; i++) {
+                if (start.year.options[i].value == date.getFullYear()) {
+                    start.year.selectedIndex = i;
+                }
+            }
+        }
+        if (end.year.options[end.year.selectedIndex].value == 0) {
+            for (var i = 0; i < end.year.options.length; i++) {
+                if (end.year.options[i].value == date.getFullYear()) {
+                    end.year.selectedIndex = i;
+                }
+            }
+        }
+    }
+}
+
+function generateYearOptions(before, after)
+{
+    var now = new Date();
+    var year = now.getFullYear();
+    document.writeln("<OPTION VALUE=0>");
+    for (var i = year-before-1; i < year+after+1; i++) {
+        document.writeln("<OPTION VALUE="+i+">"+i);
+    }
+}
+
 // encloses value in double quotes preceding all embedded double quotes with \
 function escapeValue(value)
 {

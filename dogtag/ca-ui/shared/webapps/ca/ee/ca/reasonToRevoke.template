@@ -33,7 +33,7 @@ function validate()
     var filter = "(|";
     var n = 0;
 
-    if (!dateIsEmpty(document.forms[0])) {
+    if (document.forms[0].invalidityEnabled.checked) {
         var d = convertDate(document.forms[0], "Invalidity Date");
         if (d == null) return false;
         document.forms[0].invalidityDate.value = d;
@@ -75,6 +75,26 @@ function validate()
                        "Do you really want to revoke this certificate?");
     }
     return true;
+}
+
+function clickedOnInvalidityEnabled()
+{
+    if (document.forms[0].invalidityEnabled.checked) {
+        var date = new Date();
+        if (document.forms[0].day.options[document.forms[0].day.selectedIndex].value == 0) {
+            document.forms[0].day.selectedIndex = date.getDate();
+        }
+        if (document.forms[0].month.options[document.forms[0].month.selectedIndex].value == 13) {
+            document.forms[0].month.selectedIndex = date.getMonth() +1;
+        }
+        if (document.forms[0].year.options[document.forms[0].year.selectedIndex].value == 0) {
+            for (var i = 0; i < document.forms[0].year.options.length; i++) {
+                if (document.forms[0].year.options[i].value == date.getFullYear()) {
+                    document.forms[0].year.selectedIndex = i;
+                }
+            }
+        }
+    }
 }
 
 function toHex1(number)
@@ -283,6 +303,7 @@ if (result.recordSet.length == 0) {
     </tr>
     <tr>
       <td valign="TOP" colspan="2">
+        <INPUT TYPE="CHECKBOX" NAME="invalidityEnabled" onClick="clickedOnInvalidityEnabled();">
         <font face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif" size="-1">
         Invalidity date:&nbsp;
         <SELECT NAME="day">
@@ -335,20 +356,9 @@ if (result.recordSet.length == 0) {
           <OPTION VALUE=11>December
         </SELECT>
         <SELECT NAME="year">
-          <OPTION VALUE=0>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT type="text/javascript">
 //<!--
-    var today = new Date();
-    var year = today.getYear();
-    if (year < 100) {
-        year += 1900;
-    } else {
-        year %= 100;
-        year += 2000;
-    }
-    for (var i = year-7; i < year+5; i++) {
-        document.writeln("<OPTION VALUE="+i+">"+i);
-    }
+generateYearOptions(10, 2);
 //-->
 </SCRIPT>
         </SELECT>
