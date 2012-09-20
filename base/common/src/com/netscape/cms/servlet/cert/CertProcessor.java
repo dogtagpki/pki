@@ -99,7 +99,7 @@ public class CertProcessor extends Processor {
                             // special characters in subject names parameters must be escaped
                             if (inputName.matches("^sn_.*")) {
                                 req.setExtData(inputName,
-                                        LDAPUtil.escapeDN(dataInputs.get(inputName)));
+                                        LDAPUtil.escapeRDNValue(dataInputs.get(inputName)));
                             } else {
                                 req.setExtData(inputName, dataInputs.get(inputName));
                             }

@@ -430,8 +430,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                     String[] sla = la.getStringValueArray();
                     CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "
                             + mLdapStringAttrs[i] +
-                            "=" + LDAPUtil.escapeDN(sla[0]));
-                    request.setExtData(mLdapStringAttrs[i], LDAPUtil.escapeDN(sla[0]));
+                            "=" + LDAPUtil.escapeRDNValue(sla[0]));
+                    request.setExtData(mLdapStringAttrs[i], LDAPUtil.escapeRDNValue(sla[0]));
                 }
             }
             CMS.debug("pattern = " + pattern);

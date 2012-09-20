@@ -63,47 +63,47 @@ public class LDAPUtil {
     /**
      * This method escapes special characters for LDAP DN (RFC 1779).
      */
-    public static String escapeDN(Object value) {
-        return LDAPUtil.escapeDN(value.toString(),  false);
+    public static String escapeRDNValue(Object value) {
+        return LDAPUtil.escapeRDNValue(value.toString(), false);
     }
 
-    public static String escapeDN(String v, boolean doubleEscape) {
-        StringBuffer result = new StringBuffer();
+    public static String escapeRDNValue(String value, boolean doubleEscape) {
+        StringBuilder sb = new StringBuilder();
 
         // Do we need to escape any characters
-        for (int i = 0; i < v.length(); i++) {
-            int c = v.charAt(i);
+        for (int i = 0; i < value.length(); i++) {
+            int c = value.charAt(i);
             if (c == ',' || c == '=' || c == '+' || c == '<' ||
                     c == '>' || c == '#' || c == ';' || c == '\r' ||
                     c == '\n' || c == '\\' || c == '"') {
-                if ((c == 0x5c) && ((i + 1) < v.length())) {
-                    int nextC = v.charAt(i + 1);
+                if ((c == 0x5c) && ((i + 1) < value.length())) {
+                    int nextC = value.charAt(i + 1);
                     if ((c == 0x5c) && (nextC == ',' || nextC == '=' || nextC == '+' ||
                             nextC == '<' || nextC == '>' || nextC == '#' ||
                             nextC == ';' || nextC == '\r' || nextC == '\n' ||
                             nextC == '\\' || nextC == '"')) {
                         if (doubleEscape)
-                            result.append('\\');
+                            sb.append('\\');
                     } else {
-                        result.append('\\');
+                        sb.append('\\');
                         if (doubleEscape)
-                            result.append('\\');
+                            sb.append('\\');
                     }
                 } else {
-                    result.append('\\');
+                    sb.append('\\');
                     if (doubleEscape)
-                        result.append('\\');
+                        sb.append('\\');
                 }
             }
             if (c == '\r') {
-                result.append("0D");
+                sb.append("0D");
             } else if (c == '\n') {
-                result.append("0A");
+                sb.append("0A");
             } else {
-                result.append((char) c);
+                sb.append((char) c);
             }
         }
-        return result.toString();
+        return sb.toString();
     }
 
     public static void importLDIF(LDAPConnection conn, String filename, ArrayList<String> errors) throws IOException {

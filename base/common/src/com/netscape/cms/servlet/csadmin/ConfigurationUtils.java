@@ -1049,7 +1049,7 @@ public class ConfigurationUtils {
 
         boolean foundDatabase = false;
         try {
-            String dn = "cn=" + LDAPUtil.escapeDN(database) + ",cn=ldbm database, cn=plugins, cn=config";
+            String dn = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPEntry entry = conn.read(dn);
             if (entry != null) foundDatabase = true;
         } catch (LDAPException e) {
@@ -1114,7 +1114,7 @@ public class ConfigurationUtils {
             attrs.add(new LDAPAttribute("objectClass", oc));
             attrs.add(new LDAPAttribute("cn", database));
             attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
-            String dn = "cn=" + LDAPUtil.escapeDN(database) + ",cn=ldbm database, cn=plugins, cn=config";
+            String dn = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPEntry entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (Exception e) {
@@ -1313,7 +1313,7 @@ public class ConfigurationUtils {
         }
 
         try {
-            dn = "cn=" + LDAPUtil.escapeDN(database) + ",cn=ldbm database, cn=plugins, cn=config";
+            dn = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
                     attrs, true, cons);
             if (res != null) {
@@ -1618,7 +1618,7 @@ public class ConfigurationUtils {
             }
         }
 
-        dn = "cn=" + LDAPUtil.escapeDN(bindUser) + ",ou=csusers,cn=config";
+        dn = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
         try {
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -1688,7 +1688,7 @@ public class ConfigurationUtils {
             attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
             attrs.add(new LDAPAttribute("nsDS5ReplicaType", "3"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-                    "cn=" + LDAPUtil.escapeDN(bindUser) + ",ou=csusers,cn=config"));
+                    "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config"));
             attrs.add(new LDAPAttribute("cn", "replica"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaId", Integer.toString(id)));
             attrs.add(new LDAPAttribute("nsds5flags", "1"));
@@ -1703,7 +1703,7 @@ public class ConfigurationUtils {
                 try {
                     entry = conn.read(replicadn);
                     LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-                    attr.addValue("cn=" + LDAPUtil.escapeDN(bindUser) + ",ou=csusers,cn=config");
+                    attr.addValue("cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config");
                     LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
                     conn.modify(replicadn, mod);
                 } catch (LDAPException ee) {
@@ -1725,7 +1725,7 @@ public class ConfigurationUtils {
     public static void createReplicationAgreement(String replicadn, LDAPConnection conn, String name,
             String replicahost, int replicaport, String replicapwd, String basedn, String bindUser,
             String secure, String replicationSecurity) throws LDAPException {
-        String dn = "cn=" + LDAPUtil.escapeDN(name) + "," + replicadn;
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
         CMS.debug("createReplicationAgreement: dn: " + dn);
         LDAPEntry entry = null;
         LDAPAttributeSet attrs = null;
@@ -1740,7 +1740,7 @@ public class ConfigurationUtils {
 
             attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaport));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-                    "cn=" + LDAPUtil.escapeDN(bindUser) + ",ou=csusers,cn=config"));
+                    "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
             attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
 
@@ -1782,7 +1782,7 @@ public class ConfigurationUtils {
     }
 
     public static void initializeConsumer(String replicadn, LDAPConnection conn, String name) throws LDAPException {
-        String dn = "cn=" + LDAPUtil.escapeDN(name) + "," + replicadn;
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
         CMS.debug("initializeConsumer: initializeConsumer dn: " + dn);
         CMS.debug("initializeConsumer: initializeConsumer host: " + conn.getHost() + " port: " + conn.getPort());
 
@@ -1795,7 +1795,7 @@ public class ConfigurationUtils {
 
     public static boolean replicationDone(String replicadn, LDAPConnection conn, String name)
             throws LDAPException, IOException {
-        String dn = "cn=" + LDAPUtil.escapeDN(name) + "," + replicadn;
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
         String filter = "(objectclass=*)";
         String[] attrs = { "nsds5beginreplicarefresh" };
 
@@ -1817,7 +1817,7 @@ public class ConfigurationUtils {
 
     public static String replicationStatus(String replicadn, LDAPConnection conn, String name)
             throws IOException, LDAPException {
-        String dn = "cn=" + LDAPUtil.escapeDN(name) + "," + replicadn;
+        String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
         String filter = "(objectclass=*)";
         String[] attrs = { "nsds5replicalastinitstatus" };
 
@@ -3059,7 +3059,7 @@ public class ConfigurationUtils {
         // create list containers
         String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
         for (int i = 0; i < clist.length; i++) {
-            dn = "cn=" + LDAPUtil.escapeDN(clist[i]) + ",ou=Security Domain," + basedn;
+            dn = "cn=" + LDAPUtil.escapeRDNValue(clist[i]) + ",ou=Security Domain," + basedn;
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
             attrs.add(new LDAPAttribute("objectclass", "pkiSecurityGroup"));
@@ -3070,7 +3070,7 @@ public class ConfigurationUtils {
 
         // Add this host
         String cn = CMS.getEESSLHost() + ":" + CMS.getAdminPort();
-        dn = "cn=" + LDAPUtil.escapeDN(cn) + ",cn=CAList,ou=Security Domain," + basedn;
+        dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
         String subsystemName = cs.getString("preop.subsystem.name");
         attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -3498,16 +3498,16 @@ public class ConfigurationUtils {
 
         String serialdn = "";
         if (type.equals("CA")) {
-            serialdn = "ou=certificateRepository,ou=" + LDAPUtil.escapeDN(type.toLowerCase()) + "," + basedn;
+            serialdn = "ou=certificateRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
         } else {
-            serialdn = "ou=keyRepository,ou=" + LDAPUtil.escapeDN(type.toLowerCase()) + "," + basedn;
+            serialdn = "ou=keyRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
         }
         LDAPAttribute attrSerialNextRange =
                 new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
         LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
         conn.modify(serialdn, serialmod);
 
-        String requestdn = "ou=" + LDAPUtil.escapeDN(type.toLowerCase()) + ",ou=requests," + basedn;
+        String requestdn = "ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + ",ou=requests," + basedn;
         LDAPAttribute attrRequestNextRange =
                 new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
         LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);

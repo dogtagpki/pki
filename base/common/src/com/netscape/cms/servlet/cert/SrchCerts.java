@@ -225,12 +225,12 @@ public class SrchCerts extends CMSServlet {
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(val)));
                 lf.append(",*)");
                 lf.append("(x509cert.subject=*");
                 lf.append(avaName);
                 lf.append("=");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(val)));
                 lf.append(")");
                 lf.append(")");
             } else {
@@ -238,7 +238,7 @@ public class SrchCerts extends CMSServlet {
                 lf.append(avaName);
                 lf.append("=");
                 lf.append("*");
-                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeDN(val)));
+                lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(val)));
                 lf.append("*)");
             }
         }

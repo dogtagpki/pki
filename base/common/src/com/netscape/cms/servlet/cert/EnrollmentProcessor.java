@@ -70,7 +70,7 @@ public class EnrollmentProcessor extends CertProcessor {
                     if (dataInputs.containsKey(inputName)) {
                         // all subject name parameters start with sn_, no other input parameters do
                         if (inputName.matches("^sn_.*")) {
-                            ctx.set(inputName, LDAPUtil.escapeDN(dataInputs.get(inputName)));
+                            ctx.set(inputName, LDAPUtil.escapeRDNValue(dataInputs.get(inputName)));
                         } else {
                             ctx.set(inputName, dataInputs.get(inputName));
                         }
