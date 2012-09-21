@@ -1186,8 +1186,9 @@ class directory:
                 if recursive_flag == True:
                     for root, dirs, files in os.walk(name):
                         for name in files:
-                            if not os.path.islink(name):
-                                file = os.path.join(root, name)
+                            entity = os.path.join(root, name)
+                            if not os.path.islink(entity):
+                                file = entity
                                 config.pki_log.debug(
                                     log.PKIHELPER_IS_A_FILE_1, file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
@@ -1215,7 +1216,7 @@ class directory:
                                 record.acls = file_acls
                                 manifest.database.append(record)
                             else:
-                                symlink = os.path.join(root, name)
+                                symlink = entity
                                 config.pki_log.debug(
                                     log.PKIHELPER_IS_A_SYMLINK_1, symlink,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
