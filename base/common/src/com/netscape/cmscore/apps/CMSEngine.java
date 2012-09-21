@@ -255,6 +255,10 @@ public class CMSEngine implements ICMSEngine {
         mOwner = owner;
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
+
+        mConfig.putString("cs.status", "starting");
+        mConfig.commit(false);
+
         // my default is 1 day
         String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
         String secdomain_source = config.getString("securitydomain.source", "memory");
@@ -327,6 +331,8 @@ public class CMSEngine implements ICMSEngine {
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
         }
 
+        mConfig.putString("cs.status", "running");
+        mConfig.commit(false);
     }
 
     /**

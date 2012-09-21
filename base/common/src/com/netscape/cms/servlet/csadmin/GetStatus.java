@@ -74,6 +74,7 @@ public class GetStatus extends CMSServlet {
 
 	String state = config.getString("cs.state", "");
 	String type = config.getString("cs.type", "");
+        String status = config.getString("cs.status", "unknown");
 
         try {
             XMLObject xmlObj = null;
@@ -84,6 +85,7 @@ public class GetStatus extends CMSServlet {
 
             xmlObj.addItemToContainer(root, "State", state);
             xmlObj.addItemToContainer(root, "Type", type);
+            xmlObj.addItemToContainer(root, "Status", status);
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
