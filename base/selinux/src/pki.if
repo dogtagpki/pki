@@ -3,24 +3,6 @@
 
 ########################################
 ## <summary>
-##	Execute pki_ra server in the pki_ra domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-#
-interface(`pki_ra_script_domtrans',`
-	gen_require(`
-		attribute pki_ra_script;
-	')
-
-	init_script_domtrans_spec($1,pki_ra_script)
-')
-
-########################################
-## <summary>
 ##	Create a set of derived types for apache
 ##	web content.
 ## </summary>
@@ -30,41 +12,58 @@ interface(`pki_ra_script_domtrans',`
 ##	</summary>
 ## </param>
 #
-template(`pki_tps_template',`
+template(`pki_apache_template',`
 	gen_require(`
-		attribute pki_tps_process;
-		attribute pki_tps_config, pki_tps_var_lib, pki_tps_var_run;
-		attribute pki_tps_executable, pki_tps_script, pki_tps_var_log;
+		attribute $1_process;
+		attribute $1_config, $1_var_lib, $1_var_run;
+		attribute $1_executable, $1_script, $1_var_log;
+                type pki_common_t, pki_common_dev_t;
 	')
 	########################################
 	#
 	# Declarations
 	#
 
-	type $1_t, pki_tps_process;
-	type $1_exec_t, pki_tps_executable;
+	type $1_t, $1_process;
+	type $1_exec_t, $1_executable;
 	domain_type($1_t)
 	init_daemon_domain($1_t, $1_exec_t)
 
-	type $1_script_exec_t, pki_tps_script;
+	type $1_script_exec_t, $1_script;
 	init_script_file($1_script_exec_t)
 
-	type $1_etc_rw_t, pki_tps_config;
+	type $1_etc_rw_t, $1_config;
 	files_type($1_etc_rw_t)
 
-	type $1_var_run_t, pki_tps_var_run;
+	type $1_var_run_t, $1_var_run;
 	files_pid_file($1_var_run_t)
 
-	type $1_var_lib_t, pki_tps_var_lib;
+	type $1_var_lib_t, $1_var_lib;
 	files_type($1_var_lib_t)
 
-	type $1_log_t, pki_tps_var_log;
+	type $1_log_t, $1_var_log;
 	logging_log_file($1_log_t)
 
 	########################################
 	#
 	# $1 local policy
 	#
+
+        # start up httpd in $1_t mode
+        can_exec($1_t, httpd_config_t)
+        allow $1_t httpd_exec_t:file entrypoint;
+        allow $1_t httpd_modules_t:lnk_file read;
+        can_exec($1_t, httpd_suexec_exec_t)
+
+        allow $1_t lib_t:file execute_no_trans;
+        allow $1_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
+        allow $1_t self:process { setsched signal getsched  signull execstack execmem sigkill};
+        allow $1_t self:sem all_sem_perms;
+        allow $1_t self:tcp_socket create_stream_socket_perms;
+        allow $1_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+        # allow writing to the kernel keyring
+        allow $1_t self:key { write read };
 
 	## internal communication is often done using fifo and unix sockets.
 	allow $1_t self:fifo_file rw_file_perms;
@@ -74,7 +73,7 @@ template(`pki_tps_template',`
 	domain_use_interactive_fds($1_t)
 
 	files_read_etc_files($1_t)
-        allow pki_tps_t pki_tps_etc_rw_t:lnk_file read;
+        allow $1_t $1_etc_rw_t:lnk_file read;
 
 	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
 	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
@@ -100,6 +99,52 @@ template(`pki_tps_template',`
 
 	miscfiles_read_localization($1_t)
 
+        # apache permissions
+        apache_exec_modules($1_t)
+        apache_list_modules($1_t)
+        apache_read_config($1_t)
+        apache_exec($1_t)
+
+        corecmd_exec_bin($1_t)
+        corecmd_exec_shell($1_t)
+        corecmd_read_bin_symlinks($1_t)
+        corecmd_search_bin($1_t)
+
+        corenet_sendrecv_unlabeled_packets($1_t)
+        corenet_tcp_bind_all_nodes($1_t)
+        corenet_tcp_sendrecv_all_if($1_t)
+        corenet_tcp_sendrecv_all_nodes($1_t)
+        corenet_tcp_sendrecv_all_ports($1_t)
+        corenet_all_recvfrom_unlabeled($1_t)
+        corenet_tcp_connect_generic_port($1_t)
+
+        # talk to the hsm
+        allow $1_t pki_common_dev_t:sock_file write;
+        allow $1_t pki_common_dev_t:dir search;
+        allow $1_t pki_common_t:dir create_dir_perms;
+        manage_files_pattern($1_t, pki_common_t, pki_common_t)
+        can_exec($1_t, pki_common_t)
+        init_stream_connect_script($1_t)
+
+        #talk to lunasa hsm
+        logging_send_syslog_msg($1_t)
+
+        # allow rpm -q in init scripts
+        rpm_exec($1_t)
+
+        #installation and debug uses /tmp
+        files_manage_generic_tmp_dirs($1_t)
+        files_manage_generic_tmp_files($1_t)
+
+        kernel_read_kernel_sysctls($1_t)
+        kernel_read_system_state($1_t)
+
+        # need to resolve addresses?
+        auth_use_nsswitch($1_t)
+
+        sysnet_read_config($1_t)
+        dev_read_urand($1_t)
+
 	ifdef(`targeted_policy',`
 		term_dontaudit_use_unallocated_ttys($1_t)
 		term_dontaudit_use_generic_ptys($1_t)
@@ -114,156 +159,19 @@ template(`pki_tps_template',`
 	#============= httpd_t ==============
 	allow httpd_t $1_var_run_t:dir search;
 	allow httpd_t $1_var_run_t:file read_file_perms;
-
-')
-
-template(`pki_ra_template',`
-	gen_require(`
-		attribute pki_ra_process;
-		attribute pki_ra_config, pki_ra_var_lib, pki_ra_var_run;
-		attribute pki_ra_executable, pki_ra_script, pki_ra_var_log;
-	')
-	########################################
-	#
-	# Declarations
-	#
-
-	type $1_t, pki_ra_process;
-	type $1_exec_t, pki_ra_executable;
-	domain_type($1_t)
-	init_daemon_domain($1_t, $1_exec_t)
-
-	type $1_script_exec_t, pki_ra_script;
-	init_script_file($1_script_exec_t)
-
-	type $1_etc_rw_t, pki_ra_config;
-	files_type($1_etc_rw_t)
-
-	type $1_var_run_t, pki_ra_var_run;
-	files_pid_file($1_var_run_t)
-
-	type $1_var_lib_t, pki_ra_var_lib;
-	files_type($1_var_lib_t)
-
-	type $1_log_t, pki_ra_var_log;
-	logging_log_file($1_log_t)
-
-	########################################
-	#
-	# $1 local policy
-	#
-
-	## internal communication is often done using fifo and unix sockets.
-	allow $1_t self:fifo_file rw_file_perms;
-	allow $1_t self:unix_stream_socket create_stream_socket_perms;
-
-	# Init script handling
-	domain_use_interactive_fds($1_t)
-
-	files_read_etc_files($1_t)
-
-	manage_dirs_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
-	manage_files_pattern($1_t, $1_etc_rw_t, $1_etc_rw_t)
-	files_etc_filetrans($1_t,$1_etc_rw_t, { file dir })
-
-	manage_dirs_pattern($1_t, $1_var_run_t,  $1_var_run_t)
-	manage_files_pattern($1_t, $1_var_run_t,  $1_var_run_t)
-	files_pid_filetrans($1_t,$1_var_run_t, { file dir })
-
-	manage_dirs_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
-	manage_files_pattern($1_t, $1_var_lib_t,  $1_var_lib_t)
-	read_lnk_files_pattern($1_t, $1_var_lib_t, $1_var_lib_t)
-	files_var_lib_filetrans($1_t, $1_var_lib_t, { file dir } )
-
-	manage_dirs_pattern($1_t, $1_log_t,  $1_log_t)
-	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
-	logging_log_filetrans($1_t, $1_log_t, { file dir } )
-
-	init_dontaudit_write_utmp($1_t)
-
-	libs_use_ld_so($1_t)
-	libs_use_shared_libs($1_t)
-
-	miscfiles_read_localization($1_t)
-
-	ifdef(`targeted_policy',`
-		term_dontaudit_use_unallocated_ttys($1_t)
-		term_dontaudit_use_generic_ptys($1_t)
-	')
-
-	gen_require(`
-		type httpd_t;
-                type devlog_t;
-                type syslogd_t;
-                type httpd_exec_t;
-                type httpd_suexec_exec_t;
-	')
-
-	#============= httpd_t ==============
-	allow httpd_t $1_var_run_t:dir search;
-	allow httpd_t $1_var_run_t:file read_file_perms;
+        allow httpd_t $1_etc_rw_t:dir search;
+        allow httpd_t $1_etc_rw_t:file rw_file_perms;
+        allow httpd_t $1_log_t:dir rw_dir_perms;
+        allow httpd_t $1_log_t:file manage_file_perms;
+        allow httpd_t $1_t:process { signal signull };
+        allow httpd_t $1_var_lib_t:dir { getattr search };
+        allow httpd_t $1_var_lib_t:lnk_file read;
+        allow httpd_t $1_var_lib_t:file read_file_perms;
 ')
 
 ########################################
 ## <summary>
-##	All of the rules required to administrate 
-##	an pki_ra environment
-## </summary>
-## <param name="domain">
-##	<summary>
-##	Domain allowed access.
-########################################
-## <summary>
-##	All of the rules required to administrate 
-##	an pki_ra environment
-## </summary>
-## <param name="domain">
-##	<summary>
-##	Domain allowed access.
-##	</summary>
-## </param>
-## <param name="role">
-##	<summary>
-##	The role to be allowed to manage the syslog domain.
-##	</summary>
-## </param>
-## <param name="terminal">
-##	<summary>
-##	The type of the user terminal.
-##	</summary>
-## </param>
-## <rolecap/>
-#
-interface(`pki_ra_admin',`
-	gen_require(`
-		attribute pki_ra_process;
-		attribute pki_ra_config;
-		attribute pki_ra_executable;
-		attribute pki_ra_var_lib;
-		attribute pki_ra_var_log;
-		attribute pki_ra_var_run;
-		attribute pki_ra_script;
-	')
-
-	allow $1 pki_ra_process:process { ptrace signal_perms };
-	ps_process_pattern($1, pki_ra_t)
-
-	# Allow pki_ra_t to restart the service
-	pki_ra_script_domtrans($1)
-	domain_system_change_exemption($1)
-	role_transition $2 pki_ra_script system_r;
-	allow $2 system_r;
-
-	manage_all_pattern($1, pki_ra_config)
-	manage_all_pattern($1, pki_ra_var_run)
-	manage_all_pattern($1, pki_ra_var_lib)
-	manage_all_pattern($1, pki_ra_var_log)
-	manage_all_pattern($1, pki_ra_config)
-')
-
-########################################
-## <summary>
-##	Execute pki_tps server in the pki_tps domain.
+##	Execute pki_apache server in the pki_apache domain.
 ## </summary>
 ## <param name="domain">
 ##	<summary>
@@ -271,19 +179,19 @@ interface(`pki_ra_admin',`
 ##	</summary>
 ## </param>
 #
-interface(`pki_tps_script_domtrans',`
+interface(`pki_apache_script_domtrans',`
 	gen_require(`
-		attribute pki_tps_script;
+		attribute $1_script;
 	')
 
-	init_script_domtrans_spec($1,pki_tps_script)
+	init_script_domtrans_spec($1, $1_script)
 ')
 
 
 ########################################
 ## <summary>
 ##	All of the rules required to administrate 
-##	an pki_tps environment
+##	an pki_apache environment
 ## </summary>
 ## <param name="domain">
 ##	<summary>
@@ -302,29 +210,29 @@ interface(`pki_tps_script_domtrans',`
 ## </param>
 ## <rolecap/>
 #
-interface(`pki_tps_admin',`
+interface(`pki_apache_admin',`
 	gen_require(`
-		attribute pki_tps_process;
-		attribute pki_tps_config;
-		attribute pki_tps_executable;
-		attribute pki_tps_var_lib;
-		attribute pki_tps_var_log;
-		attribute pki_tps_var_run;
-		attribute pki_tps_script;
+		attribute $1_process;
+		attribute $1_config;
+		attribute $1_executable;
+		attribute $1_var_lib;
+		attribute $1_var_log;
+		attribute $1_var_run;
+		attribute $1_script;
 	')
 
-	allow $1 pki_tps_process:process { ptrace signal_perms };
-	ps_process_pattern($1, pki_tps_t)
+	allow $1 $1_process:process { ptrace signal_perms };
+	ps_process_pattern($1, $1_t)
 
-	# Allow pki_tps_t to restart the service
-	pki_tps_script_domtrans($1)
+	# Allow pki_apache_t to restart the service
+	$1_script_domtrans($1)
 	domain_system_change_exemption($1)
-	role_transition $2 pki_tps_script system_r;
+	role_transition $2 $1_script system_r;
 	allow $2 system_r;
 
-	manage_all_pattern($1, pki_tps_config)
-	manage_all_pattern($1, pki_tps_var_run)
-	manage_all_pattern($1, pki_tps_var_lib)
-	manage_all_pattern($1, pki_tps_var_log)
-	manage_all_pattern($1, pki_tps_config)
+	manage_all_pattern($1, $1_config)
+	manage_all_pattern($1, $1_var_run)
+	manage_all_pattern($1, $1_var_lib)
+	manage_all_pattern($1, $1_var_log)
+	manage_all_pattern($1, $1_config)
 ')
