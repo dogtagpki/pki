@@ -1,13 +1,4 @@
-policy_module(pki,10.0.6)
-
-attribute pki_tomcat_config;
-attribute pki_tomcat_executable;
-attribute pki_tomcat_var_lib;
-attribute pki_tomcat_var_log;
-attribute pki_tomcat_var_run;
-attribute pki_tomcat_pidfiles;
-attribute pki_tomcat_script;
-attribute pki_tomcat_process;
+policy_module(pki,10.0.10)
 
 type pki_log_t;
 files_type(pki_log_t)
@@ -18,10 +9,75 @@ files_type(pki_common_t)
 type pki_common_dev_t;
 files_type(pki_common_dev_t)
 
-type pki_tomcat_tomcat_exec_t;
-files_type(pki_tomcat_tomcat_exec_t)
+type pki_tomcat_etc_rw_t;
+files_type(pki_tomcat_etc_rw_t)
 
-pki_tomcat_template(pki_tomcat)
+tomcat_domain_template(pki_tomcat)
+
+permissive pki_tomcat_t;
+
+type pki_tomcat_lock_t;
+files_lock_file(pki_tomcat_lock_t)
+
+require {
+        type pki_tomcat_var_lib_t;
+        type pki_tomcat_t;
+        type pki_tomcat_var_run_t;
+        type pki_tomcat_log_t;
+        type systemd_unit_file_t;
+}
+
+allow pki_tomcat_t self:capability { setuid chown setgid fowner audit_write dac_override sys_nice};
+allow pki_tomcat_t self:netlink_audit_socket { nlmsg_relay create };
+
+allow pki_tomcat_t self:key write;
+allow pki_tomcat_t self:process { signal setsched signull execmem };
+allow pki_tomcat_t self:tcp_socket { accept listen };
+allow pki_tomcat_t self:unix_dgram_socket { create connect };
+allow pki_tomcat_t self:process signal;
+
+# allow writing to the kernel keyring
+allow pki_tomcat_t self:key { write read };
+
+manage_dirs_pattern(pki_tomcat_t, pki_tomcat_etc_rw_t, pki_tomcat_etc_rw_t)
+manage_files_pattern(pki_tomcat_t, pki_tomcat_etc_rw_t, pki_tomcat_etc_rw_t)
+
+manage_dirs_pattern(pki_tomcat_t,  pki_tomcat_lock_t,  pki_tomcat_lock_t)
+manage_files_pattern(pki_tomcat_t,  pki_tomcat_lock_t,  pki_tomcat_lock_t)
+manage_lnk_files_pattern(pki_tomcat_t,  pki_tomcat_lock_t,  pki_tomcat_lock_t)
+files_lock_filetrans(pki_tomcat_t,  pki_tomcat_lock_t, { dir file lnk_file })
+
+# allow java subsystems to talk to the ncipher hsm
+allow pki_tomcat_t pki_common_dev_t:sock_file write;
+allow pki_tomcat_t pki_common_dev_t:dir search;
+allow pki_tomcat_t pki_common_t:dir create_dir_perms;
+manage_files_pattern(pki_tomcat_t, pki_common_t, pki_common_t)
+can_exec(pki_tomcat_t, pki_common_t)
+init_stream_connect_script(pki_tomcat_t)
+
+# init script checks and fixes links if needed
+allow pki_tomcat_t pki_tomcat_var_lib_t:lnk_file { read getattr setattr };
+allow pki_tomcat_t pki_tomcat_var_run_t:lnk_file { create getattr setattr };
+allow pki_tomcat_t self:capability sys_nice;
+allow pki_tomcat_t systemd_unit_file_t:lnk_file { read getattr setattr };
+allow pki_tomcat_t systemd_unit_file_t:dir getattr;
+allow pki_tomcat_t systemd_unit_file_t:file getattr;
+
+allow pki_tomcat_t pki_log_t:dir getattr;
+allow pki_tomcat_t pki_log_t:dir search;
+
+kernel_read_kernel_sysctls(pki_tomcat_t)
+
+corenet_tcp_connect_http_cache_port(pki_tomcat_t)
+corenet_tcp_connect_ldap_port(pki_tomcat_t)
+corenet_tcp_connect_smtp_port(pki_tomcat_t)
+
+selinux_get_enforce_mode(pki_tomcat_t)
+
+logging_send_audit_msgs(pki_tomcat_t)
+logging_send_syslog_msg(pki_tomcat_t)
+
+miscfiles_read_hwdata(pki_tomcat_t)
 
 # forward proxy
 # need to define ports to fix this
@@ -32,6 +88,13 @@ allow pki_tomcat_t pki_tomcat_var_lib_t:lnk_file { rename create unlink };
 
 # for ECC
 auth_getattr_shadow(pki_tomcat_t)
+optional_policy(`
+        consoletype_exec(pki_tomcat_t)
+')
+
+optional_policy(`
+        hostname_exec(pki_tomcat_t)
+')
 
 # old type aliases for migration
 typealias pki_tomcat_t alias { pki_ca_t pki_kra_t pki_ocsp_t pki_tks_t };
@@ -40,22 +103,10 @@ typealias pki_tomcat_var_lib_t alias { pki_ca_var_lib_t pki_kra_var_lib_t pki_oc
 typealias pki_tomcat_var_run_t alias { pki_ca_var_run_t pki_kra_var_run_t pki_ocsp_var_run_t pki_tks_var_run_t };
 typealias pki_tomcat_log_t alias { pki_ca_log_t pki_kra_log_t pki_ocsp_log_t pki_tks_log_t };
 # typealias http_port_t alias { pki_ca_port_t pki_kra_port_t pki_ocsp_port_t pki_tks_port_t };
-attribute pki_ra_config;
-attribute pki_ra_executable;
-attribute pki_ra_var_lib;
-attribute pki_ra_var_log;
-attribute pki_ra_var_run;
-attribute pki_ra_pidfiles;
-attribute pki_ra_script;
-attribute pki_ra_process;
 
-type pki_ra_tomcat_exec_t;
-files_type(pki_ra_tomcat_exec_t)
-
-pki_ra_template(pki_ra)
-
-# needed for token enrollment, list /var/cache/tomcat5/temp
-files_list_var(pki_tomcat_t)
+##########################
+#  TPS policy
+##########################
 
 attribute pki_tps_config;
 attribute pki_tps_executable;
@@ -81,6 +132,7 @@ can_exec(pki_tps_t, httpd_suexec_exec_t)
 apache_exec_modules(pki_tps_t)
 apache_list_modules(pki_tps_t)
 apache_read_config(pki_tps_t)
+apache_exec(pki_tps_t)
 
 allow pki_tps_t lib_t:file execute_no_trans;
 
@@ -166,9 +218,23 @@ rpm_exec(pki_tps_t)
 # allow writing to the kernel keyring
 allow pki_tps_t self:key { write read };
 
-# new for f14
-apache_exec(pki_tps_t)
+##########################
+# RA policy
+#########################
 
+attribute pki_ra_config;
+attribute pki_ra_executable;
+attribute pki_ra_var_lib;
+attribute pki_ra_var_log;
+attribute pki_ra_var_run;
+attribute pki_ra_pidfiles;
+attribute pki_ra_script;
+attribute pki_ra_process;
+
+type pki_ra_tomcat_exec_t;
+files_type(pki_ra_tomcat_exec_t)
+
+pki_ra_template(pki_ra)
  # start up httpd in pki_ra_t mode
 allow pki_ra_t httpd_config_t:file { read getattr execute };
 allow pki_ra_t httpd_exec_t:file entrypoint;
@@ -179,6 +245,7 @@ allow pki_ra_t httpd_suexec_exec_t:file { getattr read execute };
 apache_read_config(pki_ra_t)
 apache_exec_modules(pki_ra_t)
 apache_list_modules(pki_ra_t)
+apache_exec(pki_ra_t)
 
 allow pki_ra_t lib_t:file execute_no_trans;
 
@@ -263,5 +330,3 @@ rpm_exec(pki_ra_t)
 # allow writing to the kernel keyring
 allow pki_ra_t self:key { write read };
 
-# new for f14
-apache_exec(pki_ra_t)
