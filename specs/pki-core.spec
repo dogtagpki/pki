@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}33%{?prerel}%{?dist}
+Release:          %{?relprefix}34%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -113,7 +113,6 @@ to manage enterprise Public Key Infrastructure (PKI) deployments.      \
                                                                        \
 PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
-  * pki-setup                                                          \
   * pki-symkey                                                         \
   * pki-base                                                           \
   * pki-tools                                                          \
@@ -138,7 +137,6 @@ Certificate System instances consisting of the following components:   \
                                                                        \
   * pki-tools                                                          \
   * pki-selinux                                                        \
-  * pki-setup                                                          \
   * pki-silent (required for IPA deployments; optional otherwise)      \
                                                                        \
 Additionally, PKI Core contains the following fundamental packages     \
@@ -163,26 +161,6 @@ ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
 %{nil}
 
 %description %{overview}
-
-
-%package -n       pki-setup
-Summary:          Certificate System - PKI Instance Creation & Removal Scripts
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         perl(File::Slurp)
-Requires:         perl(XML::LibXML)
-Requires:         perl-Crypt-SSLeay
-Requires:         policycoreutils
-Requires:         openldap-clients
-
-%description -n   pki-setup
-PKI setup scripts are used to create and remove instances from PKI deployments.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
 
 
 %package -n       pki-symkey
@@ -301,7 +279,13 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Obsoletes:        pki-deploy < %{version}-%{release}
+Obsoletes:        pki-setup < %{version}-%{release}
 
+Requires:         perl(File::Slurp)
+Requires:         perl(XML::LibXML)
+Requires:         perl-Crypt-SSLeay
+Requires:         policycoreutils
+Requires:         openldap-clients
 Requires:         jython >= 2.2.1
 Requires:         pki-common-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
@@ -1045,24 +1029,6 @@ fi
 ##        PKI deployment process
 %endif
 
-%files -n pki-setup
-%defattr(-,root,root,-)
-%doc base/setup/LICENSE
-%{_bindir}/pkicreate
-%{_bindir}/pkiremove
-%{_bindir}/pki-setup-proxy
-%dir %{_datadir}/pki
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/pkicommon.pm
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
-%{_bindir}/pkicontrol
-%endif
-
-
 %files -n pki-symkey
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
@@ -1165,6 +1131,21 @@ fi
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_localstatedir}/lock/pki/tomcat
 %dir %{_localstatedir}/run/pki/tomcat
+%{_bindir}/pkicreate
+%{_bindir}/pkiremove
+%{_bindir}/pki-setup-proxy
+%dir %{_datadir}/pki
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/pkicommon.pm
+%{_datadir}/pki/scripts/functions
+%{_datadir}/pki/scripts/pki_apache_initscript
+%dir %{_localstatedir}/lock/pki
+%dir %{_localstatedir}/run/pki
+%if 0%{?fedora} >= 16
+%{_bindir}/pkicontrol
+%endif
+
+
 
 %if 0%{?fedora} >= 15
 # Details:
@@ -1318,6 +1299,9 @@ fi
 
 
 %changelog
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.34.a1
+- Merged pki-setup into pki-server
+
 * Thu Sep 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.33.a1
 - Added Conflicts for IPA 2.X
 - Added build requires for zip to work around mock problem

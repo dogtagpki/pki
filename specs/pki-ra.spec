@@ -7,7 +7,7 @@
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}6%{?prerel}%{?dist}
+Release:          %{?relprefix}7%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -31,7 +31,6 @@ Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         pki-server >= 10.0.0
 Requires:         pki-ra-theme >= 10.0.0
-Requires:         pki-setup
 Requires:         perl-DBD-SQLite
 Requires:         sqlite
 Requires:         /usr/sbin/sendmail
@@ -65,7 +64,7 @@ organization's PKI deployment.
 For deployment purposes, an RA requires the following components from the PKI
 Core package:
 
-  * pki-setup
+  * pki-server
   * pki-tools
   * pki-selinux
 
@@ -246,6 +245,9 @@ fi
 
 
 %changelog
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
+- Merged pki-setup into pki-server
+
 * Tue Sep 11 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.6.a1
 - TRAC Ticket #312 - Dogtag 10: Automatically restart any running instances
   upon RPM "update" . . .

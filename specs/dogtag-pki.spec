@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}8%{?prerel}%{?dist}
+Release:          %{?relprefix}9%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -99,16 +99,13 @@ Requires:         pki-ca >= %{pki_core_version}
 Requires:         pki-server >= %{pki_core_version}
 Requires:         pki-tools >= %{pki_core_version}
 Requires:         pki-selinux >= %{pki_core_version}
-Requires:         pki-setup >= %{pki_core_version}
 Requires:         pki-silent >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
 Requires:         pki-base >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
-Requires:         pki-common-javadoc >= %{pki_core_version}
-Requires:         pki-java-tools-javadoc >= %{pki_core_version}
-Requires:         pki-util-javadoc >= %{pki_core_version}
+Requires:         pki-javadoc >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL other Dogtag PKI subsystems
@@ -197,6 +194,10 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a1
+- Merged pki-setup into pki-server
+- Fixed pki-javadoc dependency
+
 * Wed Aug 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
 - Replaced pki-native-tools and pki-java-tools with pki-tools
 
