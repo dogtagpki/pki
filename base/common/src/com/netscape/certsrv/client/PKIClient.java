@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -38,6 +40,7 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ClientResponseFailure;
 import org.jboss.resteasy.client.ProxyFactory;
@@ -51,7 +54,7 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
 
-public abstract class PKIClient {
+public class PKIClient {
 
     protected boolean verbose;
 
@@ -292,6 +295,18 @@ public abstract class PKIClient {
        }
 
        return response.getEntity();
+    }
+
+    public ClientResponse<String> post(String content) {
+        ClientResponse<String> response = null;
+        ClientRequest request = executor.createRequest(config.getServerURI().toString());
+        request.body(MediaType.APPLICATION_FORM_URLENCODED, content);
+        try {
+            response = request.post(String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
     public boolean isVerbose() {

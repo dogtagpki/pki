@@ -52,6 +52,7 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
 import netscape.ldap.LDAPAttribute;
@@ -74,6 +75,8 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
 import org.apache.velocity.context.Context;
+import org.jboss.resteasy.client.ClientResponse;
+import org.jboss.resteasy.client.ClientResponseFailure;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -136,6 +139,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -197,6 +201,22 @@ public class ConfigurationUtils {
     public static String getHttpResponse(String hostname, int port, boolean secure,
             String uri, String content, String clientnickname) throws IOException {
         return getHttpResponse(hostname, port, secure, uri, content, clientnickname, null);
+    }
+
+    public static ClientResponse<String> getClientResponse(String hostname, int port, boolean secure,
+            String path, String content, String clientnickname,
+            SSLCertificateApprovalCallback certApprovalCallback)
+            throws URISyntaxException {
+
+        String protocol = secure ? "https" : "http";
+        ClientConfig config = new ClientConfig();
+        config.setServerURI(protocol + "://" + hostname + ":" + port + path);
+        config.setCertNickname(clientnickname);
+
+        PKIClient client = new PKIClient(config);
+        ClientResponse<String> response = client.post(content);
+
+        return response;
     }
 
     //TODO - replace with Jack's connector code
@@ -293,7 +313,7 @@ public class ConfigurationUtils {
     }
 
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd)
-            throws EPropertyNotFound, EBaseException, URISyntaxException {
+            throws EPropertyNotFound, EBaseException, URISyntaxException, IOException {
         IConfigStore cs = CMS.getConfigStore();
         String csType = cs.getString("cs.type");
 
@@ -304,9 +324,57 @@ public class ConfigurationUtils {
 
         SystemConfigClient client = new SystemConfigClient(config);
 
-        InstallToken token = client.getInstallToken(data);
+        InstallToken token = null;
+        try {
+            token = client.getInstallToken(data);
+            return token.getToken();
+        } catch (ClientResponseFailure e) {
+            if (e.getResponse().getResponseStatus() == Response.Status.NOT_FOUND) {
+                // try the old servlet
+                String tokenString = getOldCookie(sdhost, sdport, user, passwd);
+                return tokenString;
+            }
 
-        return token.getToken();
+            throw e;
+        }
+    }
+
+    public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws IOException,
+            EPropertyNotFound, EBaseException, URISyntaxException {
+        IConfigStore cs = CMS.getConfigStore();
+
+        String subca_url = "https://" + CMS.getEEHost() + ":"
+                + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
+                "?p=5&subsystem=" + cs.getString("cs.type");
+
+        String content = "uid=" + URLEncoder.encode(user, "UTF-8") + "&pwd=" + URLEncoder.encode(passwd, "UTF-8") +
+                "&url=" + URLEncoder.encode(subca_url, "UTF-8");
+
+        ClientResponse<String> response = getClientResponse(sdhost, sdport, true, "/ca/admin/ca/getCookie",
+                content, null, null);
+        String body = response.getEntity();
+        return getContentValue(body, "header.session_id");
+    }
+
+    public static String getContentValue(String body, String header) {
+        StringTokenizer st = new StringTokenizer(body, "\n");
+
+        while (st.hasMoreTokens()) {
+            String line = st.nextToken();
+            // format for line assumed to be name="value";
+
+            int eqPos = line.indexOf('=');
+            if (eqPos != -1) {
+                String name = line.substring(0, eqPos).trim();
+                String tempval = line.substring(eqPos + 1).trim();
+                String value = tempval.replaceAll("(^\")|(\";$)","");
+
+                if (name.equals(header)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     public static String getGroupName(String uid, String subsystemname) {
