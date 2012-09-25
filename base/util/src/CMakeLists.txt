@@ -57,9 +57,18 @@ javac(pki-nsutil-classes
         ${CMAKE_BINARY_DIR}/classes
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-nsutil.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-nsutil.mf
+)
+
 jar(pki-nsutil-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-nsutil-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-nsutil.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
@@ -101,9 +110,18 @@ javac(pki-cmsutil-classes
         pki-nsutil
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-cmsutil.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsutil.mf
+)
+
 jar(pki-cmsutil-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-cmsutil-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsutil.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

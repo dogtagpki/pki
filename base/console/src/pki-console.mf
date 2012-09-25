@@ -1,0 +1,2 @@
+Name: pki-console
+Implementation-Version: ${APPLICATION_VERSION}

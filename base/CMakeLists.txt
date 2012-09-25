@@ -16,20 +16,35 @@ if (APPLICATION_FLAVOR_PKI_CORE)
     add_subdirectory(ocsp)
     add_subdirectory(tks)
     add_subdirectory(silent)
+
     if(WITH_JAVADOC)
         add_subdirectory(javadoc)
     endif(WITH_JAVADOC)
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/VERSION ${APPLICATION_VERSION})
+
+    install(
+        FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/VERSION
+        DESTINATION
+            ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
+    )
+
 endif (APPLICATION_FLAVOR_PKI_CORE)
+
 if (APPLICATION_FLAVOR_PKI_RA)
     add_subdirectory(ra)
 endif (APPLICATION_FLAVOR_PKI_RA)
+
 if (APPLICATION_FLAVOR_PKI_TPS)
     add_subdirectory(tps)
 endif (APPLICATION_FLAVOR_PKI_TPS)
+
 if (APPLICATION_FLAVOR_PKI_CONSOLE)
     add_subdirectory(test)
     add_subdirectory(console)
 endif (APPLICATION_FLAVOR_PKI_CONSOLE)
+
 if (APPLICATION_FLAVOR_PKI_MIGRATE)
     add_subdirectory(test)
     add_subdirectory(migrate)

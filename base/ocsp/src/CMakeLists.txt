@@ -91,9 +91,18 @@ javac(pki-ocsp-classes
         symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-ocsp.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-ocsp.mf
+)
+
 jar(pki-ocsp-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-ocsp-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-ocsp.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

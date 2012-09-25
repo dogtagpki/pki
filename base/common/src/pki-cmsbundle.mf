@@ -1,0 +1,2 @@
+Name: pki-cmsbundle
+Implementation-Version: ${APPLICATION_VERSION}

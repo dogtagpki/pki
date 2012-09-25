@@ -98,10 +98,19 @@ javac(pki-console-classes
         ${CMAKE_BINARY_DIR}/classes
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-console.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-console.mf
+)
+
 # package console classes and resources
 jar(pki-console-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-console.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

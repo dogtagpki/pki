@@ -50,6 +50,11 @@ public class MainCLI extends CLI {
         addModule(new UserCLI(this));
     }
 
+    public void printVersion() {
+        Package pkg = MainCLI.class.getPackage();
+        System.out.println("PKI Command-Line Interface "+pkg.getImplementationVersion());
+    }
+
     public void printHelp() {
 
         formatter.printHelp(name+" [OPTIONS..] <command> [ARGS..]", options);
@@ -118,6 +123,7 @@ public class MainCLI extends CLI {
 
         options.addOption("v", false, "Verbose");
         options.addOption(null, "help", false, "Help");
+        options.addOption(null, "version", false, "Version");
     }
 
     public void parseOptions(CommandLine cmd) throws URISyntaxException {
@@ -169,6 +175,11 @@ public class MainCLI extends CLI {
             }
 
             String[] cmdArgs = cmd.getArgs();
+
+            if (cmd.hasOption("version")) {
+                printVersion();
+                System.exit(1);
+            }
 
             if (cmdArgs.length == 0 || cmd.hasOption("help")) {
                 printHelp();

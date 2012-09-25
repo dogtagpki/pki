@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}34%{?prerel}%{?dist}
+Release:          %{?relprefix}35%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1039,6 +1039,8 @@ fi
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%dir %{_datadir}/pki
+%{_datadir}/pki/VERSION
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil-%{version}.jar
 %{_javadir}/pki/pki-cmsutil.jar
@@ -1056,7 +1058,6 @@ fi
 %{_bindir}/setpin
 %{_bindir}/sslget
 %{_bindir}/tkstool
-%dir %{_datadir}/pki
 %{_datadir}/pki/native-tools/
 %{_bindir}/AtoB
 %{_bindir}/AuditVerify
@@ -1092,7 +1093,6 @@ fi
 %dir %{python_sitelib}/pki
 %{python_sitelib}/pki/_*
 %{python_sitelib}/pki/deployment/
-%dir %{_datadir}/pki
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/deployment/spawn
@@ -1134,7 +1134,6 @@ fi
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
-%dir %{_datadir}/pki
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
 %{_datadir}/pki/scripts/functions
@@ -1299,6 +1298,9 @@ fi
 
 
 %changelog
+* Tue Sep 25 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.35.a1
+- Added VERSION file
+
 * Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.34.a1
 - Merged pki-setup into pki-server
 

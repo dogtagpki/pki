@@ -65,7 +65,6 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 # add macros
 include(MacroCopyFile)
 include(Java)
-include(UseJava)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/classes)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
@@ -170,4 +169,3 @@ elseif (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
 elseif (APPLICATION_FLAVOR_REDHAT_PKI_THEME)
     add_subdirectory(redhat)
 endif ()
-

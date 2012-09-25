@@ -1,0 +1,2 @@
+Name: pki-cmsutil
+Implementation-Version: ${APPLICATION_VERSION}

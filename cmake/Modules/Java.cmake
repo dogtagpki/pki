@@ -177,7 +177,7 @@ function(jar target)
                 -Dexclude="${exclude_${i}}"
                 -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
             COMMAND ${CMAKE_Java_ARCHIVE}
-                -${operation}${options} ${params}
+                ${operation}${options} ${params}
                 @${file_list_${i}}
             WORKING_DIRECTORY ${input_dir_${i}}
         )
@@ -227,7 +227,7 @@ function(javadoc target)
 
             endif(param STREQUAL "SOURCEPATH")
 
-        endif(arg MATCHES "(SOURCEPATH|CLASSPATH|FILES|PACKAGES|SUBPACKAGES|EXCLUDE|DEST|DEPENDS)")
+        endif(arg MATCHES "(SOURCEPATH|CLASSPATH|FILES|PACKAGES|SUBPACKAGES|EXCLUDE|OPTIONS|DEST|DEPENDS)")
 
     endforeach(arg)
 
@@ -243,7 +243,7 @@ function(javadoc target)
         foreach (option ${options})
            set(command ${command} ${option})
         endforeach(option ${options})
-    endif(sourcepath)
+    endif(options)
 
     if (sourcepath)
         set(tmp)
@@ -265,7 +265,7 @@ function(javadoc target)
         set(tmp)
         foreach (package ${subpackages})
            set(tmp "${tmp}:${package}")
-        endforeach(path)
+        endforeach(package)
         set(command ${command} -subpackages ${tmp})
     endif(subpackages)
 

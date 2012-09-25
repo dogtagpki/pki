@@ -1,0 +1,2 @@
+Name: pki-ca
+Implementation-Version: ${APPLICATION_VERSION}

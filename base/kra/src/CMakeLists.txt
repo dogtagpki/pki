@@ -91,9 +91,18 @@ javac(pki-kra-classes
         symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-kra.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-kra.mf
+)
+
 jar(pki-kra-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-kra-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-kra.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

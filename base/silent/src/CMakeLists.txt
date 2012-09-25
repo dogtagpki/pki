@@ -39,9 +39,18 @@ javac(pki-silent-classes
         symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-silent.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-silent.mf
+)
+
 jar(pki-silent-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-silent-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-silent.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

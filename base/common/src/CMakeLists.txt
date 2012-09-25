@@ -136,9 +136,18 @@ javac(pki-certsrv-classes
         pki-nsutil pki-cmsutil
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-certsrv.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
+)
+
 jar(pki-certsrv-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-certsrv-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
@@ -187,9 +196,18 @@ javac(pki-cms-classes
         pki-nsutil pki-cmsutil pki-certsrv
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-cms.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-cms.mf
+)
+
 jar(pki-cms-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-cms-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-cms.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
@@ -232,9 +250,18 @@ javac(pki-tomcat-classes
         pki-cms
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-tomcat.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
+)
+
 jar(pki-tomcat-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-tomcat-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
@@ -281,9 +308,18 @@ javac(pki-cmscore-classes
         pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-tomcat
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-cmscore.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-cmscore.mf
+)
+
 jar(pki-cmscore-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-cmscore-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-cmscore.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
@@ -313,9 +349,18 @@ set(PKI_CMSCORE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar CACHE INTERNAL "pki
 
 
 # build pki-cmsbundle
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-cmsbundle.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsbundle.mf
+)
+
 jar(pki-cmsbundle-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsbundle.mf
     FILES
         LogMessages.properties
         UserMessages.properties

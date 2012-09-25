@@ -1,0 +1,2 @@
+Name: pki-cms
+Implementation-Version: ${APPLICATION_VERSION}

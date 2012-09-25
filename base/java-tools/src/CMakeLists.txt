@@ -97,9 +97,18 @@ javac(pki-tools-classes
         pki-nsutil pki-cmsutil pki-certsrv
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-tools.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-tools.mf
+)
+
 jar(pki-tools-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/pki-tools-${APPLICATION_VERSION}.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-tools.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES

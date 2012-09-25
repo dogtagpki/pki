@@ -1,0 +1,2 @@
+Name: pki-tks
+Implementation-Version: ${APPLICATION_VERSION}
