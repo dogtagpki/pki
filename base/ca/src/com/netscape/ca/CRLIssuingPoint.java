@@ -62,6 +62,8 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -1868,7 +1870,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     public void processRevokedCerts(IElementProcessor p)
             throws EBaseException {
-        mCertRepository.processRevokedCerts(p, getFilter(), mPageSize);
+        CertRecProcessor cp = (CertRecProcessor) p;
+        String filter = getFilter();
+
+        // NOTE: dangerous cast.
+        // correct way would be to modify interface and add
+        // accessor but we don't want to touch the interface
+        CertificateRepository cr = (CertificateRepository) mCertRepository;
+
+        synchronized (cr.certStatusUpdateTask) {
+            CMS.debug("Starting processRevokedCerts (entered lock)");
+            ICertRecordList list = mCertRepository.findCertRecordsInList(
+                    filter,
+                    new String[] {
+                            ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass"
+                    },
+                    "serialno",
+                    mPageSize);
+
+            int totalSize = list.getSize();
+
+            list.processCertRecords(0, totalSize - 1, cp);
+            CMS.debug("processRevokedCerts done");
+        }
     }
 
     /**

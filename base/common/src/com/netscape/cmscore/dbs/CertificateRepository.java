@@ -49,7 +49,6 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -86,10 +85,8 @@ public class CertificateRepository extends Repository
     private int mTransitMaxRecords = 1000000;
     private int mTransitRecordPageSize = 200;
 
-    CertStatusUpdateTask certStatusUpdateTask;
-    RetrieveModificationsTask retrieveModificationsTask;
-
-    IRepository requestRepository;
+    public CertStatusUpdateTask certStatusUpdateTask;
+    public RetrieveModificationsTask retrieveModificationsTask;
 
     /**
      * Constructs a certificate repository.
@@ -230,9 +227,6 @@ public class CertificateRepository extends Repository
             boolean listenToCloneModifications) {
 
         CMS.debug("In setCertStatusUpdateInterval " + interval);
-        synchronized (this) {
-            this.requestRepository = requestRepository;
-        }
 
         // stop running tasks
         if (certStatusUpdateTask != null) {
@@ -256,62 +250,31 @@ public class CertificateRepository extends Repository
         }
 
         CMS.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
-        certStatusUpdateTask = new CertStatusUpdateTask(this, interval);
+        certStatusUpdateTask = new CertStatusUpdateTask(this, requestRepository, interval);
         certStatusUpdateTask.start();
     }
 
-    /**
-     * This method blocks when another thread (such as the CRL Update) is running
-     */
-    public synchronized void updateCertStatus() {
+    public void updateCertStatus() throws EBaseException {
 
         CMS.debug("In updateCertStatus()");
 
-        try {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
-            transitInvalidCertificates();
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
+        transitInvalidCertificates();
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
 
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
-            transitValidCertificates();
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
+        transitValidCertificates();
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
 
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
-            transitRevokedExpiredCertificates();
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
-
-            CMS.debug("Starting cert checkRanges");
-            checkRanges();
-            CMS.debug("cert checkRanges done");
-
-            CMS.debug("Starting request checkRanges");
-            requestRepository.checkRanges();
-            CMS.debug("request checkRanges done");
-
-        } catch (Exception e) {
-            CMS.debug("updateCertStatus done: " + e.toString());
-        }
-    }
-
-    public synchronized void processRevokedCerts(IElementProcessor p, String filter, int pageSize)
-            throws EBaseException {
-
-        CMS.debug("Starting processRevokedCerts (entered lock)");
-        ICertRecordList list = findCertRecordsInList(filter,
-                new String[] { ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass" },
-                "serialno",
-                pageSize);
-
-        int totalSize = list.getSize();
-
-        list.processCertRecords(0, totalSize - 1, p);
-        CMS.debug("processRevokedCerts done");
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
+        transitRevokedExpiredCertificates();
+        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 
     /**
@@ -1929,12 +1892,15 @@ public class CertificateRepository extends Repository
 class CertStatusUpdateTask implements Runnable {
 
     CertificateRepository repository;
+    IRepository requestRepository;
+
     int interval;
 
     ScheduledExecutorService executorService;
 
-    public CertStatusUpdateTask(CertificateRepository repository, int interval) {
+    public CertStatusUpdateTask(CertificateRepository repository, IRepository requestRepository, int interval) {
         this.repository = repository;
+        this.requestRepository = requestRepository;
         this.interval = interval;
     }
 
@@ -1949,7 +1915,27 @@ class CertStatusUpdateTask implements Runnable {
     }
 
     public void run() {
+        try {
+            CMS.debug("About to start updateCertStatus");
+            updateCertStatus();
+
+        } catch (EBaseException e) {
+            CMS.debug("updateCertStatus done: " + e.toString());
+        }
+    }
+
+    public synchronized void updateCertStatus() throws EBaseException {
+        CMS.debug("Starting updateCertStatus (entered lock)");
         repository.updateCertStatus();
+        CMS.debug("updateCertStatus done");
+
+        CMS.debug("Starting cert checkRanges");
+        repository.checkRanges();
+        CMS.debug("cert checkRanges done");
+
+        CMS.debug("Starting request checkRanges");
+        requestRepository.checkRanges();
+        CMS.debug("request checkRanges done");
     }
 
     public void stop() {

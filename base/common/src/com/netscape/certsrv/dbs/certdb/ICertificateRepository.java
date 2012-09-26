@@ -28,7 +28,6 @@ import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollection;
@@ -512,17 +511,6 @@ public interface ICertificateRepository extends IRepository {
      * @param endS BigInteger with radix 16
      */
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException;
-
-    /**
-     * Builds a list of revoked certificates to put them into CRL.
-     * Calls certificate record processor to get necessary data
-     * from certificate records.
-     * This also regenerates CRL cache.
-     *
-     * @param cp certificate record processor
-     * @exception EBaseException if an error occurred in the database.
-     */
-    public void processRevokedCerts(IElementProcessor cp, String filter, int pageSize) throws EBaseException;
 
     public void shutdown();
 }
