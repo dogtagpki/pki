@@ -94,6 +94,12 @@ def main(argv):
     # Read and process command-line arguments.
     parse.process_command_line_arguments(argv)
 
+    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +\
+                          "/" + config.pki_subsystem.lower()):
+        print "ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 %\
+            config.pki_subsystem.lower()
+        sys.exit(1)
+
     # Enable 'pkispawn' logging.
     rv = 0
     if not config.pki_update_flag:

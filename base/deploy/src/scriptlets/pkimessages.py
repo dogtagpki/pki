@@ -75,6 +75,7 @@ PKI_SECURITY_DATABASES_ALREADY_EXIST_3 = "Security databases '%s', '%s', "\
                                          "and/or '%s' already exist!"
 PKI_SECURITY_DATABASES_DO_NOT_EXIST_3 = "Security databases '%s', '%s', "\
                                         "and/or '%s' do NOT exist!"
+PKI_SUBSYSTEM_NOT_INSTALLED_1 = "Package pki-%s is NOT installed!"
 PKI_SUBSYSTEM_ALREADY_EXISTS_2 = "PKI subsystem '%s' for instance '%s' "\
                                  "already exists!"
 PKI_SUBSYSTEM_DOES_NOT_EXIST_2 = "PKI subsystem '%s' for instance '%s' "\
