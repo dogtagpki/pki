@@ -63,7 +63,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
     protected IAuthSubsystem mAuthSubsystem = null;
     protected ILogger mLogger = CMS.getLogger();
-    private Hashtable supportedECCurves_ht = null;
+    private Hashtable<String, String> supportedECCurves_ht = null;
 
     /**
      * Constructs GenerateKeyPair servlet.
@@ -93,7 +93,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             curveList = "nistp256,nistp384,nistp521";
         }
 
-        supportedECCurves_ht = new Hashtable();
+        supportedECCurves_ht = new Hashtable<String, String>();
         String[] supportedECCurves = curveList.split(",");
         for ( int i = 0; i < supportedECCurves.length; i++) {
             supportedECCurves_ht.put(supportedECCurves[i], supportedECCurves[i]);
