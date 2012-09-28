@@ -23,22 +23,29 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.SecureRandom;
+import java.security.PublicKey;
 import java.util.Hashtable;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerValue;
+import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
@@ -201,6 +208,17 @@ public class TokenKeyRecoveryService implements IService {
         String iv_s = "";
 
         CMS.debug("KRA services token key recovery request");
+        CryptoManager cm = null;
+        IConfigStore config = null;
+        String tokName = "";
+        Boolean allowEncDecrypt_recovery = false;
+
+        try {
+            config = CMS.getConfigStore();
+            allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+        }
 
         byte[] wrapped_des_key;
 
@@ -408,63 +426,75 @@ public class TokenKeyRecoveryService implements IService {
                 }
             }
 
-            // Unwrap the archived private key
-            byte privateKeyData[] = null;
-            privateKeyData = recoverKey(params, keyRecord);
-            if (privateKeyData == null) {
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                CMS.debug("TokenKeyRecoveryService: failed getting private key");
-                auditMessage = CMS.getLogMessage(
+            byte wrapped[];
+            if (allowEncDecrypt_recovery == true) {
+                // Unwrap the archived private key
+                byte privateKeyData[] = null;
+                privateKeyData = recoverKey(params, keyRecord);
+                if (privateKeyData == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    CMS.debug("TokenKeyRecoveryService: failed getting private key");
+                    auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
                         agentId);
+                    audit(auditMessage);
+                    return false;
+                }
+                CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
 
-                audit(auditMessage);
-                return false;
-            }
-            CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
+                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                request.setExtData("iv_s", iv_s);
 
-            iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
-            request.setExtData("iv_s", iv_s);
+                CMS.debug("request.setExtData: iv_s: " + iv_s);
 
-            CMS.debug("request.setExtData: iv_s: " + iv_s);
-
-            /* LunaSA returns data with padding which we need to remove */
-            ByteArrayInputStream dis = new ByteArrayInputStream(privateKeyData);
-            DerValue dv = new DerValue(dis);
-            byte p[] = dv.toByteArray();
-            int l = p.length;
-            CMS.debug("length different data length=" + l +
+                /* LunaSA returns data with padding which we need to remove */
+                ByteArrayInputStream dis = new ByteArrayInputStream(privateKeyData);
+                DerValue dv = new DerValue(dis);
+                byte p[] = dv.toByteArray();
+                int l = p.length;
+                CMS.debug("length different data length=" + l +
                     " real length=" + privateKeyData.length);
-            if (l != privateKeyData.length) {
-                privateKeyData = p;
-            }
+                if (l != privateKeyData.length) {
+                    privateKeyData = p;
+                }
 
-            if (verifyKeyPair(pubData, privateKeyData) == false) {
-                mKRA.log(ILogger.LL_FAILURE,
+                if (verifyKeyPair(pubData, privateKeyData) == false) {
+                    mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
-                auditMessage = CMS.getLogMessage(
+                    auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
                         agentId);
 
-                audit(auditMessage);
-                throw new EKRAException(
+                    audit(auditMessage);
+                    throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
-            } else {
-                CMS.debug("TokenKeyRecoveryService: private key verified with public key");
-            }
+                } else {
+                    CMS.debug("TokenKeyRecoveryService: private key verified with public key");
+                }
 
-            //encrypt and put in private key
-            cipher.initEncrypt(sk, algParam);
-            byte wrapped[] = cipher.doFinal(privateKeyData);
+                //encrypt and put in private key
+                cipher.initEncrypt(sk, algParam);
+                wrapped = cipher.doFinal(privateKeyData);
+            } else { //allowEncDecrypt_recovery == false
+                PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
+                KeyWrapper wrapper = token.getKeyWrapper(
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+ 
+                wrapper.initWrap(sk, algParam);
+                wrapped = wrapper.wrap(privKey);
+                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                request.setExtData("iv_s", iv_s);
+            }
 
             String wrappedPrivKeyString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+                com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+
             if (wrappedPrivKeyString == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                 CMS.debug("TokenKeyRecoveryService: failed generating wrapped private key");
@@ -578,9 +608,58 @@ public class TokenKeyRecoveryService implements IService {
 
     /**
      * Recovers key.
+     *     - with allowEncDecrypt_archival == false
+     */
+    public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean allowEncDecrypt_archival) 
+        throws EBaseException {
+        CMS.debug( "TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being false");
+        if (allowEncDecrypt_archival) {
+            CMS.debug( "TokenKeyRecoveryService: recoverKey() - allowEncDecrypt_archival needs to be false for this call");
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "recoverKey, allowEncDecrypt_archival needs to be false for this call"));
+        }
+
+        try {
+            /* wrapped retrieve session key and private key */
+            DerValue val = new DerValue(keyRecord.getPrivateKeyData());
+            DerInputStream in = val.data;
+            DerValue dSession = in.getDerValue();
+            byte session[] = dSession.getOctetString();
+            DerValue dPri = in.getDerValue();
+            byte pri[] = dPri.getOctetString();
+
+            byte publicKeyData[] = keyRecord.getPublicKeyData();
+            PublicKey pubkey = null;
+            try {
+                pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
+            } catch (Exception e) {
+                CMS.debug("TokenKeyRecoverService: after parsePublicKey:"+e.toString());
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "pubic key parsing failure"));
+            }
+            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            PrivateKey privKey =
+            mStorageUnit.unwrap(
+                session,
+                keyRecord.getAlgorithm(),
+                iv,
+                pri,
+                (PublicKey) pubkey);
+            if (privKey == null) {
+                CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery failure");
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key recovery/unwrapping failure"));
+            }
+            return privKey;
+
+        } catch (Exception e) {
+            CMS.debug("TokenKeyRecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:"+e.toString());
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "Exception:"+e.toString()));
+        }
+    }
+    /**
+     * Recovers key.
      */
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
+        CMS.debug( "TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being true");
         /*
             Credential creds[] = (Credential[])
                 request.get(ATTR_AGENT_CREDENTIALS);
