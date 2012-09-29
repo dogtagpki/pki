@@ -1233,7 +1233,14 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
 	goto loser;
       } else {
 	RA::Debug(LL_PER_PDU, "RecoverKey", "got public key =%s", tmp);
-	*publicKey_s  = PL_strdup(tmp);
+          char *tmp_publicKey_s  = PL_strdup(tmp);
+          Buffer *decodePubKey = Util::URLDecode(tmp_publicKey_s);
+          *publicKey_s =
+              BTOA_DataToAscii(decodePubKey->getBuf(), decodePubKey->getLen());
+          if (tmp_publicKey_s)
+              PR_Free (tmp_publicKey_s);
+          if (decodePubKey)
+              PR_Free(decodePubKey);
       }
 
       tmp = NULL;
@@ -1251,7 +1258,7 @@ void RA::RecoverKey(RA_Session *session, const char* cuid,
           RA::Error(LL_PER_PDU, "RecoverKey",
               "did not get iv_param for recovered  key in DRM response");
       } else {
-          RA::Debug(LL_PER_PDU, "ServerSideKeyGen", "got iv_param for recovered key =%s", tmp);
+          RA::Debug(LL_PER_PDU, "RecoverKey", "got iv_param for recovered key =%s", tmp);
           *ivParam_s  = PL_strdup(tmp);
       }
 
