@@ -21,7 +21,10 @@ if (APPLICATION_FLAVOR_PKI_CORE)
         add_subdirectory(javadoc)
     endif(WITH_JAVADOC)
 
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/VERSION ${APPLICATION_VERSION})
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
+        ${CMAKE_CURRENT_BINARY_DIR}/VERSION
+    )
 
     install(
         FILES

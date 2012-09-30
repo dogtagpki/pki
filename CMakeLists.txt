@@ -6,9 +6,13 @@ cmake_minimum_required(VERSION 2.6.0)
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
 
-set(APPLICATION_VERSION_MAJOR "10")
-set(APPLICATION_VERSION_MINOR "0")
-set(APPLICATION_VERSION_PATCH "0")
+if (NOT ${VERSION})
+    set(VERSION "10.0.0")
+endif(NOT ${VERSION})
+
+string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
+string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
+string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
 
 option(WITH_JAVADOC "Build with Javadoc" ON)
 

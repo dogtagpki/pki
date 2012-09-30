@@ -1,2 +1,3 @@
 Name: pki-tks
-Implementation-Version: ${APPLICATION_VERSION}
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${VERSION}

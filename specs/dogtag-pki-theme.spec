@@ -7,7 +7,7 @@
 
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}2%{?prerel}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -281,7 +281,11 @@ This package is used by the Dogtag Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_DOGTAG_PKI_THEME:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
+	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -357,6 +361,9 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Modified CMake to use RPM version number
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

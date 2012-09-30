@@ -7,7 +7,7 @@
 
 Name:             pki-tps
 Version:          10.0.0
-Release:          %{?relprefix}7%{?prerel}%{?dist}
+Release:          %{?relprefix}8%{?prerel}%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -134,8 +134,11 @@ chmod +x %{__perl_requires}
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_TPS:BOOL=ON .. \
-    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir}
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_TPS:BOOL=ON \
+	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -280,6 +283,9 @@ fi
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
+- Modified CMake to use RPM version number
+
 * Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
 - Merged pki-setup into pki-server
 

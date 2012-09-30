@@ -7,7 +7,7 @@
 
 Name:             pki-migrate
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}2%{?prerel}%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -57,7 +57,10 @@ hardware platforms as well as earlier versions of this operating system.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_MIGRATE:BOOL=ON ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_MIGRATE:BOOL=ON \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -75,6 +78,9 @@ cd build
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Modified CMake to use RPM version number
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

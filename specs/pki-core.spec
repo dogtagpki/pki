@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}35%{?prerel}%{?dist}
+Release:          %{?relprefix}36%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -641,7 +641,8 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var \
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
@@ -1298,6 +1299,9 @@ fi
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.36.a1
+- Modified CMake to use RPM version number
+
 * Tue Sep 25 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.35.a1
 - Added VERSION file
 

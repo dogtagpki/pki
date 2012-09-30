@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}7%{?prerel}%{?dist}
+Release:          %{?relprefix}8%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -79,7 +79,8 @@ following "Mutually-Exclusive" PKI Theme packages:
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var \
+%cmake -DVERSION=%{version}-%{release} \
+	-DVAR_INSTALL_DIR:PATH=/var \
     -DBUILD_PKI_CONSOLE:BOOL=ON \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     %{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
@@ -101,6 +102,9 @@ cd build
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.8.a1
+- Modified CMake to use RPM version number
+
 * Thu Aug 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.7.a1
 - Added runtime dependency on pki-base
 

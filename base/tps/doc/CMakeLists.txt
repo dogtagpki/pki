@@ -1,5 +1,3 @@
-set(VERSION ${APPLICATION_VERSION})
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CS.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/CS.cfg @ONLY)
 
 install(

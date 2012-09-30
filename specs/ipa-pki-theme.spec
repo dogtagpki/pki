@@ -7,7 +7,7 @@
 
 Name:             ipa-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}2%{?prerel}%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -109,7 +109,9 @@ This package is used by the Certificate System utilized by IPA.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DBUILD_IPA_PKI_THEME:BOOL=ON ..
+%cmake -DVERSION=%{version}-%{release} \
+	-DBUILD_IPA_PKI_THEME:BOOL=ON \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -133,6 +135,9 @@ cd build
 
 
 %changelog
+* Sun Sep 30 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Modified CMake to use RPM version number
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

@@ -148,6 +148,7 @@ else
 	mkdir -p ${PKI_CORE_BASE_DIR}
 	cd ${PKI_BASE_DIR}
 	cp -p ${PKI_BASE_MANIFEST} ${PKI_CORE_BASE_DIR}
+	cp -p VERSION ${PKI_CORE_BASE_DIR}
 	for component in "${PKI_COMPONENT_LIST}" ;
 	do
 		find ${component}             \

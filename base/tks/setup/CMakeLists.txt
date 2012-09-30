@@ -1,5 +1,3 @@
-set(VERSION ${APPLICATION_VERSION})
-
 install(
     FILES
         registry_instance

@@ -1,5 +1,3 @@
-set(VERSION ${APPLICATION_VERSION})
-
 install(
     FILES
         pkidaemon_registry
