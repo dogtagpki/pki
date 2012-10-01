@@ -20,14 +20,12 @@ type pki_tomcat_lock_t;
 files_lock_file(pki_tomcat_lock_t)
 
 require {
-        type pki_tomcat_var_lib_t;
-        type pki_tomcat_t;
-        type pki_tomcat_var_run_t;
-        type pki_tomcat_log_t;
         type systemd_unit_file_t;
+        type setfiles_t;
+        type load_policy_t;
 }
 
-allow pki_tomcat_t self:capability { setuid chown setgid fowner audit_write dac_override sys_nice};
+allow pki_tomcat_t self:capability { setuid chown setgid fowner audit_write dac_override sys_nice fsetid};
 allow pki_tomcat_t self:netlink_audit_socket { nlmsg_relay create };
 
 allow pki_tomcat_t self:key write;
@@ -58,7 +56,7 @@ init_stream_connect_script(pki_tomcat_t)
 # init script checks and fixes links if needed
 allow pki_tomcat_t pki_tomcat_var_lib_t:lnk_file { read getattr setattr };
 allow pki_tomcat_t pki_tomcat_var_run_t:lnk_file { create getattr setattr };
-allow pki_tomcat_t self:capability sys_nice;
+
 allow pki_tomcat_t systemd_unit_file_t:lnk_file { read getattr setattr };
 allow pki_tomcat_t systemd_unit_file_t:dir getattr;
 allow pki_tomcat_t systemd_unit_file_t:file getattr;
@@ -103,6 +101,11 @@ typealias pki_tomcat_var_lib_t alias { pki_ca_var_lib_t pki_kra_var_lib_t pki_oc
 typealias pki_tomcat_var_run_t alias { pki_ca_var_run_t pki_kra_var_run_t pki_ocsp_var_run_t pki_tks_var_run_t };
 typealias pki_tomcat_log_t alias { pki_ca_log_t pki_kra_log_t pki_ocsp_log_t pki_tks_log_t };
 # typealias http_port_t alias { pki_ca_port_t pki_kra_port_t pki_ocsp_port_t pki_tks_port_t };
+
+# install/ uninstall instance
+allow load_policy_t pki_log_t:file write;
+dirsrv_manage_var_lib(pki_tomcat_t)
+allow setfiles_t pki_log_t:file write;
 
 ##########################
 #  TPS policy

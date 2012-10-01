@@ -1,9 +1,10 @@
-/etc/pki/pki-tomcat(/.*)?			gen_context(system_u:object_r:pki_tomcat_etc_rw_t,s0)
+/etc/pki/pki-tomcat(/.*)?		gen_context(system_u:object_r:pki_tomcat_etc_rw_t,s0)
 /var/lib/pki/pki-tomcat(/.*)?       	gen_context(system_u:object_r:pki_tomcat_var_lib_t,s0)
 /var/run/pki/tomcat(/.*)?		gen_context(system_u:object_r:pki_tomcat_var_run_t,s0)
 /var/log/pki/pki-tomcat(/.*)?		gen_context(system_u:object_r:pki_tomcat_log_t,s0)
 /etc/sysconfig/pki/tomcat(/.*)? 	gen_context(system_u:object_r:pki_tomcat_etc_rw_t,s0)
 /var/log/pki                            gen_context(system_u:object_r:pki_log_t,s0)
+/usr/bin/pkidaemon                      gen_context(system_u:object_r:pki_tomcat_exec_t,s0)
 
 /usr/sbin/httpd.worker  --      	gen_context(system_u:object_r:pki_ra_exec_t,s0)
 /etc/pki-ra(/.*)?               	gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)

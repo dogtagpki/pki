@@ -1220,20 +1220,8 @@ start_instance()
             # of the tomcat init script knows which instance specific
             # configuration file to source.
             export SERVICE_NAME=$PKI_INSTANCE_ID
-
-            if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
-                # HACKS:
-                # (1) MUST eventually replace hard-coded 'pki_ca_script_t'
-                #     with programmatic replacement of either
-                #     'pki_tomcat_script_t' or 'pki_apache_script_t', AND
-                # (2) MUST currently be run with SELinux in 'Permissive' mode!
-                /usr/bin/runcon -t pki_tomcat_script_t \
-                    $PKI_INSTANCE_INITSCRIPT start
-                rv=$?
-            else
-                $PKI_INSTANCE_INITSCRIPT start
-                rv=$?
-            fi
+            $PKI_INSTANCE_INITSCRIPT start
+            rv=$?
             ;;
         apache)
             $PKI_INSTANCE_INITSCRIPT start
@@ -1283,36 +1271,6 @@ start_instance()
             return 6
         else
             # 0 success
-
-            # Tomcat instances automatically place pid files under
-            # '/var/run' and lock files under '/var/lock/subsys'.
-            #
-            # However, since PKI subsystem instances can have any name,
-            # in order to identify the PKI subsystem type of a particular
-            # PKI instance, we create a separate "pki subsystem identity"
-            # symlink to the PKI instance pid file and place it under
-            # '/var/run/pki/<pki subsystem>', and a separate
-            # "pki subsystem identity" symlink to the PKI instance
-            # lock file and place it under '/var/lock/pki/<pki subsystem>'.
-            #
-            case $PKI_WEB_SERVER_TYPE in
-                tomcat)
-                    if [ -h ${PKI_PIDFILE} ]; then
-                        rm -f ${PKI_PIDFILE}
-                    fi
-                    if [ -f ${TOMCAT_PIDFILE} ]; then
-                        ln -s ${TOMCAT_PIDFILE} ${PKI_PIDFILE}
-                        chown -h ${TOMCAT_USER}:${TOMCAT_GROUP} ${PKI_PIDFILE}
-                    fi
-                    if [ -h ${PKI_LOCKFILE} ]; then
-                        rm -f ${PKI_LOCKFILE}
-                    fi
-                    if [ -f ${TOMCAT_LOCKFILE} ]; then
-                        ln -s ${TOMCAT_LOCKFILE} ${PKI_LOCKFILE}
-                    fi
-                    ;;
-            esac
-
             return 0
         fi
     fi
@@ -1332,11 +1290,8 @@ stop_instance()
     # that were previously associated with the Tomcat 'pid' and 'lock' files.
     case $PKI_WEB_SERVER_TYPE in
         tomcat)
-            if [ -h ${PKI_PIDFILE} ]; then
+            if [ -f ${PKI_PIDFILE} ]; then
                 rm -f ${PKI_PIDFILE}
-            fi
-            if [ -h ${PKI_LOCKFILE} ]; then
-                rm -f ${PKI_LOCKFILE}
             fi
             ;;
     esac

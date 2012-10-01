@@ -18,6 +18,7 @@ template(`pki_apache_template',`
 		attribute $1_config, $1_var_lib, $1_var_run;
 		attribute $1_executable, $1_script, $1_var_log;
                 type pki_common_t, pki_common_dev_t;
+                type httpd_config_t;
 	')
 	########################################
 	#
@@ -48,12 +49,6 @@ template(`pki_apache_template',`
 	#
 	# $1 local policy
 	#
-
-        # start up httpd in $1_t mode
-        can_exec($1_t, httpd_config_t)
-        allow $1_t httpd_exec_t:file entrypoint;
-        allow $1_t httpd_modules_t:lnk_file read;
-        can_exec($1_t, httpd_suexec_exec_t)
 
         allow $1_t lib_t:file execute_no_trans;
         allow $1_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
@@ -99,11 +94,20 @@ template(`pki_apache_template',`
 
 	miscfiles_read_localization($1_t)
 
-        # apache permissions
-        apache_exec_modules($1_t)
-        apache_list_modules($1_t)
-        apache_read_config($1_t)
-        apache_exec($1_t)
+        optional_policy(`
+            # apache permissions
+            apache_exec_modules($1_t)
+            apache_list_modules($1_t)
+            apache_read_config($1_t)
+            apache_exec($1_t)
+
+            # should be started using a script which will execute httpd
+            # start up httpd in $1_t mode
+            can_exec($1_t, httpd_config_t)
+            allow $1_t httpd_exec_t:file entrypoint;
+            allow $1_t httpd_modules_t:lnk_file read;
+            can_exec($1_t, httpd_suexec_exec_t)
+	')
 
         corecmd_exec_bin($1_t)
         corecmd_exec_shell($1_t)

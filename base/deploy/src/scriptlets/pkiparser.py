@@ -1259,7 +1259,7 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['TOMCAT_LOG_DIR_SLOT'] =\
                 config.pki_master_dict['pki_instance_log_path']
             config.pki_master_dict['TOMCAT_PIDFILE_SLOT'] =\
-                "/var/run/" + config.pki_master_dict['pki_instance_id'] + ".pid"
+                "/var/run/pki/tomcat/" + config.pki_master_dict['pki_instance_id'] + ".pid"
             config.pki_master_dict['TOMCAT_SERVER_PORT_SLOT'] =\
                 config.pki_master_dict['pki_tomcat_server_port']
             config.pki_master_dict['TOMCAT_SSL2_CIPHERS_SLOT'] =\
