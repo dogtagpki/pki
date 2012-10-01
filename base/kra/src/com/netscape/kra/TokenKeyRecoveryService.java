@@ -516,18 +516,18 @@ public class TokenKeyRecoveryService implements IService {
             }
 
             //convert and put in the public key
-            String b64PKey = base64Encode(pubData);
+            String PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(pubData);
 
             auditMessage = CMS.getLogMessage(
                     LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST,
                     auditSubjectID,
                         ILogger.SUCCESS,
                     auditRecoveryID,
-                    b64PKey);
+                    PubKey);
 
             audit(auditMessage);
 
-            if (b64PKey == null) {
+            if (PubKey == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                 CMS.debug("TokenKeyRecoveryService: failed getting publickey encoded");
                 auditMessage = CMS.getLogMessage(
@@ -541,9 +541,9 @@ public class TokenKeyRecoveryService implements IService {
                 return false;
             } else {
                 CMS.debug("TokenKeyRecoveryService: got publicKeyData b64 = " +
-                        b64PKey);
+                        PubKey);
             }
-            request.setExtData("public_key", b64PKey);
+            request.setExtData("public_key", PubKey);
             auditMessage = CMS.getLogMessage(
                     LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                     auditSubjectID,

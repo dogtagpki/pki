@@ -4222,6 +4222,12 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
     int isGenerateandRecover = 0;
     const char *FN="RA_Enroll_Processor::ProcessRecovery";
 
+    bool isECC = false;
+    BYTE algorithm;
+    CERTSubjectPublicKeyInfo*  spkix = NULL;
+    SECKEYECParams  *eccParams = NULL;
+    SECKEYPublicKey *pk_p = NULL;
+
     RA::Debug("RA_Enroll_Processor::ProcessRecovery","entering...");
     // get key version for audit logs
     if (channel != NULL) {
@@ -4240,6 +4246,16 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
         r = false;
         o_status = STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND;
         goto loser;
+    }
+
+    PR_snprintf((char *)configname, 256, "op.enroll.%s.keyGen.encryption.alg", tokenType);
+    //Default RSA_CRT=2
+    algorithm = (BYTE) RA::GetConfigStore()->GetConfigAsInt(configname, 2);
+    isECC = RA::isAlgorithmECC(algorithm);
+    if (isECC) {
+        RA::Debug("RA_Enroll_Processor::ProcessRecovery", "algorithm is ECC");
+    } else {
+        RA::Debug("RA_Enroll_Processor::ProcessRecovery", "algorithm is not ECC");
     }
 
     //We will have to rifle through the configuration to see if there any recovery operations with
@@ -4426,14 +4442,13 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
        
 			RA::Debug("RA_Enroll_Processor::ProcessRecovery", "begin recovery code");
 
-			SECKEYPublicKey *pk_p = NULL;
 			SECItem si_mod;
 			Buffer *modulus=NULL;
 			SECItem *si_kid = NULL;
 			Buffer *keyid=NULL;
 			SECItem si_exp;
 			Buffer *exponent=NULL;
-	CERTSubjectPublicKeyInfo*  spkix = NULL;
+            CERTSubjectPublicKeyInfo*  spki = NULL;
 
                         //Now we have to get the original config params for the encryption cert and keys
 
@@ -4608,7 +4623,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			     goto rloser;
 			  */
 			} else
-			  RA::Debug(LL_PER_PDU, "DoEnrollment", "o_priv = %s", o_priv);
+			  RA::Debug(LL_PER_PDU, "DoEnrollment", "o_priv not NULL");
 
                         if (ivParam == NULL) {
                             RA::Debug(LL_PER_CONNECTION,"RA_Enroll_Processor::ProcessRecovery",
@@ -4628,7 +4643,6 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			 */
 			SECStatus rv;
 			SECItem der;
-			CERTSubjectPublicKeyInfo*  spki;
                
 			der.type = (SECItemType) 0; /* initialize it, since convertAsciiToItem does not set it */
 			rv = ATOB_ConvertAsciiToItem (&der, o_pub);
@@ -4643,7 +4657,6 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			  RA::Debug(LL_PER_PDU, "ProcessRecovery", "item len=%d, item type=%d",der.len, der.type);
 
 			  spki = SECKEY_DecodeDERSubjectPublicKeyInfo(&der);
-			  SECITEM_FreeItem(&der, PR_FALSE);
 
 			  if (spki != NULL) {
 			    RA::Debug("RA_Enroll_Processor::ProcessRecovery", "after converting public key spki is not NULL");
@@ -4656,6 +4669,7 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			    RA::Debug("RA_Enroll_Processor::ProcessRecovery", "after converting public key, spki is NULL");
 
 			}
+			SECITEM_FreeItem(&der, PR_FALSE);
 			SECKEY_DestroySubjectPublicKeyInfo(spki);
 
 			if( pk_p == NULL ) {
@@ -4682,11 +4696,12 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
                           keyVersion != NULL? keyVersion : "",
                           "key recovered successfully");
 
+            if (!isECC) {
+                /* fill in keyid, modulus, and exponent */
 
-			/* fill in keyid, modulus, and exponent */
-
-			si_mod = pk_p->u.rsa.modulus;
-			modulus = new Buffer((BYTE*) si_mod.data, si_mod.len);
+                si_mod = pk_p->u.rsa.modulus;
+                modulus = new Buffer((BYTE*) si_mod.data, si_mod.len);
+            }
 
 			spkix = SECKEY_CreateSubjectPublicKeyInfo(pk_p);
 
@@ -4702,11 +4717,14 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			SECKEY_DestroySubjectPublicKeyInfo(spkix);
 
 			keyid = new Buffer((BYTE*) si_kid->data, si_kid->len);
-			si_exp = pk_p->u.rsa.publicExponent;
-			exponent =  new Buffer((BYTE*) si_exp.data, si_exp.len);
 
-			RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process",
-				  " keyid, modulus and exponent are retrieved");
+            if (!isECC) {
+                si_exp = pk_p->u.rsa.publicExponent;
+                exponent =  new Buffer((BYTE*) si_exp.data, si_exp.len);
+
+                RA::Debug(LL_PER_PDU, "RA_Enroll_Processor::Process",
+                    " keyid, modulus and exponent are retrieved");
+            }
 
                         ktypes[actualCertIndex] = PL_strdup(keyTypeValue);
                         // We now store the token id of the original token
@@ -4836,8 +4854,8 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			  pkcs11objx->AddObjectSpec(objSpec);
 			}
 			{
-			  Buffer b = channel->CreatePKCS11CertAttrsBuffer(
-									  KEY_TYPE_ENCRYPTION , certAttrId, label, keyid);
+              Buffer b = channel->CreatePKCS11CertAttrsBuffer(
+                  KEY_TYPE_ENCRYPTION , certAttrId, label, keyid);
 			  ObjectSpec *objSpec = 
 			    ObjectSpec::ParseFromTokenData(
 							   (certAttrId[0] << 24) +
@@ -4847,9 +4865,18 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			}
 
 			{
-			  Buffer b = channel->CreatePKCS11PriKeyAttrsBuffer(KEY_TYPE_ENCRYPTION, 
-									    privateKeyAttrId, label, keyid, modulus, OP_PREFIX, 
-									    tokenType, keyTypePrefix);
+              Buffer b;
+              if (!isECC) {
+                  b = channel->CreatePKCS11PriKeyAttrsBuffer(KEY_TYPE_ENCRYPTION, 
+                      privateKeyAttrId, label, keyid, modulus, OP_PREFIX, 
+                      tokenType, keyTypePrefix);
+              } else { //isECC
+                  eccParams  =   &pk_p->u.ec.DEREncodedParams;
+                  b = channel->CreatePKCS11ECCPriKeyAttrsBuffer(KEY_TYPE_ENCRYPTION,
+                      privateKeyAttrId, label, keyid, eccParams, OP_PREFIX,
+                      tokenType, keyTypePrefix);
+              }
+
 			  ObjectSpec *objSpec = 
 			    ObjectSpec::ParseFromTokenData(
 							   (privateKeyAttrId[0] << 24) +
@@ -4859,9 +4886,17 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
 			}
 
 			{
-			  Buffer b = channel->CreatePKCS11PubKeyAttrsBuffer(KEY_TYPE_ENCRYPTION, 
-									    publicKeyAttrId, label, keyid, 
-									    exponent, modulus, OP_PREFIX, tokenType, keyTypePrefix);
+              Buffer b;
+              if (!isECC) {
+                  b = channel->CreatePKCS11PubKeyAttrsBuffer(KEY_TYPE_ENCRYPTION, 
+                  publicKeyAttrId, label, keyid, 
+                  exponent, modulus, OP_PREFIX, tokenType, keyTypePrefix);
+             } else {
+                 b = channel->CreatePKCS11ECCPubKeyAttrsBuffer(KEY_TYPE_ENCRYPTION,
+                        publicKeyAttrId, label, keyid,&pk_p->u.ec, eccParams,
+                        OP_PREFIX, tokenType, keyTypePrefix);
+             }
+
 			  ObjectSpec *objSpec = 
 			    ObjectSpec::ParseFromTokenData(
 							   (publicKeyAttrId[0] << 24) +
@@ -4986,8 +5021,11 @@ bool RA_Enroll_Processor::ProcessRecovery(AuthParams *login, char *reason, RA_Se
     if( result != NULL ) {
         ldap_msgfree( result );
     }
+    if (pk_p != NULL) {
+            RA::Debug(LL_PER_CONNECTION,FN,"ProcessRecovery  about to call SECKEY_DestroyPublicKey on pk_p");
+            SECKEY_DestroyPublicKey(pk_p);
+    }
 
-    
      RA::Debug("RA_Enroll_Processor::ProcessRecovery","leaving whole function...");
     return r;
 }
