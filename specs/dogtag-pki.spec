@@ -1,7 +1,7 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .a1
+%global prerel .a2
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
@@ -194,6 +194,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.9.a2
+- Update release to a2
+
 * Mon Sep 24 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a1
 - Merged pki-setup into pki-server
 - Fixed pki-javadoc dependency
