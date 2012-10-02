@@ -1216,6 +1216,13 @@ start_instance()
     case $PKI_WEB_SERVER_TYPE in
         tomcat)
 
+            # Generate catalina.policy dynamically.
+            cat /usr/share/pki/server/conf/catalina.policy \
+                /usr/share/tomcat/conf/catalina.policy \
+                /usr/share/pki/server/conf/pki.policy \
+                /var/lib/pki/$PKI_INSTANCE_ID/conf/custom.policy > \
+                /var/lib/pki/$PKI_INSTANCE_ID/conf/catalina.policy
+
             # We must export the service name so that the systemd version
             # of the tomcat init script knows which instance specific
             # configuration file to source.
