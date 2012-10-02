@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}36%{?prerel}%{?dist}
+Release:          %{?relprefix}37%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -196,6 +196,9 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
+Provides:         pki-common = %{version}-%{release}
+Provides:         pki-util = %{version}-%{release}
+
 Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
@@ -249,6 +252,9 @@ This package is a part of the PKI Core used by the Certificate System.
 Summary:          Certificate System - PKI Tools
 Group:            System Environment/Base
 
+Provides:         pki-native-tools = %{version}-%{release}
+Provides:         pki-java-tools = %{version}-%{release}
+
 Obsoletes:        pki-native-tools < %{version}-%{release}
 Obsoletes:        pki-java-tools < %{version}-%{release}
 
@@ -277,6 +283,9 @@ Summary:          Certificate System - PKI Server Framework
 Group:            System Environment/Base
 
 BuildArch:        noarch
+
+Provides:         pki-deploy = %{version}-%{release}
+Provides:         pki-setup = %{version}-%{release}
 
 Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
@@ -607,6 +616,10 @@ Summary:          Certificate System - PKI Framework Javadocs
 Group:            Documentation
 
 BuildArch:        noarch
+
+Provides:         pki-util-javadoc = %{version}-%{release}
+Provides:         pki-java-tools-javadoc = %{version}-%{release}
+Provides:         pki-common-javadoc = %{version}-%{release}
 
 Obsoletes:        pki-util-javadoc < %{version}-%{release}
 Obsoletes:        pki-java-tools-javadoc < %{version}-%{release}
@@ -1299,6 +1312,9 @@ fi
 
 
 %changelog
+* Tue Oct 2 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.37.a2
+- Added Provides to packages replacing obsolete packages.
+
 * Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.36.a2
 - Update release to a2
 
