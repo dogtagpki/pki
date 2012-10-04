@@ -31,7 +31,7 @@ install(
     DIRECTORY
         shared/
     DESTINATION
-        ${DATA_INSTALL_DIR}/shared/
+        ${DATA_INSTALL_DIR}/server/
     PATTERN
         "lib/*" EXCLUDE
 )

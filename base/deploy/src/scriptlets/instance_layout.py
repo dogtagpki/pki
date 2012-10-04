@@ -46,7 +46,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish Apache/Tomcat specific instance
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish Tomcat instance configuration
-            util.directory.copy(master['pki_source_shared_path'],
+            util.directory.copy(master['pki_source_server_path'],
                                 master['pki_instance_configuration_path'],
                                 overwrite_flag=True)
             # establish Tomcat instance base
@@ -77,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "shared",
+                    "server",
                     "webapps",
                     "ROOT"),
                 master['pki_tomcat_webapps_root_path'],
@@ -185,7 +185,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "shared",
+                    "server",
                     "webapps",
                     "ROOT"),
                 master['pki_tomcat_webapps_root_path'],
@@ -244,7 +244,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # update instance convenience symbolic links
         util.symlink.modify(master['pki_instance_database_link'])
         util.symlink.modify(master['pki_instance_conf_link'])
-        util.directory.copy(master['pki_source_shared_path'],
+        util.directory.copy(master['pki_source_server_path'],
                             master['pki_instance_configuration_path'],
                             overwrite_flag=True)
         util.symlink.modify(master['pki_instance_logs_link'])

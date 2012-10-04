@@ -358,9 +358,9 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_source_setup_path'] =\
             os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
                          "setup")
-        config.pki_master_dict['pki_source_shared_path'] =\
+        config.pki_master_dict['pki_source_server_path'] =\
             os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                         "shared",
+                         "server",
                          "conf")
         config.pki_master_dict['pki_source_cs_cfg'] =\
             os.path.join(config.pki_master_dict['pki_source_conf_path'],
@@ -406,24 +406,20 @@ def compose_pki_master_dictionary():
                              "lib")
             config.pki_master_dict['pki_tomcat_systemd'] =\
                 config.PKI_DEPLOYMENT_TOMCAT_SYSTEMD
-            config.pki_master_dict['pki_shared_webapps_path'] =\
-                os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                             "shared",
-                             "webapps")
             config.pki_master_dict['pki_source_catalina_properties'] =\
-                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                os.path.join(config.pki_master_dict['pki_source_server_path'],
                              "catalina.properties")
             config.pki_master_dict['pki_source_servercertnick_conf'] =\
-                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                os.path.join(config.pki_master_dict['pki_source_server_path'],
                              "serverCertNick.conf")
             config.pki_master_dict['pki_source_server_xml'] =\
-                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                os.path.join(config.pki_master_dict['pki_source_server_path'],
                              "server.xml")
             config.pki_master_dict['pki_source_context_xml'] =\
-                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                os.path.join(config.pki_master_dict['pki_source_server_path'],
                              "context.xml")
             config.pki_master_dict['pki_source_tomcat_conf'] =\
-                os.path.join(config.pki_master_dict['pki_source_shared_path'],
+                os.path.join(config.pki_master_dict['pki_source_server_path'],
                              "tomcat.conf")
             if config.pki_master_dict['pki_subsystem'] == "CA":
                 config.pki_master_dict['pki_source_emails'] =\

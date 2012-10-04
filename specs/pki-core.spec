@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}38%{?prerel}%{?dist}
+Release:          %{?relprefix}39%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -740,7 +740,7 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
-%{__rm} -rf %{buildroot}%{_datadir}/pki/shared/lib
+%{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
 # tomcat6 has changed how TOMCAT_LOG is used.
 # Need to adjust accordingly
@@ -1175,8 +1175,8 @@ fi
 %endif
 
 %{_datadir}/pki/setup/
-%dir %{_datadir}/pki/shared
-%{_datadir}/pki/shared/
+%dir %{_datadir}/pki/server
+%{_datadir}/pki/server/
 
 
 %files -n pki-selinux
@@ -1317,6 +1317,9 @@ fi
 
 
 %changelog
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.39.a2
+- Renamed "shared" folder to "server".
+
 * Fri Oct 5 2012 Ade Lee <alee@redhat.com> 10.0.0-0.38.a2
 - Added required selinux versions for new policy.
 
