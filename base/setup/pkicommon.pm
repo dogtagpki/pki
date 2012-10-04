@@ -3505,6 +3505,8 @@ sub check_selinux_port
     if (defined $selinux_ports{$seport}) {
         if ($selinux_ports{$seport} eq $setype) {
             return $SELINUX_PORT_DEFINED;
+        } elsif ($selinux_ports{$seport} eq "unreserved_port_t") {
+            return $SELINUX_PORT_UNDEFINED;
         } else {
             return $SELINUX_PORT_WRONGLY_DEFINED;
         }

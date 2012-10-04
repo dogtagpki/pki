@@ -355,6 +355,10 @@ sub get_selinux_fcontexts
     if (($pki_instance_name ne $default_instance_name) || ($pki_instance_root ne $default_instance_root)) {
         remove_fcontext($setype . "_var_lib_t", 
             "\"$pki_instance_root/$pki_instance_name(/.*)?\"", "a", $cmd_ref);
+        if (! $java_component) {
+            remove_fcontext($setype . "_exec_t",
+                "\"${pki_instance_root}/{$pki_instance_name}/${pki_instance_name}\"", "a", $cmd_ref);
+        }
     }
 
     # remove context for /var/run/$pki_instance_name.pid

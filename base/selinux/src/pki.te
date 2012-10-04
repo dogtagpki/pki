@@ -76,6 +76,7 @@ logging_send_audit_msgs(pki_tomcat_t)
 logging_send_syslog_msg(pki_tomcat_t)
 
 miscfiles_read_hwdata(pki_tomcat_t)
+files_manage_generic_tmp_files(pki_tomcat_t)
 
 # forward proxy
 # need to define ports to fix this

@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}37%{?prerel}%{?dist}
+Release:          %{?relprefix}38%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -357,6 +357,11 @@ BuildArch:        noarch
 
 Requires:         policycoreutils
 Requires:         selinux-policy-targeted
+%if 0%{?fedora} >= 18
+Requires:         selinux-policy >= 3.11.1.23
+%else
+Requires:         selinux-policy >= 3.10.0-151
+%endif
 
 %description -n   pki-selinux
 Selinux policies for the PKI components.
@@ -1312,6 +1317,9 @@ fi
 
 
 %changelog
+* Fri Oct 5 2012 Ade Lee <alee@redhat.com> 10.0.0-0.38.a2
+- Added required selinux versions for new policy.
+
 * Tue Oct 2 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.37.a2
 - Added Provides to packages replacing obsolete packages.
 

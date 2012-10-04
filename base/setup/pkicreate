@@ -2421,6 +2421,7 @@ sub process_pki_templates
     $slot_hash{$PKI_SUBSYSTEM_DIR_SLOT}    = "";
     $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
     $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
     $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
     $slot_hash{$PKI_INSTANCE_INITSCRIPT}   = $pki_instance_initscript_path;
     $slot_hash{$PKI_REGISTRY_FILE_SLOT}    = $pki_registry_instance_file_path;
@@ -2489,7 +2490,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$INSTALL_TIME}              = localtime;
         $slot_hash{$PKI_CERT_DB_PASSWORD_SLOT} = $db_password;
         $slot_hash{$PKI_CFG_PATH_NAME_SLOT}    = $pki_cfg_instance_file_path;
-        $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
         $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
@@ -3168,6 +3168,12 @@ sub process_pki_selinux_setup
         add_selinux_file_context($setype . "_var_lib_t", 
                                  "\"${pki_instance_root}/${pki_instance_name}(/.*)?\"", 
                                  "a", \$semanage_cmds);
+
+        if (!$java_component) {
+            add_selinux_file_context($setype . "_exec_t",
+                                 "\"${pki_instance_root}/${pki_instance_name}/${pki_instance_name}\"",
+                                 "a", \$semanage_cmds);
+        }
     }
     push(@restorecon_cmds, "$restorecon -F -R $pki_instance_root/$pki_instance_name");
 
@@ -3213,10 +3219,6 @@ sub process_pki_selinux_setup
         push(@restorecon_cmds, "$restorecon -F -R $conf_path");
     }
     
-    if (! $java_component) {
-        push(@restorecon_cmds, "$restorecon -F -R /usr/sbin/httpd.worker");
-    }    
-
     # add ports
     parse_selinux_ports();
     if ($secure_port != -1) {

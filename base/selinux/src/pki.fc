@@ -6,18 +6,19 @@
 /var/log/pki                            gen_context(system_u:object_r:pki_log_t,s0)
 /usr/bin/pkidaemon                      gen_context(system_u:object_r:pki_tomcat_exec_t,s0)
 
-/usr/sbin/httpd.worker  --      	gen_context(system_u:object_r:pki_ra_exec_t,s0)
 /etc/pki-ra(/.*)?               	gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
 /var/lib/pki-ra(/.*)?           	gen_context(system_u:object_r:pki_ra_var_lib_t,s0)
 /var/log/pki-ra(/.*)?           	gen_context(system_u:object_r:pki_ra_log_t,s0)
 /var/run/pki/ra(/.*)? 	        	gen_context(system_u:object_r:pki_ra_var_run_t,s0)
 /etc/sysconfig/pki/ra(/.*)?		gen_context(system_u:object_r:pki_ra_etc_rw_t,s0)
+/var/lib/pki-ra/pki-ra                  gen_context(system_u:object_r:pki_ra_exec_t,s0)
 
 /etc/pki-tps(/.*)?              	gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
 /var/lib/pki-tps(/.*)?          	gen_context(system_u:object_r:pki_tps_var_lib_t,s0)
 /var/log/pki-tps(/.*)?          	gen_context(system_u:object_r:pki_tps_log_t,s0)
 /var/run/pki/tps(/.*)? 	        	gen_context(system_u:object_r:pki_tps_var_run_t,s0)
 /etc/sysconfig/pki/tps(/.*)?		gen_context(system_u:object_r:pki_tps_etc_rw_t,s0)
+/var/lib/pki-tps/pki-tps                gen_context(system_u:object_r:pki_tps_exec_t,s0)
 
 # default labeling for nCipher
 /opt/nfast/scripts/init.d/(.*)  	gen_context(system_u:object_r:initrc_exec_t, s0)

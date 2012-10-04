@@ -51,7 +51,7 @@ template(`pki_apache_template',`
 	#
 
         allow $1_t lib_t:file execute_no_trans;
-        allow $1_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
+        allow $1_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill chown};
         allow $1_t self:process { setsched signal getsched  signull execstack execmem sigkill};
         allow $1_t self:sem all_sem_perms;
         allow $1_t self:tcp_socket create_stream_socket_perms;
@@ -87,10 +87,21 @@ template(`pki_apache_template',`
 	manage_files_pattern($1_t, $1_log_t,  $1_log_t)
 	logging_log_filetrans($1_t, $1_log_t, { file dir } )
 
+        # lock files
+        files_create_lock_dirs($1_t)
+        files_manage_generic_locks($1_t)
+        files_delete_generic_locks($1_t)
+        files_rw_lock_dirs($1_t)
+
+        seutil_exec_setfiles($1_t)
+
 	init_dontaudit_write_utmp($1_t)
 
 	libs_use_ld_so($1_t)
 	libs_use_shared_libs($1_t)
+        libs_exec_ld_so($1_t)
+
+        fs_search_cgroup_dirs($1_t)
 
 	miscfiles_read_localization($1_t)
 
@@ -148,6 +159,11 @@ template(`pki_apache_template',`
 
         sysnet_read_config($1_t)
         dev_read_urand($1_t)
+        dev_read_rand($1_t)
+
+        # shutdown script uses ps
+        domain_dontaudit_read_all_domains_state($1_t)
+        ps_process_pattern($1_t, $1_t)
 
 	ifdef(`targeted_policy',`
 		term_dontaudit_use_unallocated_ttys($1_t)
