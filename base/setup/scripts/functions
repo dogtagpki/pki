@@ -974,7 +974,9 @@ verify_symlinks()
         [velocity.jar]=/usr/share/java/velocity.jar
         [xerces-j2.jar]=/usr/share/java/xerces-j2.jar
         [xml-commons-apis.jar]=/usr/share/java/xml-commons-apis.jar
-        [xml-commons-resolver.jar]=/usr/share/java/xml-commons-resolver.jar)
+        [xml-commons-resolver.jar]=/usr/share/java/xml-commons-resolver.jar
+        # dogtag 9 -> dogtag 10
+        [resteasy-jaxrs.jar]=/usr/share/java/resteasy/resteasy-jaxrs.jar)
 
     if [ "${PKI_SUBSYSTEM_TYPE}" == "tks"  ]; then
         webapps_jar_symlinks[symkey.jar]=${jni_dir}/symkey.jar
