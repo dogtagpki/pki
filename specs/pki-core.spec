@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}39%{?prerel}%{?dist}
+Release:          %{?relprefix}40%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -137,7 +137,6 @@ Certificate System instances consisting of the following components:   \
                                                                        \
   * pki-tools                                                          \
   * pki-selinux                                                        \
-  * pki-silent (required for IPA deployments; optional otherwise)      \
                                                                        \
 Additionally, PKI Core contains the following fundamental packages     \
 required ONLY by ALL java-based Tomcat Certificate System instances:   \
@@ -286,10 +285,13 @@ BuildArch:        noarch
 
 Provides:         pki-deploy = %{version}-%{release}
 Provides:         pki-setup = %{version}-%{release}
+Provides:         pki-silent = %{version}-%{release}
 
 Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
+Obsoletes:        pki-silent < %{version}-%{release}
 
+Requires:         java >= 1:1.6.0
 Requires:         perl(File::Slurp)
 Requires:         perl(XML::LibXML)
 Requires:         perl-Crypt-SSLeay
@@ -586,32 +588,6 @@ behind the firewall with restricted access.
 
 This package is one of the top-level java-based Tomcat PKI subsystems
 provided by the PKI Core used by the Certificate System.
-
-%{overview}
-
-
-%package -n       pki-silent
-Summary:          Certificate System - Silent Installer
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         java >= 1:1.6.0
-Requires:         pki-server = %{version}-%{release}
-
-%description -n   pki-silent
-The PKI Silent Installer may be used to "automatically" configure
-the following PKI subsystems in a non-graphical (batch) fashion
-including:
-
-    the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager,
-    the Registration Authority (RA),
-    the Token Key Service (TKS), and/or
-    the Token Processing System (TPS).
-
-This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
@@ -1146,6 +1122,8 @@ fi
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
+%{_javadir}/pki/pki-silent-%{version}.jar
+%{_javadir}/pki/pki-silent.jar
 %{_javadir}/pki/pki-tomcat-%{version}.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_localstatedir}/lock/pki/tomcat
@@ -1153,16 +1131,17 @@ fi
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
+%{_bindir}/pkisilent
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/pkicommon.pm
 %{_datadir}/pki/scripts/functions
 %{_datadir}/pki/scripts/pki_apache_initscript
+%{_datadir}/pki/silent/
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
 %if 0%{?fedora} >= 16
 %{_bindir}/pkicontrol
 %endif
-
 
 
 %if 0%{?fedora} >= 15
@@ -1300,15 +1279,6 @@ fi
 %endif
 
 
-%files -n pki-silent
-%defattr(-,root,root,-)
-%doc base/silent/LICENSE
-%{_bindir}/pkisilent
-%{_javadir}/pki/pki-silent-%{version}.jar
-%{_javadir}/pki/pki-silent.jar
-%{_datadir}/pki/silent/
-
-
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-javadoc
 %defattr(-,root,root,-)
@@ -1317,6 +1287,9 @@ fi
 
 
 %changelog
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.40.a2
+- Merged pki-silent into pki-server.
+
 * Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.39.a2
 - Renamed "shared" folder to "server".
 

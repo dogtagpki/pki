@@ -22,15 +22,14 @@ if	[ "${subca_silent_script}" = "subca_silent.template" ] ; then
 	printf "        (3) Use 'pkicreate' to install a second CA subsystem\n"
 	printf "            instance (this will become a Subordinate CA).\n"
 	printf "            [Do NOT configure this CA subsystem instance!]\n\n"
-	printf "        (4) Install the 'pki-silent' package.\n\n"
-	printf "        (5) Copy '$0' to a new script name\n"
+	printf "        (4) Copy '$0' to a new script name\n"
 	printf "            without the '.template' extension.\n"
 	printf "            (e .g. - 'configure_subca_instance')\n\n"
-	printf "        (6) Fill in all MANDATORY user-defined variables\n"
+	printf "        (5) Fill in all MANDATORY user-defined variables\n"
 	printf "            in the new script.\n\n"
-	printf "        (7) Change any OPTIONAL user-defined variables\n"
+	printf "        (6) Change any OPTIONAL user-defined variables\n"
 	printf "            in the new script as desired.\n\n"
-	printf "        (8) Become the 'root' user, and execute the new script to\n"
+	printf "        (7) Become the 'root' user, and execute the new script to\n"
 	printf "            configure a Subordinate CA subsystem instance.\n\n"
 	exit 255
 fi
@@ -391,7 +390,7 @@ fi
 ## (3) Make certain that 'pkisilent' exists and is executable on this system.
 if [ ! -x "/usr/bin/pkisilent" ] ; then
 	printf "\n"
-	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "ERROR:  Please install the 'pki-server' package and re-run\n"
 	printf "the '$0' script!\n\n"
 	exit 255
 fi

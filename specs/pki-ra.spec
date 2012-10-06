@@ -7,7 +7,7 @@
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}8%{?prerel}%{?dist}
+Release:          %{?relprefix}9%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -67,11 +67,6 @@ Core package:
   * pki-server
   * pki-tools
   * pki-selinux
-
-and can also make use of the following optional components from the PKI Core
-package:
-
-  * pki-silent
 
 Additionally, Certificate System requires ONE AND ONLY ONE of the following
 "Mutually-Exclusive" PKI Theme packages:
@@ -248,6 +243,9 @@ fi
 
 
 %changelog
+* Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a2
+- Merged pki-silent into pki-server.
+
 * Mon Oct 1 2012 Ade Lee <alee@redhat.com> 10.0.0-0.8.a2
 - Update release to a2
 

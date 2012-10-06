@@ -19,15 +19,14 @@ if	[ "${pki_silent_script}" = "pki_silent.template" ] ; then
 	printf "Usage:  (1) Install AND configure a directory server instance.\n\n"
 	printf "        (2) Install, but do NOT configure ALL six\n"
 	printf "            'default' PKI subsystem instances.\n\n"
-	printf "        (3) Install the 'pki-silent' package.\n\n"
-	printf "        (4) Copy '$0' to a new script name\n"
+	printf "        (3) Copy '$0' to a new script name\n"
 	printf "            without the '.template' extension.\n"
 	printf "            (e .g. - 'configure_default_pki_instances')\n\n"
-	printf "        (5) Fill in all MANDATORY user-defined variables\n"
+	printf "        (4) Fill in all MANDATORY user-defined variables\n"
 	printf "            in the new script.\n\n"
-	printf "        (6) Change any OPTIONAL user-defined variables\n"
+	printf "        (5) Change any OPTIONAL user-defined variables\n"
 	printf "            in the new script as desired.\n\n"
-	printf "        (7) Become the 'root' user, and execute the new script to\n"
+	printf "        (6) Become the 'root' user, and execute the new script to\n"
 	printf "            configure ALL six 'default' PKI subsystem instances.\n\n"
 	exit 255
 fi
@@ -971,7 +970,7 @@ fi
 ## (3) Make certain that 'pkisilent' exists and is executable on this system.
 if [ ! -x "/usr/bin/pkisilent" ] ; then
 	printf "\n"
-	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "ERROR:  Please install the 'pki-server' package and re-run\n"
 	printf "the '$0' script!\n\n"
 	exit 255
 fi
