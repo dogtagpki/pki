@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.core.Application;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
@@ -21,6 +22,10 @@ public class KeyRecoveryAuthorityApplication extends Application {
     private Set<Class<?>> classes = new HashSet<Class<?>>();
 
     public KeyRecoveryAuthorityApplication() {
+
+        // account
+        classes.add(AccountService.class);
+
         // installer
         classes.add(SystemConfigService.class);
 

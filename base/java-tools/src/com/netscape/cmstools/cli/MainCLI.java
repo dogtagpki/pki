@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.cert.CertCLI;
@@ -45,6 +46,7 @@ public class MainCLI extends CLI {
     public ClientConfig config = new ClientConfig();
 
     public PKIConnection connection;
+    public AccountClient accountClient;
 
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
@@ -167,6 +169,8 @@ public class MainCLI extends CLI {
     public void connect() throws Exception {
         connection = new PKIConnection(config);
         connection.setVerbose(verbose);
+
+        accountClient = new AccountClient(connection);
     }
 
     public void execute(String[] args) throws Exception {
@@ -253,13 +257,12 @@ public class MainCLI extends CLI {
             return;
         }
 
-        // execute module command
-        try {
-            if (verbose) System.out.println("Server URI: "+config.getServerURI());
+        if (verbose) System.out.println("Server URI: "+config.getServerURI());
 
-            // initialize certificate database if specified
-            if (config.getCertDatabase() != null) {
+        // initialize certificate database if specified
+        if (config.getCertDatabase() != null) {
 
+            try {
                 if (verbose) System.out.println("Certificate database: "+config.getCertDatabase());
                 CryptoManager.initialize(config.getCertDatabase());
 
@@ -274,9 +277,27 @@ public class MainCLI extends CLI {
                         throw new Error("Incorrect certificate database password.", e);
                     }
                 }
-            }
 
+            } catch (Throwable t) {
+                if (verbose) {
+                    t.printStackTrace(System.err);
+                } else {
+                    System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
+                }
+                System.exit(1);
+            }
+        }
+
+        // execute command
+        boolean loggedIn = false;
+        try {
             connect();
+
+            // login
+            if (config.getCertDatabase() != null || config.getUsername() != null) {
+                accountClient.login();
+                loggedIn = true;
+            }
 
             // execute module command
             module.execute(moduleArgs);
@@ -288,6 +309,9 @@ public class MainCLI extends CLI {
                 System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
             }
             System.exit(1);
+
+        } finally {
+            if (loggedIn) accountClient.logout();
         }
     }
 

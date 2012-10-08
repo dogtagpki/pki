@@ -51,6 +51,7 @@ resourceACLS: certServer.ca.connectorInfo:read,modify:allow (modify,read) group=
 resourceACLS: certServer.ca.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to register a new agent
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.admin.ocsp:read,modify:allow (modify,read) group="Enterprise OCSP Administrators":Only Enterprise Administrators are allowed to read or update the OCSP configuration.
+resourceACLS: certServer.ca.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.ca.certs:execute:allow (execute) group="Certificate Manager Agents":Agents may execute cert operations
 resourceACLS: certServer.ca.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
 resourceACLS: certServer.ca.users:execute:allow (execute) group="Administrators":Admins may execute user operations

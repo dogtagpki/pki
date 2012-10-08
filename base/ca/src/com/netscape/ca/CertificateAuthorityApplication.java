@@ -9,6 +9,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
@@ -25,6 +26,10 @@ public class CertificateAuthorityApplication extends Application {
     private Set<Class<?>> classes = new HashSet<Class<?>>();
 
     public CertificateAuthorityApplication() {
+
+        // account
+        classes.add(AccountService.class);
+
         // installer
         classes.add(SystemConfigService.class);
 
