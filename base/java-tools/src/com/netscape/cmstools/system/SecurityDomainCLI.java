@@ -65,7 +65,6 @@ public class SecurityDomainCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = new SecurityDomainClient(parent.config);
-        client.setVerbose(verbose);
 
         if (args.length == 0) {
             printHelp();

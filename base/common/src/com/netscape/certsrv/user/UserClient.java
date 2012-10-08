@@ -23,6 +23,7 @@ import org.jboss.resteasy.client.ClientResponse;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 
 /**
  * @author Endi S. Dewata
@@ -32,9 +33,17 @@ public class UserClient extends PKIClient {
     public UserResource userClient;
     public UserCertResource userCertClient;
 
+    public UserClient(PKIConnection connection) throws URISyntaxException {
+        super(connection);
+        init();
+    }
+
     public UserClient(ClientConfig config) throws URISyntaxException {
         super(config);
+        init();
+    }
 
+    public void init() throws URISyntaxException {
         userClient = createProxy(UserResource.class);
         userCertClient = createProxy(UserCertResource.class);
     }

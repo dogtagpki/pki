@@ -139,7 +139,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
-import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -205,15 +205,15 @@ public class ConfigurationUtils {
     public static ClientResponse<String> getClientResponse(String hostname, int port, boolean secure,
             String path, String content, String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
-            throws URISyntaxException {
+            throws Exception {
 
         String protocol = secure ? "https" : "http";
         ClientConfig config = new ClientConfig();
         config.setServerURI(protocol + "://" + hostname + ":" + port + path);
         config.setCertNickname(clientnickname);
 
-        PKIClient client = new PKIClient(config);
-        ClientResponse<String> response = client.post(content);
+        PKIConnection connection = new PKIConnection(config);
+        ClientResponse<String> response = connection.post(content);
 
         return response;
     }
@@ -311,8 +311,7 @@ public class ConfigurationUtils {
         }
     }
 
-    public static String getInstallToken(String sdhost, int sdport, String user, String passwd)
-            throws EPropertyNotFound, EBaseException, URISyntaxException, IOException {
+    public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
         IConfigStore cs = CMS.getConfigStore();
         boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", true);
 
@@ -343,8 +342,7 @@ public class ConfigurationUtils {
         }
     }
 
-    public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws IOException,
-            EPropertyNotFound, EBaseException, URISyntaxException {
+    public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
         IConfigStore cs = CMS.getConfigStore();
 
         String subca_url = "https://" + CMS.getEEHost() + ":"

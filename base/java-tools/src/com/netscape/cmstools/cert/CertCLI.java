@@ -76,8 +76,7 @@ public class CertCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new CertClient(parent.config);
-        client.setVerbose(verbose);
+        client = new CertClient(parent.connection);
 
         if (args.length == 0) {
             printHelp();

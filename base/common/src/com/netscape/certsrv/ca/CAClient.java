@@ -31,6 +31,7 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -43,9 +44,17 @@ public class CAClient extends PKIClient {
     private CertRequestResource certRequestClient;
     private ProfileResource profileClient;
 
+    public CAClient(PKIConnection connection) throws URISyntaxException {
+        super(connection);
+        init();
+    }
+
     public CAClient(ClientConfig config) throws URISyntaxException {
         super(config);
+        init();
+    }
 
+    public void init() throws URISyntaxException {
         certRequestClient = createProxy(CertRequestResource.class);
         certClient = createProxy(CertResource.class);
         profileClient = createProxy(ProfileResource.class);

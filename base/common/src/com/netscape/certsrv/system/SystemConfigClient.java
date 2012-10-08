@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 
 
 /**
@@ -31,9 +32,17 @@ public class SystemConfigClient extends PKIClient {
 
     private SystemConfigResource configClient;
 
+    public SystemConfigClient(PKIConnection connection) throws URISyntaxException {
+        super(connection);
+        init();
+    }
+
     public SystemConfigClient(ClientConfig config) throws URISyntaxException {
         super(config);
+        init();
+    }
 
+    public void init() throws URISyntaxException {
         configClient = createProxy(SystemConfigResource.class);
     }
 

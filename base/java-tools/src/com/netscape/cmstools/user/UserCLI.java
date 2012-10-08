@@ -76,8 +76,7 @@ public class UserCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new UserClient(parent.config);
-        client.setVerbose(verbose);
+        client = new UserClient(parent.connection);
 
         if (args.length == 0) {
             printHelp();

@@ -31,6 +31,7 @@ import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
@@ -42,6 +43,8 @@ import com.netscape.cmstools.user.UserCLI;
 public class MainCLI extends CLI {
 
     public ClientConfig config = new ClientConfig();
+
+    public PKIConnection connection;
 
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
@@ -161,6 +164,11 @@ public class MainCLI extends CLI {
             config.setPassword(password);
     }
 
+    public void connect() throws Exception {
+        connection = new PKIConnection(config);
+        connection.setVerbose(verbose);
+    }
+
     public void execute(String[] args) throws Exception {
 
         CLI module;
@@ -267,6 +275,8 @@ public class MainCLI extends CLI {
                     }
                 }
             }
+
+            connect();
 
             // execute module command
             module.execute(moduleArgs);

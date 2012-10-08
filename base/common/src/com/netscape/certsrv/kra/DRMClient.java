@@ -9,6 +9,7 @@ import org.jboss.resteasy.client.ClientResponse;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
@@ -29,9 +30,17 @@ public class DRMClient  extends PKIClient {
     private KeyRequestResource keyRequestClient;
     private SystemCertResource systemCertClient;
 
+    public DRMClient(PKIConnection connection) throws URISyntaxException {
+        super(connection);
+        init();
+    }
+
     public DRMClient(ClientConfig config) throws URISyntaxException {
         super(config);
+        init();
+    }
 
+    public void init() throws URISyntaxException {
         systemCertClient = createProxy(SystemCertResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
         keyClient = createProxy(KeyResource.class);

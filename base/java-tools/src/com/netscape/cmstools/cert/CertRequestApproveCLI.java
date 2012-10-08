@@ -1,16 +1,13 @@
 package com.netscape.cmstools.cert;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -24,7 +21,7 @@ public class CertRequestApproveCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
         CommandLine cmd = null;
 
         try {
@@ -42,23 +39,15 @@ public class CertRequestApproveCLI extends CLI {
             printHelp();
             System.exit(-1);
         }
-        CertReviewResponse reviewInfo = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            FileInputStream fis = new FileInputStream(cLineArgs[0].trim());
-            reviewInfo = (CertReviewResponse) unmarshaller.unmarshal(fis);
-            parent.client.approveRequest(reviewInfo.getRequestId(), reviewInfo);
-        } catch (PKIException e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
-        } catch (JAXBException e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(-1);
-        } catch (FileNotFoundException e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(-1);
-        }
+
+        FileInputStream fis = new FileInputStream(cLineArgs[0].trim());
+
+        JAXBContext context = JAXBContext.newInstance(CertReviewResponse.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        CertReviewResponse reviewInfo = (CertReviewResponse) unmarshaller.unmarshal(fis);
+
+        parent.client.approveRequest(reviewInfo.getRequestId(), reviewInfo);
+
         MainCLI.printMessage("Approved certificate request " + reviewInfo.getRequestId().toString());
     }
 
