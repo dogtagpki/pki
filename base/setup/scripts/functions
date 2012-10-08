@@ -1116,6 +1116,9 @@ update_cs_cfg_for_dogtag_10()
         processor.caProfileSubmit.authzResourceName=certServer.ee.profile
         processor.caProfileSubmit.getClientCert=false)
 
+    #  back up CS.cfg
+    cp ${pki_instance_configuration_file} ${pki_instance_configuration_file}.pre_dogtag_10_update
+
     # Append ANY missing Dogtag 10 CFG parameter to the end of the 'CS.cfg'
     for key in "${!dogtag_10_cs_cfg_parameters[@]}"
     do
