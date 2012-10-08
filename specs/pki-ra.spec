@@ -1,7 +1,7 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .a2
+%global prerel .b1
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.9.b1
+- Update release to b1
+
 * Fri Oct 5 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.a2
 - Merged pki-silent into pki-server.
 
