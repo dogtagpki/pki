@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}42%{?prerel}%{?dist}
+Release:          %{?relprefix}43%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -40,7 +40,7 @@ BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 %if 0%{?fedora} >= 18
-BuildRequires:         selinux-policy-devel >= 3.11.1-23
+BuildRequires:         selinux-policy-devel >= 3.11.1-32
 %else
 BuildRequires:         selinux-policy-devel >= 3.10.0-151
 %endif
@@ -364,7 +364,7 @@ BuildArch:        noarch
 Requires:         policycoreutils
 Requires:         selinux-policy-targeted
 %if 0%{?fedora} >= 18
-Requires:         selinux-policy >= 3.11.1-23
+Requires:         selinux-policy >= 3.11.1-32
 %else
 Requires:         selinux-policy >= 3.10.0-151
 %endif
@@ -1291,6 +1291,9 @@ fi
 
 
 %changelog
+* Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.43.b1
+- Update selinux-policy version to fix error from latest policy changes
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.42.b1
 - Fix typo in selinux policy versions
 
