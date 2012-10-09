@@ -18,7 +18,6 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.realm.RealmBase;
 
 import com.netscape.certsrv.apps.CMS;
@@ -48,7 +47,6 @@ public class PKIRealm extends RealmBase {
     public final static String PROP_AUTH_FILE_PATH = "/WEB-INF/auth.properties";
     public final static int EXPRESSION_SIZE = 2;
 
-    ThreadLocal<IAuthToken> authToken = new ThreadLocal<IAuthToken>();
     Properties authzProperties;
 
     public PKIRealm() {
@@ -84,10 +82,9 @@ public class PKIRealm extends RealmBase {
             creds.set(PasswdUserDBAuthentication.CRED_UID, username);
             creds.set(PasswdUserDBAuthentication.CRED_PWD, password);
 
-            IAuthToken token = authMgr.authenticate(creds); // throws exception if authentication fails
-            authToken.set(token);
+            IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
 
-            return getPrincipal(username);
+            return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -116,13 +113,12 @@ public class PKIRealm extends RealmBase {
             AuthCredentials creds = new AuthCredentials();
             creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
 
-            IAuthToken token = authMgr.authenticate(creds); // throws exception if authentication fails
-            authToken.set(token);
+            IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
 
-            String username = token.getInString(CertUserDBAuthentication.TOKEN_USERID);
+            String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
             logDebug("User ID: "+username);
 
-            return getPrincipal(username);
+            return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -133,9 +129,14 @@ public class PKIRealm extends RealmBase {
 
     @Override
     protected Principal getPrincipal(String username) {
+        return getPrincipal(username, (IAuthToken)null);
+    }
+
+    protected Principal getPrincipal(String username, IAuthToken authToken) {
+
         try {
             IUser user = getUser(username);
-            return getPrincipal(user);
+            return getPrincipal(user, authToken);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -143,9 +144,9 @@ public class PKIRealm extends RealmBase {
         }
     }
 
-    protected Principal getPrincipal(IUser user) throws EUsrGrpException {
+    protected Principal getPrincipal(IUser user, IAuthToken authToken) throws EUsrGrpException {
         List<String> roles = getRoles(user);
-        return new GenericPrincipal(user.getUserID(), null, roles);
+        return new PKIPrincipal(user.getUserID(), null, roles, authToken);
     }
 
     protected IUser getUser(String username) throws EUsrGrpException {
@@ -249,22 +250,26 @@ public class PKIRealm extends RealmBase {
                 }
             }
 
-            IAuthzSubsystem mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-            IAuthToken token = authToken.get();
+            Principal principal = request.getUserPrincipal();
+            if (principal instanceof PKIPrincipal) {
+                PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
+                IAuthToken authToken = pkiPrincipal.getAuthToken();
 
-            logDebug("Auth token:");
-            Enumeration<String> names = token.getElements();
-            while (names.hasMoreElements()) {
-                String name = names.nextElement();
-                Object value = token.get(name);
-                logDebug("  " + name +": " + value);
+                logDebug("Auth token:");
+                Enumeration<String> names = authToken.getElements();
+                while (names.hasMoreElements()) {
+                    String name = names.nextElement();
+                    Object value = authToken.get(name);
+                    logDebug("  " + name +": " + value);
+                }
+
+                logDebug("Resource: " + resource);
+                logDebug("Operation: " + operation);
+
+                IAuthzSubsystem mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+                AuthzToken authzToken = mAuthz.authorize("DirAclAuthz", authToken, resource, operation);
+                if (authzToken != null) return true;
             }
-
-            logDebug("Resource: " + resource);
-            logDebug("Operation: " + operation);
-
-            AuthzToken authzToken = mAuthz.authorize("DirAclAuthz", token, resource, operation);
-            if (authzToken != null) return true;
 
         } catch (Throwable e) {
             e.printStackTrace();
