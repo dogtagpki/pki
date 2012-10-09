@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.CMSRequestInfo;
 
-@XmlRootElement(name = "SecurityDataRequestInfo")
+@XmlRootElement(name = "KeyRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyRequestInfo extends CMSRequestInfo {
 

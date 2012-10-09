@@ -117,7 +117,7 @@ def parse_key_request_infos_xml(doc):
     +----------------------+------------------------+-----------------------+---------------+
     |prev                  |Link                    |prev_id                |unicode  [1]   |
     +----------------------+------------------------+-----------------------+---------------+
-    |info for each request |SecurityDataRequestInfo |request_id [2]         |dict           |
+    |info for each request |KeyRequestInfo          |request_id [2]         |dict           |
     +----------------------+------------------------+-----------------------+---------------+
     
     [1] prev_id and next_id are the starting ids for the previous and next pages 
@@ -142,7 +142,7 @@ def parse_key_request_infos_xml(doc):
         prev_link = prev_link.rsplit('/', 1)[1]
         response['prev_id'] = prev_link
     
-    key_request_infos = doc.xpath('//SecurityDataRequestInfo')
+    key_request_infos = doc.xpath('//KeyRequestInfo')
     for key_request in key_request_infos:
         node = parse_key_request_info_xml(key_request)
         response[node['request_id']] = node
@@ -181,7 +181,7 @@ def parse_key_data_info_xml(doc):
         key_url = etree.tostring(key_url[0], method='text',
                                            encoding=unicode).strip()
         response['key_url'] = key_url
-           
+
     return response
 
 def parse_key_data_infos_xml(doc):
@@ -202,7 +202,7 @@ def parse_key_data_infos_xml(doc):
     +----------------------+-----------------+-----------------------+---------------+
     |prev                  |Link             |prev_id                |unicode  [1]   |
     +----------------------+-----------------+-----------------------+---------------+
-    |info for each key     |SecurityDataInfo |key_id [2]             |dict           |
+    |info for each key     |KeyDataInfo      |key_id [2]             |dict           |
     +----------------------+-----------------+-----------------------+---------------+
     
     [1] prev_id and next_id are the starting ids for the previous and next pages 
@@ -228,7 +228,7 @@ def parse_key_data_infos_xml(doc):
         prev_link = prev_link.rsplit('/', 1)[1]
         response['prev_id'] = prev_link
     
-    key_data_infos = doc.xpath('//SecurityDataInfo')
+    key_data_infos = doc.xpath('//KeyDataInfo')
     for key_data in key_data_infos:
         node = parse_key_data_info_xml(key_data)
         response[node['key_url'].rsplit('/',1)[1]] = node
@@ -551,7 +551,7 @@ class kra:
         :return doc:              xml doc with archival request
         """
         self.debug('%s.create_archival_request()', self.fullname)
-        root = etree.Element("SecurityDataArchivalRequest")
+        root = etree.Element("KeyArchivalRequest")
         client_id_element = etree.SubElement(root, "clientId")
         client_id_element.text = client_id
         wrapped_private_data_element = etree.SubElement(root, "wrappedPrivateData")
@@ -570,7 +570,7 @@ class kra:
         
     	"""
         self.debug('%s.create_recovery_request()', self.fullname)
-        root = etree.Element("SecurityDataRecoveryRequest")
+        root = etree.Element("KeyRecoveryRequest")
         if key_id != None:
             key_id_element = etree.SubElement(root, "keyId")
             key_id_element.text = key_id

@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import com.netscape.certsrv.base.Link;
 
-@XmlRootElement(name = "SecurityDataRequestInfos")
+@XmlRootElement(name = "KeyRequestInfos")
 public class KeyRequestInfos {
     protected Collection<KeyRequestInfo> requests;
     protected List<Link> links;

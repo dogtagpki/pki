@@ -22,9 +22,9 @@ package com.netscape.certsrv.key;
 
 
 import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 
@@ -32,7 +32,7 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
  * @author alee
  *
  */
-@XmlRootElement(name="SecurityDataInfo")
+@XmlRootElement(name="KeyDataInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyDataInfo {
 
