@@ -52,7 +52,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author alee
  *
  */
-public class KeyService extends PKIService implements KeyResource{
+public class KeyService extends PKIService implements KeyResource {
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;

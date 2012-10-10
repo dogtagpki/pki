@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.dbs.certdb.CertId;
 
 @Path("")
@@ -44,17 +45,20 @@ public interface CertResource {
     @Path("agent/certs/{id}/revoke-ca")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certs")
     public CertRequestInfo revokeCACert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
     @Path("agent/certs/{id}/revoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certs")
     public CertRequestInfo revokeCert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
     @Path("agent/certs/{id}/unrevoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certs")
     public CertRequestInfo unrevokeCert(@PathParam("id") CertId id, CertUnrevokeRequest request);
 }

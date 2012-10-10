@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import com.netscape.certsrv.acls.ACLInterceptor;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -79,6 +80,9 @@ public class CertificateAuthorityApplication extends Application {
 
         // exception mapper
         classes.add(PKIException.Mapper.class);
+
+        // ACL interceptor
+        singletons.add(new ACLInterceptor());
     }
 
     public Set<Class<?>> getClasses() {

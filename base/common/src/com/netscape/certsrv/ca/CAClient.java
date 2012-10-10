@@ -64,7 +64,7 @@ public class CAClient extends PKIClient {
         CertRequestInfos infos = null;
         Collection<CertRequestInfo> list = null;
         infos = certRequestClient.listRequests(
-                requestState, requestType, new RequestId(0), 100, 100, 10);
+                requestState, requestType, null, null, null, null);
         list = infos.getRequests();
 
         return list;

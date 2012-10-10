@@ -31,10 +31,13 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+
 /**
  * @author Endi S. Dewata
  */
 @Path("admin/groups")
+@ACLMapping("admin.groups")
 public interface GroupResource {
 
     @GET

@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.PKIConnection;
 
 
 /**
@@ -30,9 +31,17 @@ public class SecurityDomainClient extends PKIClient {
 
     private SecurityDomainResource client;
 
+    public SecurityDomainClient(PKIConnection connection) throws URISyntaxException {
+        super(connection);
+        init();
+    }
+
     public SecurityDomainClient(ClientConfig config) throws URISyntaxException {
         super(config);
+        init();
+    }
 
+    public void init() throws URISyntaxException {
         client = createProxy(SecurityDomainResource.class);
     }
 

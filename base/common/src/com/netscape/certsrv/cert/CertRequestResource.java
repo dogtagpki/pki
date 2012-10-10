@@ -18,7 +18,6 @@
 package com.netscape.certsrv.cert;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,15 +27,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("")
 public interface CertRequestResource {
-
-    public static final int DEFAULT_START = 0;
-    public static final int DEFAULT_PAGESIZE = 20;
-    public static final int DEFAULT_MAXRESULTS = 100;
-    public static final int DEFAULT_MAXTIME = 10;
 
     /**
      * Used to generate list of cert requests based on the search parameters
@@ -44,12 +39,13 @@ public interface CertRequestResource {
     @GET
     @Path("agent/certrequests")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public CertRequestInfos listRequests(@QueryParam("requestState") String requestState,
             @QueryParam("requestType") String requestType,
-            @DefaultValue("" + DEFAULT_START) @QueryParam("start") RequestId start,
-            @DefaultValue("" + DEFAULT_PAGESIZE) @QueryParam("pageSize") int pageSize,
-            @DefaultValue("" + DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
-            @DefaultValue("" + DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
+            @QueryParam("start") RequestId start,
+            @QueryParam("pageSize") Integer pageSize,
+            @QueryParam("maxResults") Integer maxResults,
+            @QueryParam("maxTime") Integer maxTime);
 
     /**
      * Used to retrieve cert request info for a specific request
@@ -62,6 +58,7 @@ public interface CertRequestResource {
     @GET
     @Path("agent/certrequests/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public CertReviewResponse reviewRequest(@PathParam("id") RequestId id);
 
     // Enrollment - used to test integration with a browser
@@ -80,35 +77,42 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/approve")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/reject")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/cancel")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/update")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/validate")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/unassign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/assign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
     public void assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 }

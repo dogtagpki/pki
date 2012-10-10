@@ -129,6 +129,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -325,10 +326,14 @@ public class ConfigurationUtils {
         config.setUsername(user);
         config.setPassword(passwd);
 
-        SecurityDomainClient client = new SecurityDomainClient(config);
+        PKIConnection connection = new PKIConnection(config);
+        AccountClient accountClient = new AccountClient(connection);
+        SecurityDomainClient sdClient = new SecurityDomainClient(connection);
 
         try {
-            InstallToken token = client.getInstallToken(sdhost, csType);
+            accountClient.login();
+            InstallToken token = sdClient.getInstallToken(sdhost, csType);
+            accountClient.logout();
             return token.getToken();
 
         } catch (ClientResponseFailure e) {
