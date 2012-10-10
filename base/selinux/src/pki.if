@@ -20,6 +20,24 @@ interface(`pki_rw_tomcat_cert',`
 
 ########################################
 ## <summary>
+##      Allow read and write pki cert files.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+interface(`pki_search_tomcat_etc_rw',`
+        gen_require(`
+                type pki_tomcat_etc_rw_t;
+        ')
+
+        search_dirs_pattern($1, pki_tomcat_etc_rw_t, pki_tomcat_etc_rw_t)
+')
+
+########################################
+## <summary>
 ##	Create a set of derived types for apache
 ##	web content.
 ## </summary>
