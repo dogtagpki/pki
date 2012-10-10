@@ -80,6 +80,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 fcon.add(master['pki_instance_configuration_path'] + self.suffix,
                       config.PKI_CFG_SELINUX_CONTEXT, "", "s0", "")
 
+                config.pki_log.info("adding selinux fcontext \"%s\"",
+                        master['pki_database_path'] + self.suffix,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                fcon.add(master['pki_database_path'] + self.suffix,
+                      config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
+
             portRecords = seobject.portRecords()
             for port in ports:
                 config.pki_log.info("adding selinux port %s", port,
@@ -135,6 +141,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         extra=config.PKI_INDENTATION_LEVEL_2)
                 fcon.delete(master['pki_instance_configuration_path'] + \
                          self.suffix, "")
+
+                config.pki_log.info("deleting selinux fcontext \"%s\"",
+                        master['pki_database_path'] + self.suffix,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                fcon.delete(master['pki_database_path'] + self.suffix , "")
 
             portRecords = seobject.portRecords()
             for port in ports:

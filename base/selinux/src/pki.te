@@ -1,4 +1,4 @@
-policy_module(pki,10.0.10)
+policy_module(pki,10.0.11)
 
 type pki_log_t;
 files_type(pki_log_t)
@@ -12,6 +12,9 @@ files_type(pki_common_dev_t)
 type pki_tomcat_etc_rw_t;
 files_type(pki_tomcat_etc_rw_t)
 
+type pki_tomcat_cert_t;
+files_type(pki_tomcat_cert_t)
+
 tomcat_domain_template(pki_tomcat)
 
 permissive pki_tomcat_t;
@@ -23,6 +26,7 @@ require {
         type systemd_unit_file_t;
         type setfiles_t;
         type load_policy_t;
+        type certmonger_t;
 }
 
 allow pki_tomcat_t self:capability { setuid chown setgid fowner audit_write dac_override sys_nice fsetid};
@@ -39,6 +43,9 @@ allow pki_tomcat_t self:key { write read };
 
 manage_dirs_pattern(pki_tomcat_t, pki_tomcat_etc_rw_t, pki_tomcat_etc_rw_t)
 manage_files_pattern(pki_tomcat_t, pki_tomcat_etc_rw_t, pki_tomcat_etc_rw_t)
+
+manage_dirs_pattern(pki_tomcat_t, pki_tomcat_cert_t, pki_tomcat_cert_t)
+manage_files_pattern(pki_tomcat_t, pki_tomcat_cert_t, pki_tomcat_cert_t)
 
 manage_dirs_pattern(pki_tomcat_t,  pki_tomcat_lock_t,  pki_tomcat_lock_t)
 manage_files_pattern(pki_tomcat_t,  pki_tomcat_lock_t,  pki_tomcat_lock_t)
@@ -77,6 +84,8 @@ logging_send_syslog_msg(pki_tomcat_t)
 
 miscfiles_read_hwdata(pki_tomcat_t)
 files_manage_generic_tmp_files(pki_tomcat_t)
+userdom_manage_user_tmp_dirs(pki_tomcat_t)
+userdom_manage_user_tmp_files(pki_tomcat_t)
 
 # forward proxy
 # need to define ports to fix this
@@ -107,6 +116,9 @@ typealias pki_tomcat_log_t alias { pki_ca_log_t pki_kra_log_t pki_ocsp_log_t pki
 allow load_policy_t pki_log_t:file write;
 dirsrv_manage_var_lib(pki_tomcat_t)
 allow setfiles_t pki_log_t:file write;
+
+# allow certmonger to read certdb files
+pki_rw_tomcat_cert(certmonger_t)
 
 ##########################
 #  TPS policy

@@ -1,5 +1,22 @@
 
 ## <summary>policy for pki</summary>
+########################################
+## <summary>
+##      Allow read and write pki cert files.
+## </summary>
+## <param name="domain">
+##      <summary>
+##      Domain allowed access.
+##      </summary>
+## </param>
+#
+interface(`pki_rw_tomcat_cert',`
+        gen_require(`
+                type pki_tomcat_cert_t;
+        ')
+
+        rw_files_pattern($1, pki_tomcat_cert_t, pki_tomcat_cert_t)
+')
 
 ########################################
 ## <summary>
