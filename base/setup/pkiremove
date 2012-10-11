@@ -168,9 +168,12 @@ Usage:  pkiremove -pki_instance_root=<pki_instance_root> # Instance root
 [-dry_run] # Do not perform any actions.
            # Just report what would have been done.
 
-Example:  pkiremove -pki_instance_root=/var/lib -pki_instance_name=pki-ca
+Example:  pkiremove -pki_instance_root=/var/lib -pki_instance_name=pki-tps
 
 IMPORTANT:  Must be run as root!
+IMPORTANT:  pkiremove should only be used to remove instances which were created
+            using pkicreate.  Instances created using pkispawn should be removed
+            using pkidestroy.
 EOF
     return;
 }
