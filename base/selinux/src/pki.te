@@ -1,4 +1,4 @@
-policy_module(pki,10.0.12)
+policy_module(pki,10.0.13)
 
 type pki_log_t;
 files_type(pki_log_t)
@@ -121,6 +121,23 @@ allow setfiles_t pki_log_t:file write;
 # allow certmonger to read certdb files
 pki_rw_tomcat_cert(certmonger_t)
 pki_search_tomcat_etc_rw(certmonger_t)
+
+# needed for dogtag 9 style instances
+type pki_tomcat_script_t;
+domain_type(pki_tomcat_script_t)
+gen_require(`
+         type java_exec_t;
+         type initrc_t;
+')
+domtrans_pattern(pki_tomcat_script_t, java_exec_t, pki_tomcat_t)
+
+role system_r types pki_tomcat_script_t;
+allow pki_tomcat_t java_exec_t:file entrypoint;
+allow initrc_t pki_tomcat_script_t:process transition;
+
+optional_policy(`
+             unconfined_domain(pki_tomcat_script_t)
+')
 
 ##########################
 #  TPS policy
