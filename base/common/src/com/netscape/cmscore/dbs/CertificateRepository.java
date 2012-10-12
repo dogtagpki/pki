@@ -1995,13 +1995,13 @@ class RetrieveModificationsTask implements Runnable {
             throw e;
         }
 
-        // schedule task to run immediately and repeat without delay
+        // schedule task to run immediately
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 return new Thread(r, "RetrieveModificationsTask");
             }
         });
-        executorService.scheduleWithFixedDelay(this, 0, 1, TimeUnit.MICROSECONDS);
+        executorService.schedule(this, 0, TimeUnit.MICROSECONDS);
     }
 
     public void run() {
@@ -2010,7 +2010,7 @@ class RetrieveModificationsTask implements Runnable {
         try {
             // results.hasMoreElements() will block until next element becomes available
             // or return false if the search is abandoned or connection is closed
-            if (results.hasMoreElements()) {
+            while (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();
                 repository.getModifications(entry);
             }
