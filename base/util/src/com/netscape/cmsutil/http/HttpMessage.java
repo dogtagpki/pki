@@ -20,6 +20,7 @@ package com.netscape.cmsutil.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -143,6 +144,14 @@ public class HttpMessage {
             }
 
             mContent = new String(cbuf);
+        } else {
+            char[] cbuf = new char[8192];
+            StringWriter sw = new StringWriter();
+            int charsRead;
+            while ((charsRead = reader.read(cbuf)) != -1) {
+                sw.write(cbuf, 0, charsRead);
+            }
+            if (sw.getBuffer().length()>0) mContent = sw.toString();
         }
     }
 

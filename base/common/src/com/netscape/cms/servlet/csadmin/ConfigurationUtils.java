@@ -315,6 +315,11 @@ public class ConfigurationUtils {
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd)
             throws EPropertyNotFound, EBaseException, URISyntaxException, IOException {
         IConfigStore cs = CMS.getConfigStore();
+        boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", true);
+
+        if (oldtoken) {
+            return ConfigurationUtils.getOldToken(sdhost, sdport, user, passwd);
+        }
         String csType = cs.getString("cs.type");
 
         InstallTokenRequest data = new InstallTokenRequest(user, passwd, csType, CMS.getEEHost(), CMS.getAdminPort());
@@ -354,6 +359,23 @@ public class ConfigurationUtils {
                 content, null, null);
         String body = response.getEntity();
         return getContentValue(body, "header.session_id");
+    }
+
+    public static String getOldToken(String sdhost, int sdport, String user, String passwd) throws IOException,
+            EPropertyNotFound, EBaseException, URISyntaxException {
+        IConfigStore cs = CMS.getConfigStore();
+
+        String subca_url = "https://" + CMS.getEEHost() + ":"
+                + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
+                "?p=5&subsystem=" + cs.getString("cs.type");
+
+        String content = "uid=" + URLEncoder.encode(user, "UTF-8") + "&pwd=" + URLEncoder.encode(passwd, "UTF-8") +
+                "&url=" + URLEncoder.encode(subca_url, "UTF-8");
+
+        String response = ConfigurationUtils.getHttpResponse(sdhost, sdport, true,
+                "/ca/admin/ca/getCookie", content, null);
+
+        return getContentValue(response, "header.session_id");
     }
 
     public static String getContentValue(String body, String header) {
