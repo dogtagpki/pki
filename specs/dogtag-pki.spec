@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}10%{?prerel}%{?dist}
+Release:          %{?relprefix}11%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -28,7 +28,7 @@ BuildArch:        noarch
 %define pki_tks_version            10.0.0
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
-%define tomcatjss_version          7.0.0
+%define tomcatjss_version          7.0.0-3
 %else
 %if 0%{?fedora} >= 17
 %define dogtag_pki_theme_version   10.0.0
@@ -41,7 +41,7 @@ BuildArch:        noarch
 %define pki_tks_version            10.0.0
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
-%define tomcatjss_version          7.0.0
+%define tomcatjss_version          7.0.0-3
 %else
 %if 0%{?fedora} >= 16
 %define dogtag_pki_theme_version   10.0.0
@@ -193,6 +193,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b1
+- Update tomcatjss version
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.10.b1
 - Update release to b1
 

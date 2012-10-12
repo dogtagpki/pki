@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}43%{?prerel}%{?dist}
+Release:          %{?relprefix}44%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -52,7 +52,7 @@ BuildRequires:    resteasy >= 2.3.2-1
 BuildRequires:    junit
 # NOTE:  The following requirement is for nightly 'mock' builds ONLY since
 #        Dogtag 10 will NEVER be officially released on Fedora 17!
-BuildRequires:    tomcatjss >= 7.0.0
+BuildRequires:    tomcatjss >= 7.0.0-3
 %else
 BuildRequires:    junit4
 %endif
@@ -60,7 +60,7 @@ BuildRequires:    junit4
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    systemd-units
-BuildRequires:    tomcatjss >= 7.0.0
+BuildRequires:    tomcatjss >= 7.0.0-3
 %else
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -311,7 +311,7 @@ Requires:         velocity
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-Requires:         tomcatjss >= 7.0.0
+Requires:         tomcatjss >= 7.0.0-3
 %else
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -1291,6 +1291,9 @@ fi
 
 
 %changelog
+* Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.44.b1
+- Update required tomcatjss version
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.43.b1
 - Update selinux-policy version to fix error from latest policy changes
 
