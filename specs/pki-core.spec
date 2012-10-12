@@ -296,6 +296,7 @@ Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java >= 1:1.6.0
+Requires:         net-tools
 Requires:         perl(File::Slurp)
 Requires:         perl(XML::LibXML)
 Requires:         perl-Crypt-SSLeay
@@ -1293,6 +1294,7 @@ fi
 %changelog
 * Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.44.b1
 - Update required tomcatjss version
+- Added net-tools dependency
 
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.43.b1
 - Update selinux-policy version to fix error from latest policy changes
