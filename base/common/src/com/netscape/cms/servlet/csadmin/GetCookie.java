@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Locale;
@@ -35,8 +34,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -171,99 +170,54 @@ public class GetCookie extends CMSServlet {
             return;
         }
 
-        String cookie = "";
-        String auditMessage = "";
-
         if (authToken != null) {
             String uid = authToken.getInString("uid");
-            String groupname = ConfigurationUtils.getGroupName(uid, subsystem);
 
-            if (groupname != null) {
+            String addr = "";
+            try {
+                addr = u.getHost();
+            } catch (Exception e) {
+            }
 
-                auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
-                                   uid,
-                                   ILogger.SUCCESS,
-                                   groupname);
-                audit(auditMessage);
+            try {
+                SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(httpReq));
 
-                // assign cookie
-                long num = mRandom.nextLong();
-                cookie = num + "";
-                ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
-                String addr = "";
-                try {
-                    addr = u.getHost();
-                } catch (Exception e) {
-                }
-                String ip = "";
-                try {
-                    ip = InetAddress.getByName(addr).toString();
-                    int index = ip.indexOf("/");
-                    if (index > 0)
-                        ip = ip.substring(index + 1);
-                } catch (Exception e) {
-                }
+                InstallToken installToken = processor.getInstallToken(uid, addr, subsystem);
+                String cookie = installToken.getToken();
 
-                String auditParams = "operation;;issue_token+token;;" + cookie + "+ip;;" + ip +
-                              "+uid;;" + uid + "+groupname;;" + groupname;
-
-                int status = ctable.addEntry(cookie, ip, uid, groupname);
-                if (status == ISecurityDomainSessionTable.SUCCESS) {
-                    auditMessage = CMS.getLogMessage(
-                                       LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
-                                       uid,
-                                       ILogger.SUCCESS,
-                                       auditParams);
-                    audit(auditMessage);
-                } else {
-                    auditMessage = CMS.getLogMessage(
-                                       LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
-                                       uid,
-                                       ILogger.FAILURE,
-                                       auditParams);
-                    audit(auditMessage);
-                }
-
-                try {
-                    if (!url.startsWith("$")) {
-                        try {
-                            form = getTemplate(mFormPath, httpReq, locale);
-                        } catch (IOException e) {
-                            CMS.debug("GetCookie process: cant locate the form");
-                            /*
-                                                        log(ILogger.LL_FAILURE,
-                                                          CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-                                                        throw new ECMSGWException(
-                                                          CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-                            */
-                        }
-
-                        header.addStringValue("url", url);
-                        header.addStringValue("session_id", cookie);
-
-                        try {
-                            ServletOutputStream out = httpResp.getOutputStream();
-
-                            cmsReq.setStatus(CMSRequest.SUCCESS);
-                            httpResp.setContentType("text/html");
-                            form.renderOutput(out, argSet);
-                        } catch (IOException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-                            throw new ECMSGWException(
-                                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-                        }
+                if (!url.startsWith("$")) {
+                    try {
+                        form = getTemplate(mFormPath, httpReq, locale);
+                    } catch (IOException e) {
+                        CMS.debug("GetCookie process: cant locate the form");
+                        /*
+                        log(ILogger.LL_FAILURE,
+                          CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+                        throw new ECMSGWException(
+                          CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                        */
                     }
-                } catch (Exception e) {
+
+                    header.addStringValue("url", url);
+                    header.addStringValue("session_id", cookie);
+
+                    try {
+                        ServletOutputStream out = httpResp.getOutputStream();
+
+                        cmsReq.setStatus(CMSRequest.SUCCESS);
+                        httpResp.setContentType("text/html");
+                        form.renderOutput(out, argSet);
+
+                    } catch (IOException e) {
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+                        throw new ECMSGWException(
+                                CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    }
                 }
-            } else {
-                auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
-                                   uid,
-                                   ILogger.FAILURE,
-                                   "Enterprise " + subsystem + " Administrators");
-                audit(auditMessage);
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
