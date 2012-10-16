@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -27,19 +25,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -85,112 +74,21 @@ public class GetDomainXML extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         String status = SUCCESS;
-        String basedn = null;
-        String secstore = null;
-
-        IConfigStore cs = CMS.getConfigStore();
-        try {
-            secstore = cs.getString("securitydomain.store");
-            basedn = cs.getString("internaldb.basedn");
-        } catch (Exception e) {
-            CMS.debug("Unable to determine the security domain name or internal basedn. Please run the domaininfo migration script");
-        }
 
         try {
             XMLObject response = new XMLObject();
             Node root = response.createRoot("XMLResponse");
 
-            if ((secstore != null) && (basedn != null) && (secstore.equals("ldap"))) {
-                ILdapConnFactory connFactory = null;
-                LDAPConnection conn = null;
-                try {
-                    // get data from ldap
-                    String filter = "objectclass=pkiSecurityGroup";
-                    LDAPSearchConstraints cons = null;
-                    String[] attrs = null;
-                    String dn = "ou=Security Domain," + basedn;
+            try {
+                SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
+                XMLObject xmlObj = processor.getDomainXML();
 
-                    IConfigStore ldapConfig = cs.getSubStore("internaldb");
-                    connFactory = CMS.getLdapBoundConnFactory();
-                    connFactory.init(ldapConfig);
-                    conn = connFactory.getConn();
+                // Add new xml object as string to response.
+                response.addItemToContainer(root, "DomainInfo", xmlObj.toXMLString());
 
-                    // get the security domain name
-                    String secdomain = (String) conn.read(dn).getAttribute("name").getStringValues().nextElement();
-
-                    XMLObject xmlObj = new XMLObject();
-                    Node domainInfo = xmlObj.createRoot("DomainInfo");
-                    xmlObj.addItemToContainer(domainInfo, "Name", secdomain);
-
-                    // this should return CAList, KRAList etc.
-                    LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-                            attrs, true, cons);
-
-                    while (res.hasMoreElements()) {
-                        int count = 0;
-                        dn = res.next().getDN();
-                        String listName = dn.substring(3, dn.indexOf(","));
-                        String subType = listName.substring(0, listName.indexOf("List"));
-                        Node listNode = xmlObj.createContainer(domainInfo, listName);
-
-                        filter = "objectclass=pkiSubsystem";
-                        LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-                                attrs, false, cons);
-                        while (res2.hasMoreElements()) {
-                            Node node = xmlObj.createContainer(listNode, subType);
-                            LDAPEntry entry = res2.next();
-                            LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-                            @SuppressWarnings("unchecked")
-                            Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
-                            while (attrsInSet.hasMoreElements()) {
-                                LDAPAttribute nextAttr = attrsInSet.nextElement();
-                                String attrName = nextAttr.getName();
-                                if ((!attrName.equals("cn")) && (!attrName.equals("objectClass"))) {
-                                    String attrValue = (String) nextAttr.getStringValues().nextElement();
-                                    xmlObj.addItemToContainer(node, securityDomainLDAPtoXML(attrName), attrValue);
-                                }
-                            }
-                            count++;
-                        }
-                        xmlObj.addItemToContainer(listNode, "SubsystemCount", Integer.toString(count));
-                    }
-
-                    // Add new xml object as string to response.
-                    response.addItemToContainer(root, "DomainInfo", xmlObj.toXMLString());
-                } catch (Exception e) {
-                    CMS.debug("GetDomainXML: Failed to read domain.xml from ldap " + e.toString());
-                    status = FAILED;
-                } finally {
-                    if ((conn != null) && (connFactory != null)) {
-                        CMS.debug("Releasing ldap connection");
-                        connFactory.returnConn(conn);
-                    }
-                }
-            } else {
-                // get data from file store
-
-                String path = CMS.getConfigStore().getString("instanceRoot", "")
-                        + "/conf/domain.xml";
-
-                CMS.debug("GetDomainXML: got path=" + path);
-
-                try {
-                    CMS.debug("GetDomainXML: Reading domain.xml from file ...");
-                    FileInputStream fis = new FileInputStream(path);
-                    int s = fis.available();
-
-                    CMS.debug("GetDomainXML: size " + s);
-                    byte buf[] = new byte[s];
-
-                    fis.read(buf, 0, s);
-                    fis.close();
-                    CMS.debug("GetDomainXML: Done Reading domain.xml...");
-
-                    response.addItemToContainer(root, "DomainInfo", new String(buf));
-                } catch (Exception e) {
-                    CMS.debug("Failed to read domain.xml from file" + e.toString());
-                    status = FAILED;
-                }
+            } catch (Exception e) {
+                CMS.debug("Failed to read domain.xml: " + e.toString());
+                status = FAILED;
             }
 
             response.addItemToContainer(root, "Status", status);
@@ -200,13 +98,6 @@ public class GetDomainXML extends CMSServlet {
         } catch (Exception e) {
             CMS.debug("GetDomainXML: Failed to send the XML output" + e.toString());
         }
-    }
-
-    protected String securityDomainLDAPtoXML(String attribute) {
-        if (attribute.equals("host"))
-            return "Host";
-        else
-            return attribute;
     }
 
     protected void setDefaultTemplates(ServletConfig sc) {
