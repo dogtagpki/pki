@@ -3483,7 +3483,7 @@ TPS_PUBLIC bool RA::verifySystemCertByNickname(const char *nickname, const char 
  */
 TPS_PUBLIC bool RA::verifySystemCerts() {
     bool verifyResult = false;
-    bool rv = false; /* final return value */
+    bool rv = true; /* final return value */
     char configname[256];
     char configname_nn[256];
     char configname_cu[256];

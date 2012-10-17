@@ -897,6 +897,7 @@ verify_symlinks()
     declare -A common_jar_symlinks
     declare -A webapps_jar_symlinks
     declare -A systemd_symlinks
+    declare -A tus_symlinks
 
     # Dogtag 9 Conditional Variables
     if [ ${ARCHITECTURE} == "x86_64" ]; then
@@ -948,6 +949,9 @@ verify_symlinks()
 
     # '${PKI_INSTANCE_PATH}/lib' symlinks
     perl_symlinks[perl]=/usr/share/pki/${PKI_SUBSYSTEM_TYPE}/lib/perl
+
+    # '${PKI_INSTANCE_PATH}/docroot' symlinks
+    tus_symlinks[tus]="${PKI_INSTANCE_PATH}/docroot/tokendb"
 
     # '${pki_common_jar_dir}' symlinks
     common_jar_symlinks=(
@@ -1009,18 +1013,13 @@ verify_symlinks()
         fi
 
         if [ "${PKI_SUBSYSTEM_TYPE}" == "tps"  ]; then
-            # ALWAYS recreate this "convenience" link and 'chown' it
-            # NOTE:  Ignore 'chown' errors.
-            cd ${PKI_INSTANCE_PATH}/docroot ;
-            ln -s tokendb tus ;
+            # Detect and correct 'tus_symlinks'
+            tus_symlinks_string=$(declare -p tus_symlinks)
+            eval "declare -A symlinks=${tus_symlinks_string#*=}"
+            check_symlinks ${PKI_INSTANCE_PATH}/docroot ${PKI_USER} ${PKI_GROUP}
             rv=$?
-            if [ $rv -eq 0 ]; then
-                chown -h ${PKI_USER}:${PKI_GROUP} tus
-                # echo "SUCCESS:  Created 'tus' -> 'tokendb'"
-            else
-                echo "ERROR:  Failed to create 'tus' -> 'tokendb' convenience"
-                echo "        symbolic link for '${PKI_INSTANCE_ID}'!"
-                return 1
+            if [ $rv -ne 0 ]; then
+                return $rv
             fi
         fi
     elif [ "${PKI_SUBSYSTEM_TYPE}" == "ca"   ]  ||
