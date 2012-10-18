@@ -380,14 +380,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("preop.database.removeData", "false");
             cs.commit(false);
 
-            ConfigurationUtils.reInitSubsystem(csType);
-            ConfigurationUtils.populateIndexes();
-
             if (data.getIsClone().equals("true")) {
                 CMS.debug("Start setting up replication.");
                 ConfigurationUtils.setupReplication();
-                ConfigurationUtils.reInitSubsystem(csType);
             }
+
+            ConfigurationUtils.reInitSubsystem(csType);
+            ConfigurationUtils.populateVLVIndexes();
+
         } catch (Exception e) {
             throw new PKIException("Error in populating database" + e);
         }

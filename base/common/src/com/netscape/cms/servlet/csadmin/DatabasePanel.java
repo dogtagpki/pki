@@ -483,14 +483,13 @@ public class DatabasePanel extends WizardPanelBase {
             cs.putString("preop.internaldb.replicationpwd", replicationpwd);
             cs.putString("preop.database.removeData", "false");
 
-            ConfigurationUtils.reInitSubsystem(csType);
-            ConfigurationUtils.populateIndexes();
-
             if (select.equals("clone")) {
                 CMS.debug("Start setting up replication.");
                 ConfigurationUtils.setupReplication();
-                ConfigurationUtils.reInitSubsystem(csType);
             }
+
+            ConfigurationUtils.reInitSubsystem(csType);
+            ConfigurationUtils.populateVLVIndexes();
 
             cs.putBoolean("preop.Database.done", true);
             cs.commit(false);

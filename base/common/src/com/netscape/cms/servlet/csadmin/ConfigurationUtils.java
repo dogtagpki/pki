@@ -1506,8 +1506,8 @@ public class ConfigurationUtils {
         return dir.delete();
     }
 
-    public static void populateIndexes() throws Exception {
-        CMS.debug("populateIndexes(): start");
+    public static void populateVLVIndexes() throws Exception {
+        CMS.debug("populateVLVIndexes(): start");
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -1542,7 +1542,7 @@ public class ConfigurationUtils {
                                 taskComplete = true;
                                 String val = (String) attr.getStringValues().nextElement();
                                 if (val.compareTo("0") != 0) {
-                                    CMS.debug("Error in populating local indexes: nsTaskExitCode=" + val);
+                                    CMS.debug("Error in populating local VLV indexes: nsTaskExitCode=" + val);
                                 }
                             }
                         }
@@ -1552,7 +1552,7 @@ public class ConfigurationUtils {
                 } while (!taskComplete);
             }
         } catch (Exception e) {
-            CMS.debug("populateIndexes(): Exception thrown: " + e);
+            CMS.debug("populateVLVIndexes(): Exception thrown: " + e);
             throw e;
         } finally {
             releaseConnection(conn);
