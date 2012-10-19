@@ -1254,11 +1254,18 @@ public class ConfigurationUtils {
         try {
             String select = cs.getString("preop.subsystem.select", "");
             if (select.equals("clone")) {
-                // if this is clone, add index before replication
-                // don't put in the schema or bad things will happen
+                // in most cases, we want to replicate the schema and therefore
+                // NOT add it here.  We provide this option though in case the
+                // clone already has schema and we want to replicate back to the
+                // master.
+                boolean replicateSchema = cs.getBoolean("preop.internaldb.replicateSchema", true);
+                if (! replicateSchema) {
+                    importLDIFS("preop.internaldb.schema.ldif", conn);
+                }
                 importLDIFS("preop.internaldb.ldif", conn);
+
+                // add the index before replication, add VLV indexes afterwards
                 importLDIFS("preop.internaldb.index_ldif", conn);
-                importLDIFS("preop.internaldb.manager_ldif", conn);
             } else {
                 // data will be replicated from the master to the clone
                 // so clone does not need the data
@@ -1266,7 +1273,6 @@ public class ConfigurationUtils {
                 importLDIFS("preop.internaldb.ldif", conn);
                 importLDIFS("preop.internaldb.data_ldif", conn);
                 importLDIFS("preop.internaldb.index_ldif", conn);
-                importLDIFS("preop.internaldb.manager_ldif", conn);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1504,6 +1510,25 @@ public class ConfigurationUtils {
             }
         }
         return dir.delete();
+    }
+
+    public static void populateDBManager() throws Exception {
+        CMS.debug("populateDBManager(): start");
+        IConfigStore cs = CMS.getConfigStore();
+
+        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory();
+        dbFactory.init(dbCfg);
+        LDAPConnection conn = dbFactory.getConn();
+
+        try {
+            importLDIFS("preop.internaldb.manager_ldif", conn);
+        } catch (Exception e) {
+            CMS.debug("populateDBManager(): Exception thrown: " + e);
+            throw e;
+        } finally {
+            releaseConnection(conn);
+        }
     }
 
     public static void populateVLVIndexes() throws Exception {

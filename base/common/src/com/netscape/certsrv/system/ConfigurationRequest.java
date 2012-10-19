@@ -56,6 +56,7 @@ public class ConfigurationRequest {
     private static final String REMOVEDATA = "removeData";
     private static final String MASTER_REPLICATION_PORT = "masterReplicationPort";
     private static final String CLONE_REPLICATION_PORT = "cloneReplicationPort";
+    private static final String REPLICATE_SCHEMA = "replicateSchema";
     private static final String REPLICATION_SECURITY = "replicationSecurity";
     private static final String ISSUING_CA = "issuingCa";
     private static final String BACKUP_KEYS = "backupKeys";
@@ -149,6 +150,9 @@ public class ConfigurationRequest {
     protected String cloneReplicationPort;
 
     @XmlElement
+    protected String replicateSchema;
+
+    @XmlElement
     protected String replicationSecurity;
 
     @XmlElementRef
@@ -221,6 +225,7 @@ public class ConfigurationRequest {
         removeData = form.getFirst(REMOVEDATA);
         masterReplicationPort = form.getFirst(MASTER_REPLICATION_PORT);
         cloneReplicationPort = form.getFirst(CLONE_REPLICATION_PORT);
+        replicateSchema = form.getFirst(REPLICATE_SCHEMA);
         replicationSecurity = form.getFirst(REPLICATION_SECURITY);
         //TODO - figure out how to get the cert requests
         issuingCA = form.getFirst(ISSUING_CA);
@@ -721,6 +726,14 @@ public class ConfigurationRequest {
         this.stepTwo = stepTwo;
     }
 
+    public String getReplicateSchema() {
+        return replicateSchema;
+    }
+
+    public void setReplicateSchema(String replicateSchema) {
+        this.replicateSchema = replicateSchema;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -744,6 +757,7 @@ public class ConfigurationRequest {
                ", database=" + database +
                ", secureConn=" + secureConn +
                ", removeData=" + removeData +
+               ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
                ", replicationSecurity=" + replicationSecurity +

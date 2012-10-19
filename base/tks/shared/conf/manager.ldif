@@ -8,7 +8,7 @@ ou: csusers
 dn: {rootSuffix}
 changetype: modify
 add: aci
-aci: (targetattr=*)(version 3.0; acl "cert manager access"; allow (all) userdn = "ldap:///{dbuser}";)
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
 
 dn: cn=ldbm database,cn=plugins,cn=config
 changetype: modify

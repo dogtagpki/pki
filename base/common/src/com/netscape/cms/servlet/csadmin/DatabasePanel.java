@@ -489,6 +489,7 @@ public class DatabasePanel extends WizardPanelBase {
             }
 
             ConfigurationUtils.reInitSubsystem(csType);
+            ConfigurationUtils.populateDBManager();
             ConfigurationUtils.populateVLVIndexes();
 
             cs.putBoolean("preop.Database.done", true);

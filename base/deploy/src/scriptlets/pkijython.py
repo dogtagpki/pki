@@ -290,6 +290,7 @@ class rest_client:
         data.setCloneUri(self.master['pki_clone_uri'])
         data.setP12File(self.master['pki_clone_pkcs12_path'])
         data.setP12Password(self.sensitive['pki_clone_pkcs12_password'])
+        data.setReplicateSchema(self.master['pki_clone_replicate_schema'])
         data.setReplicationSecurity(
             self.master['pki_clone_replication_security'])
         if self.master['pki_clone_replication_master_port']:

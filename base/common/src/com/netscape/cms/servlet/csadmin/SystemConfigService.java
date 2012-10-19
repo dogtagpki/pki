@@ -360,6 +360,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 replicationSecurity = "None";
             }
             cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
+
+            cs.putString("preop.internaldb.replicateSchema", data.getReplicateSchema());
         }
 
         try {
@@ -386,6 +388,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             ConfigurationUtils.reInitSubsystem(csType);
+            ConfigurationUtils.populateDBManager();
             ConfigurationUtils.populateVLVIndexes();
 
         } catch (Exception e) {
@@ -858,6 +861,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             } catch (Exception e) {
                 throw new PKIException(Response.Status.BAD_REQUEST, "Clone replication port is invalid");
             }
+        }
+
+        if ((data.getReplicateSchema() != null) && (data.getReplicateSchema().equalsIgnoreCase("false"))) {
+            data.setReplicateSchema("false");
+        } else {
+            data.setReplicateSchema("true");
         }
 
         if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
