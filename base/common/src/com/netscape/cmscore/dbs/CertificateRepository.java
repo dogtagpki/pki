@@ -247,17 +247,12 @@ public class CertificateRepository extends Repository
             return;
         }
 
-        CMS.debug("In setCertStatusUpdateInterval  listenToCloneModifications=" + listenToCloneModifications);
+        CMS.debug("In setCertStatusUpdateInterval listenToCloneModifications=" + listenToCloneModifications);
 
         if (listenToCloneModifications) {
             CMS.debug("In setCertStatusUpdateInterval listening to modifications");
-            try {
-                retrieveModificationsTask = new RetrieveModificationsTask(this);
-                retrieveModificationsTask.start();
-            } catch (EBaseException e) {
-                retrieveModificationsTask = null;
-                e.printStackTrace();
-            }
+            retrieveModificationsTask = new RetrieveModificationsTask(this);
+            retrieveModificationsTask.start();
         }
 
         CMS.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
@@ -1818,19 +1813,10 @@ public class CertificateRepository extends Repository
         return e;
     }
 
-    LDAPSearchResults searchForModifiedCertificateRecords(IDBSSession session) {
-        CMS.debug("searchForModifiedCertificateRecords");
-        LDAPSearchResults results = null;
-
+    LDAPSearchResults searchForModifiedCertificateRecords(IDBSSession session) throws EBaseException {
+        CMS.debug("Starting persistent search.");
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*)";
-        try {
-            results = session.persistentSearch(getDN(), filter, null);
-
-        } catch (Exception e) {
-            CMS.debug("startSearchForModifiedCertificateRecords  persistentSearch Exception=" + e);
-        }
-
-        return results;
+        return session.persistentSearch(getDN(), filter, null);
     }
 
     public void getModifications(LDAPEntry entry) {
@@ -1983,53 +1969,90 @@ class RetrieveModificationsTask implements Runnable {
 
     public RetrieveModificationsTask(CertificateRepository repository) {
         this.repository = repository;
-    }
 
-    public void start() throws EBaseException {
-        // start persistent search
-        try {
-            session = repository.getDBSubsystem().createSession();
-            results = repository.searchForModifiedCertificateRecords(session);
-        } catch (EBaseException e) {
-            stop(); // avoid leaks
-            throw e;
-        }
-
-        // schedule task to run immediately
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 return new Thread(r, "RetrieveModificationsTask");
             }
         });
-        executorService.schedule(this, 0, TimeUnit.MICROSECONDS);
+    }
+
+    public void start() {
+
+        // schedule task to run immediately
+        executorService.schedule(this, 0, TimeUnit.MINUTES);
+    }
+
+    public void connect() throws EBaseException {
+
+        if (session != null) return;
+
+        try {
+            session = repository.getDBSubsystem().createSession();
+            results = repository.searchForModifiedCertificateRecords(session);
+
+        } catch (EBaseException e) {
+            close(); // avoid leaks
+            throw e;
+        }
+    }
+
+    public void close() {
+
+        if (session == null) return;
+
+        // make sure the search is abandoned
+        if (results != null) try { session.abandon(results); } catch (Exception e) { e.printStackTrace(); }
+
+        // close session
+        try { session.close(); } catch (Exception e) { e.printStackTrace(); }
+
+        session = null;
     }
 
     public void run() {
-        CMS.debug("Inside run method of RetrieveModificationsThread");
-
         try {
-            // results.hasMoreElements() will block until next element becomes available
-            // or return false if the search is abandoned or connection is closed
-            while (results.hasMoreElements()) {
+            // make sure it's connected
+            connect();
+
+            // results.hasMoreElements() will block until next result becomes available
+            // or return false if the search is abandoned or the connection is closed
+
+            CMS.debug("Waiting for next result.");
+            if (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();
+
+                CMS.debug("Processing "+entry.getDN()+".");
                 repository.getModifications(entry);
+                CMS.debug("Done processing "+entry.getDN()+".");
+
+                // wait for next result immediately
+                executorService.schedule(this, 0, TimeUnit.MINUTES);
+
+            } else {
+                if (executorService.isShutdown()) {
+                    CMS.debug("Task has been shutdown.");
+
+                } else {
+                    CMS.debug("Persistence search ended.");
+                    close();
+
+                    CMS.debug("Retrying in 1 minute.");
+                    executorService.schedule(this, 1, TimeUnit.MINUTES);
+                }
             }
+
         } catch (Exception e) {
-            CMS.debug("Exception: " + e.toString());
+            CMS.debug(e);
+            close();
+
+            CMS.debug("Retrying in 1 minute.");
+            executorService.schedule(this, 1, TimeUnit.MINUTES);
         }
-        CMS.debug("Done with run method of RetrieveModificationsThread");
     }
 
     public void stop() {
-        if (executorService != null) executorService.shutdown();
-
-        if (session != null) {
-            // closing the session doesn't actually close the connection,
-            // so the search needs to be abandoned explicitly
-            if (results != null) try { session.abandon(results); } catch (Exception e) { e.printStackTrace(); }
-
-            // close session
-            try { session.close(); } catch (Exception e) { e.printStackTrace(); }
-        }
+        executorService.shutdown();
+        close();
     }
 }
