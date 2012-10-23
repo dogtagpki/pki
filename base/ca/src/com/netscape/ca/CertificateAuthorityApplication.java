@@ -50,14 +50,31 @@ public class CertificateAuthorityApplication extends Application {
         classes.add(SystemCertService.class);
 
         // security domain
+        IConfigStore cs = CMS.getConfigStore();
+
+        // check server state
+        int state;
         try {
-            IConfigStore cs = CMS.getConfigStore();
-            String select = cs.getString("securitydomain.select");
+            state = cs.getInteger("cs.state");
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            throw new RuntimeException(e);
+        }
+
+        // if server is configured, check security domain selection
+        if (state == 1) {
+            String select;
+            try {
+                select = cs.getString("securitydomain.select");
+            } catch (EBaseException e) {
+                CMS.debug(e);
+                throw new RuntimeException(e);
+            }
+
+            // if it's a new security domain, register the service
             if ("new".equals(select)) {
                 classes.add(SecurityDomainService.class);
             }
-        } catch (EBaseException e) {
-            CMS.debug(e);
         }
 
         // exception mapper
