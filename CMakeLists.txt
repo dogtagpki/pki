@@ -15,6 +15,7 @@ string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VE
 string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
 
 option(WITH_JAVADOC "Build with Javadoc" ON)
+option(BUILD_PKI_SELINUX "Build pki-selinux" OFF)
 
 if (BUILD_IPA_PKI_THEME)
     set(APPLICATION_FLAVOR_IPA_PKI_THEME TRUE)

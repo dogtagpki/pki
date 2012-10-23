@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}44%{?prerel}%{?dist}
+Release:          %{?relprefix}45%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -39,9 +39,7 @@ BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
-%if 0%{?fedora} >= 18
-BuildRequires:         selinux-policy-devel >= 3.11.1-32
-%else
+%if 0%{?fedora} <= 17
 BuildRequires:         selinux-policy-devel >= 3.10.0-151
 %endif
 BuildRequires:    velocity
@@ -120,7 +118,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-symkey                                                         \
   * pki-base                                                           \
   * pki-tools                                                          \
-  * pki-selinux                                                        \
+  * pki-selinux (f17 only)                                             \
   * pki-server                                                         \
   * pki-ca                                                             \
   * pki-kra                                                            \
@@ -140,7 +138,7 @@ required by BOTH native-based Apache AND java-based Tomcat             \
 Certificate System instances consisting of the following components:   \
                                                                        \
   * pki-tools                                                          \
-  * pki-selinux                                                        \
+  * pki-selinux (f17 only)                                             \
                                                                        \
 Additionally, PKI Core contains the following fundamental packages     \
 required ONLY by ALL java-based Tomcat Certificate System instances:   \
@@ -306,7 +304,13 @@ Requires:         jython >= 2.2.1
 Requires:         pki-common-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+
+%if 0%{?fedora} >= 18
+Requires:         selinux-policy-base >= 3.11.1-43
+%else
 Requires:         pki-selinux = %{version}-%{release}
+%endif
+
 Requires:         velocity
 %if 0%{?fedora} >= 17
 Requires(post):   systemd-units
@@ -355,7 +359,7 @@ The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
 
-
+%if 0%{?fedora} <= 17
 %package -n       pki-selinux
 Summary:          Certificate System - PKI Selinux Policies
 Group:            System Environment/Base
@@ -364,11 +368,8 @@ BuildArch:        noarch
 
 Requires:         policycoreutils
 Requires:         selinux-policy-targeted
-%if 0%{?fedora} >= 18
-Requires:         selinux-policy >= 3.11.1-32
-%else
+Conflicts:        selinux-policy-base >= 3.11.1-43
 Requires:         selinux-policy >= 3.10.0-151
-%endif
 
 %description -n   pki-selinux
 Selinux policies for the PKI components.
@@ -376,7 +377,7 @@ Selinux policies for the PKI components.
 This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
-
+%endif
 
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
@@ -646,6 +647,9 @@ cd build
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+%if 0%{?fedora} <= 17
+        -DBUILD_PKI_SELINUX:BOOL=ON \
+%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 %{__make} VERBOSE=1 %{?_smp_mflags} test
@@ -737,6 +741,7 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
 fi                                                                           \
 )
 
+%if 0%{?fedora} <= 17
 %pre -n pki-selinux
 %saveFileContext targeted
 
@@ -757,6 +762,7 @@ if [ $1 = 0 ]; then
      semodule -s targeted -r pki
      %relabel targeted
 fi
+%endif
 
 %if 0%{?rhel} || 0%{?fedora} < 16
 %post -n pki-ca 
@@ -1162,12 +1168,12 @@ fi
 %dir %{_datadir}/pki/server
 %{_datadir}/pki/server/
 
-
+%if 0%{?fedora} <= 17
 %files -n pki-selinux
 %defattr(-,root,root,-)
 %doc base/selinux/LICENSE
 %{_datadir}/selinux/modules/pki.pp
-
+%endif
 
 %files -n pki-ca
 %defattr(-,root,root,-)
@@ -1292,6 +1298,9 @@ fi
 
 
 %changelog
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.45.b1
+- Remove build of pki-selinux for f18, use system policy instead
+
 * Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.44.b1
 - Update required tomcatjss version
 - Added net-tools dependency

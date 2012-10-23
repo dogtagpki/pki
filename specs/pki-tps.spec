@@ -79,7 +79,7 @@ PKI Core package:                                                         \
                                                                           \
   * pki-server                                                            \
   * pki-tools                                                             \
-  * pki-selinux                                                           \
+  * pki-selinux (f17 only)                                                \
                                                                           \
 Additionally, Certificate System requires ONE AND ONLY ONE of the         \
 following "Mutually-Exclusive" PKI Theme packages:                        \

@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}11%{?prerel}%{?dist}
+Release:          %{?relprefix}12%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -98,9 +98,14 @@ Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 Requires:         pki-ca >= %{pki_core_version}
 Requires:         pki-server >= %{pki_core_version}
 Requires:         pki-tools >= %{pki_core_version}
-Requires:         pki-selinux >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
 Requires:         pki-base >= %{pki_core_version}
+
+%if 0%{?fedora} <= 17
+Requires:         pki-selinux >= %{pki_core_version}
+%else
+Requires:         selinux-policy-base >= 3.11.1-43
+%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
@@ -193,6 +198,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.12.b1
+- Remove pki-selinux from f18 build
+
 * Fri Oct 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b1
 - Update tomcatjss version
 
