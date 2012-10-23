@@ -27,3 +27,6 @@ resourceACLS: certServer.ocsp.cas:list:allow (list) group="Online Certificate St
 resourceACLS: certServer.ocsp.certificate:validate:allow (validate) group="Online Certificate Status Manager Agents":Online Certificate Status Manager agents may validate certificate status
 resourceACLS: certServer.ocsp.group:read,modify:allow (modify,read) group="Administrators":Only administrators are allowed to read and modify groups
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
+resourceACLS: certServer.ocsp.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.ocsp.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.ocsp.users:execute:allow (execute) group="Administrators":Admins may execute user operations

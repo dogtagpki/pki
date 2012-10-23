@@ -417,5 +417,39 @@
    <session-config>
         <session-timeout>30</session-timeout>
    </session-config>
-</web-app>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Account Services</web-resource-name>
+            <url-pattern>/rest/account/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Services</web-resource-name>
+            <url-pattern>/rest/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <login-config>
+        <realm-name>Token Key Service</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>*</role-name>
+    </security-role>
+
+</web-app>
