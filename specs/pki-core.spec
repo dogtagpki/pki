@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}45%{?prerel}%{?dist}
+Release:          %{?relprefix}46%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -307,6 +307,7 @@ Requires:         pki-tools = %{version}-%{release}
 
 %if 0%{?fedora} >= 18
 Requires:         selinux-policy-base >= 3.11.1-43
+Obsoletes:        pki-selinux
 %else
 Requires:         pki-selinux = %{version}-%{release}
 %endif
@@ -1298,6 +1299,9 @@ fi
 
 
 %changelog
+* Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.46.b1
+- Added Obsoletes for pki-selinux
+
 * Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.45.b1
 - Remove build of pki-selinux for f18, use system policy instead
 
