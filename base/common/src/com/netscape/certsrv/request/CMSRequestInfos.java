@@ -17,6 +17,7 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,8 +26,8 @@ import com.netscape.certsrv.base.Link;
 //Convenience class to simply hold a Collection of CMSRequests and a List of Links.
 public class CMSRequestInfos {
 
-    protected Collection<CMSRequestInfo> requests;
-    protected List<Link> links;
+    protected Collection<CMSRequestInfo> requests = new ArrayList<CMSRequestInfo>();
+    protected List<Link> links = new ArrayList<Link>();
 
     /**
      * @return the requests
@@ -39,7 +40,16 @@ public class CMSRequestInfos {
      * @param requests the requests to set
      */
     public void setRequests(Collection<CMSRequestInfo> requests) {
-        this.requests = requests;
+        this.requests.clear();
+        if (requests == null) return;
+        this.requests.addAll(requests);
+    }
+
+    /**
+     * @param requests the requests to add
+     */
+    public void addRequest(CMSRequestInfo request) {
+        requests.add(request);
     }
 
     /**
@@ -53,7 +63,15 @@ public class CMSRequestInfos {
      * @param links the links to set
      */
     public void setLinks(List<Link> links) {
-        this.links = links;
+        this.links.clear();
+        if (links == null) return;
+        this.links.addAll(links);
     }
 
+    /**
+     * @param links the link to add
+     */
+    public void addLink(Link link) {
+        links.add(link);
+    }
 }

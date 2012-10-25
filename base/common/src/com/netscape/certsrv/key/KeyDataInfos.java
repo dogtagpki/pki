@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,8 +30,8 @@ import com.netscape.certsrv.base.Link;
 @XmlRootElement(name = "KeyDataInfos")
 public class KeyDataInfos {
 
-    protected Collection<KeyDataInfo> keyInfos;
-    protected List<Link> links;
+    protected Collection<KeyDataInfo> keyInfos = new ArrayList<KeyDataInfo>();
+    protected List<Link> links = new ArrayList<Link>();
 
     /**
      * @return the keyInfos
@@ -39,12 +40,21 @@ public class KeyDataInfos {
     public Collection<KeyDataInfo> getKeyInfos() {
         return keyInfos;
     }
+
     /**
      * @param keyInfos the keyInfos to set
      */
     public void setKeyInfos(Collection<KeyDataInfo> keyInfos) {
         this.keyInfos = keyInfos;
     }
+
+    /**
+     * @param keyInfo the keyInfo to add
+     */
+    public void addKeyInfo(KeyDataInfo keyInfo) {
+        keyInfos.add(keyInfo);
+    }
+
     /**
      * @return the links
      */
@@ -52,6 +62,7 @@ public class KeyDataInfos {
     public List<Link> getLinks() {
         return links;
     }
+
     /**
      * @param links the links to set
      */

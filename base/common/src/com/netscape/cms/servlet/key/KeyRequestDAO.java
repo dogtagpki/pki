@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -85,30 +84,22 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public KeyRequestInfos listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
 
-        CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         KeyRequestInfos ret = new KeyRequestInfos();
 
-        if (cmsInfos == null) {
-            ret.setRequests(null);
-            ret.setLinks(null);
-            return ret;
-        }
+        CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
 
-        List<KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();
-        ;
         Collection<? extends CMSRequestInfo> cmsList = cmsInfos.getRequests();
 
         // We absolutely know 100% that this list is a list
         // of KeyRequestInfo objects. This is because the method
         // createCMSRequestInfo. Is the only one adding to it
 
-        list = (List<KeyRequestInfo>) cmsList;
-
-        ret.setLinks(cmsInfos.getLinks());
+        List<KeyRequestInfo> list = (List<KeyRequestInfo>) cmsList;
         ret.setRequests(list);
 
-        return ret;
+        ret.setLinks(cmsInfos.getLinks());
 
+        return ret;
     }
 
     /**

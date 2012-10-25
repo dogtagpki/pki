@@ -980,7 +980,6 @@
         </user-data-constraint>
     </security-constraint>
 
-    <!--
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Agent Services</web-resource-name>
@@ -993,7 +992,6 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-    -->
 
     <login-config>
         <realm-name>Key Recovery Authority</realm-name>

@@ -42,6 +42,11 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class KeyRequestService extends PKIService implements KeyRequestResource {
 
+    public static final int DEFAULT_START = 0;
+    public static final int DEFAULT_PAGESIZE = 20;
+    public static final int DEFAULT_MAXRESULTS = 100;
+    public static final int DEFAULT_MAXTIME = 10;
+
     /**
      * Used to retrieve key request info for a specific request
      */
@@ -169,17 +174,17 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
      * Used to generate list of key requests based on the search parameters
      */
     public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
-            RequestId start, int pageSize, int maxResults, int maxTime) {
+            RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // auth and authz
 
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientID);
         CMS.debug("listRequests: filter is " + filter);
 
-        // get start marker
-        if (start == null) {
-            start = new RequestId(KeyRequestResource.DEFAULT_START);
-        }
+        start = start == null ? new RequestId(KeyRequestService.DEFAULT_START) : start;
+        pageSize = pageSize == null ? DEFAULT_PAGESIZE : pageSize;
+        maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
+        maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
 
         KeyRequestDAO reqDAO = new KeyRequestDAO();
         KeyRequestInfos requests;

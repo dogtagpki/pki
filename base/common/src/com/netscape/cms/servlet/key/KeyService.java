@@ -20,10 +20,8 @@ package com.netscape.cms.servlet.key;
 
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -55,6 +53,9 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class KeyService extends PKIService implements KeyResource{
+
+    public static final int DEFAULT_MAXRESULTS = 100;
+    public static final int DEFAULT_MAXTIME = 10;
 
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
@@ -245,16 +246,18 @@ public class KeyService extends PKIService implements KeyResource{
     /**
      * Used to generate list of key infos based on the search parameters
      */
-    public KeyDataInfos listKeys(String clientID, String status, int maxResults, int maxTime) {
+    public KeyDataInfos listKeys(String clientID, String status, Integer maxResults, Integer maxTime) {
         // auth and authz
 
         // get ldap filter
         String filter = createSearchFilter(status, clientID);
         CMS.debug("listKeys: filter is " + filter);
 
+        maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
+        maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
+
         KeyDataInfos infos = new KeyDataInfos();
         try {
-            List <KeyDataInfo> list = new ArrayList<KeyDataInfo>();
             Enumeration<IKeyRecord> e = null;
 
             e = repo.searchKeys(filter, maxResults, maxTime);
@@ -265,11 +268,10 @@ public class KeyService extends PKIService implements KeyResource{
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
                 if (rec != null) {
-                    list.add(createKeyDataInfo(rec));
+                    infos.addKeyInfo(createKeyDataInfo(rec));
                 }
             }
 
-            infos.setKeyInfos(list);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -280,6 +282,11 @@ public class KeyService extends PKIService implements KeyResource{
 
     public KeyDataInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
         KeyDataInfo ret = new KeyDataInfo();
+        ret.setClientID(rec.getClientId());
+        ret.setStatus(rec.getKeyStatus());
+        ret.setAlgorithm(rec.getAlgorithm());
+        ret.setSize(rec.getKeySize());
+        ret.setOwnerName(rec.getOwnerName());
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
         BigInteger serial = rec.getSerialNumber();

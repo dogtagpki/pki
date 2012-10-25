@@ -42,6 +42,18 @@ public class KeyDataInfo {
     @XmlElement
     protected String clientID;
 
+    @XmlElement
+    protected String status;
+
+    @XmlElement
+    protected String algorithm;
+
+    @XmlElement
+    protected Integer size;
+
+    @XmlElement
+    protected String ownerName;
+
     public KeyDataInfo() {
         // required for JAXB (defaults)
     }
@@ -82,4 +94,35 @@ public class KeyDataInfo {
         this.clientID = clientID;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
 }

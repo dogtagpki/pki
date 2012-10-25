@@ -85,4 +85,40 @@ public  class CMSRequestInfo {
         this.requestURL = requestURL;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((requestStatus == null) ? 0 : requestStatus.hashCode());
+        result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
+        result = prime * result + ((requestURL == null) ? 0 : requestURL.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CMSRequestInfo other = (CMSRequestInfo) obj;
+        if (requestStatus == null) {
+            if (other.requestStatus != null)
+                return false;
+        } else if (!requestStatus.equals(other.requestStatus))
+            return false;
+        if (requestType == null) {
+            if (other.requestType != null)
+                return false;
+        } else if (!requestType.equals(other.requestType))
+            return false;
+        if (requestURL == null) {
+            if (other.requestURL != null)
+                return false;
+        } else if (!requestURL.equals(other.requestURL))
+            return false;
+        return true;
+    }
 }

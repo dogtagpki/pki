@@ -16,42 +16,51 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.user;
+package com.netscape.cmstools.key;
 
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
-import com.netscape.certsrv.user.UserCollection;
-import com.netscape.certsrv.user.UserData;
+import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyDataInfos;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserFindCLI extends CLI {
+public class KeyFindCLI extends CLI {
 
-    public UserCLI parent;
+    public KeyCLI parent;
 
-    public UserFindCLI(UserCLI parent) {
-        super("find", "Find users");
+    public KeyFindCLI(KeyCLI parent) {
+        super("find", "Find keys");
         this.parent = parent;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [FILTER] [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
+    public void execute(String[] args) {
 
-        Option option = new Option(null, "start", true, "Page start");
-        option.setArgName("start");
+        Option option = new Option(null, "client", true, "Client ID");
+        option.setArgName("client ID");
         options.addOption(option);
 
-        option = new Option(null, "size", true, "Page size");
-        option.setArgName("size");
+        option = new Option(null, "status", true, "Status");
+        option.setArgName("status");
+        options.addOption(option);
+
+        option = new Option(null, "maxResults", true, "Maximum results");
+        option.setArgName("max results");
+        options.addOption(option);
+
+        option = new Option(null, "maxTime", true, "Maximum time");
+        option.setArgName("max time");
         options.addOption(option);
 
         CommandLine cmd = null;
@@ -59,30 +68,30 @@ public class UserFindCLI extends CLI {
         try {
             cmd = parser.parse(options, args);
 
-        } catch (Exception e) {
+        } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(1);
         }
 
-        String[] cmdArgs = cmd.getArgs();
-        String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
+        String clientID = cmd.getOptionValue("client");
+        String status = cmd.getOptionValue("status");
 
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
+        String s = cmd.getOptionValue("maxResults");
+        Integer maxResults = s == null ? null : Integer.valueOf(s);
 
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
+        s = cmd.getOptionValue("maxTime");
+        Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        UserCollection response = parent.client.findUsers(filter, start, size);
+        KeyDataInfos keys = parent.keyClient.findKeys(clientID, status, maxResults, maxTime);
 
-        Collection<UserData> entries = response.getUsers();
+        Collection<KeyDataInfo> entries = keys.getKeyInfos();
 
-        MainCLI.printMessage(entries.size() + " user(s) matched");
+        MainCLI.printMessage(entries.size() + " key(s) matched");
 
         boolean first = true;
 
-        for (UserData userData : entries) {
+        for (KeyDataInfo info : entries) {
 
             if (first) {
                 first = false;
@@ -90,7 +99,7 @@ public class UserFindCLI extends CLI {
                 System.out.println();
             }
 
-            UserCLI.printUser(userData);
+            KeyCLI.printKeyInfo(info);
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());

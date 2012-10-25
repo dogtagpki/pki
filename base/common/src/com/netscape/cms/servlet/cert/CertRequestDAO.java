@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -92,28 +91,20 @@ public class CertRequestDAO extends CMSRequestDAO {
     public CertRequestInfos listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
 
-        CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
-
         CertRequestInfos ret = new CertRequestInfos();
 
-        if (cmsInfos == null) {
-            ret.setRequests(null);
-            ret.setLinks(null);
-            return ret;
-        }
+        CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
 
-        List<CertRequestInfo> list = new ArrayList<CertRequestInfo>();
-        ;
         Collection<? extends CMSRequestInfo> cmsList = cmsInfos.getRequests();
 
         // We absolutely know 100% that this list is a list
         // of CertRequestInfo objects. This is because the method
         // createCMSRequestInfo. Is the only one adding to it
 
-        list = (List<CertRequestInfo>) cmsList;
+        List<CertRequestInfo> list = (List<CertRequestInfo>) cmsList;
+        ret.setRequests(list);
 
         ret.setLinks(cmsInfos.getLinks());
-        ret.setRequests(list);
 
         return ret;
     }
@@ -176,6 +167,9 @@ public class CertRequestDAO extends CMSRequestDAO {
      */
     public CertRequestInfos submitRequest(CertEnrollmentRequest data, HttpServletRequest request, UriInfo uriInfo,
             Locale locale) throws EBaseException {
+
+        CertRequestInfos ret = new CertRequestInfos();
+
         HashMap<String, Object> results = null;
         if (data.getIsRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
@@ -185,16 +179,13 @@ public class CertRequestDAO extends CMSRequestDAO {
             results = processor.processEnrollment(data, request);
         }
 
-        CertRequestInfos ret = new CertRequestInfos();
-        ArrayList<CertRequestInfo> infos = new ArrayList<CertRequestInfo>();
         IRequest reqs[] = (IRequest[]) results.get(Processor.ARG_REQUESTS);
         for (IRequest req : reqs) {
             CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
-            infos.add(info);
+            ret.addRequest(info);
         }
+
         // TODO - what happens if the errorCode is internal error ?
-        ret.setRequests(infos);
-        ret.setLinks(null);
 
         return ret;
     }

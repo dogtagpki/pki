@@ -18,8 +18,6 @@
 package com.netscape.cms.servlet.request;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -84,8 +82,8 @@ public abstract class CMSRequestDAO {
      */
     public CMSRequestInfos listCMSRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
-        List<CMSRequestInfo> list = new ArrayList<CMSRequestInfo>();
-        List<Link> links = new ArrayList<Link>();
+
+        CMSRequestInfos ret = new CMSRequestInfos();
         int totalSize = 0;
         int current = 0;
 
@@ -100,7 +98,7 @@ public abstract class CMSRequestDAO {
 
             for (int i = 0; i < numRecords; i++) {
                 IRequest request = vlvlist.getElementAt(i);
-                list.add(createCMSRequestInfo(request, uriInfo));
+                ret.addRequest(createCMSRequestInfo(request, uriInfo));
             }
         } else {
             // The non-vlv requests are indexed, but are not paginated.
@@ -109,13 +107,13 @@ public abstract class CMSRequestDAO {
             IRequestList requests = queue.listRequestsByFilter(filter, maxResults, maxTime);
 
             if (requests == null) {
-                return null;
+                return ret;
             }
             while (requests.hasMoreElements()) {
                 RequestId rid = requests.nextElement();
                 IRequest request = queue.findRequest(rid);
                 if (request != null) {
-                    list.add(createCMSRequestInfo(request, uriInfo));
+                    ret.addRequest(createCMSRequestInfo(request, uriInfo));
                 }
             }
         }
@@ -137,7 +135,7 @@ public abstract class CMSRequestDAO {
             int next = current + pageSize + 1;
             URI nextUri = builder.clone().build(next, pageSize);
             Link nextLink = new Link("next", nextUri.toString(), "application/xml");
-            links.add(nextLink);
+            ret.addLink(nextLink);
         }
 
         // previous link
@@ -145,12 +143,9 @@ public abstract class CMSRequestDAO {
             int previous = current - pageSize;
             URI previousUri = builder.clone().build(previous, pageSize);
             Link previousLink = new Link("previous", previousUri.toString(), "application/xml");
-            links.add(previousLink);
+            ret.addLink(previousLink);
         }
 
-        CMSRequestInfos ret = new CMSRequestInfos();
-        ret.setRequests(list);
-        ret.setLinks(links);
         return ret;
     }
 
