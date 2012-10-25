@@ -2304,22 +2304,15 @@ public class ProfileAdminServlet extends AdminServlet {
 
             String config = null;
 
-            ISubsystem subsystem = CMS.getSubsystem("ca");
-            String subname = "ca";
-
-            if (subsystem == null)
-                subname = "ra";
-
             try {
-                config = CMS.getConfigStore().getString("instanceRoot") +
-                        "/profiles/" + subname + "/" + id + ".cfg";
+                config = CMS.getConfigStore().getString("profile." + id + ".config");
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
+                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req));
 
                 audit(auditMessage);
 
@@ -2464,15 +2457,25 @@ public class ProfileAdminServlet extends AdminServlet {
             if (subsystem == null)
                 subname = "ra";
 
+            String subpath = "/profiles/";
+
             try {
-                config = CMS.getConfigStore().getString("instanceRoot") + "/profiles/" + subname + "/" + id + ".cfg";
+                String version = CMS.getConfigStore().getString("cms.version");
+                if (version.indexOf('.') > -1) {
+                    version = version.substring(0, version.indexOf('.'));
+                }
+                int v = Integer.parseInt(version);
+                if (v >= 10) {
+                    subpath = "/ca/profiles/";
+                }
+                config = CMS.getConfigStore().getString("instanceRoot") + subpath + subname + "/" + id + ".cfg";
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
+                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req));
 
                 audit(auditMessage);
 
