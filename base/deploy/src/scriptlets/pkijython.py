@@ -193,6 +193,28 @@ def generateCRMFRequest(token, keysize, subjectdn, dualkey):
         Req1 = Utils.base64encode(encoded)
         return Req1
 
+COMMENT_CHAR = '#'
+OPTION_CHAR =  '='
+def read_simple_configuration_file(filename):
+    values = {}
+    f = open(filename)
+    for line in f:
+        # First, remove comments:
+        if COMMENT_CHAR in line:
+            # split on comment char, keep only the part before
+            line, comment = line.split(COMMENT_CHAR, 1)
+        # Second, find lines with an name=value:
+        if OPTION_CHAR in line:
+            # split on name char:
+            name, value = line.split(OPTION_CHAR, 1)
+            # strip spaces:
+            name = name.strip()
+            value = value.strip()
+            # store in dictionary:
+            values[name] = value
+    f.close()
+    return values
+
 
 # PKI Deployment 'security databases' Class
 class security_databases:
@@ -361,6 +383,36 @@ class rest_client:
         cert.setToken(self.master["pki_%s_token" % tag])
         return cert
 
+    def retrieve_existing_server_cert(self, cfg_file):
+        cs_cfg = read_simple_configuration_file(cfg_file)
+        cstype = cs_cfg.get('cs.type').lower()
+        cert = SystemCertData()
+        cert.setTag(self.master["pki_ssl_server_tag"])
+        cert.setKeyAlgorithm(self.master["pki_ssl_server_key_algorithm"])
+        cert.setKeySize(self.master["pki_ssl_server_key_size"])
+        cert.setKeyType(self.master["pki_ssl_server_key_type"])
+        cert.setNickname(cs_cfg.get(cstype + ".sslserver.nickname"))
+        cert.setCert(cs_cfg.get(cstype + ".sslserver.cert"))
+        cert.setRequest(cs_cfg.get(cstype + ".sslserver.certreq"))
+        cert.setSubjectDN(self.master["pki_ssl_server_subject_dn"])
+        cert.setToken(cs_cfg.get(cstype + ".sslserver.tokenname"))
+        return cert
+
+    def tomcat_instance_subsystems(self):
+        # Return list of PKI subsystems in the specified tomcat instance
+        rv = []
+        try:
+            for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+                path = self.master['pki_instance_path'] + "/" + subsystem.lower()
+                if os.path.exists(path) and os.path.isdir(path):
+                    rv.append(subsystem)
+        except Exception, e:
+            javasystem.out.println(
+                log.PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION + " " + str(e))
+            javasystem.exit(1)
+        return rv
+
+
     def construct_pki_configuration_data(self, token):
         data = None
         master = self.master
@@ -455,7 +507,21 @@ class rest_client:
 
             # Create 'SSL Server Certificate'
             # all subsystems
-            cert3 = self.create_system_cert("ssl_server")
+
+            # create new sslserver cert only if this is a new instance
+            cert3 = None
+            system_list = self.tomcat_instance_subsystems()
+            if len(system_list) >= 2:
+                data.setGenerateServerCert("false")
+                for subsystem in system_list:
+                    dst = master['pki_instance_path'] + '/conf/' +\
+                        subsystem.lower() + '/CS.cfg' 
+                    if subsystem != master['pki_subsystem'] and \
+                       os.path.exists(dst):
+                        cert3 = self.retrieve_existing_server_cert(dst)
+                        break
+            else:
+                cert3 = self.create_system_cert("ssl_server")
             systemCerts.add(cert3)
 
             # Create 'Subsystem Certificate'
@@ -481,6 +547,7 @@ class rest_client:
                     systemCerts.add(cert7)
 
             data.setSystemCerts(systemCerts)
+
         return data
 
     def configure_pki_data(self, data):

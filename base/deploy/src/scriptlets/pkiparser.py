@@ -1369,7 +1369,8 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_client_dir'] =\
                 os.path.join(
                     "/tmp",
-                    config.pki_master_dict['pki_instance_id'] + "_" + "client")
+                    config.pki_master_dict['pki_instance_id'] + "_" +\
+                    config.pki_subsystem + "_" + "client")
         if not len(config.pki_master_dict['pki_client_database_dir']):
             config.pki_master_dict['pki_client_database_dir'] =\
                 os.path.join(
@@ -1440,17 +1441,19 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_clone_pkcs12_path']
         #         config.pki_master_dict['pki_clone_uri']
         #         config.pki_master_dict['pki_security_domain_https_port']
-        #         config.pki_master_dict['pki_security_domain_user']
         #         config.pki_master_dict['pki_token_name']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
         #
+        #         config.pki_master_dict['pki_security_domain_user']
         #         config.pki_master_dict['pki_issuing_ca']
         #         config.pki_master_dict['pki_security_domain_hostname']
         #         config.pki_master_dict['pki_security_domain_name']
         #         config.pki_master_dict['pki_subsystem_name']
         #
+        if not len(config.pki_master_dict['pki_security_domain_user']):
+            config.pki_master_dict['pki_security_domain_user'] = "caadmin"
         if not len(config.pki_master_dict['pki_subsystem_name']):
             config.pki_master_dict['pki_subsystem_name'] =\
                 config.pki_subsystem + " " +\
@@ -1534,10 +1537,12 @@ def compose_pki_master_dictionary():
                 # place a master and clone on the same machine (the method
                 # most often used for testing purposes)
                 config.pki_master_dict['pki_ds_base_dn'] =\
-                    "o=" + config.pki_master_dict['pki_instance_id']
+                    "o=" + config.pki_master_dict['pki_instance_id'] +\
+                    "-" + config.pki_subsystem
         if not len(config.pki_master_dict['pki_ds_database']):
             config.pki_master_dict['pki_ds_database'] =\
-                config.pki_master_dict['pki_instance_id']
+                config.pki_master_dict['pki_instance_id'] +\
+                "-" + config.pki_subsystem
         if not len(config.pki_master_dict['pki_ds_hostname']):
             # Guess that the Directory Server resides on the local host
             config.pki_master_dict['pki_ds_hostname'] =\
@@ -1592,17 +1597,23 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_admin_cert_request_type']
         #         config.pki_master_dict['pki_admin_dualkey']
         #         config.pki_master_dict['pki_admin_keysize']
-        #         config.pki_master_dict['pki_admin_name']
-        #         config.pki_master_dict['pki_admin_uid']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
         #
+        #         config.pki_master_dict['pki_admin_name']
+        #         config.pki_master_dict['pki_admin_uid']
         #         config.pki_master_dict['pki_admin_email']
         #         config.pki_master_dict['pki_admin_nickname']
         #         config.pki_master_dict['pki_admin_subject_dn']
         #
         config.pki_master_dict['pki_admin_profile_id'] = "caAdminCert"
+        if not len(config.pki_master_dict['pki_admin_uid']):
+            config.pki_master_dict['pki_admin_uid'] =\
+                config.pki_subsystem.lower() + "admin"
+        if not len (config.pki_master_dict['pki_admin_name']):
+            config.pki_master_dict['pki_admin_name'] =\
+                config.pki_master_dict['pki_admin_uid']
         if not len(config.pki_master_dict['pki_admin_email']):
             config.pki_master_dict['pki_admin_email'] =\
                 config.pki_master_dict['pki_admin_name'] + "@" +\
@@ -1774,7 +1785,8 @@ def compose_pki_master_dictionary():
                                ['pki_ca_signing_nickname']):
                         config.pki_master_dict['pki_ca_signing_nickname'] =\
                             "caSigningCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id']
+                            config.pki_master_dict['pki_instance_id'] + " " +\
+                            config.pki_subsystem
                     # config.pki_master_dict['pki_ca_signing_subject_dn']
                     if config.str2bool(config.pki_master_dict['pki_external']):
                         # External CA
@@ -1841,7 +1853,8 @@ def compose_pki_master_dictionary():
                                ['pki_ocsp_signing_nickname']):
                         config.pki_master_dict['pki_ocsp_signing_nickname'] =\
                             "ocspSigningCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id']
+                            config.pki_master_dict['pki_instance_id'] + " " +\
+                            config.pki_subsystem
                     if config.str2bool(config.pki_master_dict['pki_external']):
                         # External CA
                         if not len(config.pki_master_dict\
@@ -1882,7 +1895,8 @@ def compose_pki_master_dictionary():
                                ['pki_ocsp_signing_nickname']):
                         config.pki_master_dict['pki_ocsp_signing_nickname'] =\
                             "ocspSigningCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id']
+                            config.pki_master_dict['pki_instance_id'] + " " +\
+                            config.pki_subsystem
                     if not len(config.pki_master_dict\
                                ['pki_ocsp_signing_subject_dn']):
                         config.pki_master_dict['pki_ocsp_signing_subject_dn'] =\
@@ -1913,11 +1927,11 @@ def compose_pki_master_dictionary():
         #         config.pki_master_dict['pki_ssl_server_key_algorithm']
         #         config.pki_master_dict['pki_ssl_server_key_size']
         #         config.pki_master_dict['pki_ssl_server_key_type']
+        #         config.pki_master_dict['pki_ssl_server_nickname']
         #
         #     The following variables are established via the specified PKI
         #     deployment configuration file and potentially overridden below:
         #
-        #         config.pki_master_dict['pki_ssl_server_nickname']
         #         config.pki_master_dict['pki_ssl_server_subject_dn']
         #         config.pki_master_dict['pki_ssl_server_token']
         #
@@ -1979,7 +1993,8 @@ def compose_pki_master_dictionary():
             if not len(config.pki_master_dict['pki_subsystem_nickname']):
                 config.pki_master_dict['pki_subsystem_nickname'] =\
                     "subsystemCert" + " " + "cert-" +\
-                    config.pki_master_dict['pki_instance_id']
+                    config.pki_master_dict['pki_instance_id'] + " " +\
+                    config.pki_subsystem
             if not len(config.pki_master_dict['pki_subsystem_subject_dn']):
                 if config.pki_master_dict['pki_subsystem'] == "RA":
                     # PKI RA
@@ -2004,7 +2019,8 @@ def compose_pki_master_dictionary():
                 if not len(config.pki_master_dict['pki_subsystem_nickname']):
                     config.pki_master_dict['pki_subsystem_nickname'] =\
                         "subsystemCert" + " " + "cert-" +\
-                        config.pki_master_dict['pki_instance_id']
+                        config.pki_master_dict['pki_instance_id'] + " " +\
+                        config.pki_subsystem
                 if not len(config.pki_master_dict['pki_subsystem_subject_dn']):
                     if config.pki_master_dict['pki_subsystem'] == "CA":
                         if config.str2bool(
@@ -2085,7 +2101,8 @@ def compose_pki_master_dictionary():
                            ['pki_audit_signing_nickname']):
                     config.pki_master_dict['pki_audit_signing_nickname'] =\
                         "auditSigningCert" + " " + "cert-" +\
-                        config.pki_master_dict['pki_instance_id']
+                        config.pki_master_dict['pki_instance_id'] +" " +\
+                        config.pki_subsystem
                 if not len(config.pki_master_dict\
                            ['pki_audit_signing_subject_dn']):
                     config.pki_master_dict['pki_audit_signing_subject_dn'] =\
@@ -2104,7 +2121,8 @@ def compose_pki_master_dictionary():
                            ['pki_audit_signing_nickname']):
                     config.pki_master_dict['pki_audit_signing_nickname'] =\
                         "auditSigningCert" + " " + "cert-" +\
-                        config.pki_master_dict['pki_instance_id']
+                        config.pki_master_dict['pki_instance_id'] + " " +\
+                        config.pki_subsystem
                 if not len(config.pki_master_dict\
                            ['pki_audit_signing_subject_dn']):
                     if config.pki_master_dict['pki_subsystem'] == "CA":
@@ -2186,7 +2204,8 @@ def compose_pki_master_dictionary():
                                ['pki_transport_nickname']):
                         config.pki_master_dict['pki_transport_nickname'] =\
                             "transportCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id']
+                            config.pki_master_dict['pki_instance_id'] + " " +\
+                            config.pki_subsystem
                     if not len(config.pki_master_dict\
                                ['pki_transport_subject_dn']):
                         config.pki_master_dict['pki_transport_subject_dn']\
@@ -2229,7 +2248,8 @@ def compose_pki_master_dictionary():
                     if not len(config.pki_master_dict['pki_storage_nickname']):
                         config.pki_master_dict['pki_storage_nickname'] =\
                             "storageCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id']
+                            config.pki_master_dict['pki_instance_id'] + " " +\
+                            config.pki_subsystem
                     if not len(config.pki_master_dict\
                                ['pki_storage_subject_dn']):
                         config.pki_master_dict['pki_storage_subject_dn']\

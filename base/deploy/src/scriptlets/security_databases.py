@@ -63,7 +63,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
             util.file.modify(master['pki_secmod_database'], perms=\
                 config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-            rv = util.certutil.verify_certificate_exists(
+
+            if util.instance.tomcat_instance_subsystems() < 2:
+                # only create a self signed cert for a new instance  
+                rv = util.certutil.verify_certificate_exists(
                      master['pki_database_path'],
                      master['pki_cert_database'],
                      master['pki_key_database'],
@@ -71,28 +74,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      master['pki_self_signed_token'],
                      master['pki_self_signed_nickname'],
                      password_file=master['pki_shared_pfile'])
-            if not rv:
-                util.file.generate_noise_file(
-                    master['pki_self_signed_noise_file'],
-                    master['pki_self_signed_noise_bytes'])
-                util.certutil.generate_self_signed_certificate(
-                    master['pki_database_path'],
-                    master['pki_cert_database'],
-                    master['pki_key_database'],
-                    master['pki_secmod_database'],
-                    master['pki_self_signed_token'],
-                    master['pki_self_signed_nickname'],
-                    master['pki_self_signed_subject'],
-                    master['pki_self_signed_serial_number'],
-                    master['pki_self_signed_validity_period'],
-                    master['pki_self_signed_issuer_name'],
-                    master['pki_self_signed_trustargs'],
-                    master['pki_self_signed_noise_file'],
-                    password_file=master['pki_shared_pfile'])
-                # Delete the temporary 'noise' file
-                util.file.delete(master['pki_self_signed_noise_file'])
-            # Delete the temporary 'pfile'
-            util.file.delete(master['pki_shared_pfile'])
+                if not rv:
+                    util.file.generate_noise_file(
+                        master['pki_self_signed_noise_file'],
+                        master['pki_self_signed_noise_bytes'])
+                    util.certutil.generate_self_signed_certificate(
+                        master['pki_database_path'],
+                        master['pki_cert_database'],
+                        master['pki_key_database'],
+                        master['pki_secmod_database'],
+                        master['pki_self_signed_token'],
+                        master['pki_self_signed_nickname'],
+                        master['pki_self_signed_subject'],
+                        master['pki_self_signed_serial_number'],
+                        master['pki_self_signed_validity_period'],
+                        master['pki_self_signed_issuer_name'],
+                        master['pki_self_signed_trustargs'],
+                        master['pki_self_signed_noise_file'],
+                        password_file=master['pki_shared_pfile'])
+                    # Delete the temporary 'noise' file
+                    util.file.delete(master['pki_self_signed_noise_file'])
+                # Delete the temporary 'pfile'
+                util.file.delete(master['pki_shared_pfile'])
         else:
             util.password.create_password_conf(
                 master['pki_shared_password_conf'],

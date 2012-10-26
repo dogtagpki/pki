@@ -437,6 +437,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
         }
 
+        boolean generateServerCert = data.getGenerateServerCert().equalsIgnoreCase("false")? false : true;
         boolean hasSigningCert = false;
         Vector<Cert> certs = new Vector<Cert>();
         try {
@@ -452,6 +453,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 while (iterator.hasNext()) {
                     cdata = iterator.next();
                     if (cdata.getTag().equals(ct)) break;
+                }
+
+                if (!generateServerCert && ct.equals("sslserver")) {
+                    if (!cdata.getToken().equals("internal")) {
+                        cs.putString(csType.toLowerCase() + ".cert.sslserver.nickname", cdata.getNickname());
+                    } else {
+                        cs.putString(csType.toLowerCase() + ".cert.sslserver.nickname", data.getToken() +
+                                ":" + cdata.getNickname());
+                    }
+                    cs.putString(csType.toLowerCase() + ".sslserver.nickname", cdata.getNickname());
+                    cs.putString(csType.toLowerCase() + ".sslserver.cert", cdata.getCert());
+                    cs.putString(csType.toLowerCase() + ".sslserver.certreq", cdata.getRequest());
+                    cs.putString(csType.toLowerCase() + ".sslserver.tokenname", cdata.getToken());
+                    cs.putString(csType.toLowerCase() + ".sslserver.cert", cdata.getCert());
+                    continue;
                 }
 
                 String keytype = (cdata.getKeyType() != null) ? cdata.getKeyType() : "rsa";
@@ -909,5 +925,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
 
+        if (data.getGenerateServerCert() == null) {
+            data.setGenerateServerCert("true");
+        }
     }
 }

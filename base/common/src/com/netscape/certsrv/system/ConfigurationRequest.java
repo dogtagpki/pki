@@ -71,6 +71,7 @@ public class ConfigurationRequest {
     private static final String ADMIN_NAME = "adminName";
     private static final String ADMIN_PROFILE_ID = "adminProfileID";
     private static final String STEP_TWO = "stepTwo";
+    private static final String GENERATE_SERVER_CERT = "generateServerCert";
 
     //defaults
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
@@ -197,6 +198,9 @@ public class ConfigurationRequest {
     @XmlElement
     protected String stepTwo;
 
+    @XmlElement(defaultValue = "true")
+    protected String generateServerCert;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -241,6 +245,7 @@ public class ConfigurationRequest {
         adminName = form.getFirst(ADMIN_NAME);
         adminProfileID = form.getFirst(ADMIN_PROFILE_ID);
         stepTwo = form.getFirst(STEP_TWO);
+        generateServerCert = form.getFirst(GENERATE_SERVER_CERT);
     }
 
 
@@ -734,6 +739,14 @@ public class ConfigurationRequest {
         this.replicateSchema = replicateSchema;
     }
 
+    public String getGenerateServerCert() {
+        return generateServerCert;
+    }
+
+    public void setGenerateServerCert(String generateServerCert) {
+        this.generateServerCert = generateServerCert;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -774,7 +787,7 @@ public class ConfigurationRequest {
                ", adminSubjectDN=" + adminSubjectDN +
                ", adminName=" + adminName +
                ", adminProfileID=" + adminProfileID +
+               ", generateServerCert=" + generateServerCert +
                ", stepTwo=" + stepTwo + "]";
     }
-
 }
