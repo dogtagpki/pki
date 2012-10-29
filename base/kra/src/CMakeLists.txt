@@ -88,7 +88,7 @@ javac(pki-kra-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
+        symkey-jar pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmscore-jar
 )
 
 configure_file(
@@ -98,7 +98,7 @@ configure_file(
 
 jar(pki-kra-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-kra-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
     OPTIONS
         m
     PARAMS
@@ -111,19 +111,9 @@ jar(pki-kra-jar
         pki-kra-classes
 )
 
-link(pki-kra
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
-    DEST
-        pki-kra-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-kra-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-kra-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

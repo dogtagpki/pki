@@ -13,7 +13,7 @@ javac(pki-util-test-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/test/classes
     DEPENDS
-        pki-test-classes pki-nsutil pki-cmsutil
+        pki-test-classes pki-nsutil-jar pki-cmsutil-jar
 )
 
 # create test target

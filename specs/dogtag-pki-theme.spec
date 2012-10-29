@@ -7,7 +7,7 @@
 
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}2%{?prerel}%{?dist}
+Release:          %{?relprefix}3%{?prerel}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -361,6 +361,9 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Wed Oct 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.b1
+- TRAC Ticket #350 - Dogtag 10: Remove version numbers from PKI jar files . . .
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.b1
 - Update release to b1
 

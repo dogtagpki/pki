@@ -29,7 +29,7 @@ javadoc(pki-javadoc
         -use
         -version
     DEPENDS
-        pki-cmsutil pki-certsrv pki-cms pki-tools
+        pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-tools-jar
 )
 
 install(

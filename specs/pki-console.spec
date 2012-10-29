@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}8%{?prerel}%{?dist}
+Release:          %{?relprefix}9%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -102,6 +102,9 @@ cd build
 
 
 %changelog
+* Wed Oct 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.9.b1
+- TRAC Ticket #350 - Dogtag 10: Remove version numbers from PKI jar files . . .
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.8.b1
 - Update release to b1
 

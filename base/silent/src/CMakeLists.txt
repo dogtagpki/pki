@@ -36,7 +36,7 @@ javac(pki-silent-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms
+        symkey-jar pki-cmsutil-jar pki-nsutil-jar pki-certsrv-jar pki-cms-jar
 )
 
 configure_file(
@@ -46,7 +46,7 @@ configure_file(
 
 jar(pki-silent-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-silent-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-silent.jar
     OPTIONS
         m
     PARAMS
@@ -62,19 +62,9 @@ jar(pki-silent-jar
         pki-silent-classes
 )
 
-link(pki-silent
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-silent.jar
-    DEST
-        pki-silent-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-silent-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-silent.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-silent-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

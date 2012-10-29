@@ -9,21 +9,21 @@ find_file(PKI_CERTSRV_JAR
 
 find_file(PKI_CMS_JAR
     NAMES
-		pki-cms
+		pki-cms.jar
     PATHS
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
 find_file(PKI_CMSCORE_JAR
     NAMES
-		pki-cmscore
+		pki-cmscore.jar
     PATHS
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
 find_file(PKI_CMSBUNDLE_JAR
     NAMES
-		pki-cmsbundle
+		pki-cmsbundle.jar
     PATHS
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -44,8 +44,8 @@ javac(pki-common-test-classes
         ${CMAKE_BINARY_DIR}/test/classes
     DEPENDS
         pki-test-classes
-        pki-nsutil pki-cmsutil
-        pki-certsrv pki-cms pki-cmscore pki-cmsbundle
+        pki-nsutil-jar pki-cmsutil-jar
+        pki-certsrv-jar pki-cms-jar pki-cmscore-jar pki-cmsbundle-jar
 )
 
 # create test target

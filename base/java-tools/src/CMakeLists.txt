@@ -94,7 +94,7 @@ javac(pki-tools-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil pki-certsrv
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
 )
 
 configure_file(
@@ -104,7 +104,7 @@ configure_file(
 
 jar(pki-tools-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tools-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
     OPTIONS
         m
     PARAMS
@@ -117,19 +117,9 @@ jar(pki-tools-jar
         pki-tools-classes
 )
 
-link(pki-tools
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
-    DEST
-        pki-tools-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-tools-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-tools-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

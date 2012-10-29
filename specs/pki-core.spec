@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}46%{?prerel}%{?dist}
+Release:          %{?relprefix}47%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -661,21 +661,6 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-cd %{buildroot}%{_libdir}/symkey
-%{__rm} symkey.jar
-%if 0%{?fedora} >= 16
-%{__rm} %{buildroot}%{_jnidir}/symkey.jar
-%{__mv} symkey-%{version}.jar %{buildroot}%{_jnidir}/symkey.jar
-%else
-%{__ln_s} symkey-%{version}.jar symkey.jar
-%endif
-
-%if 0%{?rhel} || 0%{?fedora} < 16
-cd %{buildroot}%{_jnidir}
-%{__rm} symkey.jar
-%{__ln_s} %{_libdir}/symkey/symkey.jar symkey.jar
-%endif
-
 %if 0%{?fedora} >= 15
 # Details:
 #
@@ -1049,11 +1034,8 @@ fi
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
 %dir %{_javadir}/pki
-%{_javadir}/pki/pki-cmsutil-%{version}.jar
 %{_javadir}/pki/pki-cmsutil.jar
-%{_javadir}/pki/pki-nsutil-%{version}.jar
 %{_javadir}/pki/pki-nsutil.jar
-%{_javadir}/pki/pki-certsrv-%{version}.jar
 %{_javadir}/pki/pki-certsrv.jar
 
 %files -n pki-tools
@@ -1086,7 +1068,6 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_javadir}/pki/pki-tools-%{version}.jar
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
 
@@ -1128,15 +1109,10 @@ fi
 %{_unitdir}/pki-tomcatd@.service
 %{_unitdir}/pki-tomcatd.target
 %endif
-%{_javadir}/pki/pki-cms-%{version}.jar
 %{_javadir}/pki/pki-cms.jar
-%{_javadir}/pki/pki-cmsbundle-%{version}.jar
 %{_javadir}/pki/pki-cmsbundle.jar
-%{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
-%{_javadir}/pki/pki-silent-%{version}.jar
 %{_javadir}/pki/pki-silent.jar
-%{_javadir}/pki/pki-tomcat-%{version}.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_localstatedir}/lock/pki/tomcat
 %dir %{_localstatedir}/run/pki/tomcat
@@ -1186,7 +1162,6 @@ fi
 %else 
 %{_initrddir}/pki-cad
 %endif
-%{_javadir}/pki/pki-ca-%{version}.jar
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
@@ -1217,7 +1192,6 @@ fi
 %else 
 %{_initrddir}/pki-krad
 %endif
-%{_javadir}/pki/pki-kra-%{version}.jar
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
@@ -1245,7 +1219,6 @@ fi
 %else 
 %{_initrddir}/pki-ocspd
 %endif
-%{_javadir}/pki/pki-ocsp-%{version}.jar
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
@@ -1273,7 +1246,6 @@ fi
 %else 
 %{_initrddir}/pki-tksd
 %endif
-%{_javadir}/pki/pki-tks-%{version}.jar
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
@@ -1299,6 +1271,9 @@ fi
 
 
 %changelog
+* Wed Oct 24 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.47.b1
+- TRAC Ticket #350 - Dogtag 10: Remove version numbers from PKI jar files . . .
+
 * Tue Oct 23 2012 Ade Lee <alee@redhat.com> 10.0.0-0.46.b1
 - Added Obsoletes for pki-selinux
 

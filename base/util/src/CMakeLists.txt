@@ -64,7 +64,7 @@ configure_file(
 
 jar(pki-nsutil-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-nsutil-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-nsutil.jar
     OPTIONS
         m
     PARAMS
@@ -77,19 +77,9 @@ jar(pki-nsutil-jar
         pki-nsutil-classes
 )
 
-link(pki-nsutil
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-nsutil.jar
-    DEST
-        pki-nsutil-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-nsutil-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-nsutil.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-nsutil-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -107,7 +97,7 @@ javac(pki-cmsutil-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil
+        pki-nsutil-jar
 )
 
 configure_file(
@@ -117,7 +107,7 @@ configure_file(
 
 jar(pki-cmsutil-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsutil-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsutil.jar
     OPTIONS
         m
     PARAMS
@@ -130,19 +120,9 @@ jar(pki-cmsutil-jar
         pki-cmsutil-classes
 )
 
-link(pki-cmsutil
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsutil.jar
-    DEST
-        pki-cmsutil-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-cmsutil-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-cmsutil.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsutil-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

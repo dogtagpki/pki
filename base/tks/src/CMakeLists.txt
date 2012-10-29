@@ -89,7 +89,7 @@ javac(pki-tks-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        symkey pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore
+        symkey-jar pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmscore-jar
 )
 
 configure_file(
@@ -99,7 +99,7 @@ configure_file(
 
 jar(pki-tks-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tks-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
     OPTIONS
         m
     PARAMS
@@ -112,19 +112,9 @@ jar(pki-tks-jar
         pki-tks-classes
 )
 
-link(pki-tks
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
-    DEST
-        pki-tks-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-tks-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-tks-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

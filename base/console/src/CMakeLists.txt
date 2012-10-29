@@ -106,7 +106,7 @@ configure_file(
 # package console classes and resources
 jar(pki-console-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-console.jar
     OPTIONS
         m
     PARAMS
@@ -123,19 +123,9 @@ jar(pki-console-jar
         pki-console-classes
 )
 
-link(pki-console
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-console.jar
-    DEST
-        pki-console-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-console-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-console.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-console-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

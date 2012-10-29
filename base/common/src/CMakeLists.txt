@@ -133,7 +133,7 @@ javac(pki-certsrv-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil
+        pki-nsutil-jar pki-cmsutil-jar
 )
 
 configure_file(
@@ -143,7 +143,7 @@ configure_file(
 
 jar(pki-certsrv-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
     OPTIONS
         m
     PARAMS
@@ -156,19 +156,9 @@ jar(pki-certsrv-jar
         pki-certsrv-classes
 )
 
-link(pki-certsrv
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
-    DEST
-        pki-certsrv-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-certsrv-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -193,7 +183,7 @@ javac(pki-cms-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil pki-certsrv
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
 )
 
 configure_file(
@@ -203,7 +193,7 @@ configure_file(
 
 jar(pki-cms-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cms-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
     OPTIONS
         m
     PARAMS
@@ -218,19 +208,9 @@ jar(pki-cms-jar
         pki-cms-classes
 )
 
-link(pki-cms
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
-    DEST
-        pki-cms-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-cms-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-cms-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -247,7 +227,7 @@ javac(pki-tomcat-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-cms
+        pki-cms-jar
 )
 
 configure_file(
@@ -257,7 +237,7 @@ configure_file(
 
 jar(pki-tomcat-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tomcat-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
     OPTIONS
         m
     PARAMS
@@ -270,19 +250,9 @@ jar(pki-tomcat-jar
         pki-tomcat-classes
 )
 
-link(pki-tomcat
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
-    DEST
-        pki-tomcat-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-tomcat-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-tomcat-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -305,7 +275,7 @@ javac(pki-cmscore-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-tomcat
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-tomcat-jar
 )
 
 configure_file(
@@ -315,7 +285,7 @@ configure_file(
 
 jar(pki-cmscore-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmscore-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
     OPTIONS
         m
     PARAMS
@@ -328,19 +298,9 @@ jar(pki-cmscore-jar
         pki-cmscore-classes
 )
 
-link(pki-cmscore
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
-    DEST
-        pki-cmscore-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-cmscore-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-cmscore-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -356,7 +316,7 @@ configure_file(
 
 jar(pki-cmsbundle-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
     OPTIONS
         m
     PARAMS
@@ -368,19 +328,9 @@ jar(pki-cmsbundle-jar
         pki-cmsbundle-jar
 )
 
-link(pki-cmsbundle
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
-    DEST
-        pki-cmsbundle-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-cmsbundle-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

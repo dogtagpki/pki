@@ -2,7 +2,7 @@ set(pki-console-theme_java Java)
 
 jar(pki-console-theme-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-console-theme-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
     FILES
         CMSAdminRS.properties
         com/netscape/management/client/theme/theme.properties
@@ -13,19 +13,9 @@ jar(pki-console-theme-jar
         com/netscape/admin/certsrv/theme/certmgmt.gif
 )
 
-link(pki-console-theme
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
-    DEST
-        pki-console-theme-${APPLICATION_VERSION}.jar
-    DEPENDS
-        pki-console-theme-jar
-)
-
 install(
     FILES
         ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
-        ${CMAKE_BINARY_DIR}/dist/pki-console-theme-${APPLICATION_VERSION}.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

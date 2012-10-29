@@ -20,30 +20,13 @@ javac(symkey-classes
 
 jar(symkey-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/symkey-${APPLICATION_VERSION}.jar
+        ${CMAKE_BINARY_DIR}/dist/symkey.jar
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/symkey/*.class
     DEPENDS
         symkey-classes
-)
-
-link(symkey
-    SOURCE
-        ${CMAKE_BINARY_DIR}/dist/symkey.jar
-    DEST
-        symkey-${APPLICATION_VERSION}.jar
-    DEPENDS
-        symkey-jar
-)
-
-install(
-    FILES
-        ${CMAKE_BINARY_DIR}/dist/symkey.jar
-        ${CMAKE_BINARY_DIR}/dist/symkey-${APPLICATION_VERSION}.jar
-    DESTINATION
-        ${LIB_INSTALL_DIR}/symkey
 )
 
 install(
