@@ -37,6 +37,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_subsystem'],
                             master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
+        if config.str2bool(master['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
         config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # verify that this type of "subsystem" does NOT yet

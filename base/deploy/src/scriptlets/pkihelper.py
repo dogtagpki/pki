@@ -416,6 +416,25 @@ class namespace:
 
 # PKI Deployment Configuration File Class
 class configuration_file:
+    def log_configuration_url(self):
+        # NOTE:  This is the one and only parameter containing a sensitive
+        #        parameter that may be stored in a log file.
+        config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_URL_1,
+                            sensitive['pki_configuration_url'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+        config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_RESTART_1,
+                            master['pki_registry_initscript_command'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+
+    def display_configuration_url(self):
+        # NOTE:  This is the one and only parameter containing a sensitive
+        #        parameter that may be displayed to the screen.
+        print log.PKI_CONFIGURATION_URL_1 % sensitive['pki_configuration_url']
+        print
+        print log.PKI_CONFIGURATION_RESTART_1 %\
+              master['pki_registry_initscript_command']
+        print
+
     def verify_sensitive_data(self):
         # Silently verify the existence of 'sensitive' data
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:

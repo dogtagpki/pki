@@ -37,6 +37,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if config.str2bool(master['pki_skip_installation']):
+                config.pki_log.info(log.SKIP_WEBAPP_DEPLOYMENT_SPAWN_1,
+                                     __name__,
+                                    extra=config.PKI_INDENTATION_LEVEL_1)
+                return self.rv
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             # deploy war file

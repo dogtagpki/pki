@@ -40,7 +40,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         selinux.restorecon(master['pki_instance_configuration_path'], True)
 
     def spawn(self):
-        config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
+        if config.str2bool(master['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_SELINUX_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
+        config.pki_log.info(log.SELINUX_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # check first if any transactions are required
@@ -98,13 +102,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         return self.rv
 
     def respawn(self):
-        config.pki_log.info(log.SUBSYSTEM_RESPAWN_1, __name__,
+        config.pki_log.info(log.SELINUX_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         self.restore_context()
         return self.rv
 
     def destroy(self):
-        config.pki_log.info(log.SUBSYSTEM_DESTROY_1, __name__,
+        config.pki_log.info(log.SELINUX_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # check first if any transactions are required

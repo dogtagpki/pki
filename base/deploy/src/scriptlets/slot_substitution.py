@@ -33,6 +33,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
+        if config.str2bool(master['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_SLOT_ASSIGNMENT_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         util.file.copy_with_slot_substitution(master['pki_source_cs_cfg'],

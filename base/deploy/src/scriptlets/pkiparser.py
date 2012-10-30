@@ -2266,6 +2266,36 @@ def compose_pki_master_dictionary():
             config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
             "respawn" + "_" + "manifest" + "." +\
             config.pki_master_dict['pki_timestamp']
+        # Construct the configuration URL containing the one-time pin
+        # and add this to the "sensitive" key value pairs read in from
+        # the configuration file
+        #
+        # NOTE:  This is the one and only parameter containing a sensitive
+        #        parameter that may be stored in a log file and displayed
+        #        to the screen.
+        #
+        config.pki_sensitive_dict['pki_configuration_url'] =\
+            "https://{}:{}/{}/{}?pin={}".format(
+                config.pki_master_dict['pki_hostname'],
+                config.pki_master_dict['pki_https_port'],
+                config.pki_master_dict['pki_subsystem'].lower(),
+                "admin/console/config/login",
+                config.pki_sensitive_dict['pki_one_time_pin'])
+        # Compose this "systemd" execution management command
+        if config.pki_master_dict['pki_subsystem'] in\
+           config.PKI_APACHE_SUBSYSTEMS:
+            config.pki_master_dict['pki_registry_initscript_command'] =\
+                "systemctl" + " " +\
+                "restart" + " " +\
+                "pki-apached" + "@" +\
+                config.pki_master_dict['pki_instance_id'] + "." + "service"
+        elif config.pki_master_dict['pki_subsystem'] in\
+             config.PKI_TOMCAT_SUBSYSTEMS:
+            config.pki_master_dict['pki_registry_initscript_command'] =\
+                "systemctl" + " " +\
+                "restart" + " " +\
+                "pki-tomcatd" + "@" +\
+                config.pki_master_dict['pki_instance_id'] + "." + "service"
     except OSError as exc:
         config.pki_log.error(log.PKI_OSERROR_1, exc,
                              extra=config.PKI_INDENTATION_LEVEL_2)

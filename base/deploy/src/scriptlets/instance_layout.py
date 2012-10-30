@@ -37,6 +37,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
+        if config.str2bool(master['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_INSTANCE_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
         config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance logs

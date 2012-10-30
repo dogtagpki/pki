@@ -33,6 +33,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
+        if config.str2bool(master['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_FINALIZATION_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
         config.pki_log.info(log.FINALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # For debugging/auditing purposes, save a timestamped copy of
@@ -65,6 +69,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(master['pki_client_database_purge']):
             if util.directory.exists(master['pki_client_dir']):
                 util.directory.delete(master['pki_client_dir'])
+        # If instance has not been configured, print the
+        # configuration URL to the log
+        if config.str2bool(master['pki_skip_configuration']):
+            util.configuration_file.log_configuration_url()
         # Log final process messages
         config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
@@ -72,6 +80,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_0)
         if not config.pki_dry_run_flag:
             util.file.modify(master['pki_spawn_log'], silent=True)
+        # If instance has not been configured, print the
+        # configuration URL to the screen
+        if config.str2bool(master['pki_skip_configuration']):
+            util.configuration_file.display_configuration_url()
         return self.rv
 
     def respawn(self):

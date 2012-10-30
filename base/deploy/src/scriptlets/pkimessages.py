@@ -55,6 +55,12 @@ PKI_VERBOSITY=\
 
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
+PKI_CONFIGURATION_RESTART_1 = "After configuration, the server can be "\
+                              "operated by the command:\n\n%s"
+PKI_CONFIGURATION_URL_1 = "Please start the configuration by accessing:\n\n%s"
+PKI_CONFIGURATION_WIZARD_RESTART_1 = "After configuration, the server can be "\
+                                     "operated by the command:\n%s"
+PKI_CONFIGURATION_WIZARD_URL_1 = "Configuration Wizard listening on\n%s"
 PKI_DIRECTORY_ALREADY_EXISTS_1 = "Directory '%s' already exists!"
 PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = "Directory '%s' already "\
                                                  "exists BUT it is NOT a "\
@@ -329,6 +335,9 @@ RESIDUAL_SPAWN_1 = "populating '%s'"
 SECURITY_DATABASES_DESTROY_1 = "removing '%s'"
 SECURITY_DATABASES_RESPAWN_1 = "regenerating '%s'"
 SECURITY_DATABASES_SPAWN_1 = "generating '%s'"
+SELINUX_DESTROY_1 = "depopulating '%s'"
+SELINUX_RESPAWN_1 = "repopulating '%s'"
+SELINUX_SPAWN_1 = "populating '%s'"
 SLOT_ASSIGNMENT_DESTROY_1 = "unassigning slots for '%s'"
 SLOT_ASSIGNMENT_RESPAWN_1 = "reassigning slots for '%s'"
 SLOT_ASSIGNMENT_SPAWN_1 = "assigning slots for '%s'"
@@ -338,3 +347,14 @@ SUBSYSTEM_SPAWN_1 = "populating '%s'"
 WEBAPP_DEPLOYMENT_DESTROY_1 = "removing '%s'"
 WEBAPP_DEPLOYMENT_RESPAWN_1 = "redeploying '%s'"
 WEBAPP_DEPLOYMENT_SPAWN_1 = "deploying '%s'"
+SKIP_ADMIN_DOMAIN_SPAWN_1 = "skip populating '%s'"
+SKIP_CONFIGURATION_SPAWN_1 = "skip configuring '%s'"
+SKIP_FINALIZATION_SPAWN_1 = "skip finalizing '%s'"
+SKIP_INITIALIZATION_SPAWN_1 = "skip initializing '%s'"
+SKIP_INSTANCE_SPAWN_1 = "skip populating '%s'"
+SKIP_RESIDUAL_SPAWN_1 = "skip populating '%s'"
+SKIP_SECURITY_DATABASES_SPAWN_1 = "skip generating '%s'"
+SKIP_SELINUX_SPAWN_1 = "skip populating '%s'"
+SKIP_SLOT_ASSIGNMENT_SPAWN_1 = "skip assigning slots for '%s'"
+SKIP_SUBSYSTEM_SPAWN_1 = "skip populating '%s'"
+SKIP_WEBAPP_DEPLOYMENT_SPAWN_1 = "skip deploying '%s'"
