@@ -322,7 +322,7 @@ public class CertPrettyPrint {
             sb.append(pp.toHexString(mX509Cert.getSignature(), 16, 16));
 
             // fingerprints
-            String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
+            String[] hashes = new String[] { "MD2", "MD5", "SHA-1", "SHA-256", "SHA-512" };
             StringBuffer certFingerprints = new StringBuffer();
 
             sb.append(pp.indent(8) + "FingerPrint\n");
