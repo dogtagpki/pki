@@ -1,13 +1,13 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .b1
+%global prerel .b2
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
 Name:             pki-tps
 Version:          10.0.0
-Release:          %{?relprefix}9%{?prerel}%{?dist}
+Release:          %{?relprefix}10%{?prerel}%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -278,6 +278,9 @@ fi
 
 
 %changelog
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.10.b2
+- Update release to b2
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.9.b1
 - Update release to b1
 

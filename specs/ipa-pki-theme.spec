@@ -1,13 +1,13 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .b1
+%global prerel .b2
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
 Name:             ipa-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}2%{?prerel}%{?dist}
+Release:          %{?relprefix}3%{?prerel}%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -135,6 +135,9 @@ cd build
 
 
 %changelog
+* Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.3.b2
+- Update release to b2
+
 * Mon Oct 8 2012 Ade Lee <alee@redhat.com> 10.0.0-0.2.b1
 - Update release to b1
 
