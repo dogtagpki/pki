@@ -48,7 +48,7 @@ add_custom_command(
 
 add_library(${SYMKEY_SHARED_LIBRARY} SHARED ${symkey_library_HDRS} ${symkey_library_SRCS})
 target_link_libraries(${SYMKEY_SHARED_LIBRARY} ${SYMKEY_LINK_LIBRARIES})
-add_dependencies(${SYMKEY_SHARED_LIBRARY} symkey)
+add_dependencies(${SYMKEY_SHARED_LIBRARY} symkey-jar)
 
 set_target_properties(${SYMKEY_SHARED_LIBRARY}
     PROPERTIES
