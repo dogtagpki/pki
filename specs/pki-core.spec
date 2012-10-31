@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.23
+Version:          9.0.24
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -296,6 +296,7 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jss >= 4.2.6-19.1
 Requires:         tomcatjss >= 6.0.2
+Requires:         tomcat6 >= 6.0.35
 %else
 %if 0%{?fedora} >= 15
 Requires:         apache-commons-lang
@@ -749,6 +750,13 @@ fi
 
 
 %changelog
+* Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.24-1
+- New official build
+- Used GetStatus servlet to provide startup status - (alee)
+- Audit Cert Renewal - Bugzilla Bug #843979 (mharmsen)
+- time based searches - Bugzilla Bug #854420 (awnuk)
+- TMS ECC infrastructure - ticket #304 (cfu)
+
 * Fri Sep  7 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.23-1
 - TRAC Ticket #301 - Need to modify init scripts to verify needed symlinks
   in an instance (support for non-default instance names) (mharmsen)

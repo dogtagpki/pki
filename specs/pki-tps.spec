@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.8
+Version:          9.0.9
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -277,6 +277,13 @@ fi
 
 
 %changelog
+* Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.9-1
+- New official build
+- Changes to allow tps to start correctly - (alee)
+- TMS - ECC Key Recovery - ticket #252 (cfu)
+- Provide default for operations transition list, related #858816 - (jmagne)
+- TMS ECC infrastructure - ticket #304 (cfu)
+
 * Wed Aug 22 2012 Ade Lee <alee@redhat.com> 9.0.8-1
 - Added systemd scripts
 

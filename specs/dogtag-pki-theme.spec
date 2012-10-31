@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.12
+Version:          9.0.13
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -350,6 +350,10 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.13-1
+- New official build
+- time based searches - Bugzilla Bug #854420 (awnuk)
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.12-1
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 

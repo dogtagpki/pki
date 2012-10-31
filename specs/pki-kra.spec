@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.12
+Version:          9.0.13
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -253,6 +253,11 @@ fi
 
 
 %changelog
+* Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.13-1
+- New official build
+- TMS - ECC Key Recovery - ticket #252 (cfu)
+- TMS secure recovery part of - bug #737122 (cfu)
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.12-1
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 
