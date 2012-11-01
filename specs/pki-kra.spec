@@ -22,7 +22,7 @@ BuildRequires:    nss-devel
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    pki-common >= 9.0.18
+BuildRequires:    pki-common >= 9.0.24
 BuildRequires:    pki-util >= 9.0.18
 BuildRequires:    systemd-units
 %else
@@ -35,7 +35,7 @@ BuildRequires:    pki-util
 Requires:         java >= 1:1.6.0
 Requires:         pki-kra-theme >= 9.0.0
 %if 0%{?fedora} >= 16
-Requires:         pki-common >= 9.0.18
+Requires:         pki-common >= 9.0.24
 Requires:         pki-selinux >= 9.0.18
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
