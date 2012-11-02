@@ -581,11 +581,18 @@ class rest_client:
                     admin_cert_file = os.path.join(
                         master['pki_client_dir'],
                         master['pki_client_admin_cert'])
+                    admin_cert_bin_file = admin_cert_file + ".der"
                     javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
                                            " " + "'" + admin_cert_file + "'")
                     FILE = open(admin_cert_file, "w")
                     FILE.write(admin_cert)
                     FILE.close()
+                    # convert the cert file to binary
+                    command = "AtoB "+ admin_cert_file + " " + admin_cert_bin_file
+                    javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_ATOB +\
+                        " " + "'" + command + "'")
+                    os.system(command)
+
                     # Since Jython runs under Java, it does NOT support the
                     # following operating system specific command:
                     #
@@ -594,11 +601,18 @@ class rest_client:
                     #         config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
                     #
                     # Emulate it with a system call.
-                    command = "chmod" + " " + "660" + " " + admin_cert_file
+                    command = "chmod" + " 660 " + admin_cert_file
                     javasystem.out.println(
                         log.PKI_JYTHON_CHMOD +\
                         " " + "'" + command + "'")
                     os.system(command)
+
+                    command = "chmod" + " 660 " + admin_cert_bin_file
+                    javasystem.out.println(
+                        log.PKI_JYTHON_CHMOD +\
+                        " " + "'" + command + "'")
+                    os.system(command)
+
                     # Import the Administration Certificate
                     # into the client NSS security database
                     command = "certutil" + " " +\
@@ -613,9 +627,8 @@ class rest_client:
                               master['pki_client_password_conf'] + " " +\
                               "-d" + " " +\
                               master['pki_client_database_dir'] + " " +\
-                              "-a" + " " +\
                               "-i" + " " +\
-                              admin_cert_file
+                              admin_cert_bin_file
                     javasystem.out.println(
                         log.PKI_JYTHON_ADMIN_CERT_IMPORT +\
                         " " + "'" + command + "'")

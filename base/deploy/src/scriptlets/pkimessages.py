@@ -282,6 +282,7 @@ PKI_JYTHON_ADMIN_CERT_EXPORT = "exporting Admin Certificate from "\
 PKI_JYTHON_ADMIN_CERT_IMPORT = "importing Admin Certificate into "\
                                "NSS client security database:"
 PKI_JYTHON_ADMIN_CERT_SAVE = "saving Admin Certificate to file:"
+PKI_JYTHON_ADMIN_CERT_ATOB = "converting Admin Certificate to binary:"
 PKI_JYTHON_CDATA_TAG = "tag:"
 PKI_JYTHON_CDATA_CERT = "cert:"
 PKI_JYTHON_CDATA_REQUEST = "request:"
