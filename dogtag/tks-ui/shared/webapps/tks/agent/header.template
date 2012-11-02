@@ -40,7 +40,7 @@
 <SCRIPT type="text/javascript">
 	for (var i = 0; i < result.recordSet.length; ++i) {
 		if (result.recordSet[i].id == header.selected) {
-          		document.write('<td><img src="/tks/agent/graphics/lgLeftTab.gif" width="13" height="21"><\/td>');
+          		document.write('<td><img src="/pki/images/lgLeftTab.gif" width="13" height="21"><\/td>');
           		document.write('<td bgcolor="#cccccc" nowrap>');
 		} else {
           		document.write('<td><img src="/pki/images/dgLeftTab.gif" width="13" height="21"><\/td>');
