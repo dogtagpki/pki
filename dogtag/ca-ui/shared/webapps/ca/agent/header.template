@@ -66,7 +66,7 @@
 		}
 		document.write('<\/font><\/td>');
 		if (result.recordSet[i].id == header.selected) {
-          		document.write('<td><img src="/ca/agent/graphics/lgRightTab.gif" width="16" height="21" alt=""><\/td>');
+          		document.write('<td><img src="/pki/images/lgRightTab.gif" width="16" height="21" alt=""><\/td>');
 		} else {
           		document.write('<td><img src="/pki/images/dgRightTab.gif" width="16" height="21" alt=""><\/td>');
 		}
