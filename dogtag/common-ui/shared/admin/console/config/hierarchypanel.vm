@@ -49,8 +49,8 @@ The PKI hierarchy establishes the trust relationships between this CA instance a
 </div>
 
 <p>
-<b><input $check_root type=radio name=choice value="root">&nbsp;Make this a Self-Signed Root CA within this new PKI hierarchy. <img alt="" src="../img/rootca.gif"></b>
+<b><input $check_root type=radio name=choice value="root">&nbsp;Make this a Self-Signed Root CA within this new PKI hierarchy. <img alt="" src="/pki/images/rootca.gif"></b>
 <p>
-<b><input $check_join type=radio name=choice value="join">&nbsp;Make this a subordinate CA of another CA. <img alt="" src="../img/sub.gif"></b>
+<b><input $check_join type=radio name=choice value="join">&nbsp;Make this a subordinate CA of another CA. <img alt="" src="/pki/images/sub.gif"></b>
 
 <p>
