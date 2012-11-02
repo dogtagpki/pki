@@ -55,7 +55,7 @@
     <table width="100%" cellspacing="0">
       <tr>
         <td class="page-content" width="100%">
-  <h1><img src="../img/icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   Security Modules</h1>
 Keys will be generated and stored on security modules. A security module can be hardware-based or software-based. Hardware-based security modules are more secure.
 <p>

@@ -54,7 +54,7 @@
     <table width="100%" cellspacing="0">
       <tr>
         <td width="100%">
-  <h1><img src="/ca/admin/console/img/rhn-icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
 <script language=javascript>
 document.write('Security Domain ('+result.header.sdname+') Login </h1>');
 </script>

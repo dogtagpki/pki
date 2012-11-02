@@ -56,7 +56,7 @@
     <table width="100%" cellspacing="0">
       <tr>
         <td width="100%">
-  <h1><img src="../img/pki-icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   Security Modules </h1>
 
 <form name=configForm action="config_hsm" method="post">

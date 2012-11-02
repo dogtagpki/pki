@@ -56,7 +56,7 @@
     <table width="100%" cellspacing="0">
       <tr>
         <td width="100%">
-  <h1><img src="../img/pki-icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   Join the PKI Network </h1>
 
 To join this PKI network, the setup wizard needs to submit the certificate request to a Root or another subordinate CA for signing.

@@ -103,7 +103,7 @@ function process(fop) {
 
 	</td>
         <td class="page-content" width="100%">
-  <h1><img alt="" src="../img/icon-software.gif" />
+  <h1><img alt="" src="/pki/images/icon-software.gif" />
   $title </h1>
 
 <OBJECT classid="clsid:127698E4-E730-4E5C-A2b1-21490A70C8A1"

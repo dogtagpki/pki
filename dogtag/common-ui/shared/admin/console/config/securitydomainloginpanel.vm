@@ -55,7 +55,7 @@
     <table width="100%" cellspacing="0">
       <tr>
         <td width="100%">
-  <h1><img src="/ca/admin/console/img/icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   Security Domain ($name) Login </h1>
 
     <form name=sdForm action="getCookie" method="post">

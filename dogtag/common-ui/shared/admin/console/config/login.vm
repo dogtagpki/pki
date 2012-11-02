@@ -67,7 +67,7 @@
          
 	</td>
         <td class="page-content" width="100%">
-  <h1><img src="../img/icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   Login</h1>
 
 A one time random pin has been generated during setup to protect unauthorized access to this configuration wizard. This pin has been stored in the "CS.cfg" configuration file as the value of the 'preop.pin' parameter. Please enter this pin to continue.

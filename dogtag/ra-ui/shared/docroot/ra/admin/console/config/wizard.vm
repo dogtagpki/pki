@@ -100,7 +100,7 @@ function process(fop) {
 
 	</td>
         <td class="page-content" width="100%">
-  <h1><img src="../img/pki-icon-software.gif" />
+  <h1><img src="/pki/images/icon-software.gif" />
   $title </h1>
 
 <form name=f method=post action="wizard">
