@@ -214,7 +214,7 @@ document.writeln('</td></tr></table>');
 
 <br>
 
-<table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#E5E5E5" background="/ca/ee/graphics/gray90.gif">
+<table border="0" width="100%" cellspacing="0" cellpadding="6" bgcolor="#E5E5E5" background="/pki/images/gray90.gif">
   <tr> 
     <td ALIGN=RIGHT>
       <input TYPE="hidden" NAME="pageStart" VALUE="1">
