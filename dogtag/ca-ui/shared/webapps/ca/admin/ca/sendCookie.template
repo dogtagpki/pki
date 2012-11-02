@@ -19,7 +19,7 @@
 <html>
 <CMS_TEMPLATE>
 <title>CA Admin Send Cookie</title>
-    <link rel="shortcut icon" href="/ca/img/favicon.ico" />
+    <link rel="shortcut icon" href="/pki/images/favicon.ico" />
     <link rel="stylesheet" href="/ca/css/rhn-base.css" type="text/css" />
     <META http-equiv=Content-Type content="text/html; charset=UTF-8">
 

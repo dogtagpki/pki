@@ -20,7 +20,7 @@
 <head>
 <title>Certificate System</title>
 <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
-<link rel="shortcut icon" href="/pki/img/favicon.ico" />
+<link rel="shortcut icon" href="/pki/images/favicon.ico" />
 <link rel="stylesheet" href="/pki/css/pki-base.css" type="text/css" />
 </head>
 <body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
