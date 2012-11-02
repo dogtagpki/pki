@@ -122,7 +122,7 @@ function process(fop) {
 
 <table width=100% border=0 cellspacing=0 cellpadding=0>
 <tr bgcolor="#eeeeee">
-<td><img alt="" id=progress style="visibility: hidden;" src="../img/bigrotation2.gif" /></td>
+<td><img alt="" id=progress style="visibility: hidden;" src="/pki/images/bigrotation2.gif" /></td>
 <td align=right>
 
 #if ($showApplyButton == true)
