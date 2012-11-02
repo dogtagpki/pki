@@ -133,20 +133,20 @@ Press the [Next] button once all certificates have been generated successfully.
   <td>&nbsp;</td>
 #if ($item.getCert() == "...paste certificate here...") 
   <td><font color=red>action required</font><br>
-<img alt="" src="../img/no-certificate.png"/></td>
+<img alt="" src="/pki/images/no-certificate.png"/></td>
 #elseif ($item.getCert() == "...certificate be generated internally...")
 <td>
-  <img alt="" src="../img/no-certificate.png"/><br>
+  <img alt="" src="/pki/images/no-certificate.png"/><br>
   certificate will be generated internally
   </td>
 #elseif ($item.getCert() == "")
   <td>
-<img alt="" src="../img/no-certificate.png"/><br>
+<img alt="" src="/pki/images/no-certificate.png"/><br>
   No Certificate Generated. Please import.<br>
   </td>
 #else
   <td>
-<img alt="" src="../img/certificate.png"/><br>
+<img alt="" src="/pki/images/certificate.png"/><br>
   Certificate Generated Successfully
   </td>
 #end
