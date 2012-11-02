@@ -59,7 +59,7 @@ document.writeln('Congratulations a certificate has been issued and ' +
 document.writeln('<P>');
 document.writeln('Issued Certificates: </font>');
 document.writeln('<P>');
-document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/admin/graphics/hr.gif" width="100%">');
+document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif" width="100%">');
 document.writeln('  <tr> ');
 document.writeln('    <td>&nbsp;</td>');
 document.writeln('  </tr>');

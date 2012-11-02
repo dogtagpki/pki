@@ -59,7 +59,7 @@ if (result.header.errorDetails != null) {
         'request \')" onMouseOut="return helpstatus(\'\')">' +
         renderHexNumber(result.header.serialNumber,8) +
         '</a></font></font>');
-	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 
 	document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
 	document.writeln('<tr><td valign="top" align="left" colspan="3" bgcolor="#e5e5e5">');
@@ -113,7 +113,7 @@ if (result.header.errorDetails != null) {
     }
 
 	document.write("</table>");
-	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 }
 </script>
 </body>

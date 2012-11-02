@@ -28,7 +28,7 @@
 <font face="PrimaSans BT, Verdana, sans-serif" size="+1">
 CA Certificate Chain
 </font><br>
-<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width=
+<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif" width=
 "100%">
   <tr>
     <td>&nbsp;</td>
@@ -66,7 +66,7 @@ if (result.header.displayFormat == "chain") {
 
 function displayCertificate(cert,i)
 {
-    document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/ca/ee/graphics/hr.gif" width="100%">' + '\n' +
+    document.writeln('<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif" width="100%">' + '\n' +
     '  <tr>' + '\n' +
     '    <td>&nbsp;</td>' + '\n' +
     '  </tr>' + '\n' +

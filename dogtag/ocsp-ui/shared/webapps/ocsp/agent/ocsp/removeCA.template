@@ -37,7 +37,7 @@ if (navigator.appName == "Microsoft Internet Explorer") {
 <font face="PrimaSans BT, Verdana, sans-serif" size="+1">
 Removing Certificate Authority
 </font><br>
-<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif" width="100%">
   <tr> 
     <td>&nbsp;</td>
   </tr>

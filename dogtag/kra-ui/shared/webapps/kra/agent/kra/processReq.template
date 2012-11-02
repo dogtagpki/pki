@@ -68,7 +68,7 @@ document.writeln(
 	'request \')" onMouseOut="return helpstatus(\'\')">' +
 	result.header.seqNum + 
 	'</a></font></font>');
-document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD></TD></TR></TABLE>');
+document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD></TD></TR></TABLE>');
 
 
 document.writeln('<form action="/kra/agent/kra/getAsyncPk12" method=post onSubmit="return passwdValidate()">');

@@ -1348,7 +1348,7 @@ document.writeln('Request <a href="/ca/agent/ca/processReq?seqNum='+
 				 'request \')" onMouseOut="return helpstatus(\'\')">'+
 				 result.header.seqNum + '</a></font>');
 
-document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif">');
 document.writeln('<tr><td>&nbsp;</td></tr></table>');
 
 document.writeln('<FORM ACTION=/ca/processCertReq METHOD=POST ' +

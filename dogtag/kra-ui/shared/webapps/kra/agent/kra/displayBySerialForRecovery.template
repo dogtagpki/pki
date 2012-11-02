@@ -100,7 +100,7 @@ if (result.header.errorDetails != null) {
         renderHexNumber(result.header.serialNumber,8) +
         '</a></font></font>');
 
-        document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+        document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 
     	document.write('<form method=post ' +
           'action="' + '/kra/agent/kra/recoverBySerial' + '">\n');

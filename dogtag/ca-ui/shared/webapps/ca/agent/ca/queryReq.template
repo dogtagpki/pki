@@ -60,7 +60,7 @@ DIV.subject  A:hover {text-decoration: underline;}
 <font size=+1 face="PrimaSans BT, Verdana, sans-serif">Request Queue</font>
 <br>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif" >
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif" >
   <tr>
     <td>&nbsp;</td>
   </tr>

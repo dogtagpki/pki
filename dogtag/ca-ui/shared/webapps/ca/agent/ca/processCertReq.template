@@ -74,7 +74,7 @@ function renderFoot()
 if (result.header.seqNum == null) {
     document.writeln('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
     document.writeln('Problem Processing Your Request</font>');
-    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif">');
     agent/document.writeln('<tr><td>&nbsp;</td></tr></table>');
     document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
     document.write('<P>The Certificate Manager encountered a problem while processing your request.');
@@ -91,7 +91,7 @@ if (result.header.seqNum == null) {
 } else {
     document.writeln('<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
     document.writeln('Request <b>' + result.header.seqNum + '</b></font>');
-    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif">');
+    document.writeln('<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif">');
     document.writeln('<tr><td>&nbsp;</td></tr></table>');
     document.writeln('<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">');
 

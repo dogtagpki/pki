@@ -174,11 +174,11 @@ if (result.header.errorDetails != null) {
 	writeError(result.header.errorDetails);
 } else if (result.header.totalRecordCount == 0) {
         document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Search Results</font>\n');
-        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 	document.write('<div align=left><b><font face="PrimaSans BT, Verdana, sans-serif" size="+1">No Matching Key Found</font></b></div>\n');
 } else {
         document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>Search Results</font>\n');
-        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=+1>');
 	document.write('Authority: ' +
 (result.header.archiverName != null ? result.header.archiverName : "UNKNOWN"));
@@ -203,7 +203,7 @@ if (result.header.errorDetails != null) {
 		displayKeyRecord(result.recordSet[i]);
 	}
 	document.write('</table>');
-        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+        document.write('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
 
 }
 

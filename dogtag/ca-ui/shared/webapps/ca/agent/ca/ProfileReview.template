@@ -40,7 +40,7 @@ document.writeln(requestId);
 document.writeln('<br></font>');
 </script>
 <font size="-1" face="PrimaSans BT, Verdana, sans-serif"></font>
-<table border="0" cellspacing="0" cellpadding="0" background="/ca/agent/graphics/hr.gif"
+<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif"
 width="100%">
   <tr>
     <td>&nbsp;</td>

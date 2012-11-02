@@ -261,7 +261,7 @@ Certificate Revocation Confirmation</font><br>
 Use this form to confirm certificate revocation by selecting appropriate
 revocation reason and submitting the form.</font>
 
-<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/ca/agent/graphics/hr.gif" >
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif" >
   <tr>
     <td>&nbsp;</td>
   </tr>

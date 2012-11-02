@@ -53,7 +53,7 @@ if (result.header.errorDetails != null) {
         'Recovery Operation ' + result.header.recoveryID +
         '</font></font>');
 
-	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
+	document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');
        document.write('<form method=post ' +
           'action="' + '/kra/agent/kra/grantRecovery' + '">\n');
 

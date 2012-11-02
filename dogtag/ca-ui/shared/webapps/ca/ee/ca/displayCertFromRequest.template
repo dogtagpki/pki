@@ -55,7 +55,7 @@ function displayCert(cert)
 		'</font><br>');
 	document.writeln(
 		'<table border="0" cellspacing="0" cellpadding="0" '+
-		'background="/ca/ee/graphics/hr.gif" width="100%">'+
+		'background="/pki/images/hr.gif" width="100%">'+
 		'<tr>'+
 		'<td>&nbsp;</td>'+
 		'</tr>'+

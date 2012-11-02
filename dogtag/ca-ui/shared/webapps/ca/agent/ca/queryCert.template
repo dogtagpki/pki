@@ -64,7 +64,7 @@ table#t td {
 <body bgcolor="#FFFFFF" link="#000000" vlink="#000000" alink="#000000">
 <font face="PrimaSans BT, Verdana, sans-serif" size="+1">Search Results
 </font><br>
-<table border="0" cellspacing="0" cellpadding="0" background="/graphics/hr.gif" width="100%">
+<table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif" width="100%">
   <tr> 
     <td>&nbsp;</td>
   </tr>
@@ -383,7 +383,7 @@ document.write("</table>\n");
 	if ((result.header.revokeAll != null && result.header.totalRecordCount > 1) ||
         (result.header.querySentinelDown != null)) {
         document.write("<br>&nbsp;\n" +
-            "<table border='0' cellspacing='0' cellpadding='0' background='/graphics/hr.gif' width='100%'>\n"+
+            "<table border='0' cellspacing='0' cellpadding='0' background='/pki/images/hr.gif' width='100%'>\n"+
             "<tr><td>&nbsp;</td></tr></table>\n");
     }
 
