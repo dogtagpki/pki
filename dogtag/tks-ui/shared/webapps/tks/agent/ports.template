@@ -85,7 +85,7 @@ if (result.header.errorDetails != null) {
                   continue;
         	document.write('<tr valign="TOP">');
           	document.write('<td>');
-		document.write('<img src="/tks/agent/graphics/goto-tall.gif" width="10" height="15">&nbsp;</td>');
+		document.write('<img src="/pki/images/goto-tall.gif" width="10" height="15">&nbsp;</td>');
           	document.write('<td>');
 		document.write('<font face="PrimaSans BT, Verdana, sans-serif">');
 		document.write('<a href="');
