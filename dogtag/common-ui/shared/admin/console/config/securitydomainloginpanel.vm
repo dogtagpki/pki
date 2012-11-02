@@ -61,7 +61,7 @@
     <form name=sdForm action="getCookie" method="post">
     <p>The Enterprise $subsystem Administrator will register this $subsystem Subsystem located at $host under this Security Domain located at $sdhost. The credential information will be provided to the Security Domain for authentication.<p>
 #if ($errorString != "")
-<img src="/ca/admin/console/img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
     <table class="details">
       <tr>

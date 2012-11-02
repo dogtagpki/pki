@@ -29,7 +29,7 @@ function performPanel() {
 <input type="hidden" name="port" value=$port />
 <input type="hidden" name="systemType" value=$systemType />
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 #if ($systemType == "tks")
 As 'root', restart the server on the command line by typing "$initCommand restart $instanceID". After performing this restart, the server should become operational. 

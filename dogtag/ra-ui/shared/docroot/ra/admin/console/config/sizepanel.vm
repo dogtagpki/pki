@@ -142,7 +142,7 @@ Within each key pair type (but not comparable between two different key pair typ
 <p>
 </div>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <p>
 <div id="simple">

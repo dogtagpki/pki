@@ -37,5 +37,5 @@ If no certificate chain is listed below, simply click the Next button to move on
 $certchain
 </pre>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end

@@ -37,7 +37,7 @@ For keys and certificates stored in an external software token, please refer to 
 By default, if the path is left blank, no PKCS #12 file will be imported.
 <br/>
 #if ($errorString != "")
-<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img alt="" src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
     <table class="details">
       <tr>

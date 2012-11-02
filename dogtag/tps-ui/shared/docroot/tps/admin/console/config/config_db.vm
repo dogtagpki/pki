@@ -62,7 +62,7 @@
     <form name=configForm action="config_db" method="post">
     <b>Internal Database Connection</b> <p>This option allows sharing an internal database to improve managability.<p>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
     <table class="details">
       <tr>

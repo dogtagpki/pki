@@ -412,7 +412,7 @@ For a cloned subsystem, only the key for an SSL server certificate is generated.
 #end
 <br/>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>
 <div id="simple">

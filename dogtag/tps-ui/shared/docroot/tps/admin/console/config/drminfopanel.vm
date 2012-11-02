@@ -26,7 +26,7 @@ function performPanel() {
 A Data Recovery Manager (DRM) is responsible for server-side key generation, archival, and recovery. If server-side key generation is not needed, this step can be skipped.
 <p>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 <p>
 #end
 <b><input checked type=radio name=choice value="keygen">&nbsp;Connect this instance to the HTTPS Agent URL of a DRM to support server-side key generation.</b>

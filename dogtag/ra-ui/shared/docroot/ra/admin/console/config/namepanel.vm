@@ -47,7 +47,7 @@ Each unique name, called the certificate's subject name, is referenced as the di
 
     <p>
 #if ($errorString != "")
-<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img alt="" src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>
 #foreach ($item in $certs)

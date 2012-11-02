@@ -28,7 +28,7 @@ function performPanel() {
 An administrator's certificate has been created and imported into this browser. This certificate is used to access the agent interface of this subsystem.
 <p>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <font color="red">$info</font>
 <p>

@@ -35,7 +35,7 @@ If these keys and certificates are stored in a hardware token, the hardware toke
 For cloning, if the keys and certificates are stored in a hardware token, clones should use the same hardware token as that of the Master.
 <p>
 #if ($errorString != "")
-<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img alt="" src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>
 <b><input $dobackup type=radio name=choice value="backupkey">&nbsp;Export subsystem keys and certificates </b>

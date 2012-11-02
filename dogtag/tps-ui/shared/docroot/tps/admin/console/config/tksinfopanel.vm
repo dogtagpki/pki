@@ -26,7 +26,7 @@ function performPanel() {
 The Token Key Service (TKS) is responsible for managing master keys that are used for establishing secure channels. Select an HTTPS Agent URL of a TKS from the list below.
 <p>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <p>
     <table class="details">

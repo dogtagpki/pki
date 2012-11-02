@@ -51,7 +51,7 @@ If this subsystem is joining an existing security domain, the user will need to 
 requested in the next panel.
 </div>
 #if ($errorString != "")
-<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img alt="" src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>
 #if ($cstype == "CA") 

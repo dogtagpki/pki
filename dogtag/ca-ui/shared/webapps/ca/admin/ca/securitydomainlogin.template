@@ -63,7 +63,7 @@ document.write('Security Domain ('+result.header.sdname+') Login </h1>');
 <script language=javascript>
 document.write('<p>The Enterprise '+result.header.subsystem+' Administrator will register this '+result.header.subsystem+' Subsystem located at '+ result.header.host+' under this Security Domain located at '+result.header.sdhost+'. The credential information will be provided to the Security Domain for authentication.<p>');
 if (result.header.errorString != null)
-document.write('<img src="/ca/admin/console/img/icon_crit_update.gif">&nbsp;<font color="red">'+result.header.errorString+'</font>');
+document.write('<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">'+result.header.errorString+'</font>');
 document.write('<table class="details">');
 document.write('<tr>');
 document.write('<th>Uid:</th>');

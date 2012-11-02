@@ -51,7 +51,7 @@ Replication agreements between the master and clone database instances may be cu
 <i>Note: If the Fedora Directory Server is at a remote host, it is highly recommended that SSL should be used.</i>
 <br/>
 #if ($errorString != "")
-<img src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>                                                                            
 

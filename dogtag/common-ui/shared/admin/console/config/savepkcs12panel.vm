@@ -33,7 +33,7 @@ This Subsystem is attempting to return the keys and certificates in a PKCS #12 f
 A popup dialog box from the browser should appear, prompting the user to save these keys and certificates to a PKCS #12 file located on the local filesystem.  Follow the instructions within this dialog to save this PKCS #12 file to a safe location.
 <br/>
 #if ($errorString != "")
-<img alt="" src="../img/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<img alt="" src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
 <br/>
 <iframe scrolling=no frameborder=0 height=0 width=0 src="/$subsystemtype/admin/console/config/savepkcs12"></iframe>
