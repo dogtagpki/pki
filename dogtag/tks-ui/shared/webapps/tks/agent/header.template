@@ -43,7 +43,7 @@
           		document.write('<td><img src="/tks/agent/graphics/lgLeftTab.gif" width="13" height="21"><\/td>');
           		document.write('<td bgcolor="#cccccc" nowrap>');
 		} else {
-          		document.write('<td><img src="/tks/agent/graphics/dgLeftTab.gif" width="13" height="21"><\/td>');
+          		document.write('<td><img src="/pki/images/dgLeftTab.gif" width="13" height="21"><\/td>');
           		document.write('<td bgcolor="#999999" nowrap>');
 		}
 		document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif">');
