@@ -2061,10 +2061,41 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-
         return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
+
+        # Copy /usr/share/pki/common-ui/admin/console/img
+        # to <instance>/docroot/pki/images
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/admin/console/img",
+            "$docroot_instance_path/pki/images",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
+
+        # Copy /usr/share/pki/common-ui/css
+        # to <instance>/docroot/pki/css
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/css",
+            "$docroot_instance_path/pki/css",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
+
+        # Copy /usr/share/pki/common-ui/img
+        # to <instance>/docroot/pki/images
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/img",
+            "$docroot_instance_path/pki/images",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
+
+        # Copy /usr/share/pki/<subsystem>-ui/docroot/<subsystem>/admin/console/img
+        # to <instance>/docroot/pki/images
+        return 0 if !copy_directory(
+            "$ui_subsystem_path/docroot/$subsystem_type/admin/console/img",
+            "$docroot_instance_path/pki/images",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
 
         # fix permissions
         if (!is_Windows()) {
