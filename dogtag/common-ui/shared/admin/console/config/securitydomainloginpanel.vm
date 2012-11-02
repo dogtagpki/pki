@@ -31,7 +31,7 @@
 
 <div id="wrap">
 <div id="header">
-    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="/ca/admin/console/img/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
+    <a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="/pki/images/logo_header.gif" alt="Dogtag" id="myLogo" /></a>
     <div id="headerpaddedtitle">
     <a href="/" title="Dogtag Network homepage">Dogtag<sup><font size="-2">&reg;</font></sup> Certificate System</a>
     </div>

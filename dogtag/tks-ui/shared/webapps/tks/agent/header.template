@@ -29,7 +29,7 @@
     <td> 
       <table border="0" cellspacing="12" cellpadding="0">
         <tr>
-          <td><img src="/tks/agent/graphics/logo_header.gif"></td>
+          <td><img src="/pki/images/logo_header.gif"></td>
           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
           <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> Agent Services</b></font></td>
         </tr>
