@@ -36,7 +36,7 @@
       </table>
       <table border="0" cellspacing="0" cellpadding="0">
         <tr> 
-          <td><img src="/tks/agent/graphics/spacer.gif" alt="" width="12" height="21"></td>
+          <td><img src="/pki/images/spacer.gif" alt="" width="12" height="21"></td>
 <SCRIPT type="text/javascript">
 	for (var i = 0; i < result.recordSet.length; ++i) {
 		if (result.recordSet[i].id == header.selected) {
