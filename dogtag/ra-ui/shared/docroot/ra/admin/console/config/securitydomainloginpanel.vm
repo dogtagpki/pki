@@ -24,7 +24,7 @@
     <title>Dogtag Certificate System</title>
 
     <link rel="shortcut icon" href="/pki/images/favicon.ico" />
-    <link rel="stylesheet" href="/css/pki-base.css" type="text/css" />
+    <link rel="stylesheet" href="/pki/css/pki-base.css" type="text/css" />
 <META http-equiv=Content-Type content="text/html; charset=UTF-8">
   </head>
 
