@@ -2065,14 +2065,6 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        # Copy /usr/share/pki/common-ui/admin/console/img
-        # to <instance>/docroot/pki/images
-        return 0 if !copy_directory(
-            "$common_ui_subsystem_path/admin/console/img",
-            "$docroot_instance_path/pki/images",
-            $default_dir_permissions, $default_file_permissions,
-            $pki_user, $pki_group);
-
         # Copy /usr/share/pki/common-ui/css
         # to <instance>/docroot/pki/css
         return 0 if !copy_directory(
@@ -2081,18 +2073,10 @@ sub process_pki_directories
             $default_dir_permissions, $default_file_permissions,
             $pki_user, $pki_group);
 
-        # Copy /usr/share/pki/common-ui/img
+        # Copy /usr/share/pki/common-ui/images
         # to <instance>/docroot/pki/images
         return 0 if !copy_directory(
-            "$common_ui_subsystem_path/img",
-            "$docroot_instance_path/pki/images",
-            $default_dir_permissions, $default_file_permissions,
-            $pki_user, $pki_group);
-
-        # Copy /usr/share/pki/<subsystem>-ui/docroot/<subsystem>/admin/console/img
-        # to <instance>/docroot/pki/images
-        return 0 if !copy_directory(
-            "$ui_subsystem_path/docroot/$subsystem_type/admin/console/img",
+            "$common_ui_subsystem_path/images",
             "$docroot_instance_path/pki/images",
             $default_dir_permissions, $default_file_permissions,
             $pki_user, $pki_group);
@@ -2124,9 +2108,21 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        return 0 if !copy_directory($common_ui_subsystem_path, $webapps_subsystem_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
+        # Copy /usr/share/pki/common-ui/admin/console/config
+        # to <instance>/webapp/<subsystem>/admin/console/config
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/admin/console/config",
+            "$webapps_subsystem_instance_path/admin/console/config",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
+
+        # Copy /usr/share/pki/common-ui/admin/console/js
+        # to <instance>/webapp/<subsystem>/admin/console/js
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/admin/console/js",
+            "$webapps_subsystem_instance_path/admin/console/js",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
 
         return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
                                     $default_dir_permissions, $default_file_permissions,

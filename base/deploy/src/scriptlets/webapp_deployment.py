@@ -44,14 +44,42 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 return self.rv
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            # deploy war file
+
+            # deploy webapp
             util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
+
+            # Copy /usr/share/pki/common-ui/admin/console/config
+            # to <instance>/webapp/<subsystem>/admin/console/config
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui"),
-                master['pki_tomcat_webapps_subsystem_path'],
+                    "common-ui",
+                    "admin",
+                    "console",
+                    "config"),
+                os.path.join(
+                    master['pki_tomcat_webapps_subsystem_path'],
+                    "admin",
+                    "console",
+                    "config"),
                 overwrite_flag=True)
+
+            # Copy /usr/share/pki/common-ui/admin/console/js
+            # to <instance>/webapp/<subsystem>/admin/console/js
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui",
+                    "admin",
+                    "console",
+                    "js"),
+                os.path.join(
+                    master['pki_tomcat_webapps_subsystem_path'],
+                    "admin",
+                    "console",
+                    "js"),
+                overwrite_flag=True)
+
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,

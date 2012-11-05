@@ -72,22 +72,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(master['pki_tomcat_webapps_path'])
             util.directory.create(master['pki_tomcat_webapps_common_path'])
 
-            common_images = os.path.join(
-                master['pki_tomcat_webapps_common_path'],
-                "images")
-
-            # Copy /usr/share/pki/common-ui/admin/console/img
-            # to <instance>/webapp/pki/images
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui",
-                    "admin",
-                    "console",
-                    "img"),
-                common_images,
-                overwrite_flag=True)
-
             # Copy /usr/share/pki/common-ui/css
             # to <instance>/webapp/pki/css
             util.directory.copy(
@@ -100,60 +84,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "css"),
                 overwrite_flag=True)
 
-            # Copy /usr/share/pki/common-ui/img
+            # Copy /usr/share/pki/common-ui/images
             # to <instance>/webapp/pki/images
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
                     "common-ui",
-                    "img"),
-                common_images,
+                    "images"),
+                os.path.join(
+                    master['pki_tomcat_webapps_common_path'],
+                    "images"),
                 overwrite_flag=True)
-
-            # Copy /usr/share/pki/<subsystem>-ui/webapps/<subsystem>/admin/graphics
-            # to <instance>/webapp/pki/images
-            dir = os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower() + "-ui",
-                    "webapps",
-                    master['pki_subsystem'].lower(),
-                    "admin",
-                    "graphics")
-            if (util.directory.exists(dir)):
-                util.directory.copy(
-                    dir,
-                    common_images,
-                    overwrite_flag=True)
-
-            # Copy /usr/share/pki/<subsystem>-ui/webapps/<subsystem>/agent/graphics
-            # to <instance>/webapp/pki/images
-            dir = os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower() + "-ui",
-                    "webapps",
-                    master['pki_subsystem'].lower(),
-                    "agent",
-                    "graphics")
-            if (util.directory.exists(dir)):
-                util.directory.copy(
-                    dir,
-                    common_images,
-                    overwrite_flag=True)
-
-            # Copy /usr/share/pki/<subsystem>-ui/webapps/<subsystem>/ee/graphics
-            # to <instance>/webapp/pki/images
-            dir = os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower() + "-ui",
-                    "webapps",
-                    master['pki_subsystem'].lower(),
-                    "ee",
-                    "graphics")
-            if (util.directory.exists(dir)):
-                util.directory.copy(
-                    dir,
-                    common_images,
-                    overwrite_flag=True)
 
             util.directory.create(master['pki_tomcat_webapps_root_path'])
             util.directory.copy(
