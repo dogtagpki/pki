@@ -88,6 +88,11 @@ PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = "pkideployment.cfg"
 PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
     "/usr/share/pki/deployment/config/pkislots.cfg"
 
+# subtypes of PKI subsystems
+PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM = "Cloned"
+PKI_DEPLOYMENT_EXTERNAL_CA = "External"
+PKI_DEPLOYMENT_SUBORDINATE_CA = "Subordinate"
+
 # default ports (for defined selinux policy)
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT = 8080
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT = 8443

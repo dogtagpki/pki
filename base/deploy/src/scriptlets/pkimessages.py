@@ -287,14 +287,12 @@ PKI_JYTHON_CDATA_TAG = "tag:"
 PKI_JYTHON_CDATA_CERT = "cert:"
 PKI_JYTHON_CDATA_REQUEST = "request:"
 PKI_JYTHON_CHMOD = "performing chmod:"
-PKI_JYTHON_CLONED_PKI_SUBSYSTEM = "Cloned"
 PKI_JYTHON_CONFIGURING_PKI_DATA = "configuring PKI configuration data for"
 PKI_JYTHON_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data for"
 PKI_JYTHON_CRMF_SUPPORT_ONLY = "only the 'crmf' certificate request type "\
                                "is currently supported"
 PKI_JYTHON_IS_DUALKEY = "dualkey = true"
 PKI_JYTHON_EXCEPTION_PARSER = "Problem parsing"
-PKI_JYTHON_EXTERNAL_CA = "External"
 PKI_JYTHON_INDENTATION_0 = "pkispawn    : JYTHON  "
 PKI_JYTHON_INDENTATION_1 = "pkispawn    : JYTHON   ..."
 PKI_JYTHON_INDENTATION_2 = "pkispawn    : JYTHON   ......."
@@ -311,7 +309,6 @@ PKI_JYTHON_RESPONSE_ADMIN_CERT = "adminCert:"
 PKI_JYTHON_RESPONSE_STATUS = "status:"
 PKI_JYTHON_TOKEN_LOGIN_EXCEPTION = "Exception in logging into token:"
 PKI_JYTHON_NOT_YET_IMPLEMENTED = "NOT YET IMPLEMENTED"
-PKI_JYTHON_SUBORDINATE_CA = "Subordinate"
 
 
 # PKI Deployment "Scriptlet" Messages

@@ -109,19 +109,12 @@ def main(argv):
             if config.str2bool(master['pki_external']):
                 print "%s '%s %s' %s" %\
                       (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_EXTERNAL_CA,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return rv
-            elif config.str2bool(master['pki_subordinate']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       log.PKI_JYTHON_SUBORDINATE_CA,
+                       config.PKI_DEPLOYMENT_EXTERNAL_CA,
                        master['pki_subsystem'],
                        log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
                 return rv
             else:
-                # PKI or Cloned CA
+                # PKI, Subordinate, or Cloned CA
                 data = jyutil.rest_client.construct_pki_configuration_data(
                            token)
         else:
