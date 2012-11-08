@@ -383,7 +383,7 @@ function CreateTableRow(table, keyType, keyID, isAvailable, label, isSecured)
   if (! isAvailable)
     a.style.visibility = "hidden";
   var img = document.createElement("img");
-  img.setAttribute("src", "../images/NetKey-Small.gif");
+  img.setAttribute("src", "/pki/esc/images/NetKey-Small.gif");
   a.appendChild(img);
   cell.appendChild(a);
 
@@ -413,7 +413,7 @@ function CreateTableRow(table, keyType, keyID, isAvailable, label, isSecured)
   cell = InsertCell(row);
   cell.setAttribute("align", "center");
   img = document.createElement("img");
-  img.setAttribute("src", "../images/PadLock.gif");
+  img.setAttribute("src", "/pki/esc/images/PadLock.gif");
   if (!isSecured)
   img.style.visibility = "hidden";
   cell.appendChild(img);
@@ -691,7 +691,7 @@ function OnCOOLKeyStateChange(keyType, keyID, keyState, data)
 <table width="100%">
   <tr>
     <td>
-<img src="../images/logo.gif">     </td>
+<img src="/pki/esc/images/logo.gif">     </td>
     <td>
       <p class="headerText"><a href="esc.cgi?screenname=">Enterprise Security Client</a></p>
     </td>

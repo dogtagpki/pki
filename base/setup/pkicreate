@@ -2073,6 +2073,14 @@ sub process_pki_directories
             $default_dir_permissions, $default_file_permissions,
             $pki_user, $pki_group);
 
+        # Copy /usr/share/pki/common-ui/esc
+        # to <instance>/docroot/pki/esc
+        return 0 if !copy_directory(
+            "$common_ui_subsystem_path/esc",
+            "$docroot_instance_path/pki/esc",
+            $default_dir_permissions, $default_file_permissions,
+            $pki_user, $pki_group);
+
         # Copy /usr/share/pki/common-ui/images
         # to <instance>/docroot/pki/images
         return 0 if !copy_directory(
