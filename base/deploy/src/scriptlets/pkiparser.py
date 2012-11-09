@@ -1448,19 +1448,23 @@ def compose_pki_master_dictionary():
         if not len(config.pki_master_dict['pki_security_domain_user']):
             config.pki_master_dict['pki_security_domain_user'] = "caadmin"
         if not len(config.pki_master_dict['pki_subsystem_name']):
-           if config.str2bool(config.pki_master_dict['pki_clone']):
+           if config.pki_master_dict['pki_subsystem'] in\
+              config.PKI_TOMCAT_SUBSYSTEMS and \
+              config.str2bool(config.pki_master_dict['pki_clone']):
                config.pki_master_dict['pki_subsystem_name'] =\
                    config.PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM + " " +\
                    config.pki_subsystem + " " +\
                    config.pki_master_dict['pki_hostname'] + " " +\
                    config.pki_master_dict['pki_https_port']
-           elif config.str2bool(config.pki_master_dict['pki_external']):
+           elif config.pki_subsystem == "CA" and \
+              config.str2bool(config.pki_master_dict['pki_external']):
                config.pki_master_dict['pki_subsystem_name'] =\
                    config.PKI_DEPLOYMENT_EXTERNAL_CA + " " +\
                    config.pki_subsystem + " " +\
                    config.pki_master_dict['pki_hostname'] + " " +\
                    config.pki_master_dict['pki_https_port']
-           elif config.str2bool(config.pki_master_dict['pki_subordinate']):
+           elif config.pki_subsystem == "CA" and \
+              config.str2bool(config.pki_master_dict['pki_subordinate']):
                config.pki_master_dict['pki_subsystem_name'] =\
                    config.PKI_DEPLOYMENT_SUBORDINATE_CA + " " +\
                    config.pki_subsystem + " " +\
