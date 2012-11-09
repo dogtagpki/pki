@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}48%{?prerel}%{?dist}
+Release:          %{?relprefix}49%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -308,6 +308,7 @@ Requires:         pki-tools = %{version}-%{release}
 %if 0%{?fedora} >= 18
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
+Requires:         tomcat >= 7.0.27
 %else
 Requires:         pki-selinux = %{version}-%{release}
 %endif
@@ -317,6 +318,7 @@ Requires:         velocity
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
+Requires:         tomcat >= 7.0.27
 Requires:         tomcatjss >= 7.0.0-3
 %else
 %if 0%{?fedora} >= 16
@@ -1271,6 +1273,10 @@ fi
 
 
 %changelog
+* Thu Nov  8 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.49.b2
+- TRAC Ticket #395 - Dogtag 10: Add a Tomcat 7 runtime requirement to
+  'pki-server'
+
 * Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.48.b2
 - Update release to b2
 

@@ -1368,9 +1368,9 @@ def compose_pki_master_dictionary():
         if not len(config.pki_master_dict['pki_client_dir']):
             config.pki_master_dict['pki_client_dir'] =\
                 os.path.join(
-                    "/tmp",
+                    os.path.expanduser("~"), ".pki",
                     config.pki_master_dict['pki_instance_id'] + "_" +\
-                    config.pki_subsystem + "_" + "client")
+                    config.pki_master_dict['pki_subsystem'].lower())
         if not len(config.pki_master_dict['pki_client_database_dir']):
             config.pki_master_dict['pki_client_database_dir'] =\
                 os.path.join(
