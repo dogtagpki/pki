@@ -48,36 +48,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # deploy webapp
             util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
 
-            # Copy /usr/share/pki/common-ui/admin/console/config
-            # to <instance>/webapp/<subsystem>/admin/console/config
+            # Copy /usr/share/pki/server/webapps/pki/admin
+            # to <instance>/webapp/<subsystem>/admin
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui",
-                    "admin",
-                    "console",
-                    "config"),
+                    "server",
+                    "webapps",
+                    "pki",
+                    "admin"),
                 os.path.join(
                     master['pki_tomcat_webapps_subsystem_path'],
-                    "admin",
-                    "console",
-                    "config"),
-                overwrite_flag=True)
-
-            # Copy /usr/share/pki/common-ui/admin/console/js
-            # to <instance>/webapp/<subsystem>/admin/console/js
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui",
-                    "admin",
-                    "console",
-                    "js"),
-                os.path.join(
-                    master['pki_tomcat_webapps_subsystem_path'],
-                    "admin",
-                    "console",
-                    "js"),
+                    "admin"),
                 overwrite_flag=True)
 
             util.directory.copy(

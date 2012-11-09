@@ -72,28 +72,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.create(master['pki_tomcat_webapps_path'])
             util.directory.create(master['pki_tomcat_webapps_common_path'])
 
-            # Copy /usr/share/pki/common-ui/css
-            # to <instance>/webapp/pki/css
+            # Copy /usr/share/pki/common-ui
+            # to <instance>/webapp/pki
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui",
-                    "css"),
-                os.path.join(
-                    master['pki_tomcat_webapps_common_path'],
-                    "css"),
-                overwrite_flag=True)
-
-            # Copy /usr/share/pki/common-ui/images
-            # to <instance>/webapp/pki/images
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui",
-                    "images"),
-                os.path.join(
-                    master['pki_tomcat_webapps_common_path'],
-                    "images"),
+                    "common-ui"),
+                master['pki_tomcat_webapps_common_path'],
                 overwrite_flag=True)
 
             util.directory.create(master['pki_tomcat_webapps_root_path'])

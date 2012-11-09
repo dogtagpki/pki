@@ -2065,27 +2065,11 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        # Copy /usr/share/pki/common-ui/css
-        # to <instance>/docroot/pki/css
+        # Copy /usr/share/pki/common-ui
+        # to <instance>/docroot/pki
         return 0 if !copy_directory(
-            "$common_ui_subsystem_path/css",
-            "$docroot_instance_path/pki/css",
-            $default_dir_permissions, $default_file_permissions,
-            $pki_user, $pki_group);
-
-        # Copy /usr/share/pki/common-ui/esc
-        # to <instance>/docroot/pki/esc
-        return 0 if !copy_directory(
-            "$common_ui_subsystem_path/esc",
-            "$docroot_instance_path/pki/esc",
-            $default_dir_permissions, $default_file_permissions,
-            $pki_user, $pki_group);
-
-        # Copy /usr/share/pki/common-ui/images
-        # to <instance>/docroot/pki/images
-        return 0 if !copy_directory(
-            "$common_ui_subsystem_path/images",
-            "$docroot_instance_path/pki/images",
+            $common_ui_subsystem_path,
+            "$docroot_instance_path/pki",
             $default_dir_permissions, $default_file_permissions,
             $pki_user, $pki_group);
 
@@ -2116,19 +2100,11 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        # Copy /usr/share/pki/common-ui/admin/console/config
-        # to <instance>/webapp/<subsystem>/admin/console/config
+        # Copy /usr/share/pki/server/webapps/pki/admin
+        # to <instance>/webapp/<subsystem>/admin
         return 0 if !copy_directory(
-            "$common_ui_subsystem_path/admin/console/config",
-            "$webapps_subsystem_instance_path/admin/console/config",
-            $default_dir_permissions, $default_file_permissions,
-            $pki_user, $pki_group);
-
-        # Copy /usr/share/pki/common-ui/admin/console/js
-        # to <instance>/webapp/<subsystem>/admin/console/js
-        return 0 if !copy_directory(
-            "$common_ui_subsystem_path/admin/console/js",
-            "$webapps_subsystem_instance_path/admin/console/js",
+            "$pki_subsystem_common_area/server/webapps/pki/admin",
+            "$webapps_subsystem_instance_path/admin",
             $default_dir_permissions, $default_file_permissions,
             $pki_user, $pki_group);
 
