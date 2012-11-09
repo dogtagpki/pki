@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}14%{?prerel}%{?dist}
+Release:          %{?relprefix}15%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -84,13 +84,9 @@ Requires:         jss-javadoc >= %{jss_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
-Requires:         dogtag-pki-ca-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-server-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-kra-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-ocsp-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-ra-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-tks-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
@@ -198,6 +194,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.15.b2
+- Removed Dogtag CA, KRA, OCSP, TKS theme packages.
+
 * Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.14.b2
 - Renamed dogtag-pki-common-theme to dogtag-pki-server-theme.
 

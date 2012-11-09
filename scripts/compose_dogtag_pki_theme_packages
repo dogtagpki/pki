@@ -39,7 +39,7 @@ DOGTAG_PKI_THEME_VERSION="10.0.0.b2"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_THEME}.spec"
-PKI_COMPONENT_LIST="test common-ui ca-ui kra-ui ocsp-ui tks-ui ra-ui tps-ui console-ui"
+PKI_COMPONENT_LIST="test common-ui ra-ui tps-ui console-ui"
 
 
 ##

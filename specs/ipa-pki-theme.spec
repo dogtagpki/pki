@@ -7,7 +7,7 @@
 
 Name:             ipa-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -59,43 +59,30 @@ Group:            System Environment/Base
 Conflicts:        dogtag-pki-server-theme
 Conflicts:        dogtag-pki-common-theme
 Conflicts:        dogtag-pki-common-ui
+Conflicts:        dogtag-pki-ca-theme
+Conflicts:        dogtag-pki-ca-ui
+
 Conflicts:        redhat-pki-server-theme
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
+Conflicts:        redhat-pki-ca-theme
+Conflicts:        redhat-pki-ca-ui
 
 Obsoletes:        ipa-pki-common-theme
 Obsoletes:        ipa-pki-common-ui
+Obsoletes:        ipa-pki-ca-theme
 
 Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
 
-%description -n   ipa-pki-server-theme
-This PKI Server Framework User Interface contains
-NO textual or graphical user interface for the PKI Server Framework.
-
-This package is used by the Certificate System utilized by IPA.
-
-%{overview}
-
-
-%package -n       ipa-pki-ca-theme
-Summary:          Certificate System - Certificate Authority User Interface
-Group:            System Environment/Base
-
-Requires:         ipa-pki-server-theme = %{version}-%{release}
-
-Conflicts:        dogtag-pki-ca-theme
-Conflicts:        dogtag-pki-ca-ui
-Conflicts:        redhat-pki-ca-theme
-Conflicts:        redhat-pki-ca-ui
-
+Provides:         ipa-pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
 
-%description -n   ipa-pki-ca-theme
-This Certificate Authority (CA) User Interface contains
-NO textual or graphical user interface for the CA.
+%description -n   ipa-pki-server-theme
+This PKI Server Framework User Interface contains
+NO textual or graphical user interface for the PKI Server Framework.
 
 This package is used by the Certificate System utilized by IPA.
 
@@ -134,13 +121,10 @@ cd build
 %{_datadir}/pki/common-ui/
 
 
-%files -n ipa-pki-ca-theme
-%defattr(-,root,root,-)
-%doc dogtag/ca-ui/LICENSE
-%{_datadir}/pki/ca-ui/
-
-
 %changelog
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.b2
+- Removed IPA CA theme package.
+
 * Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.b2
 - Renamed ipa-pki-common-theme to ipa-pki-server-theme.
 

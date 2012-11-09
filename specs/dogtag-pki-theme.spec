@@ -7,7 +7,7 @@
 
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}5%{?prerel}%{?dist}
+Release:          %{?relprefix}6%{?prerel}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -67,106 +67,61 @@ Group:            System Environment/Base
 Conflicts:        redhat-pki-server-theme
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
+Conflicts:        redhat-pki-ca-theme
+Conflicts:        redhat-pki-ca-ui
+Conflicts:        redhat-pki-kra-theme
+Conflicts:        redhat-pki-kra-ui
+Conflicts:        redhat-pki-ocsp-theme
+Conflicts:        redhat-pki-ocsp-ui
+Conflicts:        redhat-pki-tks-theme
+Conflicts:        redhat-pki-tks-ui
 
 # EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
 Obsoletes:        ipa-pki-server-theme <= 9999
 Obsoletes:        ipa-pki-common-theme <= 9999
+Obsoletes:        ipa-pki-ca-theme <= 9999
+Obsoletes:        ipa-pki-kra-theme <= 9999
+
 Provides:         ipa-pki-server-theme = %{version}-%{release}
 Provides:         ipa-pki-common-theme = %{version}-%{release}
+Provides:         ipa-pki-ca-theme = %{version}-%{release}
+Provides:         ipa-pki-kra-theme = %{version}-%{release}
 %endif
 
 Obsoletes:        dogtag-pki-common-theme
 Obsoletes:        dogtag-pki-common-ui
+Obsoletes:        dogtag-pki-ca-theme
+Obsoletes:        dogtag-pki-ca-ui
+Obsoletes:        dogtag-pki-kra-theme
+Obsoletes:        dogtag-pki-kra-ui
+Obsoletes:        dogtag-pki-ocsp-theme
+Obsoletes:        dogtag-pki-ocsp-ui
+Obsoletes:        dogtag-pki-tks-theme
+Obsoletes:        dogtag-pki-tks-ui
 
 Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-server-theme
-This PKI Server Framework User Interface contains
-the Dogtag textual and graphical user interface for the PKI Server Framework.
-
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
-
-%package -n       dogtag-pki-ca-theme
-Summary:          Certificate System - Certificate Authority User Interface
-Group:            System Environment/Base
-
-Requires:         dogtag-pki-server-theme = %{version}-%{release}
-
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-ca-theme
-Conflicts:        redhat-pki-ca-ui
-
-# EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
-Obsoletes:        ipa-pki-ca-theme <= 9999
-Provides:         ipa-pki-ca-theme = %{version}-%{release}
-%endif
-
-Obsoletes:        dogtag-pki-ca-ui <= 9
-
+Provides:         dogtag-pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-ca-theme
-This Certificate Authority (CA) User Interface contains
-the Dogtag textual and graphical user interface for the CA.
-
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
-
-%package -n       dogtag-pki-kra-theme
-Summary:          Certificate System - Data Recovery Manager User Interface
-Group:            System Environment/Base
-
-Requires:         dogtag-pki-server-theme = %{version}-%{release}
-
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-kra-theme
-Conflicts:        redhat-pki-kra-ui
-%endif
-
-Obsoletes:        dogtag-pki-kra-ui <= 9
-
+Provides:         dogtag-pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-kra-theme
-This Data Recovery Manager (DRM) User Interface contains
-the Dogtag textual and graphical user interface for the DRM.
-
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
-
-%package -n       dogtag-pki-ocsp-theme
-Summary:          Certificate System - Online Certificate Status Protocol Manager User Interface
-Group:            System Environment/Base
-
-Requires:         dogtag-pki-server-theme = %{version}-%{release}
-
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-ocsp-theme
-Conflicts:        redhat-pki-ocsp-ui
-%endif
-
-Obsoletes:        dogtag-pki-ocsp-ui <= 9
-
+Provides:         dogtag-pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-ocsp-theme
-This Online Certificate Status Protocol (OCSP) Manager User Interface contains
-the Dogtag textual and graphical user interface for the OCSP Manager.
+Provides:         dogtag-pki-tks-theme = %{version}-%{release}
+Provides:         pki-tks-theme = %{version}-%{release}
+Provides:         pki-tks-ui = %{version}-%{release}
+
+%description -n   dogtag-pki-server-theme
+This PKI Server Framework User Interface contains
+the Dogtag textual and graphical user interface for the PKI Server Framework.
 
 This package is used by the Dogtag Certificate System.
 
@@ -193,32 +148,6 @@ Provides:         pki-ra-ui = %{version}-%{release}
 %description -n   dogtag-pki-ra-theme
 This Registration Authority (RA) User Interface contains
 the Dogtag textual and graphical user interface for the RA.
-
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
-
-%package -n       dogtag-pki-tks-theme
-Summary:          Certificate System - Token Key Service User Interface
-Group:            System Environment/Base
-
-Requires:         dogtag-pki-server-theme = %{version}-%{release}
-
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-tks-theme
-Conflicts:        redhat-pki-tks-ui
-%endif
-
-Obsoletes:        dogtag-pki-tks-ui <= 9
-
-Provides:         pki-tks-theme = %{version}-%{release}
-Provides:         pki-tks-ui = %{version}-%{release}
-
-%description -n   dogtag-pki-tks-theme
-This Token Key Service (TKS) User Interface contains
-the Dogtag textual and graphical user interface for the TKS.
 
 This package is used by the Dogtag Certificate System.
 
@@ -325,35 +254,11 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 %{_datadir}/pki/common-ui/
 
 
-%files -n dogtag-pki-ca-theme
-%defattr(-,root,root,-)
-%doc dogtag/ca-ui/LICENSE
-%{_datadir}/pki/ca-ui/
-
-
-%files -n dogtag-pki-kra-theme
-%defattr(-,root,root,-)
-%doc dogtag/kra-ui/LICENSE
-%{_datadir}/pki/kra-ui/
-
-
-%files -n dogtag-pki-ocsp-theme
-%defattr(-,root,root,-)
-%doc dogtag/ocsp-ui/LICENSE
-%{_datadir}/pki/ocsp-ui/
-
-
 %files -n dogtag-pki-ra-theme
 %defattr(-,root,root,-)
 %doc dogtag/ra-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/ra-ui/
-
-
-%files -n dogtag-pki-tks-theme
-%defattr(-,root,root,-)
-%doc dogtag/tks-ui/LICENSE
-%{_datadir}/pki/tks-ui/
 
 
 %files -n dogtag-pki-tps-theme
@@ -370,6 +275,9 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.6.b2
+- Removed Dogtag CA, KRA, OCSP, TKS theme packages.
+
 * Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.b2
 - Renamed dogtag-pki-common-theme to dogtag-pki-server-theme.
 - Fixed theme package dependencies.

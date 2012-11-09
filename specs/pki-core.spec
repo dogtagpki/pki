@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}50%{?prerel}%{?dist}
+Release:          %{?relprefix}51%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -389,7 +389,6 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-ca-theme >= 10.0.0
 Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -437,7 +436,6 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-kra-theme >= 10.0.0
 Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -491,7 +489,6 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-ocsp-theme >= 10.0.0
 Requires:         pki-server = %{version}-%{release}
 %if 0%{?fedora} >= 16
 Requires(post):   systemd-units
@@ -552,7 +549,6 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         pki-tks-theme >= 10.0.0
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 %if 0%{?fedora} >= 16
@@ -1273,6 +1269,9 @@ fi
 
 
 %changelog
+* Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.51.b2
+- Removed dependency on CA, KRA, OCSP, TKS theme packages.
+
 * Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.50.b2
 - Renamed pki-common-theme to pki-server-theme.
 
