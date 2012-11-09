@@ -148,13 +148,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.SECURITY_DATABASES_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        util.file.modify(master['pki_shared_password_conf'])
-        util.file.modify(master['pki_cert_database'],
-            perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        util.file.modify(master['pki_key_database'],
-            perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        util.file.modify(master['pki_secmod_database'],
-            perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
         return self.rv
 
     def destroy(self):

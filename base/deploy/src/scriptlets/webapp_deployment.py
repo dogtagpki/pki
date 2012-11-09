@@ -105,41 +105,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_RESPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            # redeploy war file
-            util.directory.modify(master['pki_tomcat_webapps_subsystem_path'])
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui"),
-                master['pki_tomcat_webapps_subsystem_path'],
-                overwrite_flag=True)
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower() + "-ui",
-                    "webapps",
-                    master['pki_subsystem'].lower()),
-                master['pki_tomcat_webapps_subsystem_path'],
-                overwrite_flag=True)
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower(),
-                    "webapps",
-                    master['pki_subsystem'].lower()),
-                master['pki_tomcat_webapps_subsystem_path'],
-                overwrite_flag=True)
-            # update Tomcat webapps subsystem WEB-INF lib symbolic links
-            if master['pki_subsystem'] == "CA":
-                util.symlink.modify(master['pki_ca_jar_link'])
-            elif master['pki_subsystem'] == "KRA":
-                util.symlink.modify(master['pki_kra_jar_link'])
-            elif master['pki_subsystem'] == "OCSP":
-                util.symlink.modify(master['pki_ocsp_jar_link'])
-            elif master['pki_subsystem'] == "TKS":
-                util.symlink.modify(master['pki_tks_jar_link'])
-            # update ownerships, permissions, and acls
-            util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
 
     def destroy(self):

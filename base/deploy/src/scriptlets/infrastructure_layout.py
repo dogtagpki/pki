@@ -84,16 +84,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.ADMIN_DOMAIN_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # update top-level infrastructure base
-        util.directory.modify(master['pki_path'])
-        # update top-level infrastructure logs
-        util.directory.modify(master['pki_log_path'])
-        # update top-level infrastructure configuration
-        if master['pki_configuration_path'] !=\
-           config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-            util.directory.modify(master['pki_configuration_path'])
-        # update top-level infrastructure registry
-        util.directory.modify(master['pki_registry_path'])
         return self.rv
 
     def destroy(self):

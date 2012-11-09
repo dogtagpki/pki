@@ -75,9 +75,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # verify that this type of "subsystem" currently EXISTS
         # for this "instance"
         util.instance.verify_subsystem_exists()
-        # establish 'uid' and 'gid'
-        util.identity.set_uid(master['pki_user'])
-        util.identity.set_gid(master['pki_group'])
         return self.rv
 
     def destroy(self):

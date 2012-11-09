@@ -138,14 +138,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def respawn(self):
         config.pki_log.info(log.CONFIGURATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if util.file.exists(master['pki_client_password_conf']):
-            util.file.modify(master['pki_client_password_conf'],
-                             uid=0, gid=0)
-        if util.file.exists(master['pki_client_pkcs12_password_conf']):
-            util.file.modify(master['pki_client_pkcs12_password_conf'],
-                             uid=0, gid=0)
-        # ALWAYS Restart this Apache/Tomcat PKI Process
-        util.systemd.restart()
         return self.rv
 
     def destroy(self):
