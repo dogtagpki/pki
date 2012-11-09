@@ -218,15 +218,14 @@ def read_simple_configuration_file(filename):
 
 # PKI Deployment 'security databases' Class
 class security_databases:
-    def initialize_token(self, pki_database_path, pki_dry_run_flag, log_level):
+    def initialize_token(self, pki_database_path, log_level):
         try:
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
                 print "%s %s '%s'" %\
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_INITIALIZING_TOKEN,
                        pki_database_path)
-            if not pki_dry_run_flag:
-                CryptoManager.initialize(pki_database_path)
+            CryptoManager.initialize(pki_database_path)
         except AlreadyInitializedException, e:
             # it is ok if it is already initialized
             pass
@@ -235,8 +234,7 @@ class security_databases:
                                    " " + str(e))
             javasystem.exit(1)
 
-    def log_into_token(self, pki_database_path, password_conf,
-                       pki_dry_run_flag, log_level):
+    def log_into_token(self, pki_database_path, password_conf, log_level):
         token = None
         try:
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
@@ -244,28 +242,27 @@ class security_databases:
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_LOG_INTO_TOKEN,
                        pki_database_path)
-            if not pki_dry_run_flag:
-                manager = CryptoManager.getInstance()
-                token = manager.getInternalKeyStorageToken()
-                # Retrieve 'password' from client-side 'password_conf'
-                #
-                #     NOTE:  For now, ONLY read the first line
-                #            (which contains "password")
-                #
-                fd = open(password_conf, "r")
-                token_pwd = fd.readline()
-                fd.close
-                # Convert 'token_pwd' into a 'java char[]'
-                jtoken_pwd = jarray.array(token_pwd, 'c')
-                password = Password(jtoken_pwd)
-                try:
-                    token.login(password)
-                except Exception, e:
-                    javasystem.out.println(log.PKI_JYTHON_LOGIN_EXCEPTION +\
-                                           " " + str(e))
-                    if not token.isLoggedIn():
-                        token.initPassword(password, password)
-                    javasystem.exit(1)
+            manager = CryptoManager.getInstance()
+            token = manager.getInternalKeyStorageToken()
+            # Retrieve 'password' from client-side 'password_conf'
+            #
+            #     NOTE:  For now, ONLY read the first line
+            #            (which contains "password")
+            #
+            fd = open(password_conf, "r")
+            token_pwd = fd.readline()
+            fd.close
+            # Convert 'token_pwd' into a 'java char[]'
+            jtoken_pwd = jarray.array(token_pwd, 'c')
+            password = Password(jtoken_pwd)
+            try:
+                token.login(password)
+            except Exception, e:
+                javasystem.out.println(log.PKI_JYTHON_LOGIN_EXCEPTION +\
+                                       " " + str(e))
+                if not token.isLoggedIn():
+                    token.initPassword(password, password)
+                javasystem.exit(1)
         except Exception, e:
             javasystem.out.println(log.PKI_JYTHON_TOKEN_LOGIN_EXCEPTION +\
                                    " " + str(e))
@@ -289,8 +286,7 @@ class rest_client:
                       (log.PKI_JYTHON_INDENTATION_2,
                        log.PKI_JYTHON_INITIALIZING_REST_CLIENT,
                        client_config.serverURI)
-            if not master['pki_dry_run_flag']:
-                self.client = SystemConfigClient(client_config)
+            self.client = SystemConfigClient(client_config)
             return self.client
         except URISyntaxException, e:
             e.printStackTrace()
@@ -421,132 +417,131 @@ class rest_client:
                   (log.PKI_JYTHON_INDENTATION_2,
                    log.PKI_JYTHON_CONSTRUCTING_PKI_DATA,
                    master['pki_subsystem'])
-        if not master['pki_dry_run_flag']:
-            data = ConfigurationRequest()
+        data = ConfigurationRequest()
 
-            # Miscellaneous Configuration Information
-            data.setPin(self.sensitive['pki_one_time_pin'])
-            data.setToken(ConfigurationRequest.TOKEN_DEFAULT)
-            data.setSubsystemName(master['pki_subsystem_name'])
+        # Miscellaneous Configuration Information
+        data.setPin(self.sensitive['pki_one_time_pin'])
+        data.setToken(ConfigurationRequest.TOKEN_DEFAULT)
+        data.setSubsystemName(master['pki_subsystem_name'])
 
-            # Hierarchy
-            if master['pki_instance_type'] == "Tomcat":
-                if master['pki_subsystem'] == "CA":
-                    if config.str2bool(master['pki_clone']):
-                        # Cloned CA
-                        # alee - is this correct?
-                        data.setHierarchy("root")
-                    elif config.str2bool(master['pki_external']):
-                        # External CA
-                        data.setHierarchy("join")
-                    elif config.str2bool(master['pki_subordinate']):
-                        # Subordinate CA
-                        data.setHierarchy("join")
-                    else:
-                        # PKI CA
-                        data.setHierarchy("root")
-
-            # Cloning parameters
-            if master['pki_instance_type'] == "Tomcat":
-                if config.str2bool(master['pki_clone']):
-                    self.set_cloning_parameters(data)
-                else:
-                    data.setIsClone("false")
-
-            # Security Domain
-            if master['pki_subsystem'] != "CA" or\
-               config.str2bool(master['pki_clone']) or\
-               config.str2bool(master['pki_subordinate']):
-                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
-                # Subordinate CA
-                self.set_existing_security_domain(data)
-            elif not config.str2bool(master['pki_external']):
-                # PKI CA
-                self.set_new_security_domain(data)
-
-            if master['pki_subsystem'] != "RA":
-                self.set_database_parameters(data)
-
-            if master['pki_instance_type'] == "Tomcat":
-                self.set_backup_parameters(data)
-
-            if not config.str2bool(master['pki_clone']):
-                self.set_admin_parameters(token, data)
-
-            # Issuing CA Information
-            if master['pki_subsystem'] != "CA" or\
-               config.str2bool(master['pki_clone']) or\
-               config.str2bool(master['pki_subordinate']) or\
-               config.str2bool(master['pki_external']):
-                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-                # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
-                # Subordinate CA, or External CA
-                data.setIssuingCA(master['pki_issuing_ca'])
-
-            # Create system certs
-            systemCerts = ArrayList()
-
-            # Create 'CA Signing Certificate'
+        # Hierarchy
+        if master['pki_instance_type'] == "Tomcat":
             if master['pki_subsystem'] == "CA":
-                if not config.str2bool(master['pki_clone']):
-                    cert = self.create_system_cert("ca_signing")
-                    cert.setSigningAlgorithm(
-                        master['pki_ca_signing_signing_algorithm'])
-                    systemCerts.add(cert)
+                if config.str2bool(master['pki_clone']):
+                    # Cloned CA
+                    # alee - is this correct?
+                    data.setHierarchy("root")
+                elif config.str2bool(master['pki_external']):
+                    # External CA
+                    data.setHierarchy("join")
+                elif config.str2bool(master['pki_subordinate']):
+                    # Subordinate CA
+                    data.setHierarchy("join")
+                else:
+                    # PKI CA
+                    data.setHierarchy("root")
 
-            # Create 'OCSP Signing Certificate'
-            if not config.str2bool(master['pki_clone']):
-                if master['pki_subsystem'] == "CA" or\
-                   master['pki_subsystem'] == "OCSP":
-                    # External CA, Subordinate CA, PKI CA, or PKI OCSP
-                    cert2 = self.create_system_cert("ocsp_signing")
-                    cert2.setSigningAlgorithm(
-                        master['pki_ocsp_signing_signing_algorithm'])
-                    systemCerts.add(cert2)
-
-            # Create 'SSL Server Certificate'
-            # all subsystems
-
-            # create new sslserver cert only if this is a new instance
-            cert3 = None
-            system_list = self.tomcat_instance_subsystems()
-            if len(system_list) >= 2:
-                data.setGenerateServerCert("false")
-                for subsystem in system_list:
-                    dst = master['pki_instance_path'] + '/conf/' +\
-                        subsystem.lower() + '/CS.cfg' 
-                    if subsystem != master['pki_subsystem'] and \
-                       os.path.exists(dst):
-                        cert3 = self.retrieve_existing_server_cert(dst)
-                        break
+        # Cloning parameters
+        if master['pki_instance_type'] == "Tomcat":
+            if config.str2bool(master['pki_clone']):
+                self.set_cloning_parameters(data)
             else:
-                cert3 = self.create_system_cert("ssl_server")
-            systemCerts.add(cert3)
+                data.setIsClone("false")
 
-            # Create 'Subsystem Certificate'
+        # Security Domain
+        if master['pki_subsystem'] != "CA" or\
+           config.str2bool(master['pki_clone']) or\
+           config.str2bool(master['pki_subordinate']):
+            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+            # Subordinate CA
+            self.set_existing_security_domain(data)
+        elif not config.str2bool(master['pki_external']):
+            # PKI CA
+            self.set_new_security_domain(data)
+
+        if master['pki_subsystem'] != "RA":
+            self.set_database_parameters(data)
+
+        if master['pki_instance_type'] == "Tomcat":
+            self.set_backup_parameters(data)
+
+        if not config.str2bool(master['pki_clone']):
+            self.set_admin_parameters(token, data)
+
+        # Issuing CA Information
+        if master['pki_subsystem'] != "CA" or\
+           config.str2bool(master['pki_clone']) or\
+           config.str2bool(master['pki_subordinate']) or\
+           config.str2bool(master['pki_external']):
+            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
+            # Subordinate CA, or External CA
+            data.setIssuingCA(master['pki_issuing_ca'])
+
+        # Create system certs
+        systemCerts = ArrayList()
+
+        # Create 'CA Signing Certificate'
+        if master['pki_subsystem'] == "CA":
             if not config.str2bool(master['pki_clone']):
-                cert4 = self.create_system_cert("subsystem")
-                systemCerts.add(cert4)
+                cert = self.create_system_cert("ca_signing")
+                cert.setSigningAlgorithm(
+                    master['pki_ca_signing_signing_algorithm'])
+                systemCerts.add(cert)
 
-            # Create 'Audit Signing Certificate'
-            if not config.str2bool(master['pki_clone']):
-                if master['pki_subsystem'] != "RA":
-                    cert5 = self.create_system_cert("audit_signing")
-                    cert5.setSigningAlgorithm(
-                        master['pki_audit_signing_signing_algorithm'])
-                    systemCerts.add(cert5)
+        # Create 'OCSP Signing Certificate'
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] == "CA" or\
+               master['pki_subsystem'] == "OCSP":
+                # External CA, Subordinate CA, PKI CA, or PKI OCSP
+                cert2 = self.create_system_cert("ocsp_signing")
+                cert2.setSigningAlgorithm(
+                    master['pki_ocsp_signing_signing_algorithm'])
+                systemCerts.add(cert2)
 
-            # Create DRM Transport and storage Certificates
-            if not config.str2bool(master['pki_clone']):
-                if master['pki_subsystem'] == "KRA":
-                    cert6 = self.create_system_cert("transport")
-                    systemCerts.add(cert6)
+        # Create 'SSL Server Certificate'
+        # all subsystems
 
-                    cert7 = self.create_system_cert("storage")
-                    systemCerts.add(cert7)
+        # create new sslserver cert only if this is a new instance
+        cert3 = None
+        system_list = self.tomcat_instance_subsystems()
+        if len(system_list) >= 2:
+            data.setGenerateServerCert("false")
+            for subsystem in system_list:
+                dst = master['pki_instance_path'] + '/conf/' +\
+                    subsystem.lower() + '/CS.cfg' 
+                if subsystem != master['pki_subsystem'] and \
+                   os.path.exists(dst):
+                    cert3 = self.retrieve_existing_server_cert(dst)
+                    break
+        else:
+            cert3 = self.create_system_cert("ssl_server")
+        systemCerts.add(cert3)
 
-            data.setSystemCerts(systemCerts)
+        # Create 'Subsystem Certificate'
+        if not config.str2bool(master['pki_clone']):
+            cert4 = self.create_system_cert("subsystem")
+            systemCerts.add(cert4)
+
+        # Create 'Audit Signing Certificate'
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] != "RA":
+                cert5 = self.create_system_cert("audit_signing")
+                cert5.setSigningAlgorithm(
+                    master['pki_audit_signing_signing_algorithm'])
+                systemCerts.add(cert5)
+
+        # Create DRM Transport and storage Certificates
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] == "KRA":
+                cert6 = self.create_system_cert("transport")
+                systemCerts.add(cert6)
+
+                cert7 = self.create_system_cert("storage")
+                systemCerts.add(cert7)
+
+        data.setSystemCerts(systemCerts)
 
         return data
 
@@ -557,119 +552,118 @@ class rest_client:
                   (log.PKI_JYTHON_INDENTATION_2,
                    log.PKI_JYTHON_CONFIGURING_PKI_DATA,
                    master['pki_subsystem'])
-        if not master['pki_dry_run_flag']:
-            try:
-                response = self.client.configure(data)
-                javasystem.out.println(log.PKI_JYTHON_RESPONSE_STATUS +\
-                                       " " + response.getStatus())
-                certs = response.getSystemCerts()
-                iterator = certs.iterator()
-                while iterator.hasNext():
-                    cdata = iterator.next()
-                    javasystem.out.println(log.PKI_JYTHON_CDATA_TAG + " " +\
-                                           cdata.getTag())
-                    javasystem.out.println(log.PKI_JYTHON_CDATA_CERT + " " +\
-                                           cdata.getCert())
-                    javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
-                                           cdata.getRequest())
-                # Cloned PKI subsystems do not return an Admin Certificate
-                if not config.str2bool(master['pki_clone']):
-                    admin_cert = response.getAdminCert().getCert()
-                    javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
-                                           " " + admin_cert)
-                    # Store the Administration Certificate in a file
-                    admin_cert_file = os.path.join(
-                        master['pki_client_dir'],
-                        master['pki_client_admin_cert'])
-                    admin_cert_bin_file = admin_cert_file + ".der"
-                    javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
-                                           " " + "'" + admin_cert_file + "'")
-                    FILE = open(admin_cert_file, "w")
-                    FILE.write(admin_cert)
-                    FILE.close()
-                    # convert the cert file to binary
-                    command = "AtoB "+ admin_cert_file + " " + admin_cert_bin_file
-                    javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_ATOB +\
-                        " " + "'" + command + "'")
-                    os.system(command)
+        try:
+            response = self.client.configure(data)
+            javasystem.out.println(log.PKI_JYTHON_RESPONSE_STATUS +\
+                                   " " + response.getStatus())
+            certs = response.getSystemCerts()
+            iterator = certs.iterator()
+            while iterator.hasNext():
+                cdata = iterator.next()
+                javasystem.out.println(log.PKI_JYTHON_CDATA_TAG + " " +\
+                                       cdata.getTag())
+                javasystem.out.println(log.PKI_JYTHON_CDATA_CERT + " " +\
+                                       cdata.getCert())
+                javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
+                                       cdata.getRequest())
+            # Cloned PKI subsystems do not return an Admin Certificate
+            if not config.str2bool(master['pki_clone']):
+                admin_cert = response.getAdminCert().getCert()
+                javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
+                                       " " + admin_cert)
+                # Store the Administration Certificate in a file
+                admin_cert_file = os.path.join(
+                    master['pki_client_dir'],
+                    master['pki_client_admin_cert'])
+                admin_cert_bin_file = admin_cert_file + ".der"
+                javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
+                                       " " + "'" + admin_cert_file + "'")
+                FILE = open(admin_cert_file, "w")
+                FILE.write(admin_cert)
+                FILE.close()
+                # convert the cert file to binary
+                command = "AtoB "+ admin_cert_file + " " + admin_cert_bin_file
+                javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_ATOB +\
+                    " " + "'" + command + "'")
+                os.system(command)
 
-                    # Since Jython runs under Java, it does NOT support the
-                    # following operating system specific command:
-                    #
-                    #     os.chmod(
-                    #         admin_cert_file,
-                    #         config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
-                    #
-                    # Emulate it with a system call.
-                    command = "chmod" + " 660 " + admin_cert_file
-                    javasystem.out.println(
-                        log.PKI_JYTHON_CHMOD +\
-                        " " + "'" + command + "'")
-                    os.system(command)
-
-                    command = "chmod" + " 660 " + admin_cert_bin_file
-                    javasystem.out.println(
-                        log.PKI_JYTHON_CHMOD +\
-                        " " + "'" + command + "'")
-                    os.system(command)
-
-                    # Import the Administration Certificate
-                    # into the client NSS security database
-                    command = "certutil" + " " +\
-                              "-A" + " " +\
-                              "-n" + " " + "\"" +\
-                              re.sub("&#39;",
-                                     "'", master['pki_admin_nickname']) +\
-                              "\"" + " " +\
-                              "-t" + " " +\
-                              "\"" + "u,u,u" + "\"" + " " +\
-                              "-f" + " " +\
-                              master['pki_client_password_conf'] + " " +\
-                              "-d" + " " +\
-                              master['pki_client_database_dir'] + " " +\
-                              "-i" + " " +\
-                              admin_cert_bin_file
-                    javasystem.out.println(
-                        log.PKI_JYTHON_ADMIN_CERT_IMPORT +\
-                        " " + "'" + command + "'")
-                    os.system(command)
-                    # Export the Administration Certificate from the
-                    # client NSS security database into a PKCS #12 file
-                    command = "pk12util" + " " +\
-                              "-o" + " " +\
-                              master['pki_client_admin_cert_p12'] + " " +\
-                              "-n" + " " + "\"" +\
-                              re.sub("&#39;",
-                                     "'", master['pki_admin_nickname']) +\
-                              "\"" + " " +\
-                              "-d" + " " +\
-                              master['pki_client_database_dir'] + " " +\
-                              "-k" + " " +\
-                              master['pki_client_password_conf'] + " " +\
-                              "-w" + " " +\
-                              master['pki_client_pkcs12_password_conf']
-                    javasystem.out.println(
-                        log.PKI_JYTHON_ADMIN_CERT_EXPORT +\
-                        " " + "'" + command + "'")
-                    os.system(command)
-                    # Since Jython runs under Java, it does NOT support the
-                    # following operating system specific command:
-                    #
-                    # os.chmod(master['pki_client_admin_cert_p12'],
-                    #     config.\
-                    #     PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-                    #
-                    # Emulate it with a system call.
-                    command = "chmod" + " " + "664" + " " +\
-                              master['pki_client_admin_cert_p12']
-                    javasystem.out.println(
-                        log.PKI_JYTHON_CHMOD +\
-                        " " + "'" + command + "'")
-                    os.system(command)
-            except Exception, e:
+                # Since Jython runs under Java, it does NOT support the
+                # following operating system specific command:
+                #
+                #     os.chmod(
+                #         admin_cert_file,
+                #         config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+                #
+                # Emulate it with a system call.
+                command = "chmod" + " 660 " + admin_cert_file
                 javasystem.out.println(
-                    log.PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION + " " + str(e))
-                javasystem.exit(1)
+                    log.PKI_JYTHON_CHMOD +\
+                    " " + "'" + command + "'")
+                os.system(command)
+
+                command = "chmod" + " 660 " + admin_cert_bin_file
+                javasystem.out.println(
+                    log.PKI_JYTHON_CHMOD +\
+                    " " + "'" + command + "'")
+                os.system(command)
+
+                # Import the Administration Certificate
+                # into the client NSS security database
+                command = "certutil" + " " +\
+                          "-A" + " " +\
+                          "-n" + " " + "\"" +\
+                          re.sub("&#39;",
+                                 "'", master['pki_admin_nickname']) +\
+                          "\"" + " " +\
+                          "-t" + " " +\
+                          "\"" + "u,u,u" + "\"" + " " +\
+                          "-f" + " " +\
+                          master['pki_client_password_conf'] + " " +\
+                          "-d" + " " +\
+                          master['pki_client_database_dir'] + " " +\
+                          "-i" + " " +\
+                          admin_cert_bin_file
+                javasystem.out.println(
+                    log.PKI_JYTHON_ADMIN_CERT_IMPORT +\
+                    " " + "'" + command + "'")
+                os.system(command)
+                # Export the Administration Certificate from the
+                # client NSS security database into a PKCS #12 file
+                command = "pk12util" + " " +\
+                          "-o" + " " +\
+                          master['pki_client_admin_cert_p12'] + " " +\
+                          "-n" + " " + "\"" +\
+                          re.sub("&#39;",
+                                 "'", master['pki_admin_nickname']) +\
+                          "\"" + " " +\
+                          "-d" + " " +\
+                          master['pki_client_database_dir'] + " " +\
+                          "-k" + " " +\
+                          master['pki_client_password_conf'] + " " +\
+                          "-w" + " " +\
+                          master['pki_client_pkcs12_password_conf']
+                javasystem.out.println(
+                    log.PKI_JYTHON_ADMIN_CERT_EXPORT +\
+                    " " + "'" + command + "'")
+                os.system(command)
+                # Since Jython runs under Java, it does NOT support the
+                # following operating system specific command:
+                #
+                # os.chmod(master['pki_client_admin_cert_p12'],
+                #     config.\
+                #     PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+                #
+                # Emulate it with a system call.
+                command = "chmod" + " " + "664" + " " +\
+                          master['pki_client_admin_cert_p12']
+                javasystem.out.println(
+                    log.PKI_JYTHON_CHMOD +\
+                    " " + "'" + command + "'")
+                os.system(command)
+        except Exception, e:
+            javasystem.out.println(
+                log.PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION + " " + str(e))
+            javasystem.exit(1)
         return
 
 

@@ -48,10 +48,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_2)
         # for record in manifest.database:
         #     print tuple(record)
-        if not config.pki_dry_run_flag:
-            manifest.file.register(master['pki_manifest'])
-            manifest.file.write()
-            util.file.modify(master['pki_manifest'], silent=True)
+        manifest.file.register(master['pki_manifest'])
+        manifest.file.write()
+        util.file.modify(master['pki_manifest'], silent=True)
+
         # Also, for debugging/auditing purposes, save a timestamped copy of
         # this installation manifest file
         util.file.copy(master['pki_manifest'],
@@ -78,8 +78,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_subsystem'],
                             master['pki_instance_id'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
-        if not config.pki_dry_run_flag:
-            util.file.modify(master['pki_spawn_log'], silent=True)
+        util.file.modify(master['pki_spawn_log'], silent=True)
         # If instance has not been configured, print the
         # configuration URL to the screen
         if config.str2bool(master['pki_skip_configuration']):
@@ -94,24 +93,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.FINALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if not config.pki_dry_run_flag:
-            util.file.modify(master['pki_destroy_log'], silent=True)
+        util.file.modify(master['pki_destroy_log'], silent=True)
         # Start this Apache/Tomcat PKI Process
-        if not config.pki_dry_run_flag:
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() >= 1:
-                util.systemd.start()
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() >= 1:
-                util.systemd.start()
-        else:
-            # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() >= 0:
-                util.systemd.start()
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() >= 0:
-                util.systemd.start()
+        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+           util.instance.apache_instance_subsystems() >= 1:
+            util.systemd.start()
+        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+           util.instance.tomcat_instance_subsystems() >= 1:
+            util.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             master['pki_subsystem'],
                             master['pki_instance_id'],

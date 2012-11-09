@@ -248,73 +248,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if master['pki_subsystem'] == 'TKS':
             util.symlink.delete(master['pki_symkey_jar_link'])
-        if not config.pki_dry_run_flag:
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() == 0:
-                # remove Apache instance base
-                util.directory.delete(master['pki_instance_path'])
-                # remove Apache instance logs
-                # remove shared NSS security database path for this instance
-                util.directory.delete(master['pki_database_path'])
-                # remove Apache instance configuration
-                util.directory.delete(master['pki_instance_configuration_path'])
-                # remove Apache instance registry
-                util.directory.delete(master['pki_instance_registry_path'])
-                # remove Apache PKI registry (if empty)
-                if util.instance.apache_instances() == 0:
-                    util.directory.delete(
-                        master['pki_instance_type_registry_path'])
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() == 0:
-                # remove Tomcat instance base
-                util.directory.delete(master['pki_instance_path'])
-                # remove Tomcat instance logs
-                util.directory.delete(master['pki_instance_log_path'])
-                # remove shared NSS security database path for this instance
-                util.directory.delete(master['pki_database_path'])
-                # remove Tomcat instance configuration
-                util.directory.delete(master['pki_instance_configuration_path'])
-                # remove PKI 'tomcat.conf' instance file
-                util.file.delete(master['pki_target_tomcat_conf_instance_id'])
-                # remove Tomcat instance registry
-                util.directory.delete(master['pki_instance_registry_path'])
-                # remove Tomcat PKI registry (if empty)
-                if util.instance.tomcat_instances() == 0:
-                    util.directory.delete(
-                        master['pki_instance_type_registry_path'])
-        else:
-            # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() == 1:
-                # remove Apache instance base
-                util.directory.delete(master['pki_instance_path'])
-                # remove Apache instance logs
-                # remove shared NSS security database path for this instance
-                util.directory.delete(master['pki_database_path'])
-                # remove Apache instance configuration
-                util.directory.delete(master['pki_instance_configuration_path'])
-                # remove Apache instance registry
-                util.directory.delete(master['pki_instance_registry_path'])
-                # remove Apache PKI registry (if empty)
-                if util.instance.apache_instances() == 1:
-                    util.directory.delete(
-                        master['pki_instance_type_registry_path'])
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() == 1:
-                # remove Tomcat instance base
-                util.directory.delete(master['pki_instance_path'])
-                # remove Tomcat instance logs
-                util.directory.delete(master['pki_instance_log_path'])
-                # remove shared NSS security database path for this instance
-                util.directory.delete(master['pki_database_path'])
-                # remove Tomcat instance configuration
-                util.directory.delete(master['pki_instance_configuration_path'])
-                # remove PKI 'tomcat.conf' instance file
-                util.file.delete(master['pki_target_tomcat_conf_instance_id'])
-                # remove Tomcat instance registry
-                util.directory.delete(master['pki_instance_registry_path'])
-                # remove Tomcat PKI registry (if empty)
-                if util.instance.tomcat_instances() == 1:
-                    util.directory.delete(
-                        master['pki_instance_type_registry_path'])
+        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+           util.instance.apache_instance_subsystems() == 0:
+            # remove Apache instance base
+            util.directory.delete(master['pki_instance_path'])
+            # remove Apache instance logs
+            # remove shared NSS security database path for this instance
+            util.directory.delete(master['pki_database_path'])
+            # remove Apache instance configuration
+            util.directory.delete(master['pki_instance_configuration_path'])
+            # remove Apache instance registry
+            util.directory.delete(master['pki_instance_registry_path'])
+            # remove Apache PKI registry (if empty)
+            if util.instance.apache_instances() == 0:
+                util.directory.delete(
+                    master['pki_instance_type_registry_path'])
+        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+             util.instance.tomcat_instance_subsystems() == 0:
+            # remove Tomcat instance base
+            util.directory.delete(master['pki_instance_path'])
+            # remove Tomcat instance logs
+            util.directory.delete(master['pki_instance_log_path'])
+            # remove shared NSS security database path for this instance
+            util.directory.delete(master['pki_database_path'])
+            # remove Tomcat instance configuration
+            util.directory.delete(master['pki_instance_configuration_path'])
+            # remove PKI 'tomcat.conf' instance file
+            util.file.delete(master['pki_target_tomcat_conf_instance_id'])
+            # remove Tomcat instance registry
+            util.directory.delete(master['pki_instance_registry_path'])
+            # remove Tomcat PKI registry (if empty)
+            if util.instance.tomcat_instances() == 0:
+                util.directory.delete(
+                    master['pki_instance_type_registry_path'])
         return self.rv

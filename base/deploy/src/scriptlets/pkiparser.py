@@ -74,9 +74,6 @@ def process_command_line_arguments(argv):
                                     '[.${pki_admin_domain_name}]')
     # Establish 'Optional' command-line options
     optional = parser.add_argument_group('optional arguments')
-    optional.add_argument('--dry_run',
-                          dest='pki_dry_run_flag', action='store_true',
-                          help='do not actually perform any actions')
     optional.add_argument('-h', '--help',
                           dest='help', action='help',
                           help='show this help message and exit')
@@ -107,9 +104,6 @@ def process_command_line_arguments(argv):
         config.pki_deployed_instance_name =\
             str(args.pki_deployed_instance_name).strip('[\']')
     # Process 'Optional' command-line options
-    #    '--dry_run'
-    if args.pki_dry_run_flag:
-        config.pki_dry_run_flag = args.pki_dry_run_flag
     if config.pki_deployment_executable == 'pkispawn':
         #    '-u'
         config.pki_update_flag = args.pki_update_flag
@@ -267,7 +261,6 @@ def compose_pki_master_dictionary():
         config.pki_master_dict['pki_hostname'] = config.pki_hostname
         config.pki_master_dict['pki_dns_domainname'] =\
             config.pki_dns_domainname
-        config.pki_master_dict['pki_dry_run_flag'] = config.pki_dry_run_flag
         config.pki_master_dict['pki_jython_log_level'] =\
             config.pki_jython_log_level
         config.pki_master_dict['pki_deployment_cfg'] = config.pkideployment_cfg

@@ -39,88 +39,40 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return self.rv
         config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if not config.pki_dry_run_flag:
-            util.password.create_password_conf(
-                master['pki_shared_password_conf'],
-                sensitive['pki_pin'])
-            # Since 'certutil' does NOT strip the 'token=' portion of
-            # the 'token=password' entries, create a temporary server 'pfile'
-            # which ONLY contains the 'password' for the purposes of
-            # allowing 'certutil' to generate the security databases
-            util.password.create_password_conf(
-                master['pki_shared_pfile'],
-                sensitive['pki_pin'], pin_sans_token=True)
-            util.file.modify(master['pki_shared_password_conf'])
-            util.certutil.create_security_databases(
-                master['pki_database_path'],
-                master['pki_cert_database'],
-                master['pki_key_database'],
-                master['pki_secmod_database'],
-                password_file=master['pki_shared_pfile'])
-            util.file.modify(master['pki_cert_database'], perms=\
-                config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-            util.file.modify(master['pki_key_database'], perms=\
-                config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-            util.file.modify(master['pki_secmod_database'], perms=\
-                config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        util.password.create_password_conf(
+            master['pki_shared_password_conf'],
+            sensitive['pki_pin'])
+        # Since 'certutil' does NOT strip the 'token=' portion of
+        # the 'token=password' entries, create a temporary server 'pfile'
+        # which ONLY contains the 'password' for the purposes of
+        # allowing 'certutil' to generate the security databases
+        util.password.create_password_conf(
+            master['pki_shared_pfile'],
+            sensitive['pki_pin'], pin_sans_token=True)
+        util.file.modify(master['pki_shared_password_conf'])
+        util.certutil.create_security_databases(
+            master['pki_database_path'],
+            master['pki_cert_database'],
+            master['pki_key_database'],
+            master['pki_secmod_database'],
+            password_file=master['pki_shared_pfile'])
+        util.file.modify(master['pki_cert_database'], perms=\
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        util.file.modify(master['pki_key_database'], perms=\
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        util.file.modify(master['pki_secmod_database'], perms=\
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-            if util.instance.tomcat_instance_subsystems() < 2:
-                # only create a self signed cert for a new instance  
-                rv = util.certutil.verify_certificate_exists(
-                     master['pki_database_path'],
-                     master['pki_cert_database'],
-                     master['pki_key_database'],
-                     master['pki_secmod_database'],
-                     master['pki_self_signed_token'],
-                     master['pki_self_signed_nickname'],
-                     password_file=master['pki_shared_pfile'])
-                if not rv:
-                    util.file.generate_noise_file(
-                        master['pki_self_signed_noise_file'],
-                        master['pki_self_signed_noise_bytes'])
-                    util.certutil.generate_self_signed_certificate(
-                        master['pki_database_path'],
-                        master['pki_cert_database'],
-                        master['pki_key_database'],
-                        master['pki_secmod_database'],
-                        master['pki_self_signed_token'],
-                        master['pki_self_signed_nickname'],
-                        master['pki_self_signed_subject'],
-                        master['pki_self_signed_serial_number'],
-                        master['pki_self_signed_validity_period'],
-                        master['pki_self_signed_issuer_name'],
-                        master['pki_self_signed_trustargs'],
-                        master['pki_self_signed_noise_file'],
-                        password_file=master['pki_shared_pfile'])
-                    # Delete the temporary 'noise' file
-                    util.file.delete(master['pki_self_signed_noise_file'])
-                # Delete the temporary 'pfile'
-                util.file.delete(master['pki_shared_pfile'])
-        else:
-            util.password.create_password_conf(
-                master['pki_shared_password_conf'],
-                sensitive['pki_pin'])
-            # Since 'certutil' does NOT strip the 'token=' portion of
-            # the 'token=password' entries, create a temporary server 'pfile'
-            # which ONLY contains the 'password' for the purposes of
-            # allowing 'certutil' to generate the security databases
-            util.password.create_password_conf(
-                master['pki_shared_pfile'],
-                sensitive['pki_pin'], pin_sans_token=True)
-            util.certutil.create_security_databases(
-                master['pki_database_path'],
-                master['pki_cert_database'],
-                master['pki_key_database'],
-                master['pki_secmod_database'],
-                password_file=master['pki_shared_pfile'])
+        if util.instance.tomcat_instance_subsystems() < 2:
+            # only create a self signed cert for a new instance  
             rv = util.certutil.verify_certificate_exists(
-                     master['pki_database_path'],
-                     master['pki_cert_database'],
-                     master['pki_key_database'],
-                     master['pki_secmod_database'],
-                     master['pki_self_signed_token'],
-                     master['pki_self_signed_nickname'],
-                     password_file=master['pki_shared_pfile'])
+                 master['pki_database_path'],
+                 master['pki_cert_database'],
+                 master['pki_key_database'],
+                 master['pki_secmod_database'],
+                 master['pki_self_signed_token'],
+                 master['pki_self_signed_nickname'],
+                 password_file=master['pki_shared_pfile'])
             if not rv:
                 util.file.generate_noise_file(
                     master['pki_self_signed_noise_file'],
@@ -153,31 +105,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self):
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if not config.pki_dry_run_flag:
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() == 0:
-                util.file.delete(master['pki_cert_database'])
-                util.file.delete(master['pki_key_database'])
-                util.file.delete(master['pki_secmod_database'])
-                util.file.delete(master['pki_shared_password_conf'])
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() == 0:
-                util.file.delete(master['pki_cert_database'])
-                util.file.delete(master['pki_key_database'])
-                util.file.delete(master['pki_secmod_database'])
-                util.file.delete(master['pki_shared_password_conf'])
-        else:
-            # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-               util.instance.apache_instance_subsystems() == 1:
-                util.file.delete(master['pki_cert_database'])
-                util.file.delete(master['pki_key_database'])
-                util.file.delete(master['pki_secmod_database'])
-                util.file.delete(master['pki_shared_password_conf'])
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                 util.instance.tomcat_instance_subsystems() == 1:
-                util.file.delete(master['pki_cert_database'])
-                util.file.delete(master['pki_key_database'])
-                util.file.delete(master['pki_secmod_database'])
-                util.file.delete(master['pki_shared_password_conf'])
+        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+           util.instance.apache_instance_subsystems() == 0:
+            util.file.delete(master['pki_cert_database'])
+            util.file.delete(master['pki_key_database'])
+            util.file.delete(master['pki_secmod_database'])
+            util.file.delete(master['pki_shared_password_conf'])
+        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+             util.instance.tomcat_instance_subsystems() == 0:
+            util.file.delete(master['pki_cert_database'])
+            util.file.delete(master['pki_key_database'])
+            util.file.delete(master['pki_secmod_database'])
+            util.file.delete(master['pki_shared_password_conf'])
         return self.rv

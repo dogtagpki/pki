@@ -69,14 +69,12 @@ def main(argv):
     # Initialize token
     jyutil.security_databases.initialize_token(
         master['pki_client_database_dir'],
-        master['pki_dry_run_flag'],
         master['pki_jython_log_level'])
 
     # Log into token
     token = jyutil.security_databases.log_into_token(
                 master['pki_client_database_dir'],
                 master['pki_client_password_conf'],
-                master['pki_dry_run_flag'],
                 master['pki_jython_log_level'])
 
     # Setup connection parameters

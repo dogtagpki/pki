@@ -90,35 +90,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.ADMIN_DOMAIN_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # remove top-level infrastructure base
-        if not config.pki_dry_run_flag:
-            if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_instance_subsystems() == 0:
-                # remove top-level infrastructure base
-                util.directory.delete(master['pki_path'])
-                # do NOT remove top-level infrastructure logs
-                # since it now stores 'pkispawn'/'pkidestroy' logs
-                # util.directory.delete(master['pki_log_path'])
-                # remove top-level infrastructure configuration
-                if util.directory.is_empty(master['pki_configuration_path'])\
-                   and master['pki_configuration_path'] !=\
-                   config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-                    util.directory.delete(master['pki_configuration_path'])
-                # remove top-level infrastructure registry
-                util.directory.delete(master['pki_registry_path'])
-        else:
-            # ALWAYS display correct information (even during dry_run)
-            if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-               util.instance.pki_instance_subsystems() == 1:
-                # remove top-level infrastructure base
-                util.directory.delete(master['pki_path'])
-                # do NOT remove top-level infrastructure logs
-                # since it now stores 'pkispawn'/'pkidestroy' logs
-                # util.directory.delete(master['pki_log_path'])
-                # remove top-level infrastructure configuration
-                if util.directory.is_empty(master['pki_configuration_path'])\
-                   and master['pki_configuration_path'] !=\
-                   config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-                    util.directory.delete(master['pki_configuration_path'])
-                # remove top-level infrastructure registry
-                util.directory.delete(master['pki_registry_path'])
+        if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
+           util.instance.pki_instance_subsystems() == 0:
+            # remove top-level infrastructure base
+            util.directory.delete(master['pki_path'])
+            # do NOT remove top-level infrastructure logs
+            # since it now stores 'pkispawn'/'pkidestroy' logs
+            # util.directory.delete(master['pki_log_path'])
+            # remove top-level infrastructure configuration
+            if util.directory.is_empty(master['pki_configuration_path'])\
+               and master['pki_configuration_path'] !=\
+               config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
+                util.directory.delete(master['pki_configuration_path'])
+            # remove top-level infrastructure registry
+            util.directory.delete(master['pki_registry_path'])
         return self.rv

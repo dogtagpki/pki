@@ -103,32 +103,24 @@ def main(argv):
     # Enable 'pkispawn' logging.
     rv = 0
     if not config.pki_update_flag:
-        if not config.pki_dry_run_flag:
-            config.pki_log_dir = config.pki_root_prefix +\
-                                 config.PKI_DEPLOYMENT_LOG_ROOT
-            config.pki_log_name = "pki" + "-" +\
-                                  config.pki_subsystem.lower() +\
-                                  "-" + "spawn" + "." +\
-                                  config.pki_timestamp + "." + "log"
-        else:
-            config.pki_log_dir = "/dev"
-            config.pki_log_name = "null"
+        config.pki_log_dir = config.pki_root_prefix +\
+                             config.PKI_DEPLOYMENT_LOG_ROOT
+        config.pki_log_name = "pki" + "-" +\
+                              config.pki_subsystem.lower() +\
+                              "-" + "spawn" + "." +\
+                              config.pki_timestamp + "." + "log"
         rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                           config.pki_log_name,
                                           config.pki_log_level,
                                           config.pki_console_log_level,
                                           "pkispawn")
     else:
-        if not config.pki_dry_run_flag:
-            config.pki_log_dir = config.pki_root_prefix +\
-                                 config.PKI_DEPLOYMENT_LOG_ROOT
-            config.pki_log_name = "pki" + "-" +\
-                                  config.pki_subsystem.lower() +\
-                                  "-" + "respawn" + "." +\
-                                  config.pki_timestamp + "." + "log"
-        else:
-            config.pki_log_dir = "/dev"
-            config.pki_log_name = "null"
+        config.pki_log_dir = config.pki_root_prefix +\
+                             config.PKI_DEPLOYMENT_LOG_ROOT
+        config.pki_log_name = "pki" + "-" +\
+                              config.pki_subsystem.lower() +\
+                              "-" + "respawn" + "." +\
+                              config.pki_timestamp + "." + "log"
         rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                           config.pki_log_name,
                                           config.pki_log_level,

@@ -95,16 +95,12 @@ def main(argv):
     parse.process_command_line_arguments(argv)
 
     # Enable 'pkidestroy' logging.
-    if not config.pki_dry_run_flag:
-        config.pki_log_dir = config.pki_root_prefix +\
-                             config.PKI_DEPLOYMENT_LOG_ROOT
-        config.pki_log_name = "pki" + "-" +\
-                              config.pki_subsystem.lower() +\
-                              "-" + "destroy" + "." +\
-                              config.pki_timestamp + "." + "log"
-    else:
-        config.pki_log_dir = "/dev"
-        config.pki_log_name = "null"
+    config.pki_log_dir = config.pki_root_prefix +\
+                         config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_name = "pki" + "-" +\
+                          config.pki_subsystem.lower() +\
+                          "-" + "destroy" + "." +\
+                          config.pki_timestamp + "." + "log"
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,
                                       config.pki_log_level,

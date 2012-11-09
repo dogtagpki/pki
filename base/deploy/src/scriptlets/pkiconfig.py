@@ -125,7 +125,6 @@ pkideployment_cfg = None
 pki_deployed_instance_name = None
 
 # PKI Deployment "Optional" Command-Line Variables
-pki_dry_run_flag = False
 #     'pkispawn' ONLY
 pki_update_flag = False
 

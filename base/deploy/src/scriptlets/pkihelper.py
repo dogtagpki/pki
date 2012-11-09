@@ -808,30 +808,29 @@ class configuration_file:
 #        config.pki_log.info(log.PKIHELPER_REMOVE_FILTER_SECTION_1,
 #            master['pki_target_subsystem_web_xml'],
 #            extra=config.PKI_INDENTATION_LEVEL_2)
-#        if not config.pki_dry_run_flag:
-#            begin_filters_section = False
-#            begin_servlet_section = False
-#            FILE = open(web_xml_target, "w")
-#            for line in fileinput.FileInput(web_xml_source):
-#                if not begin_filters_section:
-#                    # Read and write lines until first "<filter>" tag
-#                    if line.count("<filter>") >= 1:
-#                        # Mark filters section
-#                        begin_filters_section = True
-#                    else:
-#                        FILE.write(line)
-#                elif not begin_servlet_section:
-#                    # Skip lines until first "<servlet>" tag
-#                    if line.count("<servlet>") >= 1:
-#                        # Mark servlets section and write out the opening tag
-#                        begin_servlet_section = True
-#                        FILE.write(line)
-#                    else:
-#                        continue
+#        begin_filters_section = False
+#        begin_servlet_section = False
+#        FILE = open(web_xml_target, "w")
+#        for line in fileinput.FileInput(web_xml_source):
+#            if not begin_filters_section:
+#                # Read and write lines until first "<filter>" tag
+#                if line.count("<filter>") >= 1:
+#                    # Mark filters section
+#                    begin_filters_section = True
 #                else:
-#                    # Read and write lines all lines after "<servlet>" tag
 #                    FILE.write(line)
-#            FILE.close()
+#            elif not begin_servlet_section:
+#                # Skip lines until first "<servlet>" tag
+#                if line.count("<servlet>") >= 1:
+#                    # Mark servlets section and write out the opening tag
+#                    begin_servlet_section = True
+#                    FILE.write(line)
+#                else:
+#                    continue
+#            else:
+#                # Read and write lines all lines after "<servlet>" tag
+#                FILE.write(line)
+#        FILE.close()
 
 
 # PKI Deployment Instance Class
@@ -845,15 +844,9 @@ class instance:
                 path = master['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv = rv + 1
-            # always display correct information (even during dry_run)
-            if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'], rv - 1,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'],
-                                     rv, extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
+                                 master['pki_instance_path'],
+                                 rv, extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -877,17 +870,10 @@ class instance:
                        os.path.join(master['pki_instance_type_registry_path'],
                        instance)):
                     rv = rv + 1
-            # always display correct information (even during dry_run)
-            if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                     master['pki_instance_type_registry_path'],
-                                     rv - 1,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                     master['pki_instance_type_registry_path'],
-                                     rv,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
+                                 master['pki_instance_type_registry_path'],
+                                 rv,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -913,15 +899,9 @@ class instance:
                            not os.path.islink(os.path.join(dir,name)):
                             if name.upper() in config.PKI_SUBSYSTEMS:
                                 rv = rv + 1
-            # always display correct information (even during dry_run)
-            if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'], rv - 1,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'], rv,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
+                                 master['pki_instance_path'], rv,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -937,15 +917,9 @@ class instance:
                 path = master['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv = rv + 1
-            # always display correct information (even during dry_run)
-            if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'], rv - 1,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
-                                     master['pki_instance_path'],
-                                     rv, extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
+                                 master['pki_instance_path'],
+                                 rv, extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -969,17 +943,10 @@ class instance:
                        os.path.join(master['pki_instance_type_registry_path'],
                        instance)):
                     rv = rv + 1
-            # always display correct information (even during dry_run)
-            if config.pki_dry_run_flag and rv > 0:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
-                                     master['pki_instance_type_registry_path'],
-                                     rv - 1,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
-                                     master['pki_instance_type_registry_path'],
-                                     rv,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
+                                 master['pki_instance_type_registry_path'],
+                                 rv,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1023,13 +990,11 @@ class directory:
                 # mkdir -p <name>
                 config.pki_log.info(log.PKIHELPER_MKDIR_1, name,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    os.makedirs(name)
+                os.makedirs(name)
                 # chmod <perms> <name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chmod(name, perms)
+                os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
                     uid = identity.get_uid()
@@ -1038,8 +1003,7 @@ class directory:
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chown(name, uid, gid)
+                os.chown(name, uid, gid)
                 # Store record in installation manifest
                 record = manifest.record()
                 record.name = name
@@ -1086,8 +1050,7 @@ class directory:
                 if not silent:
                     config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chmod(name, perms)
+                os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
                     uid = identity.get_uid()
@@ -1097,8 +1060,7 @@ class directory:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                          uid, gid, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chown(name, uid, gid)
+                os.chown(name, uid, gid)
                 # Store record in installation manifest
                 if not silent:
                     record = manifest.record()
@@ -1136,14 +1098,12 @@ class directory:
                     # rm -rf <name>
                     config.pki_log.info(log.PKIHELPER_RM_RF_1, name,
                                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    if not config.pki_dry_run_flag:
-                        shutil.rmtree(name)
+                    shutil.rmtree(name)
                 else:
                     # rmdir <name>
                     config.pki_log.info(log.PKIHELPER_RMDIR_1, name,
                                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    if not config.pki_dry_run_flag:
-                        os.rmdir(name)
+                    os.rmdir(name)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1185,11 +1145,7 @@ class directory:
                  dir_acls=None, file_acls=None, symlink_acls=None,
                  recursive_flag=True, critical_failure=True):
         try:
-            if config.pki_dry_run_flag:
-                config.pki_log.info(
-                    log.PKIHELPER_SET_MODE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-            elif not os.path.exists(name) or not os.path.isdir(name):
+            if not os.path.exists(name) or not os.path.isdir(name):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1215,14 +1171,12 @@ class directory:
                                 config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                     file_perms, file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                                if not config.pki_dry_run_flag:
-                                    os.chmod(file, file_perms)
+                                os.chmod(file, file_perms)
                                 # chown <uid>:<gid> <name>
                                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                     uid, gid, file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                                if not config.pki_dry_run_flag:
-                                    os.chown(file, uid, gid)
+                                os.chown(file, uid, gid)
                                 # Store record in installation manifest
                                 record = manifest.record()
                                 record.name = name
@@ -1248,8 +1202,7 @@ class directory:
                                 config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
                                     uid, gid, symlink,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                                if not config.pki_dry_run_flag:
-                                    os.lchown(symlink, uid, gid)
+                                os.lchown(symlink, uid, gid)
                                 # Store record in installation manifest
                                 record = manifest.record()
                                 record.name = name
@@ -1270,14 +1223,12 @@ class directory:
                             config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                 dir_perms, dir,
                                 extra=config.PKI_INDENTATION_LEVEL_3)
-                            if not config.pki_dry_run_flag:
-                                os.chmod(dir, dir_perms)
+                            os.chmod(dir, dir_perms)
                             # chown <uid>:<gid> <name>
                             config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                 uid, gid, dir,
                                 extra=config.PKI_INDENTATION_LEVEL_3)
-                            if not config.pki_dry_run_flag:
-                                os.chown(dir, uid, gid)
+                            os.chown(dir, uid, gid)
                             # Store record in installation manifest
                             record = manifest.record()
                             record.name = name
@@ -1298,14 +1249,12 @@ class directory:
                     config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                          dir_perms, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                    if not config.pki_dry_run_flag:
-                        os.chmod(name, dir_perms)
+                    os.chmod(name, dir_perms)
                     # chown <uid>:<gid> <name>
                     config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                          uid, gid, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                    if not config.pki_dry_run_flag:
-                        os.chown(name, uid, gid)
+                    os.chown(name, uid, gid)
                     # Store record in installation manifest
                     record = manifest.record()
                     record.name = name
@@ -1330,21 +1279,7 @@ class directory:
              dir_acls=None, file_acls=None, symlink_acls=None,
              recursive_flag=True, overwrite_flag=False, critical_failure=True):
         try:
-            if config.pki_dry_run_flag:
-                if recursive_flag == True:
-                    # cp -rp <old_name> <new_name>
-                    config.pki_log.info(log.PKIHELPER_CP_RP_2,
-                                        old_name, new_name,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
-                else:
-                    # cp -p <old_name> <new_name>
-                    config.pki_log.info(log.PKIHELPER_CP_P_2,
-                                        old_name, new_name,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.info(
-                    log.PKIHELPER_SET_MODE_1, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-            elif not os.path.exists(old_name) or not os.path.isdir(old_name):
+            if not os.path.exists(old_name) or not os.path.isdir(old_name):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, old_name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1408,13 +1343,11 @@ class file:
                 # touch <name>
                 config.pki_log.info(log.PKIHELPER_TOUCH_1, name,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    open(name, "w").close()
+                open(name, "w").close()
                 # chmod <perms> <name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chmod(name, perms)
+                os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
                     uid = identity.get_uid()
@@ -1423,8 +1356,7 @@ class file:
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chown(name, uid, gid)
+                os.chown(name, uid, gid)
                 # Store record in installation manifest
                 record = manifest.record()
                 record.name = name
@@ -1471,8 +1403,7 @@ class file:
                 if not silent:
                     config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chmod(name, perms)
+                os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
                     uid = identity.get_uid()
@@ -1482,8 +1413,7 @@ class file:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                          uid, gid, name,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chown(name, uid, gid)
+                os.chown(name, uid, gid)
                 # Store record in installation manifest
                 if not silent:
                     record = manifest.record()
@@ -1520,8 +1450,7 @@ class file:
                 # rm -f <name>
                 config.pki_log.info(log.PKIHELPER_RM_F_1, name,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    os.remove(name)
+                os.remove(name)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1544,20 +1473,7 @@ class file:
              perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS, acls=None,
              overwrite_flag=False, critical_failure=True):
         try:
-            if config.pki_dry_run_flag:
-                # cp -p <old_name> <new_name>
-                config.pki_log.info(log.PKIHELPER_CP_P_2,
-                                    old_name, new_name,
-                                    extra=config.PKI_INDENTATION_LEVEL_2)
-                # chmod <perms> <new_name>
-                config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                     perms, new_name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                # chown <uid>:<gid> <new_name>
-                config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                     uid, gid, new_name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-            elif not os.path.exists(old_name) or not os.path.isfile(old_name):
+            if not os.path.exists(old_name) or not os.path.isfile(old_name):
                 config.pki_log.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1616,72 +1532,49 @@ class file:
                          perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
                          acls=None, critical_failure=True):
         try:
-            if config.pki_dry_run_flag:
-                # applying in-place slot substitutions on <name>
-                config.pki_log.info(log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1,
-                                    name,
-                                    extra=config.PKI_INDENTATION_LEVEL_2)
-                # NOTE:  During dry_run, this file may not exist!
-                if os.path.exists(name) and os.path.isfile(name):
-                    for line in fileinput.FileInput(name, inplace=1):
-                        for slot in slots:
-                            if slot != '__name__' and slots[slot] in line:
-                                config.pki_log.debug(
-                                    log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                    slots[slot], master[slot],
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
-                # chmod <perms> <name>
-                config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                     perms, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                # chown <uid>:<gid> <name>
-                config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                     uid, gid, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-            else:
-                if not os.path.exists(name) or not os.path.isfile(name):
-                    config.pki_log.error(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
-                # applying in-place slot substitutions on <name>
-                config.pki_log.info(log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1,
-                                    name,
-                                    extra=config.PKI_INDENTATION_LEVEL_2)
-                for line in fileinput.FileInput(name, inplace=1):
-                    for slot in slots:
-                        if slot != '__name__' and slots[slot] in line:
-                            config.pki_log.debug(
-                                log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                slots[slot], master[slot],
-                                extra=config.PKI_INDENTATION_LEVEL_3)
-                            line=line.replace(slots[slot],master[slot])
-                    sys.stdout.write(line)
-                if uid == None:
-                    uid = identity.get_uid()
-                if gid == None:
-                    gid = identity.get_gid()
-                # chmod <perms> <name>
-                config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                     perms, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
-                config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                     uid, gid, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                os.chown(name, uid, gid)
-                # Store record in installation manifest
-                record = manifest.record()
-                record.name = name
-                record.type = manifest.RECORD_TYPE_FILE
-                record.user = master['pki_user']
-                record.group = master['pki_group']
-                record.uid = uid
-                record.gid = gid
-                record.permissions = perms
-                record.acls = acls
-                manifest.database.append(record)
+            if not os.path.exists(name) or not os.path.isfile(name):
+                config.pki_log.error(
+                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            # applying in-place slot substitutions on <name>
+            config.pki_log.info(log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1,
+                                name,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+            for line in fileinput.FileInput(name, inplace=1):
+                for slot in slots:
+                    if slot != '__name__' and slots[slot] in line:
+                        config.pki_log.debug(
+                            log.PKIHELPER_SLOT_SUBSTITUTION_2,
+                            slots[slot], master[slot],
+                            extra=config.PKI_INDENTATION_LEVEL_3)
+                        line=line.replace(slots[slot],master[slot])
+                sys.stdout.write(line)
+            if uid == None:
+                uid = identity.get_uid()
+            if gid == None:
+                gid = identity.get_gid()
+            # chmod <perms> <name>
+            config.pki_log.debug(log.PKIHELPER_CHMOD_2,
+                                 perms, name,
+                                 extra=config.PKI_INDENTATION_LEVEL_3)
+            os.chmod(name, perms)
+            # chown <uid>:<gid> <name>
+            config.pki_log.debug(log.PKIHELPER_CHOWN_3,
+                                 uid, gid, name,
+                                 extra=config.PKI_INDENTATION_LEVEL_3)
+            os.chown(name, uid, gid)
+            # Store record in installation manifest
+            record = manifest.record()
+            record.name = name
+            record.type = manifest.RECORD_TYPE_FILE
+            record.user = master['pki_user']
+            record.group = master['pki_group']
+            record.uid = uid
+            record.gid = gid
+            record.permissions = perms
+            record.acls = acls
+            manifest.database.append(record)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1700,27 +1593,7 @@ class file:
                          acls=None, overwrite_flag=False,
                          critical_failure=True):
         try:
-            if config.pki_dry_run_flag:
-                # copy <old_name> to <new_name> with slot substitutions
-                config.pki_log.info(log.PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2,
-                                    old_name, new_name,
-                                    extra=config.PKI_INDENTATION_LEVEL_2)
-                for line in fileinput.FileInput(old_name):
-                    for slot in slots:
-                        if slot != '__name__' and slots[slot] in line:
-                            config.pki_log.debug(
-                                log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                slots[slot], master[slot],
-                                extra=config.PKI_INDENTATION_LEVEL_3)
-                # chmod <perms> <new_name>
-                config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                     perms, new_name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                # chown <uid>:<gid> <new_name>
-                config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                     uid, gid, new_name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-            elif not os.path.exists(old_name) or not os.path.isfile(old_name):
+            if not os.path.exists(old_name) or not os.path.isfile(old_name):
                 config.pki_log.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1793,18 +1666,16 @@ class file:
                 # filling it with <bytes> random bytes
                 config.pki_log.info(log.PKIHELPER_NOISE_FILE_2, name, bytes,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    open(name, "w").close()
-                    FILE = open(name, "w")
-                    noise = ''.join(random.choice(string.ascii_letters +\
-                            string.digits) for x in range(bytes))
-                    FILE.write(noise)
-                    FILE.close()
+                open(name, "w").close()
+                FILE = open(name, "w")
+                noise = ''.join(random.choice(string.ascii_letters +\
+                        string.digits) for x in range(bytes))
+                FILE.write(noise)
+                FILE.close()
                 # chmod <perms> <name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chmod(name, perms)
+                os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
                     uid = identity.get_uid()
@@ -1813,8 +1684,7 @@ class file:
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.chown(name, uid, gid)
+                os.chown(name, uid, gid)
                 # Store record in installation manifest
                 record = manifest.record()
                 record.name = name
@@ -1849,18 +1719,16 @@ class symlink:
                acls=None, allow_dangling_symlink=False, critical_failure=True):
         try:
             if not os.path.exists(link):
-                if not config.pki_dry_run_flag:
-                    if not os.path.exists(name):
-                        config.pki_log.warning(
-                            log.PKIHELPER_DANGLING_SYMLINK_2, link, name,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        if not allow_dangling_symlink:
-                            sys.exit(1)
+                if not os.path.exists(name):
+                    config.pki_log.warning(
+                        log.PKIHELPER_DANGLING_SYMLINK_2, link, name,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    if not allow_dangling_symlink:
+                        sys.exit(1)
                 # ln -s <name> <link>
                 config.pki_log.info(log.PKIHELPER_LINK_S_2, name, link,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    os.symlink(name, link)
+                os.symlink(name, link)
                 # REMINDER:  Due to POSIX compliance, 'lchmod' is NEVER
                 #            implemented on Linux systems since 'chmod'
                 #            CANNOT be run directly against symbolic links!
@@ -1872,8 +1740,7 @@ class symlink:
                 config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
                                      uid, gid, link,
                                      extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.lchown(link, uid, gid)
+                os.lchown(link, uid, gid)
                 # Store record in installation manifest
                 record = manifest.record()
                 record.name = link
@@ -1928,8 +1795,7 @@ class symlink:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
                                          uid, gid, link,
                                          extra=config.PKI_INDENTATION_LEVEL_3)
-                if not config.pki_dry_run_flag:
-                    os.lchown(link, uid, gid)
+                os.lchown(link, uid, gid)
                 # Store record in installation manifest
                 if not silent:
                     record = manifest.record()
@@ -1967,8 +1833,7 @@ class symlink:
                 # rm -f <link>
                 config.pki_log.info(log.PKIHELPER_RM_F_1, link,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    os.remove(link)
+                os.remove(link)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1999,21 +1864,19 @@ class war:
                         name, extra=config.PKI_INDENTATION_LEVEL_2)
                     if critical_failure == True:
                         sys.exit(1)
-                if not config.pki_dry_run_flag:
-                    if not os.path.exists(path) or not os.path.isdir(path):
-                        config.pki_log.error(
-                            log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                            path, extra=config.PKI_INDENTATION_LEVEL_2)
-                        if critical_failure == True:
-                            sys.exit(1)
+                if not os.path.exists(path) or not os.path.isdir(path):
+                    config.pki_log.error(
+                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
+                        path, extra=config.PKI_INDENTATION_LEVEL_2)
+                    if critical_failure == True:
+                        sys.exit(1)
                 # jar -xf <name> -C <path>
                 config.pki_log.info(log.PKIHELPER_JAR_XF_C_2, name, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if not config.pki_dry_run_flag:
-                    # Open war file
-                    war = zipfile.ZipFile(name, 'r')
-                    # Extract contents of war file to path
-                    war.extractall(path)
+                # Open war file
+                war = zipfile.ZipFile(name, 'r')
+                # Extract contents of war file to path
+                war.extractall(path)
             else:
                 config.pki_log.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
@@ -2043,28 +1906,12 @@ class password:
     def create_password_conf(self, path, pin, pin_sans_token=False,
                              overwrite_flag=False, critical_failure=True):
         try:
-            if not config.pki_dry_run_flag:
-                if os.path.exists(path):
-                    if overwrite_flag:
-                        config.pki_log.info(
-                            log.PKIHELPER_PASSWORD_CONF_1, path,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        # overwrite the existing 'password.conf' file
-                        with open(path, "wt") as fd:
-                            if pin_sans_token == True:
-                                fd.write(str(pin))
-                            elif master['pki_subsystem'] in\
-                               config.PKI_APACHE_SUBSYSTEMS:
-                                fd.write(master['pki_self_signed_token'] +\
-                                         ":" + str(pin))
-                            else:
-                                fd.write(master['pki_self_signed_token'] +\
-                                         "=" + str(pin))
-                        fd.closed
-                else:
-                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    # create a new 'password.conf' file
+            if os.path.exists(path):
+                if overwrite_flag:
+                    config.pki_log.info(
+                        log.PKIHELPER_PASSWORD_CONF_1, path,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    # overwrite the existing 'password.conf' file
                     with open(path, "wt") as fd:
                         if pin_sans_token == True:
                             fd.write(str(pin))
@@ -2077,9 +1924,20 @@ class password:
                                      "=" + str(pin))
                     fd.closed
             else:
-                if not os.path.exists(path) or overwrite_flag:
-                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # create a new 'password.conf' file
+                with open(path, "wt") as fd:
+                    if pin_sans_token == True:
+                        fd.write(str(pin))
+                    elif master['pki_subsystem'] in\
+                       config.PKI_APACHE_SUBSYSTEMS:
+                        fd.write(master['pki_self_signed_token'] +\
+                                 ":" + str(pin))
+                    else:
+                        fd.write(master['pki_self_signed_token'] +\
+                                 "=" + str(pin))
+                fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2090,27 +1948,22 @@ class password:
     def create_client_pkcs12_password_conf(self, path, overwrite_flag=False,
                                            critical_failure=True):
         try:
-            if not config.pki_dry_run_flag:
-                if os.path.exists(path):
-                    if overwrite_flag:
-                        config.pki_log.info(
-                            log.PKIHELPER_PASSWORD_CONF_1, path,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        # overwrite the existing 'pkcs12_password.conf' file
-                        with open(path, "wt") as fd:
-                            fd.write(sensitive['pki_client_pkcs12_password'])
-                        fd.closed
-                else:
-                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    # create a new 'pkcs12_password.conf' file
+            if os.path.exists(path):
+                if overwrite_flag:
+                    config.pki_log.info(
+                        log.PKIHELPER_PASSWORD_CONF_1, path,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "wt") as fd:
                         fd.write(sensitive['pki_client_pkcs12_password'])
                     fd.closed
             else:
-                if not os.path.exists(path) or overwrite_flag:
-                    config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
-                                        extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # create a new 'pkcs12_password.conf' file
+                with open(path, "wt") as fd:
+                    fd.write(sensitive['pki_client_pkcs12_password'])
+                fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2140,55 +1993,37 @@ class certutil:
                 command = command + " " + "-f" + " " + password_file
             if prefix != None:
                 command = command + " " + "-P" + " " + prefix
-            if not config.pki_dry_run_flag:
-                if not os.path.exists(path):
-                    config.pki_log.error(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
-                if os.path.exists(pki_cert_database) or\
-                   os.path.exists(pki_key_database) or\
-                   os.path.exists(pki_secmod_database):
-                    # Simply notify user that the security databases exist
-                    config.pki_log.info(
-                        log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                else:
-                    if password_file != None:
-                        if not os.path.exists(password_file) or\
-                           not os.path.isfile(password_file):
-                            config.pki_log.error(
-                                log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                                password_file,
-                                extra=config.PKI_INDENTATION_LEVEL_2)
-                            sys.exit(1)
-                    # Display this "certutil" command
-                    config.pki_log.info(
-                        log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
-                        command,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    # Execute this "certutil" command
-                    subprocess.call(command, shell=True)
+            if not os.path.exists(path):
+                config.pki_log.error(
+                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if os.path.exists(pki_cert_database) or\
+               os.path.exists(pki_key_database) or\
+               os.path.exists(pki_secmod_database):
+                # Simply notify user that the security databases exist
+                config.pki_log.info(
+                    log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
+                    pki_cert_database,
+                    pki_key_database,
+                    pki_secmod_database,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
             else:
-                if os.path.exists(pki_cert_database) or\
-                   os.path.exists(pki_key_database) or\
-                   os.path.exists(pki_secmod_database):
-                    # Simply notify user that the security databases exist
-                    config.pki_log.info(
-                        log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                else:
-                    # Display this "certutil" command
-                    config.pki_log.info(
-                        log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
-                        command,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                if password_file != None:
+                    if not os.path.exists(password_file) or\
+                       not os.path.isfile(password_file):
+                        config.pki_log.error(
+                            log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                            password_file,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        sys.exit(1)
+                # Display this "certutil" command
+                config.pki_log.info(
+                    log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
+                    command,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # Execute this "certutil" command
+                subprocess.call(command, shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2239,37 +2074,30 @@ class certutil:
             #   By default, execute this command silently
             if silent != False:
                 command = command + " > /dev/null 2>&1"
-            if not config.pki_dry_run_flag:
-                if not os.path.exists(path):
+            if not os.path.exists(path):
+                config.pki_log.error(
+                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if not os.path.exists(pki_cert_database) or\
+               not os.path.exists(pki_key_database) or\
+               not os.path.exists(pki_secmod_database):
+                # NSS security databases MUST exist!
+                config.pki_log.error(
+                    log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
+                    pki_cert_database,
+                    pki_key_database,
+                    pki_secmod_database,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if password_file != None:
+                if not os.path.exists(password_file) or\
+                   not os.path.isfile(password_file):
                     config.pki_log.error(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
+                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                        password_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not os.path.exists(pki_cert_database) or\
-                   not os.path.exists(pki_key_database) or\
-                   not os.path.exists(pki_secmod_database):
-                    # NSS security databases MUST exist!
-                    config.pki_log.error(
-                        log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
-                if password_file != None:
-                    if not os.path.exists(password_file) or\
-                       not os.path.isfile(password_file):
-                        config.pki_log.error(
-                            log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                            password_file,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        sys.exit(1)
-            else:
-                # Check for first time through as dry_run
-                if not os.path.exists(pki_cert_database) or\
-                   not os.path.exists(pki_key_database) or\
-                   not os.path.exists(pki_secmod_database):
-                    return False
             # Execute this "certutil" command
             subprocess.check_call(command, shell=True)
         except subprocess.CalledProcessError as exc:
@@ -2376,39 +2204,38 @@ class certutil:
             config.pki_log.info(
                 log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1, command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if not config.pki_dry_run_flag:
-                if not os.path.exists(path):
+            if not os.path.exists(path):
+                config.pki_log.error(
+                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if not os.path.exists(pki_cert_database) or\
+               not os.path.exists(pki_key_database) or\
+               not os.path.exists(pki_secmod_database):
+                # NSS security databases MUST exist!
+                config.pki_log.error(
+                    log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
+                    pki_cert_database,
+                    pki_key_database,
+                    pki_secmod_database,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if not os.path.exists(noise_file):
+                config.pki_log.error(
+                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
+                    noise_file,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if password_file != None:
+                if not os.path.exists(password_file) or\
+                   not os.path.isfile(password_file):
                     config.pki_log.error(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
+                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                        password_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not os.path.exists(pki_cert_database) or\
-                   not os.path.exists(pki_key_database) or\
-                   not os.path.exists(pki_secmod_database):
-                    # NSS security databases MUST exist!
-                    config.pki_log.error(
-                        log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
-                if not os.path.exists(noise_file):
-                    config.pki_log.error(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                        noise_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
-                if password_file != None:
-                    if not os.path.exists(password_file) or\
-                       not os.path.isfile(password_file):
-                        config.pki_log.error(
-                            log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                            password_file,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        sys.exit(1)
-                # Execute this "certutil" command
-                subprocess.call(command, shell=True)
+            # Execute this "certutil" command
+            subprocess.call(command, shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2552,46 +2379,45 @@ class security_domain:
                               params, updateURL,
                               sechost, secagentport)
                 # update domainXML
-                if not config.pki_dry_run_flag:
-                    # Execute this "sslget" command
-                    output = subprocess.check_output(command,
-                                                     stderr=subprocess.STDOUT,
-                                                     shell=True)
-                    config.pki_log.debug(log.PKIHELPER_SSLGET_OUTPUT_1,
-                                         output,
-                                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    # Search the output for Status
-                    status = re.findall("\<Status\>(.*?)\<\/Status\>", output)
-                    if not status:
-                        config.pki_log.warning(
-                            log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                            secname,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        if critical_failure == True:
-                            sys.exit(-1)
-                    elif status[0] != "0":
-                        error = re.findall("\<Error\>(.*?)\<\/Error\>", output)
-                        if not error:
-                            error = ""
-                        config.pki_log.warning(
-                            log.PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2,
-                            typeval,
-                            secname,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        config.pki_log.error(
-                            log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
-                            typeval,
-                            secname,
-                            error,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        if critical_failure == True:
-                            sys.exit(-1)
-                    else:
-                        config.pki_log.info(
-                            log.PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2,
-                            typeval,
-                            secname,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                # Execute this "sslget" command
+                output = subprocess.check_output(command,
+                                                 stderr=subprocess.STDOUT,
+                                                 shell=True)
+                config.pki_log.debug(log.PKIHELPER_SSLGET_OUTPUT_1,
+                                     output,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                # Search the output for Status
+                status = re.findall("\<Status\>(.*?)\<\/Status\>", output)
+                if not status:
+                    config.pki_log.warning(
+                        log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
+                        secname,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    if critical_failure == True:
+                        sys.exit(-1)
+                elif status[0] != "0":
+                    error = re.findall("\<Error\>(.*?)\<\/Error\>", output)
+                    if not error:
+                        error = ""
+                    config.pki_log.warning(
+                        log.PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2,
+                        typeval,
+                        secname,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    config.pki_log.error(
+                        log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
+                        typeval,
+                        secname,
+                        error,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    if critical_failure == True:
+                         sys.exit(-1)
+                else:
+                    config.pki_log.info(
+                        log.PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2,
+                        typeval,
+                        secname,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
         except subprocess.CalledProcessError as exc:
             config.pki_log.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
@@ -2628,9 +2454,8 @@ class systemd:
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if not config.pki_dry_run_flag:
-                # Execute this "systemd" execution management command
-                subprocess.call(command, shell=True)
+            # Execute this "systemd" execution management command
+            subprocess.call(command, shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2655,9 +2480,8 @@ class systemd:
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if not config.pki_dry_run_flag:
-                # Execute this "systemd" execution management command
-                subprocess.call(command, shell=True)
+            # Execute this "systemd" execution management command
+            subprocess.call(command, shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2682,9 +2506,8 @@ class systemd:
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if not config.pki_dry_run_flag:
-                # Execute this "systemd" execution management command
-                subprocess.call(command, shell=True)
+            # Execute this "systemd" execution management command
+            subprocess.call(command, shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
