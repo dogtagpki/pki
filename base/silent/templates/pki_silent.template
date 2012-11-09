@@ -54,6 +54,10 @@ if	[ "${MY_UID}"  != "${ROOTUID}" ] &&
 	exit 255
 fi
 
+if  [ -z "${HOME}" ]; then
+	printf "ERROR:  The 'HOME' environment variable must be set!\n"
+	exit 255
+fi
 
 
 ##############################################################################
@@ -78,7 +82,7 @@ fi
 
 ##  PKI Silent Security Database Variables
 ##  (e. g. - PKI Silent "browser" database)
-pki_silent_security_database_repository="/tmp"
+pki_silent_security_database_repository="${HOME}/.pki/certs"
 pki_silent_security_database_password=
 
 ##  PKI Security Domain Variables
