@@ -62,14 +62,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "admin"),
                 overwrite_flag=True)
 
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    master['pki_subsystem'].lower() + "-ui",
-                    "webapps",
-                    master['pki_subsystem'].lower()),
-                master['pki_tomcat_webapps_subsystem_path'],
-                overwrite_flag=True)
+            # Copy /usr/share/pki/<subsystem>/webapps/<subsystem>
+            # to <instance>/webapps/<subsystem>
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
@@ -78,6 +72,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     master['pki_subsystem'].lower()),
                 master['pki_tomcat_webapps_subsystem_path'],
                 overwrite_flag=True)
+
             util.directory.create(
                 master['pki_tomcat_webapps_subsystem_webinf_classes_path'])
             util.directory.create(
