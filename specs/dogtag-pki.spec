@@ -8,7 +8,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          %{?relprefix}13%{?prerel}%{?dist}
+Release:          %{?relprefix}14%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -85,7 +85,7 @@ Requires:         jss-javadoc >= %{jss_version}
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
 Requires:         dogtag-pki-ca-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-common-theme >= %{dogtag_pki_theme_version}
+Requires:         dogtag-pki-server-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-kra-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-ocsp-theme >= %{dogtag_pki_theme_version}
@@ -198,6 +198,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.14.b2
+- Renamed dogtag-pki-common-theme to dogtag-pki-server-theme.
+
 * Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.13.b2
 - Update release to b2
 

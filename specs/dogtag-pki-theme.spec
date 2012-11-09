@@ -7,7 +7,7 @@
 
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}4%{?prerel}%{?dist}
+Release:          %{?relprefix}5%{?prerel}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -58,28 +58,33 @@ for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %description %{overview}
 
 
-%package -n       dogtag-pki-common-theme
-Summary:          Certificate System - PKI Common Framework User Interface
+%package -n       dogtag-pki-server-theme
+Summary:          Certificate System - PKI Server Framework User Interface
 Group:            System Environment/Base
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
+Conflicts:        redhat-pki-server-theme
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
 # EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
+Obsoletes:        ipa-pki-server-theme <= 9999
 Obsoletes:        ipa-pki-common-theme <= 9999
+Provides:         ipa-pki-server-theme = %{version}-%{release}
 Provides:         ipa-pki-common-theme = %{version}-%{release}
 %endif
 
-Obsoletes:        dogtag-pki-common-ui <= 9
+Obsoletes:        dogtag-pki-common-theme
+Obsoletes:        dogtag-pki-common-ui
 
+Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-common-theme
-This PKI Common Framework User Interface contains
-the Dogtag textual and graphical user interface for the PKI Common Framework.
+%description -n   dogtag-pki-server-theme
+This PKI Server Framework User Interface contains
+the Dogtag textual and graphical user interface for the PKI Server Framework.
 
 This package is used by the Dogtag Certificate System.
 
@@ -90,7 +95,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Certificate Authority User Interface
 Group:            System Environment/Base
 
-Requires:         dogtag-pki-common-theme = %{version}-%{release}
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -120,7 +125,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Data Recovery Manager User Interface
 Group:            System Environment/Base
 
-Requires:         dogtag-pki-common-theme = %{version}-%{release}
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -146,7 +151,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Online Certificate Status Protocol Manager User Interface
 Group:            System Environment/Base
 
-Requires:         dogtag-pki-common-theme = %{version}-%{release}
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -172,6 +177,8 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Registration Authority User Interface
 Group:            System Environment/Base
 
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
+
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
 Conflicts:        redhat-pki-ra-theme
@@ -196,7 +203,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - Token Key Service User Interface
 Group:            System Environment/Base
 
-Requires:         dogtag-pki-common-theme = %{version}-%{release}
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -221,6 +228,8 @@ This package is used by the Dogtag Certificate System.
 %package -n       dogtag-pki-tps-theme
 Summary:          Certificate System - Token Processing System User Interface
 Group:            System Environment/Base
+
+Requires:         dogtag-pki-server-theme = %{version}-%{release}
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -309,7 +318,7 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 #        However, RA and TPS subsystems still require their own individual
 #        ownership of this directory.
 
-%files -n dogtag-pki-common-theme
+%files -n dogtag-pki-server-theme
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
@@ -361,6 +370,10 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.5.b2
+- Renamed dogtag-pki-common-theme to dogtag-pki-server-theme.
+- Fixed theme package dependencies.
+
 * Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.4.b2
 - Update release to b2
 

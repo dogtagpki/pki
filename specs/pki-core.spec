@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}49%{?prerel}%{?dist}
+Release:          %{?relprefix}50%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -301,7 +301,7 @@ Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         jython >= 2.2.1
-Requires:         pki-common-theme >= 10.0.0
+Requires:         pki-server-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
@@ -1273,6 +1273,9 @@ fi
 
 
 %changelog
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.50.b2
+- Renamed pki-common-theme to pki-server-theme.
+
 * Thu Nov  8 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.49.b2
 - TRAC Ticket #395 - Dogtag 10: Add a Tomcat 7 runtime requirement to
   'pki-server'

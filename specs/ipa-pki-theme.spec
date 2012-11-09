@@ -7,7 +7,7 @@
 
 Name:             ipa-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}3%{?prerel}%{?dist}
+Release:          %{?relprefix}4%{?prerel}%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -52,21 +52,27 @@ for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %description %{overview}
 
 
-%package -n       ipa-pki-common-theme
-Summary:          Certificate System - PKI Common Framework User Interface
+%package -n       ipa-pki-server-theme
+Summary:          Certificate System - PKI Server Framework User Interface
 Group:            System Environment/Base
 
+Conflicts:        dogtag-pki-server-theme
 Conflicts:        dogtag-pki-common-theme
 Conflicts:        dogtag-pki-common-ui
+Conflicts:        redhat-pki-server-theme
 Conflicts:        redhat-pki-common-theme
 Conflicts:        redhat-pki-common-ui
 
+Obsoletes:        ipa-pki-common-theme
+Obsoletes:        ipa-pki-common-ui
+
+Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
 
-%description -n   ipa-pki-common-theme
-This PKI Common Framework User Interface contains
-NO textual or graphical user interface for the PKI Common Framework.
+%description -n   ipa-pki-server-theme
+This PKI Server Framework User Interface contains
+NO textual or graphical user interface for the PKI Server Framework.
 
 This package is used by the Certificate System utilized by IPA.
 
@@ -77,7 +83,7 @@ This package is used by the Certificate System utilized by IPA.
 Summary:          Certificate System - Certificate Authority User Interface
 Group:            System Environment/Base
 
-Requires:         ipa-pki-common-theme = %{version}-%{release}
+Requires:         ipa-pki-server-theme = %{version}-%{release}
 
 Conflicts:        dogtag-pki-ca-theme
 Conflicts:        dogtag-pki-ca-ui
@@ -121,7 +127,7 @@ cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
-%files -n ipa-pki-common-theme
+%files -n ipa-pki-server-theme
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
@@ -135,6 +141,9 @@ cd build
 
 
 %changelog
+* Thu Nov 8 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.b2
+- Renamed ipa-pki-common-theme to ipa-pki-server-theme.
+
 * Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.3.b2
 - Update release to b2
 
