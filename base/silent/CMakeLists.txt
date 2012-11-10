@@ -6,7 +6,6 @@ add_subdirectory(scripts)
 install(
     FILES
         templates/pki_silent.template
-        templates/subca_silent.template
     DESTINATION
         ${DATA_INSTALL_DIR}/silent/
     PERMISSIONS
