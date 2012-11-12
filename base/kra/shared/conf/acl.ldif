@@ -16,7 +16,7 @@ resourceACLS: certServer.job.configuration:read,modify:allow (read) group="Admin
 resourceACLS: certServer.kra.configuration:read,modify:allow (read) group="Administrators" || group="Auditors" || group="Data Recovery Manager Agents";allow (modify) group="Administrators":Administrators, auditors, and agents are allowed to read DRM configuration but only administrators allowed to modify
 resourceACLS: certServer.kra.key:read,recover,download:allow (read,recover,download) group="Data Recovery Manager Agents":Only data recovery manager agents retrieve key information
 resourceACLS: certServer.kra.request:read:allow (read) group="Data Recovery Manager Agents":Data Recovery Manager Agents may read request
-resourceACLS: certServer.kra.keys:list:allow (list) group="Data Recovery Manager Agents":Only data recovery manager agents list keys
+resourceACLS: certServer.kra.keys:list,execute:allow (list,execute) group="Data Recovery Manager Agents":Only data recovery manager agents list keys and execute key operations
 resourceACLS: certServer.kra.requests:list:allow (list) group="Data Recovery Manager Agents":Only data recovery manager agents list key archival requests
 resourceACLS: certServer.admin.certificate:import:allow (import) user="anybody":Any user may import a certificate
 resourceACLS: certServer.admin.request.enrollment:submit,read,execute:allow (submit) user="anybody":Anybody may submit an enrollment request
@@ -32,6 +32,5 @@ resourceACLS: certServer.kra.getTransportCert:read:allow (read) group="Enterpris
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.kra.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.kra.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
-resourceACLS: certServer.kra.keys:execute:allow (execute) group="Data Recovery Manager Agents":Agents may execute key operations
 resourceACLS: certServer.kra.keyrequests:execute:allow (execute) group="Data Recovery Manager Agents":Agents may execute key request operations
 resourceACLS: certServer.kra.users:execute:allow (execute) group="Administrators":Admins may execute user operations
