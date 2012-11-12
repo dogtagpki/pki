@@ -1,7 +1,7 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .b2
+%global prerel .b3
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}51%{?prerel}%{?dist}
+Release:          %{?relprefix}52%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1269,6 +1269,9 @@ fi
 
 
 %changelog
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.52.b3
+- Update release to b3
+
 * Fri Nov 9 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.51.b2
 - Removed dependency on CA, KRA, OCSP, TKS theme packages.
 

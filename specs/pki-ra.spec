@@ -1,13 +1,13 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
-%global prerel .b2
+%global prerel .b3
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
 Name:             pki-ra
 Version:          10.0.0
-Release:          %{?relprefix}10%{?prerel}%{?dist}
+Release:          %{?relprefix}11%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b3
+- Update release to b3
+
 * Mon Oct 29 2012 Ade Lee <alee@redhat.com> 10.0.0-0.10.b2
 - Update release to b2
 
