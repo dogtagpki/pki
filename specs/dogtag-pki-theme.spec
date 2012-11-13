@@ -7,7 +7,7 @@
 
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}7%{?prerel}%{?dist}
+Release:          %{?relprefix}8%{?prerel}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -88,17 +88,18 @@ Provides:         ipa-pki-ca-theme = %{version}-%{release}
 Provides:         ipa-pki-kra-theme = %{version}-%{release}
 %endif
 
-Obsoletes:        dogtag-pki-common-theme
+Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-common-ui
-Obsoletes:        dogtag-pki-ca-theme
+Obsoletes:        dogtag-pki-ca-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-ca-ui
-Obsoletes:        dogtag-pki-kra-theme
+Obsoletes:        dogtag-pki-kra-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-kra-ui
-Obsoletes:        dogtag-pki-ocsp-theme
+Obsoletes:        dogtag-pki-ocsp-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-ocsp-ui
-Obsoletes:        dogtag-pki-tks-theme
+Obsoletes:        dogtag-pki-tks-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-tks-ui
 
+Provides:         dogtag-pki-common-theme = %{version}-%{release}
 Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
@@ -275,6 +276,9 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Tue Nov 13 2012 Ade Lee <alee@redhat.com> 10.0.0-0.8.b3
+- Added needed Requires for dogtag-pki-common-theme
+
 * Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.7.b3
 - Update release to b3
 
