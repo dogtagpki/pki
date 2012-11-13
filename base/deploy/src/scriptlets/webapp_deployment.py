@@ -45,11 +45,47 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
 
-            # deploy webapp
+            # Copy /usr/share/pki/server/webapps/ROOT
+            # to <instance>/webapps/ROOT
+            util.directory.create(master['pki_tomcat_webapps_root_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "ROOT"),
+                master['pki_tomcat_webapps_root_path'],
+                overwrite_flag=True)
+
+            # Copy /usr/share/pki/common-ui
+            # to <instance>/webapps/pki
+            util.directory.create(master['pki_tomcat_webapps_common_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "common-ui"),
+                master['pki_tomcat_webapps_common_path'],
+                overwrite_flag=True)
+
+            # Copy /usr/share/pki/server/webapps/pki/js
+            # to <instance>/webapps/pki/js
             util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
+            util.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "pki",
+                    "js"),
+                os.path.join(
+                    master['pki_tomcat_webapps_common_path'],
+                    "js"),
+                overwrite_flag=True)
 
             # Copy /usr/share/pki/server/webapps/pki/admin
-            # to <instance>/webapp/<subsystem>/admin
+            # to <instance>/webapps/<subsystem>/admin
+            # TODO: common templates should be deployed in common webapp
+            util.directory.create(master['pki_tomcat_webapps_subsystem_path'])
             util.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,

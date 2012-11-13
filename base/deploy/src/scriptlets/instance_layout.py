@@ -70,26 +70,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 master['pki_instance_lib_log4j_properties'])
             util.directory.create(master['pki_tomcat_tmpdir_path'])
             util.directory.create(master['pki_tomcat_webapps_path'])
-            util.directory.create(master['pki_tomcat_webapps_common_path'])
-
-            # Copy /usr/share/pki/common-ui
-            # to <instance>/webapp/pki
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui"),
-                master['pki_tomcat_webapps_common_path'],
-                overwrite_flag=True)
-
-            util.directory.create(master['pki_tomcat_webapps_root_path'])
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "server",
-                    "webapps",
-                    "ROOT"),
-                master['pki_tomcat_webapps_root_path'],
-                overwrite_flag=True)
             util.directory.create(master['pki_tomcat_work_path'])
             util.directory.create(master['pki_tomcat_work_catalina_path'])
             util.directory.create(master['pki_tomcat_work_catalina_host_path'])

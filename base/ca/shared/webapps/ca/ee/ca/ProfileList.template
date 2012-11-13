@@ -17,12 +17,35 @@
      --- END COPYRIGHT BLOCK --- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
+
+<head>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery-min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties-min.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+$(function() {
+    $.i18n.properties({
+        name: 'ProfileList',
+        path: '/pki/ca/ee/',
+        mode: 'map',
+        callback: function() {
+            var key;
+            for (key in $.i18n.map) {
+                var message = $.i18n.prop(key);
+                $('span.message[name='+key+']').html(message);
+            }
+        }
+    });
+});
+</script>
+</head>
+
 <CMS_TEMPLATE>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-Certificate Profile
+<span class="message" name="page_title">Certificate Profile</span>
 </font><br>
   <Font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif"> 
-  Use this form to select a certificate profile for the request.
+  <span class="message" name="page_description">Use this form to select a certificate profile for the request.</span>
 <p> 
 </font>
 <table border="0" cellspacing="0" cellpadding="0" background="/pki/images/hr.gif"
@@ -32,20 +55,22 @@ width="100%">
   </tr>
 </table>
 <p>
+
+<table width=100%>
+<tr>
+  <td width=40%>
+    <FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">
+    <b><span class="message" name="profile_column">Certificate Profile Name</span></b>
+    </FONT>
+  </td>
+  <td width=40%>
+    <FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">
+    <b><span class="message" name="description_column">Description</span></b>
+    </FONT>
+  </td>
+</tr>
+
 <script language=javascript>
-document.writeln('<table width=100%>');
-document.writeln('<tr>');
-document.writeln('<td width=40%>');
-document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
-document.writeln('<b>Certificate Profile Name</b>');
-document.writeln('</FONT>');
-document.writeln('</td>');
-document.writeln('<td width=40%>');
-document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
-document.writeln('<b>Description</b>');
-document.writeln('</FONT>');
-document.writeln('</td>');
-document.writeln('</tr>');
 for (var i = 0; i < recordSet.length; i++) {
   if (recordSet[i].profileIsVisible != 'true') {
 	continue;
@@ -66,6 +91,8 @@ document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">' + r
   }
   document.writeln('</tr>');
 } // for
-document.writeln('</table>');
 </script>
+
+</table>
+
 </html>
