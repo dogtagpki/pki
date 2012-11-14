@@ -40,6 +40,9 @@ class PKIConfigParser:
     COMMENT_CHAR = '#'
     OPTION_CHAR =  '='
 
+    def __init__(self):
+        self.pki_config = None
+
     # PKI Deployment Helper Functions
     def process_command_line_arguments(self, argv):
         "Read and process command-line options"
@@ -215,30 +218,30 @@ class PKIConfigParser:
         "Read configuration file sections into dictionaries"
         rv = 0
         try:
-            parser = ConfigParser.ConfigParser()
+            self.pki_config = ConfigParser.ConfigParser()
             # Make keys case-sensitive!
-            parser.optionxform = str
-            parser.read(config.pkideployment_cfg)
-            config.pki_sensitive_dict = dict(parser._sections['Sensitive'])
-            config.pki_common_dict = dict(parser._sections['Common'])
+            self.pki_config.optionxform = str
+            self.pki_config.read(config.pkideployment_cfg)
+            config.pki_sensitive_dict = dict(self.pki_config._sections['Sensitive'])
+            config.pki_common_dict = dict(self.pki_config._sections['Common'])
             if config.pki_subsystem == "CA":
-                config.pki_web_server_dict = dict(parser._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(parser._sections['CA'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['CA'])
             elif config.pki_subsystem == "KRA":
-                config.pki_web_server_dict = dict(parser._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(parser._sections['KRA'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['KRA'])
             elif config.pki_subsystem == "OCSP":
-                config.pki_web_server_dict = dict(parser._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(parser._sections['OCSP'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['OCSP'])
             elif config.pki_subsystem == "RA":
-                config.pki_web_server_dict = dict(parser._sections['Apache'])
-                config.pki_subsystem_dict = dict(parser._sections['RA'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Apache'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['RA'])
             elif config.pki_subsystem == "TKS":
-                config.pki_web_server_dict = dict(parser._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(parser._sections['TKS'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['TKS'])
             elif config.pki_subsystem == "TPS":
-                config.pki_web_server_dict = dict(parser._sections['Apache'])
-                config.pki_subsystem_dict = dict(parser._sections['TPS'])
+                config.pki_web_server_dict = dict(self.pki_config._sections['Apache'])
+                config.pki_subsystem_dict = dict(self.pki_config._sections['TPS'])
             # Insert empty record into dictionaries for "pretty print" statements
             #     NEVER print "sensitive" key value pairs!!!
             config.pki_common_dict[0] = None
@@ -1448,8 +1451,26 @@ class PKIConfigParser:
             #         config.pki_master_dict['pki_security_domain_name']
             #         config.pki_master_dict['pki_subsystem_name']
             #
+
+            # if security domain user is not defined
             if not len(config.pki_master_dict['pki_security_domain_user']):
-                config.pki_master_dict['pki_security_domain_user'] = "caadmin"
+
+                # use the CA admin uid if it's defined
+                if self.pki_config.has_option('CA', 'pki_admin_uid') and\
+                    len(self.pki_config.get('CA', 'pki_admin_uid')) > 0:
+                    config.pki_master_dict['pki_security_domain_user'] =\
+                        self.pki_config.get('CA', 'pki_admin_uid')
+
+                # or use the Common admin uid if it's defined
+                elif self.pki_config.has_option('Common', 'pki_admin_uid') and\
+                    len(self.pki_config.get('Common', 'pki_admin_uid')) > 0:
+                    config.pki_master_dict['pki_security_domain_user'] =\
+                        self.pki_config.get('Common', 'pki_admin_uid')
+
+                # otherwise use the default CA admin uid
+                else:
+                    config.pki_master_dict['pki_security_domain_user'] = "caadmin"
+
             if not len(config.pki_master_dict['pki_subsystem_name']):
                if config.pki_master_dict['pki_subsystem'] in\
                   config.PKI_TOMCAT_SUBSYSTEMS and \
