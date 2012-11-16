@@ -430,7 +430,11 @@ public class CertSearchRequest {
     }
 
     public String getIssuedOnTo() {
-        return getIssuedOnTo();
+        return issuedOnTo;
+    }
+
+    public void setIssuedOnTo(String issuedOnTo) {
+        this.issuedOnTo = issuedOnTo;
     }
 
     //Valid Not After
@@ -651,6 +655,7 @@ public class CertSearchRequest {
     private void buildDateFilter(String prefix,
             String outStr, long adjustment,
             StringBuffer filter) {
+        if (prefix == null || prefix.length() == 0) return;
         long epoch = 0;
         try {
             epoch = Long.parseLong(prefix);
@@ -703,7 +708,6 @@ public class CertSearchRequest {
             return;
         }
         String issuedBy = getIssuedBy();
-        ;
         if (issuedBy == null || issuedBy.equals("")) {
             filter.append("(certIssuedBy=*)");
         } else {

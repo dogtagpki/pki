@@ -21,6 +21,8 @@ package com.netscape.cmstools.cert;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.xml.bind.JAXBException;
 
@@ -40,6 +42,7 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertFindCLI extends CLI {
 
+    public SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public CertCLI parent;
 
     public CertFindCLI(CertCLI parent) {
@@ -51,7 +54,7 @@ public class CertFindCLI extends CLI {
         formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
 
         addOptions();
 
@@ -217,9 +220,15 @@ public class CertFindCLI extends CLI {
         option.setArgName("user id");
         options.addOption(option);
 
-        //issuedFor(period)
-        option = new Option(null, "issuedOn", true, "Date issued");
-        option.setArgName("date");
+        //issuedOn
+        option = new Option(null, "issuedOnFrom", true,
+                "Issued on or after this date");
+        option.setArgName("YYYY-MM-DD");
+        options.addOption(option);
+
+        option = new Option(null, "issuedOnTo", true,
+                "Issued on or before this date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
 
         //certTypeinUse
@@ -267,7 +276,9 @@ public class CertFindCLI extends CLI {
         options.addOption(option);
     }
 
-    public void addSearchAttribute(CommandLine cmd, CertSearchRequest csd) {
+    public void addSearchAttribute(CommandLine cmd, CertSearchRequest csd)
+            throws java.text.ParseException {
+
         if (cmd.hasOption("minSerialNumber")) {
             csd.setSerialNumberRangeInUse(true);
             csd.setSerialFrom(cmd.getOptionValue("minSerialNumber"));
@@ -331,9 +342,15 @@ public class CertFindCLI extends CLI {
             csd.setIssuedByInUse(true);
             csd.setIssuedBy(cmd.getOptionValue("issuedBy"));
         }
-        if (cmd.hasOption("issuedOn")) {
+        if (cmd.hasOption("issuedOnFrom")) {
             csd.setIssuedOnInUse(true);
-            csd.setIssuedOnFrom(cmd.getOptionValue("issuedOn"));
+            Date date = dateFormat.parse(cmd.getOptionValue("issuedOnFrom"));
+            csd.setIssuedOnFrom(""+date.getTime());
+        }
+        if (cmd.hasOption("issuedOnTo")) {
+            csd.setIssuedOnInUse(true);
+            Date date = dateFormat.parse(cmd.getOptionValue("issuedOnTo"));
+            csd.setIssuedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("certTypeSubEmailCA")) {
             csd.setCertTypeInUse(true);
