@@ -7,7 +7,7 @@
 
 Name:             pki-tps
 Version:          10.0.0
-Release:          %{?relprefix}11%{?prerel}%{?dist}
+Release:          %{?relprefix}12%{?prerel}%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -15,12 +15,7 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# specify '_unitdir' macro for platforms that don't use 'systemd'
-%if 0%{?rhel} || 0%{?fedora} < 16
-%define           _unitdir /lib/systemd/system
-%endif
-
-BuildRequires:    cmake
+BuildRequires:    cmake >= 2.8.10.1-1
 BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
@@ -41,17 +36,9 @@ Requires:         perl-Mozilla-LDAP
 Requires:         pki-server >= 10.0.0
 Requires:         pki-tps-theme >= 10.0.0
 
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-Requires:         initscripts
-%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -160,7 +147,6 @@ cd %{buildroot}/%{_datadir}/pki/tps/docroot
 mkdir %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
@@ -172,36 +158,9 @@ echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-%endif
 
-%if 0%{?fedora} >= 16
 %{__rm} %{buildroot}%{_initrddir}/pki-tpsd
-%else
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tpsd.target.wants
-%{__rm} -rf %{buildroot}%{_unitdir}
-%endif
 
-
-%if 0%{?rhel} || 0%{?fedora} < 16
-%post
-/sbin/ldconfig
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-tpsd || :
-
-
-%preun
-if [ $1 = 0 ] ; then
-    /sbin/service pki-tpsd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-tpsd || :
-fi
-
-
-%postun
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-tpsd condrestart >/dev/null 2>&1 || :
-fi
-
-%else
 %post
 # Attempt to update ALL old "TPS" instances to "systemd"
 if [ -d /etc/sysconfig/pki/tps ]; then
@@ -240,18 +199,13 @@ fi
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-tpsd.target >/dev/null 2>&1 || :
 fi
-%endif
 
 %files
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
 %{_unitdir}/pki-tpsd@.service
 %{_unitdir}/pki-tpsd.target
-%else
-%{_initrddir}/pki-tpsd
-%endif
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
@@ -267,17 +221,19 @@ fi
 %{_datadir}/pki/tps/setup/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tps.conf
-%endif
 
 
 %changelog
+* Tue Nov 20 2012 Ade Lee <alee@redhat.com> 10.0.0-0.12.b3
+- Update spec fiel to support fedora >= 17 and rhel 7+
+- Update cmake version
+
 * Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b3
 - Update release to b3
 

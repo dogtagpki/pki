@@ -22,7 +22,7 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    cmake
+BuildRequires:    cmake >= 2.8.10.1-1
 BuildRequires:    zip
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    redhat-rpm-config
@@ -975,6 +975,7 @@ fi
 * Mon Nov 19 2012 Ade Lee <alee@redhat.com> 10.0.0-0.53.b3
 - Cleaned up spec file to provide only support rhel 7+, f17+
 - Added resteasy-base dependency for rhel 7
+- Update cmake version
 
 * Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.52.b3
 - Update release to b3

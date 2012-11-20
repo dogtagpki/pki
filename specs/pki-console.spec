@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}11%{?prerel}%{?dist}
+Release:          %{?relprefix}12%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -17,39 +17,24 @@ BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    cmake
+BuildRequires:    cmake >= 2.8.10.1-1
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
-%if 0%{?fedora} >= 17
 BuildRequires:    junit
-%else
-BuildRequires:    junit4
-%endif
-%if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    pki-base >= 10.0.0
-%else
-BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    pki-base
-%endif
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.6.0
 Requires:         ldapjdk
 Requires:         pki-base >= 10.0.0
 Requires:         pki-console-theme >= 9.0.0
-%if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.2.6-24
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -102,6 +87,10 @@ cd build
 
 
 %changelog
+* Tue Nov 20 2012 Ade Lee <alee@redhat.com> 10.0.0-0.12.b3
+- Removed conditionals for fedora < 17
+- Update cmake version
+
 * Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.b3
 - Update release to b3
 
