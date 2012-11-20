@@ -1,20 +1,20 @@
 # for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
 # also remove the space between % and global - this space is needed because
 # fedpkg verrel stupidly ignores comment lines
+# we are assuming f17+ and rhel 7+
+
 %global prerel .b3
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
-%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%endif
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}52%{?prerel}%{?dist}
+Release:          %{?relprefix}53%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -22,12 +22,6 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-# specify '_unitdir' macro for platforms that don't use 'systemd'
-%if 0%{?rhel} || 0%{?fedora} < 16
-%define           _unitdir /lib/systemd/system
-%endif
-
-# tomcatjss requires versioning since version 2.0.0 requires tomcat6
 BuildRequires:    cmake
 BuildRequires:    zip
 BuildRequires:    java-devel >= 1:1.6.0
@@ -39,49 +33,28 @@ BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
-%if 0%{?fedora} <= 17
-BuildRequires:         selinux-policy-devel >= 3.10.0-151
-%endif
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
-%if 0%{?fedora} >= 17
+
+%if  0%{?rhel}
+BuildRequires:    resteasy-base
+%else
 BuildRequires:    resteasy >= 2.3.2-1
+%endif
+
 BuildRequires:    junit
-# NOTE:  The following requirement is for nightly 'mock' builds ONLY since
-#        Dogtag 10 will NEVER be officially released on Fedora 17!
-BuildRequires:    tomcatjss >= 7.0.0-3
-%else
-BuildRequires:    junit4
-%endif
-%if 0%{?fedora} >= 18
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 7.0.0-3
-%else
-%if 0%{?fedora} >= 16
-BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    systemd-units
+
+%if 0%{?fedora} <= 17
 BuildRequires:    tomcatjss >= 6.0.2
-%else
-%if 0%{?fedora} >= 15
-BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-24
-BuildRequires:    tomcatjss >= 6.0.0
-%else
-BuildRequires:    jpackage-utils
-BuildRequires:    jss >= 4.2.6-17
-BuildRequires:    tomcatjss >= 2.0.0
-%endif
-%endif
+BuildRequires:    selinux-policy-devel >= 3.10.0-151
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
-
-Patch0:	          %{name}-selinux-f16.patch
-Patch1:	          %{name}-selinux-f17-1.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -170,13 +143,8 @@ Group:            System Environment/Libraries
 
 Requires:         java >= 1:1.6.0
 Requires:         nss
-%if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-24
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%endif
 
 Provides:         symkey = %{version}-%{release}
 
@@ -216,30 +184,12 @@ Requires:         %{_javadir}/xalan-j2-serializer.jar
 Requires:         %{_javadir}/xerces-j2.jar
 Requires:         %{_javadir}/xml-commons-apis.jar
 Requires:         %{_javadir}/xml-commons-resolver.jar
-%if 0%{?fedora} >= 17
+Requires:         jpackage-utils >= 0:1.7.5-10
+Requires:         jss >= 4.2.6-24
+%if  0%{?rhel}
+Requires:         resteasy-base
+%else
 Requires:         resteasy >= 2.3.2-1
-%endif
-%if 0%{?fedora} >= 18
-Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-24
-%else
-%if 0%{?fedora} >= 16
-Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-24
-%else
-%if 0%{?fedora} >= 15
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-24
-%else
-%if 0%{?fedora} >= 14
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
-%else
-Requires:         jpackage-utils
-Requires:         jss >= 4.2.6-17
-%endif
-%endif
-%endif
 %endif
 
 %description -n   pki-base
@@ -264,11 +214,7 @@ Requires:         nss
 Requires:         nss-tools
 Requires:         java >= 1:1.6.0
 Requires:         pki-base = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
-%else
-Requires:         jpackage-utils
-%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -305,49 +251,20 @@ Requires:         pki-server-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
-%if 0%{?fedora} >= 18
+%if 0%{?fedora} <= 17
+Requires:         pki-selinux = %{version}-%{release}
+%else
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
 Requires:         tomcat >= 7.0.27
-%else
-Requires:         pki-selinux = %{version}-%{release}
 %endif
 
 Requires:         velocity
-%if 0%{?fedora} >= 17
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires:         tomcat >= 7.0.27
 Requires:         tomcatjss >= 7.0.0-3
-%else
-%if 0%{?fedora} >= 16
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
-Requires:         tomcatjss >= 6.0.2
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-Requires:         tomcatjss >= 6.0.0
-%else
-%if 0%{?fedora} >= 14
-Requires:         tomcatjss >= 2.0.0
-%else
-Requires:         tomcatjss >= 2.0.0
-%endif
-%endif
-%endif
-%endif
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
@@ -390,29 +307,9 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-server = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-ca
 The Certificate Authority (CA) is a required PKI subsystem which issues,
@@ -437,29 +334,9 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-server = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-kra
 The Data Recovery Manager (DRM) is an optional PKI subsystem that can act
@@ -490,29 +367,9 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-server = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-ocsp
 The Online Certificate Status Protocol (OCSP) Manager is an optional PKI
@@ -551,29 +408,9 @@ BuildArch:        noarch
 Requires:         java >= 1:1.6.0
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
-%if 0%{?fedora} >= 16
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-%else
-%if 0%{?fedora} >= 15
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-Requires:         initscripts
-%else 
-Requires(post):   chkconfig
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
-Requires(postun): initscripts
-%endif
-%endif
 
 %description -n   pki-tks
 The Token Key Service (TKS) is an optional PKI subsystem that manages the
@@ -621,18 +458,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %prep
-
-
 %setup -q -n %{name}-%{version}%{?prerel}
-
-%if 0%{?fedora} >= 17
-# %patch1 -p2 -b .f17
-%else
-%if 0%{?fedora} >= 16
-%patch0 -p2 -b .f16
-%endif
-%endif
-
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -659,7 +485,6 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
@@ -691,23 +516,11 @@ echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-%endif
 
-%if 0%{?fedora} >= 16
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
-%else
-%{__rm} %{buildroot}%{_bindir}/pkicontrol
-%{__rm} %{buildroot}%{_bindir}/pkidaemon
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-krad.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-ocspd.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tksd.target.wants
-%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
-%{__rm} -rf %{buildroot}%{_unitdir}
-%endif
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
@@ -729,17 +542,14 @@ fi                                                                           \
 %pre -n pki-selinux
 %saveFileContext targeted
 
-
 %post -n pki-selinux
 semodule -s targeted -i %{_datadir}/selinux/modules/pki.pp
 %relabel targeted
-
 
 %preun -n pki-selinux
 if [ $1 = 0 ]; then
      %saveFileContext targeted
 fi
-
 
 %postun -n pki-selinux
 if [ $1 = 0 ]; then
@@ -748,79 +558,6 @@ if [ $1 = 0 ]; then
 fi
 %endif
 
-%if 0%{?rhel} || 0%{?fedora} < 16
-%post -n pki-ca 
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-cad || :
-%fix_tomcat_log ca
-
-%post -n pki-kra
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-krad || :
-%fix_tomcat_log kra
-
-%post -n pki-ocsp
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-ocspd || :
-%fix_tomcat_log ocsp
-
-%post -n pki-tks
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add pki-tksd || :
-%fix_tomcat_log tks
-
-
-%preun -n pki-ca
-if [ $1 = 0 ] ; then
-    /sbin/service pki-cad stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-cad || :
-fi
-
-
-%preun -n pki-kra
-if [ $1 = 0 ] ; then
-    /sbin/service pki-krad stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-krad || :
-fi
-
-
-%preun -n pki-ocsp
-if [ $1 = 0 ] ; then
-    /sbin/service pki-ocspd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-ocspd || :
-fi
-
-
-%preun -n pki-tks
-if [ $1 = 0 ] ; then
-    /sbin/service pki-tksd stop >/dev/null 2>&1
-    /sbin/chkconfig --del pki-tksd || :
-fi
-
-
-%postun -n pki-ca
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-cad condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-kra
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-krad condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-ocsp
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-ocspd condrestart >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-tks
-if [ "$1" -ge "1" ] ; then
-    /sbin/service pki-tksd condrestart >/dev/null 2>&1 || :
-fi
-%else 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
 if [ -d /etc/sysconfig/pki/ca ]; then
@@ -1017,7 +754,6 @@ fi
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
-%endif
 
 %files -n pki-symkey
 %defattr(-,root,root,-)
@@ -1099,14 +835,10 @@ fi
 %{_datadir}/pki/scripts/operations
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
 %{_bindir}/pkidaemon
-%endif
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
 %{_unitdir}/pki-tomcatd.target
-%endif
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore.jar
@@ -1125,19 +857,14 @@ fi
 %{_datadir}/pki/silent/
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
-%if 0%{?fedora} >= 16
 %{_bindir}/pkicontrol
-%endif
 
-
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-%endif
 
 %{_datadir}/pki/setup/
 %dir %{_datadir}/pki/server
@@ -1153,13 +880,9 @@ fi
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-cad.target.wants
 %{_unitdir}/pki-cad@.service
 %{_unitdir}/pki-cad.target
-%else 
-%{_initrddir}/pki-cad
-%endif
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
@@ -1170,26 +893,20 @@ fi
 %{_datadir}/pki/ca/webapps/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ca.conf
-%endif
 
 
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-krad.target.wants
 %{_unitdir}/pki-krad@.service
 %{_unitdir}/pki-krad.target
-%else 
-%{_initrddir}/pki-krad
-%endif
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
@@ -1197,26 +914,20 @@ fi
 %{_datadir}/pki/kra/webapps/
 %dir %{_localstatedir}/lock/pki/kra
 %dir %{_localstatedir}/run/pki/kra
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-kra.conf
-%endif
 
 
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-ocspd.target.wants
 %{_unitdir}/pki-ocspd@.service
 %{_unitdir}/pki-ocspd.target
-%else 
-%{_initrddir}/pki-ocspd
-%endif
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
@@ -1224,26 +935,20 @@ fi
 %{_datadir}/pki/ocsp/webapps/
 %dir %{_localstatedir}/lock/pki/ocsp
 %dir %{_localstatedir}/run/pki/ocsp
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-%endif
 
 
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
-%if 0%{?fedora} >= 16
 %dir %{_sysconfdir}/systemd/system/pki-tksd.target.wants
 %{_unitdir}/pki-tksd@.service
 %{_unitdir}/pki-tksd.target
-%else 
-%{_initrddir}/pki-tksd
-%endif
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
@@ -1251,14 +956,12 @@ fi
 %{_datadir}/pki/tks/webapps/
 %dir %{_localstatedir}/lock/pki/tks
 %dir %{_localstatedir}/run/pki/tks
-%if 0%{?fedora} >= 15
 # Details:
 #
 #     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
-%endif
 
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
@@ -1269,6 +972,10 @@ fi
 
 
 %changelog
+* Mon Nov 19 2012 Ade Lee <alee@redhat.com> 10.0.0-0.53.b3
+- Cleaned up spec file to provide only support rhel 7+, f17+
+- Added resteasy-base dependency for rhel 7
+
 * Mon Nov 12 2012 Ade Lee <alee@redhat.com> 10.0.0-0.52.b3
 - Update release to b3
 
