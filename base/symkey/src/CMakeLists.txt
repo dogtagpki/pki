@@ -1,4 +1,4 @@
-project(symkey Java)
+project(symkey NONE)
 
 find_file(JSS_JAR
     NAMES

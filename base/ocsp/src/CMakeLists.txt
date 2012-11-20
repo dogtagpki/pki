@@ -1,4 +1,4 @@
-project(pki-ocsp_java Java)
+project(pki-ocsp_java NONE)
 
 # '/usr/share/java/pki' jars
 find_file(PKI_CERTSRV_JAR

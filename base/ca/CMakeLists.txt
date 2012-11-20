@@ -1,4 +1,4 @@
-project(ca Java)
+project(ca NONE)
 
 add_subdirectory(src)
 add_subdirectory(setup)

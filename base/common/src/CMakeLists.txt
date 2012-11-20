@@ -1,4 +1,4 @@
-project(pki-certsrv_java Java)
+project(pki-certsrv_java NONE)
 
 find_file(JSS_JAR
     NAMES

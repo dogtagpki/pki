@@ -1,4 +1,4 @@
-project(pki-common-test Java)
+project(pki-common-test NONE)
 
 find_file(PKI_CERTSRV_JAR
     NAMES

@@ -1,3 +1,3 @@
-project(test Java)
+project(test NONE)
 
 add_subdirectory(src)

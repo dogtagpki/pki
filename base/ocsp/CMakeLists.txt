@@ -1,4 +1,4 @@
-project(ocsp Java)
+project(ocsp NONE)
 
 add_subdirectory(src)
 add_subdirectory(setup)

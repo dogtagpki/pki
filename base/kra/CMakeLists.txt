@@ -1,4 +1,4 @@
-project(kra Java)
+project(kra NONE)
 
 add_subdirectory(src)
 add_subdirectory(setup)

@@ -1,4 +1,4 @@
-project(silent Java)
+project(silent NONE)
 
 add_subdirectory(src)
 add_subdirectory(scripts)

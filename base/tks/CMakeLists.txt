@@ -1,4 +1,4 @@
-project(tks Java)
+project(tks NONE)
 
 add_subdirectory(src)
 add_subdirectory(setup)

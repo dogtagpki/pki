@@ -1,4 +1,4 @@
-project(pki-ca_java Java)
+project(pki-ca_java NONE)
 
 # '/usr/share/java' jars
 find_file(LDAPJDK_JAR

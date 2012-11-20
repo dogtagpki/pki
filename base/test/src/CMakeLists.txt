@@ -1,4 +1,4 @@
-project(pki-test_java Java)
+project(pki-test_java NONE)
 
 # build pki-test
 # TODO: build test only when the test is invoked

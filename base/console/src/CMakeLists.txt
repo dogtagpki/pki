@@ -1,4 +1,4 @@
-project(pki-console_java Java)
+project(pki-console_java NONE)
 
 # '/usr/share/java/pki' jars
 find_file(PKI_NSUTIL_JAR

@@ -1,4 +1,4 @@
-project(pki-cmsutil_java Java)
+project(pki-cmsutil_java NONE)
 
 find_file(APACHE_COMMONS_LANG_JAR
     NAMES

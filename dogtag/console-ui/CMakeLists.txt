@@ -1,3 +1,3 @@
-project(console-ui Java)
+project(console-ui NONE)
 
 add_subdirectory(src)

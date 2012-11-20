@@ -1,4 +1,4 @@
-project(pki-tools_java Java)
+project(pki-tools_java NONE)
 
 find_file(JSS_JAR
     NAMES

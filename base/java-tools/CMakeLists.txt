@@ -1,4 +1,4 @@
-project(java-tools Java)
+project(java-tools NONE)
 
 
 install(

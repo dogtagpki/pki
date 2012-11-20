@@ -1,4 +1,4 @@
-project(pki-kra_java Java)
+project(pki-kra_java NONE)
 
 # '/usr/share/java/pki' jars
 find_file(PKI_CERTSRV_JAR

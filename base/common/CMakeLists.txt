@@ -1,4 +1,4 @@
-project(common Java)
+project(common NONE)
 
 # install systemd scripts
 install(
