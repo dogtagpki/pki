@@ -343,24 +343,25 @@ public class GetCRL extends CMSServlet {
 
                         while (i < length) {
                             int k = crlBase64Encoded.indexOf('\n', i);
+                            if (k < 0)
+                                break;
 
-                            if (n < 100 && k > -1) {
+                            if (n < 100) {
                                 n++;
                                 i = k + 1;
                             } else {
                                 n = 1;
                                 IArgBlock rarg = CMS.createArgBlock();
-
-                                if (k > -1) {
-                                    rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
-                                    i = k + 1;
-                                    j = i;
-                                } else {
-                                    rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
-                                    i = length;
-                                }
+                                rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
+                                i = k + 1;
+                                j = i;
                                 argSet.addRepeatRecord(rarg);
                             }
+                        }
+                        if (j < length) {
+                            IArgBlock rarg = CMS.createArgBlock();
+                            rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
+                            argSet.addRepeatRecord(rarg);
                         }
                     } catch (CRLException e) {
                     }
@@ -383,24 +384,24 @@ public class GetCRL extends CMSServlet {
 
                         while (i < length) {
                             int k = crlBase64Encoded.indexOf('\n', i);
-
-                            if (n < 100 && k > -1) {
+                            if (k < 0)
+                                break;
+                            if (n < 100) {
                                 n++;
                                 i = k + 1;
                             } else {
                                 n = 1;
                                 IArgBlock rarg = CMS.createArgBlock();
-
-                                if (k > -1) {
-                                    rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
-                                    i = k + 1;
-                                    j = i;
-                                } else {
-                                    rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
-                                    i = length;
-                                }
+                                rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
+                                i = k + 1;
+                                j = i;
                                 argSet.addRepeatRecord(rarg);
                             }
+                        }
+                        if (j < length) {
+                            IArgBlock rarg = CMS.createArgBlock();
+                            rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
+                            argSet.addRepeatRecord(rarg);
                         }
                     } catch (CRLException e) {
                     }
