@@ -97,6 +97,7 @@ endif ()
 # ONLY required for Java-based PKI components
 if (APPLICATION_FLAVOR_PKI_CORE      OR
     APPLICATION_FLAVOR_PKI_CONSOLE   OR
+    APPLICATION_FLAVOR_DOGTAG_PKI_THEME OR
     APPLICATION_FLAVOR_PKI_MIGRATE)
     find_package(Java REQUIRED)
     find_package(JNI REQUIRED)

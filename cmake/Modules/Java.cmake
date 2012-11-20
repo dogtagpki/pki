@@ -77,7 +77,7 @@ function(javac target)
             -Dfiles="${sources}"
             -Dexclude="${exclude}"
             -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
-        COMMAND ${CMAKE_Java_COMPILER}
+        COMMAND ${Java_JAVAC_EXECUTABLE}
             ${CMAKE_JAVA_COMPILE_FLAGS}
             -encoding UTF-8
             -cp ${native_classpath}
@@ -176,7 +176,7 @@ function(jar target)
                 -Dfiles="${files_${i}}"
                 -Dexclude="${exclude_${i}}"
                 -P ${CMAKE_MODULE_PATH}/JavaFileList.cmake
-            COMMAND ${CMAKE_Java_ARCHIVE}
+            COMMAND ${Java_JAR_EXECUTABLE}
                 ${operation}${options} ${params}
                 @${file_list_${i}}
             WORKING_DIRECTORY ${input_dir_${i}}
@@ -237,7 +237,7 @@ function(javadoc target)
         set(separator ";")
     endif(UNIX)
 
-    set(command ${JAVA_DOC} -d ${dest})
+    set(command ${Java_JAVADOC_EXECUTABLE} -d ${dest})
 
     if (options)
         foreach (option ${options})

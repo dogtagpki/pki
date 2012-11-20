@@ -55,7 +55,7 @@ function(add_junit_test TARGET_NAME)
         COMMAND
             mkdir -p "${REPORTS_DIR}"
         COMMAND
-            ${CMAKE_Java_RUNTIME}
+            ${Java_JAVA_EXECUTABLE}
             -Djunit.reports.dir=${REPORTS_DIR}
             -classpath ${CLASSPATH}
             com.netscape.test.TestRunner
