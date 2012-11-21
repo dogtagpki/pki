@@ -39,8 +39,11 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -96,7 +99,7 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user = null;
@@ -109,7 +112,7 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new UserNotFoundException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
             }
 
             UserCertCollection response = new UserCertCollection();
@@ -148,7 +151,7 @@ public class UserCertService extends PKIService implements UserCertResource {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user = null;
@@ -161,13 +164,13 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new UserNotFoundException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
             }
 
             X509Certificate[] certs = user.getX509Certificates();
 
             if (certs == null) {
-                throw new PKIException("Certificate not found");
+                throw new ResourceNotFoundException("No certificates found for " + userID);
             }
 
             try {
@@ -192,7 +195,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                 return userCertData;
             }
 
-            throw new PKIException("Certificate not found");
+            throw new ResourceNotFoundException("No certificates found for " + userID);
 
         } catch (PKIException e) {
             throw e;
@@ -223,7 +226,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -266,7 +269,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                     X509Certificate p7certs[] = pkcs7.getCertificates();
 
                     if (p7certs.length == 0) {
-                        throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
+                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
                     }
 
                     // fix for 370099 - cert ordering can not be assumed
@@ -292,7 +295,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                     } else {
                         // not a chain, or in random order
                         CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
-                        throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
+                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
                     }
 
                     CMS.debug("UserCertResourceService: "
@@ -335,12 +338,15 @@ public class UserCertService extends PKIService implements UserCertResource {
                         }
                     }
 
-                /*
-                } catch (CryptoManager.UserCertConflictException e) {
-                    // got a "user cert" in the chain, most likely the CA
-                    // cert of this instance, which has a private key.  Ignore
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
-                */
+                    /*
+                    } catch (CryptoManager.UserCertConflictException e) {
+                        // got a "user cert" in the chain, most likely the CA
+                        // cert of this instance, which has a private key.  Ignore
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
+                    */
+                } catch (PKIException e) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
+                    throw e;
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
@@ -375,12 +381,12 @@ public class UserCertService extends PKIService implements UserCertResource {
             } catch (CertificateExpiredException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(cert.getSubjectDN())));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_EXPIRED"));
+                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_EXPIRED"));
 
             } catch (CertificateNotYetValidException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID"));
+                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID"));
 
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
@@ -438,7 +444,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IUser user = userGroupManager.createUser(userID);

@@ -24,9 +24,7 @@ import java.security.Principal;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
@@ -44,6 +42,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cmscore.realm.PKIPrincipal;
 
 
@@ -76,7 +75,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
     public ServerResponse preProcess(
             HttpRequest request,
             ResourceMethod resourceMethod
-        ) throws Failure, WebApplicationException {
+        ) throws Failure, ForbiddenException {
 
         // Get ACL mapping for the method.
         Method method = resourceMethod.getMethod();
@@ -95,12 +94,12 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
         // If unauthenticated, reject request.
         if (principal == null) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new ForbiddenException("No user principal provided.");
         }
 
         // If unrecognized principal, reject request.
         if (!(principal instanceof PKIPrincipal)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new ForbiddenException("Invalid user principal");
         }
 
         PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
@@ -108,7 +107,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
         // If missing auth token, reject request.
         if (authToken == null) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new ForbiddenException("No authorization token present.");
         }
 
         try {
@@ -124,7 +123,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
             // If invalid mapping, reject request.
             if (values.length != 2) {
-                throw new WebApplicationException(Response.Status.FORBIDDEN);
+                throw new ForbiddenException("Invalid ACL mapping.");
             }
 
             // Check authorization.
@@ -137,11 +136,11 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
             // If not authorized, reject request.
             if (authzToken == null) {
-                throw new WebApplicationException(Response.Status.FORBIDDEN);
+                throw new ForbiddenException("No authorization token present.");
             }
 
         } catch (EAuthzAccessDenied e) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new ForbiddenException(e.toString());
 
         } catch (IOException|EBaseException e) {
             e.printStackTrace();

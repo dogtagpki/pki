@@ -20,10 +20,11 @@ package com.netscape.cms.servlet.admin;
 
 import java.security.cert.CertificateEncodingException;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.ITransportKeyUnit;
@@ -50,25 +51,25 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
         if (kra == null) {
             // no KRA
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new ResourceNotFoundException("KRA subsystem not found.");
         }
 
         ITransportKeyUnit tu = kra.getTransportKeyUnit();
         if (tu == null) {
             CMS.debug("getTransportCert: transport key unit is null");
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException("No transport key unit.");
         }
         org.mozilla.jss.crypto.X509Certificate transportCert = tu.getCertificate();
         if (transportCert == null) {
             CMS.debug("getTransportCert: transport cert is null");
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException("Transport cert not found.");
         }
         try {
             cert = createCertificateData(transportCert);
         } catch (CertificateEncodingException e) {
             CMS.debug("getTransportCert: certificate encoding exception with transport cert");
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException("Unable to encode transport cert");
         }
         return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert);
     }

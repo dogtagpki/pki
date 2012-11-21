@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import javax.ws.rs.core.Response;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 
-import com.netscape.certsrv.base.PKIException;
-
-public class ProfileNotFoundException extends PKIException {
+public class ProfileNotFoundException extends ResourceNotFoundException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 
@@ -32,12 +30,12 @@ public class ProfileNotFoundException extends PKIException {
     }
 
     public ProfileNotFoundException(String profileId, String message) {
-        super(Response.Status.NOT_FOUND, message);
+        super(message);
         this.profileId = profileId;
     }
 
     public ProfileNotFoundException(String profileId, String message, Throwable cause) {
-        super(Response.Status.NOT_FOUND, message, cause);
+        super(message, cause);
         this.profileId = profileId;
     }
 

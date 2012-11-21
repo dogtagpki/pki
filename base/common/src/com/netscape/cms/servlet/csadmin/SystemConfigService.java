@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -41,6 +40,7 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.IncorrectPasswordException;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -99,7 +99,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configure(ConfigurationRequest data){
         if (csState.equals("1")) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "System is already configured");
+            throw new BadRequestException("System is already configured");
         }
 
         String certList;
@@ -132,12 +132,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             } catch (NotInitializedException e) {
                 throw new PKIException("Token is not initialized");
             } catch (NoSuchTokenException e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid Token provided. No such token.");
+                throw new BadRequestException("Invalid Token provided. No such token.");
             } catch (TokenException e) {
                 e.printStackTrace();
                 throw new PKIException("Token Exception" + e);
             } catch (IncorrectPasswordException e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Incorrect Password provided for token.");
+                throw new BadRequestException("Incorrect Password provided for token.");
             }
         }
 
@@ -245,7 +245,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             if (!validCloneUri) {
-                throw new PKIException(Response.Status.BAD_REQUEST,
+                throw new BadRequestException(
                         "Invalid clone URI provided.  Does not match the available subsystems in the security domain");
             }
 
@@ -295,7 +295,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("preop.hierarchy.select", "join");
                 cs.putString("hierarchy.select", "Subordinate");
             } else {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid hierarchy provided");
+                throw new BadRequestException("Invalid hierarchy provided");
             }
         }
 
@@ -329,12 +329,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
-                throw new PKIException(Response.Status.BAD_REQUEST,
-                        "Master and clone must not share the same internal database");
+                throw new BadRequestException("Master and clone must not share the same internal database");
             }
 
             if (!masterbasedn.equals(data.getBaseDN())) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Master and clone should have the same base DN");
+                throw new BadRequestException("Master and clone should have the same base DN");
             }
 
             String masterReplicationPort = data.getMasterReplicationPort();
@@ -537,7 +536,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                         if (cdata.getCertChain() != null) {
                             certObj.setCertChain(cdata.getCertChain());
                         } else {
-                            throw new PKIException(Response.Status.BAD_REQUEST, "CertChain not provided");
+                            throw new BadRequestException("CertChain not provided");
                         }
                     }
                 }
@@ -549,10 +548,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } catch (NumberFormatException e) {
             // move these validations to validate()?
-            throw new PKIException(Response.Status.BAD_REQUEST, "Non-integer value for key size");
+            throw new BadRequestException("Non-integer value for key size");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid algorithm " + e);
+            throw new BadRequestException("Invalid algorithm " + e);
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException("Error in setting certificate names and key sizes: " + e);
@@ -765,70 +764,69 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // get the preop pin and validate it
         String pin = data.getPin();
         if (pin == null) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "No preop pin provided");
+            throw new BadRequestException("No preop pin provided");
         }
         if (!preopPin.equals(pin)) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Incorrect pin provided");
+            throw new BadRequestException("Incorrect pin provided");
         }
 
         // validate security domain settings
         String domainType = data.getSecurityDomainType();
         if (domainType == null) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Security Domain Type not provided");
+            throw new BadRequestException("Security Domain Type not provided");
         }
 
         if (domainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             if (!csType.equals("CA")) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "New Domain is only valid for CA subsytems");
+                throw new BadRequestException("New Domain is only valid for CA subsytems");
             }
             if (data.getSecurityDomainName() == null) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Security Domain Name is not provided");
+                throw new BadRequestException("Security Domain Name is not provided");
             }
         } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
             String domainURI = data.getSecurityDomainUri();
             if (domainURI == null) {
-                throw new PKIException(Response.Status.BAD_REQUEST,
-                        "Existing security domain requested, but no security domain URI provided");
+                throw new BadRequestException("Existing security domain requested, but no security domain URI provided");
             }
 
             try {
                 @SuppressWarnings("unused")
                 URL admin_u = new URL(domainURI);  // check for invalid URL
             } catch (MalformedURLException e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid security domain URI");
+                throw new BadRequestException("Invalid security domain URI");
             }
             if ((data.getSecurityDomainUser() == null) || (data.getSecurityDomainPassword() == null)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Security domain user or password not provided");
+                throw new BadRequestException("Security domain user or password not provided");
             }
 
         } else {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid security domain URI provided");
+            throw new BadRequestException("Invalid security domain URI provided");
         }
 
         if ((data.getSubsystemName() == null) || (data.getSubsystemName().length() ==0)) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Invalid or no subsystem name provided");
+            throw new BadRequestException("Invalid or no subsystem name provided");
         }
 
         if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
             String cloneUri = data.getCloneUri();
             if (cloneUri == null) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Clone selected, but no clone URI provided");
+                throw new BadRequestException("Clone selected, but no clone URI provided");
             }
             try {
                 @SuppressWarnings("unused")
                 URL url = new URL(cloneUri); // check for invalid URL
                 // confirm protocol is https
             } catch (MalformedURLException e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid clone URI");
+                throw new BadRequestException("Invalid clone URI");
             }
 
             if (data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
                 if (data.getP12File() == null) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "P12 filename not provided");
+                    throw new BadRequestException("P12 filename not provided");
                 }
 
                 if (data.getP12Password() == null) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "P12 password not provided");
+                    throw new BadRequestException("P12 password not provided");
                 }
             }
         } else {
@@ -837,33 +835,33 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String dsHost = data.getDsHost();
         if (dsHost == null || dsHost.length() == 0) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database host not provided");
+            throw new BadRequestException("Internal database host not provided");
         }
 
         try {
             Integer.parseInt(data.getDsPort());  // check for errors
         } catch (NumberFormatException e) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database port is invalid");
+            throw new BadRequestException("Internal database port is invalid");
         }
 
         String basedn = data.getBaseDN();
         if (basedn == null || basedn.length() == 0) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
+            throw new BadRequestException("Internal database basedn not provided");
         }
 
         String binddn = data.getBindDN();
         if (binddn == null || binddn.length() == 0) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database basedn not provided");
+            throw new BadRequestException("Internal database basedn not provided");
         }
 
         String database = data.getDatabase();
         if (database == null || database.length() == 0) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
+            throw new BadRequestException("Internal database database name not provided");
         }
 
         String bindpwd = data.getBindpwd();
         if (bindpwd == null || bindpwd.length() == 0) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Internal database database name not provided");
+            throw new BadRequestException("Internal database database name not provided");
         }
 
         String masterReplicationPort = data.getMasterReplicationPort();
@@ -871,7 +869,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 Integer.parseInt(masterReplicationPort); // check for errors
             } catch (NumberFormatException e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Master replication port is invalid");
+                throw new BadRequestException("Master replication port is invalid");
             }
         }
 
@@ -880,7 +878,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 Integer.parseInt(cloneReplicationPort); // check for errors
             } catch (Exception e) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Clone replication port is invalid");
+                throw new BadRequestException("Clone replication port is invalid");
             }
         }
 
@@ -893,32 +891,32 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
             if ((data.getBackupFile() == null) || (data.getBackupFile().length()<=0)) {
                 //TODO: also check for valid path, perhaps by touching file there
-                throw new PKIException(Response.Status.BAD_REQUEST, "Invalid key backup file name");
+                throw new BadRequestException("Invalid key backup file name");
             }
 
             if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<8)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "key backup password must be at least 8 characters");
+                throw new BadRequestException("key backup password must be at least 8 characters");
             }
         } else {
             data.setBackupKeys("false");
         }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
-            throw new PKIException(Response.Status.BAD_REQUEST, "Hierarchy is requred for CA, not provided");
+            throw new BadRequestException("Hierarchy is requred for CA, not provided");
         }
 
         if (data.getIsClone().equals("false")) {
             if ((data.getAdminUID() == null) || (data.getAdminUID().length() == 0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
+                throw new BadRequestException("Admin UID not provided");
             }
             if ((data.getAdminPassword() == null) || (data.getAdminPassword().length() == 0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin Password not provided");
+                throw new BadRequestException("Admin Password not provided");
             }
             if ((data.getAdminEmail() == null) || (data.getAdminEmail().length() == 0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
+                throw new BadRequestException("Admin UID not provided");
             }
             if ((data.getAdminName() == null) || (data.getAdminName().length() == 0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin name not provided");
+                throw new BadRequestException("Admin name not provided");
             }
 
             if (data.getImportAdminCert() == null) {
@@ -927,17 +925,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             if (data.getImportAdminCert().equalsIgnoreCase("true")) {
                 if (data.getAdminCert() == null) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin Cert not provided");
+                    throw new BadRequestException("Admin Cert not provided");
                 }
             } else {
                 if ((data.getAdminCertRequest() == null) || (data.getAdminCertRequest().length() == 0)) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request not provided");
+                    throw new BadRequestException("Admin cert request not provided");
                 }
                 if ((data.getAdminCertRequestType() == null) || (data.getAdminCertRequestType().length() == 0)) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request type not provided");
+                    throw new BadRequestException("Admin cert request type not provided");
                 }
                 if ((data.getAdminSubjectDN() == null) || (data.getAdminSubjectDN().length() == 0)) {
-                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin subjectDN not provided");
+                    throw new BadRequestException("Admin subjectDN not provided");
                 }
             }
         }

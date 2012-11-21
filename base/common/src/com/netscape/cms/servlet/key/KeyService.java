@@ -24,13 +24,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.HTTPGoneException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -80,11 +82,11 @@ public class KeyService extends PKIService implements KeyResource {
             keyData = getKey(keyId, data);
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.getMessage());
         }
         if (keyData == null) {
             // no key record
-            throw new WebApplicationException(Response.Status.GONE);
+            throw new HTTPGoneException("No key record.");
         }
         return keyData;
     }
@@ -199,14 +201,14 @@ public class KeyService extends PKIService implements KeyResource {
         RequestId reqId = data.getRequestId();
         if (reqId == null) {
             // log error
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Request id not found.");
         }
 
         // confirm that at least one wrapping method exists
         // There must be at least the wrapped session key method.
         if ((data.getTransWrappedSessionKey() == null)) {
             // log error
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("No wrapping method found.");
         }
 
         KeyRequestDAO reqDAO = new KeyRequestDAO();
@@ -216,18 +218,18 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (EBaseException e1) {
             // failed to get request
             e1.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e1.getMessage());
         }
         if (reqInfo == null) {
             // request not found
-            throw new WebApplicationException(Response.Status.GONE);
+            throw new HTTPGoneException("No request information available.");
         }
 
         //confirm request is of the right type
         String type = reqInfo.getRequestType();
         if (!type.equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) {
             // log error
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Invalid request type");
         }
 
         //confirm that agent is originator of request, else throw 401
@@ -237,7 +239,7 @@ public class KeyService extends PKIService implements KeyResource {
         RequestStatus status = reqInfo.getRequestStatus();
         if (!status.equals(RequestStatus.APPROVED)) {
             // log error
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+            throw new UnauthorizedException("Unauthorized request.");
         }
 
         return reqInfo.getKeyId();
@@ -274,7 +276,7 @@ public class KeyService extends PKIService implements KeyResource {
 
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.getMessage());
         }
         return infos;
     }

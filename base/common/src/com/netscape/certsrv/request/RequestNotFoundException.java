@@ -1,10 +1,8 @@
 package com.netscape.certsrv.request;
 
-import javax.ws.rs.core.Response;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 
-import com.netscape.certsrv.base.PKIException;
-
-public class RequestNotFoundException extends PKIException {
+public class RequestNotFoundException extends ResourceNotFoundException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 
@@ -15,12 +13,12 @@ public class RequestNotFoundException extends PKIException {
     }
 
     public RequestNotFoundException(RequestId requestId, String message) {
-        super(Response.Status.NOT_FOUND, message);
+        super(message);
         this.requestId = requestId;
     }
 
     public RequestNotFoundException(RequestId requestId, String message, Throwable cause) {
-        super(Response.Status.NOT_FOUND, message, cause);
+        super(message, cause);
         this.requestId = requestId;
     }
 

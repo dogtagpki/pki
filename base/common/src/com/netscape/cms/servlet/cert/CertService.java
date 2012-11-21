@@ -30,9 +30,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
@@ -334,7 +331,7 @@ public class CertService extends PKIService implements CertResource {
     @Override
     public CertDataInfos searchCerts(CertSearchRequest data, Integer start, Integer size) {
         if (data == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Search request is null.");
         }
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;

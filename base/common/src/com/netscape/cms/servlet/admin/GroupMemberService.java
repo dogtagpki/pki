@@ -29,15 +29,18 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupMemberResource;
+import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -81,13 +84,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
 
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new GroupNotFoundException(groupID);
             }
 
             GroupMemberCollection response = new GroupMemberCollection();
@@ -141,13 +144,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new GroupNotFoundException(groupID);
             }
 
             String memberID = groupMemberData.getID();
@@ -171,7 +174,7 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
                     if (!isDuplicate(groupID, memberID)) {
                         userGroupManager.addUserToGroup(group, memberID);
                     } else {
-                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_DUPLICATE_ROLES", memberID));
+                        throw new ConflictingOperationException(CMS.getUserMessage("CMS_BASE_DUPLICATE_ROLES", memberID));
                     }
 
                 } else {
@@ -289,13 +292,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new GroupNotFoundException(groupID);
             }
 
             Enumeration<String> e = group.getMemberNames();
@@ -307,7 +310,7 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
                 return groupMemberData;
             }
 
-            throw new PKIException("Group member not found");
+            throw new ResourceNotFoundException("Group member " + memberID + " not found");
 
         } catch (PKIException e) {
             throw e;
@@ -329,13 +332,13 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new GroupNotFoundException(groupID);
             }
 
             String member = groupMemberData.getID();

@@ -30,12 +30,14 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupCollection;
 import com.netscape.certsrv.group.GroupData;
+import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -131,13 +133,13 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                throw new GroupNotFoundException(groupID);
             }
 
             return createGroupData(group);
@@ -173,7 +175,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.createGroup(groupID);
@@ -237,7 +239,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
@@ -295,7 +297,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new PKIException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             // if fails, let the exception fall through

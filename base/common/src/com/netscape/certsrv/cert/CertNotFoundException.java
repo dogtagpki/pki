@@ -17,12 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import javax.ws.rs.core.Response;
-
-import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 
-public class CertNotFoundException extends PKIException {
+public class CertNotFoundException extends ResourceNotFoundException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 
@@ -33,12 +31,12 @@ public class CertNotFoundException extends PKIException {
     }
 
     public CertNotFoundException(CertId certId, String message) {
-        super(Response.Status.NOT_FOUND, message);
+        super(message);
         this.certId = certId;
     }
 
     public CertNotFoundException(CertId certId, String message, Throwable cause) {
-        super(Response.Status.NOT_FOUND, message, cause);
+        super(message, cause);
         this.certId = certId;
     }
 

@@ -18,11 +18,10 @@
 
 package com.netscape.cms.servlet.request;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -81,7 +80,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         if (data == null || data.getClientId() == null
                 || data.getWrappedPrivateData() == null
                 || data.getDataType() == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Invalid key archival request.");
         }
 
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -91,7 +90,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
         return info;
     }
@@ -109,9 +108,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         //Catch this before the internal server processing has to deal with it
         //If data has been provided, we need at least the wrapped session key,
         //or the command is invalid.
-        if (data == null || (data.getTransWrappedSessionKey() == null
-                && data.getSessionWrappedPassphrase() != null)) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+
+        if (data == null) {
+            throw new BadRequestException("Invalid request.");
+        }
+        if (data.getTransWrappedSessionKey() == null
+                && data.getSessionWrappedPassphrase() != null) {
+            throw new BadRequestException("No wrapped session key.");
         }
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
@@ -120,14 +123,14 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
         return info;
     }
 
     public void approveRequest(RequestId id) {
         if (id == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Invalid request id.");
         }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -136,13 +139,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
     }
 
     public void rejectRequest(RequestId id) {
         if (id == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Invalid request id.");
         }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -151,13 +154,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
     }
 
     public void cancelRequest(RequestId id) {
         if (id == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new BadRequestException("Request id is null.");
         }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -166,7 +169,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
     }
 
@@ -193,7 +196,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             CMS.debug("listRequests: error in obtaining request results" + e);
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new PKIException(e.toString());
         }
         return requests;
     }

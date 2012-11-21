@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.request;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -29,6 +28,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
@@ -96,13 +96,13 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             infos = dao.submitRequest(data, servletRequest, uriInfo, getLocale());
         } catch (EAuthException e) {
             CMS.debug("enrollCert: authentication failed: " + e);
-            throw new PKIException(Response.Status.UNAUTHORIZED, e.toString());
+            throw new UnauthorizedException(e.toString());
         } catch (EAuthzException e) {
             CMS.debug("enrollCert: authorization failed: " + e);
-            throw new PKIException(Response.Status.UNAUTHORIZED, e.toString());
+            throw new UnauthorizedException(e.toString());
         } catch (BadRequestDataException e) {
             CMS.debug("enrollCert: bad request data: " + e);
-            throw new PKIException(Response.Status.BAD_REQUEST, e.toString());
+            throw new BadRequestException(e.toString());
         } catch (EBaseException e) {
             throw new PKIException(e.toString());
         }
@@ -147,16 +147,14 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             dao.changeRequestState(id, servletRequest, data, getLocale(), op);
         } catch (ERejectException e) {
             CMS.debug("changeRequestState: execution rejected " + e);
-            throw new PKIException(Response.Status.BAD_REQUEST,
-                    CMS.getUserMessage(getLocale(), "CMS_PROFILE_REJECTED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_PROFILE_REJECTED", e.toString()));
         } catch (EDeferException e) {
             CMS.debug("changeRequestState: execution defered " + e);
             // TODO do we throw an exception here?
-            throw new PKIException(Response.Status.BAD_REQUEST,
-                    CMS.getUserMessage(getLocale(), "CMS_PROFILE_DEFERRED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_PROFILE_DEFERRED", e.toString()));
         } catch (BadRequestDataException e) {
             CMS.debug("changeRequestState: bad request data: " + e);
-            throw new PKIException(Response.Status.BAD_REQUEST, e.toString());
+            throw new BadRequestException(e.toString());
         } catch (EPropertyException e) {
             CMS.debug("changeRequestState: execution error " + e);
             throw new PKIException(CMS.getUserMessage(getLocale(),
@@ -169,8 +167,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e);
         } catch (RequestNotFoundException e) {
             CMS.debug(e);
-            throw new PKIException(Response.Status.BAD_REQUEST,
-                    CMS.getUserMessage(getLocale(), "CMS_REQUEST_NOT_FOUND", id.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_REQUEST_NOT_FOUND", id.toString()));
         }
     }
 
