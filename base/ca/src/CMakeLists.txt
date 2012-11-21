@@ -29,6 +29,7 @@ find_file(JAXRS_API_JAR
         jaxrs-api.jar
     PATHS
         /usr/share/java/resteasy
+        /usr/share/java/resteasy-base
 )
 
 # build pki-ca

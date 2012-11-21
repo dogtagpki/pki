@@ -22,7 +22,7 @@ Group:            System Environment/Daemons
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    cmake >= 2.8.10.1-1
+BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    zip
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    redhat-rpm-config
@@ -49,7 +49,7 @@ BuildRequires:    jss >= 4.2.6-24
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 7.0.0-3
 
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
 BuildRequires:    tomcatjss >= 6.0.2
 BuildRequires:    selinux-policy-devel >= 3.10.0-151
 %endif
@@ -251,7 +251,7 @@ Requires:         pki-server-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
 Requires:         pki-selinux = %{version}-%{release}
 %else
 Requires:         selinux-policy-base >= 3.11.1-43
@@ -279,7 +279,7 @@ The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
 
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
 %package -n       pki-selinux
 Summary:          Certificate System - PKI Selinux Policies
 Group:            System Environment/Base
@@ -472,7 +472,7 @@ cd build
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
         -DBUILD_PKI_SELINUX:BOOL=ON \
 %endif
 	..
@@ -538,7 +538,7 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
 fi                                                                           \
 )
 
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
 %pre -n pki-selinux
 %saveFileContext targeted
 
@@ -870,7 +870,7 @@ fi
 %dir %{_datadir}/pki/server
 %{_datadir}/pki/server/
 
-%if 0%{?fedora} <= 17
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
 %files -n pki-selinux
 %defattr(-,root,root,-)
 %doc base/selinux/LICENSE

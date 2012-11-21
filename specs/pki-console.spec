@@ -17,7 +17,7 @@ BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:    cmake >= 2.8.10.1-1
+BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    ldapjdk

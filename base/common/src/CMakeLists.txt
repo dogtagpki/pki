@@ -88,6 +88,7 @@ find_file(JAXRS_API_JAR
         jaxrs-api.jar
     PATHS
         /usr/share/java/resteasy
+        /usr/share/java/resteasy-base
 )
 
 find_file(RESTEASY_JAXRS_JAR
@@ -95,6 +96,7 @@ find_file(RESTEASY_JAXRS_JAR
         resteasy-jaxrs.jar
     PATHS
         /usr/share/java/resteasy
+        /usr/share/java/resteasy-base
 )
 
 find_file(RESTEASY_ATOM_PROVIDER_JAR
@@ -102,6 +104,7 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
         resteasy-atom-provider.jar
     PATHS
         /usr/share/java/resteasy
+        /usr/share/java/resteasy-base
 )
 
 find_file(HTTPCLIENT_JAR

@@ -118,6 +118,26 @@ grant codeBase "file:/usr/share/java/resteasy/resteasy-jettison-provider.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/share/java/resteasy-base/jaxrs-api.jar" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:/usr/share/java/resteasy-base/resteasy-atom-provider.jar" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jaxb-provider.jar" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jaxrs.jar" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jettison-provider.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:/usr/share/java/scannotation.jar" {
         permission java.security.AllPermission;
 };
