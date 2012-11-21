@@ -45,7 +45,7 @@ if ($response->is_success) {
 } else {
    print "Content-type: text/html\n\n";
    print "<html>";
-   print "<link rel=stylesheet href='/esc/home/style.css' type='text/css'>";
+   print "<link rel=stylesheet href='/pki/esc/home/style.css' type='text/css'>";
    print "<center><h2>Error Importing CA Chain Information!</h2></center>";
    print "<center><h2>Please try again later.</h2></center>";
    print "</html>"
