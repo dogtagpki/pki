@@ -943,8 +943,14 @@ verify_symlinks()
     # Dogtag 10 Symbolic Link Target Variables
     java_dir="/usr/share/java"
     pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d@.service"
-    resteasy_java_dir="/usr/share/java/resteasy"
     systemd_dir="/lib/systemd/system"
+
+    grep "Red Hat Enterprise Linux" /etc/redhat-release
+    if [ $? == 0 ]; then
+        resteasy_java_dir="/usr/share/java/resteasy-base"
+    else
+        resteasy_java_dir="/usr/share/java/resteasy"
+    fi
 
     # Dogtag 10 Symbolic Link Variables
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"

@@ -121,7 +121,6 @@ def pki_copytree(src, dst, symlinks=False, ignore=None):
     if errors:
         raise Error, errors
 
-
 # PKI Deployment Identity Class
 class identity:
     def __add_gid(self, pki_group):

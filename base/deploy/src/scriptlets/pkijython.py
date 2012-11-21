@@ -77,6 +77,9 @@ class classPathHacker:
         b = method.invoke(sysloader, jar_a)
         return u
 
+# PKI Python Imports
+import pkiconfig as config
+import pkimessages as log
 
 # Dynamically Load Additional Java Jars ('append' to existing classpath)
 jarLoad = classPathHacker()
@@ -87,13 +90,18 @@ jarLoad.addFile("/usr/share/java/apache-commons-cli.jar")
 jarLoad.addFile("/usr/share/java/apache-commons-codec.jar")
 jarLoad.addFile("/usr/share/java/apache-commons-logging.jar")
 jarLoad.addFile("/usr/share/java/istack-commons-runtime.jar")
+
 #     Resteasy Jars
+RESTEASY_ROOT = "resteasy"
+if config.is_rhel():
+    RESTEASY_ROOT = "resteasy-base"
+
 jarLoad.addFile("/usr/share/java/glassfish-jaxb/jaxb-impl.jar")
-jarLoad.addFile("/usr/share/java/resteasy/jaxrs-api.jar")
-jarLoad.addFile("/usr/share/java/resteasy/resteasy-atom-provider.jar")
-jarLoad.addFile("/usr/share/java/resteasy/resteasy-jaxb-provider.jar")
-jarLoad.addFile("/usr/share/java/resteasy/resteasy-jaxrs.jar")
-jarLoad.addFile("/usr/share/java/resteasy/resteasy-jettison-provider.jar")
+jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/jaxrs-api.jar")
+jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-atom-provider.jar")
+jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jaxb-provider.jar")
+jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jaxrs.jar")
+jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jettison-provider.jar")
 jarLoad.addFile("/usr/share/java/scannotation.jar")
 #     PKI Jars
 jarLoad.addFile("/usr/share/java/pki/pki-certsrv.jar")
@@ -147,12 +155,6 @@ from com.netscape.certsrv.system import ConfigurationRequest
 from com.netscape.certsrv.system import ConfigurationResponse
 from com.netscape.cmsutil.util import Utils
 from netscape.security.x509 import X500Name
-
-
-# PKI Python Imports
-import pkiconfig as config
-import pkimessages as log
-
 
 # PKI Deployment Jython Helper Functions
 def generateCRMFRequest(token, keysize, subjectdn, dualkey):
