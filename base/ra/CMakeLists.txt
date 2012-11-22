@@ -37,16 +37,16 @@ install(
 
 install(
     DIRECTORY
-        emails/
+        apache/docroot
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
 )
 
 install(
     DIRECTORY
-        forms/
+        emails/
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf
 )
 
 install(

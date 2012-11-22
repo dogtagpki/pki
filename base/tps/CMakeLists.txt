@@ -79,7 +79,7 @@ install(
 
 install(
     DIRECTORY
-        forms/esc/cgi-bin
+        apache/cgi-bin
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
 )
@@ -92,21 +92,10 @@ install(
 )
 
 install(
-    FILES
-        forms/index.html
+    DIRECTORY
+        apache/docroot
     DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot
-)
-
-install(
-    FILES
-        forms/index.cgi
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
 )
 
 install(

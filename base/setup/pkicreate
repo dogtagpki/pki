@@ -2061,12 +2061,7 @@ sub process_pki_directories
                                     $default_dir_permissions, $default_file_permissions,
                                     $pki_user, $pki_group);
 
-        return 0 if !copy_directory($ui_subsystem_path, $pki_instance_path,
-                                    $default_dir_permissions, $default_file_permissions,
-                                    $pki_user, $pki_group);
-
-        # Copy /usr/share/pki/common-ui
-        # to <instance>/docroot/pki
+        # Copy /usr/share/pki/common-ui to <instance>/docroot/pki
         return 0 if !copy_directory(
             $common_ui_subsystem_path,
             "$docroot_instance_path/pki",
