@@ -99,9 +99,14 @@ PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME = "apache"
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME = "tomcat"
 PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "pki-apache"
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
-PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = "pkideployment.cfg"
+
+PKI_DEPLOYMENT_CONFIGURATION_DIR =\
+    "/usr/share/pki/deployment/config"
+PKI_DEPLOYMENT_CONFIGURATION_FILE = "deployment.cfg"
+PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE =\
+    PKI_DEPLOYMENT_CONFIGURATION_DIR + "/" + PKI_DEPLOYMENT_CONFIGURATION_FILE
 PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
-    "/usr/share/pki/deployment/config/pkislots.cfg"
+    PKI_DEPLOYMENT_CONFIGURATION_DIR + "/pkislots.cfg"
 
 # subtypes of PKI subsystems
 PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM = "Cloned"
@@ -155,7 +160,7 @@ def str2bool(string):
 #        and 'wait_to_attach_an_external_java_debugger(master)' functions,
 #        change 'pki_enable_java_debugger=False' to
 #        'pki_enable_java_debugger=True' in the appropriate
-#        'pkideployment.cfg' configuration file.
+#        deployment configuration file.
 def prepare_for_an_external_java_debugger(instance):
     print
     print PKI_DEPLOYMENT_INTERRUPT_BANNER

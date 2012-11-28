@@ -114,7 +114,7 @@ PKIDESTROY_EPILOG =\
 "REMINDER:\n\n"\
 "    The default PKI instance path will be calculated and placed in front\n"\
 "    of the mandatory '-i <instance>' parameter, and the values that reside\n"\
-"    in a copy of the 'pkideployment.cfg' file that was most recently used\n"\
+"    in deployment configuration file that was most recently used\n"\
 "    by this instance's 'pkispawn' (or 'pkispawn -u') command will be\n"\
 "    utilized by 'pkidestroy' to remove this instance.\n\n"\
 "    Finally, if an optional '-p <prefix>' is defined, this value WILL be\n"\

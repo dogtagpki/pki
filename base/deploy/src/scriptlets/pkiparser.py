@@ -178,7 +178,7 @@ class PKIConfigParser:
                 deployed_pki_subsystem_path + "/" +\
                 "registry" + "/" +\
                 config.pki_subsystem.lower() + "/" +\
-                config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+                config.PKI_DEPLOYMENT_CONFIGURATION_FILE
         # always verify that configuration file exists
         if not os.path.exists(config.pkideployment_cfg) or\
            not os.path.isfile(config.pkideployment_cfg):
@@ -222,7 +222,9 @@ class PKIConfigParser:
             self.pki_config = ConfigParser.ConfigParser()
             # Make keys case-sensitive!
             self.pki_config.optionxform = str
-            self.pki_config.read(config.pkideployment_cfg)
+            self.pki_config.read([
+                config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE,
+                config.pkideployment_cfg])
             config.pki_default_dict = self.pki_config.defaults()
             pkilogging.sensitive_parameters = config.pki_default_dict['sensitive_parameters'].split()
             config.pki_common_dict = dict(self.pki_config._sections['Common'])
@@ -2309,11 +2311,11 @@ class PKIConfigParser:
             # Finalization name/value pairs
             config.pki_master_dict['pki_deployment_cfg_replica'] =\
                 os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
-                             config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE)
+                             config.PKI_DEPLOYMENT_CONFIGURATION_FILE)
             config.pki_master_dict['pki_deployment_cfg_spawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
                 "spawn" + "_" +\
-                config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE + "." +\
+                config.PKI_DEPLOYMENT_CONFIGURATION_FILE + "." +\
                 config.pki_master_dict['pki_timestamp']
             config.pki_master_dict['pki_deployment_cfg_respawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\

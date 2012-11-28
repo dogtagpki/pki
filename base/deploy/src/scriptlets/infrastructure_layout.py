@@ -40,7 +40,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # NOTE:  It was determined that since the "pkidestroy" command
         #        relies upon a symbolic link to a replica of the original
-        #        "pkideployment.cfg" configuration file used by the
+        #        deployment configuration file used by the
         #        "pkispawn" command of an instance, it is necessary to
         #        create any required instance and subsystem directories
         #        in this top-level "infrastructure_layout" scriptlet
@@ -50,7 +50,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #
         # establish the top-level infrastructure, instance, and subsystem
         # registry directories for storage of a copy of the original
-        # "pkideployment.cfg" configuration file used to spawn this instance,
+        # deployment configuration file used to spawn this instance,
         # and save a copy of this file
         util.directory.create(master['pki_registry_path'])
         util.directory.create(master['pki_instance_type_registry_path'])

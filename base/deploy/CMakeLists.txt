@@ -56,15 +56,10 @@ install(
 )
 
 install(
-    FILES
-        config/pkideployment.cfg
-        config/pkislots.cfg
+    DIRECTORY
+        config
     DESTINATION
-        ${DATA_INSTALL_DIR}/deployment/config
-    PERMISSIONS
-        OWNER_WRITE OWNER_READ
-        GROUP_READ
-        WORLD_READ
+        ${DATA_INSTALL_DIR}/deployment
 )
 
 find_package(PythonInterp REQUIRED)
