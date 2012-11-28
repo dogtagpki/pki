@@ -72,7 +72,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public static String SUCCESS = "0";
     public static final String RESTART_SERVER_AFTER_CONFIGURATION =
             "restart_server_after_configuration";
-    private Random random = null;
 
     public SystemConfigService() throws EPropertyNotFound, EBaseException {
         cs = CMS.getConfigStore();
@@ -83,7 +82,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             isMasterCA = true;
         }
         instanceRoot = cs.getString("instanceRoot");
-        random = new Random();
     }
 
     /* (non-Javadoc)
@@ -598,31 +596,37 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 X509CertImpl admincerts[] = new X509CertImpl[1];
                 ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
                         data.getAdminName(), data.getAdminPassword());
-                if (csType.equals("CA")) {
-                    ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                            data.getAdminCertRequestType(), data.getAdminSubjectDN());
-
-                    String serialno = cs.getString("preop.admincert.serialno.0");
-                    ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-                    ICertificateRepository repo = ca.getCertificateRepository();
-                    admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
-                } else {
-                    String type = cs.getString("preop.ca.type", "");
-                    String ca_hostname = "";
-                    int ca_port = -1;
-                    if (type.equals("sdca")) {
-                        ca_hostname = cs.getString("preop.ca.hostname");
-                        ca_port = cs.getInteger("preop.ca.httpsport");
-                    } else {
-                        ca_hostname = cs.getString("securitydomain.host", "");
-                        ca_port = cs.getInteger("securitydomain.httpseeport");
-                    }
-                    String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                            data.getAdminProfileID(), data.getAdminCertRequestType(),
-                            data.getAdminCertRequest(), data.getAdminSubjectDN());
-                    b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                if (data.getImportAdminCert().equalsIgnoreCase("true")) {
+                    String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
                     byte[] b = CryptoUtil.base64Decode(b64);
                     admincerts[0] = new X509CertImpl(b);
+                } else {
+                    if (csType.equals("CA")) {
+                        ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
+                                data.getAdminCertRequestType(), data.getAdminSubjectDN());
+
+                        String serialno = cs.getString("preop.admincert.serialno.0");
+                        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+                        ICertificateRepository repo = ca.getCertificateRepository();
+                        admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
+                    } else {
+                        String type = cs.getString("preop.ca.type", "");
+                        String ca_hostname = "";
+                        int ca_port = -1;
+                        if (type.equals("sdca")) {
+                            ca_hostname = cs.getString("preop.ca.hostname");
+                            ca_port = cs.getInteger("preop.ca.httpsport");
+                        } else {
+                            ca_hostname = cs.getString("securitydomain.host", "");
+                            ca_port = cs.getInteger("securitydomain.httpseeport");
+                        }
+                        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
+                                data.getAdminProfileID(), data.getAdminCertRequestType(),
+                                data.getAdminCertRequest(), data.getAdminSubjectDN());
+                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                        byte[] b = CryptoUtil.base64Decode(b64);
+                        admincerts[0] = new X509CertImpl(b);
+                    }
                 }
                 CMS.reinit(IUGSubsystem.ID);
 
@@ -902,26 +906,37 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (data.getIsClone().equals("false")) {
-            if ((data.getAdminUID() == null) || (data.getAdminUID().length()==0)) {
+            if ((data.getAdminUID() == null) || (data.getAdminUID().length() == 0)) {
                 throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
             }
-            if ((data.getAdminPassword() == null) || (data.getAdminPassword().length()==0)) {
+            if ((data.getAdminPassword() == null) || (data.getAdminPassword().length() == 0)) {
                 throw new PKIException(Response.Status.BAD_REQUEST, "Admin Password not provided");
             }
-            if ((data.getAdminEmail() == null) || (data.getAdminEmail().length()==0)) {
+            if ((data.getAdminEmail() == null) || (data.getAdminEmail().length() == 0)) {
                 throw new PKIException(Response.Status.BAD_REQUEST, "Admin UID not provided");
             }
-            if ((data.getAdminName() == null) || (data.getAdminName().length()==0)) {
+            if ((data.getAdminName() == null) || (data.getAdminName().length() == 0)) {
                 throw new PKIException(Response.Status.BAD_REQUEST, "Admin name not provided");
             }
-            if ((data.getAdminCertRequest() == null) || (data.getAdminCertRequest().length()==0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request not provided");
+
+            if (data.getImportAdminCert() == null) {
+                data.setImportAdminCert("false");
             }
-            if ((data.getAdminCertRequestType() == null) || (data.getAdminCertRequestType().length()==0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request type not provided");
-            }
-            if ((data.getAdminSubjectDN() == null) || (data.getAdminSubjectDN().length()==0)) {
-                throw new PKIException(Response.Status.BAD_REQUEST, "Admin subjectDN not provided");
+
+            if (data.getImportAdminCert().equalsIgnoreCase("true")) {
+                if (data.getAdminCert() == null) {
+                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin Cert not provided");
+                }
+            } else {
+                if ((data.getAdminCertRequest() == null) || (data.getAdminCertRequest().length() == 0)) {
+                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request not provided");
+                }
+                if ((data.getAdminCertRequestType() == null) || (data.getAdminCertRequestType().length() == 0)) {
+                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin cert request type not provided");
+                }
+                if ((data.getAdminSubjectDN() == null) || (data.getAdminSubjectDN().length() == 0)) {
+                    throw new PKIException(Response.Status.BAD_REQUEST, "Admin subjectDN not provided");
+                }
             }
         }
 

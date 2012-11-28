@@ -70,6 +70,8 @@ public class ConfigurationRequest {
     private static final String ADMIN_SUBJECT_DN = "adminSubjectDN";
     private static final String ADMIN_NAME = "adminName";
     private static final String ADMIN_PROFILE_ID = "adminProfileID";
+    private static final String IMPORT_ADMIN_CERT = "importAdminCert";
+    private static final String ADMIN_CERT = "adminCert";
     private static final String STEP_TWO = "stepTwo";
     private static final String GENERATE_SERVER_CERT = "generateServerCert";
 
@@ -195,6 +197,12 @@ public class ConfigurationRequest {
     @XmlElement
     protected String adminProfileID;
 
+    @XmlElement(defaultValue = "false")
+    protected String importAdminCert;
+
+    @XmlElement
+    protected String adminCert;
+
     @XmlElement
     protected String stepTwo;
 
@@ -244,6 +252,8 @@ public class ConfigurationRequest {
         adminSubjectDN = form.getFirst(ADMIN_SUBJECT_DN);
         adminName = form.getFirst(ADMIN_NAME);
         adminProfileID = form.getFirst(ADMIN_PROFILE_ID);
+        adminCert = form.getFirst(ADMIN_CERT);
+        importAdminCert = form.getFirst(IMPORT_ADMIN_CERT);
         stepTwo = form.getFirst(STEP_TWO);
         generateServerCert = form.getFirst(GENERATE_SERVER_CERT);
     }
@@ -723,6 +733,22 @@ public class ConfigurationRequest {
         this.adminProfileID = adminProfileID;
     }
 
+    public String getImportAdminCert() {
+        return importAdminCert;
+    }
+
+    public void setImportAdminCert(String importAdminCert) {
+        this.importAdminCert = importAdminCert;
+    }
+
+    public String getAdminCert() {
+        return adminCert;
+    }
+
+    public void setAdminCert(String adminCert) {
+        this.adminCert = adminCert;
+    }
+
     public String getStepTwo() {
         return stepTwo;
     }
@@ -787,6 +813,8 @@ public class ConfigurationRequest {
                ", adminSubjectDN=" + adminSubjectDN +
                ", adminName=" + adminName +
                ", adminProfileID=" + adminProfileID +
+               ", adminCert=" + adminCert +
+               ", importAdminCert=" + importAdminCert +
                ", generateServerCert=" + generateServerCert +
                ", stepTwo=" + stepTwo + "]";
     }
