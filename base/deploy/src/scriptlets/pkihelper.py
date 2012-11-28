@@ -42,7 +42,6 @@ import seobject
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
-from pkiconfig import pki_sensitive_dict as sensitive
 from pkiconfig import pki_slots_dict as slots
 from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
@@ -419,7 +418,7 @@ class configuration_file:
         # NOTE:  This is the one and only parameter containing a sensitive
         #        parameter that may be stored in a log file.
         config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_URL_1,
-                            sensitive['pki_configuration_url'],
+                            master['pki_configuration_url'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
         config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_RESTART_1,
                             master['pki_registry_initscript_command'],
@@ -428,7 +427,7 @@ class configuration_file:
     def display_configuration_url(self):
         # NOTE:  This is the one and only parameter containing a sensitive
         #        parameter that may be displayed to the screen.
-        print log.PKI_CONFIGURATION_URL_1 % sensitive['pki_configuration_url']
+        print log.PKI_CONFIGURATION_URL_1 % master['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 %\
               master['pki_registry_initscript_command']
@@ -438,8 +437,8 @@ class configuration_file:
         # Silently verify the existence of 'sensitive' data
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Verify existence of Directory Server Password (ALWAYS)
-            if not sensitive.has_key('pki_ds_password') or\
-               not len(sensitive['pki_ds_password']):
+            if not master.has_key('pki_ds_password') or\
+               not len(master['pki_ds_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_ds_password",
@@ -448,8 +447,8 @@ class configuration_file:
                 sys.exit(1)
             # Verify existence of Admin Password (except for Clones)
             if not config.str2bool(master['pki_clone']):
-                if not sensitive.has_key('pki_admin_password') or\
-                   not len(sensitive['pki_admin_password']):
+                if not master.has_key('pki_admin_password') or\
+                   not len(master['pki_admin_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_admin_password",
@@ -458,8 +457,8 @@ class configuration_file:
                     sys.exit(1)
             # If required, verify existence of Backup Password
             if config.str2bool(master['pki_backup_keys']):
-                if not sensitive.has_key('pki_backup_password') or\
-                   not len(sensitive['pki_backup_password']):
+                if not master.has_key('pki_backup_password') or\
+                   not len(master['pki_backup_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_backup_password",
@@ -467,8 +466,8 @@ class configuration_file:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
             # Verify existence of Client Pin for NSS client security databases
-            if not sensitive.has_key('pki_client_database_password') or\
-               not len(sensitive['pki_client_database_password']):
+            if not master.has_key('pki_client_database_password') or\
+               not len(master['pki_client_database_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2,
                     "pki_client_database_password",
@@ -476,8 +475,8 @@ class configuration_file:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
             # Verify existence of Client PKCS #12 Password for Admin Cert
-            if not sensitive.has_key('pki_client_pkcs12_password') or\
-               not len(sensitive['pki_client_pkcs12_password']):
+            if not master.has_key('pki_client_pkcs12_password') or\
+               not len(master['pki_client_pkcs12_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_client_pkcs12_password",
@@ -486,8 +485,8 @@ class configuration_file:
                 sys.exit(1)
             # Verify existence of PKCS #12 Password (ONLY for Clones)
             if config.str2bool(master['pki_clone']):
-                if not sensitive.has_key('pki_clone_pkcs12_password') or\
-                   not len(sensitive['pki_clone_pkcs12_password']):
+                if not master.has_key('pki_clone_pkcs12_password') or\
+                   not len(master['pki_clone_pkcs12_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_clone_pkcs12_password",
@@ -499,8 +498,8 @@ class configuration_file:
             if config.str2bool(master['pki_clone']) or\
                not master['pki_subsystem'] == "CA" or\
                config.str2bool(master['pki_subordinate']):
-                if not sensitive.has_key('pki_security_domain_password') or\
-                   not len(sensitive['pki_security_domain_password']):
+                if not master.has_key('pki_security_domain_password') or\
+                   not len(master['pki_security_domain_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_security_domain_password",
@@ -509,8 +508,8 @@ class configuration_file:
                     sys.exit(1)
             # If required, verify existence of Token Password
             if not master['pki_token_name'] == "internal":
-                if not sensitive.has_key('pki_token_password') or\
-                   not len(sensitive['pki_token_password']):
+                if not master.has_key('pki_token_password') or\
+                   not len(master['pki_token_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_token_password",
@@ -1954,14 +1953,14 @@ class password:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "wt") as fd:
-                        fd.write(sensitive['pki_client_pkcs12_password'])
+                        fd.write(master['pki_client_pkcs12_password'])
                     fd.closed
             else:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # create a new 'pkcs12_password.conf' file
                 with open(path, "wt") as fd:
-                    fd.write(sensitive['pki_client_pkcs12_password'])
+                    fd.write(master['pki_client_pkcs12_password'])
                 fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -2527,7 +2526,6 @@ class jython:
             property = ""
             # Compose this "jython" command
             data = pickle.dumps(master)
-            sensitive_data = pickle.dumps(sensitive)
             ld_library_path = "LD_LIBRARY_PATH"
             if master['pki_architecture'] == 64:
                 ld_library_path = ld_library_path + "=" +\
@@ -2537,8 +2535,7 @@ class jython:
                 ld_library_path = ld_library_path + "=" +\
                                   "/usr/lib/jss:/usr/lib:/lib"
             command = "export" + " " + ld_library_path + ";" + "jython" + " " +\
-                      property + " " + scriptlet + " " + "\"" + data + "\"" +\
-                      " " + "\"" + sensitive_data + "\""
+                      property + " " + scriptlet + " " + "\"" + data + "\""
             # Display this "jython" command
             config.pki_log.info(
                 log.PKIHELPER_INVOKE_JYTHON_3,

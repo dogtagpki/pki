@@ -31,6 +31,7 @@ import time
 
 
 # PKI Deployment Imports
+import pkilogging
 import pkiconfig as config
 import pkimessages as log
 
@@ -222,7 +223,8 @@ class PKIConfigParser:
             # Make keys case-sensitive!
             self.pki_config.optionxform = str
             self.pki_config.read(config.pkideployment_cfg)
-            config.pki_sensitive_dict = dict(self.pki_config._sections['Sensitive'])
+            config.pki_default_dict = self.pki_config.defaults()
+            pkilogging.sensitive_parameters = config.pki_default_dict['sensitive_parameters'].split()
             config.pki_common_dict = dict(self.pki_config._sections['Common'])
             if config.pki_subsystem == "CA":
                 config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
@@ -244,10 +246,12 @@ class PKIConfigParser:
                 config.pki_subsystem_dict = dict(self.pki_config._sections['TPS'])
             # Insert empty record into dictionaries for "pretty print" statements
             #     NEVER print "sensitive" key value pairs!!!
+            config.pki_default_dict[0] = None
             config.pki_common_dict[0] = None
             config.pki_web_server_dict[0] = None
             config.pki_subsystem_dict[0] = None
         except ConfigParser.ParsingError, err:
+            print err
             rv = err
         return rv
 
@@ -277,18 +281,19 @@ class PKIConfigParser:
             # the configuration file
             pin_low  = 100000000000
             pin_high = 999999999999
-            config.pki_sensitive_dict['pki_pin'] =\
+            config.pki_master_dict['pki_pin'] =\
                 random.randint(pin_low, pin_high)
-            config.pki_sensitive_dict['pki_client_pin'] =\
+            config.pki_master_dict['pki_client_pin'] =\
                 random.randint(pin_low, pin_high)
             # Generate a one-time pin to be used prior to configuration
             # and add this to the "sensitive" key value pairs read in from
             # the configuration file
-            config.pki_sensitive_dict['pki_one_time_pin'] =\
+            config.pki_master_dict['pki_one_time_pin'] =\
                 ''.join(random.choice(string.ascii_letters + string.digits)\
                 for x in range(20))
             # Configuration file name/value pairs
             #     NEVER add "sensitive" key value pairs to the master dictionary!!!
+            config.pki_master_dict.update(config.pki_default_dict)
             config.pki_master_dict.update(config.pki_common_dict)
             config.pki_master_dict.update(config.pki_web_server_dict)
             config.pki_master_dict.update(config.pki_subsystem_dict)
@@ -1141,7 +1146,7 @@ class PKIConfigParser:
                 config.pki_master_dict['PKI_AJP_REDIRECT_PORT_SLOT'] =\
                     config.pki_master_dict['pki_https_port']
                 config.pki_master_dict['PKI_CERT_DB_PASSWORD_SLOT'] =\
-                    config.pki_sensitive_dict['pki_pin']
+                    config.pki_master_dict['pki_pin']
                 config.pki_master_dict['PKI_CFG_PATH_NAME_SLOT'] =\
                     config.pki_master_dict['pki_target_cs_cfg']
                 config.pki_master_dict\
@@ -1213,7 +1218,7 @@ class PKIConfigParser:
                 config.pki_master_dict['PKI_TMPDIR_SLOT'] =\
                     config.pki_master_dict['pki_tomcat_tmpdir_path']
                 config.pki_master_dict['PKI_RANDOM_NUMBER_SLOT'] =\
-                    config.pki_sensitive_dict['pki_one_time_pin']
+                    config.pki_master_dict['pki_one_time_pin']
                 config.pki_master_dict['PKI_SECURE_PORT_SLOT'] =\
                     config.pki_master_dict['pki_https_port']
                 config.pki_master_dict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] =\
@@ -1351,19 +1356,19 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and is NOT redefined below:
             #
-            #         config.pki_sensitive_dict['pki_client_pkcs12_password']
+            #         config.pki_master_dict['pki_client_pkcs12_password']
             #         config.pki_master_dict['pki_client_database_purge']
             #
             #     The following variables are established via the specified PKI
             #     deployment configuration file and potentially overridden below:
             #
-            #         config.pki_sensitive_dict['pki_client_database_password']
+            #         config.pki_master_dict['pki_client_database_password']
             #         config.pki_master_dict['pki_client_dir']
             #
-            if not len(config.pki_sensitive_dict['pki_client_database_password']):
+            if not len(config.pki_master_dict['pki_client_database_password']):
                 # use randomly generated client 'pin'
-                config.pki_sensitive_dict['pki_client_database_password'] =\
-                    str(config.pki_sensitive_dict['pki_client_pin'])
+                config.pki_master_dict['pki_client_database_password'] =\
+                    str(config.pki_master_dict['pki_client_pin'])
             if not len(config.pki_master_dict['pki_client_dir']):
                 config.pki_master_dict['pki_client_dir'] =\
                     os.path.join(
@@ -1434,9 +1439,9 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
             #
-            #         config.pki_sensitive_dict['pki_clone_pkcs12_password']
-            #         config.pki_sensitive_dict['pki_security_domain_password']
-            #         config.pki_sensitive_dict['pki_token_password']
+            #         config.pki_master_dict['pki_clone_pkcs12_password']
+            #         config.pki_master_dict['pki_security_domain_password']
+            #         config.pki_master_dict['pki_token_password']
             #         config.pki_master_dict['pki_clone_pkcs12_path']
             #         config.pki_master_dict['pki_clone_uri']
             #         config.pki_master_dict['pki_security_domain_https_port']
@@ -1552,7 +1557,7 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
             #
-            #         config.pki_sensitive_dict['pki_ds_password']
+            #         config.pki_master_dict['pki_ds_password']
             #         config.pki_master_dict['pki_clone_replication_security']
             #         config.pki_master_dict['pki_ds_bind_dn']
             #         config.pki_master_dict['pki_ds_ldap_port']
@@ -1612,7 +1617,7 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
             #
-            #        config.pki_sensitive_dict['pki_backup_password']
+            #        config.pki_master_dict['pki_backup_password']
             #        config.pki_master_dict['pki_backup_keys']
             #
             if config.str2bool(config.pki_master_dict['pki_backup_keys']):
@@ -1633,7 +1638,7 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
             #
-            #         config.pki_sensitive_dict['pki_admin_password']
+            #         config.pki_master_dict['pki_admin_password']
             #         config.pki_master_dict['pki_admin_cert_request_type']
             #         config.pki_master_dict['pki_admin_dualkey']
             #         config.pki_master_dict['pki_admin_keysize']
@@ -2334,13 +2339,13 @@ class PKIConfigParser:
             #        parameter that may be stored in a log file and displayed
             #        to the screen.
             #
-            config.pki_sensitive_dict['pki_configuration_url'] =\
+            config.pki_master_dict['pki_configuration_url'] =\
                 "https://{}:{}/{}/{}?pin={}".format(
                     config.pki_master_dict['pki_hostname'],
                     config.pki_master_dict['pki_https_port'],
                     config.pki_master_dict['pki_subsystem'].lower(),
                     "admin/console/config/login",
-                    config.pki_sensitive_dict['pki_one_time_pin'])
+                    config.pki_master_dict['pki_one_time_pin'])
             # Compose this "systemd" execution management command
             if config.pki_master_dict['pki_subsystem'] in\
                config.PKI_APACHE_SUBSYSTEMS:

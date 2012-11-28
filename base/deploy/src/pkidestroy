@@ -29,7 +29,6 @@ try:
     import argparse
     import logging
     import os
-    import pprint
     import socket
     import struct
     import subprocess
@@ -88,9 +87,6 @@ def main(argv):
         print log.PKI_SUBPROCESS_ERROR_1 % exc
         sys.exit(1)
 
-    # Initialize 'pretty print' for objects
-    pp = pprint.PrettyPrinter(indent=4)
-
     # Read and process command-line arguments.
     parser = PKIConfigParser()
     parser.process_command_line_arguments(argv)
@@ -116,36 +112,36 @@ def main(argv):
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
     if rv != 0:
-        config.pki_log.error(PKI_UNABLE_TO_PARSE_1, rv,
+        config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
                              extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
     else:
         # NEVER print out 'sensitive' name/value pairs!!!
         config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                              extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pp.pformat(config.pki_common_dict),
+        config.pki_log.debug(pkilogging.format(config.pki_common_dict),
                              extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
                              extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pp.pformat(config.pki_web_server_dict),
+        config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
                              extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
                              extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pp.pformat(config.pki_subsystem_dict),
+        config.pki_log.debug(pkilogging.format(config.pki_subsystem_dict),
                              extra=config.PKI_INDENTATION_LEVEL_0)
 
     # NEVER print out 'sensitive' name/value pairs!!!
     config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_common_dict),
+    config.pki_log.debug(pkilogging.format(config.pki_common_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_web_server_dict),
+    config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_subsystem_dict),
+    config.pki_log.debug(pkilogging.format(config.pki_subsystem_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
@@ -154,7 +150,7 @@ def main(argv):
                                                 config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Remove the specified PKI subsystem.
@@ -181,7 +177,7 @@ def main(argv):
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pp.pformat(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
 

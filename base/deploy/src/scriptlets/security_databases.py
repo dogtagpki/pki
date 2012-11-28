@@ -22,7 +22,6 @@
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
-from pkiconfig import pki_sensitive_dict as sensitive
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
@@ -41,14 +40,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         util.password.create_password_conf(
             master['pki_shared_password_conf'],
-            sensitive['pki_pin'])
+            master['pki_pin'])
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
         util.password.create_password_conf(
             master['pki_shared_pfile'],
-            sensitive['pki_pin'], pin_sans_token=True)
+            master['pki_pin'], pin_sans_token=True)
         util.file.modify(master['pki_shared_password_conf'])
         util.certutil.create_security_databases(
             master['pki_database_path'],

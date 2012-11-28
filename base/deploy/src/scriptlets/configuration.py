@@ -22,7 +22,6 @@
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
-from pkiconfig import pki_sensitive_dict as sensitive
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
@@ -51,7 +50,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # allowing 'certutil' to generate the security databases
         util.password.create_password_conf(
             master['pki_client_password_conf'],
-            sensitive['pki_client_database_password'], pin_sans_token=True)
+            master['pki_client_database_password'], pin_sans_token=True)
         util.file.modify(master['pki_client_password_conf'],
                          uid=0, gid=0)
         # Similarly, create a simple password file containing the

@@ -22,7 +22,25 @@
 # System Imports
 import logging
 import os
+import pprint
 
+sensitive_parameters = []
+
+# Initialize 'pretty print' for objects
+pp = pprint.PrettyPrinter(indent=4)
+
+def format(dict):
+    new_dict = {}
+
+    # mask sensitive data
+    for key in dict:
+        if key in sensitive_parameters:
+            value = 'XXXXXXXX'
+        else:
+            value = dict[key]
+        new_dict[key] = value
+
+    return pp.pformat(new_dict)
 
 # PKI Deployment Logging Functions
 def enable_pki_logger(log_dir, log_name, log_level, console_log_level, logger):

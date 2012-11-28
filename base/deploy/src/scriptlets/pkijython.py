@@ -276,12 +276,10 @@ class security_databases:
 class rest_client:
     client = None
     master = None
-    sensitive = None
 
-    def initialize(self, client_config, master, sensitive):
+    def initialize(self, client_config, master):
         try:
             self.master = master
-            self.sensitive = sensitive
             log_level = master['pki_jython_log_level']
             if log_level >= config.PKI_JYTHON_INFO_LOG_LEVEL:
                 print "%s %s '%s'" %\
@@ -299,7 +297,7 @@ class rest_client:
         data.setSecurityDomainUri(self.master['pki_security_domain_uri'])
         data.setSecurityDomainUser(self.master['pki_security_domain_user'])
         data.setSecurityDomainPassword(
-            self.sensitive['pki_security_domain_password'])
+            self.master['pki_security_domain_password'])
 
     def set_new_security_domain(self, data):
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN)
@@ -309,7 +307,7 @@ class rest_client:
         data.setIsClone("true")
         data.setCloneUri(self.master['pki_clone_uri'])
         data.setP12File(self.master['pki_clone_pkcs12_path'])
-        data.setP12Password(self.sensitive['pki_clone_pkcs12_password'])
+        data.setP12Password(self.master['pki_clone_pkcs12_password'])
         data.setReplicateSchema(self.master['pki_clone_replicate_schema'])
         data.setReplicationSecurity(
             self.master['pki_clone_replication_security'])
@@ -326,7 +324,7 @@ class rest_client:
         data.setBaseDN(self.master['pki_ds_base_dn'])
         data.setBindDN(self.master['pki_ds_bind_dn'])
         data.setDatabase(self.master['pki_ds_database'])
-        data.setBindpwd(self.sensitive['pki_ds_password'])
+        data.setBindpwd(self.master['pki_ds_password'])
         if config.str2bool(self.master['pki_ds_remove_data']):
             data.setRemoveData("true")
         else:
@@ -340,14 +338,14 @@ class rest_client:
         if config.str2bool(self.master['pki_backup_keys']):
             data.setBackupKeys("true")
             data.setBackupFile(self.master['pki_backup_keys_p12'])
-            data.setBackupPassword(self.sensitive['pki_backup_password'])
+            data.setBackupPassword(self.master['pki_backup_password'])
         else:
             data.setBackupKeys("false")
 
     def set_admin_parameters(self, token, data):
         data.setAdminEmail(self.master['pki_admin_email'])
         data.setAdminName(self.master['pki_admin_name'])
-        data.setAdminPassword(self.sensitive['pki_admin_password'])
+        data.setAdminPassword(self.master['pki_admin_password'])
         data.setAdminProfileID(self.master['pki_admin_profile_id'])
         data.setAdminUID(self.master['pki_admin_uid'])
         data.setAdminSubjectDN(self.master['pki_admin_subject_dn'])
@@ -422,7 +420,7 @@ class rest_client:
         data = ConfigurationRequest()
 
         # Miscellaneous Configuration Information
-        data.setPin(self.sensitive['pki_one_time_pin'])
+        data.setPin(master['pki_one_time_pin'])
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT)
         data.setSubsystemName(master['pki_subsystem_name'])
 

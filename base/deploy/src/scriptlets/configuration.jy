@@ -23,15 +23,9 @@ from com.netscape.certsrv.client import ClientConfig
 def main(argv):
     rv = 0
 
-    # Establish 'master' and 'sensitive' as two separate PKI jython dictionaries
-    master = dict()
-    sensitive = dict()
-
     # Import the master dictionary from 'pkispawn'
     master = pickle.loads(argv[1])
-
-    # Import the sensitive data dictionary from 'pkispawn'
-    sensitive = pickle.loads(argv[2])
+    sensitive_parameters = master['sensitive_parameters'].split()
 
     # Optionally enable a java debugger (e. g. - 'eclipse'):
     if config.str2bool(master['pki_enable_java_debugger']):
@@ -63,8 +57,12 @@ def main(argv):
               (log.PKI_JYTHON_INDENTATION_2,
                javasystem.getProperties()['java.class.path'])
         for key in master:
+            if key in sensitive_parameters:
+                value = 'XXXXXXXX'
+            else:
+                value = master[key]
             print "%s '%s' = '%s'" %\
-                  (log.PKI_JYTHON_INDENTATION_2, key, master[key])
+                  (log.PKI_JYTHON_INDENTATION_2, key, value)
 
     # Initialize token
     jyutil.security_databases.initialize_token(
@@ -84,8 +82,7 @@ def main(argv):
     # Establish REST Client
     client = jyutil.rest_client.initialize(
                  client_config,
-                 master,
-                 sensitive)
+                 master)
 
     # Construct PKI Subsystem Configuration Data
     data = None
