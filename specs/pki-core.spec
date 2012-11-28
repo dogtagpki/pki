@@ -817,20 +817,6 @@ fi
 %{python_sitelib}/pki/deployment/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
-%dir %{_datadir}/pki/deployment/spawn
-%{_datadir}/pki/deployment/spawn/ca/
-%{_datadir}/pki/deployment/spawn/kra/
-%{_datadir}/pki/deployment/spawn/ocsp/
-%{_datadir}/pki/deployment/spawn/ra/
-%{_datadir}/pki/deployment/spawn/tks/
-%{_datadir}/pki/deployment/spawn/tps/
-%dir %{_datadir}/pki/deployment/destroy
-%{_datadir}/pki/deployment/destroy/ca/
-%{_datadir}/pki/deployment/destroy/kra/
-%{_datadir}/pki/deployment/destroy/ocsp/
-%{_datadir}/pki/deployment/destroy/ra/
-%{_datadir}/pki/deployment/destroy/tks/
-%{_datadir}/pki/deployment/destroy/tps/
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/operations
 %dir %{_localstatedir}/lock/pki

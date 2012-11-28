@@ -184,24 +184,13 @@ def main(argv):
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    # Install and configure the specified PKI subsystem.
-    pki_scriptlets_path = "/usr/share/pki/deployment/spawn" +\
-                          "/" + config.pki_subsystem.lower()
-    if not os.path.exists(pki_scriptlets_path) or\
-       not os.path.isdir(pki_scriptlets_path):
-        config.pki_log.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                             pki_scriptlets_path,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        sys.exit(1)
-    pki_subsystem_scriptlets = os.listdir(pki_scriptlets_path)
-    pki_subsystem_scriptlets.sort()
-
-    # Process the various "scriptlets" for the specified PKI subsystem.
+    # Process the various "scriptlets" to create the specified PKI subsystem.
+    pki_subsystem_scriptlets = config.pki_master_dict['spawn_scriplets'].split()
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
-        scriptlet = __import__("pki.deployment" +\
-                               "." + pki_scriptlet[4:],
-                               fromlist = [pki_scriptlet[4:]])
+        scriptlet = __import__("pki.deployment." +
+                               pki_scriptlet,
+                               fromlist = [pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
         if not config.pki_update_flag:
             rv = instance.spawn()
