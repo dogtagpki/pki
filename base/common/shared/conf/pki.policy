@@ -26,7 +26,15 @@ grant codeBase "file:/usr/lib/java/jss4.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/lib/java/symkey.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:/usr/lib64/java/jss4.jar" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:/usr/lib64/java/symkey.jar" {
         permission java.security.AllPermission;
 };
 
