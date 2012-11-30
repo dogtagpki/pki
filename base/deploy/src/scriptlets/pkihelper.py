@@ -47,7 +47,7 @@ from pkiconfig import pki_slots_dict as slots
 from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
 import pkimessages as log
-from pkiparser import read_simple_configuration_file
+from pkiparser import PKIConfigParser
 
 
 # PKI Deployment Helper Functions
@@ -2253,7 +2253,7 @@ class security_domain:
     def deregister(self, critical_failure=False):
         try:
             # process this PKI subsystem instance's 'CS.cfg'
-            cs_cfg = read_simple_configuration_file(master['pki_target_cs_cfg'])
+            cs_cfg = PKIConfigParser.read_simple_configuration_file(master['pki_target_cs_cfg'])
 
             # assign key name/value pairs
             machinename = cs_cfg.get('service.machineName')
@@ -2331,7 +2331,7 @@ class security_domain:
                 if os.path.exists(master['pki_shared_password_conf']) and\
                    os.path.isfile(master['pki_shared_password_conf']) and\
                    os.access(master['pki_shared_password_conf'], os.R_OK):
-                    tokens = read_simple_configuration_file(
+                    tokens = PKIConfigParser.read_simple_configuration_file(
                                  master['pki_shared_password_conf'])
                     hardware_token = "hardware-" + token_name
                     if tokens.has_key(hardware_token):

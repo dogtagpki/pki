@@ -36,7 +36,7 @@ try:
     import time
     from time import strftime as date
     from pki.deployment import pkiconfig as config
-    from pki.deployment import pkiparser as parse
+    from pki.deployment.pkiparser import PKIConfigParser
     from pki.deployment import pkilogging
     from pki.deployment import pkimessages as log
 except ImportError:
@@ -92,7 +92,8 @@ def main(argv):
     pp = pprint.PrettyPrinter(indent=4)
 
     # Read and process command-line arguments.
-    parse.process_command_line_arguments(argv)
+    parser = PKIConfigParser()
+    parser.process_command_line_arguments(argv)
 
     # Enable 'pkidestroy' logging.
     config.pki_log_dir = config.pki_root_prefix +\
@@ -113,7 +114,7 @@ def main(argv):
         sys.exit(1)
 
     # Read the specified PKI configuration file.
-    rv = parse.read_pki_configuration_file()
+    rv = parser.read_pki_configuration_file()
     if rv != 0:
         config.pki_log.error(PKI_UNABLE_TO_PARSE_1, rv,
                              extra=config.PKI_INDENTATION_LEVEL_0)
@@ -148,7 +149,7 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
-    parse.compose_pki_master_dictionary()
+    parser.compose_pki_master_dictionary()
     config.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
                                                 config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
