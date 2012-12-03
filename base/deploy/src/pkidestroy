@@ -119,8 +119,6 @@ def main(argv):
         # NEVER print out 'sensitive' name/value pairs!!!
         config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
                              extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pkilogging.format(config.pki_common_dict),
-                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
                              extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
@@ -132,8 +130,6 @@ def main(argv):
 
     # NEVER print out 'sensitive' name/value pairs!!!
     config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_common_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
                          extra=config.PKI_INDENTATION_LEVEL_0)

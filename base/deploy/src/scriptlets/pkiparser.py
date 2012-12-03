@@ -79,8 +79,7 @@ class PKIConfigParser:
                                    dest='pki_deployed_instance_name',
                                    action='store',
                                    nargs=1, required=True, metavar='<instance>',
-                                   help='FORMAT:  ${pki_instance_name}'
-                                        '[.${pki_admin_domain_name}]')
+                                   help='FORMAT:  ${pki_instance_name}')
         # Establish 'Optional' command-line options
         optional = parser.add_argument_group('optional arguments')
         optional.add_argument('-h', '--help',
@@ -219,37 +218,51 @@ class PKIConfigParser:
         "Read configuration file sections into dictionaries"
         rv = 0
         try:
-            self.pki_config = ConfigParser.ConfigParser()
+            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+                default_instance_name = 'pki-tomcat'
+                default_http_port = '8080'
+                default_https_port = '8443'
+            else:
+                default_instance_name = 'pki-apache'
+                default_http_port = '80'
+                default_https_port = '443'
+
+            predefined_dict = {'default_instance_name': default_instance_name,
+                               'default_http_port': default_http_port,
+                               'default_https_port': default_https_port,
+                               'dns_domainname': config.pki_dns_domainname,
+                               'subsystem_type' : config.pki_subsystem,
+                               'hostname': config.pki_hostname}
+
+            self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
             # Make keys case-sensitive!
             self.pki_config.optionxform = str
             self.pki_config.read([
                 config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE,
                 config.pkideployment_cfg])
-            config.pki_default_dict = self.pki_config.defaults()
+            config.pki_default_dict = dict(self.pki_config.items('DEFAULT'))
             pkilogging.sensitive_parameters = config.pki_default_dict['sensitive_parameters'].split()
-            config.pki_common_dict = dict(self.pki_config._sections['Common'])
             if config.pki_subsystem == "CA":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['CA'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('CA'))
             elif config.pki_subsystem == "KRA":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['KRA'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('KRA'))
             elif config.pki_subsystem == "OCSP":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['OCSP'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('OCSP'))
             elif config.pki_subsystem == "RA":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Apache'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['RA'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Apache'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('RA'))
             elif config.pki_subsystem == "TKS":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Tomcat'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['TKS'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('TKS'))
             elif config.pki_subsystem == "TPS":
-                config.pki_web_server_dict = dict(self.pki_config._sections['Apache'])
-                config.pki_subsystem_dict = dict(self.pki_config._sections['TPS'])
+                config.pki_web_server_dict = dict(self.pki_config.items('Apache'))
+                config.pki_subsystem_dict = dict(self.pki_config.items('TPS'))
             # Insert empty record into dictionaries for "pretty print" statements
             #     NEVER print "sensitive" key value pairs!!!
             config.pki_default_dict[0] = None
-            config.pki_common_dict[0] = None
             config.pki_web_server_dict[0] = None
             config.pki_subsystem_dict[0] = None
         except ConfigParser.ParsingError, err:
@@ -296,10 +309,10 @@ class PKIConfigParser:
             # Configuration file name/value pairs
             #     NEVER add "sensitive" key value pairs to the master dictionary!!!
             config.pki_master_dict.update(config.pki_default_dict)
-            config.pki_master_dict.update(config.pki_common_dict)
             config.pki_master_dict.update(config.pki_web_server_dict)
             config.pki_master_dict.update(config.pki_subsystem_dict)
             config.pki_master_dict.update(__name__="PKI Master Dictionary")
+
             # IMPORTANT:  A "PKI instance" no longer corresponds to a single
             #             pki subystem, but rather to a unique
             #             "Tomcat web instance" or a unique "Apache web instance".
@@ -345,17 +358,12 @@ class PKIConfigParser:
             #     OLD:  "pki-${pki_subsystem}"
             #           (e. g. Tomcat:  "pki-ca", "pki-kra", "pki-ocsp", "pki-tks")
             #           (e. g. Apache:  "pki-ra", "pki-tps")
-            #     NEW:  "${pki_instance_name}[.${pki_admin_domain_name}]"
+            #     NEW:  "${pki_instance_name}"
             #           (e. g. Tomcat:  "pki-tomcat", "pki-tomcat.example.com")
             #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
             #
-            if len(config.pki_master_dict['pki_admin_domain_name']):
-                config.pki_master_dict['pki_instance_id'] =\
-                    config.pki_master_dict['pki_instance_name'] + "." +\
-                    config.pki_master_dict['pki_admin_domain_name']
-            else:
-                config.pki_master_dict['pki_instance_id'] =\
-                    config.pki_master_dict['pki_instance_name']
+            config.pki_master_dict['pki_instance_id'] = config.pki_master_dict['pki_instance_name']
+
             # PKI Source name/value pairs
             config.pki_master_dict['pki_source_conf_path'] =\
                 os.path.join(config.PKI_DEPLOYMENT_SOURCE_ROOT,
@@ -1364,7 +1372,6 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and potentially overridden below:
             #
-            #         config.pki_master_dict['pki_client_database_password']
             #         config.pki_master_dict['pki_client_dir']
             #         config.pki_master_dict['pki_client_subsystem_dir']
             #
@@ -1464,9 +1471,6 @@ class PKIConfigParser:
             #
             #         config.pki_master_dict['pki_security_domain_user']
             #         config.pki_master_dict['pki_issuing_ca']
-            #         config.pki_master_dict['pki_security_domain_hostname']
-            #         config.pki_master_dict['pki_security_domain_name']
-            #         config.pki_master_dict['pki_subsystem_name']
             #
 
             # if security domain user is not defined
@@ -1478,44 +1482,16 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_security_domain_user'] =\
                         self.pki_config.get('CA', 'pki_admin_uid')
 
-                # or use the Common admin uid if it's defined
-                elif self.pki_config.has_option('Common', 'pki_admin_uid') and\
-                    len(self.pki_config.get('Common', 'pki_admin_uid')) > 0:
+                # or use the Default admin uid if it's defined
+                elif self.pki_config.has_option('DEFAULT', 'pki_admin_uid') and\
+                    len(self.pki_config.get('DEFAULT', 'pki_admin_uid')) > 0:
                     config.pki_master_dict['pki_security_domain_user'] =\
-                        self.pki_config.get('Common', 'pki_admin_uid')
+                        self.pki_config.get('DEFAULT', 'pki_admin_uid')
 
                 # otherwise use the default CA admin uid
                 else:
                     config.pki_master_dict['pki_security_domain_user'] = "caadmin"
 
-            if not len(config.pki_master_dict['pki_subsystem_name']):
-               if config.pki_master_dict['pki_subsystem'] in\
-                  config.PKI_TOMCAT_SUBSYSTEMS and \
-                  config.str2bool(config.pki_master_dict['pki_clone']):
-                   config.pki_master_dict['pki_subsystem_name'] =\
-                       config.PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM + " " +\
-                       config.pki_subsystem + " " +\
-                       config.pki_master_dict['pki_hostname'] + " " +\
-                       config.pki_master_dict['pki_https_port']
-               elif config.pki_subsystem == "CA" and \
-                  config.str2bool(config.pki_master_dict['pki_external']):
-                   config.pki_master_dict['pki_subsystem_name'] =\
-                       config.PKI_DEPLOYMENT_EXTERNAL_CA + " " +\
-                       config.pki_subsystem + " " +\
-                       config.pki_master_dict['pki_hostname'] + " " +\
-                       config.pki_master_dict['pki_https_port']
-               elif config.pki_subsystem == "CA" and \
-                  config.str2bool(config.pki_master_dict['pki_subordinate']):
-                   config.pki_master_dict['pki_subsystem_name'] =\
-                       config.PKI_DEPLOYMENT_SUBORDINATE_CA + " " +\
-                       config.pki_subsystem + " " +\
-                       config.pki_master_dict['pki_hostname'] + " " +\
-                       config.pki_master_dict['pki_https_port']
-               else:
-                   config.pki_master_dict['pki_subsystem_name'] =\
-                       config.pki_subsystem + " " +\
-                       config.pki_master_dict['pki_hostname'] + " " +\
-                       config.pki_master_dict['pki_https_port']
             if config.pki_subsystem != "CA" or\
                config.str2bool(config.pki_master_dict['pki_clone']) or\
                config.str2bool(config.pki_master_dict['pki_subordinate']):
@@ -1523,16 +1499,6 @@ class PKIConfigParser:
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
                 # Subordinate CA
                 config.pki_master_dict['pki_security_domain_type'] = "existing"
-                if not len(config.pki_master_dict['pki_security_domain_name']):
-                    # Guess that the security domain resides on the local host
-                    config.pki_master_dict['pki_security_domain_name'] =\
-                        config.pki_master_dict['pki_dns_domainname'] + " " +\
-                        "Security Domain"
-                if not\
-                   len(config.pki_master_dict['pki_security_domain_hostname']):
-                    # Guess that the security domain resides on the local host
-                    config.pki_master_dict['pki_security_domain_hostname'] =\
-                        config.pki_master_dict['pki_hostname']
                 config.pki_master_dict['pki_security_domain_uri'] =\
                     "https" + "://" +\
                     config.pki_master_dict['pki_security_domain_hostname'] + ":" +\
@@ -1552,58 +1518,7 @@ class PKIConfigParser:
             else:
                 # PKI CA
                 config.pki_master_dict['pki_security_domain_type'] = "new"
-                if not len(config.pki_master_dict['pki_security_domain_name']):
-                    # Guess that the security domain resides on the local host
-                    config.pki_master_dict['pki_security_domain_name'] =\
-                        config.pki_master_dict['pki_dns_domainname'] + " " +\
-                        "Security Domain"
-            # Jython scriptlet
-            # 'Directory Server' Configuration name/value pairs
-            #
-            #     Apache - [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_ds_password']
-            #         config.pki_master_dict['pki_clone_replication_security']
-            #         config.pki_master_dict['pki_ds_bind_dn']
-            #         config.pki_master_dict['pki_ds_ldap_port']
-            #         config.pki_master_dict['pki_ds_ldaps_port']
-            #         config.pki_master_dict['pki_ds_remove_data']
-            #         config.pki_master_dict['pki_ds_secure_connection']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_ds_base_dn']
-            #         config.pki_master_dict['pki_ds_database']
-            #         config.pki_master_dict['pki_ds_hostname']
-            #
-            if not config.str2bool(config.pki_master_dict['pki_clone']):
-                if not len(config.pki_master_dict['pki_ds_base_dn']):
-                    # if the instance is NOT a clone, create a default BASE DN
-                    # of "o=${pki_instance_id}"; the reason that this default
-                    # CANNOT be created if the instance is a clone is due to the
-                    # fact that a master and clone MUST share the same BASE DN,
-                    # and creating this default would prevent the ability to
-                    # place a master and clone on the same machine (the method
-                    # most often used for testing purposes)
-                    config.pki_master_dict['pki_ds_base_dn'] =\
-                        "o=" + config.pki_master_dict['pki_instance_id'] +\
-                        "-" + config.pki_subsystem
-            if not len(config.pki_master_dict['pki_ds_database']):
-                config.pki_master_dict['pki_ds_database'] =\
-                    config.pki_master_dict['pki_instance_id'] +\
-                    "-" + config.pki_subsystem
-            if not len(config.pki_master_dict['pki_ds_hostname']):
-                # Guess that the Directory Server resides on the local host
-                config.pki_master_dict['pki_ds_hostname'] =\
-                    config.pki_master_dict['pki_hostname']
+
             # Jython scriptlet
             # 'External CA' Configuration name/value pairs
             #
@@ -1639,566 +1554,23 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_database_path'] + "/" +\
                     config.pki_master_dict['pki_subsystem'].lower() + "_" +\
                     "backup" + "_" + "keys" + "." + "p12"
-            # Jython scriptlet
-            # 'Admin Certificate' Configuration name/value pairs
-            #
-            #     Apache - [RA], [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_admin_password']
-            #         config.pki_master_dict['pki_admin_cert_request_type']
-            #         config.pki_master_dict['pki_admin_dualkey']
-            #         config.pki_master_dict['pki_admin_keysize']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_admin_name']
-            #         config.pki_master_dict['pki_admin_uid']
-            #         config.pki_master_dict['pki_admin_email']
-            #         config.pki_master_dict['pki_admin_nickname']
-            #         config.pki_master_dict['pki_admin_subject_dn']
-            #
+
             config.pki_master_dict['pki_admin_profile_id'] = "caAdminCert"
-            if not len(config.pki_master_dict['pki_admin_uid']):
-                config.pki_master_dict['pki_admin_uid'] =\
-                    config.pki_subsystem.lower() + "admin"
-            if not len (config.pki_master_dict['pki_admin_name']):
-                config.pki_master_dict['pki_admin_name'] =\
-                    config.pki_master_dict['pki_admin_uid']
-            if not len(config.pki_master_dict['pki_admin_email']):
-                config.pki_master_dict['pki_admin_email'] =\
-                    config.pki_master_dict['pki_admin_name'] + "@" +\
-                    config.pki_master_dict['pki_dns_domainname']
-            if not len(config.pki_master_dict['pki_admin_nickname']):
-                config.pki_master_dict['pki_admin_nickname'] =\
-                    "PKI Administrator for " +\
-                    config.pki_master_dict['pki_dns_domainname']
 
             if not 'pki_import_admin_cert' in config.pki_master_dict:
                 config.pki_master_dict['pki_import_admin_cert'] = 'false'
 
-            if not len(config.pki_master_dict['pki_admin_subject_dn']):
-                config.pki_master_dict['pki_admin_subject_dn'] =\
-                    "cn=PKI Administrator" +\
-                    ",e=" + config.pki_master_dict['pki_admin_email'] +\
-                    ",o=" + config.pki_master_dict['pki_security_domain_name']
-
-            # Jython scriptlet
-            # 'CA Signing Certificate' Configuration name/value pairs
-            #
-            #     Tomcat - [CA]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_ca_signing_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_ca_signing_key_algorithm']
-            #         config.pki_master_dict['pki_ca_signing_key_size']
-            #         config.pki_master_dict['pki_ca_signing_key_type']
-            #         config.pki_master_dict['pki_ca_signing_signing_algorithm']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_ca_signing_nickname']
-            #         config.pki_master_dict['pki_ca_signing_subject_dn']
-            #         config.pki_master_dict['pki_ca_signing_token']
-            #
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if config.pki_master_dict['pki_subsystem'] == "CA":
-                        # config.pki_master_dict['pki_ca_signing_nickname']
-                        if not len(config.pki_master_dict\
-                                   ['pki_ca_signing_nickname']):
-                            config.pki_master_dict['pki_ca_signing_nickname'] =\
-                                "caSigningCert" + " " + "cert-" +\
-                                config.pki_master_dict['pki_instance_id'] + " " +\
-                                config.pki_subsystem
-                        # config.pki_master_dict['pki_ca_signing_subject_dn']
-                        if config.str2bool(config.pki_master_dict['pki_external']):
-                            # External CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ca_signing_subject_dn']):
-                                config.pki_master_dict['pki_ca_signing_subject_dn']\
-                                    =  "cn=" + "External CA Signing Certificate"
-                        elif config.str2bool(
-                                 config.pki_master_dict['pki_subordinate']):
-                            # Subordinate CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ca_signing_subject_dn']):
-                                config.pki_master_dict['pki_ca_signing_subject_dn']\
-                                    =  "cn=" + "SubCA Signing Certificate" +\
-                                       "," + "o=" +\
-                                       config.pki_master_dict\
-                                       ['pki_security_domain_name']
-                        else:
-                            # PKI CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ca_signing_subject_dn']):
-                                config.pki_master_dict['pki_ca_signing_subject_dn']\
-                                    =  "cn=" + "CA Signing Certificate" +\
-                                       "," + "o=" +\
-                                       config.pki_master_dict\
-                                       ['pki_security_domain_name']
-                        # config.pki_master_dict['pki_ca_signing_tag']
-                        config.pki_master_dict['pki_ca_signing_tag'] =\
-                            "signing"
-                        # config.pki_master_dict['pki_ca_signing_token']
-                        if not len(config.pki_master_dict['pki_ca_signing_token']):
-                            config.pki_master_dict['pki_ca_signing_token'] =\
-                                "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'OCSP Signing Certificate' Configuration name/value pairs
-            #
-            #     Tomcat - [CA], [OCSP]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_ocsp_signing_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_ocsp_signing_key_algorithm']
-            #         config.pki_master_dict['pki_ocsp_signing_key_size']
-            #         config.pki_master_dict['pki_ocsp_signing_key_type']
-            #         config.pki_master_dict['pki_ocsp_signing_signing_algorithm']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_ocsp_signing_nickname']
-            #         config.pki_master_dict['pki_ocsp_signing_subject_dn']
-            #         config.pki_master_dict['pki_ocsp_signing_token']
-            #
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if config.pki_master_dict['pki_subsystem'] == "CA":
-                        if not len(config.pki_master_dict\
-                                   ['pki_ocsp_signing_nickname']):
-                            config.pki_master_dict['pki_ocsp_signing_nickname'] =\
-                                "ocspSigningCert" + " " + "cert-" +\
-                                config.pki_master_dict['pki_instance_id'] + " " +\
-                                config.pki_subsystem
-                        if config.str2bool(config.pki_master_dict['pki_external']):
-                            # External CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ocsp_signing_subject_dn']):
-                                config.pki_master_dict\
-                                ['pki_ocsp_signing_subject_dn'] =\
-                                    "cn=" + "External CA OCSP Signing Certificate"
-                        elif config.str2bool(
-                                 config.pki_master_dict['pki_subordinate']):
-                            # Subordinate CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ocsp_signing_subject_dn']):
-                                config.pki_master_dict\
-                                ['pki_ocsp_signing_subject_dn'] =\
-                                    "cn=" + "SubCA OCSP Signing Certificate"\
-                                    + "," + "o=" +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name']
-                        else:
-                            # PKI CA
-                            if not len(config.pki_master_dict\
-                                       ['pki_ocsp_signing_subject_dn']):
-                                config.pki_master_dict\
-                                ['pki_ocsp_signing_subject_dn'] =\
-                                    "cn=" + "CA OCSP Signing Certificate"\
-                                    + "," + "o=" +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name']
-                        config.pki_master_dict['pki_ocsp_signing_tag'] =\
-                            "ocsp_signing"
-                        if not len(config.pki_master_dict\
-                                   ['pki_ocsp_signing_token']):
-                            config.pki_master_dict['pki_ocsp_signing_token'] =\
-                                "Internal Key Storage Token"
-                    elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                        # PKI OCSP
-                        if not len(config.pki_master_dict\
-                                   ['pki_ocsp_signing_nickname']):
-                            config.pki_master_dict['pki_ocsp_signing_nickname'] =\
-                                "ocspSigningCert" + " " + "cert-" +\
-                                config.pki_master_dict['pki_instance_id'] + " " +\
-                                config.pki_subsystem
-                        if not len(config.pki_master_dict\
-                                   ['pki_ocsp_signing_subject_dn']):
-                            config.pki_master_dict['pki_ocsp_signing_subject_dn'] =\
-                                "cn=" + "OCSP Signing Certificate" + "," + "o=" +\
-                                config.pki_master_dict['pki_security_domain_name']
-                        config.pki_master_dict['pki_ocsp_signing_tag'] =\
-                            "signing"
-                        if not len(config.pki_master_dict\
-                                   ['pki_ocsp_signing_token']):
-                            config.pki_master_dict['pki_ocsp_signing_token'] =\
-                                "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'SSL Server Certificate' Configuration name/value pairs
-            #
-            #     Apache - [RA], [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_ssl_server_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_ssl_server_key_algorithm']
-            #         config.pki_master_dict['pki_ssl_server_key_size']
-            #         config.pki_master_dict['pki_ssl_server_key_type']
-            #         config.pki_master_dict['pki_ssl_server_nickname']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_ssl_server_subject_dn']
-            #         config.pki_master_dict['pki_ssl_server_token']
-            #
-            if not len(config.pki_master_dict['pki_ssl_server_nickname']):
-                config.pki_master_dict['pki_ssl_server_nickname'] =\
-                    "Server-Cert" + " " + "cert-" +\
-                    config.pki_master_dict['pki_instance_id']
-            if not len(config.pki_master_dict['pki_ssl_server_subject_dn']):
-                if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                    config.pki_master_dict['pki_ssl_server_subject_dn'] =\
-                        "cn=" + config.pki_master_dict['pki_hostname'] +\
-                        "," + "ou=" + config.pki_master_dict['pki_instance_id'] +\
-                        "," + "o=" +\
-                        config.pki_master_dict['pki_security_domain_name']
-                elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                    if config.pki_master_dict['pki_subsystem'] == "CA" and\
-                       config.str2bool(config.pki_master_dict['pki_external']):
-                        # External CA
-                        config.pki_master_dict['pki_ssl_server_subject_dn'] =\
-                            "cn=" + config.pki_master_dict['pki_hostname'] +\
-                            "," + "o=" + "External CA"
-                    else:
-                        # PKI or Cloned CA, KRA, OCSP, TKS, or Subordinate CA
-                        config.pki_master_dict['pki_ssl_server_subject_dn'] =\
-                            "cn=" + config.pki_master_dict['pki_hostname'] +\
-                            "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
+            config.pki_master_dict['pki_ca_signing_tag'] = "signing"
+            if config.pki_master_dict['pki_subsystem'] == "CA":
+                config.pki_master_dict['pki_ocsp_signing_tag'] = "ocsp_signing"
+            elif config.pki_master_dict['pki_subsystem'] == "OCSP":
+                config.pki_master_dict['pki_ocsp_signing_tag'] = "signing"
             config.pki_master_dict['pki_ssl_server_tag'] = "sslserver"
-            if not len(config.pki_master_dict['pki_ssl_server_token']):
-                config.pki_master_dict['pki_ssl_server_token'] =\
-                    "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'Subsystem Certificate' Configuration name/value pairs
-            #
-            #     Apache - [RA], [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_subsystem_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_subsystem_key_algorithm']
-            #         config.pki_master_dict['pki_subsystem_key_size']
-            #         config.pki_master_dict['pki_subsystem_key_type']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_subsystem_nickname']
-            #         config.pki_master_dict['pki_subsystem_subject_dn']
-            #         config.pki_master_dict['pki_subsystem_token']
-            #
-            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                if not len(config.pki_master_dict['pki_subsystem_nickname']):
-                    config.pki_master_dict['pki_subsystem_nickname'] =\
-                        "subsystemCert" + " " + "cert-" +\
-                        config.pki_master_dict['pki_instance_id'] + " " +\
-                        config.pki_subsystem
-                if not len(config.pki_master_dict['pki_subsystem_subject_dn']):
-                    if config.pki_master_dict['pki_subsystem'] == "RA":
-                        # PKI RA
-                        config.pki_master_dict['pki_subsystem_subject_dn'] =\
-                            "cn=" + "RA Subsystem Certificate" +\
-                            "," + "ou=" + config.pki_master_dict['pki_instance_id']\
-                            + "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
-                    elif config.pki_master_dict['pki_subsystem'] == "TPS":
-                        # PKI TPS
-                        config.pki_master_dict['pki_subsystem_subject_dn'] =\
-                            "cn=" + "TPS Subsystem Certificate" +\
-                            "," + "ou=" + config.pki_master_dict['pki_instance_id']\
-                            + "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
-                config.pki_master_dict['pki_subsystem_tag'] = "subsystem"
-                if not len(config.pki_master_dict['pki_subsystem_token']):
-                    config.pki_master_dict['pki_subsystem_token'] =\
-                        "Internal Key Storage Token"
-            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if not len(config.pki_master_dict['pki_subsystem_nickname']):
-                        config.pki_master_dict['pki_subsystem_nickname'] =\
-                            "subsystemCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id'] + " " +\
-                            config.pki_subsystem
-                    if not len(config.pki_master_dict['pki_subsystem_subject_dn']):
-                        if config.pki_master_dict['pki_subsystem'] == "CA":
-                            if config.str2bool(
-                                   config.pki_master_dict['pki_external']):
-                                # External CA
-                                config.pki_master_dict['pki_subsystem_subject_dn']\
-                                    = "cn=" + "External CA Subsystem Certificate"
-                            elif config.str2bool(
-                                     config.pki_master_dict['pki_subordinate']):
-                                # Subordinate CA
-                                config.pki_master_dict['pki_subsystem_subject_dn']\
-                                    = "cn=" + "SubCA Subsystem Certificate" +\
-                                      "," + "o=" +\
-                                      config.pki_master_dict\
-                                      ['pki_security_domain_name']
-                            else:
-                                # PKI CA
-                                config.pki_master_dict['pki_subsystem_subject_dn']\
-                                    = "cn=" + "CA Subsystem Certificate" +\
-                                      "," + "o=" +\
-                                      config.pki_master_dict\
-                                      ['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                            # PKI KRA
-                            config.pki_master_dict['pki_subsystem_subject_dn'] =\
-                                "cn=" + "DRM Subsystem Certificate" +\
-                                "," + "o=" +\
-                                config.pki_master_dict\
-                                ['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                            # PKI OCSP
-                            config.pki_master_dict['pki_subsystem_subject_dn'] =\
-                                "cn=" + "OCSP Subsystem Certificate" +\
-                                "," + "o=" +\
-                                config.pki_master_dict\
-                                ['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                            # PKI TKS
-                            config.pki_master_dict['pki_subsystem_subject_dn'] =\
-                                "cn=" + "TKS Subsystem Certificate" +\
-                                "," + "o=" +\
-                                config.pki_master_dict\
-                                ['pki_security_domain_name']
-                    config.pki_master_dict['pki_subsystem_tag'] = "subsystem"
-                    if not len(config.pki_master_dict['pki_subsystem_token']):
-                        config.pki_master_dict['pki_subsystem_token'] =\
-                            "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'Audit Signing Certificate' Configuration name/value pairs
-            #
-            #     Apache - [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_audit_signing_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_audit_signing_key_algorithm']
-            #         config.pki_master_dict['pki_audit_signing_key_size']
-            #         config.pki_master_dict['pki_audit_signing_key_type']
-            #         config.pki_master_dict['pki_audit_signing_signing_algorithm']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_audit_signing_nickname']
-            #         config.pki_master_dict['pki_audit_signing_subject_dn']
-            #         config.pki_master_dict['pki_audit_signing_token']
-            #
-            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                if config.pki_master_dict['pki_subsystem'] != "RA":
-                    if not len(config.pki_master_dict\
-                               ['pki_audit_signing_nickname']):
-                        config.pki_master_dict['pki_audit_signing_nickname'] =\
-                            "auditSigningCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id'] +" " +\
-                            config.pki_subsystem
-                    if not len(config.pki_master_dict\
-                               ['pki_audit_signing_subject_dn']):
-                        config.pki_master_dict['pki_audit_signing_subject_dn'] =\
-                            "cn=" + "TPS Audit Signing Certificate" +\
-                            "," + "ou=" + config.pki_master_dict['pki_instance_id']\
-                            + "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
-                    config.pki_master_dict['pki_audit_signing_tag'] =\
-                        "audit_signing"
-                    if not len(config.pki_master_dict['pki_audit_signing_token']):
-                        config.pki_master_dict['pki_audit_signing_token'] =\
-                            "Internal Key Storage Token"
-            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if not len(config.pki_master_dict\
-                               ['pki_audit_signing_nickname']):
-                        config.pki_master_dict['pki_audit_signing_nickname'] =\
-                            "auditSigningCert" + " " + "cert-" +\
-                            config.pki_master_dict['pki_instance_id'] + " " +\
-                            config.pki_subsystem
-                    if not len(config.pki_master_dict\
-                               ['pki_audit_signing_subject_dn']):
-                        if config.pki_master_dict['pki_subsystem'] == "CA":
-                            if config.str2bool(
-                                   config.pki_master_dict['pki_external']):
-                                # External CA
-                                config.pki_master_dict\
-                                ['pki_audit_signing_subject_dn'] =\
-                                    "cn=" + "External CA Audit Signing Certificate"
-                            elif config.str2bool(
-                                     config.pki_master_dict['pki_subordinate']):
-                                # Subordinate CA
-                                config.pki_master_dict\
-                                ['pki_audit_signing_subject_dn'] =\
-                                    "cn=" + "SubCA Audit Signing Certificate" +\
-                                    "," + "o=" +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name']
-                            else:
-                                # PKI CA
-                                config.pki_master_dict\
-                                ['pki_audit_signing_subject_dn'] =\
-                                    "cn=" + "CA Audit Signing Certificate" +\
-                                    "," + "o=" +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                            # PKI KRA
-                            config.pki_master_dict['pki_audit_signing_subject_dn']\
-                                = "cn=" + "DRM Audit Signing Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                            # PKI OCSP
-                            config.pki_master_dict['pki_audit_signing_subject_dn']\
-                                = "cn=" + "OCSP Audit Signing Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                            # PKI TKS
-                            config.pki_master_dict['pki_audit_signing_subject_dn']\
-                                = "cn=" + "TKS Audit Signing Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict['pki_security_domain_name']
-                    config.pki_master_dict['pki_audit_signing_tag'] =\
-                        "audit_signing"
-                    if not len(config.pki_master_dict['pki_audit_signing_token']):
-                        config.pki_master_dict['pki_audit_signing_token'] =\
-                            "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'DRM Transport Certificate' Configuration name/value pairs
-            #
-            #     Tomcat - [KRA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_transport_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_transport_key_algorithm']
-            #         config.pki_master_dict['pki_transport_key_size']
-            #         config.pki_master_dict['pki_transport_key_type']
-            #         config.pki_master_dict['pki_transport_signing_algorithm']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_transport_nickname']
-            #         config.pki_master_dict['pki_transport_subject_dn']
-            #         config.pki_master_dict['pki_transport_token']
-            #
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if config.pki_master_dict['pki_subsystem'] == "KRA":
-                        # PKI KRA
-                        if not len(config.pki_master_dict\
-                                   ['pki_transport_nickname']):
-                            config.pki_master_dict['pki_transport_nickname'] =\
-                                "transportCert" + " " + "cert-" +\
-                                config.pki_master_dict['pki_instance_id'] + " " +\
-                                config.pki_subsystem
-                        if not len(config.pki_master_dict\
-                                   ['pki_transport_subject_dn']):
-                            config.pki_master_dict['pki_transport_subject_dn']\
-                                = "cn=" + "DRM Transport Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict['pki_security_domain_name']
-                        config.pki_master_dict['pki_transport_tag'] =\
-                            "transport"
-                        if not len(config.pki_master_dict['pki_transport_token']):
-                            config.pki_master_dict['pki_transport_token'] =\
-                                "Internal Key Storage Token"
-            # Jython scriptlet
-            # 'DRM Storage Certificate' Configuration name/value pairs
-            #
-            #     Tomcat - [KRA]
-            #
-            #     The following variables are defined below:
-            #
-            #         config.pki_master_dict['pki_storage_tag']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_storage_key_algorithm']
-            #         config.pki_master_dict['pki_storage_key_size']
-            #         config.pki_master_dict['pki_storage_key_type']
-            #         config.pki_master_dict['pki_storage_signing_algorithm']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_storage_nickname']
-            #         config.pki_master_dict['pki_storage_subject_dn']
-            #         config.pki_master_dict['pki_storage_token']
-            #
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                if not config.str2bool(config.pki_master_dict['pki_clone']):
-                    if config.pki_master_dict['pki_subsystem'] == "KRA":
-                        # PKI KRA
-                        if not len(config.pki_master_dict['pki_storage_nickname']):
-                            config.pki_master_dict['pki_storage_nickname'] =\
-                                "storageCert" + " " + "cert-" +\
-                                config.pki_master_dict['pki_instance_id'] + " " +\
-                                config.pki_subsystem
-                        if not len(config.pki_master_dict\
-                                   ['pki_storage_subject_dn']):
-                            config.pki_master_dict['pki_storage_subject_dn']\
-                                = "cn=" + "DRM Storage Certificate" +\
-                                  "," + "o=" +\
-                                  config.pki_master_dict['pki_security_domain_name']
-                        config.pki_master_dict['pki_storage_tag'] =\
-                            "storage"
-                        if not len(config.pki_master_dict['pki_storage_token']):
-                            config.pki_master_dict['pki_storage_token'] =\
-                                "Internal Key Storage Token"
+            config.pki_master_dict['pki_subsystem_tag'] = "subsystem"
+            config.pki_master_dict['pki_audit_signing_tag'] = "audit_signing"
+            config.pki_master_dict['pki_transport_tag'] = "transport"
+            config.pki_master_dict['pki_storage_tag'] = "storage"
+
             # Finalization name/value pairs
             config.pki_master_dict['pki_deployment_cfg_replica'] =\
                 os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
