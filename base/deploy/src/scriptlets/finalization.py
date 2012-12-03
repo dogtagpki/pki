@@ -67,8 +67,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #               be deleted!
         #
         if config.str2bool(master['pki_client_database_purge']):
-            if util.directory.exists(master['pki_client_dir']):
-                util.directory.delete(master['pki_client_dir'])
+            if util.directory.exists(master['pki_client_subsystem_dir']):
+                util.directory.delete(master['pki_client_subsystem_dir'])
         # If instance has not been configured, print the
         # configuration URL to the log
         if config.str2bool(master['pki_skip_configuration']):

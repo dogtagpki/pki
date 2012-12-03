@@ -41,7 +41,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Place "slightly" less restrictive permissions on
         # the top-level client directory ONLY
-        util.directory.create(master['pki_client_dir'],
+        util.directory.create(master['pki_client_subsystem_dir'],
             uid=0, gid=0,
             perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
         # Since 'certutil' does NOT strip the 'token=' portion of

@@ -1366,6 +1366,7 @@ class PKIConfigParser:
             #
             #         config.pki_master_dict['pki_client_database_password']
             #         config.pki_master_dict['pki_client_dir']
+            #         config.pki_master_dict['pki_client_subsystem_dir']
             #
             if not len(config.pki_master_dict['pki_client_database_password']):
                 # use randomly generated client 'pin'
@@ -1375,20 +1376,23 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_client_dir'] =\
                     os.path.join(
                         os.path.expanduser("~"), ".pki",
-                        config.pki_master_dict['pki_instance_id'] + "_" +\
-                        config.pki_master_dict['pki_subsystem'].lower())
+                        config.pki_master_dict['pki_instance_id'])
+            config.pki_master_dict['pki_client_subsystem_dir'] =\
+                os.path.join(
+                    config.pki_master_dict['pki_client_dir'],
+                    config.pki_master_dict['pki_subsystem'].lower())
             if not len(config.pki_master_dict['pki_client_database_dir']):
                 config.pki_master_dict['pki_client_database_dir'] =\
                     os.path.join(
-                        config.pki_master_dict['pki_client_dir'],
+                        config.pki_master_dict['pki_client_subsystem_dir'],
                         "alias")
             config.pki_master_dict['pki_client_password_conf'] =\
                 os.path.join(
-                    config.pki_master_dict['pki_client_dir'],
+                    config.pki_master_dict['pki_client_subsystem_dir'],
                     "password.conf")
             config.pki_master_dict['pki_client_pkcs12_password_conf'] =\
                 os.path.join(
-                    config.pki_master_dict['pki_client_dir'],
+                    config.pki_master_dict['pki_client_subsystem_dir'],
                     "pkcs12_password.conf")
             config.pki_master_dict['pki_client_cert_database'] =\
                 os.path.join(config.pki_master_dict['pki_client_database_dir'],
@@ -1402,19 +1406,16 @@ class PKIConfigParser:
             config.pki_master_dict['pki_client_admin_cert'] =\
                 config.pki_master_dict['pki_subsystem'].lower() + "_" +\
                 "admin" + "." + "cert"
-            # NOTE:  ALWAYS store the PKCS #12 "client" Admin Cert file
-            #        in with the NSS "server" security databases
+
             config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                config.pki_master_dict['pki_database_path'] + "/" +\
+                config.pki_master_dict['pki_client_dir'] + "/" +\
                 config.pki_master_dict['pki_subsystem'].lower() + "_" +\
                 "admin" + "_" + "cert" + "." + "p12"
 
-            # the admin cert is stored with the NSS server databases 
-            # in case we want to use a common admin user cert
             if not 'pki_admin_cert_file' in config.pki_master_dict or\
                not len(config.pki_master_dict['pki_admin_cert_file']):
                 config.pki_master_dict['pki_admin_cert_file'] =\
-                    config.pki_master_dict['pki_database_path'] +\
+                    config.pki_master_dict['pki_client_dir'] +\
                     "/ca_admin.cert"
 
             # Jython scriptlet name/value pairs
