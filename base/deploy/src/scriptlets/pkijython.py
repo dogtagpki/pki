@@ -349,24 +349,34 @@ class rest_client:
         data.setAdminProfileID(self.master['pki_admin_profile_id'])
         data.setAdminUID(self.master['pki_admin_uid'])
         data.setAdminSubjectDN(self.master['pki_admin_subject_dn'])
-        if self.master['pki_admin_cert_request_type'] == "crmf":
-            data.setAdminCertRequestType("crmf")
-            if config.str2bool(self.master['pki_admin_dualkey']):
-                crmf_request = generateCRMFRequest(
-                                   token,
-                                   self.master['pki_admin_keysize'],
-                                   self.master['pki_admin_subject_dn'],
-                                   "true")
-            else:
-                crmf_request = generateCRMFRequest(
-                                   token,
-                                   self.master['pki_admin_keysize'],
-                                   self.master['pki_admin_subject_dn'],
-                                   "false")
-            data.setAdminCertRequest(crmf_request)
+        if config.str2bool(self.master['pki_import_admin_cert']):
+            data.setImportAdminCert("true")
+            # read config from file
+            f = open(self.master['pki_admin_cert_file'])
+            b64 = f.read().replace('\n','')
+            f.close()
+            data.setAdminCert(b64)
         else:
-            javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
-            javasystem.exit(1)
+            data.setImportAdminCert("false")
+            data.setAdminSubjectDN(self.master['pki_admin_subject_dn'])
+            if self.master['pki_admin_cert_request_type'] == "crmf":
+                data.setAdminCertRequestType("crmf")
+                if config.str2bool(self.master['pki_admin_dualkey']):
+                    crmf_request = generateCRMFRequest(
+                                       token,
+                                       self.master['pki_admin_keysize'],
+                                       self.master['pki_admin_subject_dn'],
+                                       "true")
+                else:
+                    crmf_request = generateCRMFRequest(
+                                       token,
+                                       self.master['pki_admin_keysize'],
+                                       self.master['pki_admin_subject_dn'],
+                                       "false")
+                data.setAdminCertRequest(crmf_request)
+            else:
+                javasystem.out.println(log.PKI_JYTHON_CRMF_SUPPORT_ONLY)
+                javasystem.exit(1)
 
     def create_system_cert(self, tag):
         cert = SystemCertData()
@@ -566,8 +576,10 @@ class rest_client:
                                        cdata.getCert())
                 javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
                                        cdata.getRequest())
+
             # Cloned PKI subsystems do not return an Admin Certificate
-            if not config.str2bool(master['pki_clone']):
+            if not config.str2bool(master['pki_clone']) and \
+               not config.str2bool(master['pki_import_admin_cert']):
                 admin_cert = response.getAdminCert().getCert()
                 javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
                                        " " + admin_cert)

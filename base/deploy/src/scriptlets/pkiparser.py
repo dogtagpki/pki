@@ -1408,6 +1408,15 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_database_path'] + "/" +\
                 config.pki_master_dict['pki_subsystem'].lower() + "_" +\
                 "admin" + "_" + "cert" + "." + "p12"
+
+            # the admin cert is stored with the NSS server databases 
+            # in case we want to use a common admin user cert
+            if not 'pki_admin_cert_file' in config.pki_master_dict or\
+               not len(config.pki_master_dict['pki_admin_cert_file']):
+                config.pki_master_dict['pki_admin_cert_file'] =\
+                    config.pki_master_dict['pki_database_path'] +\
+                    "/ca_admin.cert"
+
             # Jython scriptlet name/value pairs
             config.pki_master_dict['pki_jython_configuration_scriptlet'] =\
                 os.path.join(sys.prefix,
@@ -1666,138 +1675,19 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_admin_name'] + "@" +\
                     config.pki_master_dict['pki_dns_domainname']
             if not len(config.pki_master_dict['pki_admin_nickname']):
-                if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                    if config.pki_master_dict['pki_subsystem'] == "RA":
-                        # PKI RA
-                        config.pki_master_dict['pki_admin_nickname'] =\
-                            "RA Administrator&#39;s" + " " +\
-                            config.pki_master_dict['pki_security_domain_name'] +\
-                            " " + "ID"
-                    elif config.pki_master_dict['pki_subsystem'] == "TPS":
-                        # PKI TPS
-                        config.pki_master_dict['pki_admin_nickname'] =\
-                            "TPS Administrator&#39;s" + " " +\
-                            config.pki_master_dict['pki_security_domain_name'] +\
-                            " " + "ID"
-                elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                    if not config.str2bool(config.pki_master_dict['pki_clone']):
-                        if config.pki_master_dict['pki_subsystem'] == "CA":
-                            if config.str2bool(
-                                config.pki_master_dict['pki_external']):
-                                 # External CA
-                                 config.pki_master_dict['pki_admin_nickname'] =\
-                                     "CA Administrator of Instance" + " " +\
-                                     config.pki_master_dict['pki_instance_id'] +\
-                                     "&#39;s" + " " +\
-                                     "External CA ID"
-                            else:
-                                # PKI CA or Subordinate CA
-                                config.pki_master_dict['pki_admin_nickname'] =\
-                                    "CA Administrator of Instance" + " " +\
-                                    config.pki_master_dict['pki_instance_id'] +\
-                                    "&#39;s" + " " +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name'] + " " + "ID"
-                        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                            # PKI KRA
-                            config.pki_master_dict['pki_admin_nickname'] =\
-                                "KRA Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] +\
-                                "&#39;s" + " " +\
-                                config.pki_master_dict['pki_security_domain_name']\
-                                + " " + "ID"
-                        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                            # PKI OCSP
-                            config.pki_master_dict['pki_admin_nickname'] =\
-                                "OCSP Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] +\
-                                "&#39;s" + " " +\
-                                config.pki_master_dict['pki_security_domain_name']\
-                                + " " + "ID"
-                        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                            # PKI TKS
-                            config.pki_master_dict['pki_admin_nickname'] =\
-                                "TKS Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] +\
-                                "&#39;s" + " " +\
-                                config.pki_master_dict['pki_security_domain_name']\
-                                + " " + "ID"
+                config.pki_master_dict['pki_admin_nickname'] =\
+                    "PKI Administrator for " +\
+                    config.pki_master_dict['pki_dns_domainname']
+
+            if not 'pki_import_admin_cert' in config.pki_master_dict:
+                config.pki_master_dict['pki_import_admin_cert'] = 'false'
+
             if not len(config.pki_master_dict['pki_admin_subject_dn']):
-                if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                    if config.pki_master_dict['pki_subsystem'] == "RA":
-                        # PKI RA
-                        config.pki_master_dict['pki_admin_subject_dn'] =\
-                            "cn=" + "RA Administrator" + "," +\
-                            "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                            "," + "e=" +\
-                            config.pki_master_dict['pki_admin_email'] +\
-                            "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
-                    elif config.pki_master_dict['pki_subsystem'] == "TPS":
-                        # PKI TPS
-                        config.pki_master_dict['pki_admin_subject_dn'] =\
-                            "cn=" + "TPS Administrator" + "," +\
-                            "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                            "," + "e=" +\
-                            config.pki_master_dict['pki_admin_email'] +\
-                            "," + "o=" +\
-                            config.pki_master_dict['pki_security_domain_name']
-                elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                    if not config.str2bool(config.pki_master_dict['pki_clone']):
-                        if config.pki_master_dict['pki_subsystem'] == "CA":
-                           if config.str2bool(
-                               config.pki_master_dict['pki_external']):
-                                # External CA
-                                config.pki_master_dict['pki_admin_subject_dn'] =\
-                                    "cn=" + "CA Administrator of Instance" + " " +\
-                                    config.pki_master_dict['pki_instance_id'] +\
-                                    "," + "uid=" +\
-                                    config.pki_master_dict['pki_admin_uid']\
-                                    + "," + "e=" +\
-                                    config.pki_master_dict['pki_admin_email'] +\
-                                    "," + "o=" + "External CA"
-                           else:
-                                # PKI CA or Subordinate CA
-                                config.pki_master_dict['pki_admin_subject_dn'] =\
-                                    "cn=" + "CA Administrator of Instance" + " " +\
-                                    config.pki_master_dict['pki_instance_id'] +\
-                                    "," + "uid=" +\
-                                    config.pki_master_dict['pki_admin_uid']\
-                                    + "," + "e=" +\
-                                    config.pki_master_dict['pki_admin_email'] +\
-                                    "," + "o=" +\
-                                    config.pki_master_dict\
-                                    ['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                            # PKI KRA
-                            config.pki_master_dict['pki_admin_subject_dn'] =\
-                                "cn=" + "KRA Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] + "," +\
-                                "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                                "," + "e=" +\
-                                config.pki_master_dict['pki_admin_email'] +\
-                                "," + "o=" +\
-                                config.pki_master_dict['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                            # PKI OCSP
-                            config.pki_master_dict['pki_admin_subject_dn'] =\
-                                "cn=" + "OCSP Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] + "," +\
-                                "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                                "," + "e=" +\
-                                config.pki_master_dict['pki_admin_email'] +\
-                                "," + "o=" +\
-                                config.pki_master_dict['pki_security_domain_name']
-                        elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                            # PKI TKS
-                            config.pki_master_dict['pki_admin_subject_dn'] =\
-                                "cn=" + "TKS Administrator of Instance" + " " +\
-                                config.pki_master_dict['pki_instance_id'] + "," +\
-                                "uid=" + config.pki_master_dict['pki_admin_uid'] +\
-                                "," + "e=" +\
-                                config.pki_master_dict['pki_admin_email'] +\
-                                "," + "o=" +\
-                                config.pki_master_dict['pki_security_domain_name']
+                config.pki_master_dict['pki_admin_subject_dn'] =\
+                    "cn=PKI Administrator" +\
+                    ",e=" + config.pki_master_dict['pki_admin_email'] +\
+                    ",o=" + config.pki_master_dict['pki_security_domain_name']
+
             # Jython scriptlet
             # 'CA Signing Certificate' Configuration name/value pairs
             #
