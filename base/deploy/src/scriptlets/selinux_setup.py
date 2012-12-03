@@ -36,6 +36,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def restore_context(self):
         selinux.restorecon(master['pki_instance_path'], True)
+        selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
         selinux.restorecon(master['pki_instance_log_path'], True)
         selinux.restorecon(master['pki_instance_configuration_path'], True)
 
