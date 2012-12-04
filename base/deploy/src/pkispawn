@@ -135,21 +135,11 @@ def main(argv):
         config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
                              extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
-    else:
-        # NEVER print out 'sensitive' name/value pairs!!!
-        config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.debug(pkilogging.format(config.pki_subsystem_dict),
-                             extra=config.PKI_INDENTATION_LEVEL_0)
 
     # NEVER print out 'sensitive' name/value pairs!!!
-    config.pki_log.debug(log.PKI_DICTIONARY_COMMON,
+    config.pki_log.debug(log.PKI_DICTIONARY_DEFAULT,
+                         extra=config.PKI_INDENTATION_LEVEL_0)
+    config.pki_log.debug(pkilogging.format(config.pki_default_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
                          extra=config.PKI_INDENTATION_LEVEL_0)

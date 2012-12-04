@@ -227,12 +227,12 @@ class PKIConfigParser:
                 default_http_port = '80'
                 default_https_port = '443'
 
-            predefined_dict = {'default_instance_name': default_instance_name,
-                               'default_http_port': default_http_port,
-                               'default_https_port': default_https_port,
-                               'dns_domainname': config.pki_dns_domainname,
-                               'subsystem_type' : config.pki_subsystem,
-                               'hostname': config.pki_hostname}
+            predefined_dict = {'pki_instance_name': default_instance_name,
+                               'pki_http_port': default_http_port,
+                               'pki_https_port': default_https_port,
+                               'pki_dns_domainname': config.pki_dns_domainname,
+                               'pki_subsystem' : config.pki_subsystem,
+                               'pki_hostname': config.pki_hostname}
 
             self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
             # Make keys case-sensitive!
@@ -283,9 +283,6 @@ class PKIConfigParser:
             config.pki_master_dict['pki_certificate_timestamp'] =\
                 config.pki_certificate_timestamp
             config.pki_master_dict['pki_architecture'] = config.pki_architecture
-            config.pki_master_dict['pki_hostname'] = config.pki_hostname
-            config.pki_master_dict['pki_dns_domainname'] =\
-                config.pki_dns_domainname
             config.pki_master_dict['pki_jython_log_level'] =\
                 config.pki_jython_log_level
             config.pki_master_dict['pki_deployment_cfg'] = config.pkideployment_cfg
@@ -362,7 +359,6 @@ class PKIConfigParser:
             #           (e. g. Tomcat:  "pki-tomcat", "pki-tomcat.example.com")
             #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
             #
-            config.pki_master_dict['pki_instance_id'] = config.pki_master_dict['pki_instance_name']
 
             # PKI Source name/value pairs
             config.pki_master_dict['pki_source_conf_path'] =\

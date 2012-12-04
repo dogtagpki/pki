@@ -20,9 +20,9 @@
 #
 
 # PKI Deployment Engine Messages
-PKI_DICTIONARY_COMMON ="\n"\
+PKI_DICTIONARY_DEFAULT ="\n"\
 "=====================================================\n"\
-"    DISPLAY CONTENTS OF PKI COMMON DICTIONARY\n"\
+"    DISPLAY CONTENTS OF PKI DEFAULT DICTIONARY\n"\
 "====================================================="
 PKI_DICTIONARY_MASTER="\n"\
 "=====================================================\n"\
@@ -137,9 +137,6 @@ PKISPAWN_EPILOG =\
 "        Apache:  'pki_instance_name', 'pki_http_port', and 'pki_https_port'\n"\
 "        Tomcat:  'pki_instance_name', 'pki_http_port', 'pki_https_port',\n"\
 "                 'pki_ajp_port', and 'pki_tomcat_server_port'\n\n"\
-"    Optionally, the 'pki_admin_domain_name' may be changed instead of, or\n"\
-"    in addition to, the 'pki_instance_name' since a PKI instance is\n"\
-"    defined as '${pki_instance_name}[.${pki_admin_domain_name}]'.\n\n"\
 "    Finally, if an optional '-p <prefix>' is defined, this value WILL NOT\n"\
 "    be prepended in front of the mandatory '-f <configuration_file>'.\n\n" +\
 PKI_VERBOSITY
