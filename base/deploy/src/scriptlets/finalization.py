@@ -41,8 +41,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # For debugging/auditing purposes, save a timestamped copy of
         # this configuration file in the subsystem archive
-        util.file.copy(master['pki_deployment_cfg_replica'],
-                       master['pki_deployment_cfg_spawn_archive'])
+        util.file.copy(master['pki_default_deployment_cfg_replica'],
+                       master['pki_default_deployment_cfg_spawn_archive'])
+        util.file.copy(master['pki_user_deployment_cfg_replica'],
+                       master['pki_user_deployment_cfg_spawn_archive'])
         # Save a copy of the installation manifest file
         config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, master['pki_manifest'],
                             extra=config.PKI_INDENTATION_LEVEL_2)

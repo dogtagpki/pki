@@ -100,13 +100,13 @@ PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME = "tomcat"
 PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "pki-apache"
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 
-PKI_DEPLOYMENT_CONFIGURATION_DIR =\
-    "/usr/share/pki/deployment/config"
-PKI_DEPLOYMENT_CONFIGURATION_FILE = "deployment.cfg"
+DEFAULT_DEPLOYMENT_CONFIGURATION = "default.cfg"
+USER_DEPLOYMENT_CONFIGURATION = "deployment.cfg"
+
 PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE =\
-    PKI_DEPLOYMENT_CONFIGURATION_DIR + "/" + PKI_DEPLOYMENT_CONFIGURATION_FILE
+    PKI_DEPLOYMENT_CONFIGURATION_ROOT + "/" + DEFAULT_DEPLOYMENT_CONFIGURATION
 PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
-    PKI_DEPLOYMENT_CONFIGURATION_DIR + "/pkislots.cfg"
+    PKI_DEPLOYMENT_SOURCE_ROOT + "/deployment/config/pkislots.cfg"
 
 # subtypes of PKI subsystems
 PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM = "Cloned"
@@ -140,7 +140,8 @@ pki_deployment_executable = None
 # PKI Deployment "Mandatory" Command-Line Variables
 pki_subsystem = None
 #     'pkispawn' ONLY
-pkideployment_cfg = None
+default_deployment_cfg = None
+user_deployment_cfg = None
 #     'pkidestroy' ONLY
 pki_deployed_instance_name = None
 

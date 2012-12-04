@@ -41,80 +41,52 @@ class PKIConfigParser:
     COMMENT_CHAR = '#'
     OPTION_CHAR =  '='
 
-    def __init__(self):
+    def __init__(self, description, epilog):
         self.pki_config = None
 
-    # PKI Deployment Helper Functions
-    def process_command_line_arguments(self, argv):
         "Read and process command-line options"
-        config.pki_deployment_executable = os.path.basename(argv[0])
-        description = None
-        if config.pki_deployment_executable == 'pkispawn':
-            description = 'PKI Instance Installation and Configuration'
-            epilog = log.PKISPAWN_EPILOG
-        elif config.pki_deployment_executable == 'pkidestroy':
-            description = 'PKI Instance Removal'
-            epilog = log.PKIDESTROY_EPILOG
-        parser = argparse.ArgumentParser(
+        self.arg_parser = argparse.ArgumentParser(
                      description=description,
                      add_help=False,
                      formatter_class=argparse.RawDescriptionHelpFormatter,
                      epilog=epilog)
+
         # Establish 'Mandatory' command-line options
-        mandatory = parser.add_argument_group('mandatory arguments')
-        mandatory.add_argument('-s',
+        self.mandatory = self.arg_parser.add_argument_group('mandatory arguments')
+        self.mandatory.add_argument('-s',
                                dest='pki_subsystem', action='store',
                                nargs=1, choices=config.PKI_SUBSYSTEMS,
                                required=True, metavar='<subsystem>',
                                help='where <subsystem> is '
                                     'CA, KRA, OCSP, RA, TKS, or TPS')
-        if config.pki_deployment_executable == 'pkispawn':
-            mandatory.add_argument('-f',
-                                   dest='pkideployment_cfg', action='store',
-                                   nargs=1, required=True, metavar='<file>',
-                                   help='configuration filename '
-                                        '(MUST specify complete path)')
-        elif config.pki_deployment_executable == 'pkidestroy':
-            mandatory.add_argument('-i',
-                                   dest='pki_deployed_instance_name',
-                                   action='store',
-                                   nargs=1, required=True, metavar='<instance>',
-                                   help='FORMAT:  ${pki_instance_name}')
         # Establish 'Optional' command-line options
-        optional = parser.add_argument_group('optional arguments')
-        optional.add_argument('-h', '--help',
+        self.optional = self.arg_parser.add_argument_group('optional arguments')
+        self.optional.add_argument('-h', '--help',
                               dest='help', action='help',
                               help='show this help message and exit')
-        if config.pki_deployment_executable == 'pkispawn':
-            optional.add_argument('-u',
-                                  dest='pki_update_flag', action='store_true',
-                                  help='update instance of specified subsystem')
-        optional.add_argument('-v',
+        self.optional.add_argument('-v',
                               dest='pki_verbosity', action='count',
                               help='display verbose information (details below)')
+
         # Establish 'Test' command-line options
-        test = parser.add_argument_group('test arguments')
+        test = self.arg_parser.add_argument_group('test arguments')
         test.add_argument('-p',
                           dest='pki_root_prefix', action='store',
                           nargs=1, metavar='<prefix>',
                           help='directory prefix to specify local directory '
                                '[TEST ONLY]')
+
+    # PKI Deployment Helper Functions
+    def process_command_line_arguments(self, argv):
+
         # Parse command-line options
-        args = parser.parse_args()
+        args = self.arg_parser.parse_args()
+
         # Process 'Mandatory' command-line options
         #    '-s'
         config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
-        if config.pki_deployment_executable == 'pkispawn':
-            #    '-f'
-            config.pkideployment_cfg = str(args.pkideployment_cfg).strip('[\']')
-        elif config.pki_deployment_executable == 'pkidestroy':
-            #    '-i'
-            config.pki_deployed_instance_name =\
-                str(args.pki_deployed_instance_name).strip('[\']')
+
         # Process 'Optional' command-line options
-        if config.pki_deployment_executable == 'pkispawn':
-            #    '-u'
-            config.pki_update_flag = args.pki_update_flag
         #    '-v'
         if args.pki_verbosity == 1:
             config.pki_jython_log_level = config.PKI_JYTHON_INFO_LOG_LEVEL
@@ -131,63 +103,56 @@ class PKIConfigParser:
         elif args.pki_verbosity > 3:
             print "ERROR:  " + log.PKI_VERBOSITY_LEVELS_MESSAGE
             print
-            parser.print_help()
-            parser.exit(-1);
+            self.arg_parser.print_help()
+            self.arg_parser.exit(-1);
         else:
             # Set default log levels
             config.pki_jython_log_level = config.PKI_JYTHON_WARNING_LOG_LEVEL
             config.pki_console_log_level = logging.WARNING
             config.pki_log_level = logging.INFO
+
         # Process 'Test' command-line options
         #    '-p'
-        if not args.pki_root_prefix is None:
-            config.pki_root_prefix = str(args.pki_root_prefix).strip('[\']')
-        # Validate command-line options
-        if config.pki_root_prefix is None or\
-           len(config.pki_root_prefix) == 0:
+        if args.pki_root_prefix is None:
             config.pki_root_prefix = ""
-        elif not os.path.exists(config.pki_root_prefix) or\
-             not os.path.isdir(config.pki_root_prefix):
-            print "ERROR:  " +\
-                  log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %\
-                  config.pki_root_prefix
-            print
-            parser.print_help()
-            parser.exit(-1);
-        if config.pki_deployment_executable == 'pkidestroy':
-            # verify that previously deployed instance exists
-            deployed_pki_instance_path = config.pki_root_prefix +\
-                                         config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                                         config.pki_deployed_instance_name
-            if not os.path.exists(deployed_pki_instance_path):
-                print "ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %\
-                      deployed_pki_instance_path
+        else:
+            config.pki_root_prefix = str(args.pki_root_prefix).strip('[\']')
+
+        return args
+
+
+    def validate(self):
+
+        # Validate command-line options
+        if len(config.pki_root_prefix) > 0:
+            if not os.path.exists(config.pki_root_prefix) or\
+                 not os.path.isdir(config.pki_root_prefix):
+                print "ERROR:  " +\
+                      log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %\
+                      config.pki_root_prefix
                 print
-                parser.exit(-1);
-            # verify that previously deployed subsystem for this instance exists
-            deployed_pki_subsystem_path = deployed_pki_instance_path + "/" +\
-                                          config.pki_subsystem.lower()
-            if not os.path.exists(deployed_pki_subsystem_path):
-                print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
-                      (config.pki_subsystem, deployed_pki_instance_path)
-                print
-                parser.exit(-1);
-            # establish complete path to previously deployed configuration file
-            config.pkideployment_cfg =\
-                deployed_pki_subsystem_path + "/" +\
-                "registry" + "/" +\
-                config.pki_subsystem.lower() + "/" +\
-                config.PKI_DEPLOYMENT_CONFIGURATION_FILE
-        # always verify that configuration file exists
-        if not os.path.exists(config.pkideployment_cfg) or\
-           not os.path.isfile(config.pkideployment_cfg):
+                self.arg_parser.print_help()
+                self.arg_parser.exit(-1);
+
+        # always default that configuration file exists
+        if not os.path.exists(config.default_deployment_cfg) or\
+            not os.path.isfile(config.default_deployment_cfg):
             print "ERROR:  " +\
                   log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %\
-                  config.pkideployment_cfg
+                  config.default_deployment_cfg
             print
-            parser.print_help()
-            parser.exit(-1);
-        return
+            self.arg_parser.print_help()
+            self.arg_parser.exit(-1);
+
+        # verify user configuration file exists
+        if not os.path.exists(config.user_deployment_cfg) or\
+            not os.path.isfile(config.user_deployment_cfg):
+            print "ERROR:  " +\
+                  log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %\
+                  config.user_deployment_cfg
+            print
+            self.arg_parser.print_help()
+            self.arg_parser.exit(-1);
 
 
     # The following code is based heavily upon
@@ -238,8 +203,8 @@ class PKIConfigParser:
             # Make keys case-sensitive!
             self.pki_config.optionxform = str
             self.pki_config.read([
-                config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE,
-                config.pkideployment_cfg])
+                config.default_deployment_cfg,
+                config.user_deployment_cfg])
             config.pki_default_dict = dict(self.pki_config.items('DEFAULT'))
             pkilogging.sensitive_parameters = config.pki_default_dict['sensitive_parameters'].split()
             if config.pki_subsystem == "CA":
@@ -285,7 +250,8 @@ class PKIConfigParser:
             config.pki_master_dict['pki_architecture'] = config.pki_architecture
             config.pki_master_dict['pki_jython_log_level'] =\
                 config.pki_jython_log_level
-            config.pki_master_dict['pki_deployment_cfg'] = config.pkideployment_cfg
+            config.pki_master_dict['pki_default_deployment_cfg'] = config.default_deployment_cfg
+            config.pki_master_dict['pki_user_deployment_cfg'] = config.user_deployment_cfg
             config.pki_master_dict['pki_deployed_instance_name'] =\
                 config.pki_deployed_instance_name
             # Generate random 'pin's for use as security database passwords
@@ -1568,18 +1534,31 @@ class PKIConfigParser:
             config.pki_master_dict['pki_storage_tag'] = "storage"
 
             # Finalization name/value pairs
-            config.pki_master_dict['pki_deployment_cfg_replica'] =\
+            config.pki_master_dict['pki_default_deployment_cfg_replica'] =\
                 os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
-                             config.PKI_DEPLOYMENT_CONFIGURATION_FILE)
-            config.pki_master_dict['pki_deployment_cfg_spawn_archive'] =\
+                             config.DEFAULT_DEPLOYMENT_CONFIGURATION)
+            config.pki_master_dict['pki_user_deployment_cfg_replica'] =\
+                os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
+                             config.USER_DEPLOYMENT_CONFIGURATION)
+            config.pki_master_dict['pki_default_deployment_cfg_spawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
                 "spawn" + "_" +\
-                config.PKI_DEPLOYMENT_CONFIGURATION_FILE + "." +\
+                config.DEFAULT_DEPLOYMENT_CONFIGURATION + "." +\
                 config.pki_master_dict['pki_timestamp']
-            config.pki_master_dict['pki_deployment_cfg_respawn_archive'] =\
+            config.pki_master_dict['pki_user_deployment_cfg_spawn_archive'] =\
+                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+                "spawn" + "_" +\
+                config.USER_DEPLOYMENT_CONFIGURATION + "." +\
+                config.pki_master_dict['pki_timestamp']
+            config.pki_master_dict['pki_default_deployment_cfg_respawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
                 "respawn" + "_" +\
-                config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE + "." +\
+                config.DEFAULT_DEPLOYMENT_CONFIGURATION + "." +\
+                config.pki_master_dict['pki_timestamp']
+            config.pki_master_dict['pki_user_deployment_cfg_respawn_archive'] =\
+                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
+                "respawn" + "_" +\
+                config.USER_DEPLOYMENT_CONFIGURATION + "." +\
                 config.pki_master_dict['pki_timestamp']
             config.pki_master_dict['pki_manifest'] =\
                 config.pki_master_dict['pki_subsystem_registry_path'] + "/" +\

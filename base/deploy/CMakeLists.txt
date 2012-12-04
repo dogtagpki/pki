@@ -62,6 +62,13 @@ install(
         ${DATA_INSTALL_DIR}/deployment
 )
 
+install(
+    DIRECTORY
+        etc/
+    DESTINATION
+        ${SYSCONF_INSTALL_DIR}/pki
+)
+
 find_package(PythonInterp REQUIRED)
 execute_process(
     COMMAND

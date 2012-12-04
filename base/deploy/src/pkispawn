@@ -52,6 +52,8 @@ error was:
 def main(argv):
     "main entry point"
 
+    config.pki_deployment_executable = os.path.basename(argv[0])
+
     # Only run this program as "root".
     if not os.geteuid() == 0:
         sys.exit("'%s' must be run as root!" % argv[0])
@@ -88,8 +90,31 @@ def main(argv):
         sys.exit(1)
 
     # Read and process command-line arguments.
-    parser = PKIConfigParser()
-    parser.process_command_line_arguments(argv)
+    parser = PKIConfigParser(
+        'PKI Instance Installation and Configuration',
+        log.PKISPAWN_EPILOG)
+
+    parser.mandatory.add_argument('-f',
+        dest='user_deployment_cfg', action='store',
+        nargs=1, required=True, metavar='<file>',
+        help='configuration filename '
+            '(MUST specify complete path)')
+
+    parser.optional.add_argument('-u',
+        dest='pki_update_flag', action='store_true',
+        help='update instance of specified subsystem')
+
+    args = parser.process_command_line_arguments(argv)
+
+    config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+
+    # -f <user deployment config>
+    config.user_deployment_cfg = str(args.user_deployment_cfg).strip('[\']')
+
+    # -u
+    config.pki_update_flag = args.pki_update_flag
+
+    parser.validate()
 
     if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +\
                           "/" + config.pki_subsystem.lower()):

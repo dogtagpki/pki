@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}53%{?prerel}%{?dist}
+Release:          %{?relprefix}54%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -809,6 +809,7 @@ fi
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/deploy/LICENSE
+%{_sysconfdir}/pki/default.cfg
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
@@ -958,6 +959,9 @@ fi
 
 
 %changelog
+* Tue Dec 4 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.54.b3
+- Moved default deployment configuration to /etc/pki.
+
 * Mon Nov 19 2012 Ade Lee <alee@redhat.com> 10.0.0-0.53.b3
 - Cleaned up spec file to provide only support rhel 7+, f17+
 - Added resteasy-base dependency for rhel 7

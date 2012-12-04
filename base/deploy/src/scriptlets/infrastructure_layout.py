@@ -56,8 +56,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.directory.create(master['pki_instance_type_registry_path'])
         util.directory.create(master['pki_instance_registry_path'])
         util.directory.create(master['pki_subsystem_registry_path'])
-        util.file.copy(master['pki_deployment_cfg'],
-                       master['pki_deployment_cfg_replica'])
+        util.file.copy(master['pki_default_deployment_cfg'],
+                       master['pki_default_deployment_cfg_replica'])
+        util.file.copy(master['pki_user_deployment_cfg'],
+                       master['pki_user_deployment_cfg_replica'])
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that
         # the "pkidestroy" executable relies upon

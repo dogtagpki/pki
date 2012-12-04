@@ -52,6 +52,8 @@ error was:
 def main(argv):
     "main entry point"
 
+    config.pki_deployment_executable = os.path.basename(argv[0])
+
     # Only run this program as "root".
     if not os.geteuid() == 0:
         sys.exit("'%s' must be run as root!" % argv[0])
@@ -88,8 +90,54 @@ def main(argv):
         sys.exit(1)
 
     # Read and process command-line arguments.
-    parser = PKIConfigParser()
-    parser.process_command_line_arguments(argv)
+    parser = PKIConfigParser(
+        'PKI Instance Removal',
+        log.PKIDESTROY_EPILOG)
+
+    parser.mandatory.add_argument('-i',
+        dest='pki_deployed_instance_name',
+        action='store',
+        nargs=1, required=True, metavar='<instance>',
+        help='FORMAT:  ${pki_instance_name}')
+
+    args = parser.process_command_line_arguments(argv)
+
+    # -i <instance name>
+    config.pki_deployed_instance_name =\
+        str(args.pki_deployed_instance_name).strip('[\']')
+
+    # verify that previously deployed instance exists
+    deployed_pki_instance_path = config.pki_root_prefix +\
+                                 config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
+                                 config.pki_deployed_instance_name
+    if not os.path.exists(deployed_pki_instance_path):
+        print "ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %\
+              deployed_pki_instance_path
+        print
+        parser.arg_parser.exit(-1);
+
+    # verify that previously deployed subsystem for this instance exists
+    deployed_pki_subsystem_path = deployed_pki_instance_path + "/" +\
+                                  config.pki_subsystem.lower()
+    if not os.path.exists(deployed_pki_subsystem_path):
+        print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
+              (config.pki_subsystem, deployed_pki_instance_path)
+        print
+        parser.arg_parser.exit(-1);
+
+    # establish complete path to previously deployed configuration file
+    config.default_deployment_cfg =\
+        deployed_pki_subsystem_path + "/" +\
+        "registry" + "/" +\
+        config.pki_subsystem.lower() + "/" +\
+        config.DEFAULT_DEPLOYMENT_CONFIGURATION
+    config.user_deployment_cfg =\
+        deployed_pki_subsystem_path + "/" +\
+        "registry" + "/" +\
+        config.pki_subsystem.lower() + "/" +\
+        config.USER_DEPLOYMENT_CONFIGURATION
+
+    parser.validate()
 
     # Enable 'pkidestroy' logging.
     config.pki_log_dir = config.pki_root_prefix +\
