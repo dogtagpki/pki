@@ -26,6 +26,7 @@ import logging
 import os
 import random
 import string
+import subprocess
 import sys
 import time
 
@@ -269,6 +270,12 @@ class PKIConfigParser:
             config.pki_master_dict.update(config.pki_web_server_dict)
             config.pki_master_dict.update(config.pki_subsystem_dict)
             config.pki_master_dict.update(__name__="PKI Master Dictionary")
+
+            # RESTEasy
+            config.pki_master_dict['RESTEASY_LIB'] =\
+                subprocess.check_output(
+                    'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
+                    shell=True).strip()
 
             # IMPORTANT:  A "PKI instance" no longer corresponds to a single
             #             pki subystem, but rather to a unique
@@ -618,7 +625,7 @@ class PKIConfigParser:
                     os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
                                  "javassist.jar")
                 config.pki_master_dict['pki_resteasy_jaxrs_api_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
                                  "jaxrs-api.jar")
                 config.pki_master_dict['pki_jettison_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
@@ -648,16 +655,16 @@ class PKIConfigParser:
                     os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
                                  "pki-tomcat.jar")
                 config.pki_master_dict['pki_resteasy_atom_provider_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
                                  "resteasy-atom-provider.jar")
                 config.pki_master_dict['pki_resteasy_jaxb_provider_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
                                  "resteasy-jaxb-provider.jar")
                 config.pki_master_dict['pki_resteasy_jaxrs_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
                                  "resteasy-jaxrs.jar")
                 config.pki_master_dict['pki_resteasy_jettison_provider_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT,
+                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
                                  "resteasy-jettison-provider.jar")
                 config.pki_master_dict['pki_scannotation_jar'] =\
                     os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,

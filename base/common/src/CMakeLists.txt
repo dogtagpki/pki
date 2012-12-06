@@ -87,24 +87,21 @@ find_file(JAXRS_API_JAR
     NAMES
         jaxrs-api.jar
     PATHS
-        /usr/share/java/resteasy
-        /usr/share/java/resteasy-base
+        ${RESTEASY_LIB}
 )
 
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar
     PATHS
-        /usr/share/java/resteasy
-        /usr/share/java/resteasy-base
+        ${RESTEASY_LIB}
 )
 
 find_file(RESTEASY_ATOM_PROVIDER_JAR
     NAMES
         resteasy-atom-provider.jar
     PATHS
-        /usr/share/java/resteasy
-        /usr/share/java/resteasy-base
+        ${RESTEASY_LIB}
 )
 
 find_file(HTTPCLIENT_JAR

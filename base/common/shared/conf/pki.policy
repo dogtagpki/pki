@@ -106,43 +106,23 @@ grant codeBase "file:/usr/share/java/log4j.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/resteasy/jaxrs-api.jar" {
+grant codeBase "file:${RESTEASY_LIB}/jaxrs-api.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/resteasy/resteasy-atom-provider.jar" {
+grant codeBase "file:${RESTEASY_LIB}/resteasy-atom-provider.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/resteasy/resteasy-jaxb-provider.jar" {
+grant codeBase "file:${RESTEASY_LIB}/resteasy-jaxb-provider.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/resteasy/resteasy-jaxrs.jar" {
+grant codeBase "file:${RESTEASY_LIB}/resteasy-jaxrs.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/resteasy/resteasy-jettison-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/resteasy-base/jaxrs-api.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/resteasy-base/resteasy-atom-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jaxb-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jaxrs.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/resteasy-base/resteasy-jettison-provider.jar" {
+grant codeBase "file:${RESTEASY_LIB}/resteasy-jettison-provider.jar" {
         permission java.security.AllPermission;
 };
 

@@ -35,88 +35,9 @@ pki_python_module_path = os.path.join(sys.prefix,
 sys.path.append(pki_python_module_path)
 
 
-# http://www.jython.org/jythonbook/en/1.0/appendixB.html#working-with-classpath
-###############################################################################
-# from http://forum.java.sun.com/thread.jspa?threadID=300557
-#
-# Author:   SG Langer Jan 2007 translated the above Java to this Jython class
-# Purpose:  Allow runtime additions of new Class/jars either from local files
-#           or URL
-###############################################################################
-class classPathHacker:
-    import java.lang.reflect.Method
-    import java.io.File
-    import java.net.URL
-    import java.net.URLClassLoader
-    import jarray
-
-    def addFile(self, s):
-        ##################################################
-        # Purpose:  If adding a file/jar call this first
-        #           with s = path_to_jar
-        ##################################################
-
-        # make a URL out of 's'
-        f = self.java.io.File (s)
-        u = f.toURL ()
-        a = self.addURL (u)
-        return a
-
-    def addURL(self, u):
-        ###########################################
-        # Purpose:  Call this with u= URL for the
-        #           new Class/jar to be loaded
-        ###########################################
-
-        parameters = self.jarray.array([self.java.net.URL],
-                                       self.java.lang.Class)
-        sysloader =  self.java.lang.ClassLoader.getSystemClassLoader()
-        sysclass = self.java.net.URLClassLoader
-        method = sysclass.getDeclaredMethod("addURL", parameters)
-        a = method.setAccessible(1)
-        jar_a = self.jarray.array([u], self.java.lang.Object)
-        b = method.invoke(sysloader, jar_a)
-        return u
-
 # PKI Python Imports
 import pkiconfig as config
 import pkimessages as log
-
-# Dynamically Load Additional Java Jars ('append' to existing classpath)
-jarLoad = classPathHacker()
-#     Webserver Jars
-jarLoad.addFile("/usr/share/java/httpcomponents/httpclient.jar")
-jarLoad.addFile("/usr/share/java/httpcomponents/httpcore.jar")
-jarLoad.addFile("/usr/share/java/apache-commons-cli.jar")
-jarLoad.addFile("/usr/share/java/apache-commons-codec.jar")
-jarLoad.addFile("/usr/share/java/apache-commons-logging.jar")
-jarLoad.addFile("/usr/share/java/istack-commons-runtime.jar")
-
-#     Resteasy Jars
-RESTEASY_ROOT = "resteasy"
-if config.is_rhel():
-    RESTEASY_ROOT = "resteasy-base"
-
-jarLoad.addFile("/usr/share/java/glassfish-jaxb/jaxb-impl.jar")
-jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/jaxrs-api.jar")
-jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-atom-provider.jar")
-jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jaxb-provider.jar")
-jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jaxrs.jar")
-jarLoad.addFile("/usr/share/java/" + RESTEASY_ROOT + "/resteasy-jettison-provider.jar")
-jarLoad.addFile("/usr/share/java/scannotation.jar")
-#     PKI Jars
-jarLoad.addFile("/usr/share/java/pki/pki-certsrv.jar")
-jarLoad.addFile("/usr/share/java/pki/pki-client.jar")
-jarLoad.addFile("/usr/share/java/pki/pki-cmsutil.jar")
-jarLoad.addFile("/usr/share/java/pki/pki-nsutil.jar")
-#     JSS JNI Jars
-#
-#         NOTE:  Always load 64-bit JNI 'jss4.jar'
-#                PRIOR to 32-bit JNI 'jss4.jar'
-#
-jarLoad.addFile("/usr/lib64/java/jss4.jar")
-jarLoad.addFile("/usr/lib/java/jss4.jar")
-
 
 # Apache Commons Java Imports
 from org.apache.commons.cli import CommandLine
@@ -125,7 +46,6 @@ from org.apache.commons.cli import HelpFormatter
 from org.apache.commons.cli import Options
 from org.apache.commons.cli import ParseException
 from org.apache.commons.cli import PosixParser
-
 
 # JSS Java Imports
 from org.mozilla.jss import CryptoManager
@@ -147,7 +67,6 @@ from org.mozilla.jss.pkix.crmf import ProofOfPossession
 from org.mozilla.jss.pkix.primitive import Name
 from org.mozilla.jss.pkix.primitive import SubjectPublicKeyInfo
 from org.mozilla.jss.util import Password
-
 
 # PKI Java Imports
 from com.netscape.certsrv.system import SystemConfigClient

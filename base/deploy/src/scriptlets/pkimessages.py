@@ -189,8 +189,7 @@ PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
 PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
 PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT = "port %s has invalid selinux "\
                                              "context %s"
-PKIHELPER_INVOKE_JYTHON_3 = "executing 'export %s;"\
-                            "jython %s %s <master_dictionary>'"
+PKIHELPER_INVOKE_JYTHON_1 = "executing '%s'"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"

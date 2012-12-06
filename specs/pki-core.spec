@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}54%{?prerel}%{?dist}
+Release:          %{?relprefix}55%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -462,7 +462,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %clean
 %{__rm} -rf %{buildroot}
 
-
 %build
 %{__mkdir_p} build
 cd build
@@ -471,6 +470,11 @@ cd build
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+%if 0%{?rhel}
+	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
+%else
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%endif
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
         -DBUILD_PKI_SELINUX:BOOL=ON \
@@ -809,7 +813,7 @@ fi
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/deploy/LICENSE
-%{_sysconfdir}/pki/default.cfg
+%{_sysconfdir}/pki/
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
@@ -820,6 +824,9 @@ fi
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/operations
+%{_datadir}/pki/scripts/pkicommon.pm
+%{_datadir}/pki/scripts/functions
+%{_datadir}/pki/scripts/pki_apache_initscript
 %dir %{_localstatedir}/lock/pki
 %dir %{_localstatedir}/run/pki
 %{_bindir}/pkidaemon
@@ -837,13 +844,7 @@ fi
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
 %{_bindir}/pkisilent
-%dir %{_datadir}/pki/scripts
-%{_datadir}/pki/scripts/pkicommon.pm
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
 %{_datadir}/pki/silent/
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
 %{_bindir}/pkicontrol
 
 # Details:
@@ -959,6 +960,10 @@ fi
 
 
 %changelog
+* Thu Dec 6 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.55.b3
+- Added system-wide configuration /etc/pki/pki.conf.
+- Removed redundant lines in %files.
+
 * Tue Dec 4 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.54.b3
 - Moved default deployment configuration to /etc/pki.
 

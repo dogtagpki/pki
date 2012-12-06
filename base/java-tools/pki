@@ -71,6 +71,9 @@ if( $ARCHITECTURE eq "i386" ) {
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
+my $RESTEASY_LIB = `source /etc/pki/pki.conf && echo \$RESTEASY_LIB`;
+chomp($RESTEASY_LIB);
+
 $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-tools.jar:"
@@ -82,10 +85,10 @@ $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
                 . "/usr/share/java/httpcomponents/httpclient.jar:"
                 . "/usr/share/java/httpcomponents/httpcore.jar:"
                 . "/usr/share/java/jaxb-api.jar:"
-                . "/usr/share/java/resteasy/jaxrs-api.jar:"
-                . "/usr/share/java/resteasy/resteasy-atom-provider.jar:"
-                . "/usr/share/java/resteasy/resteasy-jaxb-provider.jar:"
-                . "/usr/share/java/resteasy/resteasy-jaxrs.jar:"
+                . "${RESTEASY_LIB}/jaxrs-api.jar:"
+                . "${RESTEASY_LIB}/resteasy-atom-provider.jar:"
+                . "${RESTEASY_LIB}/resteasy-jaxb-provider.jar:"
+                . "${RESTEASY_LIB}/resteasy-jaxrs.jar:"
                 . "/usr/share/java/servlet.jar:";
 
 if( $ARCHITECTURE eq "x86_64" ) {

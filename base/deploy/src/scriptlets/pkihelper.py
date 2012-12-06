@@ -2522,33 +2522,63 @@ class systemd:
 
 # PKI Deployment 'jython' Class
 class jython:
-    def invoke(self, scriptlet, critical_failure=True):
+    def invoke(self, scriptlet, resteasy_lib, critical_failure=True):
         try:
+            # JSS JNI Jars
+            #
+            # NOTE:  Always load 64-bit JNI 'jss4.jar'
+            #        PRIOR to 32-bit JNI 'jss4.jar'
+            #
+            classpath = "/usr/lib64/java/jss4.jar" +\
+                ":/usr/lib/java/jss4.jar" +\
+                ":/usr/share/java/httpcomponents/httpclient.jar" +\
+                ":/usr/share/java/httpcomponents/httpcore.jar" +\
+                ":/usr/share/java/apache-commons-cli.jar" +\
+                ":/usr/share/java/apache-commons-codec.jar" +\
+                ":/usr/share/java/apache-commons-logging.jar" +\
+                ":/usr/share/java/istack-commons-runtime.jar" +\
+                ":/usr/share/java/glassfish-jaxb/jaxb-impl.jar" +\
+                ":/usr/share/java/scannotation.jar"
+
+            # RESTEasy Jars
+            classpath = classpath +\
+                ":" + resteasy_lib + "/jaxrs-api.jar" +\
+                ":" + resteasy_lib + "/resteasy-atom-provider.jar" +\
+                ":" + resteasy_lib + "/resteasy-jaxb-provider.jar" +\
+                ":" + resteasy_lib + "/resteasy-jaxrs.jar" +\
+                ":" + resteasy_lib + "/resteasy-jettison-provider.jar"
+
+            # PKI Jars
+            classpath = classpath +\
+                ":/usr/share/java/pki/pki-certsrv.jar" +\
+                ":/usr/share/java/pki/pki-client.jar" +\
+                ":/usr/share/java/pki/pki-cmsutil.jar" +\
+                ":/usr/share/java/pki/pki-nsutil.jar"
+
+            properties = ""
+
             # From 'http://www.jython.org/archive/22/userfaq.html':
             # Setting this to false will allow Jython to provide access to
             # non-public fields, methods, and constructors of Java objects.
-            property = "-Dpython.security.respectJavaAccessibility=false"
-            # comment the next line out to use the "property" defined above
-            property = ""
+            # properties = properties + " -Dpython.security.respectJavaAccessibility=false"
+
             # Compose this "jython" command
             data = pickle.dumps(master)
-            ld_library_path = "LD_LIBRARY_PATH"
             if master['pki_architecture'] == 64:
-                ld_library_path = ld_library_path + "=" +\
-                                  "/usr/lib64/jss:/usr/lib64:/lib64:" +\
+                ld_library_path = "/usr/lib64/jss:/usr/lib64:/lib64:" +\
                                   "/usr/lib/jss:/usr/lib:/lib"
             else:
-                ld_library_path = ld_library_path + "=" +\
-                                  "/usr/lib/jss:/usr/lib:/lib"
-            command = "export" + " " + ld_library_path + ";" + "jython" + " " +\
-                      property + " " + scriptlet + " " + "\"" + data + "\""
+                ld_library_path = "/usr/lib/jss:/usr/lib:/lib"
+            command = "export LD_LIBRARY_PATH=" + ld_library_path +\
+                ";export CLASSPATH=" + classpath +\
+                ";jython " + properties + " " + scriptlet
             # Display this "jython" command
             config.pki_log.info(
-                log.PKIHELPER_INVOKE_JYTHON_3,
-                ld_library_path, property, scriptlet,
+                log.PKIHELPER_INVOKE_JYTHON_1,
+                command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
             # Invoke this "jython" command
-            subprocess.call(command, shell=True)
+            subprocess.call(command + " \"" + data + "\"", shell=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)

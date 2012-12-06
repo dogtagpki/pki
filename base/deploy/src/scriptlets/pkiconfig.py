@@ -20,16 +20,6 @@
 #
 import re
 
-def is_rhel():
-    try:
-        f = open("/etc/redhat-release")
-        for line in f:
-            if re.search("Red Hat Enterprise Linux", line):
-                return True
-    except IOError, e:
-        pass
-    return False
-
 # PKI Deployment Constants
 PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS = 00755
 PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS = 00770
@@ -70,10 +60,6 @@ PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
 PKI_DEPLOYMENT_JAR_SOURCE_ROOT = "/usr/share/java"
 PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT = "/usr/share/java/httpcomponents"
 PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT = "/usr/share/java/pki"
-
-PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT = "/usr/share/java/resteasy"
-if is_rhel():
-    PKI_DEPLOYMENT_RESTEASY_JAR_SOURCE_ROOT = "/usr/share/java/resteasy-base"
 
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
 PKI_DEPLOYMENT_SYSTEMD_ROOT = "/lib/systemd/system"

@@ -50,8 +50,7 @@ find_file(JAXRS_API_JAR
     NAMES
         jaxrs-api.jar
     PATHS
-        /usr/share/java/resteasy
-        /usr/share/java/resteasy-base
+        ${RESTEASY_LIB}
 )
 
 
