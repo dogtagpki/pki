@@ -3718,6 +3718,8 @@ struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
 	    c++;
         }  
         ret = (struct berval **) malloc ((sizeof (struct berval *) * c) + 1);
+
+        ret = (struct berval **) calloc (sizeof (struct berval *), (c + 1));
         for (i=0; i< c; i++) {
             ret[i] = (struct berval *) malloc(sizeof(struct berval));
         }

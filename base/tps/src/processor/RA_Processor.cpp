@@ -3144,9 +3144,12 @@ locale),
         int defKeyIndex = RA::GetConfigStore()->GetConfigAsInt(configname, 0x0);
         channel = SetupSecureChannel(session, 0x00,
                   defKeyIndex  /* default key index */, connid);
-        rc = channel->ExternalAuthenticate();
+
         if (channel != NULL) {
             char issuer[224];
+
+            rc = channel->ExternalAuthenticate();
+
             for (int i = 0; i < 224; i++) {
               issuer[i] = 0;
             }
