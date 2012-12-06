@@ -290,6 +290,11 @@ PKI_JYTHON_CRMF_SUPPORT_ONLY = "only the 'crmf' certificate request type "\
                                "is currently supported"
 PKI_JYTHON_IS_DUALKEY = "dualkey = true"
 PKI_JYTHON_EXCEPTION_PARSER = "Problem parsing"
+PKI_JYTHON_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
+                              "from file:"
+PKI_JYTHON_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
+                                    "chain from file:"
+PKI_JYTHON_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
 PKI_JYTHON_INDENTATION_0 = "pkispawn    : JYTHON  "
 PKI_JYTHON_INDENTATION_1 = "pkispawn    : JYTHON   ..."
 PKI_JYTHON_INDENTATION_2 = "pkispawn    : JYTHON   ......."

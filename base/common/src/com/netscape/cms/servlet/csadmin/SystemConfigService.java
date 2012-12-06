@@ -373,21 +373,22 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             psStore.putString("replicationdb", replicationpwd);
             psStore.commit(false);
 
-            ConfigurationUtils.populateDB();
+            if (data.getStepTwo() == null) {
+                ConfigurationUtils.populateDB();
 
-            cs.putString("preop.internaldb.replicationpwd", replicationpwd);
-            cs.putString("preop.database.removeData", "false");
-            cs.commit(false);
+                cs.putString("preop.internaldb.replicationpwd", replicationpwd);
+                cs.putString("preop.database.removeData", "false");
+                cs.commit(false);
 
-            if (data.getIsClone().equals("true")) {
-                CMS.debug("Start setting up replication.");
-                ConfigurationUtils.setupReplication();
+                if (data.getIsClone().equals("true")) {
+                    CMS.debug("Start setting up replication.");
+                    ConfigurationUtils.setupReplication();
+                }
+
+                ConfigurationUtils.reInitSubsystem(csType);
+                ConfigurationUtils.populateDBManager();
+                ConfigurationUtils.populateVLVIndexes();
             }
-
-            ConfigurationUtils.reInitSubsystem(csType);
-            ConfigurationUtils.populateDBManager();
-            ConfigurationUtils.populateVLVIndexes();
-
         } catch (Exception e) {
             throw new PKIException("Error in populating database" + e);
         }
@@ -560,6 +561,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // submitting to external ca
         if ((data.getIssuingCA()!= null) && data.getIssuingCA().equals("External CA") && (!hasSigningCert)) {
             response.setSystemCerts(SystemCertDataFactory.create(certs));
+            response.setStatus(SUCCESS);
             return response;
         }
 

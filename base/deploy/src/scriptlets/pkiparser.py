@@ -263,12 +263,6 @@ class PKIConfigParser:
                 random.randint(pin_low, pin_high)
             config.pki_master_dict['pki_client_pin'] =\
                 random.randint(pin_low, pin_high)
-            # Generate a one-time pin to be used prior to configuration
-            # and add this to the "sensitive" key value pairs read in from
-            # the configuration file
-            config.pki_master_dict['pki_one_time_pin'] =\
-                ''.join(random.choice(string.ascii_letters + string.digits)\
-                for x in range(20))
             # Configuration file name/value pairs
             #     NEVER add "sensitive" key value pairs to the master dictionary!!!
             config.pki_master_dict.update(config.pki_default_dict)
@@ -944,6 +938,29 @@ class PKIConfigParser:
             config.pki_master_dict['pki_target_registry'] =\
                 os.path.join(config.pki_master_dict['pki_instance_registry_path'],
                              config.pki_master_dict['pki_instance_id'])
+            if config.pki_master_dict['pki_subsystem'] == "CA" and\
+               config.str2bool(config.pki_master_dict['pki_external_step_two']):
+                # Use the 'pki_one_time_pin' established during the setup of
+                # External CA Step 1
+                if os.path.exists(config.pki_master_dict['pki_target_cs_cfg'])\
+                   and\
+                   os.path.isfile(config.pki_master_dict['pki_target_cs_cfg']):
+                    cs_cfg = self.read_simple_configuration_file(
+                                 config.pki_master_dict['pki_target_cs_cfg'])
+                    config.pki_master_dict['pki_one_time_pin'] =\
+                        cs_cfg.get('preop.pin')
+                else:
+                    config.pki_log.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                        config.pki_master_dict['pki_target_cs_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    sys.exit(1)
+            else:
+                # Generate a one-time pin to be used prior to configuration
+                # and add this to the "sensitive" key value pairs read in from
+                # the configuration file
+                config.pki_master_dict['pki_one_time_pin'] =\
+                    ''.join(random.choice(string.ascii_letters + string.digits)\
+                    for x in range(20))
             if config.pki_master_dict['pki_subsystem'] in\
                config.PKI_TOMCAT_SUBSYSTEMS:
                 config.pki_master_dict['pki_target_catalina_properties'] =\
@@ -1472,9 +1489,7 @@ class PKIConfigParser:
                         config.pki_master_dict['pki_security_domain_uri']
             elif config.str2bool(config.pki_master_dict['pki_external']):
                 # External CA
-                #
-                #     NOTE:  External CA's DO NOT require a security domain
-                #
+                config.pki_master_dict['pki_security_domain_type'] = "new"
                 if not len(config.pki_master_dict['pki_issuing_ca']):
                     config.pki_master_dict['pki_issuing_ca'] = "External CA"
             else:

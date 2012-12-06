@@ -33,7 +33,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self):
-        if config.str2bool(master['pki_skip_installation']):
+        if master['pki_subsystem'] == "CA" and\
+           config.str2bool(master['pki_external_step_two']):
+            # must check for 'External CA Step 2' installation PRIOR to
+            # 'pki_skip_installation' since this value has been set to true
+            # by the initialization scriptlet
+            pass
+        elif config.str2bool(master['pki_skip_installation']):
             config.pki_log.info(log.SKIP_FINALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv

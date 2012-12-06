@@ -20,6 +20,7 @@ import jarray
 
 # System Python Imports
 import ConfigParser
+import errno
 import os
 import re
 import sys
@@ -389,6 +390,26 @@ class rest_client:
         cert.setToken(self.master["pki_%s_token" % tag])
         return cert
 
+    def mkdirs(self, path):
+        try:
+            os.makedirs(path)
+        except OSError, e:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
+    def write_data_to_file(self, filename, data):
+        FILE = open(filename, "w")
+        FILE.write(data)
+        FILE.close()
+
+    def read_data_from_file(self, filename):
+        FILE = open(filename, "r")
+        data = FILE.read()
+        FILE.close()
+        return data
+
     def retrieve_existing_server_cert(self, cfg_file):
         cs_cfg = read_simple_configuration_file(cfg_file)
         cstype = cs_cfg.get('cs.type').lower()
@@ -439,7 +460,6 @@ class rest_client:
             if master['pki_subsystem'] == "CA":
                 if config.str2bool(master['pki_clone']):
                     # Cloned CA
-                    # alee - is this correct?
                     data.setHierarchy("root")
                 elif config.str2bool(master['pki_external']):
                     # External CA
@@ -466,8 +486,8 @@ class rest_client:
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
             # Subordinate CA
             self.set_existing_security_domain(data)
-        elif not config.str2bool(master['pki_external']):
-            # PKI CA
+        else:
+            # PKI CA or External CA
             self.set_new_security_domain(data)
 
         if master['pki_subsystem'] != "RA":
@@ -488,6 +508,10 @@ class rest_client:
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
             # Subordinate CA, or External CA
             data.setIssuingCA(master['pki_issuing_ca'])
+            if master['pki_subsystem'] == "CA"  and\
+               config.str2bool(master['pki_external_step_two']):
+                # External CA Step 2
+                data.setStepTwo("true");
 
         # Create system certs
         systemCerts = ArrayList()
@@ -495,10 +519,26 @@ class rest_client:
         # Create 'CA Signing Certificate'
         if master['pki_subsystem'] == "CA":
             if not config.str2bool(master['pki_clone']):
-                cert = self.create_system_cert("ca_signing")
-                cert.setSigningAlgorithm(
+                cert1 = self.create_system_cert("ca_signing")
+                cert1.setSigningAlgorithm(
                     master['pki_ca_signing_signing_algorithm'])
-                systemCerts.add(cert)
+                if config.str2bool(master['pki_external_step_two']):
+                    # Load the 'External CA Signing Certificate' (Step 2)
+                    javasystem.out.println(
+                        log.PKI_JYTHON_EXTERNAL_CA_LOAD + " " +\
+                        "'" + master['pki_external_ca_cert_path'] + "'")
+                    external_cert = self.read_data_from_file(
+                        master['pki_external_ca_cert_path'])
+                    cert1.setCert(external_cert);
+                    # Load the 'External CA Signing Certificate Chain' (Step 2)
+                    javasystem.out.println(
+                        log.PKI_JYTHON_EXTERNAL_CA_CHAIN_LOAD + " " +\
+                        "'" + master['pki_external_ca_cert_chain_path'] +\
+                        "'")
+                    external_cert_chain = self.read_data_from_file(
+                        master['pki_external_ca_cert_chain_path'])
+                    cert1.setCertChain(external_cert_chain);
+                systemCerts.add(cert1)
 
         # Create 'OCSP Signing Certificate'
         if not config.str2bool(master['pki_clone']):
@@ -570,13 +610,30 @@ class rest_client:
             iterator = certs.iterator()
             while iterator.hasNext():
                 cdata = iterator.next()
-                javasystem.out.println(log.PKI_JYTHON_CDATA_TAG + " " +\
-                                       cdata.getTag())
-                javasystem.out.println(log.PKI_JYTHON_CDATA_CERT + " " +\
-                                       cdata.getCert())
-                javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST + " " +\
-                                       cdata.getRequest())
-
+                if master['pki_subsystem'] == "CA" and\
+                   config.str2bool(master['pki_external']) and\
+                   not config.str2bool(master['pki_external_step_two']):
+                    # External CA Step 1
+                    if cdata.getTag().lower() == "signing":
+                        javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST +\
+                                               " " + cdata.getRequest())
+                        # Save 'External CA Signing Certificate' CSR (Step 1)
+                        javasystem.out.println(log.PKI_JYTHON_EXTERNAL_CSR_SAVE\
+                                               + " " + "'" +\
+                                               master['pki_external_csr_path']\
+                                               + "'")
+                        self.mkdirs(
+                            os.path.dirname(master['pki_external_csr_path']))
+                        self.write_data_to_file(master['pki_external_csr_path'],
+                                                cdata.getRequest())
+                        return
+                else:
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_TAG +\
+                                           " " + cdata.getTag())
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_CERT +\
+                                           " " + cdata.getCert())
+                    javasystem.out.println(log.PKI_JYTHON_CDATA_REQUEST +\
+                                           " " + cdata.getRequest())
             # Cloned PKI subsystems do not return an Admin Certificate
             if not config.str2bool(master['pki_clone']) and \
                not config.str2bool(master['pki_import_admin_cert']):
@@ -590,9 +647,7 @@ class rest_client:
                 admin_cert_bin_file = admin_cert_file + ".der"
                 javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
                                        " " + "'" + admin_cert_file + "'")
-                FILE = open(admin_cert_file, "w")
-                FILE.write(admin_cert)
-                FILE.close()
+                self.write_data_to_file(admin_cert_file, admin_cert)
                 # convert the cert file to binary
                 command = "AtoB "+ admin_cert_file + " " + admin_cert_bin_file
                 javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_ATOB +\

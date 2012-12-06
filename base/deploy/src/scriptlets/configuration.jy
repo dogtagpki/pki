@@ -100,21 +100,8 @@ def main(argv):
                    log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
             return rv
     elif master['pki_instance_type'] == "Tomcat":
-        if master['pki_subsystem'] == "CA":
-            if config.str2bool(master['pki_external']):
-                print "%s '%s %s' %s" %\
-                      (log.PKI_JYTHON_INDENTATION_2,
-                       config.PKI_DEPLOYMENT_EXTERNAL_CA,
-                       master['pki_subsystem'],
-                       log.PKI_JYTHON_NOT_YET_IMPLEMENTED)
-                return rv
-            else:
-                # PKI, Subordinate, or Cloned CA
-                data = jyutil.rest_client.construct_pki_configuration_data(
-                           token)
-        else:
-            # PKI or Cloned KRA, OCSP, or TKS
-            data = jyutil.rest_client.construct_pki_configuration_data(token)
+        # PKI or Cloned CA, KRA, OCSP, or TKS, Subordinate CA, or External CA
+        data = jyutil.rest_client.construct_pki_configuration_data(token)
 
     # Formulate PKI Subsystem Configuration Data Response
     jyutil.rest_client.configure_pki_data(data)

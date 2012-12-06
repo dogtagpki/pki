@@ -41,13 +41,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
-        config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" does NOT yet
-        # exist for this "instance"
-        util.instance.verify_subsystem_does_not_exist()
-        # detect and avoid any namespace collisions
-        util.namespace.collision_detection()
+        else:
+            config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            if master['pki_subsystem'] == "CA" and\
+               config.str2bool(master['pki_external_step_two']):
+                # verify that this type of "subsystem" currently EXISTS
+                # for this "instance" (External CA Step 2)
+                util.instance.verify_subsystem_exists()
+                master['pki_skip_installation'] = "True";
+            else:
+                # verify that this type of "subsystem" does NOT yet
+                # exist for this "instance"
+                util.instance.verify_subsystem_does_not_exist()
+                # detect and avoid any namespace collisions
+                util.namespace.collision_detection()
         # initialize 'uid' and 'gid'
         util.identity.add_uid_and_gid(master['pki_user'], master['pki_group'])
         # establish 'uid' and 'gid'

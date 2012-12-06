@@ -685,7 +685,8 @@ class configuration_file:
                         master['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     sys.exit(1)
-                if not config.str2bool(master['pki_step_two']):
+                if not config.str2bool(master['pki_external_step_two']):
+                    # External CA (Step 1)
                     if not master.has_key('pki_external_csr_path') or\
                        not len(master['pki_external_csr_path']):
                         config.pki_log.error(
@@ -694,13 +695,15 @@ class configuration_file:
                             master['pki_user_deployment_cfg'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         sys.exit(1)
-                    elif not os.path.isfile(master['pki_external_csr_path']):
+                    elif os.path.exists(master['pki_external_csr_path']) and\
+                         not os.path.isfile(master['pki_external_csr_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
                             master['pki_external_csr_path'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         sys.exit(1)
                 else:
+                    # External CA (Step 2)
                     if not master.has_key('pki_external_ca_cert_chain_path') or\
                        not len(master['pki_external_ca_cert_chain_path']):
                         config.pki_log.error(
@@ -709,7 +712,9 @@ class configuration_file:
                             master['pki_user_deployment_cfg'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         sys.exit(1)
-                    elif not os.path.isfile(
+                    elif os.path.exists(
+                                 master['pki_external_ca_cert_chain_path']) and\
+                         not os.path.isfile(
                                  master['pki_external_ca_cert_chain_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
@@ -724,7 +729,8 @@ class configuration_file:
                             master['pki_user_deployment_cfg'],
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         sys.exit(1)
-                    elif not os.path.isfile(
+                    elif os.path.exists(master['pki_external_ca_cert_path']) and\
+                         not os.path.isfile(
                                  master['pki_external_ca_cert_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
