@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          9.0.9
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -277,6 +277,11 @@ fi
 
 
 %changelog
+
+* Wed Dec 06 2012 Jack Magne <jmagne@rehdat.com> 8.1.3-2
+- Bugzilla Bug #863272 - rhcs81 tps httpd segfault on interrupted token format operations. -
+- Bugzilla Bug #864607 - Empty certificate search in TPS results in httpd.worker segmentation fault then server error.
+
 * Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.9-1
 - New official build
 - Changes to allow tps to start correctly - (alee)
