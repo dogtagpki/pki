@@ -15,17 +15,15 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-pki \- Command-Line Interface (CLI) Tools.
+pki \- Command-Line Interface Tool for accessing Certificate System Servers.
 
-.SH LOCATION
-/usr/bin/pki
+.SH SYNOPSIS
+pki [CLI options] <command> [command arguments]
 
 .SH DESCRIPTION
 .PP
-The \fBpki\fR command-line interface tool allows an administrator the ability
-to manage certificates, groups, keys, security domains, and users from the
-command line.
-
+\fBpki\fR provides a command-line interface to Certficate System Servers, allowing administrators to manage certificates, groups, keys, security domains, and users.
+  
 .SH OPTIONS
 .TP
 .B -d <database>
@@ -64,32 +62,178 @@ Displays 'pki' CLI version information.
 .B -w <password>
 Specifies the password.
 
-.SH COMMANDS
-.SS cert \- Certificate Management Commands
-.PP
-blah blah
+.SH OPERATIONS
+To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands. To view the sub-commands, type \fBpki <command>\fP.  To view each command's usage, type: \fB pki <command> --help\fP
 
-.SS group \- Group Management Commands
-.PP
-blah blah
+.SS Connection
+By default, \fBpki\fP will connect to the non-secure (http) port of a  CA server running on the localhost on port 8080.  To specify a different location, parameters can be changed individually using the following options:
 
-.SS key \- Key Management Commands
-.PP
-blah blah
+.B pki -P <protocol> -h <hostname> -p <port> -t <subsystem> <command>
 
-.SS securitydomain \- Security Domain Commands
-.PP
-blah blah
+Alternatively, the connection parameters can be specified as a URL:
 
-.SS user \- User Management Commands
-.PP
-blah blah
+.B pki -U <subsystem URL> <command>
+
+where the URL is of the format: https://<hostname>:<port>/<subsystem>.
+
+.SS Authentication
+Some commands require authentication.  These are commands that are restricted to particular sets of users (agents, admins) or those operations involving certificate profiles that require authentication.
+
+To execute a command without authentication:
+
+.B pki <command>
+
+To authenticate with username and password:
+
+.B pki -u <username> -w <password> <command>
+
+To authenticate with client certificate:
+
+.B pki -d <certificate database directory> -w <certificate database password> -n <certificate nickname> <command>
+    
+.SS Certificates
+Viewing certificates can be executed anonymously.
+
+To list all certificates:
+
+.B pki cert-find
+
+It is also possible to search/list specific certificates by adding a search filter.  Use \fBpki cert-find --help\fP to see options.  An example invocation would be :
+
+.B pki cert-find --issuedOnFrom 2012-06-15
+
+To view a particular certificate:
+
+.B pki cert-show <certificate ID>
+
+Revoking, holding, or releasing a certificate must be executed as an agent.
+To revoke a certificate:
+
+.B pki <agent authentication> cert-revoke <certificate ID>
+
+To place a certificate on-hold temporarily:
+
+.B pki <agent authentication> cert-hold <certificate ID>
+
+To release a certificate that has been placed on hold:
+
+.B pki <agent authentication> cert-release-hold <certificate ID>
+
+.SS Certificate Requests
+To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in an XML file, for example:
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+.br
+<CertEnrollmentRequest>
+    <profileId>caUserCert</profileId>
+    <isRenewal>false</isRenewal>
+    <Input>
+        <InputAttrs>
+            <InputAttr name="cert_request_type">crmf</InputAttr>
+            <InputAttr name="cert_request">MIIBozCCAZ8wggEFA ...
+                CSR in Base 64 ... </InputAttr>
+        </InputAttrs>
+        <inputId>KeyGenInput</inputId>
+    </Input>
+    <Input>
+        <InputAttrs>
+            <InputAttr name="sn_uid">testuser</InputAttr>
+            <InputAttr name="sn_e">testuser@example.com</InputAttr>
+            <InputAttr name="sn_c">US</InputAttr>
+            <InputAttr name="sn_ou">Engineering</InputAttr>
+            <InputAttr name="sn_cn">Test User</InputAttr>
+            <InputAttr name="sn_o">Example</InputAttr>
+        </InputAttrs>
+        <inputId>SubjectNameInput</inputId>
+    </Input>
+    <Input>
+        <InputAttrs>
+            <InputAttr name="requestor_name">admin</InputAttr>
+            <InputAttr name="requestor_email">admin@example.com
+            </InputAttr>
+            <InputAttr name="requestor_phone">123-456-7890</InputAttr>
+        </InputAttrs>
+        <inputId>SubmitterInfoInput</inputId>
+    </Input>
+</CertEnrollmentRequest>
+
+Then submit the request for review.  This can be done without authentication.
+
+.B pki cert-request-submit <request file>
+
+Then, an agent needs to review the request.
+
+.B pki <agent authentication> cert-request-review <request ID> --output <request review file>
+
+The output file contains details about the request, as well as the defaults and constraints of the enrollment profile.  It contains all the values that can be overridden by the agent.  To approve a request, run the following command as an agent:
+
+.B pki <agent authentication> cert-request-approve <request review file>
+
+.SS Group Management Commands
+All group commands must be executed as an administrator. Some representative commands are shown below.  Type \fBpki group\fP to get a list of additional commands.
+
+To list groups, use \fBpki group-find\fP.  It is possible to select the page size to limit the number of entries returned.  To list all groups:
+
+.B pki <admin authentication> group-find
+
+To view a particular group:
+
+.B pki <admin authentication> group-show <group ID>
+
+To add a group:
+
+.B pki <admin authentication> group-add <group ID> --description "description"
+
+To delete a group:
+
+.B pki <admin authentication> group-del <group ID>
+
+To add a user to a group:
+
+.B pki <admin authentication> group-add-member <group ID> <Member ID>
+
+To delete a user from a group:
+
+.B pki <admin authentication> group-remove-member <group ID> <Member ID>
+
+.SS Key Management Commands
+\fBpki\fP can be used with a KRA to find specific keys and key requests.  This will be documented in more detail at a later time.
+
+.SS Security Domain Commands
+\fBpki\fP can be used to access certain information from the security domain.
+
+To get an installation token (used when installing a new subsystem within a security domain), the following command can be run.
+
+\fBpki <security domain admin authentication> securitydomain-get-install-token --hostname <hostname> --subsystem <subsystem>\fP
+
+To show the contents of the security domain:
+
+\fBpki <security domain admin authentication> securitydomain-show\fP
+
+.SS User Management Commands
+All user commands must be executed as an administrator. Some representative commands are shown below.  Type \fBpki user\fP to get a list of additional commands.
+
+To list users, use \fBpki user-find\fP.  It is possible to select the page size to limit the size of the results.  To list all users:
+
+.B pki <admin authentication> user-find
+
+To view a particular user:
+
+.B pki <admin authentication> user-show <user ID>
+
+To add a user:
+
+.B pki <admin authentication> user-add <user ID> --fullName <full name>
+
+To delete a user:
+
+.B pki <admin authentication> user-del <user ID>
+
+.SH FILES
+.I /usr/bin/pki
 
 .SH AUTHORS
-Ade Lee <alee@redhat.com>.  \fBpki\fP was written by the Dogtag project.
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com> and Matt Harmsen <mharmsen@redhat.com>.  \fBpki\fP was written by the Dogtag project.
 
 .SH COPYRIGHT
 Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
-
-.SH SEE ALSO
-blah blah
