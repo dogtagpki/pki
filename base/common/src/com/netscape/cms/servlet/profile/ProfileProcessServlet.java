@@ -131,7 +131,11 @@ public class ProfileProcessServlet extends ProfileServlet {
             String requestNonce = request.getParameter(ARG_REQUEST_NONCE);
             boolean nonceVerified = false;
             if (requestNonce != null) {
-                long nonce = Long.parseLong(requestNonce.trim());
+                long nonce = 0L;
+                try {
+                    nonce = Long.parseLong(requestNonce.trim());
+                } catch (NumberFormatException e) {
+                }
                 X509Certificate cert1 = mNonces.getCertificate(nonce);
                 X509Certificate cert2 = getSSLClientCertificate(request);
                 if (cert1 == null) {
@@ -237,7 +241,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (req == null) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_REQUEST_NOT_FOUND", requestId));
+                    "CMS_REQUEST_NOT_FOUND", escapeJavaScriptString(requestId)));
             outputTemplate(request, response, args);
             if (statsSub != null) {
               statsSub.endTiming("approval");
@@ -299,7 +303,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", profileId));
+                    "CMS_PROFILE_NOT_FOUND", escapeJavaScriptString(profileId)));
             outputTemplate(request, response, args);
             if (statsSub != null) {
               statsSub.endTiming("approval");
