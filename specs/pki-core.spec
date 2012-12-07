@@ -957,7 +957,7 @@ fi
 * Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
 - Update to official release for rc1
 
-* Thu Dec  8 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.56.b3
+* Thu Dec  6 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.56.b3
 - TRAC Ticket #315 - Man pages for pkispawn/pkidestroy.
 - Added place-holders for 'pki.1' and 'pki_default.cfg.5' man pages.
 
