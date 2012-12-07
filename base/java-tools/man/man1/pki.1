@@ -1,0 +1,95 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki 1 "December 5, 2012" "version 1.0" "PKI Command-Line Interface (CLI) Tools" Ade Lee
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+pki \- Command-Line Interface (CLI) Tools.
+
+.SH LOCATION
+/usr/bin/pki
+
+.SH DESCRIPTION
+.PP
+The \fBpki\fR command-line interface tool allows an administrator the ability
+to manage certificates, groups, keys, security domains, and users from the
+command line.
+
+.SH OPTIONS
+.TP
+.B -d <database>
+Specifies the certificate database to be utilized.
+.TP
+.B -h <hostname>
+Specifies the hostname (default: localhost).
+.TP
+.B --help
+Prints additional help information.
+.TP
+.B -n <nickname>
+Specifies the certificate nickname.
+.TP
+.B -P <protocol>
+Specifies the protocol (default: http)
+.TP
+.B -p <port>
+Specifies the port (default: 8080)
+.TP
+.B -t <type>
+Specifies the type of subsystem (default: ca)
+.TP
+.B -U <uri>
+Specifies the server URI.
+.TP
+.B -u <username>
+Specifies the user name.
+.TP
+.B -v
+Displays verbose information.
+.TP
+.B --version
+Displays 'pki' CLI version information.
+.TP
+.B -w <password>
+Specifies the password.
+
+.SH COMMANDS
+.SS cert \- Certificate Management Commands
+.PP
+blah blah
+
+.SS group \- Group Management Commands
+.PP
+blah blah
+
+.SS key \- Key Management Commands
+.PP
+blah blah
+
+.SS securitydomain \- Security Domain Commands
+.PP
+blah blah
+
+.SS user \- User Management Commands
+.PP
+blah blah
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>.  \fBpki\fP was written by the Dogtag project.
+
+.SH COPYRIGHT
+Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+blah blah

@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}55%{?prerel}%{?dist}
+Release:          %{?relprefix}56%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -808,6 +808,7 @@ fi
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
+%{_mandir}/man1/*
 
 
 %files -n pki-server
@@ -846,6 +847,8 @@ fi
 %{_bindir}/pkisilent
 %{_datadir}/pki/silent/
 %{_bindir}/pkicontrol
+%{_mandir}/man5/*
+%{_mandir}/man8/*
 
 # Details:
 #
@@ -960,6 +963,10 @@ fi
 
 
 %changelog
+* Thu Dec  8 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.56.b3
+- TRAC Ticket #315 - Man pages for pkispawn/pkidestroy.
+- Added place-holders for 'pki.1' and 'pki_default.cfg.5' man pages.
+
 * Thu Dec 6 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.55.b3
 - Added system-wide configuration /etc/pki/pki.conf.
 - Removed redundant lines in %files.

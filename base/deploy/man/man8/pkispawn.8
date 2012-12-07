@@ -1,0 +1,270 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pkispawn 8 "December 5, 2012" "version 1.0" "PKI Instance Creation Utility" Ade Lee
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+pkispawn \- Sets up an instance of Certificate Server.
+
+.SH SYNOPSIS
+pkispawn -s <subsystem> -f <config_file> [-h] [-u] [-v] [-p <prefix>]
+
+.SH DESCRIPTION
+Sets up an instance of Certificate Server.  This utility creates any of the Java-based Certificate Server subsystems (CA, KRA, OCSP, and TKS). 
+.TP
+\fBNote:\fP 
+A 389 Directory Server instance must be configured and running before this script can be run. Certificate Server requires an internal directory database. The default configuration assumes a Directory Server instance running on the same machine on port 389.  For more information on creating a Directory Server instance, see
+.B setup-ds.pl(8).
+.TP
+\fBNote:\fP 
+This utility creates only Java-based subsystems. The Apache-based Certificate Server subsystems (RA and TPS) are created using \fBpkicreate\fP. 
+.PP
+An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values 
+.I -s CA 
+and 
+.I -s KRA 
+respectively.
+.PP
+The instances are created based on values for configuration parameters in the default configuration (/etc/pki/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
+.PP
+This configuration file contains directives that are divided into sections for different subsystem types (such as [DEFAULT], [CA], and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP and TKS), the sections read are [DEFAULT], [Tomcat] and the subsystem-type section ([CA], [KRA], [OCSP], or [TKS]), in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and system-specific upgrades in the [CA], [KRA], and other sections.
+.PP
+At a minimum, the user-defined configuration file must provide some passwords needed for the install.  An example configuration file is provided in the 
+.B EXAMPLES
+section below.  For more information on the default configuration file and the parameters it contains (and can be customized), see
+.B pki_default.cfg(5).
+.PP
+The \fBpkispawn\fP run creates several different installation files that can be referenced later, if need be:
+.IP
+* For Tomcat-based instances, a Tomcat instance is created at \fT/var/lib/pki/<pki_instance_name>\fP, where pki_instance_name is defined in the configuration file.  
+.IP
+* A log file of \fBpkispawn\fP operations is written to \fI/var/log/pki/pki-spawn-<pki_instance_name>-<timestamp>.log\fP.  
+.IP
+* A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in pki_client_dir. 
+.PP
+When the utility is done running, the CA can be accessed by pointing a browser to https://<hostname>:<pki_https_port>/. The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser. 
+.PP
+The Certificate Server instance can also be accessed using the \fBpki\fP command line interface.  See 
+\fBpki(1)\fP. For more extensive documentation on how to use the Certificate Server instance and its rich feature set, see the Red Hat Certificate System Documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
+.PP
+Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  See
+.BR pkidestroy(8).
+.PP
+\fBpkispawn\fP supercedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP. To use the browser-based configuration panels with \fBpkispawn\fP instead, set the configuration parameter \fBpki_skip_configuration\fP to True.
+ 
+.SH OPTIONS
+.TP
+.B -s <subsystem>
+Specifies the subsystem to be installed and configured, where <subsystem> is CA, KRA, OCSP, or TKS.
+.TP
+.B -f <config_file>
+Specifies the path to the user-defined configuration file.  This file contains differences between the default configuration and the custom configuration.
+.TP
+.B -h, --help
+Prints additional help information.
+.TP
+.B -u
+Runs this script in upgrade mode, to update an existing instance.
+.TP
+.B -v
+Displays verbose information about the installation.  This flag can be provided multiple times to increase verbosity.  See
+.B pkispawn -h 
+for details.
+
+.SH EXAMPLES
+.SS CA using default configuration
+\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+.fi
+.PP
+Prior to running this command, a Directory Server instance should be created and running on the local machine on port 389 with user cn=Directory Manager having the password specified in pki_ds_password above.  This invocation of \fBpkispawn\fP creates a Tomcat instance containing a CA running on the local machine with secure port 8443 and unsecure port 8080.  To access this CA, simply point a browser to https://<hostname>:8443.
+.PP
+The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pkispawn-pki-tomcat-<timestamp>.log\fP
+.PP
+A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.pki/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.  To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
+.SS KRA, OCSP, or TKS using default configuration
+\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+.PP
+where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP is the same as the one used for the default CA example.  This command should be run after a CA is installed.  This installs another subsystem within the same default instance using the certificate generated for the CA administrator for the subsystem's administrator.  This allows a user to access both subsystems on the browser with a single administrator certificate.  To access the new subsystem's functionality, simply point the browser to https://<hostname>:8443 and click the relevant top-level links.
+.SS KRA, OCSP, or TKS connecting to a remote CA
+\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+.PP
+where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+pki_security_domain_hostname=<ca_hostname>
+pki_security_domain_https_port=<ca_port>
+pki_security_domain_user=caadmin
+pki_issuing_ca=https://<ca_hostname>:<ca_port>
+.fi
+.PP
+A remote CA is one where the CA resides in another Certificate Server instance, either on the local machine or a remote machine.  In this case, \fImyconfig.txt\fP must specify the connection information for the remote CA and the information about the security domain (the trusted collection of subsystems within an instance).
+.PP
+This example assumes that the specified CA hosts the security domain.  The CA must be running and accessible.  
+.PP 
+A new administrator certificate is generated for the new subsystem and stored in a PKCS #12 file in \fI$HOME/.pki/pki-tomcat\fP. 
+.SS Installing a CA clone
+\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+.PP 
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+pki_security_domain_hostname=<master_ca_hostname>
+pki_security_domain_https_port=<master_ca_https_port>
+pki_security_domain_user=caadmin
+
+[CA]
+pki_clone=True
+pki_clone_pkcs12_password=\fIpassword123\fP
+pki_clone_pkcs12_path=<path_to_pkcs12_file>
+pki_clone_replicate_schema=True
+pki_clone_uri=https://<master_ca_hostname>:<master_ca_https_port>
+.fi
+.PP
+A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing certificates as the master CA, but issues certificates within a different serial number range.  It has its own internal database -- separate from the master CA database -- but using the same base DN, that keeps in sync with the master CA through replication agreements between the databases.  This is very useful for load sharing and disaster recovery. To create a clone, the \fImyconfig.txt\fP uses pki_clone-* parameters in its [CA] section which identify the original CA to use as a master template. Additionally, it connects to the master CA as a remote CA and uses its security domain.
+.PP
+Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.  In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.  This file is created when the master CA is installed; it can also be generated using \fBPKCS12Export\fP.  The file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
+.PP
+.SS Installing a KRA, OCSP, or TKS clone
+\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+.PP
+where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+pki_security_domain_hostname=<master_ca_hostname>
+pki_security_domain_https_port=<master_ca_https_port>
+pki_security_domain_user=caadmin
+
+[KRA]
+pki_clone=True
+pki_clone_pkcs12_password=\fIpassword123\fP
+pki_clone_pkcs12_path=<path_to_pkcs12_file>
+pki_clone_replicate_schema=True
+pki_clone_uri=https://<master_kra_host>:<master_kra_https_port>
+pki_issuing_ca=https://<ca_hostname>:<ca_https_port>
+.fi
+.PP
+As with a CA clone, a KRA, OCSP, or TKS clone uses the same certificates and basic configuration as the original subsystem. The configuration points to the original subsystem to copy its configuration. This example also assumes that the CA is on a remote machine and specifies the CA and security domain information. 
+.PP
+The subsystem section is [KRA], [OCSP], or [TKS].
+.SS Installing a subordinate CA
+\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+pki_security_domain_hostname=<security_domain_ca_hostname>
+pki_security_domain_https_port=<security_domain_ca_https_port>
+pki_security_domain_user=caadmin
+
+[CA]
+pki_subordinate=True
+pki_issuing_ca=https://<master_ca_hostname>:<master_ca_https_port>
+.fi
+.PP
+A sub-CA derives its certificate configuration -- such as allowed extensions and validity periods -- from a superior or root CA. Otherwise, the configuration of the CA is independent of the root CA, so it is its own instance rather than a clone. A sub-CA is configured using the pki_subordinate parameter and a pointer to the CA which issues the sub-CA's certificates.
+.SS Installing an externally signed CA
+\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+.PP
+This is a two step process.
+.PP
+In the first step, a certificate signing request (CSR) is generated for the signing certificate and \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+
+[CA]
+pki_external=True
+pki_external_csr_path=/tmp/ca_signing.csr
+pki_ca_signing_subject_dn=cn=CA Signing,ou=External,o=example.com
+.fi
+.PP
+The CSR is written to pki_external_csr_path.  The pki_ca_signing_subject_dn should be different from the subject DN of the external CA that is signing the request.  The pki_ca_signing_subject_dn parameter can be used to specify the signing certificate's subjectDN.
+.PP
+The CSR is then submitted to the external CA, and the resulting certificate and certificate chain are copied to files on the system.
+.PP
+.B pkispawn -s CA -f myconfig.txt
+.PP
+In the second step, the \fBpkispawn\fP command is run again after the configuration file has been modified to contain the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+
+[CA]
+pki_external=True
+pki_external_ca_cert_chain_path=/tmp/ca_cert_chain.cert
+pki_external_ca_cert_path=/tmp/ca_signing.cert
+pki_external_step_two=True
+pki_ca_signing_subject_dn=cn=CA Signing,ou=External,o=example.com
+.fi
+.PP
+In place of the original CSR, the configuration file now points to the issued CA certificate and certificate chain. There is also a flag to indicate that this completes the installation process (pki_external_step_two).
+
+.SH BUGS
+Report bugs to http://bugzilla.redhat.com.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Dogtag project.
+
+.SH COPYRIGHT
+Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pkidestroy(8),
+.BR pki_default.cfg(5),
+.BR pki(1),
+.BR setup-ds.pl(8)

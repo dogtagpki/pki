@@ -1,0 +1,81 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki_default.cfg 5 "December 5, 2012" "version 1.0" "PKI Default Instance Configuration" Ade Lee
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+pki_default.cfg \- Certificate Server instance Default Config file.
+
+.SH LOCATION
+/etc/pki/default.cfg
+
+.SH DESCRIPTION
+This file contains the default settings for a Certifcate Server instance created using \fBpkispawn\fP.  This file should not be edited, as it can be modified when the Certificate Server packages are udpated.  Rather, when setting up a Certificate Server instance, a user-provided configuration file can provide overrides to the defaults in /etc/pki/default.cfg.  See
+.BR pkispawn(2)
+ for details.
+
+.SH SECTIONS
+\fIdefault.cfg\fP is divided into subsystem-based sections ([DEFAULT] for general configuration and subsystem-type sections such as [CA] and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP, and TKS), the sections read are [DEFAULT], [Tomcat] and the susbsystem type section -- [CA], [KRA], [OCSP], and [TKS] -- in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and subsystem-specific upgrades in the other sections.
+.PP
+There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameters values can be interpolated tokens rather than explicit values. For example,
+.PP
+\fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_id)s CA\fP
+.PP
+substitutes the value of pki_instance_id into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_id should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
+
+.SH PARAMETERS
+These parameters can be customized as part of a deployment, grouped by functionality.  This list is not exhaustive.
+
+.SS GENERAL INSTANCE PARAMETERS
+.TP
+.B pki_instance_name
+Name of the instance. The instance is located at /var/lib/pki/<instance_name>.  For Java subsystems, the default is pki-tomcat.
+.TP
+.B pki_https_port, pki_http_port
+Secure and unsecure ports.  Defaults to standard Tomcat ports 8443 and 8080, respectively, for Java subsystems, and 443 and 80 for Apache subsystems.
+.TP
+.B pki_ajp_port, pki_tomcat_server_port
+Ports for Tomcat subsystems.  Defaults to standard Tocat ports of 8009 and 8005, respectively.
+.TP
+.B pki_proxy_http_port, pki_proxy_https_port, pki_enable_proxy
+Ports for an Apache proxy server. Certificate Server instances can be run behind an Apache proxy server, which will communicate with the Tomcat instance through the AJP port.  See Red Hat Certificate System documentation for details.
+
+.SS INTERNAL DATABASE PARAMETERS
+.TP
+.B pki_ds_hostname, pki_ds_ldap_port, pki_ds_ldaps_port
+Hostname and ports for the internal database.  Defaults to localhost, 389, and 636.
+.TP
+.B pki_ds_bind_dn, pki_ds_password
+Credentials to connect to the database during installation.  Directory manager level access if required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the documentation for details. 
+.TP
+.B pki_ds_secure_connection
+Set to True to require connections to the Directory Server using LDAPS.  Requires SSL to be set up on the Directory Server first.  Defaults to false.
+.TP
+.B pki_ds_remove_data
+Set to True to remove any data from the base DN before starting the installation.  Defaults to True.
+.TP
+.B pki_ds_base_dn
+blah blah 
+.TP
+.B pki_ds_database
+blah blah
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Dogtag project.
+
+.SH COPYRIGHT
+Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pkispawn(8)
