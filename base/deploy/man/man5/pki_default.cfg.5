@@ -21,55 +21,216 @@ pki_default.cfg \- Certificate Server instance Default Config file.
 /etc/pki/default.cfg
 
 .SH DESCRIPTION
-This file contains the default settings for a Certifcate Server instance created using \fBpkispawn\fP.  This file should not be edited, as it can be modified when the Certificate Server packages are udpated.  Rather, when setting up a Certificate Server instance, a user-provided configuration file can provide overrides to the defaults in /etc/pki/default.cfg.  See
-.BR pkispawn(2)
- for details.
+This file contains the default settings for a Certifcate Server instance created using \fBpkispawn\fP.  This file should not be edited, as it can be modified when the Certificate Server packages are udpated.  Rather, when setting up a Certificate Server instance, a user-provided configuration file can provide overrides to the defaults in /etc/pki/default.cfg.  See \fBpkispawn(2)\fR for details.
 
 .SH SECTIONS
 \fIdefault.cfg\fP is divided into subsystem-based sections ([DEFAULT] for general configuration and subsystem-type sections such as [CA] and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP, and TKS), the sections read are [DEFAULT], [Tomcat] and the susbsystem type section -- [CA], [KRA], [OCSP], and [TKS] -- in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and subsystem-specific upgrades in the other sections.
 .PP
-There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameters values can be interpolated tokens rather than explicit values. For example,
+There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameter's values can be interpolated tokens rather than explicit values. For example,
 .PP
 \fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_id)s CA\fP
 .PP
 substitutes the value of pki_instance_id into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_id should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
 
-.SH PARAMETERS
-These parameters can be customized as part of a deployment, grouped by functionality.  This list is not exhaustive.
-
-.SS GENERAL INSTANCE PARAMETERS
+.SH GENERAL INSTANCE PARAMETERS
+The parameters described below, as well as the parameters located in the following sections, can be customized as part of a deployment.  This list is not exhaustive.
+.TP
+.B pki_instance_id
+.IP
+This parameter is currently the same as \fBpki_instance_name\fR and will be removed in a future version of this product.
 .TP
 .B pki_instance_name
-Name of the instance. The instance is located at /var/lib/pki/<instance_name>.  For Java subsystems, the default is pki-tomcat.
+.IP
+Name of the instance. The instance is located at /var/lib/pki/<instance_name>.  For Java subsystems, the default is specified as pki-tomcat.
 .TP
 .B pki_https_port, pki_http_port
+.IP
 Secure and unsecure ports.  Defaults to standard Tomcat ports 8443 and 8080, respectively, for Java subsystems, and 443 and 80 for Apache subsystems.
 .TP
 .B pki_ajp_port, pki_tomcat_server_port
+.IP
 Ports for Tomcat subsystems.  Defaults to standard Tocat ports of 8009 and 8005, respectively.
 .TP
 .B pki_proxy_http_port, pki_proxy_https_port, pki_enable_proxy
+.IP
 Ports for an Apache proxy server. Certificate Server instances can be run behind an Apache proxy server, which will communicate with the Tomcat instance through the AJP port.  See Red Hat Certificate System documentation for details.
+.TP
+.B pki_user, pki_group, pki_audit_group
+.IP
+Specifies the default administrative user, group, and audit group identities for PKI instances.  The default user and group are both specified as \fBpkiuser\fR and the default audit group is specified as \fBpkiaudit\fR.
 
+.SH [DEFAULT] PARAMETERS
+.SS ADMIN CERTIFICATE PARAMETERS
+\x'-1'\fBpki_admin_cert, pki_admin_dualkey, pki_admin_keysize, pki_admin_password\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS AUDIT CERTIFICATE PARAMETERS
+\x'-1'\fBpki_audit_signing_key_algorithm, pki_audit_signing_key_size, pki_audit_signing_key_type, pki_audit_signing_signing_algorithm, pki_audit_signing_token\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS BACKUP PARAMETERS
+\x'-1'\fBpki_backup_keys, pki_backup_password\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS CLIENT SECURITY DATABASE PARAMETERS
+\x'-1'\fBpki_client_database_dir, pki_client_database_password, pki_client_database_purge\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
 .SS INTERNAL DATABASE PARAMETERS
-.TP
-.B pki_ds_hostname, pki_ds_ldap_port, pki_ds_ldaps_port
+\x'-1'\fBpki_ds_hostname, pki_ds_ldap_port, pki_ds_ldaps_port\fR
+.IP
 Hostname and ports for the internal database.  Defaults to localhost, 389, and 636.
-.TP
+.PP
 .B pki_ds_bind_dn, pki_ds_password
+.IP
 Credentials to connect to the database during installation.  Directory manager level access if required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the documentation for details. 
-.TP
+.PP
 .B pki_ds_secure_connection
+.IP
 Set to True to require connections to the Directory Server using LDAPS.  Requires SSL to be set up on the Directory Server first.  Defaults to false.
-.TP
+.PP
 .B pki_ds_remove_data
+.IP
 Set to True to remove any data from the base DN before starting the installation.  Defaults to True.
-.TP
+.PP
 .B pki_ds_base_dn
-blah blah 
-.TP
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
 .B pki_ds_database
-blah blah
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.SS ISSUING CA PARAMETERS
+\x'-1'\fBpki_issuing_ca\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS MISCELLANEOUS PARAMETERS
+\x'-1'\fBpki_restart_configured_instance\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.PP
+.B pki_skip_configuration
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.PP
+.B pki_skip_installation
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.PP
+.SS SECURITY DOMAIN PARAMETERS
+\x'-1'\fBpki_security_domain_hostname, pki_security_domain_https_port, pki_security_domain_name, pki_security_domain_password, pki_security_domain_user\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS SSL SERVER CERTIFICATE PARAMETERS
+\x'-1'\fBpki_ssl_server_key_algorithm, pki_ssl_server_key_size, pki_ssl_server_key_type, pki_ssl_server_nickname, pki_ssl_server_subject_dn, pki_ssl_server_token\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS SUBSYSTEM CERTIFICATE PARAMETERS
+\x'-1'\fBpki_subsystem_key_algorithm, pki_subsystem_key_size, pki_subsystem_key_type, pki_subsystem_token\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS TOKEN PARAMETERS
+\x'-1'\fBpki_token_name, pki_token_password\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [Apache] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [Tomcat] PARAMETERS
+.SS CLONE PARAMETERS
+\x'-1'\fBpki_clone, pki_clone_pkcs12_password, pki_clone_pkcs12_path, pki_clone_replicate_schema, pki_clone_replication_master_port, pki_clone_replication_clone_port, pki_clone_replication_security, pki_clone_uri\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS DEBUG PARAMETERS
+\x'-1'\fBpki_enable_java_debugger\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.SS PORT PARAMETERS
+\x'-1'\fBpki_ajp_port, pki_tomcat_server_port\fR
+.IP
+Ports for Tomcat subsystems.  Defaults to standard Tocat ports of 8009 and 8005, respectively.
+.SS PROXY PARAMETERS
+\x'-1'\fBpki_enable_proxy, pki_proxy_http_port, pki_proxy_https_port\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.SS SECURITY MANAGER PARAMETERS
+\x'-1'\fBpki_security_manager\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+
+.SH [CA] PARAMETERS
+.SS ADMIN CERTIFICATE PARAMETERS
+\x'-1'\fBpki_admin_email, pki_admin_name, pki_admin_nickname, pki_admin_subject_dn, pki_admin_uid=caadmin\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.PP
+.B pki_import_admin_cert
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.SS AUDIT CERTIFICATE PARAMETERS
+\x'-1'\fBpki_audit_signing_nickname, pki_audit_signing_subject_dn\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS CA SIGNING CERTIFICATE PARAMETERS
+\x'-1'\fBpki_ca_signing_key_algorithm, pki_ca_signing_key_size, pki_ca_signing_key_type, pki_ca_signing_nickname, pki_ca_signing_signing_algorithm, pki_ca_signing_subject_dn, pki_ca_signing_token\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS EXTERNAL CA CERTIFICATE PARAMETERS
+\x'-1'\fBpki_external\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
+.B pki_external_csr_path
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
+.B pki_external_step_two
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
+.B pki_external_cert_chain_path, pki_external_cert_path
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS INTERNAL DATABASE PARAMETERS
+\x'-1'\fBpki_ds_base_dn\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
+.B pki_ds_database
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.PP
+.B pki_ds_hostname
+.IP
+Hostname the internal database.  Overrides any value specified in the [DEFAULT] section.
+.SS OCSP SIGNING CERTIFICATE PARAMETERS
+\x'-1'\fBpki_ocsp_signing_key_algorithm, pki_ocsp_signing_key_size, pki_ocsp_signing_key_type, pki_ocsp_signing_nickname, pki_ocsp_signing_signing_algorithm, pki_ocsp_signing_subject_dn=cn, pki_ocsp_signing_token\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+.SS SUBORDINATE CA CERTIFICATE PARAMETERS
+\x'-1'\fBpki_subordinate\fR
+.IP
+TBD - This parameter will be described in a future version of this man page.
+.SS SUBSYSTEM CERTIFICATE PARAMETERS
+\x'-1'\fBpki_subsystem_name, pki_subsystem_nickname, pki_subsystem_subject_dn\fR
+.IP
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [KRA] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [OCSP] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [RA] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [TKS] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
+
+.SH [TPS] PARAMETERS
+TBD - These parameters will be described in a future version of this man page.
 
 .SH AUTHORS
 Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Dogtag project.
