@@ -315,7 +315,7 @@ public class CheckRequest extends CMSServlet {
         String note = r.getExtDataInString("requestNotes");
 
         header.addStringValue("authority", mAuthorityId);
-        header.addLongValue(REQ_ID, Long.parseLong(r.getRequestId().toString()));
+        header.addStringValue(REQ_ID, r.getRequestId().toString());
         header.addStringValue(STATUS, status.toString());
         header.addLongValue(CREATE_ON, r.getCreationTime().getTime() / 1000);
         header.addLongValue(UPDATE_ON, r.getModificationTime().getTime() / 1000);

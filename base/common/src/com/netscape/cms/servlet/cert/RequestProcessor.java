@@ -103,7 +103,11 @@ public class RequestProcessor extends CertProcessor {
                 String requestNonce = data.getNonce();
                 boolean nonceVerified = false;
                 if (requestNonce != null) {
-                    long nonce = Long.parseLong(requestNonce.trim());
+                    long nonce = 0L;
+                    try {
+                        nonce = Long.parseLong(requestNonce.trim());
+                    } catch (NumberFormatException e) {
+                    }
                     X509Certificate cert1 = nonces.getCertificate(nonce);
                     X509Certificate cert2 = getSSLClientCertificate(request);
                     if (cert1 == null) {

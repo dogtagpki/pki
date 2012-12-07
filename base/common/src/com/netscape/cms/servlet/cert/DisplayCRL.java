@@ -316,13 +316,23 @@ public class DisplayCRL extends CMSServlet {
                 String pageSize = req.getParameter("pageSize");
 
                 if (pageStart != null && pageSize != null) {
-                    long lPageStart = new Long(pageStart).longValue();
-                    long lPageSize = new Long(pageSize).longValue();
+                    long lPageStart = 0L;
+                    long lPageSize = 0L;
+                    try {
+                        lPageStart = new Long(pageStart).longValue();
+                    } catch (NumberFormatException e) {
+                    }
+                    try {
+                        lPageSize = new Long(pageSize).longValue();
+                    } catch (NumberFormatException e) {
+                    }
 
                     if (lPageStart < 1)
                         lPageStart = 1;
                     // if (lPageStart + lPageSize - lCRLSize > 1)
                     //     lPageStart = lCRLSize - lPageSize + 1;
+                    if (lPageSize < 1)
+                        lPageSize = 10;
 
                     header.addStringValue(
                             "crlPrettyPrint", crlDetails.toString(locale,
