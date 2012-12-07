@@ -1,13 +1,6 @@
-# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
-# also remove the space between % and global - this space is needed because
-# fedpkg verrel stupidly ignores comment lines
-%global prerel .b3
-# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
-%global relprefix 0.
-
 Name:             dogtag-pki-theme
 Version:          10.0.0
-Release:          %{?relprefix}9%{?prerel}%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -224,6 +217,9 @@ cd build
 
 
 %changelog
+* Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
+- Update to official release for rc1
+
 * Wed Nov 21 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.9.b3
 - Removed Dogtag RA and TPS packages.
 

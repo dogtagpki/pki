@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_MIGRATE="pki-migrate"
-PKI_MIGRATE_VERSION="10.0.0.b3"
+PKI_MIGRATE_VERSION="10.0.0"
 
 
 ##
