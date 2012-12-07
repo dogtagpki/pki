@@ -51,6 +51,7 @@ import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.cms.servlet.cert.FilterBuilder;
 
 public class CATest {
 
@@ -234,7 +235,7 @@ public class CATest {
 
         infos = client.searchCerts(searchData);
 
-        printCertInfos(infos, searchData.buildFilter());
+        printCertInfos(infos, new FilterBuilder(searchData).buildFilter());
 
         // Try to get a non existing request
 
@@ -260,7 +261,7 @@ public class CATest {
 
         infos = client.searchCerts(searchData);
 
-        printCertInfos(infos, searchData.buildFilter());
+        printCertInfos(infos, new FilterBuilder(searchData).buildFilter());
 
         //Get a list of Profiles
 

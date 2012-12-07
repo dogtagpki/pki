@@ -311,8 +311,8 @@ public class CertService extends PKIService implements CertResource {
         if (data == null) {
             return null;
         }
-
-        return data.buildFilter();
+        FilterBuilder builder = new FilterBuilder(data);
+        return builder.buildFilter();
     }
 
     @Override
