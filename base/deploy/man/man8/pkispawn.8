@@ -2,7 +2,7 @@
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
 .TH pkispawn 8 "December 5, 2012" "version 1.0" "PKI Instance Creation Utility" Ade Lee
-.\" Please adjust this date whenever revising the manpage.
+.\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
 .\" .nh        disable hyphenation
@@ -13,7 +13,7 @@
 .\" .fi        enable filling
 .\" .br        insert line break
 .\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.\" for man page specific macros, see man(7)
 .SH NAME
 pkispawn \- Sets up an instance of Certificate Server.
 
@@ -30,7 +30,7 @@ A 389 Directory Server instance must be configured and running before this scrip
 \fBNote:\fP 
 This utility creates only Java-based subsystems. The Apache-based Certificate Server subsystems (RA and TPS) are created using \fBpkicreate\fP. 
 .PP
-An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values 
+An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run \fBpkispawn\fP twice, with values 
 .I -s CA 
 and 
 .I -s KRA 
@@ -56,12 +56,12 @@ The \fBpkispawn\fP run creates several different installation files that can be 
 When the utility is done running, the CA can be accessed by pointing a browser to https://<hostname>:<pki_https_port>/. The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser. 
 .PP
 The Certificate Server instance can also be accessed using the \fBpki\fP command line interface.  See 
-\fBpki(1)\fP. For more extensive documentation on how to use the Certificate Server instance and its rich feature set, see the Red Hat Certificate System Documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
+\fBpki(1)\fP. For more extensive documentation on how to use the Certificate Server instance and its rich feature set, see the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
 .PP
 Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  See
 .BR pkidestroy(8).
 .PP
-\fBpkispawn\fP supercedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP. To use the browser-based configuration panels with \fBpkispawn\fP instead, set the configuration parameter \fBpki_skip_configuration\fP to True.
+\fBpkispawn\fP supersedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP. To use the browser-based configuration panels with \fBpkispawn\fP instead, set the configuration parameter \fBpki_skip_configuration\fP to True.
  
 .SH OPTIONS
 .TP
@@ -122,11 +122,14 @@ pki_security_domain_hostname=<ca_hostname>
 pki_security_domain_https_port=<ca_port>
 pki_security_domain_user=caadmin
 pki_issuing_ca=https://<ca_hostname>:<ca_port>
+
+[KRA]
+pki_import_admin_cert=False
 .fi
 .PP
 A remote CA is one where the CA resides in another Certificate Server instance, either on the local machine or a remote machine.  In this case, \fImyconfig.txt\fP must specify the connection information for the remote CA and the information about the security domain (the trusted collection of subsystems within an instance).
 .PP
-This example assumes that the specified CA hosts the security domain.  The CA must be running and accessible.  
+The subsystem section is [KRA], [OCSP], or [TKS].  This example assumes that the specified CA hosts the security domain.  The CA must be running and accessible.  
 .PP 
 A new administrator certificate is generated for the new subsystem and stored in a PKCS #12 file in \fI$HOME/.pki/pki-tomcat\fP. 
 .SS Installing a CA clone
@@ -228,7 +231,7 @@ pki_external_csr_path=/tmp/ca_signing.csr
 pki_ca_signing_subject_dn=cn=CA Signing,ou=External,o=example.com
 .fi
 .PP
-The CSR is written to pki_external_csr_path.  The pki_ca_signing_subject_dn should be different from the subject DN of the external CA that is signing the request.  The pki_ca_signing_subject_dn parameter can be used to specify the signing certificate's subjectDN.
+The CSR is written to pki_external_csr_path.  The pki_ca_signing_subject_dn should be different from the subject DN of the external CA that is signing the request.  The pki_ca_signing_subject_dn parameter can be used to specify the signing certificate's subject DN.
 .PP
 The CSR is then submitted to the external CA, and the resulting certificate and certificate chain are copied to files on the system.
 .PP
