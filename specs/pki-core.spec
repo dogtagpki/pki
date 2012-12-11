@@ -750,7 +750,7 @@ fi
 
 
 %changelog
-* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.6-1
+* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.25-1
 - Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
   fail when anonymous access disabled.
 - Bugzilla Bug #884829 - Multiple cross-site scripting flaws
