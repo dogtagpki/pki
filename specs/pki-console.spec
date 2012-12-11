@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          9.0.5
+Version:          9.0.6
 Release:          2%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -84,6 +84,10 @@ cd build
 
 
 %changelog
+* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.6-1
+- Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
+  fail when anonymous access disabled.
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.5-2
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 

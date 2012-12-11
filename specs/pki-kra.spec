@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.13
+Version:          9.0.14
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -253,6 +253,10 @@ fi
 
 
 %changelog
+* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.14-1
+- Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
+  fail when anonymous access disabled.
+
 * Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.13-1
 - New official build
 - TMS - ECC Key Recovery - ticket #252 (cfu)

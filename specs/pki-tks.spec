@@ -1,6 +1,6 @@
 Name:             pki-tks
-Version:          9.0.10
-Release:          2%{?dist}
+Version:          9.0.11
+Release:          1%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -254,6 +254,10 @@ fi
 
 
 %changelog
+* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.11-1
+- Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
+  fail when anonymous access disabled.
+
 * Tue Apr 10 2012 Christina Fu <cfu@redhat.com> 9.0.10-2
 - Bugzilla Bug #745278 - [RFE] ECC encryption keys cannot be archived
 

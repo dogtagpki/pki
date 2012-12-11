@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.24
+Version:          9.0.25
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -750,6 +750,11 @@ fi
 
 
 %changelog
+* Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.6-1
+- Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
+  fail when anonymous access disabled.
+- Bugzilla Bug #884829 - Multiple cross-site scripting flaws
+
 * Tue Oct 30 2012 Andrew Wnuk <awnuk@redhat.com> 9.0.24-1
 - New official build
 - Used GetStatus servlet to provide startup status - (alee)
