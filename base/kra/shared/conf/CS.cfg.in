@@ -149,6 +149,7 @@ auths.impl.TokenAuth.class=com.netscape.cms.authentication.TokenAuthentication
 auths.impl.UdnPwdDirAuth.class=com.netscape.cms.authentication.UdnPwdDirAuthentication
 auths.impl.UidPwdDirAuth.class=com.netscape.cms.authentication.UidPwdDirAuthentication
 auths.impl.UidPwdPinDirAuth.class=com.netscape.cms.authentication.UidPwdPinDirAuthentication
+auths.impl.UserPwdDirAuth.class=com.netscape.cms.authentication.UserPwdDirAuthentication
 auths.instance.AgentCertAuth.agentGroup=Certificate Manager Agents
 auths.instance.AgentCertAuth.pluginName=AgentCertAuth
 auths.instance.TokenAuth.pluginName=TokenAuth

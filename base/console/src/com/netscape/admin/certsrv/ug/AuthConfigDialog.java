@@ -75,6 +75,9 @@ public class AuthConfigDialog extends CMSBaseConfigDialog
 		else if (implName.equals("UdnPwdDirAuth")) {
 			instanceName = "UserDnEnrollment";
 		}
+		else if (implName.equals("UserPwdDirAuth")) {
+			instanceName = "UserDirAuth";
+		}
 		else if (implName.equals("NISAuth")) {
 			instanceName = "NISAuth";
 		}
