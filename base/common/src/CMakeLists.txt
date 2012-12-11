@@ -671,6 +671,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/authentication/UidPwdPinDirAuthentication.java
     com/netscape/cms/authentication/SSLclientCertAuthentication.java
     com/netscape/cms/authentication/UidPwdDirAuthentication.java
+    com/netscape/cms/authentication/UserPwdDirAuthentication.java
     com/netscape/cms/authorization/BasicAclAuthz.java
     com/netscape/cms/authorization/AAclAuthz.java
     com/netscape/cms/authorization/DirAclAuthz.java

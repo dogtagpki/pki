@@ -171,6 +171,7 @@ auths.impl.UdnPwdDirAuth.class=com.netscape.cms.authentication.UdnPwdDirAuthenti
 auths.impl.UidPwdDirAuth.class=com.netscape.cms.authentication.UidPwdDirAuthentication
 auths.impl.UidPwdPinDirAuth.class=com.netscape.cms.authentication.UidPwdPinDirAuthentication
 auths.impl.UidPwdGroupDirAuth.class=com.netscape.cms.authentication.UidPwdGroupDirAuthentication
+auths.impl.UserPwdDirAuth.class=com.netscape.cms.authentication.UserPwdDirAuthentication
 auths.impl.TokenAuth.class=com.netscape.cms.authentication.TokenAuthentication
 auths.impl.FlatFileAuth.class=com.netscape.cms.authentication.FlatFileAuth
 auths.instance.TokenAuth.pluginName=TokenAuth
