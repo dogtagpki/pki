@@ -84,7 +84,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Log final process messages
         config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_id'],
+                            master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         util.file.modify(master['pki_spawn_log'], silent=True)
         # If instance has not been configured, print the
@@ -111,6 +111,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_id'],
+                            master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         return self.rv

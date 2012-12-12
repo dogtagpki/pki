@@ -35,7 +35,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # begin official logging
         config.pki_log.info(log.PKISPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_id'],
+                            master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         if config.str2bool(master['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
@@ -76,7 +76,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # begin official logging
         config.pki_log.info(log.PKIRESPAWN_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_id'],
+                            master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -89,7 +89,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # begin official logging
         config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
                             master['pki_subsystem'],
-                            master['pki_instance_id'],
+                            master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

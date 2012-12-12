@@ -359,7 +359,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_systemd_service_link'] =\
                     config.pki_master_dict['pki_systemd_target_wants'] + "/" +\
                     "pki-apached" + "@" +\
-                    config.pki_master_dict['pki_instance_id'] + ".service"
+                    config.pki_master_dict['pki_instance_name'] + ".service"
             elif config.pki_master_dict['pki_subsystem'] in\
                  config.PKI_TOMCAT_SUBSYSTEMS:
                 config.pki_master_dict['pki_systemd_service'] =\
@@ -374,7 +374,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_systemd_service_link'] =\
                     config.pki_master_dict['pki_systemd_target_wants'] + "/" +\
                     "pki-tomcatd" + "@" +\
-                    config.pki_master_dict['pki_instance_id'] + ".service"
+                    config.pki_master_dict['pki_instance_name'] + ".service"
                 config.pki_master_dict['pki_tomcat_bin_path'] =\
                     os.path.join(config.PKI_DEPLOYMENT_TOMCAT_ROOT,
                                  "bin")
@@ -456,14 +456,14 @@ class PKIConfigParser:
             config.pki_master_dict['pki_cgroup_systemd_service'] =\
                 os.path.join(
                     config.pki_master_dict['pki_cgroup_systemd_service_path'],
-                    config.pki_master_dict['pki_instance_id'])
+                    config.pki_master_dict['pki_instance_name'])
             config.pki_master_dict['pki_cgroup_cpu_systemd_service_path'] =\
                 os.path.join("/sys/fs/cgroup/cpu\,cpuacct/system",
                              config.pki_master_dict['pki_systemd_service'])
             config.pki_master_dict['pki_cgroup_cpu_systemd_service'] =\
                 os.path.join(
                     config.pki_master_dict['pki_cgroup_cpu_systemd_service_path'],
-                    config.pki_master_dict['pki_instance_id'])
+                    config.pki_master_dict['pki_instance_name'])
             # PKI top-level file system layout name/value pairs
             # NOTE:  Never use 'os.path.join()' whenever 'pki_root_prefix'
             #        is being prepended!!!
@@ -483,15 +483,15 @@ class PKIConfigParser:
             # Apache/Tomcat instance base name/value pairs
             config.pki_master_dict['pki_instance_path'] =\
                 os.path.join(config.pki_master_dict['pki_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             # Apache/Tomcat instance log name/value pairs
             config.pki_master_dict['pki_instance_log_path'] =\
                 os.path.join(config.pki_master_dict['pki_log_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             # Apache/Tomcat instance configuration name/value pairs
             config.pki_master_dict['pki_instance_configuration_path'] =\
                 os.path.join(config.pki_master_dict['pki_configuration_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             # Apache/Tomcat instance registry name/value pairs
             # Apache-specific instance name/value pairs
             if config.pki_master_dict['pki_subsystem'] in\
@@ -508,7 +508,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_instance_registry_path'] =\
                     os.path.join(
                         config.pki_master_dict['pki_instance_type_registry_path'],
-                        config.pki_master_dict['pki_instance_id'])
+                        config.pki_master_dict['pki_instance_name'])
                 # Apache instance convenience symbolic links
             # Tomcat-specific instance name/value pairs
             elif config.pki_master_dict['pki_subsystem'] in\
@@ -572,7 +572,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_instance_registry_path'] =\
                     os.path.join(
                         config.pki_master_dict['pki_instance_type_registry_path'],
-                        config.pki_master_dict['pki_instance_id'])
+                        config.pki_master_dict['pki_instance_name'])
                 # Tomcat instance convenience symbolic links
                 config.pki_master_dict['pki_tomcat_bin_link'] =\
                     os.path.join(config.pki_master_dict['pki_instance_path'],
@@ -585,7 +585,7 @@ class PKIConfigParser:
                                  "log4j.properties")
                 config.pki_master_dict['pki_instance_systemd_link'] =\
                     os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 config.pki_master_dict['pki_instance_id'])
+                                 config.pki_master_dict['pki_instance_name'])
                 # Tomcat instance common lib jars
                 if config.pki_master_dict['pki_architecture'] == 64:
                     config.pki_master_dict['pki_jss_jar'] =\
@@ -944,7 +944,7 @@ class PKIConfigParser:
                     "CS.cfg")
             config.pki_master_dict['pki_target_registry'] =\
                 os.path.join(config.pki_master_dict['pki_instance_registry_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             if config.pki_master_dict['pki_subsystem'] == "CA" and\
                config.str2bool(config.pki_master_dict['pki_external_step_two']):
                 # Use the 'pki_one_time_pin' established during the setup of
@@ -989,7 +989,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_target_tomcat_conf_instance_id'] =\
                     config.pki_master_dict['pki_root_prefix'] +\
                     "/etc/sysconfig/" +\
-                    config.pki_master_dict['pki_instance_id']
+                    config.pki_master_dict['pki_instance_name']
                 config.pki_master_dict['pki_target_tomcat_conf'] =\
                     os.path.join(
                         config.pki_master_dict['pki_instance_configuration_path'],
@@ -1083,13 +1083,13 @@ class PKIConfigParser:
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
             config.pki_master_dict['PKI_INSTANCE_ID_SLOT'] =\
-                config.pki_master_dict['pki_instance_id']
+                config.pki_master_dict['pki_instance_name']
             config.pki_master_dict['PKI_INSTANCE_INITSCRIPT_SLOT'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             config.pki_master_dict['PKI_REGISTRY_FILE_SLOT'] =\
                 os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
-                             config.pki_master_dict['pki_instance_id'])
+                             config.pki_master_dict['pki_instance_name'])
             if config.pki_master_dict['pki_subsystem'] in\
                config.PKI_APACHE_SUBSYSTEMS:
                 config.pki_master_dict['FORTITUDE_APACHE_SLOT'] = None
@@ -1233,7 +1233,7 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_subsystem'].lower()
                 config.pki_master_dict['PKI_SYSTEMD_SERVICENAME_SLOT'] =\
                     "pki-tomcatd" + "@" +\
-                    config.pki_master_dict['pki_instance_id'] + ".service"
+                    config.pki_master_dict['pki_instance_name'] + ".service"
                 config.pki_master_dict['PKI_UNSECURE_PORT_SLOT'] =\
                     config.pki_master_dict['pki_http_port']
                 config.pki_master_dict['PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT'] =\
@@ -1255,7 +1255,7 @@ class PKIConfigParser:
                 config.pki_master_dict['TOMCAT_LOG_DIR_SLOT'] =\
                     config.pki_master_dict['pki_instance_log_path']
                 config.pki_master_dict['TOMCAT_PIDFILE_SLOT'] =\
-                    "/var/run/pki/tomcat/" + config.pki_master_dict['pki_instance_id'] + ".pid"
+                    "/var/run/pki/tomcat/" + config.pki_master_dict['pki_instance_name'] + ".pid"
                 config.pki_master_dict['TOMCAT_SERVER_PORT_SLOT'] =\
                     config.pki_master_dict['pki_tomcat_server_port']
                 config.pki_master_dict['TOMCAT_SSL2_CIPHERS_SLOT'] =\
@@ -1326,7 +1326,7 @@ class PKIConfigParser:
                              "secmod.db")
             config.pki_master_dict['pki_self_signed_token'] = "internal"
             config.pki_master_dict['pki_self_signed_nickname'] =\
-                "Server-Cert cert-" + config.pki_master_dict['pki_instance_id']
+                "Server-Cert cert-" + config.pki_master_dict['pki_instance_name']
             config.pki_master_dict['pki_self_signed_subject'] =\
                 "cn=" + config.pki_master_dict['pki_hostname'] + "," +\
                 "o=" + config.pki_master_dict['pki_certificate_timestamp']
@@ -1369,7 +1369,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_client_dir'] =\
                     os.path.join(
                         os.path.expanduser("~"), ".pki",
-                        config.pki_master_dict['pki_instance_id'])
+                        config.pki_master_dict['pki_instance_name'])
             config.pki_master_dict['pki_client_subsystem_dir'] =\
                 os.path.join(
                     config.pki_master_dict['pki_client_dir'],
@@ -1615,14 +1615,14 @@ class PKIConfigParser:
                     "systemctl" + " " +\
                     "restart" + " " +\
                     "pki-apached" + "@" +\
-                    config.pki_master_dict['pki_instance_id'] + "." + "service"
+                    config.pki_master_dict['pki_instance_name'] + "." + "service"
             elif config.pki_master_dict['pki_subsystem'] in\
                  config.PKI_TOMCAT_SUBSYSTEMS:
                 config.pki_master_dict['pki_registry_initscript_command'] =\
                     "systemctl" + " " +\
                     "restart" + " " +\
                     "pki-tomcatd" + "@" +\
-                    config.pki_master_dict['pki_instance_id'] + "." + "service"
+                    config.pki_master_dict['pki_instance_name'] + "." + "service"
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)

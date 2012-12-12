@@ -316,7 +316,7 @@ class namespace:
                 # Top-Level PKI base path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_instance_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
@@ -325,7 +325,7 @@ class namespace:
                 # Top-Level "/etc/sysconfig" path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_target_tomcat_conf_instance_id'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
@@ -333,7 +333,7 @@ class namespace:
                 # Systemd cgroup path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_cgroup_systemd_service_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
@@ -341,7 +341,7 @@ class namespace:
                 # Systemd cgroup CPU path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_cgroup_cpu_systemd_service_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
@@ -350,7 +350,7 @@ class namespace:
             # Top-Level PKI log path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_id'],
+                master['pki_instance_name'],
                 master['pki_instance_log_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
@@ -359,7 +359,7 @@ class namespace:
             # Top-Level PKI configuration path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_id'],
+                master['pki_instance_name'],
                 master['pki_instance_configuration_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
@@ -368,45 +368,45 @@ class namespace:
             # Top-Level PKI registry path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_id'],
+                master['pki_instance_name'],
                 master['pki_instance_registry_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
         # Run simple checks for reserved name namespace collisions
-        if master['pki_instance_id'] in config.PKI_BASE_RESERVED_NAMES:
+        if master['pki_instance_name'] in config.PKI_BASE_RESERVED_NAMES:
             # Top-Level PKI base path reserved name collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                master['pki_instance_id'],
+                master['pki_instance_name'],
                 master['pki_instance_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
         # No need to check for reserved name under Top-Level PKI log path
-        if master['pki_instance_id'] in config.PKI_CONFIGURATION_RESERVED_NAMES:
+        if master['pki_instance_name'] in config.PKI_CONFIGURATION_RESERVED_NAMES:
             # Top-Level PKI configuration path reserved name collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                master['pki_instance_id'],
+                master['pki_instance_name'],
                 master['pki_instance_configuration_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
         if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
             # Top-Level Apache PKI registry path reserved name collision
-            if master['pki_instance_id'] in\
+            if master['pki_instance_name'] in\
                config.PKI_APACHE_REGISTRY_RESERVED_NAMES:
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_instance_registry_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
         elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Top-Level Tomcat PKI registry path reserved name collision
-            if master['pki_instance_id'] in\
+            if master['pki_instance_name'] in\
                config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     master['pki_instance_registry_path'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
@@ -793,11 +793,11 @@ class configuration_file:
         # that are present in the corresponding configuration file
         if master['pki_deployment_executable'] == 'pkidestroy':
             if master['pki_deployed_instance_name'] !=\
-               master['pki_instance_id']:
+               master['pki_instance_name']:
                 config.pki_log.error(
                     log.PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2,
                     master['pki_deployed_instance_name'],
-                    master['pki_instance_id'],
+                    master['pki_instance_name'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
         return
@@ -962,7 +962,7 @@ class instance:
             if not os.path.exists(master['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
                                      master['pki_subsystem'],
-                                     master['pki_instance_id'],
+                                     master['pki_instance_name'],
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
         except OSError as exc:
@@ -975,7 +975,7 @@ class instance:
             if os.path.exists(master['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
                                      master['pki_subsystem'],
-                                     master['pki_instance_id'],
+                                     master['pki_instance_name'],
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
         except OSError as exc:
@@ -2448,12 +2448,12 @@ class systemd:
                 command = "systemctl" + " " +\
                           "start" + " " +\
                           "pki-apached" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " +\
                           "start" + " " +\
                           "pki-tomcatd" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
@@ -2474,12 +2474,12 @@ class systemd:
                 command = "systemctl" + " " +\
                           "stop" + " " +\
                           "pki-apached" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " +\
                           "stop" + " " +\
                           "pki-tomcatd" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
@@ -2500,12 +2500,12 @@ class systemd:
                 command = "systemctl" + " " +\
                           "restart" + " " +\
                           "pki-apached" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " +\
                           "restart" + " " +\
                           "pki-tomcatd" + "@" +\
-                          master['pki_instance_id'] + "." + "service"
+                          master['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,

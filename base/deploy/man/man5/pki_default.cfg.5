@@ -28,16 +28,12 @@ This file contains the default settings for a Certificate Server instance create
 .PP
 There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameter's values can be interpolated tokens rather than explicit values. For example,
 .PP
-\fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_id)s CA\fP
+\fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_name)s CA\fP
 .PP
-substitutes the value of pki_instance_id into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_id should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
+substitutes the value of pki_instance_name into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_name should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
 
 .SH GENERAL INSTANCE PARAMETERS
 The parameters described below, as well as the parameters located in the following sections, can be customized as part of a deployment.  This list is not exhaustive.
-.TP
-.B pki_instance_id
-.IP
-This parameter is currently the same as \fBpki_instance_name\fR and will be removed in a future version of this product.
 .TP
 .B pki_instance_name
 .IP
