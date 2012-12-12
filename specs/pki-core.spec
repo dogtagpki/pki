@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -170,11 +170,10 @@ Requires:         java >= 1:1.6.0
 Requires:         javassist
 Requires:         jettison
 Requires:         ldapjdk
-Requires:         %{_javadir}/xalan-j2.jar
-Requires:         %{_javadir}/xalan-j2-serializer.jar
-Requires:         %{_javadir}/xerces-j2.jar
-Requires:         %{_javadir}/xml-commons-apis.jar
-Requires:         %{_javadir}/xml-commons-resolver.jar
+Requires:         xalan-j2
+Requires:         xerces-j2
+Requires:         xml-commons-apis
+Requires:         xml-commons-resolver
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-24
 %if  0%{?rhel}
@@ -954,6 +953,9 @@ fi
 
 
 %changelog
+* Wed Dec 12 2012 Ade Lee <alee@redhat.com> 10.0.0-3
+- Replaced file dependencies with package dependencies
+
 * Mon Dec 10 2012 Ade Lee <alee@redhat.com> 10.0.0-2
 - Updated man pages
 
