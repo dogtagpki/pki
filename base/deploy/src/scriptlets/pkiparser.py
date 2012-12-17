@@ -193,12 +193,19 @@ class PKIConfigParser:
                 default_http_port = '80'
                 default_https_port = '443'
 
+            # RESTEasy
+            resteasy_lib = subprocess.check_output(\
+                'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
+                shell=True).strip()
+
             predefined_dict = {'pki_instance_name': default_instance_name,
                                'pki_http_port': default_http_port,
                                'pki_https_port': default_https_port,
                                'pki_dns_domainname': config.pki_dns_domainname,
                                'pki_subsystem' : config.pki_subsystem,
                                'pki_subsystem_type': config.pki_subsystem.lower(),
+                               'pki_root_prefix' : config.pki_root_prefix,
+                               'resteasy_lib', resteasy_lib,
                                'pki_hostname': config.pki_hostname}
 
             self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
@@ -272,12 +279,6 @@ class PKIConfigParser:
             config.pki_master_dict.update(config.pki_subsystem_dict)
             config.pki_master_dict.update(__name__="PKI Master Dictionary")
 
-            # RESTEasy
-            config.pki_master_dict['RESTEASY_LIB'] =\
-                subprocess.check_output(
-                    'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
-                    shell=True).strip()
-
             # IMPORTANT:  A "PKI instance" no longer corresponds to a single
             #             pki subystem, but rather to a unique
             #             "Tomcat web instance" or a unique "Apache web instance".
@@ -328,128 +329,10 @@ class PKIConfigParser:
             #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
             #
 
-            # PKI top-level file system layout name/value pairs
-            # NOTE:  Never use 'os.path.join()' whenever 'pki_root_prefix'
-            #        is being prepended!!!
-            config.pki_master_dict['pki_root_prefix'] = config.pki_root_prefix
-            config.pki_master_dict['pki_path'] =\
-                config.pki_master_dict['pki_root_prefix'] +\
-                config.PKI_DEPLOYMENT_BASE_ROOT
-            config.pki_master_dict['pki_log_path'] =\
-                config.pki_master_dict['pki_root_prefix'] +\
-                config.PKI_DEPLOYMENT_LOG_ROOT
-            config.pki_master_dict['pki_configuration_path'] =\
-                config.pki_master_dict['pki_root_prefix'] +\
-                config.PKI_DEPLOYMENT_CONFIGURATION_ROOT
-            config.pki_master_dict['pki_registry_path'] =\
-                config.pki_master_dict['pki_root_prefix'] +\
-                config.PKI_DEPLOYMENT_REGISTRY_ROOT
-            # Apache/Tomcat instance base name/value pairs
-            config.pki_master_dict['pki_instance_path'] =\
-                os.path.join(config.pki_master_dict['pki_path'],
-                             config.pki_master_dict['pki_instance_name'])
-            # Apache/Tomcat instance log name/value pairs
-            config.pki_master_dict['pki_instance_log_path'] =\
-                os.path.join(config.pki_master_dict['pki_log_path'],
-                             config.pki_master_dict['pki_instance_name'])
-            # Apache/Tomcat instance configuration name/value pairs
-            config.pki_master_dict['pki_instance_configuration_path'] =\
-                os.path.join(config.pki_master_dict['pki_configuration_path'],
-                             config.pki_master_dict['pki_instance_name'])
             # Apache/Tomcat instance registry name/value pairs
             # Apache-specific instance name/value pairs
             if config.pki_master_dict['pki_subsystem'] in\
-               config.PKI_APACHE_SUBSYSTEMS:
-                # Apache instance base name/value pairs
-                config.pki_master_dict['pki_instance_type'] = "Apache"
-                # Apache instance log name/value pairs
-                # Apache instance configuration name/value pairs
-                # Apache instance registry name/value pairs
-                config.pki_master_dict['pki_instance_type_registry_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_registry_path'],
-                        config.pki_master_dict['pki_instance_type'].lower())
-                config.pki_master_dict['pki_instance_registry_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_instance_type_registry_path'],
-                        config.pki_master_dict['pki_instance_name'])
-                # Apache instance convenience symbolic links
-            # Tomcat-specific instance name/value pairs
-            elif config.pki_master_dict['pki_subsystem'] in\
                  config.PKI_TOMCAT_SUBSYSTEMS:
-                # Tomcat instance base name/value pairs
-                config.pki_master_dict['pki_instance_type'] = "Tomcat"
-                config.pki_master_dict['pki_tomcat_common_path'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "common")
-                config.pki_master_dict['pki_tomcat_common_lib_path'] =\
-                    os.path.join(config.pki_master_dict['pki_tomcat_common_path'],
-                                 "lib")
-                config.pki_master_dict['pki_tomcat_tmpdir_path'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "temp")
-                config.pki_master_dict['pki_tomcat_webapps_path'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "webapps")
-                config.pki_master_dict['pki_tomcat_webapps_root_path'] =\
-                    os.path.join(config.pki_master_dict['pki_tomcat_webapps_path'],
-                                 "ROOT")
-                config.pki_master_dict['pki_tomcat_webapps_common_path'] =\
-                    os.path.join(config.pki_master_dict['pki_tomcat_webapps_path'],
-                                 "pki")
-                config.pki_master_dict['pki_tomcat_webapps_root_webinf_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_root_path'],
-                        "WEB-INF")
-                config.pki_master_dict['pki_tomcat_work_path'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "work")
-                config.pki_master_dict['pki_tomcat_work_catalina_path'] =\
-                    os.path.join(config.pki_master_dict['pki_tomcat_work_path'],
-                                 "Catalina")
-                config.pki_master_dict['pki_tomcat_work_catalina_host_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_work_catalina_path'],
-                        "localhost")
-                config.pki_master_dict['pki_tomcat_work_catalina_host_run_path'] =\
-                    os.path.join(
-                        config.pki_master_dict\
-                        ['pki_tomcat_work_catalina_host_path'],
-                        "_")
-                config.pki_master_dict\
-                ['pki_tomcat_work_catalina_host_subsystem_path'] =\
-                    os.path.join(
-                        config.pki_master_dict\
-                        ['pki_tomcat_work_catalina_host_path'],
-                        config.pki_master_dict['pki_subsystem'].lower())
-                # Tomcat instance log name/value pairs
-                # Tomcat instance configuration name/value pairs
-                config.pki_master_dict['pki_instance_conf_log4j_properties'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_instance_configuration_path'],
-                        "log4j.properties")
-                # Tomcat instance registry name/value pairs
-                config.pki_master_dict['pki_instance_type_registry_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_registry_path'],
-                        config.pki_master_dict['pki_instance_type'].lower())
-                config.pki_master_dict['pki_instance_registry_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_instance_type_registry_path'],
-                        config.pki_master_dict['pki_instance_name'])
-                # Tomcat instance convenience symbolic links
-                config.pki_master_dict['pki_tomcat_bin_link'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "bin")
-                config.pki_master_dict['pki_instance_lib'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 "lib")
-                config.pki_master_dict['pki_instance_lib_log4j_properties'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_lib'],
-                                 "log4j.properties")
-                config.pki_master_dict['pki_instance_systemd_link'] =\
-                    os.path.join(config.pki_master_dict['pki_instance_path'],
-                                 config.pki_master_dict['pki_instance_name'])
                 # Tomcat instance common lib jars
                 if config.pki_master_dict['pki_architecture'] == 64:
                     config.pki_master_dict['pki_jss_jar'] =\
@@ -465,182 +348,7 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_symkey_jar'] =\
                         os.path.join("/usr/lib/java",
                                      "symkey.jar")
-                config.pki_master_dict['pki_apache_commons_collections_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "apache-commons-collections.jar")
-                config.pki_master_dict['pki_apache_commons_lang_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "apache-commons-lang.jar")
-                config.pki_master_dict['pki_apache_commons_logging_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "apache-commons-logging.jar")
-                config.pki_master_dict['pki_commons_codec_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "commons-codec.jar")
-                config.pki_master_dict['pki_httpclient_jar'] =\
-                    os.path.join(
-                        config.PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT,
-                        "httpclient.jar")
-                config.pki_master_dict['pki_httpcore_jar'] =\
-                    os.path.join(
-                        config.PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT,
-                        "httpcore.jar")
-                config.pki_master_dict['pki_javassist_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "javassist.jar")
-                config.pki_master_dict['pki_resteasy_jaxrs_api_jar'] =\
-                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
-                                 "jaxrs-api.jar")
-                config.pki_master_dict['pki_jettison_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "jettison.jar")
-                config.pki_master_dict['pki_ldapjdk_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "ldapjdk.jar")
-                config.pki_master_dict['pki_certsrv_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-certsrv.jar")
-                config.pki_master_dict['pki_cmsbundle'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-cmsbundle.jar")
-                config.pki_master_dict['pki_cmscore'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-cmscore.jar")
-                config.pki_master_dict['pki_cms'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-cms.jar")
-                config.pki_master_dict['pki_cmsutil'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-cmsutil.jar")
-                config.pki_master_dict['pki_nsutil'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-nsutil.jar")
-                config.pki_master_dict['pki_tomcat_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                 "pki-tomcat.jar")
-                config.pki_master_dict['pki_resteasy_atom_provider_jar'] =\
-                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
-                                 "resteasy-atom-provider.jar")
-                config.pki_master_dict['pki_resteasy_jaxb_provider_jar'] =\
-                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
-                                 "resteasy-jaxb-provider.jar")
-                config.pki_master_dict['pki_resteasy_jaxrs_jar'] =\
-                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
-                                 "resteasy-jaxrs.jar")
-                config.pki_master_dict['pki_resteasy_jettison_provider_jar'] =\
-                    os.path.join(config.pki_master_dict['RESTEASY_LIB'],
-                                 "resteasy-jettison-provider.jar")
-                config.pki_master_dict['pki_scannotation_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "scannotation.jar")
-                config.pki_master_dict['pki_tomcatjss_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "tomcat7jss.jar")
-                config.pki_master_dict['pki_velocity_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "velocity.jar")
-                config.pki_master_dict['pki_xerces_j2_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "xerces-j2.jar")
-                config.pki_master_dict['pki_xml_commons_apis_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "xml-commons-apis.jar")
-                config.pki_master_dict['pki_xml_commons_resolver_jar'] =\
-                    os.path.join(config.PKI_DEPLOYMENT_JAR_SOURCE_ROOT,
-                                 "xml-commons-resolver.jar")
-                # Tomcat instance common lib jar symbolic links
-                config.pki_master_dict['pki_jss_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "jss4.jar")
-                config.pki_master_dict['pki_symkey_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "symkey.jar")
-                config.pki_master_dict['pki_apache_commons_collections_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "apache-commons-collections.jar")
-                config.pki_master_dict['pki_apache_commons_lang_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "apache-commons-lang.jar")
-                config.pki_master_dict['pki_apache_commons_logging_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "apache-commons-logging.jar")
-                config.pki_master_dict['pki_commons_codec_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "apache-commons-codec.jar")
-                config.pki_master_dict['pki_httpclient_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "httpclient.jar")
-                config.pki_master_dict['pki_httpcore_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "httpcore.jar")
-                config.pki_master_dict['pki_javassist_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "javassist.jar")
-                config.pki_master_dict['pki_resteasy_jaxrs_api_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "jaxrs-api.jar")
-                config.pki_master_dict['pki_jettison_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "jettison.jar")
-                config.pki_master_dict['pki_ldapjdk_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "ldapjdk.jar")
-                config.pki_master_dict['pki_tomcat_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "pki-tomcat.jar")
-                config.pki_master_dict['pki_resteasy_atom_provider_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "resteasy-atom-provider.jar")
-                config.pki_master_dict['pki_resteasy_jaxb_provider_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "resteasy-jaxb-provider.jar")
-                config.pki_master_dict['pki_resteasy_jaxrs_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "resteasy-jaxrs.jar")
-                config.pki_master_dict['pki_resteasy_jettison_provider_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "resteasy-jettison-provider.jar")
-                config.pki_master_dict['pki_scannotation_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "scannotation.jar")
-                config.pki_master_dict['pki_tomcatjss_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "tomcatjss.jar")
-                config.pki_master_dict['pki_velocity_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "velocity.jar")
-                config.pki_master_dict['pki_xerces_j2_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "xerces-j2.jar")
-                config.pki_master_dict['pki_xml_commons_apis_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "xml-commons-apis.jar")
-                config.pki_master_dict['pki_xml_commons_resolver_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_common_lib_path'],
-                        "xml-commons-resolver.jar")
+
             # Instance layout NSS security database name/value pairs
             config.pki_master_dict['pki_database_path'] =\
                 os.path.join(
