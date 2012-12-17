@@ -198,6 +198,12 @@ class PKIConfigParser:
                 'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
                 shell=True).strip()
 
+            # arch dependent libpath
+            if config.pki_architecture == 64:
+                arch_java_lib = '/usr/lib64/java'
+            else:
+                arch_java_lib = '/usr/lib/java'
+
             predefined_dict = {'pki_instance_name': default_instance_name,
                                'pki_http_port': default_http_port,
                                'pki_https_port': default_https_port,
@@ -205,7 +211,8 @@ class PKIConfigParser:
                                'pki_subsystem' : config.pki_subsystem,
                                'pki_subsystem_type': config.pki_subsystem.lower(),
                                'pki_root_prefix' : config.pki_root_prefix,
-                               'resteasy_lib', resteasy_lib,
+                               'resteasy_lib': resteasy_lib,
+                               'arch_java_lib': arch_java_lib,
                                'pki_hostname': config.pki_hostname}
 
             self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
@@ -279,236 +286,6 @@ class PKIConfigParser:
             config.pki_master_dict.update(config.pki_subsystem_dict)
             config.pki_master_dict.update(__name__="PKI Master Dictionary")
 
-            # IMPORTANT:  A "PKI instance" no longer corresponds to a single
-            #             pki subystem, but rather to a unique
-            #             "Tomcat web instance" or a unique "Apache web instance".
-            #
-            #             A "Tomcat web instance" consists of a single process
-            #             which may itself contain zero or one unique
-            #             "CA" and/or "KRA" and/or "OCSP" and/or "TKS"
-            #             pki subystems.  Obviously, the "Tomcat web instance"
-            #             must contain at least one of these four pki subystems.
-            #
-            #             Similarly, an "Apache web instance" consists of a single
-            #             process which may itself contain zero or one unique
-            #             "RA" and/or "TPS" pki subsystems.  Obviously, the
-            #             "Apache web instance" must contain at least one of these
-            #             two pki subystems.
-            #
-            #             Optionally, to more clearly distinguish a "PKI instance",
-            #             a common PKI "Admin Domain" may be used as a suffix to
-            #             either an "Apache web instance", or a
-            #             "Tomcat web instance".
-            #
-            #             Thus, a specific "PKI instance" of a CA, KRA, OCSP,
-            #             or TKS subystem must be referenced via the name of
-            #             the particular PKI "Tomcat web instance" containing
-            #             this PKI subsystem optionally followed by a
-            #             specified PKI "Admin Domain" separated via a ".".
-            #
-            #             Likewise, a specific "PKI instance" of an RA, or TPS
-            #             subystem must be referenced via the name of
-            #             the particular PKI "Apache web instance" containing
-            #             this PKI subsystem optionally followed by a
-            #             specified PKI "Admin Domain" separated via a ".".
-            #
-            #             To emulate the original behavior of having a CA and
-            #             KRA be unique PKI instances, each must be located
-            #             within separately named "Tomcat web instances" if
-            #             residing on the same host machine, or may be located
-            #             within an identically named "PKI instance" when residing
-            #             on two separate host machines.
-            #
-            # PKI INSTANCE NAMING CONVENTION:
-            #
-            #     OLD:  "pki-${pki_subsystem}"
-            #           (e. g. Tomcat:  "pki-ca", "pki-kra", "pki-ocsp", "pki-tks")
-            #           (e. g. Apache:  "pki-ra", "pki-tps")
-            #     NEW:  "${pki_instance_name}"
-            #           (e. g. Tomcat:  "pki-tomcat", "pki-tomcat.example.com")
-            #           (e. g. Apache:  "pki-apache", "pki-apache.example.com")
-            #
-
-            # Apache/Tomcat instance registry name/value pairs
-            # Apache-specific instance name/value pairs
-            if config.pki_master_dict['pki_subsystem'] in\
-                 config.PKI_TOMCAT_SUBSYSTEMS:
-                # Tomcat instance common lib jars
-                if config.pki_master_dict['pki_architecture'] == 64:
-                    config.pki_master_dict['pki_jss_jar'] =\
-                        os.path.join("/usr/lib64/java",
-                                     "jss4.jar")
-                    config.pki_master_dict['pki_symkey_jar'] =\
-                        os.path.join("/usr/lib64/java",
-                                     "symkey.jar")
-                else:
-                    config.pki_master_dict['pki_jss_jar'] =\
-                        os.path.join("/usr/lib/java",
-                                     "jss4.jar")
-                    config.pki_master_dict['pki_symkey_jar'] =\
-                        os.path.join("/usr/lib/java",
-                                     "symkey.jar")
-
-            # Instance layout NSS security database name/value pairs
-            config.pki_master_dict['pki_database_path'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_instance_configuration_path'],
-                    "alias")
-            # Apache/Tomcat instance convenience symbolic links
-            config.pki_master_dict['pki_instance_database_link'] =\
-                os.path.join(config.pki_master_dict['pki_instance_path'],
-                             "alias")
-            config.pki_master_dict['pki_instance_conf_link'] =\
-                os.path.join(config.pki_master_dict['pki_instance_path'],
-                             "conf")
-            config.pki_master_dict['pki_instance_logs_link'] =\
-                os.path.join(config.pki_master_dict['pki_instance_path'],
-                             "logs")
-            # Instance-based PKI subsystem base name/value pairs
-            config.pki_master_dict['pki_subsystem_path'] =\
-                os.path.join(config.pki_master_dict['pki_instance_path'],
-                             config.pki_master_dict['pki_subsystem'].lower())
-            # Instance-based PKI subsystem log name/value pairs
-            config.pki_master_dict['pki_subsystem_log_path'] =\
-                os.path.join(config.pki_master_dict['pki_instance_log_path'],
-                             config.pki_master_dict['pki_subsystem'].lower())
-            config.pki_master_dict['pki_subsystem_archive_log_path'] =\
-                os.path.join(config.pki_master_dict['pki_subsystem_log_path'],
-                             "archive")
-            # Instance-based PKI subsystem configuration name/value pairs
-            config.pki_master_dict['pki_subsystem_configuration_path'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_instance_configuration_path'],
-                    config.pki_master_dict['pki_subsystem'].lower())
-            # Instance-based PKI subsystem registry name/value pairs
-            config.pki_master_dict['pki_subsystem_registry_path'] =\
-                os.path.join(config.pki_master_dict['pki_instance_registry_path'],
-                             config.pki_master_dict['pki_subsystem'].lower())
-            # Instance-based Apache/Tomcat PKI subsystem name/value pairs
-            if config.pki_master_dict['pki_subsystem'] in\
-               config.PKI_APACHE_SUBSYSTEMS:
-                # Instance-based Apache PKI subsystem base name/value pairs
-                # Instance-based Apache PKI subsystem log name/value pairs
-                if config.pki_master_dict['pki_subsystem'] == "TPS":
-                    config.pki_master_dict['pki_subsystem_signed_audit_log_path'] =\
-                    os.path.join(config.pki_master_dict['pki_subsystem_log_path'],
-                                 "signedAudit")
-                # Instance-based Apache PKI subsystem configuration name/value pairs
-                # Instance-based Apache PKI subsystem registry name/value pairs
-                # Instance-based Apache PKI subsystem convenience symbolic links
-            elif config.pki_master_dict['pki_subsystem'] in\
-                 config.PKI_TOMCAT_SUBSYSTEMS:
-                # Instance-based Tomcat PKI subsystem base name/value pairs
-                if config.pki_master_dict['pki_subsystem'] == "CA":
-                    config.pki_master_dict['pki_subsystem_emails_path'] =\
-                    os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                                 "emails")
-                    config.pki_master_dict['pki_subsystem_profiles_path'] =\
-                    os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                                 "profiles")
-                # Instance-based Tomcat PKI subsystem log name/value pairs
-                config.pki_master_dict['pki_subsystem_signed_audit_log_path'] =\
-                    os.path.join(config.pki_master_dict['pki_subsystem_log_path'],
-                                 "signedAudit")
-                # Instance-based Tomcat PKI subsystem configuration name/value pairs
-                # Instance-based Tomcat PKI subsystem registry name/value pairs
-                # Instance-based Tomcat PKI subsystem convenience symbolic links
-                config.pki_master_dict['pki_subsystem_tomcat_webapps_link'] =\
-                    os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                                 "webapps")
-            # Instance-based Apache/Tomcat PKI subsystem convenience symbolic links
-            config.pki_master_dict['pki_subsystem_database_link'] =\
-                os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                             "alias")
-            config.pki_master_dict['pki_subsystem_conf_link'] =\
-                os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                             "conf")
-            config.pki_master_dict['pki_subsystem_logs_link'] =\
-                os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                             "logs")
-            config.pki_master_dict['pki_subsystem_registry_link'] =\
-                os.path.join(config.pki_master_dict['pki_subsystem_path'],
-                             "registry")
-            # PKI Target (war file) name/value pairs
-            if config.pki_master_dict['pki_subsystem'] in\
-               config.PKI_TOMCAT_SUBSYSTEMS:
-                # Tomcat PKI subsystem war file base name/value pairs
-                config.pki_master_dict['pki_tomcat_webapps_subsystem_path'] =\
-                    os.path.join(config.pki_master_dict['pki_tomcat_webapps_path'],
-                                 config.pki_master_dict['pki_subsystem'].lower())
-                config.pki_master_dict\
-                ['pki_tomcat_webapps_subsystem_webinf_classes_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "classes")
-                config.pki_master_dict\
-                ['pki_tomcat_webapps_subsystem_webinf_lib_path'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "lib")
-                config.pki_master_dict['pki_certsrv_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-certsrv.jar")
-                config.pki_master_dict['pki_cmsbundle_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-cmsbundle.jar")
-                config.pki_master_dict['pki_cmscore_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-cmscore.jar")
-                config.pki_master_dict['pki_cms_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-cms.jar")
-                config.pki_master_dict['pki_cmsutil_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-cmsutil.jar")
-                config.pki_master_dict['pki_nsutil_jar_link'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                        "pki-nsutil.jar")
-                # Tomcat PKI subsystem war file convenience symbolic links
-                if config.pki_master_dict['pki_subsystem'] == "CA":
-                    config.pki_master_dict['pki_ca_jar'] =\
-                        os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                     "pki-ca.jar")
-                    config.pki_master_dict['pki_ca_jar_link'] =\
-                        os.path.join(
-                            config.pki_master_dict\
-                            ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                            "pki-ca.jar")
-                elif config.pki_master_dict['pki_subsystem'] == "KRA":
-                    config.pki_master_dict['pki_kra_jar'] =\
-                        os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                     "pki-kra.jar")
-                    config.pki_master_dict['pki_kra_jar_link'] =\
-                        os.path.join(
-                            config.pki_master_dict\
-                            ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                            "pki-kra.jar")
-                elif config.pki_master_dict['pki_subsystem'] == "OCSP":
-                    config.pki_master_dict['pki_ocsp_jar'] =\
-                        os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                     "pki-ocsp.jar")
-                    config.pki_master_dict['pki_ocsp_jar_link'] =\
-                        os.path.join(
-                            config.pki_master_dict\
-                            ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                            "pki-ocsp.jar")
-                elif config.pki_master_dict['pki_subsystem'] == "TKS":
-                    config.pki_master_dict['pki_tks_jar'] =\
-                        os.path.join(config.PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT,
-                                     "pki-tks.jar")
-                    config.pki_master_dict['pki_tks_jar_link'] =\
-                        os.path.join(
-                            config.pki_master_dict\
-                            ['pki_tomcat_webapps_subsystem_webinf_lib_path'],
-                            "pki-tks.jar")
             # PKI Target (slot substitution) name/value pairs
             config.pki_master_dict['pki_target_cs_cfg'] =\
                 os.path.join(

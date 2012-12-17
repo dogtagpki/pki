@@ -57,15 +57,8 @@ PKI_INDENTATION_LEVEL_4 = {'indent' : '............... '}
 
 PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
                                   "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
-PKI_DEPLOYMENT_JAR_SOURCE_ROOT = "/usr/share/java"
-PKI_DEPLOYMENT_HTTPCOMPONENTS_JAR_SOURCE_ROOT = "/usr/share/java/httpcomponents"
-PKI_DEPLOYMENT_PKI_JAR_SOURCE_ROOT = "/usr/share/java/pki"
 
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
-PKI_DEPLOYMENT_SYSTEMD_ROOT = "/lib/systemd/system"
-PKI_DEPLOYMENT_SYSTEMD_CONFIGURATION_ROOT = "/etc/systemd/system"
-PKI_DEPLOYMENT_TOMCAT_ROOT = "/usr/share/tomcat"
-PKI_DEPLOYMENT_TOMCAT_SYSTEMD = "/usr/sbin/tomcat-sysd"
 PKI_DEPLOYMENT_BASE_ROOT = "/var/lib/pki"
 # NOTE: Top-level "/etc/pki" is owned by the "filesystem" package!
 PKI_DEPLOYMENT_CONFIGURATION_ROOT = "/etc/pki"
@@ -79,10 +72,6 @@ PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 #        the default 'instance' name may be overridden by the value specified
 #        in the configuration file (the value in the default configuration file
 #        should always match the 'default' instance name specified below).
-PKI_DEPLOYMENT_REGISTRY_ROOT = "/etc/sysconfig/pki"
-PKI_DEPLOYMENT_DEFAULT_ADMIN_DOMAIN_NAME = None
-PKI_DEPLOYMENT_DEFAULT_APACHE_SERVICE_NAME = "apache"
-PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVICE_NAME = "tomcat"
 PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "pki-apache"
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 

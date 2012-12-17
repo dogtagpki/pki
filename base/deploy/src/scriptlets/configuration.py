@@ -94,7 +94,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Pass control to the Java servlet via Jython 2.2 'configuration.jy'
         util.jython.invoke(
             master['pki_jython_configuration_scriptlet'],
-            master['RESTEASY_LIB'])
+            master['resteasy_lib'])
         return self.rv
 
     def respawn(self):
