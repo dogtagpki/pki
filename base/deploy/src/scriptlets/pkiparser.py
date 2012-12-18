@@ -213,6 +213,7 @@ class PKIConfigParser:
                                'pki_root_prefix' : config.pki_root_prefix,
                                'resteasy_lib': resteasy_lib,
                                'arch_java_lib': arch_java_lib,
+                               'home_dir': os.path.expanduser("~"),
                                'pki_hostname': config.pki_hostname}
 
             self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
@@ -698,69 +699,11 @@ class PKIConfigParser:
                 os.path.join(
                     config.pki_master_dict['pki_subsystem_configuration_path'],
                     "password.conf")
-            # Client NSS security database name/value pairs
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and is NOT redefined below:
-            #
-            #         config.pki_master_dict['pki_client_pkcs12_password']
-            #         config.pki_master_dict['pki_client_database_purge']
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
-            #
-            #         config.pki_master_dict['pki_client_dir']
-            #         config.pki_master_dict['pki_client_subsystem_dir']
-            #
+
             if not len(config.pki_master_dict['pki_client_database_password']):
                 # use randomly generated client 'pin'
                 config.pki_master_dict['pki_client_database_password'] =\
                     str(config.pki_master_dict['pki_client_pin'])
-            if not len(config.pki_master_dict['pki_client_dir']):
-                config.pki_master_dict['pki_client_dir'] =\
-                    os.path.join(
-                        os.path.expanduser("~"), ".pki",
-                        config.pki_master_dict['pki_instance_name'])
-            config.pki_master_dict['pki_client_subsystem_dir'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_dir'],
-                    config.pki_master_dict['pki_subsystem'].lower())
-            if not len(config.pki_master_dict['pki_client_database_dir']):
-                config.pki_master_dict['pki_client_database_dir'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_client_subsystem_dir'],
-                        "alias")
-            config.pki_master_dict['pki_client_password_conf'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_subsystem_dir'],
-                    "password.conf")
-            config.pki_master_dict['pki_client_pkcs12_password_conf'] =\
-                os.path.join(
-                    config.pki_master_dict['pki_client_subsystem_dir'],
-                    "pkcs12_password.conf")
-            config.pki_master_dict['pki_client_cert_database'] =\
-                os.path.join(config.pki_master_dict['pki_client_database_dir'],
-                             "cert8.db")
-            config.pki_master_dict['pki_client_key_database'] =\
-                os.path.join(config.pki_master_dict['pki_client_database_dir'],
-                             "key3.db")
-            config.pki_master_dict['pki_client_secmod_database'] =\
-                os.path.join(config.pki_master_dict['pki_client_database_dir'],
-                             "secmod.db")
-            config.pki_master_dict['pki_client_admin_cert'] =\
-                config.pki_master_dict['pki_subsystem'].lower() + "_" +\
-                "admin" + "." + "cert"
-
-            config.pki_master_dict['pki_client_admin_cert_p12'] =\
-                config.pki_master_dict['pki_client_dir'] + "/" +\
-                config.pki_master_dict['pki_subsystem'].lower() + "_" +\
-                "admin" + "_" + "cert" + "." + "p12"
-
-            if not 'pki_admin_cert_file' in config.pki_master_dict or\
-               not len(config.pki_master_dict['pki_admin_cert_file']):
-                config.pki_master_dict['pki_admin_cert_file'] =\
-                    config.pki_master_dict['pki_client_dir'] +\
-                    "/ca_admin.cert"
 
             # Jython scriptlet name/value pairs
             config.pki_master_dict['pki_jython_configuration_scriptlet'] =\

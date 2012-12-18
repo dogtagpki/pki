@@ -613,6 +613,11 @@ class rest_client:
                     log.PKI_JYTHON_ADMIN_CERT_IMPORT +\
                     " " + "'" + command + "'")
                 os.system(command)
+
+                # create directory for p12 file if it does not exist
+                self.mkdirs(os.path.dirname(
+                    master['pki_client_admin_cert_p12']))
+
                 # Export the Administration Certificate from the
                 # client NSS security database into a PKCS #12 file
                 command = "pk12util" + " " +\
