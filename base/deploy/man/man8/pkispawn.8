@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pkispawn 8 "December 5, 2012" "version 1.0" "PKI Instance Creation Utility" Ade Lee
+.TH pkispawn 8 "December 13, 2012" "version 1.0" "PKI Instance Creation Utility" Ade Lee
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -30,7 +30,7 @@ A 389 Directory Server instance must be configured and running before this scrip
 \fBNote:\fP 
 This utility creates only Java-based subsystems. The Apache-based Certificate Server subsystems (RA and TPS) are created using \fBpkicreate\fP. 
 .PP
-An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run \fBpkispawn\fP twice, with values 
+An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values 
 .I -s CA 
 and 
 .I -s KRA 
@@ -56,7 +56,7 @@ The \fBpkispawn\fP run creates several different installation files that can be 
 When the utility is done running, the CA can be accessed by pointing a browser to https://<hostname>:<pki_https_port>/. The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser. 
 .PP
 The Certificate Server instance can also be accessed using the \fBpki\fP command line interface.  See 
-\fBpki(1)\fP. For more extensive documentation on how to use the Certificate Server instance and its rich feature set, see the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
+\fBpki(1)\fP. For more extensive documentation on how to use Certificate Server features, see the Red Hat Certificate System Documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
 .PP
 Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  See
 .BR pkidestroy(8).
@@ -97,11 +97,21 @@ pki_ds_password=\fIpassword123\fP
 pki_security_domain_password=\fIpassword123\fP
 .fi
 .PP
-Prior to running this command, a Directory Server instance should be created and running on the local machine on port 389 with user cn=Directory Manager having the password specified in pki_ds_password above.  This invocation of \fBpkispawn\fP creates a Tomcat instance containing a CA running on the local machine with secure port 8443 and unsecure port 8080.  To access this CA, simply point a browser to https://<hostname>:8443.
+Prior to running this command, a Directory Server instance should be created and running. This command assumes that the Directory Server instance is using its default configuration:
+.IP
+* Installed on the local machine
+.IP
+* Listening on port 389 
+.IP
+* The user is cn=Directory Manager, with the password specified in pki_ds_password
+
+This invocation of \fBpkispawn\fP creates a Tomcat instance containing a CA running on the local machine with secure port 8443 and unsecure port 8080.  To access this CA, simply point a browser to https://<hostname>:8443.
 .PP
-The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pkispawn-pki-tomcat-<timestamp>.log\fP
+The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pkispawn-pki-tomcat-<timestamp>.log\fP.
 .PP
-A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.pki/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.  To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
+A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.pki/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.  
+.PP
+To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
 .SS KRA, OCSP, or TKS using default configuration
 \x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
 .PP
@@ -232,12 +242,12 @@ pki_ca_signing_subject_dn=cn=CA Signing,ou=External,o=example.com
 .fi
 .PP
 The CSR is written to pki_external_csr_path.  The pki_ca_signing_subject_dn should be different from the subject DN of the external CA that is signing the request.  The pki_ca_signing_subject_dn parameter can be used to specify the signing certificate's subject DN.
+
 .PP
-The CSR is then submitted to the external CA, and the resulting certificate and certificate chain are copied to files on the system.
+The CSR is then submitted to the external CA, and the resulting certificate and certificate chain are saved to files on the system.
+
 .PP
-.B pkispawn -s CA -f myconfig.txt
-.PP
-In the second step, the \fBpkispawn\fP command is run again after the configuration file has been modified to contain the following text:
+In the second step, the configuration file has been modified to install the issued certificates. In place of the original CSR, the configuration file now points to the issued CA certificate and certificate chain. There is also a flag to indicate that this completes the installation process (pki_external_step_two). 
 .IP
 .nf
 [DEFAULT]
@@ -252,10 +262,12 @@ pki_external=True
 pki_external_ca_cert_chain_path=/tmp/ca_cert_chain.cert
 pki_external_ca_cert_path=/tmp/ca_signing.cert
 pki_external_step_two=True
-pki_ca_signing_subject_dn=cn=CA Signing,ou=External,o=example.com
+pki_ca_signing_subject_dn=cn=CA Signing Certificate,ou=External,o=example.com
 .fi
 .PP
-In place of the original CSR, the configuration file now points to the issued CA certificate and certificate chain. There is also a flag to indicate that this completes the installation process (pki_external_step_two).
+Then, the \fBpkispawn\fP command is run again:
+.PP
+.B pkispawn -s CA -f myconfig.txt
 
 .SH BUGS
 Report bugs to http://bugzilla.redhat.com.

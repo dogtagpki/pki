@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki_default.cfg 5 "December 5, 2012" "version 1.0" "PKI Default Instance Configuration" Ade Lee
+.TH pki_default.cfg 5 "December 13, 2012" "version 1.0" "PKI Default Instance Configuration" Ade Lee
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -15,7 +15,7 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for man page specific macros, see man(7)
 .SH NAME
-pki_default.cfg \- Certificate Server instance Default Config file.
+pki_default.cfg \- Certificate Server instance default config file.
 
 .SH LOCATION
 /etc/pki/default.cfg
@@ -26,11 +26,11 @@ This file contains the default settings for a Certificate Server instance create
 .SH SECTIONS
 \fIdefault.cfg\fP is divided into subsystem-based sections ([DEFAULT] for general configuration and subsystem-type sections such as [CA] and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP, and TKS), the sections read are [DEFAULT], [Tomcat] and the subsystem type section -- [CA], [KRA], [OCSP], and [TKS] -- in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and subsystem-specific upgrades in the other sections.
 .PP
-There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameter's values can be interpolated tokens rather than explicit values. For example,
+There are a small number of bootstrap parameters which are passed in the configuration file by \fBpkispawn\fP. Other parameter's values can be interpolated tokens rather than explicit values. For example:
 .PP
 \fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_name)s CA\fP
 .PP
-substitutes the value of pki_instance_name into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_name should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
+This substitutes the value of pki_instance_name into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_name should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
 
 .SH GENERAL INSTANCE PARAMETERS
 The parameters described below, as well as the parameters located in the following sections, can be customized as part of a deployment.  This list is not exhaustive.
@@ -53,15 +53,16 @@ Ports for an Apache proxy server. Certificate Server instances can be run behind
 .TP
 .B pki_user, pki_group, pki_audit_group
 .IP
-Specifies the default administrative user, group, and audit group identities for PKI instances.  The default user and group are both specified as \fBpkiuser\fR and the default audit group is specified as \fBpkiaudit\fR.
+Specifies the default administrative user, group, and auditor group identities for PKI instances.  The default user and group are both specified as \fBpkiuser\fR, and the default audit group is specified as \fBpkiaudit\fR.
 .TP
 .B pki_token_name, pki_token_password
 .IP
-Token and password where this instance's system certificate and keys are stored.  Defaults to the NSS internal software token.
+The token and password where this instance's system certificate and keys are stored.  Defaults to the NSS internal software token.
+
 .SS SYSTEM CERTIFICATE PARAMETERS
-\fBpkispawn\fP sets up a number of system certificates for each subsystem.  The system certificates required differ between subsystems.  Each system certificate is denoted by a tag as noted below.  The different system certificates are:
+\fBpkispawn\fP sets up a number of system certificates for each subsystem.  The system certificates which are required differ between subsystems.  Each system certificate is denoted by a tag, as noted below.  The different system certificates are:
 .IP
-* signing certificate ("signing")  Used to sign other certificates.  Required for CA.
+* signing certificate ("signing").  Used to sign other certificates.  Required for CA.
 .IP
 * OCSP signing certificate ("ocsp_signing" in CA, "signing" in OCSP).  Used to sign CRLs.  Required for OCSP and CA.
 .IP
@@ -79,7 +80,7 @@ Each system certificate can be customized using the parameters below:
 .TP
 .B pki_<tag>_key_type, pki_<type>_keysize, pki_<tag>_key_algorithm
 .IP
-Characteristics of the private key.  See the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/ for possible options.  Defaults are RSA, 2048 bits, SHA256withRSA.
+Characteristics of the private key. See the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/ for possible options.  The defaults are RSA for the type, 2048 bits for the key size, and SHA256withRSA for the algorithm.
 .TP 
 .B pki_<tag>_signing_algorithm
 .IP
@@ -101,11 +102,11 @@ Subject DN for the certificate.  The subject DN for the SSL Server certificate m
 .TP
 .B pki_admin_name, pki_admin_uid
 .IP
-Name and uid of this administrative user.  Defaults to caadmin for CA, kraadmin for KRA, etc.
+Name and UID of this administrative user.  Defaults to caadmin for CA, kraadmin for KRA, etc.
 .TP
 .B pki_admin_password
 .IP
-Password for the admin user.  This password is used to log onto the pki-console (unless client authentication is enabled), as well as log onto the security domain CA.
+Password for the admin user.  This password is used to log into the pki-console (unless client authentication is enabled), as well as log into the security domain CA.
 .TP
 .B pki_admin_email
 .IP
@@ -113,27 +114,27 @@ Email address for the admin user.
 .TP
 .B pki_admin_dualkey, pki_admin_keysize, pki_admin_keytype
 .IP
-Characteristics of the administrator certificate and keys.
+Settings for the administrator certificate and keys.
 .TP
 .B pki_admin_subject_dn
 .IP
-Subject DN for the administrator certificate.  Defaults to \fBcn=PKI Administrator, e=%(pki_admin_email)s, o=%(pki_security_domain_name)s\fP
+Subject DN for the administrator certificate.  Defaults to \fBcn=PKI Administrator, e=%(pki_admin_email)s, o=%(pki_security_domain_name)s\fP.
 .TP
 .B pki_admin_nickname
-Nickname for the administrator certificate
+Nickname for the administrator certificate.
 .TP
 .B pki_import_admin_cert
 .IP
-Set to True to import an existing admin certificate for the admin user, rather than generating a new one.  A subsystem specific administrator will still be created within the subsystem's LDAP tree.  This is useful to allow multiple subsystems within the same instance to be more easily administered from the same browser.
+Set to True to import an existing admin certificate for the admin user, rather than generating a new one.  A subsystem-specific administrator will still be created within the subsystem's LDAP tree.  This is useful to allow multiple subsystems within the same instance to be more easily administered from the same browser by using a single certificate.
 
-By default, this is set to False for CA subsystems, and true for KRA, OCSP, and TKS subsystems.  In this case, the admin certificate is read from the file ca_admin.cert in \fBpki_client_dir\fP.
+By default, this is set to False for CA subsystems and true for KRA, OCSP, and TKS subsystems.  In this case, the admin certificate is read from the file ca_admin.cert in \fBpki_client_dir\fP.
 
 Note that cloned subsystems do not create a new administrative user.  The administrative user of the master subsystem is used instead, and the details of this master user are replicated during the install.
 .SS BACKUP PARAMETERS
 .TP
 .B pki_backup_keys, pki_backup_password
 .IP
-Set to True to back up the subsystem certificates and keys to a PKCS #12 file.  This file will be located in \fI/var/lib/pki/<instance_name>/alias\fP.  pki_backup_password is the password of the PKCS #12 file.
+Set to True to back up the subsystem certificates and keys to a PKCS #12 file.  This file will be located in \fI/var/lib/pki/<instance_name>/alias\fP.  pki_backup_password is the password of the PKCS#12 file.
   
 .SS CLIENT DIRECTORY PARAMETERS
 .TP
@@ -151,19 +152,19 @@ Set to True to remove \fBpki_client_database_dir\fP at the end of the installati
 .SS INTERNAL DATABASE PARAMETERS
 \x'-1'\fBpki_ds_hostname, pki_ds_ldap_port, pki_ds_ldaps_port\fR
 .IP
-Hostname and ports for the internal database.  Defaults to localhost, 389, and 636.
+Hostname and ports for the internal database.  Defaults to localhost, 389, and 636, respectively.
 .PP
 .B pki_ds_bind_dn, pki_ds_password
 .IP
-Credentials to connect to the database during installation.  Directory manager level access is required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/ for details.
+Credentials to connect to the database during installation.  Directory Manager-level access is required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the documentation for details. 
 .PP
 .B pki_ds_secure_connection
 .IP
-Set to True to require connections to the Directory Server using LDAPS.  Requires SSL to be set up on the Directory Server first.  Defaults to false.
+Sets whether to require connections to the Directory Server using LDAPS.  This requires SSL to be set up on the Directory Server first.  Defaults to false.
 .PP
 .B pki_ds_remove_data
 .IP
-Set to True to remove any data from the base DN before starting the installation.  Defaults to True.
+Sets whether to remove any data from the base DN before starting the installation.  Defaults to True.
 .PP
 .B pki_ds_base_dn
 .IP
@@ -180,85 +181,85 @@ Required for installations of subordinate CA and non-CA subsystems.  This is the
 .SS MISCELLANEOUS PARAMETERS
 \x'-1'\fBpki_restart_configured_instance\fR
 .IP
-Set to True to restart the instance after configuration is complete.  Defaults to True.
+Sets whether to restart the instance after configuration is complete.  Defaults to True.
 .PP
 .B pki_skip_configuration
 .IP
-Set to True to not execute the configuration steps when running \fBpkispawn\fP.  This is analogous to running pkicreate.  A configuration URL will be provided.  This URL can be used as a starting point for the browser-based configuration panels.  Defaults to False.
+Sets whether to execute the configuration steps when running \fBpkispawn\fP.  If this is true, then the process is analogous to running \fBpkicreate\fP, when the configuration was performed separately from the instance creation.  A configuration URL will be provided.  This URL can be used as a starting point for the browser-based configuration panels.  Defaults to False.
 .PP
 .B pki_skip_installation
 .IP
-Set to True to skip the installation steps.  With pki_skip_configuration set to False, this is analogous to running pkisilent.  Defaults to False.
+Sets whether to skip the installation steps.  With pki_skip_configuration set to False, this is analogous to running pkisilent.  Defaults to False.
 .PP
 .B pki_enable_java_debugger
 .IP
-For Java subsystems, set to True to allow attaching a Java debugger such as Eclipse to the instance for troubleshooting.  Defaults to False.
+Sets whether to attach a Java debugger such as Eclipse to the instance for troubleshooting.  Defaults to False.
 .PP
 .B pki_security_manager
 .IP
-Set to True to enable the Java security manager policies provided by the JDK to be used with the instance.  Defaults to True.
+Enables the Java security manager policies provided by the JDK to be used with the instance.  Defaults to True.
 .PP
 .SS SECURITY DOMAIN PARAMETERS
-The security domain is a component that facilitates the installation and communication between subsystems.  The first CA installed hosts this component, and is used to register subsequent subsystems joining the security domain.  These subsystems can communicate with each other using their subsystem certificate, which is issued by the security domain CA.  For more information about the security domain component, see the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
+The security domain is a component that facilitates communication between subsystems.  The first CA installed hosts this component and is used to register subsequent subsystems with the security domain.  These subsystems can communicate with each other using their subsystem certificate, which is issued by the security domain CA.  For more information about the security domain component, see the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
 .TP
 .B pki_security_domain_hostname, pki_security_domain_https_port
 .IP
-Location of the security domain.  Required for KRA, OCSP, TKS subsystems, and for CA subsystems joining a security domain.  Defaults to the location of the CA subsystem within the same instance.
+Location of the security domain.  Required for KRA, OCSP, and TKS subsystems and for CA subsystems joining a security domain.  Defaults to the location of the CA subsystem within the same instance.
 .TP
 .B pki_security_domain_user, pki_security_domain_password
 .IP
-Administrative user of the security domain.  Required for KRA, OCSP, TKS subsystems, and for CA subsystems joining a security domain.  Defaults to the administrative user for the CA subsystem within the same instance (caadmin).
+Administrative user of the security domain.  Required for KRA, OCSP, and TKS subsystems, and for CA subsystems joining a security domain.  Defaults to the administrative user for the CA subsystem within the same instance (caadmin).
 .TP
 .B pki_security_domain_name
 .IP
-Required for the security domain CA.  This is the name of the security domain.
+The name of the security domain. This is required for the security domain CA.
 
 .SS CLONE PARAMETERS
 .TP
 .B pki_clone
 .IP
-Set to True to install a clone subsystem.
+Installs a clone, rather than original, subsystem.
 .TP
 .B pki_clone_pkcs12_password, pki_clone_pkcs12_path
 .IP
-Location and password of the PKCS #12 file containing the system certificates for the master subsystem being cloned.  This file should be readable by the user that the Certificate Server is running as (default: pkiuser), and have the correct selinux context (pki_tomcat_cert_t).  This can be achieved by placing the file in \fI/var/lib/pki/<instance_name>/alias\fP.
+Location and password of the PKCS #12 file containing the system certificates for the master subsystem being cloned.  This file should be readable by the user that the Certificate Server is running as (default of pkiuser), and have the correct selinux context (pki_tomcat_cert_t).  This can be achieved by placing the file in \fI/var/lib/pki/<instance_name>/alias\fP.
 .TP
 .B pki_clone_replication_master_port, pki_clone_replication_clone_port
 .IP
-Ports on which replication occurs.  This is on the master and clone databases respectively.  Defaults to the internal database port. 
+Ports on which replication occurs.  These are the ports on the master and clone databases respectively.  Defaults to the internal database port. 
 .TP
 .B pki_clone_repicate_schema
 .IP
-Set to True to replicate schema when the replication agreement is set up and consumer is initialized.  Otherwise, install the schema in the clone as a separate step beforehand.  This does not usually have to be changed.  Defaults to True.
+Replicate schema when the replication agreement is set up and the new instance (consumer) is initialized.  Otherwise, the schema must be installed in the clone as a separate step beforehand.  This does not usually have to be changed.  Defaults to True.
 .TP
 .B pki_clone_replication_security
 .IP
-The type of security used for the replication data.  Can be set to SSL (using LDAPS), TLS, or None.  Defaults to None.  For SSL and TLS, SSL must be set up for the database instances beforehand.
+The type of security used for the replication data.  This can be set to SSL (using LDAPS), TLS, or None.  Defaults to None.  For SSL and TLS, SSL must be set up for the database instances beforehand.
 .TP
 .B pki_clone_uri
 .IP
-This is a pointer to the subsystem being cloned.  The format is https://<master_hostname>:<master_https_port>.
+A pointer to the subsystem being cloned.  The format is https://<master_hostname>:<master_https_port>.
 
 .SS EXTERNAL CA CERTIFICATE PARAMETERS
 \x'-1'\fBpki_external\fR
 .IP
-Set to True if installing a CA whose signing cert is to be issued by an external CA.  This is a two step process.  In the first step, a CSR to be presented to the external CA is generated.  In the second step, the issued signing cert and certificate chain is provided to the \fBpkispawn\fP to complete the installation.  Defaults to False.
+Sets whether the new CA will have a signing certificate that will be issued by an external CA.  This is a two step process.  In the first step, a CSR to be presented to the external CA is generated.  In the second step, the issued signing certificate and certificate chain are provided to the \fBpkispawn\fP utility to complete the installation.  Defaults to False.
 .PP
 .B pki_external_csr_path
 .IP
-Required in first step of the external CA signing process.  The CSR will be printed to the screen and stored in this location.
+Required in the first step of the external CA signing process.  The CSR will be printed to the screen and stored in this location.
 .PP
 .B pki_external_step_two
 .IP
-Set to True to specify that this is the second step of the external CA process.  Defaults to False.
+Specifies that this is the second step of the external CA process.  Defaults to False.
 .PP
 .B pki_external_cert_path, pki_external_cert_chain_path
 .IP
-Required for second step of the external CA signing process.  This is the location of the CA signing cert (as issued by the external CA) and the external CA's certificate chain.
+Required for the second step of the external CA signing process.  This is the location of the CA signing cert (as issued by the external CA) and the external CA's certificate chain.
 .SS SUBORDINATE CA CERTIFICATE PARAMETERS
 \x'-1'\fBpki_subordinate\fR
 .IP
-Set to True if installing a CA which is subordinate to another CA.  The master CA is specified by \fBpki_issuing_ca\fP.  Defaults to False.
+Specifies whether the new CA which will be a subordinate of another CA.  The master CA is specified by \fBpki_issuing_ca\fP.  Defaults to False.
 
 .SH AUTHORS
 Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Dogtag project.
