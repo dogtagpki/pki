@@ -22,6 +22,7 @@
 # System Imports
 import ConfigParser
 import argparse
+import getpass
 import logging
 import os
 import random
@@ -54,14 +55,15 @@ class PKIConfigParser:
 
         # Establish 'Mandatory' command-line options
         self.mandatory = self.arg_parser.add_argument_group('mandatory arguments')
-        self.mandatory.add_argument('-s',
-                               dest='pki_subsystem', action='store',
-                               nargs=1, choices=config.PKI_SUBSYSTEMS,
-                               required=True, metavar='<subsystem>',
-                               help='where <subsystem> is '
-                                    'CA, KRA, OCSP, RA, TKS, or TPS')
+
         # Establish 'Optional' command-line options
         self.optional = self.arg_parser.add_argument_group('optional arguments')
+        self.optional.add_argument('-s',
+                               dest='pki_subsystem', action='store',
+                               nargs=1, choices=config.PKI_SUBSYSTEMS,
+                               metavar='<subsystem>',
+                               help='where <subsystem> is '
+                                    'CA, KRA, OCSP, RA, TKS, or TPS')
         self.optional.add_argument('-h', '--help',
                               dest='help', action='help',
                               help='show this help message and exit')
@@ -77,6 +79,8 @@ class PKIConfigParser:
                           help='directory prefix to specify local directory '
                                '[TEST ONLY]')
 
+        self.indent = 0
+
     # PKI Deployment Helper Functions
     def process_command_line_arguments(self, argv):
 
@@ -84,8 +88,6 @@ class PKIConfigParser:
         args = self.arg_parser.parse_args()
 
         # Process 'Mandatory' command-line options
-        #    '-s'
-        config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
 
         # Process 'Optional' command-line options
         #    '-v'
@@ -145,15 +147,63 @@ class PKIConfigParser:
             self.arg_parser.print_help()
             self.arg_parser.exit(-1);
 
-        # verify user configuration file exists
-        if not os.path.exists(config.user_deployment_cfg) or\
-            not os.path.isfile(config.user_deployment_cfg):
-            print "ERROR:  " +\
-                  log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %\
-                  config.user_deployment_cfg
-            print
-            self.arg_parser.print_help()
-            self.arg_parser.exit(-1);
+        if config.user_deployment_cfg:
+            # verify user configuration file exists
+            if not os.path.exists(config.user_deployment_cfg) or\
+                not os.path.isfile(config.user_deployment_cfg):
+                print "ERROR:  " +\
+                      log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %\
+                      config.user_deployment_cfg
+                print
+                parser.arg_parser.print_help()
+                parser.arg_parser.exit(-1);
+
+
+    def init_config(self):
+
+        # RESTEasy
+        resteasy_lib = subprocess.check_output(\
+            'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            shell=True).strip()
+
+        # arch dependent libpath
+        if config.pki_architecture == 64:
+            arch_java_lib = '/usr/lib64/java'
+        else:
+            arch_java_lib = '/usr/lib/java'
+
+        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+            default_instance_name = 'pki-tomcat'
+            default_http_port = '8080'
+            default_https_port = '8443'
+        else:
+            default_instance_name = 'pki-apache'
+            default_http_port = '80'
+            default_https_port = '443'
+
+        self.pki_config = ConfigParser.SafeConfigParser({
+            'pki_instance_name': default_instance_name,
+            'pki_http_port': default_http_port,
+            'pki_https_port': default_https_port,
+            'pki_dns_domainname': config.pki_dns_domainname,
+            'pki_subsystem': config.pki_subsystem,
+            'pki_subsystem_type': config.pki_subsystem.lower(),
+            'pki_root_prefix' : config.pki_root_prefix,
+            'resteasy_lib': resteasy_lib,
+            'arch_java_lib': arch_java_lib,
+            'home_dir': os.path.expanduser("~"),
+            'pki_hostname': config.pki_hostname})
+
+        # Make keys case-sensitive!
+        self.pki_config.optionxform = str
+
+        config.user_config = ConfigParser.SafeConfigParser()
+        config.user_config.optionxform = str
+
+        with open(config.default_deployment_cfg) as f:
+                self.pki_config.readfp(f)
+
+        self.flatten_master_dict()
 
 
     # The following code is based heavily upon
@@ -180,83 +230,124 @@ class PKIConfigParser:
         return values
 
 
+    def set_property(self, section, property, value):
+        if section != "DEFAULT" and not self.pki_config.has_section(section):
+            self.pki_config.add_section(section)
+        self.pki_config.set(section, property, value)
+        self.flatten_master_dict()
+
+        if section != "DEFAULT" and not config.user_config.has_section(section):
+            config.user_config.add_section(section)
+        config.user_config.set(section, property, value)
+
+
+    def read_text(self, message,
+        section=None, property=None, default=None,
+        options=None, sign=':', allowEmpty=True, caseSensitive=True):
+
+        if default is None and property is not None:
+            default = config.pki_master_dict[property]
+        if default:
+            message = message + ' [' + default + ']'
+        message = ' ' * self.indent + message + sign + ' '
+
+        done = False
+        while not done:
+            value = raw_input(message)
+            value = value.strip()
+
+            if len(value) == 0:  # empty value
+                if allowEmpty:
+                    value = default
+                    done = True
+                    break
+
+            else:  # non-empty value
+                if options is not None:
+                    for v in options:
+                        if caseSensitive:
+                            if v == value:
+                                done = True
+                                break
+                        else:
+                            if v.lower() == value.lower():
+                                done = True
+                                break
+                else:
+                    done = True
+                    break
+
+        if section:
+            self.set_property(section, property, value)
+
+        return value
+
+
+    def read_password(self, message, section=None, property=None,
+        verifyMessage=None):
+        message = ' ' * self.indent + message + ': '
+        verifyMessage = ' ' * self.indent + verifyMessage + ': '
+        while True:
+            password = ''
+            while len(password) == 0:
+                password = getpass.getpass(prompt=message)
+
+            verification = ''
+            while len(verification) == 0:
+                verification = getpass.getpass(prompt=verifyMessage)
+
+            if password == verification:
+                break
+            else:
+                print ' ' * self.indent  + 'Passwords do not match.'
+
+        if section:
+            self.set_property(section, property, password)
+
+        return password
+
     def read_pki_configuration_file(self):
         "Read configuration file sections into dictionaries"
         rv = 0
         try:
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                default_instance_name = 'pki-tomcat'
-                default_http_port = '8080'
-                default_https_port = '8443'
-            else:
-                default_instance_name = 'pki-apache'
-                default_http_port = '80'
-                default_https_port = '443'
+            if config.user_deployment_cfg:
+                print 'Loading deployment configuration from ' + config.user_deployment_cfg + '.'
+                self.pki_config.read([config.user_deployment_cfg])
 
-            # RESTEasy
-            resteasy_lib = subprocess.check_output(\
-                'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
-                shell=True).strip()
-
-            # arch dependent libpath
-            if config.pki_architecture == 64:
-                arch_java_lib = '/usr/lib64/java'
-            else:
-                arch_java_lib = '/usr/lib/java'
-
-            predefined_dict = {'pki_instance_name': default_instance_name,
-                               'pki_http_port': default_http_port,
-                               'pki_https_port': default_https_port,
-                               'pki_dns_domainname': config.pki_dns_domainname,
-                               'pki_subsystem' : config.pki_subsystem,
-                               'pki_subsystem_type': config.pki_subsystem.lower(),
-                               'pki_root_prefix' : config.pki_root_prefix,
-                               'resteasy_lib': resteasy_lib,
-                               'arch_java_lib': arch_java_lib,
-                               'home_dir': os.path.expanduser("~"),
-                               'pki_hostname': config.pki_hostname}
-
-            self.pki_config = ConfigParser.SafeConfigParser(predefined_dict)
-            # Make keys case-sensitive!
-            self.pki_config.optionxform = str
-            self.pki_config.read([
-                config.default_deployment_cfg,
-                config.user_deployment_cfg])
-            config.pki_default_dict = dict(self.pki_config.items('DEFAULT'))
-            pkilogging.sensitive_parameters = config.pki_default_dict['sensitive_parameters'].split()
-            if config.pki_subsystem == "CA":
-                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('CA'))
-            elif config.pki_subsystem == "KRA":
-                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('KRA'))
-            elif config.pki_subsystem == "OCSP":
-                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('OCSP'))
-            elif config.pki_subsystem == "RA":
-                config.pki_web_server_dict = dict(self.pki_config.items('Apache'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('RA'))
-            elif config.pki_subsystem == "TKS":
-                config.pki_web_server_dict = dict(self.pki_config.items('Tomcat'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('TKS'))
-            elif config.pki_subsystem == "TPS":
-                config.pki_web_server_dict = dict(self.pki_config.items('Apache'))
-                config.pki_subsystem_dict = dict(self.pki_config.items('TPS'))
-            # Insert empty record into dictionaries for "pretty print" statements
-            #     NEVER print "sensitive" key value pairs!!!
-            config.pki_default_dict[0] = None
-            config.pki_web_server_dict[0] = None
-            config.pki_subsystem_dict[0] = None
         except ConfigParser.ParsingError, err:
             print err
             rv = err
         return rv
 
 
+    def flatten_master_dict(self):
+        config.pki_master_dict.update(__name__="PKI Master Dictionary")
+
+        default_dict = dict(self.pki_config.items('DEFAULT'))
+        default_dict[0] = None
+        config.pki_master_dict.update(default_dict)
+
+        web_server_dict = None
+        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.pki_config.has_section('Tomcat'):
+                web_server_dict = dict(self.pki_config.items('Tomcat'))
+        else:
+            if self.pki_config.has_section('Apache'):
+                web_server_dict = dict(self.pki_config.items('Apache'))
+
+        if web_server_dict:
+            web_server_dict[0] = None
+            config.pki_master_dict.update(web_server_dict)
+
+        if self.pki_config.has_section(config.pki_subsystem):
+            subsystem_dict = dict(self.pki_config.items(config.pki_subsystem))
+            subsystem_dict[0] = None
+            config.pki_master_dict.update(subsystem_dict)
+
+
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"
         try:
-            config.pki_master_dict = dict()
             # 'pkispawn'/'pkirespawn'/'pkidestroy' name/value pairs
             config.pki_master_dict['pki_deployment_executable'] =\
                 config.pki_deployment_executable
@@ -280,12 +371,10 @@ class PKIConfigParser:
                 random.randint(pin_low, pin_high)
             config.pki_master_dict['pki_client_pin'] =\
                 random.randint(pin_low, pin_high)
-            # Configuration file name/value pairs
-            #     NEVER add "sensitive" key value pairs to the master dictionary!!!
-            config.pki_master_dict.update(config.pki_default_dict)
-            config.pki_master_dict.update(config.pki_web_server_dict)
-            config.pki_master_dict.update(config.pki_subsystem_dict)
-            config.pki_master_dict.update(__name__="PKI Master Dictionary")
+
+            self.flatten_master_dict()
+
+            pkilogging.sensitive_parameters = config.pki_master_dict['sensitive_parameters'].split()
 
             # PKI Target (slot substitution) name/value pairs
             config.pki_master_dict['pki_target_cs_cfg'] =\
@@ -783,11 +872,7 @@ class PKIConfigParser:
                     "https" + "://" +\
                     config.pki_master_dict['pki_security_domain_hostname'] + ":" +\
                     config.pki_master_dict['pki_security_domain_https_port']
-                if not len(config.pki_master_dict['pki_issuing_ca']):
-                    # Guess that it is the same as the
-                    # config.pki_master_dict['pki_security_domain_uri']
-                    config.pki_master_dict['pki_issuing_ca'] =\
-                        config.pki_master_dict['pki_security_domain_uri']
+
             elif config.str2bool(config.pki_master_dict['pki_external']):
                 # External CA
                 config.pki_master_dict['pki_security_domain_type'] = "new"

@@ -178,9 +178,9 @@ The base DN for the internal database.  It is advised that the Certificate Serve
 .IP
 Name of the back-end database.  It is advised that the Certificate Server have its own base DN for its internal database.  If the back-end does not exist, it will be created during the running of \fBpkispawn\fP.
 .SS ISSUING CA PARAMETERS
-\x'-1'\fBpki_issuing_ca\fR
+\x'-1'\fBpki_issuing_ca_hostname, pki_issuing_ca_https_port, pki_issuing_ca_uri\fR
 .IP
-Required for installations of subordinate CA and non-CA subsystems.  This is the URI for the CA that will issue the relevant system certificates for the subsystem.  In a default install, this defaults to the CA subsystem within the same instance.  This has the format https://<ca_hostname>/<ca_https_port>.
+Hostname and port, or URI of the issuing CA.  Required for installations of subordinate CA and non-CA subsystems.  This should point to the CA that will issue the relevant system certificates for the subsystem.  In a default install, this defaults to the CA subsystem within the same instance.  The URI has the format https://<ca_hostname>:<ca_https_port>.
 
 .SS MISCELLANEOUS PARAMETERS
 \x'-1'\fBpki_restart_configured_instance\fR

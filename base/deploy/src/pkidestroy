@@ -1,4 +1,4 @@
-#!/usr/bin/python -t
+#!/usr/bin/python -tu
 # Authors:
 #     Matthew Harmsen <mharmsen@redhat.com>
 #
@@ -94,17 +94,53 @@ def main(argv):
         'PKI Instance Removal',
         log.PKIDESTROY_EPILOG)
 
-    parser.mandatory.add_argument('-i',
+    parser.optional.add_argument('-i',
         dest='pki_deployed_instance_name',
         action='store',
-        nargs=1, required=True, metavar='<instance>',
+        nargs=1, metavar='<instance>',
         help='FORMAT:  ${pki_instance_name}')
 
     args = parser.process_command_line_arguments(argv)
 
-    # -i <instance name>
-    config.pki_deployed_instance_name =\
-        str(args.pki_deployed_instance_name).strip('[\']')
+    interactive = False
+
+    while True:
+
+        # -s <subsystem>
+        if args.pki_subsystem is None:
+            interactive = True
+            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS)',
+                options=['CA', 'KRA', 'OCSP', 'TKS'],
+                default='CA', caseSensitive=False).upper()
+        else:
+            config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
+
+        # -i <instance name>
+        if args.pki_deployed_instance_name is None:
+            interactive = True
+            config.pki_deployed_instance_name = parser.read_text('Instance', default='pki-tomcat')
+        else:
+            config.pki_deployed_instance_name = str(args.pki_deployed_instance_name).strip('[\']')
+
+        if interactive:
+            print
+            parser.indent = 0
+
+            begin = parser.read_text('Begin uninstallation (Yes/No/Quit)',
+                options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
+                sign='?', allowEmpty=False, caseSensitive=False).lower()
+
+            print
+
+            if begin == 'q' or begin == 'quit':
+                print "Uninstallation canceled."
+                sys.exit(0)
+
+            elif begin == 'y' or begin == 'yes':
+                break
+
+        else:
+            break
 
     # verify that previously deployed instance exists
     deployed_pki_instance_path = config.pki_root_prefix +\
@@ -135,6 +171,7 @@ def main(argv):
         config.USER_DEPLOYMENT_CONFIGURATION
 
     parser.validate()
+    parser.init_config()
 
     # Enable 'pkidestroy' logging.
     config.pki_log_dir = config.pki_root_prefix +\
@@ -161,20 +198,6 @@ def main(argv):
                              extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
 
-    # NEVER print out 'sensitive' name/value pairs!!!
-    config.pki_log.debug(log.PKI_DICTIONARY_DEFAULT,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_default_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_subsystem_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
     config.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
@@ -183,6 +206,8 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
+    print "Uninstalling " + config.pki_subsystem + " from " + deployed_pki_instance_path + "."
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = config.pki_master_dict['destroy_scriplets'].split()
@@ -199,6 +224,9 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
+    print
+    print "Uninstallation complete."
 
 
 # PKI Deployment Entry Point

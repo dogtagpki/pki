@@ -566,9 +566,7 @@ class rest_client:
                 javasystem.out.println(log.PKI_JYTHON_RESPONSE_ADMIN_CERT +\
                                        " " + admin_cert)
                 # Store the Administration Certificate in a file
-                admin_cert_file = os.path.join(
-                    master['pki_client_dir'],
-                    master['pki_client_admin_cert'])
+                admin_cert_file = master['pki_client_admin_cert']
                 admin_cert_bin_file = admin_cert_file + ".der"
                 javasystem.out.println(log.PKI_JYTHON_ADMIN_CERT_SAVE +\
                                        " " + "'" + admin_cert_file + "'")

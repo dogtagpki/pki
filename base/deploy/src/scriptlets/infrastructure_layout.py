@@ -58,8 +58,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.directory.create(master['pki_subsystem_registry_path'])
         util.file.copy(master['pki_default_deployment_cfg'],
                        master['pki_default_deployment_cfg_replica'])
-        util.file.copy(master['pki_user_deployment_cfg'],
-                       master['pki_user_deployment_cfg_replica'])
+
+        print "Storing deployment configuration into " + config.pki_master_dict['pki_user_deployment_cfg_replica'] + "."
+        if master['pki_user_deployment_cfg']:
+            util.file.copy(master['pki_user_deployment_cfg'],
+                           master['pki_user_deployment_cfg_replica'])
+        else:
+            with open(master['pki_user_deployment_cfg_replica'], 'w') as f:
+                config.user_config.write(f)
+
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that
         # the "pkidestroy" executable relies upon

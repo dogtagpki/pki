@@ -1,4 +1,4 @@
-#!/usr/bin/python -t
+#!/usr/bin/python -tu
 # Authors:
 #     Matthew Harmsen <mharmsen@redhat.com>
 #
@@ -94,9 +94,9 @@ def main(argv):
         'PKI Instance Installation and Configuration',
         log.PKISPAWN_EPILOG)
 
-    parser.mandatory.add_argument('-f',
+    parser.optional.add_argument('-f',
         dest='user_deployment_cfg', action='store',
-        nargs=1, required=True, metavar='<file>',
+        nargs=1, metavar='<file>',
         help='configuration filename '
             '(MUST specify complete path)')
 
@@ -109,12 +109,112 @@ def main(argv):
     config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # -f <user deployment config>
-    config.user_deployment_cfg = str(args.user_deployment_cfg).strip('[\']')
+    if args.user_deployment_cfg is not None:
+        config.user_deployment_cfg = str(args.user_deployment_cfg).strip('[\']')
 
     # -u
     config.pki_update_flag = args.pki_update_flag
 
     parser.validate()
+    interactive = False
+
+    while True:
+
+        # -s <subsystem>
+        if args.pki_subsystem is None:
+            interactive = True
+            parser.indent = 0
+
+            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS)',
+                options=['CA', 'KRA', 'OCSP', 'TKS'],
+                default='CA', caseSensitive=False).upper()
+            print
+        else:
+            config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
+
+        parser.init_config()
+
+        if config.user_deployment_cfg is None:
+            interactive = True
+            parser.indent = 2
+
+            print "Tomcat:"
+            parser.read_text('Instance', 'DEFAULT', 'pki_instance_name')
+            parser.read_text('HTTP port', config.pki_subsystem, 'pki_http_port')
+            parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_https_port')
+            parser.read_text('AJP port', config.pki_subsystem, 'pki_ajp_port')
+            parser.read_text('Management port', config.pki_subsystem, 'pki_tomcat_server_port')
+            print
+
+            print "Administrator:"
+            parser.read_text('Username', config.pki_subsystem, 'pki_admin_uid')
+
+            admin_password = parser.read_password(
+                'Password', config.pki_subsystem, 'pki_admin_password',
+                verifyMessage='Verify password')
+
+            parser.set_property(config.pki_subsystem, 'pki_backup_password', admin_password)
+            parser.set_property(config.pki_subsystem, 'pki_client_database_password', admin_password)
+            parser.set_property(config.pki_subsystem, 'pki_client_pkcs12_password', admin_password)
+
+            if config.pki_master_dict['pki_import_admin_cert'] == 'True':
+                import_cert = 'Y'
+            else:
+                import_cert = 'N'
+
+            import_cert = parser.read_text('Import certificate (Yes/No)',
+                default=import_cert, options=['Yes', 'Y', 'No', 'N'],
+                sign='?', caseSensitive=False).lower()
+
+            if import_cert == 'y' or import_cert == 'yes':
+                parser.set_property(config.pki_subsystem, 'pki_import_admin_cert', 'True')
+                parser.read_text('Import certificate from', config.pki_subsystem, 'pki_admin_cert_file')
+            else:
+                parser.set_property(config.pki_subsystem, 'pki_import_admin_cert', 'False')
+
+            parser.read_text('Export certificate to', config.pki_subsystem, 'pki_client_admin_cert')
+            print
+
+            print "Directory Server:"
+            parser.read_text('Hostname', config.pki_subsystem, 'pki_ds_hostname')
+            parser.read_text('Port', config.pki_subsystem, 'pki_ds_ldap_port')
+            parser.read_text('Base DN', config.pki_subsystem, 'pki_ds_base_dn')
+            parser.read_text('Bind DN', config.pki_subsystem, 'pki_ds_bind_dn')
+            parser.read_password(
+                'Password', config.pki_subsystem, 'pki_ds_password',
+                verifyMessage='Verify password')
+            print
+
+            print "Security Domain:"
+            parser.read_text('Name', config.pki_subsystem, 'pki_security_domain_name')
+
+            if config.pki_subsystem != "CA":
+                parser.read_text('Hostname', config.pki_subsystem, 'pki_security_domain_hostname')
+                parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_security_domain_https_port')
+                parser.read_text('Username', config.pki_subsystem, 'pki_security_domain_user')
+                parser.read_password(
+                    'Password', config.pki_subsystem, 'pki_security_domain_password',
+                    verifyMessage='Verify password')
+
+            print
+
+        if interactive:
+            parser.indent = 0
+
+            begin = parser.read_text('Begin installation (Yes/No/Quit)',
+                options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
+                sign='?', allowEmpty=False, caseSensitive=False).lower()
+            print
+
+            if begin == 'q' or begin == 'quit':
+                print "Installation canceled."
+                sys.exit(0)
+
+            elif begin == 'y' or begin == 'yes':
+                break
+
+        else:
+            break
 
     if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +\
                           "/" + config.pki_subsystem.lower()):
@@ -161,20 +261,6 @@ def main(argv):
                              extra=config.PKI_INDENTATION_LEVEL_0)
         sys.exit(1)
 
-    # NEVER print out 'sensitive' name/value pairs!!!
-    config.pki_log.debug(log.PKI_DICTIONARY_DEFAULT,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_default_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_web_server_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_subsystem_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-
     # Read in the PKI slots configuration file.
     parser.compose_pki_slots_dictionary()
     config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
@@ -184,6 +270,7 @@ def main(argv):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
+
     if not config.pki_update_flag:
         config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" +\
                                                   config.pki_log_name
@@ -194,6 +281,8 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
+    print "Installing " + config.pki_subsystem + " into " + config.pki_master_dict['pki_instance_path'] + "."
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = config.pki_master_dict['spawn_scriplets'].split()
@@ -213,6 +302,9 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
+    print
+    print "Installation complete."
 
 
 # PKI Deployment Entry Point

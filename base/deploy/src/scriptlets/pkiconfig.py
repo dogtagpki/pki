@@ -180,10 +180,7 @@ pki_console_log_level = None
 
 
 # PKI Deployment Global Dictionaries
-pki_default_dict = None
-pki_web_server_dict = None
-pki_subsystem_dict = None
-pki_master_dict = None
+pki_master_dict = {}
 pki_slots_dict = None
 pki_master_jython_dict = None
 
