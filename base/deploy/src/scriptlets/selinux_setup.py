@@ -26,8 +26,10 @@ from pkiconfig import pki_selinux_config_ports as ports
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
-import seobject
 import selinux
+if selinux.is_selinux_enabled():
+    import seobject
+
 
 # PKI Deployment Selinux Setup Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
@@ -45,6 +47,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.SKIP_SELINUX_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
+
+        if not bool(selinux.is_selinux_enabled()):
+            config.pki_log.info(log.SELINUX_DISABLED_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
+
         config.pki_log.info(log.SELINUX_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
@@ -109,6 +117,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         return self.rv
 
     def destroy(self):
+        if not bool(selinux.is_selinux_enabled()):
+            config.pki_log.info(log.SELINUX_DISABLED_DESTROY_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
         config.pki_log.info(log.SELINUX_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 

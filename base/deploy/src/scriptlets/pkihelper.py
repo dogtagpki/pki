@@ -36,7 +36,9 @@ from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
 import zipfile
-import seobject
+import selinux
+if selinux.is_selinux_enabled():
+    import seobject
 
 
 # PKI Deployment Imports
@@ -758,6 +760,12 @@ class configuration_file:
         # Determine which ports still need to be labelled, and if any are
         # incorrectly labelled
         if len(ports) == 0:
+            return
+
+        if not bool(selinux.is_selinux_enabled()):
+            config.pki_log.error(
+                log.PKIHELPER_SELINUX_DISABLED,
+                extra=config.PKI_INDENTATION_LEVEL_2)
             return
 
         portrecs = seobject.portRecords().get_all()
