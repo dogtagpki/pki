@@ -562,6 +562,8 @@ class PKIConfigParser:
                         "<!--"
                 config.pki_master_dict['PKI_TMPDIR_SLOT'] =\
                     config.pki_master_dict['pki_tomcat_tmpdir_path']
+                config.pki_master_dict['PKI_RESTEASY_LIB_SLOT'] =\
+                    config.pki_master_dict['resteasy_lib']
                 config.pki_master_dict['PKI_RANDOM_NUMBER_SLOT'] =\
                     config.pki_master_dict['pki_one_time_pin']
                 config.pki_master_dict['PKI_SECURE_PORT_SLOT'] =\
