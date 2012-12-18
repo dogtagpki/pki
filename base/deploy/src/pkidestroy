@@ -125,12 +125,9 @@ def main(argv):
         print
         parser.arg_parser.exit(-1);
 
+    config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+
     # establish complete path to previously deployed configuration file
-    config.default_deployment_cfg =\
-        deployed_pki_subsystem_path + "/" +\
-        "registry" + "/" +\
-        config.pki_subsystem.lower() + "/" +\
-        config.DEFAULT_DEPLOYMENT_CONFIGURATION
     config.user_deployment_cfg =\
         deployed_pki_subsystem_path + "/" +\
         "registry" + "/" +\

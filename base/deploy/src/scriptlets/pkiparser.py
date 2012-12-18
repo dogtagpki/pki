@@ -913,11 +913,6 @@ class PKIConfigParser:
             config.pki_master_dict['pki_user_deployment_cfg_replica'] =\
                 os.path.join(config.pki_master_dict['pki_subsystem_registry_path'],
                              config.USER_DEPLOYMENT_CONFIGURATION)
-            config.pki_master_dict['pki_default_deployment_cfg_spawn_archive'] =\
-                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
-                "spawn" + "_" +\
-                config.DEFAULT_DEPLOYMENT_CONFIGURATION + "." +\
-                config.pki_master_dict['pki_timestamp']
             config.pki_master_dict['pki_user_deployment_cfg_spawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
                 "spawn" + "_" +\
