@@ -38,8 +38,7 @@ SYSTEMD=1
 # See how we were called.
 case $command in
     status)
-        # registry_status
-        echo "The 'status' action is TBD."
+        registry_status
         exit $?
         ;;
     start)
@@ -67,9 +66,12 @@ case $command in
         ;;
     *)
         echo "unknown action ($command)"
-        usage
-        echo "where valid instance names include:"
-        list_instances
+        echo
+        usage_systemd
+        echo "where valid instance types include:"
+        list_instance_types
+        echo "and where valid instance names include:"
+        list_systemd_instances
         exit ${default_error}
         ;;
 esac
