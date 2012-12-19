@@ -130,6 +130,10 @@ Set to True to import an existing admin certificate for the admin user, rather t
 By default, this is set to False for CA subsystems and true for KRA, OCSP, and TKS subsystems.  In this case, the admin certificate is read from the file ca_admin.cert in \fBpki_client_dir\fP.
 
 Note that cloned subsystems do not create a new administrative user.  The administrative user of the master subsystem is used instead, and the details of this master user are replicated during the install.
+.TP
+.B pki_client_admin_cert_p12
+.IP
+Location for the PKCS #12 file containing the administrative user's certificate and keys.  For a CA, this defaults to \fIca_admin_cert.p12\fP in the \fBpki_client_dir\fP directory.
 .SS BACKUP PARAMETERS
 .TP
 .B pki_backup_keys, pki_backup_password
