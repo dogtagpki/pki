@@ -58,4 +58,9 @@ public interface IConnector {
      * Starts this connector.
      */
     public void start();
+
+    /**
+     * Stop the connector.
+     */
+    public void stop();
 }

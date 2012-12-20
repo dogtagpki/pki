@@ -104,6 +104,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.identity.set_gid(master['pki_group'])
         # get ports to remove selinux context
         util.configuration_file.populate_non_default_ports()
+
+        # remove kra connector from CA if this is a KRA
+        util.kra_connector.deregister()
+
         # de-register instance from its Security Domain
         #
         #     NOTE:  Since the security domain of an instance must be up

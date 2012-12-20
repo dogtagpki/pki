@@ -36,4 +36,7 @@ public interface IResender extends Runnable {
      */
     public void addRequest(IRequest r);
 
+    public void start(final String name);
+
+    public void stop();
 }

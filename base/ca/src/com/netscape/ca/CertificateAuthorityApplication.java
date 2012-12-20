@@ -13,6 +13,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
+import com.netscape.cms.servlet.admin.KRAConnectorService;
 import com.netscape.cms.servlet.admin.SystemCertService;
 import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserService;
@@ -49,6 +50,9 @@ public class CertificateAuthorityApplication extends Application {
 
         // system certs
         classes.add(SystemCertService.class);
+
+        // kra connector
+        classes.add(KRAConnectorService.class);
 
         // security domain
         IConfigStore cs = CMS.getConfigStore();

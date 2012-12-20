@@ -1983,6 +1983,28 @@ class password:
                 sys.exit(1)
         return
 
+    def get_password(self, path, token_name, critical_failure=True):
+        if os.path.exists(path) and os.path.isfile(path) and\
+           os.access(path, os.R_OK):
+            tokens = PKIConfigParser.read_simple_configuration_file(path)
+            hardware_token = "hardware-" + token_name
+            if tokens.has_key(hardware_token):
+                token_name = hardware_token
+                token_pwd = tokens[hardware_token]
+            elif tokens.has_key(token_name):
+                   token_pwd = tokens[token_name]
+
+        if token_pwd is None or token_pwd == '':
+            # TODO prompt for this password
+            config.pki_log.error(log.PKIHELPER_PASSWORD_NOT_FOUND_1,
+                                 token_name,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(-1)
+            else:
+                return
+        return token_pwd
+
 
 # PKI Deployment NSS 'certutil' Class
 class certutil:
@@ -2260,6 +2282,136 @@ class certutil:
                 sys.exit(1)
         return
 
+# KRA Connector Class
+class kra_connector:
+    def deregister(self, critical_failure=False):
+        try:
+            # this is applicable to KRAs only
+            if master['pki_subsystem_type'] != "kra":
+                return
+
+            config.pki_log.info(
+                log.PKIHELPER_KRACONNECTOR_UPDATE_CONTACT,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+
+            cs_cfg = PKIConfigParser.read_simple_configuration_file(
+                         master['pki_target_cs_cfg'])
+            krahost = cs_cfg.get('service.machineName')
+            kraport = cs_cfg.get('pkicreate.secure_port')
+            cahost = cs_cfg.get('cloning.ca.hostname')
+            caport = cs_cfg.get('cloning.ca.httpsport')
+            if cahost is None or\
+               caport is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_CA_HOST_PORT,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    sys.exit(-1)
+                else:
+                    return
+
+            # retrieve subsystem nickname
+            subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
+            if subsystemnick is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    sys.exit(-1)
+                else:
+                    return
+
+            # retrieve name of token based upon type (hardware/software)
+            if ':' in subsystemnick:
+                token_name = subsystemnick.split(':')[0]
+            else:
+                token_name = "internal"
+
+            token_pwd = password.get_password(
+                            master['pki_shared_password_conf'],
+                            token_name,
+                            critical_failure)
+
+            if token_pwd is None or token_pwd == '':
+                config.pki_log.warning(
+                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
+                    token_name,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    sys.exit(-1)
+                else:
+                    return
+
+            self.execute_using_sslget(caport, cahost, subsystemnick, 
+                                 token_pwd, krahost, kraport)
+
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.warning(
+                log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
+                str(krahost),
+                str(kraport),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(-1)
+        return
+
+    def execute_using_pki(self, caport, cahost, subsystemnick, 
+      token_pwd, krahost, kraport, critical_failure=False):
+        command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -w '{}' "\
+                  "kraconnector-del {} {}".format(
+                      caport, cahost, subsystemnick,
+                      master['pki_database_path'],
+                      token_pwd, krahost, kraport)
+
+        output = subprocess.check_output(command,
+                                         stderr=subprocess.STDOUT,
+                                         shell=True)
+
+        error = re.findall("ClientResponseFailure:(.*?)", output)
+        if error:
+            config.pki_log.warning(
+                log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
+                str(krahost),
+                str(kraport),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, output,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+        if critical_failure == True:
+            sys.exit(-1)
+
+    def execute_using_sslget(self, caport, cahost, subsystemnick, 
+      token_pwd, krahost, kraport):
+        urlheader = "https://{}:{}".format(cahost, caport)
+        updateURL = "/ca/rest/admin/kraconnector/remove"
+
+        params = "host=" + str(krahost) +\
+                 "&port=" + str(kraport)
+
+        command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
+                  "-v -r '{}' {}:{} 2>&1".format(
+                      subsystemnick, token_pwd,
+                      master['pki_database_path'],
+                      params, updateURL,
+                      cahost, caport)
+
+        # update KRA connector
+        # Execute this "sslget" command
+        # Note that sslget will return non-zero value for HTTP code != 200
+        # and this will raise an exception
+        output = subprocess.check_output(command,
+                                         stderr=subprocess.STDOUT,
+                                         shell=True)
 
 # PKI Deployment Security Domain Class
 class security_domain:
@@ -2337,33 +2489,16 @@ class security_domain:
                 urladminheader = "https://{}:{}".format(sechost, secadminport)
                 updateURL = "/ca/agent/ca/updateDomainXML"
 
-                # process this PKI subsystem instance's 'password.conf'
-                #
-                #     REMINDER:  NEVER log this 'sensitive' information!
-                #
-                if os.path.exists(master['pki_shared_password_conf']) and\
-                   os.path.isfile(master['pki_shared_password_conf']) and\
-                   os.access(master['pki_shared_password_conf'], os.R_OK):
-                    tokens = PKIConfigParser.read_simple_configuration_file(
-                                 master['pki_shared_password_conf'])
-                    hardware_token = "hardware-" + token_name
-                    if tokens.has_key(hardware_token):
-                        token_name = hardware_token
-                        token_pwd = tokens[hardware_token]
-                    elif tokens.has_key(token_name):
-                        token_pwd = tokens[token_name]
-
+                token_pwd = password.get_password(
+                                master['pki_shared_password_conf'],
+                                token_name,
+                                critical_failure)
                 if token_pwd is None or token_pwd == '':
-                    # 'pkiremove' prompts with
-                    # "What is the password for this token?"
                     config.pki_log.warning(
                         log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                         typeval,
                         secname,
                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    config.pki_log.error(log.PKIHELPER_PASSWORD_NOT_FOUND_1,
-                                         token_name,
-                                         extra=config.PKI_INDENTATION_LEVEL_2)
                     if critical_failure == True:
                         sys.exit(-1)
                     else:
@@ -2608,5 +2743,6 @@ war = war()
 password = password()
 certutil = certutil()
 security_domain = security_domain()
+kra_connector = kra_connector()
 systemd = systemd()
 jython = jython()

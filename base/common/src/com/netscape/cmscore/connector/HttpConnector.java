@@ -43,7 +43,6 @@ public class HttpConnector implements IConnector {
     // XXX todo make this a pool.
     // XXX use CMMF in the future.
     protected IHttpConnection mConn = null;
-    private Thread mResendThread = null;
     private IResender mResender = null;
     @SuppressWarnings("unused")
     private int mTimeout;
@@ -73,7 +72,6 @@ public class HttpConnector implements IConnector {
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel.
         mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
-        mResendThread = new Thread(mResender, "HttpConnector");
     }
 
     // Inserted by beomsuk
@@ -98,7 +96,6 @@ public class HttpConnector implements IConnector {
 
         // this will start resending past requests in parallel.
         mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
-        mResendThread = new Thread(mResender, "HttpConnector");
     }
 
     // Insert end
@@ -202,7 +199,13 @@ public class HttpConnector implements IConnector {
     }
 
     public void start() {
-        mResendThread.start();
+        CMS.debug("Starting HttpConnector resender thread");
+        mResender.start("HttpConnector");
+    }
+
+    public void stop() {
+        CMS.debug("Stopping HttpConnector resender thread");
+        mResender.stop();
     }
 
 }

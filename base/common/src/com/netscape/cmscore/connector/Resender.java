@@ -20,6 +20,10 @@ package com.netscape.cmscore.connector;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
@@ -40,14 +44,12 @@ import com.netscape.cmsutil.http.JssSSLSocketFactory;
  * Default interval is 5 minutes.
  */
 public class Resender implements IResender {
-    public static final int SECOND = 1000; //milliseconds
-    public static final int MINUTE = 60 * SECOND;
-    public static final int HOUR = 60 * MINUTE;
-    public static final int DAY = 24 * HOUR;
+    public static final int MINUTE = 60;
 
     protected IAuthority mAuthority = null;
     IRequestQueue mQueue = null;
     protected IRemoteAuthority mDest = null;
+    ScheduledExecutorService executorService;
 
     /* Vector of Request Id *Strings* */
     protected Vector<String> mRequestIds = new Vector<String>();
@@ -55,6 +57,7 @@ public class Resender implements IResender {
     protected HttpConnection mConn = null;
 
     protected String mNickName = null;
+    protected boolean connected = false;
 
     // default interval.
     // XXX todo add another interval for requests unsent because server
@@ -66,9 +69,6 @@ public class Resender implements IResender {
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
-
-        //mConn = new HttpConnection(dest,
-        //           new JssSSLSocketFactory(nickName));
     }
 
     public Resender(
@@ -77,11 +77,9 @@ public class Resender implements IResender {
         mAuthority = authority;
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
+        mNickName = nickName;
         if (interval > 0)
-            mInterval = interval * SECOND; // interval specified in seconds.
-
-        //mConn = new HttpConnection(dest,
-        //           new JssSSLSocketFactory(nickName));
+            mInterval = interval; // interval specified in seconds.
     }
 
     // must be done after a subsystem 'start' so queue is initialized.
@@ -93,9 +91,7 @@ public class Resender implements IResender {
 
         while (list != null && list.hasMoreElements()) {
             RequestId rid = list.nextRequestId();
-
-            CMS.debug(
-                    "added request Id " + rid + " in init to resend queue.");
+            CMS.debug("added request Id " + rid + " in init to resend queue.");
             // note these are added as strings
             mRequestIds.addElement(rid.toString());
         }
@@ -106,26 +102,38 @@ public class Resender implements IResender {
             // note the request ids are added as strings.
             mRequestIds.addElement(r.getRequestId().toString());
         }
-        CMS.debug(
-                "added " + r.getRequestId() + " to resend queue");
+        CMS.debug("added " + r.getRequestId() + " to resend queue");
+    }
+
+    public void start(final String name) {
+        CMS.debug("Starting resender thread with interval " + mInterval);
+
+        // schedule task to run immediately and repeat after specified interval
+        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, name);
+            }
+        });
+        executorService.scheduleWithFixedDelay(this, 0, mInterval, TimeUnit.SECONDS);
+
     }
 
     public void run() {
+        if (! CMS.isInRunningState())
+            return;
 
-        CMS.debug("Resender: In resender Thread run:");
-        mConn = new HttpConnection(mDest,
-                    new JssSSLSocketFactory(mNickName));
-        initRequests();
+        if (! connected) {
+            CMS.debug("Connecting ...");
+            mConn = new HttpConnection(mDest, new JssSSLSocketFactory(mNickName));
+            initRequests();
+            connected = true;
+        }
+        resend();
+    }
 
-        do {
-            resend();
-            try {
-                Thread.sleep(mInterval);
-            } catch (InterruptedException e) {
-                mAuthority.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_RESENDER_INTERRUPTED"));
-                continue;
-            }
-        } while (true);
+    public void stop() {
+        // shutdown executorService without interrupting running task
+        if (executorService != null) executorService.shutdown();
     }
 
     private void resend() {

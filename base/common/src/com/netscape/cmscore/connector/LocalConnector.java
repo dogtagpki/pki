@@ -204,6 +204,9 @@ public class LocalConnector implements IConnector {
     public void start() {
     }
 
+    public void stop() {
+    }
+
     protected void transferRequest(IRequest src, IRequest dest) {
         RequestTransfer.transfer(src, dest);
     }

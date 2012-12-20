@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -26,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.resteasy.spi.BadRequestException;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -33,11 +33,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ca.ICAService;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.system.KRAConnectorInfo;
+import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -46,9 +45,6 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateConnector extends CMSServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 972871860008509849L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
@@ -67,6 +63,18 @@ public class UpdateConnector extends CMSServlet {
         CMS.debug("UpdateConnector: initializing...");
         super.init(sc);
         CMS.debug("UpdateConnector: done initializing...");
+    }
+
+    public KRAConnectorInfo createConnectorInfo(HttpServletRequest httpReq) {
+        KRAConnectorInfo info = new KRAConnectorInfo();
+        info.setHost(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".host"));
+        info.setPort(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".port"));
+        info.setTimeout(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".timeout"));
+        info.setTransportCert(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".transportCert"));
+        info.setUri(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".uri"));
+        info.setLocal(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".local"));
+        info.setEnable(httpReq.getParameter(KRAConnectorProcessor.PREFIX + ".enable"));
+        return info;
     }
 
     /**
@@ -122,47 +130,15 @@ public class UpdateConnector extends CMSServlet {
             return;
         }
 
-        // check if connector exists
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
-        ICAService caService = (ICAService)ca.getCAService();
-        boolean connectorExists = (caService.getKRAConnector() != null)? true:false;
-        if (connectorExists) {
-            CMS.debug("UpdateConnector: KRA connector already exists");
-        } else {
-            IConfigStore cs = CMS.getConfigStore();
-
-            @SuppressWarnings("unchecked")
-            Enumeration<String> list = httpReq.getParameterNames();
-            while (list.hasMoreElements()) {
-                String name = list.nextElement();
-                String val = httpReq.getParameter(name);
-                if (name != null && name.startsWith("ca.connector")) {
-                    CMS.debug("Adding connector update name=" + name + " val=" + val);
-                    cs.putString(name, val);
-                } else {
-                    CMS.debug("Skipping connector update name=" + name + " val=" + val);
-                }
-            }
-
-            try {
-                String nickname = cs.getString("ca.subsystem.nickname", "");
-                String tokenname = cs.getString("ca.subsystem.tokenname", "");
-                if (!tokenname.equals("Internal Key Storage Token"))
-                    nickname = tokenname + ":" + nickname;
-                cs.putString("ca.connector.KRA.nickName", nickname);
-                cs.commit(false);
-            } catch (Exception e) {
-            }
-
-            // start the connector
-            try {
-                IConnector kraConnector = caService.getConnector(
-                        cs.getSubStore("ca.connector.KRA"));
-                caService.setKRAConnector(kraConnector);
-                kraConnector.start();
-            } catch (Exception e) {
-                CMS.debug("Failed to start connector " + e);
-            }
+        String status = SUCCESS;
+        String error = "";
+        KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(httpReq));
+        KRAConnectorInfo info = createConnectorInfo(httpReq);
+        try {
+            processor.addConnector(info);
+        } catch (BadRequestException | PKIException e) {
+            status = FAILED;
+            error = e.getMessage();
         }
 
         // send success status back to the requestor
@@ -170,13 +146,13 @@ public class UpdateConnector extends CMSServlet {
             CMS.debug("UpdateConnector: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
-
-            if (connectorExists) {
-                xmlObj.addItemToContainer(root, "Status", FAILED);
-                xmlObj.addItemToContainer(root, "Error", "DRM connector already exists.");
-            } else {
+            if (status.equals(SUCCESS)) {
                 xmlObj.addItemToContainer(root, "Status", SUCCESS);
+            } else {
+                xmlObj.addItemToContainer(root, "Status", FAILED);
+                xmlObj.addItemToContainer(root, "Error", error);
             }
+
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);

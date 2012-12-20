@@ -36,6 +36,7 @@ import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
+import com.netscape.cmstools.system.KRAConnectorCLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
 
@@ -55,6 +56,7 @@ public class MainCLI extends CLI {
         addModule(new CertCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KeyCLI(this));
+        addModule(new KRAConnectorCLI(this));
         addModule(new SecurityDomainCLI(this));
         addModule(new UserCLI(this));
     }

@@ -194,6 +194,10 @@ PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
 PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
+PKIHELPER_KRACONNECTOR_UPDATE_CONTACT =\
+    "contacting the CA to update the KRA connector"
+PKIHELPER_KRACONNECTOR_UPDATE_FAILURE = "Failed to update KRA connector on CA"
+PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2 = "Failed to update KRA connector for %s:%s"
 PKIHELPER_LINK_S_2 = "ln -s %s %s"
 PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
@@ -259,12 +263,14 @@ PKIHELPER_TOMCAT_INSTANCES_2 = "PKI Tomcat registry '%s' contains '%d' "\
                                "Tomcat PKI instances"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
+PKIHELPER_UNDEFINED_CA_HOST_PORT = "CA Host or Port is undefined"
 PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 =\
     "Either a value for '%s' MUST be defined in '%s', or "\
     "the randomly generated client pin MUST be used"
 PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 =\
     "A value for '%s' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
+PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 = "Password for token '%s' not defined"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."
 PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."

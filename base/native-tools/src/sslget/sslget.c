@@ -426,7 +426,11 @@ do_io( PRFileDesc *ssl_sock, int connection)
                  buf2 = 0;
              }
 
-             if ( ! PL_strnstr(buf,"200",13)) {
+             char *status_string = PL_strndup(buf+9, 3);
+             int status = atoi(status_string);
+             PL_strfree(status_string);
+
+             if (status >= 300) {
                  PR_Free(buf);
                  buf = 0;
                  exit(3);
