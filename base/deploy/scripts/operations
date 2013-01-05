@@ -1210,7 +1210,7 @@ verify_symlinks()
         [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
         [resteasy-jettison-provider.jar]=${RESTEASY_LIB}/resteasy-jettison-provider.jar
         [scannotation.jar]=${java_dir}/scannotation.jar
-        [tomcatjss.jar]=${java_dir}/tomcat7jss.jar
+        [tomcatjss.jar]=${java_dir}/tomcatjss.jar
         [velocity.jar]=${java_dir}/velocity.jar
         [xerces-j2.jar]=${java_dir}/xerces-j2.jar
         [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar

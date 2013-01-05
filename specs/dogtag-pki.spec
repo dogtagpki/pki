@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -10,6 +10,19 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
+%if 0%{?rhel} || 0%{?fedora} >= 19
+%define dogtag_pki_theme_version   10.0.0
+%define esc_version                1.1.0
+%define jss_version                4.2.6-28
+%define pki_core_version           10.0.0
+%define pki_kra_version            10.0.0
+%define pki_ocsp_version           10.0.0
+%define pki_ra_version             10.0.0
+%define pki_tks_version            10.0.0
+%define pki_tps_version            10.0.0
+%define pki_console_version        10.0.0
+%define tomcatjss_version          7.1.0
+%else
 %if 0%{?fedora} >= 18
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
@@ -21,7 +34,7 @@ BuildArch:        noarch
 %define pki_tks_version            10.0.0
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
-%define tomcatjss_version          7.0.0-3
+%define tomcatjss_version          7.0.0-4
 %else
 %if 0%{?fedora} >= 17
 %define dogtag_pki_theme_version   10.0.0
@@ -60,6 +73,7 @@ BuildArch:        noarch
 %define pki_tps_version            10.0.0
 %define pki_console_version        10.0.0
 %define tomcatjss_version          2.0.0
+%endif
 %endif
 %endif
 %endif
@@ -187,6 +201,11 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
+- TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
+  dogtag-pki.spec . . .
+- TRAC Ticket #468 - pkispawn throws exception
+
 * Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
 - Update to official release for rc1
 

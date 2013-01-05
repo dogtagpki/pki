@@ -138,7 +138,7 @@ grant codeBase "file:/usr/share/java/tomcat/-" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/tomcat7jss.jar" {
+grant codeBase "file:/usr/share/java/tomcatjss.jar" {
         permission java.security.AllPermission;
 };
 

@@ -313,7 +313,13 @@ class rest_client:
         try:
             os.makedirs(path)
         except OSError, e:
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
+            if e.errno == 0:
+                # Avoid the following weird python/jython exception:
+                #
+                #     [Errno 0] couldn't make directories: <path>
+                #
+                pass
+            elif e.errno == errno.EEXIST and os.path.isdir(path):
                 pass
             else:
                 raise

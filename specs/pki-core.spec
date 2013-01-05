@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -36,10 +36,18 @@ BuildRequires:    resteasy >= 2.3.2-1
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
+%if 0%{?rhel} || 0%{?fedora} >= 19
+BuildRequires:    jss >= 4.2.6-28
+%else
 BuildRequires:    jss >= 4.2.6-24
+%endif
 BuildRequires:    systemd-units
-BuildRequires:    tomcatjss >= 7.0.0-3
-
+%if 0%{?rhel} || 0%{?fedora} >= 19
+BuildRequires:    tomcatjss >= 7.1.0
+%endif
+%if 0%{?fedora} == 18
+BuildRequires:    tomcatjss >= 7.0.0-4
+%endif
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
 BuildRequires:    tomcatjss >= 6.0.2
 BuildRequires:    selinux-policy-devel >= 3.10.0-151
@@ -135,7 +143,11 @@ Group:            System Environment/Libraries
 Requires:         java >= 1:1.6.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?rhel} || 0%{?fedora} >= 19
+Requires:         jss >= 4.2.6-28
+%else
 Requires:         jss >= 4.2.6-24
+%endif
 
 Provides:         symkey = %{version}-%{release}
 
@@ -175,7 +187,11 @@ Requires:         xerces-j2
 Requires:         xml-commons-apis
 Requires:         xml-commons-resolver
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?rhel} || 0%{?fedora} >= 19
+Requires:         jss >= 4.2.6-28
+%else
 Requires:         jss >= 4.2.6-24
+%endif
 %if  0%{?rhel}
 Requires:         resteasy-base
 %else
@@ -254,7 +270,15 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires:         tomcat >= 7.0.27
-Requires:         tomcatjss >= 7.0.0-3
+%if 0%{?rhel} || 0%{?fedora} >= 19
+Requires:         tomcatjss >= 7.1.0
+%endif
+%if 0%{?fedora} == 18
+Requires:         tomcatjss >= 7.0.0-4
+%endif
+%if ! 0%{?rhel} && 0%{?fedora} <= 17
+Requires:         tomcatjss >= 6.0.2
+%endif
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
@@ -478,6 +502,13 @@ cd build
 %{__rm} -rf %{buildroot}
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+
+# Fedora 18:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
+%if 0%{?fedora} == 18
+	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
+	sed -i -e 's/pki_tomcatjss_jar=\/usr\/share\/java\/tomcatjss.jar/pki_tomcatjss_jar=\/usr\/share\/java\/tomcat7jss.jar/' %{buildroot}%{_sysconfdir}/pki/default.cfg
+	sed -i -e 's/        \[tomcatjss.jar\]=\${java_dir}\/tomcatjss.jar/        \[tomcatjss.jar\]=\${java_dir}\/tomcat7jss.jar/' %{buildroot}%{_datadir}/pki/scripts/operations
+%endif
 
 # Details:
 #
@@ -953,6 +984,11 @@ fi
 
 
 %changelog
+* Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-4
+- TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
+  dogtag-pki.spec . . .
+- TRAC Ticket #468 - pkispawn throws exception
+
 * Wed Dec 12 2012 Ade Lee <alee@redhat.com> 10.0.0-3
 - Replaced file dependencies with package dependencies
 
