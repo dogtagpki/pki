@@ -94,7 +94,7 @@ public class CAValidityDefault extends EnrollDefault {
         if (name.equals(CONFIG_RANGE)) {
             return new Descriptor(IDescriptor.STRING,
                     null, 
-                    "2922", /* 8 years */
+                    "7305", /* 20 years */
                     CMS.getUserMessage(locale,
                         "CMS_PROFILE_VALIDITY_RANGE"));
         } else if (name.equals(CONFIG_START_TIME)) {
