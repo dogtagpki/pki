@@ -52,6 +52,10 @@ public class CertClient extends PKIClient {
         return certClient.getCert(id);
     }
 
+    public CertData reviewCert(CertId id) {
+        return certClient.reviewCert(id);
+    }
+
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
         return certClient.searchCerts(data, start, size);
     }

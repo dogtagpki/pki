@@ -41,6 +41,12 @@ public interface CertResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertData getCert(@PathParam("id") CertId id);
 
+    @GET
+    @Path("agent/certs/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certs")
+    public CertData reviewCert(@PathParam("id") CertId id);
+
     @POST
     @Path("agent/certs/{id}/revoke-ca")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

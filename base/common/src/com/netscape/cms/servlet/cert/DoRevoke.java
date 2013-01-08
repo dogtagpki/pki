@@ -47,6 +47,7 @@ import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
@@ -62,10 +63,8 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -207,47 +206,6 @@ public class DoRevoke extends CMSServlet {
             }
             revokeAll = req.getParameter("revokeAll");
 
-            if (mNonces != null) {
-                boolean nonceVerified = false;
-                boolean skipNonceVerification = false;
-
-                X509Certificate cert2 = getSSLClientCertificate(req);
-                if (cert2 != null) {
-                    X509Certificate certChain[] = new X509Certificate[1];
-                    certChain[0] = cert2;
-                    IUser user = null;
-                    try {
-                        user = mUL.locateUser(new Certificates(certChain));
-                    } catch (Exception e) {
-                        CMS.debug("DoRevoke:  Failed to map certificate '" +
-                                   cert2.getSubjectDN().getName() + "' to user.");
-                    }
-                    if (mUG.isMemberOf(user, "Subsystem Group")) {
-                        skipNonceVerification = true;
-                    }
-                }
-
-                String nonceStr = req.getParameter("nonce");
-                if (nonceStr != null) {
-                    long nonce = Long.parseLong(nonceStr.trim());
-                    X509Certificate cert1 = mNonces.getCertificate(nonce);
-                    if (cert1 == null) {
-                        CMS.debug("DoRevoke:  Unknown nonce");
-                    } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
-                        nonceVerified = true;
-                        mNonces.removeNonce(nonce);
-                    }
-                } else {
-                    CMS.debug("DoRevoke:  Missing nonce");
-                }
-                CMS.debug("DoRevoke:  nonceVerified=" + nonceVerified);
-                CMS.debug("DoRevoke:  skipNonceVerification=" + skipNonceVerification);
-                if ((!nonceVerified) && (!skipNonceVerification)) {
-                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
-                    return;
-                }
-            }
-
             String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
             String eeSubjectDN = null;
             String eeSerialNumber = null;
@@ -279,11 +237,13 @@ public class DoRevoke extends CMSServlet {
 
             if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 if (authToken != null) {
+                    // Request is from agent.
 
                     String serialNumber = req.getParameter("serialNumber");
                     getSSLClientCertificate(req); // throw exception on error
 
                     if (serialNumber != null) {
+                        // Agent has null subject DN.
                         eeSerialNumber = serialNumber;
                     }
 
@@ -294,7 +254,7 @@ public class DoRevoke extends CMSServlet {
                             " authenticated by " + authMgr;
                 }
             } else {
-                // request is fromUser.
+                // Request is from user.
                 initiative = AuditFormat.FROMUSER;
 
                 String serialNumber = req.getParameter("serialNumber");
@@ -302,7 +262,8 @@ public class DoRevoke extends CMSServlet {
 
                 if (serialNumber == null || sslCert == null ||
                         !(serialNumber.equals(sslCert.getSerialNumber().toString(16)))) {
-                    authorized = false;
+                    throw new ForbiddenException("Invalid serial number.");
+
                 } else {
                     eeSubjectDN = sslCert.getSubjectDN().toString();
                     eeSerialNumber = sslCert.getSerialNumber().toString();
@@ -310,19 +271,21 @@ public class DoRevoke extends CMSServlet {
 
             }
 
-            if (authorized) {
-                BigInteger serialNumber = parseSerialNumber(eeSerialNumber);
+            BigInteger serialNumber = parseSerialNumber(eeSerialNumber);
 
-                process(argSet, header, reason, invalidityDate, initiative,
-                        req, resp, verifiedRecordCount, revokeAll,
-                        totalRecordCount, serialNumber, eeSubjectDN,
-                        comments, locale[0]);
-            }
+            process(argSet, header, reason, invalidityDate, initiative,
+                    req, resp, verifiedRecordCount, revokeAll,
+                    totalRecordCount, serialNumber, eeSubjectDN,
+                    comments, locale[0]);
 
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
             error = new EBaseException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
+
+        } catch (ForbiddenException e) {
+            authorized = false;
+
         } catch (EBaseException e) {
             error = e;
         }
@@ -441,6 +404,11 @@ public class DoRevoke extends CMSServlet {
         if (mAuthority instanceof ICertificateAuthority) {
             processor.setAuthority((ICertificateAuthority)mAuthority);
         }
+
+        X509Certificate clientCert = getSSLClientCertificate(req);
+        String requestedNonce = req.getParameter("nonce");
+        Long nonce = requestedNonce == null ? null : new Long(requestedNonce.trim());
+        processor.validateNonce(clientCert, nonce);
 
         try {
             processor.createCRLExtension();

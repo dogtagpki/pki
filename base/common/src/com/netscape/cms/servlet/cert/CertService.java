@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
 
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
@@ -43,6 +44,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ICertPrettyPrint;
+import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -65,6 +67,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cmscore.realm.PKIPrincipal;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -76,11 +79,17 @@ public class CertService extends PKIService implements CertResource {
 
     ICertificateAuthority authority;
     ICertificateRepository repo;
+    Random random;
+    Nonces nonces;
 
     public final static int DEFAULT_SIZE = 20;
 
     public CertService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
+        if (authority.noncesEnabled()) {
+            random = new Random();
+            nonces = authority.getNonces();
+        }
         repo = authority.getCertificateRepository();
     }
 
@@ -92,6 +101,15 @@ public class CertService extends PKIService implements CertResource {
 
     @Override
     public CertData getCert(CertId id) {
+        return getCert(id, false);
+    }
+
+    @Override
+    public CertData reviewCert(CertId id) {
+        return getCert(id, true);
+    }
+
+    public CertData getCert(CertId id, boolean generateNonce) {
         validateRequest(id);
 
         CertRetrievalRequest data = new CertRetrievalRequest();
@@ -100,13 +118,13 @@ public class CertService extends PKIService implements CertResource {
         CertData certData = null;
 
         try {
-            certData = getCert(data);
+            certData = getCert(data, generateNonce);
         } catch (EDBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
         } catch (EBaseException e) {
-            throw new PKIException("Problem returning certificate: " + id);
+            throw new PKIException(e.getMessage(), e);
         } catch (CertificateEncodingException e) {
-            throw new PKIException("Problem encoding certificate searched for: " + id);
+            throw new PKIException(e.getMessage(), e);
         }
 
         return certData;
@@ -177,12 +195,20 @@ public class CertService extends PKIService implements CertResource {
                 }
             }
 
+            processor.validateNonce(clientCert, request.getNonce());
+
             // Find target cert record if different from client cert.
             ICertRecord targetRecord = id.equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
             X509CertImpl targetCert = targetRecord.getCertificate();
 
             processor.createCRLExtension();
-            processor.validateCertificateToRevoke(clientSubjectDN, targetRecord, caCert);
+
+            PKIPrincipal principal = (PKIPrincipal)servletRequest.getUserPrincipal();
+            // TODO: do not hard-code role name
+            String subjectDN = principal.hasRole("Certificate Manager Agents") ?
+                    null : clientSubjectDN;
+
+            processor.validateCertificateToRevoke(subjectDN, targetRecord, caCert);
             processor.addCertificateToRevoke(targetCert);
             processor.createRevocationRequest();
 
@@ -410,7 +436,7 @@ public class CertService extends PKIService implements CertResource {
         return ret;
     }
 
-    public CertData getCert(CertRetrievalRequest data) throws EBaseException, CertificateEncodingException {
+    public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws EBaseException, CertificateEncodingException {
         CertId certId = data.getCertId();
 
         //find the cert in question
@@ -443,6 +469,14 @@ public class CertService extends PKIService implements CertResource {
         if (notAfter != null) certData.setNotAfter(notAfter.toString());
 
         certData.setStatus(record.getStatus());
+
+        if (generateNonce && nonces != null) {
+            long n = random.nextLong();
+            long m = nonces.addNonce(n, Processor.getSSLClientCertificate(servletRequest));
+            if (n + m != 0) {
+                certData.setNonce(m);
+            }
+        }
 
         URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(certId.toHexString());
         certData.setLink(new Link("self", uri));

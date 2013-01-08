@@ -77,14 +77,14 @@ public class CertHoldCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
+        CertData certData = parent.client.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {
-
-            CertData certData = parent.client.getCert(certID);
 
             System.out.println("Placing certificate on-hold:");
 
             CertCLI.printCertData(certData, false, false);
+            if (verbose) System.out.println("  Nonce: " + certData.getNonce());
 
             System.out.print("Are you sure (Y/N)? ");
             System.out.flush();
@@ -99,6 +99,7 @@ public class CertHoldCLI extends CLI {
         CertRevokeRequest request = new CertRevokeRequest();
         request.setReason(RevocationReason.CERTIFICATE_HOLD);
         request.setComments(cmd.getOptionValue("comments"));
+        request.setNonce(certData.getNonce());
 
         CertRequestInfo certRequestInfo = parent.client.revokeCert(certID, request);
 
@@ -108,7 +109,7 @@ public class CertHoldCLI extends CLI {
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
             MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
-            CertData certData = parent.client.getCert(certID);
+            certData = parent.client.getCert(certID);
             CertCLI.printCertData(certData, false, false);
 
         } else {

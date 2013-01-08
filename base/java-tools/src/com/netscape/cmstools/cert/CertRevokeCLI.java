@@ -105,9 +105,9 @@ public class CertRevokeCLI extends CLI {
             return;
         }
 
-        if (!cmd.hasOption("force")) {
+        CertData certData = parent.client.reviewCert(certID);
 
-            CertData certData = parent.client.getCert(certID);
+        if (!cmd.hasOption("force")) {
 
             if (reason == RevocationReason.CERTIFICATE_HOLD) {
                 System.out.println("Placing certificate on-hold:");
@@ -118,6 +118,7 @@ public class CertRevokeCLI extends CLI {
             }
 
             CertCLI.printCertData(certData, false, false);
+            if (verbose) System.out.println("  Nonce: " + certData.getNonce());
 
             System.out.print("Are you sure (Y/N)? ");
             System.out.flush();
@@ -132,6 +133,7 @@ public class CertRevokeCLI extends CLI {
         CertRevokeRequest request = new CertRevokeRequest();
         request.setReason(reason);
         request.setComments(cmd.getOptionValue("comments"));
+        request.setNonce(certData.getNonce());
 
         CertRequestInfo certRequestInfo;
 
@@ -154,7 +156,7 @@ public class CertRevokeCLI extends CLI {
                 MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
             }
 
-            CertData certData = parent.client.getCert(certID);
+            certData = parent.client.getCert(certID);
             CertCLI.printCertData(certData, false, false);
 
         } else {

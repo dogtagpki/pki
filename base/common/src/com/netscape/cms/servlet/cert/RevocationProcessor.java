@@ -38,6 +38,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -50,6 +51,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.IUser;
 
 /**
  * @author Endi S. Dewata
@@ -185,14 +188,59 @@ public class RevocationProcessor extends CertProcessor {
         return request;
     }
 
-    public void validateCertificateToRevoke(String clientSubjectDN, ICertRecord targetRecord, boolean revokingCACert) {
+    public void validateNonce(X509Certificate clientCert, Long nonce) {
+
+        if (nonces != null) {
+            boolean nonceVerified = false;
+            boolean skipNonceVerification = false;
+
+            if (clientCert != null) {
+                X509Certificate certChain[] = new X509Certificate[1];
+                certChain[0] = clientCert;
+                IUser user = null;
+                try {
+                    user = ul.locateUser(new Certificates(certChain));
+                } catch (Exception e) {
+                    CMS.debug("RevocationProcessor:  Failed to map certificate '" +
+                            clientCert.getSubjectDN().getName() + "' to user.");
+                }
+                if (ug.isMemberOf(user, "Subsystem Group")) {
+                    skipNonceVerification = true;
+                }
+            }
+
+            if (nonce != null) {
+                X509Certificate storedCert = nonces.getCertificate(nonce);
+                if (storedCert == null) {
+                    CMS.debug("RevocationProcessor:  Unknown nonce");
+
+                } else if (clientCert != null && storedCert.equals(clientCert)) {
+                    nonceVerified = true;
+                    nonces.removeNonce(nonce);
+                }
+            } else {
+                CMS.debug("RevocationProcessor:  Missing nonce");
+            }
+
+            CMS.debug("RevocationProcessor:  nonceVerified=" + nonceVerified);
+            CMS.debug("RevocationProcessor:  skipNonceVerification=" + skipNonceVerification);
+            if ((!nonceVerified) && (!skipNonceVerification)) {
+                throw new ForbiddenException("Invalid nonce.");
+            }
+        }
+
+    }
+
+    public void validateCertificateToRevoke(String subjectDN, ICertRecord targetRecord, boolean revokingCACert) {
 
         X509CertImpl targetCert = targetRecord.getCertificate();
         BigInteger targetSerialNumber = targetCert.getSerialNumber();
         Principal targetSubjectDN = targetCert.getSubjectDN();
 
-        // Verify client cert's subject DN matches the target cert's subject DN.
-        if (clientSubjectDN != null && !clientSubjectDN.equals(targetSubjectDN.toString())) {
+        // Verify the subject DN matches the target cert's subject DN.
+        // Agent has null subject DN so he can revoke any certificate.
+        // Other users can only revoke their own certificate.
+        if (subjectDN != null && !subjectDN.equals(targetSubjectDN.toString())) {
             throw new UnauthorizedException(
                     "Certificate 0x" + targetSerialNumber.toString(16) + " belongs to different subject.");
         }

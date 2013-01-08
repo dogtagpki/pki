@@ -63,6 +63,7 @@ public class CertRevokeRequest {
     Date invalidityDate;
     String comments;
     String encoded;
+    Long nonce;
 
 
     @XmlElement(name="RequestID")
@@ -118,6 +119,16 @@ public class CertRevokeRequest {
         this.encoded = encoded;
     }
 
+    @XmlElement(name="Nonce")
+    @FormParam("nonce")
+    public Long getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(Long nonce) {
+        this.nonce = nonce;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -125,6 +136,7 @@ public class CertRevokeRequest {
         result = prime * result + ((comments == null) ? 0 : comments.hashCode());
         result = prime * result + ((encoded == null) ? 0 : encoded.hashCode());
         result = prime * result + ((invalidityDate == null) ? 0 : invalidityDate.hashCode());
+        result = prime * result + ((nonce == null) ? 0 : nonce.hashCode());
         result = prime * result + ((reason == null) ? 0 : reason.hashCode());
         result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
         return result;
@@ -153,6 +165,11 @@ public class CertRevokeRequest {
             if (other.invalidityDate != null)
                 return false;
         } else if (!invalidityDate.equals(other.invalidityDate))
+            return false;
+        if (nonce == null) {
+            if (other.nonce != null)
+                return false;
+        } else if (!nonce.equals(other.nonce))
             return false;
         if (reason == null) {
             if (other.reason != null)
@@ -194,6 +211,7 @@ public class CertRevokeRequest {
         before.setInvalidityDate(new Date());
         before.setComments("test");
         before.setEncoded("test");
+        before.setNonce(12345l);
 
         String string = before.toString();
         System.out.println(string);

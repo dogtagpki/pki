@@ -59,6 +59,7 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -144,6 +145,7 @@ public class Processor {
     protected ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem("ca");
     protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     protected IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;
     protected IProfileSubsystem ps;
     protected ICertificateRepository certdb;

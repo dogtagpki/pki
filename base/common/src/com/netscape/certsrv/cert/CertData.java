@@ -63,6 +63,7 @@ public class CertData {
     String notBefore;
     String notAfter;
     String status;
+    Long nonce;
 
     Link link;
 
@@ -148,6 +149,15 @@ public class CertData {
         this.status = status;
     }
 
+    @XmlElement(name="Nonce")
+    public Long getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(Long nonce) {
+        this.nonce = nonce;
+    }
+
     @XmlElement(name="Link")
     public Link getLink() {
         return link;
@@ -163,6 +173,7 @@ public class CertData {
         int result = 1;
         result = prime * result + ((encoded == null) ? 0 : encoded.hashCode());
         result = prime * result + ((issuerDN == null) ? 0 : issuerDN.hashCode());
+        result = prime * result + ((nonce == null) ? 0 : nonce.hashCode());
         result = prime * result + ((notAfter == null) ? 0 : notAfter.hashCode());
         result = prime * result + ((notBefore == null) ? 0 : notBefore.hashCode());
         result = prime * result + ((pkcs7CertChain == null) ? 0 : pkcs7CertChain.hashCode());
@@ -191,6 +202,11 @@ public class CertData {
             if (other.issuerDN != null)
                 return false;
         } else if (!issuerDN.equals(other.issuerDN))
+            return false;
+        if (nonce == null) {
+            if (other.nonce != null)
+                return false;
+        } else if (!nonce.equals(other.nonce))
             return false;
         if (notAfter == null) {
             if (other.notAfter != null)
@@ -273,6 +289,7 @@ public class CertData {
         before.setIssuerDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setEncoded(sw.toString());
+        before.setNonce(12345l);
 
         String string = before.toString();
         System.out.println(string);
