@@ -503,8 +503,8 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-# Fedora 18:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
-%if 0%{?fedora} == 18
+# Fedora 18 and 17:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
+%if 0%{?fedora} <= 18
 	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
 	sed -i -e 's/pki_tomcatjss_jar=\/usr\/share\/java\/tomcatjss.jar/pki_tomcatjss_jar=\/usr\/share\/java\/tomcat7jss.jar/' %{buildroot}%{_sysconfdir}/pki/default.cfg
 	sed -i -e 's/        \[tomcatjss.jar\]=\${java_dir}\/tomcatjss.jar/        \[tomcatjss.jar\]=\${java_dir}\/tomcat7jss.jar/' %{buildroot}%{_datadir}/pki/scripts/operations
