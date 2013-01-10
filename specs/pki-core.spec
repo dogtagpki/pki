@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -834,6 +834,7 @@ fi
 
 %files -n pki-server
 %defattr(-,root,root,-)
+%doc base/common/THIRD_PARTY_LICENSES
 %doc base/deploy/LICENSE
 %{_sysconfdir}/pki/
 %{_sbindir}/pkispawn
@@ -984,6 +985,9 @@ fi
 
 
 %changelog
+* Wed Jan  9 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-5
+- TRAC Ticket #430 - License for 3rd party code
+
 * Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-4
 - TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
   dogtag-pki.spec . . .
