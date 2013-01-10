@@ -64,6 +64,7 @@ public class CMCRequest {
 
     public static final String PR_REQUEST_CMC = "CMC";
     public static final String PR_REQUEST_CRMF = "CRMF";
+    public static final String PR_INTERNAL_TOKEN_NAME = "internal";
 
     public static final int    ARGC = 1;
     private static final String CERTDB = "cert8.db";
@@ -75,20 +76,20 @@ public class CMCRequest {
         
     }
 
-    public static X509Certificate getCertificate(String tokenname,
+    public static X509Certificate getCertificate(String tokenName,
         String nickname) throws Exception {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenname.equals("internal")) {
+        if (tokenName.equals(PR_INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
         } else {
-            token = manager.getTokenByName(tokenname);
+            token = manager.getTokenByName(tokenName);
         }
         StringBuffer certname = new StringBuffer();
 
         if (!token.equals(manager.getInternalKeyStorageToken())) {
-            certname.append(tokenname);
+            certname.append(tokenName);
             certname.append(":");
         }
         certname.append(nickname);
@@ -99,17 +100,19 @@ public class CMCRequest {
         }
     }
 
-    public static java.security.PrivateKey getPrivateKey(String tokenname, String nickname)
+    public static java.security.PrivateKey getPrivateKey(String tokenName, String nickname)
         throws Exception {
 
-        X509Certificate cert = getCertificate(tokenname, nickname);
+        X509Certificate cert = getCertificate(tokenName, nickname);
+        if (cert != null)
+            System.out.println("got signing cert");
 
         return CryptoManager.getInstance().findPrivKeyByCert(cert);
     }
 
 
     /**
-     * getCMCBlob create and return the enrollent request.
+     * getCMCBlob create and return the enrollment request.
      * <P>
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param nickname the nickname of the certificate inside the token.
@@ -117,13 +120,12 @@ public class CMCRequest {
      * @param format either crmf or pkcs10 
      * @return the CMC enrollment request encoded in base64
      */
-    static ContentInfo getCMCBlob(X509Certificate signerCert, String nickname, 
+    static ContentInfo getCMCBlob(X509Certificate signerCert, String tokenName, String nickname, 
       String[] rValue, String format, CryptoManager manager, String transactionMgtEnable, 
       String transactionMgtId, String identityProofEnable, String identityProofSharedSecret,
       SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid) {
         
-        String tokenname = "internal";
-
+        System.out.println("in getCMCBlob");
         ContentInfo fullEnrollmentReq = null;
         try {
             java.security.PrivateKey privKey = null;
@@ -142,7 +144,9 @@ public class CMCRequest {
 
             si = new  SignerIdentifier(
               SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
-            privKey = getPrivateKey(tokenname, nickname);
+            privKey = getPrivateKey(tokenName, nickname);
+            if (privKey != null)
+                System.out.println("getCMCBlob: got privKey");
 
             TaggedRequest trq = null;
             PKCS10 pkcs = null;
@@ -152,10 +156,12 @@ public class CMCRequest {
             SEQUENCE reqSequence = new SEQUENCE();
             try {
                 for (int k=0; k<rValue.length; k++) {
+                System.out.println("k="+ k);
                     String asciiBASE64Blob = rValue[k]; 
                     byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
                 
                     if (format.equals("crmf")) {
+                        System.out.println("getCMCBlob: format: crmf");
                         ByteArrayInputStream reqBlob = 
                             new ByteArrayInputStream(decodedBytes);
                         SEQUENCE crmfMsgs = null;
@@ -163,7 +169,7 @@ public class CMCRequest {
                             crmfMsgs = (SEQUENCE)new SEQUENCE.OF_Template(new
                               CertReqMsg.Template()).decode(reqBlob);
                         } catch (InvalidBERException ee) {
-                            System.out.println("This is not a crmf request. Or this request has an error.");
+                            System.out.println("getCMCBlob: This is not a crmf request. Or this request has an error.");
                             System.exit(1);
                         }
                         int nummsgs = crmfMsgs.size();
@@ -172,11 +178,11 @@ public class CMCRequest {
                           certReqMsg);
                     } else if (format.equals("pkcs10")) {
                         try {
-                            pkcs = new PKCS10(decodedBytes);
-                        } catch (IllegalArgumentException e) {
-                            System.out.println("This is not a PKCS10 request.");
+                            pkcs = new PKCS10(decodedBytes, true);
+                        } catch (Exception e2) {
+                            System.out.println("getCMCBlob: Excception:"+e2.toString());
                             System.exit(1);
-                        } 
+                        }
                         ByteArrayInputStream crInputStream = new ByteArrayInputStream(
                           pkcs.toByteArray());
                         CertificationRequest cr = (CertificationRequest)
@@ -186,17 +192,14 @@ public class CMCRequest {
                         trq = new
                           TaggedRequest(TaggedRequest.PKCS10, tcr, null);
                     } else {
-                        System.out.println("Unrecognized request format: "+format);
+                        System.out.println("getCMCBlob: Unrecognized request format: "+format);
                         System.exit(1);
                     }
                     reqSequence.addElement(trq);
                 }
-            } catch (IOException e) {
-                throw new IOException("Internal Error - " + e.toString());
-            } catch (SignatureException e) {
-                throw new IOException("Internal Error - " + e.toString());
-            } catch (NoSuchAlgorithmException e) {
-                throw new IOException("Internal Error - " + e.toString());
+            } catch (Exception e) {
+                System.out.println("getCMCBlob: Exception:"+ e.toString());
+                System.exit(1);
             }
             
             if (transactionMgtEnable.equals("true"))
@@ -213,11 +216,16 @@ public class CMCRequest {
               EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
             // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
-            SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            SignatureAlgorithm signAlg = null;
             org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
-
-            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
+            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.RSA)) {
+                signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.EC)) {  
+                signAlg = SignatureAlgorithm.ECSignatureWithSHA1Digest;
+            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA)) { 
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            }
+
             MessageDigest SHADigest = null;
 
             byte[] digest = null; 
@@ -234,6 +242,7 @@ public class CMCRequest {
             SignerInfo signInfo = new
               SignerInfo(si, null, null, OBJECT_IDENTIFIER.id_cct_PKIData, digest, signAlg,
               (org.mozilla.jss.crypto.PrivateKey) privKey);
+
             SET signInfos = new SET();
             signInfos.addElement(signInfo);
                 
@@ -292,6 +301,9 @@ public class CMCRequest {
         System.out.println("");
         System.out.println("#output: full path for the CMC request in binary format");
         System.out.println("output=/u/doc/cmcReq");
+        System.out.println("");
+        System.out.println("#tokenname: name of token where agent signing cert can be found (default is internal)");
+        System.out.println("tokenname=internal");
         System.out.println("");
         System.out.println("#nickname: nickname for agent certificate which will be used");
         System.out.println("#to sign the CMC full request.");
@@ -507,7 +519,7 @@ public class CMCRequest {
         return bpid; 
     }
 
-    private static int addRevRequestAttr(int bpid, SEQUENCE seq, SEQUENCE otherMsgSeq, String nickname, 
+    private static int addRevRequestAttr(int bpid, SEQUENCE seq, SEQUENCE otherMsgSeq, CryptoToken token, String tokenName, String nickname, 
       String revRequestIssuer, String revRequestSerial, String revRequestReason, 
       String revRequestSharedSecret, String revRequestComment, String invalidityDatePresent, 
       CryptoManager manager) {
@@ -546,24 +558,42 @@ public class CMCRequest {
 
             EncapsulatedContentInfo revokeContent = new EncapsulatedContentInfo(
               OBJECT_IDENTIFIER.id_cct_PKIData, revRequestControl);
-            DigestAlgorithm digestAlg1 = null;
-            SignatureAlgorithm signAlg1 = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+
+            StringBuffer certname = new StringBuffer();
+
+            if (!token.equals(manager.getInternalKeyStorageToken())) {
+                certname.append(tokenName);
+                certname.append(":");
+            }
+            certname.append(nickname);
             java.security.PrivateKey revokePrivKey = null;
             X509Certificate revokeCert = null;
+            System.out.println("finding cert:"+certname.toString());
             try {
-                revokeCert = manager.findCertByNickname(nickname1);
+                revokeCert = manager.findCertByNickname(certname.toString());
             } catch (ObjectNotFoundException e) {
                 System.out.println("Certificate not found: "+nickname1);
                 System.exit(1);
+            } catch (Exception e2) {
+                System.out.println("Certificate not found: "+e2.toString());
+                System.exit(1);
             }
+            System.out.println("finding private key for cert:"+certname.toString());
             revokePrivKey = manager.findPrivKeyByCert(revokeCert);
             org.mozilla.jss.crypto.PrivateKey.Type signingKeyType1 =
               ((org.mozilla.jss.crypto.PrivateKey) revokePrivKey).getType();
-            if (signingKeyType1.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
+            SignatureAlgorithm signAlg1 = null;
+            if (signingKeyType1.equals(org.mozilla.jss.crypto.PrivateKey.Type.RSA)) {
+                signAlg1 = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            } else if (signingKeyType1.equals(org.mozilla.jss.crypto.PrivateKey.Type.EC)) {  
+                signAlg1 = SignatureAlgorithm.ECSignatureWithSHA1Digest;
+            } else if (signingKeyType1.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA)) { 
                 signAlg1 = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            }
 
             MessageDigest rSHADigest = null;
             byte[] rdigest = null;
+            DigestAlgorithm digestAlg1 = null;
             try {
                 rSHADigest = MessageDigest.getInstance("SHA1");
                 digestAlg1 = DigestAlgorithm.SHA1;
@@ -612,7 +642,7 @@ public class CMCRequest {
             System.out.println("Successfully create revRequest control. bpid = "+(bpid-1));
             System.out.println("");
         } catch (Exception e) {
-            System.out.println("Error in creating revRequest control. Check the parameters.");
+            System.out.println("Error in creating revRequest control. Check the parameters. Exception="+ e.toString());
             System.exit(1);
         }
  
@@ -763,7 +793,7 @@ byte[] seed =
 
     public static void main(String[]s) {
         String numRequests=null;
-        String dbdir=null, nickname=null;
+        String dbdir=null, nickname=null, tokenName=null;
         String ifilename=null, ofilename=null, password=null, format=null; 
         FileOutputStream outputBlob = null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
@@ -822,6 +852,8 @@ byte[] seed =
                         format = val;
                     } else if (name.equals("dbdir")) {
                         dbdir = val;
+                    } else if (name.equals("tokenname")) {
+                        tokenName = val;
                     } else if (name.equals("nickname")) {
                         nickname = val;
                     } else if (name.equals("password")) {
@@ -946,21 +978,50 @@ byte[] seed =
             String mPrefix = ""; 
             System.out.println("cert/key prefix = " + mPrefix);
             System.out.println("path = " + dbdir);
+/*
             CryptoManager.InitializationValues vals =
               new CryptoManager.InitializationValues(dbdir, mPrefix,
               mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);
+*/
+            CryptoManager.initialize(dbdir);
+            CryptoToken token = null;
             CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = cm.getInternalKeyStorageToken();
+            System.out.println("CryptoManger initialized");
+
+            if ((tokenName == null) || (tokenName.equals(""))) {
+                token = cm.getInternalKeyStorageToken();
+                tokenName = PR_INTERNAL_TOKEN_NAME;
+            } else {
+                token = cm.getTokenByName(tokenName);
+            }
+            cm.setThreadToken(token);
+
             Password pass = new Password(password.toCharArray());
 
-            token.login(pass);
+            try {
+                token.login(pass);
+                System.out.println("token "+ tokenName + " logged in...");
+            } catch (Exception e) {
+                System.out.println("login Exception: " + e.toString());
+                System.exit(1);
+            }
+
             CryptoStore store = token.getCryptoStore();
             X509Certificate[] list = store.getCertificates();
             X509Certificate signerCert = null;
                 
-            signerCert = cm.findCertByNickname(nickname);
+            StringBuffer certname = new StringBuffer();
+            if (!token.equals(cm.getInternalKeyStorageToken())) {
+                certname.append(tokenName);
+                certname.append(":");
+            }
+            certname.append(nickname);
+            signerCert = cm.findCertByNickname(certname.toString());
+            if (signerCert != null) {
+                System.out.println("got signerCert: "+ certname.toString());
+            }
                 
             String[] requests = new String[num];
             for (int i=0; i<num; i++) { 
@@ -1060,12 +1121,12 @@ byte[] seed =
                     System.exit(1);
                 }
 
-                bpid = addRevRequestAttr(bpid, controlSeq, otherMsgSeq, revCertNickname, 
+                bpid = addRevRequestAttr(bpid, controlSeq, otherMsgSeq, token, tokenName, revCertNickname, 
                   revRequestIssuer, revRequestSerial, revRequestReason, revRequestSharedSecret,
                   revRequestComment, revRequestInvalidityDatePresent, cm);
             }
             
-            ContentInfo cmcblob = getCMCBlob(signerCert, nickname, requests, format, 
+            ContentInfo cmcblob = getCMCBlob(signerCert, tokenName, nickname, requests, format, 
               cm, transactionMgtEnable, transactionMgtId, identityProofEnable, 
               identityProofSharedSecret, controlSeq, otherMsgSeq, bpid);
 

@@ -158,11 +158,15 @@ public class PKCS10
 	subject = new X500Name (seq [0].data);
     
     
-     byte val1[] = seq [0].data.getDerValue ().toByteArray(); 
-     subjectPublicKeyInfo = X509Key.parse (new DerValue(val1)); 
-     PublicKey publicKey = X509Key.parsePublicKey (new DerValue(val1)); 
+        byte val1[] = seq [0].data.getDerValue ().toByteArray(); 
+        subjectPublicKeyInfo = X509Key.parse (new DerValue(val1)); 
+        PublicKey publicKey = X509Key.parsePublicKey (new DerValue(val1)); 
+        if (publicKey == null) {
+            System.out.println("PKCS10: publicKey null");
+            throw new SignatureException ("publicKey null");
+        }
 
-    String keystr = subjectPublicKeyInfo.toString();
+        String keystr = subjectPublicKeyInfo.toString();
 
 	// Cope with a somewhat common illegal PKCS #10 format
 	if (seq [0].data.available () != 0)
@@ -173,7 +177,6 @@ public class PKCS10
 	//
 	// OK, we parsed it all ... validate the signature using the
 	// key and signature algorithm we found.
-    // temporary commented out
 	try {
         String idName = id.getName ();
         if(idName.equals("MD5withRSA"))
@@ -198,11 +201,14 @@ public class PKCS10
 
             sig.initVerify (publicKey);
             sig.update (data);
-            if (!sig.verify (sigData))
+            if (!sig.verify (sigData)){
+                System.out.println("PKCS10: sig.verify() failed");
                 throw new SignatureException ("Invalid PKCS #10 signature");
+            }
         }
 	} catch (InvalidKeyException e) {
-        throw new SignatureException ("invalid key");
+            System.out.println("PKCS10: "+ e.toString());
+            throw new SignatureException ("invalid key");
 	}
     }
 

@@ -104,6 +104,7 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
         TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
 
         if (msgs == null) {
+            CMS.debug("CMCCertReqInput: populate - parseCMC returns null TaggedRequest msgs");
             return; 
         }
         // This profile only handle the first request in CRMF
