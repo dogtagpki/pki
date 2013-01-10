@@ -30,7 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 
-import org.mozilla.jss.*;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
@@ -354,13 +355,29 @@ public class AddCRLServlet extends CMSServlet {
                 pt.getThisUpdate());
 
             // verify CRL
+            CryptoManager cmanager = null;
+            boolean tokenSwitched = false;
+            CryptoToken verToken = null;
+            CryptoToken savedToken = null;
             byte caCertData[] = pt.getCACert();
             if (caCertData != null) {
               try {
+                cmanager = CryptoManager.getInstance();
                 X509CertImpl caCert = new X509CertImpl(caCertData);
                 CMS.debug("AddCRLServlet: start verify");
 
-                CryptoManager cmanager = CryptoManager.getInstance();
+                String tokenName =
+                    CMS.getConfigStore().getString("ocsp.crlVerify.token", "internal");
+                savedToken = cmanager.getThreadToken();
+                if (tokenName.equals("internal")) {
+                    verToken = cmanager.getInternalCryptoToken();
+                } else {
+                    verToken = cmanager.getTokenByName(tokenName);
+                }
+                if (!savedToken.getName().equals(verToken.getName())) {
+                    cmanager.setThreadToken(verToken);
+                    tokenSwitched = true;
+                }
                 org.mozilla.jss.crypto.X509Certificate jssCert = null;
                 try {
                       jssCert = cmanager.importCACertPackage(
@@ -407,6 +424,10 @@ public class AddCRLServlet extends CMSServlet {
 
                 throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
+              } finally {
+                  if (tokenSwitched == true){
+                      cmanager.setThreadToken(savedToken);
+                  }
               }
             }
 
