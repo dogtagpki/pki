@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -298,16 +299,16 @@ public class UserService extends PKIService implements UserResource {
                 if (user.getUserID() == null) {
                     throw new BadRequestDataException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "uid"));
                 } else {
-                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                    throw new PKIException(e.getMessage(), e);
                 }
 
             } catch (LDAPException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_USER_FAIL", e.toString()));
-                throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+                throw new PKIException(e.getMessage(), e);
             }
 
         } catch (PKIException e) {
