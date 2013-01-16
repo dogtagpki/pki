@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.0.0
-Release:          2%{?dist}
+Version:          10.0.1
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -14,7 +14,7 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-28
-%define pki_core_version           10.0.0
+%define pki_core_version           10.0.1
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
 %define pki_ra_version             10.0.0
@@ -27,7 +27,7 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
+%define pki_core_version           10.0.1
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
 %define pki_ra_version             10.0.0
@@ -40,7 +40,7 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
+%define pki_core_version           10.0.1
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
 %define pki_ra_version             10.0.0
@@ -53,7 +53,7 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
+%define pki_core_version           10.0.1
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
 %define pki_ra_version             10.0.0
@@ -65,7 +65,7 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.0
+%define pki_core_version           10.0.1
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
 %define pki_ra_version             10.0.0
@@ -201,6 +201,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Jan 15 2013 Ade Lee <alee@rdhat.com> 10.0.1-1
+- Update for release of 10.0.1 for pki-core
+
 * Fri Jan  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
 - TRAC Ticket #469 - Dogtag 10: Fix tomcatjss issue in pki-core.spec and
   dogtag-pki.spec . . .

@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.0
-Release:          5%{?dist}
+Version:          10.0.1
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -495,7 +495,7 @@ cd build
 %endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
-%{__make} VERBOSE=1 %{?_smp_mflags} test
+# %{__make} VERBOSE=1 %{?_smp_mflags} test
 
 
 %install
@@ -985,6 +985,28 @@ fi
 
 
 %changelog
+* Tue Jan 15 2013 Ade Lee <alee@redhat.com> 10.0.1-1
+- TRAC Ticket 214 - Missing error description for duplicate user
+- TRAC Ticket 213 - Add nonces for cert revocation
+- TRAC Ticket 367 - pkidestroy does not remove connector
+- TRAC Ticket #430 - License for 3rd party code
+- Bugzilla Bug 839426 - [RFE] ECC CRL support for OCSP
+- Fix spec file to allow f17 to work with latest tomcatjss
+- TRAC Ticket 466 - Increase root CA validity to 20 years
+- TRAC Ticket 469 - Fix tomcatjss issue in spec files
+- TRAC Ticket 468 - pkispawn throws exception
+- TRAC Ticket 191 - Mapping HTTP Exceptions to HTTP error codes
+- TRAC Ticket 271 - Dogtag 10: Fix 'status' command in 'pkidaemon' . . .
+- TRAC Ticket 437 - Make admin cert p12 file location configurable
+- TRAC Ticket 393 - pkispawn fails when selinux is disabled
+- Punctuation and formatting changes in man pages
+- Revert to using default config file for pkidestroy
+- Hardcode setting of resteasy-lib for instance
+- TRAC Ticket 436 - Interpolation for pki_subsystem
+- TRAC Ticket 433 - Interpolation for paths
+- TRAC Ticket 435 - Identical instance id and instance name
+- TRAC Ticket 406 - Replace file dependencies with package dependencies
+
 * Wed Jan  9 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-5
 - TRAC Ticket #430 - License for 3rd party code
 
