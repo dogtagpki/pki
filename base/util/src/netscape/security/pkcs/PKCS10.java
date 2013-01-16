@@ -156,6 +156,10 @@ public class PKCS10 {
         byte val1[] = seq[0].data.getDerValue().toByteArray();
         subjectPublicKeyInfo = X509Key.parse(new DerValue(val1));
         PublicKey publicKey = X509Key.parsePublicKey(new DerValue(val1));
+        if (publicKey == null) {
+            System.out.println("PKCS10: publicKey null");
+            throw new SignatureException ("publicKey null");
+        }
 
         // Cope with a somewhat common illegal PKCS #10 format
         if (seq[0].data.available() != 0)
@@ -191,10 +195,13 @@ public class PKCS10 {
 
                 sig.initVerify(publicKey);
                 sig.update(data);
-                if (!sig.verify(sigData))
+                if (!sig.verify(sigData)) {
+                System.out.println("PKCS10: sig.verify() failed");
                     throw new SignatureException("Invalid PKCS #10 signature");
+                }
             }
         } catch (InvalidKeyException e) {
+            System.out.println("PKCS10: "+ e.toString());
             throw new SignatureException("invalid key");
         }
     }

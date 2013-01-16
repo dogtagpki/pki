@@ -68,11 +68,11 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class CMCRevoke {
-    public static final int ARGC = 7;
+    public static final int ARGC = 8;
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null,
-            cValue = null;
+            pValue = null, cValue = null;
 
     public static final String CMS_BASE_CA_SIGNINGCERT_NOT_FOUND = "CA signing certificate not found";
     public static final String PR_INTERNAL_TOKEN_NAME = "internal";
@@ -110,7 +110,8 @@ public class CMCRevoke {
                     "-i<issuerName> " +
                     "-s<serialName> " +
                     "-m<reason to revoke> " +
-                    "-h<password to db> " +
+                    "-p<password to db> " +
+                    "-h<tokenname> " +
                     "-c<comment> ");
             for (int i = 0; i < s.length; i++) {
                 System.out.println(i + ":" + s[i]);
@@ -131,6 +132,8 @@ public class CMCRevoke {
                     sValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-m")) {
                     mValue = cleanArgs(s[i].substring(2));
+                } else if (s[i].startsWith("-p")) {
+                    pValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-h")) {
                     hValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-c")) {
@@ -138,14 +141,17 @@ public class CMCRevoke {
                 }
 
             }
-            // optional parameter
+            // optional parameters
             if (cValue == null)
                 cValue = "";
+            if (hValue == null)
+                hValue = "";
+
             if (dValue == null
-                    || nValue == null || iValue == null || sValue == null || mValue == null || hValue == null)
+                    || nValue == null || iValue == null || sValue == null || mValue == null || pValue == null)
                 bWrongParam = true;
             else if (dValue.length() == 0 || nValue.length() == 0 || iValue.length() == 0 ||
-                    sValue.length() == 0 || mValue.length() == 0 || hValue.length() == 0)
+                    sValue.length() == 0 || mValue.length() == 0 || pValue.length() == 0)
                 bWrongParam = true;
 
             if (bWrongParam == true) {
@@ -155,7 +161,8 @@ public class CMCRevoke {
                         "-i<issuerName> " +
                         "-s<serialName> " +
                         "-m<reason to revoke> " +
-                        "-h<password to db> " +
+                        "-p<password to db> " +
+                        "-h<tokenname> " +
                         "-c<comment> ");
                 for (i = 0; i < s.length; i++) {
                     System.out.println(i + ":" + s[i]);
@@ -167,21 +174,26 @@ public class CMCRevoke {
                 // initialize CryptoManager
                 mPath = dValue;
                 System.out.println("cert/key prefix = " + mPrefix);
-                System.out.println("path = " + mPath);
+                System.out.println("path = " + mPath); 
                 CryptoManager.InitializationValues vals =
-                        new CryptoManager.InitializationValues(mPath, mPrefix, mPrefix, "secmod.db");
+                    new CryptoManager.InitializationValues(mPath, mPrefix, mPrefix, "secmod.db"); 
 
                 CryptoManager.initialize(vals);
-
+                
                 CryptoManager cm = CryptoManager.getInstance();
-                CryptoToken token = cm.getInternalKeyStorageToken();
-                Password pass = new Password(hValue.toCharArray());
+                CryptoToken token = null;
+                if ((hValue == null) || (hValue.equals(""))) {
+                    token = cm.getInternalKeyStorageToken();
+                    hValue = PR_INTERNAL_TOKEN_NAME;
+                } else {
+                    token = cm.getTokenByName(hValue);
+                }
+    
+                Password pass = new Password(pValue.toCharArray());
 
                 token.login(pass);
-                X509Certificate signerCert = null;
-
-                signerCert = cm.findCertByNickname(nValue);
-                String outBlob = createRevokeReq(signerCert, cm, nValue);
+                X509Certificate signerCert = getCertificate(cm, hValue, nValue);
+                String outBlob = createRevokeReq(hValue, signerCert, cm);
 
                 printCMCRevokeRequest(outBlob);
             } catch (Exception e) {
@@ -258,28 +270,28 @@ public class CMCRevoke {
             certname.append(":");
         }
         certname.append(nickname);
+        System.out.println("CMCRevoke: searching for certificate nickname:"+
+                certname.toString());
         try {
             return manager.findCertByNickname(certname.toString());
         } catch (ObjectNotFoundException e) {
-            throw new Exception(CMS_BASE_CA_SIGNINGCERT_NOT_FOUND);
+            throw new Exception("Signing Certificate not found");
         }
     }
 
     /**
      * createRevokeReq create and return the revocation request.
      * <P>
-     *
+     * @tokenname name of the token
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param manager the crypto manger.
-     * @param nValue the nickname of the certificate inside the token.
      * @return the CMC revocation request encoded in base64
      */
-    static String createRevokeReq(X509Certificate signerCert, CryptoManager manager, String nValue) {
+    static String createRevokeReq(String tokenname, X509Certificate signerCert, CryptoManager manager) {
 
         java.security.PrivateKey privKey = null;
         SignerIdentifier si = null;
         ContentInfo fullEnrollmentReq = null;
-        String tokenname = "internal";
         String asciiBASE64Blob = null;
 
         try {
@@ -295,9 +307,8 @@ public class CMCRevoke {
             IssuerAndSerialNumber ias = new IssuerAndSerialNumber(issuer, new INTEGER(serialno.toString()));
 
             si = new SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
-            X509Certificate cert = getCertificate(manager, tokenname, nValue);
 
-            privKey = manager.findPrivKeyByCert(cert);
+            privKey = manager.findPrivKeyByCert(signerCert);
 
             if (privKey == null) {
                 System.out.println("CMCRevoke::createRevokeReq() - " +
@@ -338,7 +349,7 @@ public class CMCRevoke {
                             //org.mozilla.jss.pkix.cmmf.RevRequest.unspecified,
                             new ENUMERATED((new Integer(mValue)).longValue()),
                             null,
-                            new OCTET_STRING(hValue.getBytes()),
+                            new OCTET_STRING(pValue.getBytes()),
                             new UTF8String(cValue.toCharArray()));
             //byte[] encoded = ASN1Util.encode(lRevokeRequest);
             //org.mozilla.jss.asn1.ASN1Template template = new  org.mozilla.jss.pkix.cmmf.RevRequest.Template();
@@ -358,12 +369,16 @@ public class CMCRevoke {
             EncapsulatedContentInfo ci = new EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
             // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
-            SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType =
-                    ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
-
-            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
+            SignatureAlgorithm signAlg = null;
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
+            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.RSA)) {
+                signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.EC)) {
+                signAlg = SignatureAlgorithm.ECSignatureWithSHA1Digest;
+            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA)) {
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+            }
+
             MessageDigest SHADigest = null;
             byte[] digest = null;
 

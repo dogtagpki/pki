@@ -661,23 +661,57 @@ public abstract class EnrollProfile extends BasicProfile
             IRequest req)
             throws EProfileException {
         TaggedRequest.Type type = tagreq.getType();
+        if (type == null) {
+            CMS.debug("EnrollProfile: fillTaggedRequest: TaggedRequest type == null");
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST")+
+                    "TaggedRequest type null");
+        }
 
         if (type.equals(TaggedRequest.PKCS10)) {
+            CMS.debug("EnrollProfile: fillTaggedRequest: TaggedRequest type == pkcs10");
+            boolean sigver = true;
+            boolean tokenSwitched = false;
+            CryptoManager cm = null;
+            CryptoToken signToken = null;
+            CryptoToken savedToken = null;
             try {
+                sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                cm = CryptoManager.getInstance();
+                if (sigver == true) {
+                    String tokenName =
+                        CMS.getConfigStore().getString("ca.requestVerify.token", "internal");   
+                    savedToken = cm.getThreadToken();
+                    if (tokenName.equals("internal")) {
+                        signToken = cm.getInternalCryptoToken();
+                    } else {
+                        signToken = cm.getTokenByName(tokenName);
+                    }
+                    if (!savedToken.getName().equals(signToken.getName())) {
+                        cm.setThreadToken(signToken);
+                        tokenSwitched = true;
+                    }
+                }
+
                 TaggedCertificationRequest tcr = tagreq.getTcr();
                 CertificationRequest p10 = tcr.getCertificationRequest();
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
                 p10.encode(ostream);
-                PKCS10 pkcs10 = new PKCS10(ostream.toByteArray());
+                PKCS10 pkcs10 = new PKCS10(ostream.toByteArray(), sigver);
 
                 req.setExtData("bodyPartId", tcr.getBodyPartID());
                 fillPKCS10(locale, pkcs10, info, req);
             } catch (Exception e) {
                 CMS.debug("EnrollProfile: fillTaggedRequest " +
                         e.toString());
+            }  finally {
+                if ((sigver == true) && (tokenSwitched == true)){
+                    cm.setThreadToken(savedToken);
+                }
             }
         } else if (type.equals(TaggedRequest.CRMF)) {
+            CMS.debug("EnrollProfile: fillTaggedRequest: TaggedRequest type == crmf");
             CertReqMsg crm = tagreq.getCrm();
             SessionContext context = SessionContext.getContext();
             Integer nums = (Integer) (context.get("numOfControls"));
@@ -699,6 +733,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             fillCertReqMsg(locale, crm, info, req);
         } else {
+            CMS.debug("EnrollProfile: fillTaggedRequest: unsupported type (not CRMF or PKCS10)");
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
