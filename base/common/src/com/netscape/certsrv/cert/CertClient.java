@@ -83,4 +83,10 @@ public class CertClient extends PKIClient {
     public void approveRequest(RequestId id, CertReviewResponse data) {
         certRequestResource.approveRequest(id, data);
     }
+
+    public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
+            Integer maxResults, Integer maxTime) {
+        return certRequestResource.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+    }
+
 }
