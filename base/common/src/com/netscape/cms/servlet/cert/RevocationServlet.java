@@ -23,6 +23,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.ServletConfig;
@@ -42,7 +43,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -82,7 +82,6 @@ public class RevocationServlet extends CMSServlet {
     private boolean mRevokeByDN = true;
 
     private Random mRandom = null;
-    private Nonces mNonces = null;
 
     public RevocationServlet() {
         super();
@@ -109,7 +108,6 @@ public class RevocationServlet extends CMSServlet {
 
             if (mAuthority instanceof ICertificateAuthority) {
                 if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
-                    mNonces = ((ICertificateAuthority) mAuthority).getNonces();
                     mRandom = new Random();
                 }
             }
@@ -207,18 +205,21 @@ public class RevocationServlet extends CMSServlet {
         //		header.addLongValue("validNotBefore", old_cert.getNotBefore().getTime()/1000);
         //		header.addLongValue("validNotAfter", old_cert.getNotAfter().getTime()/1000);
 
-        if (mNonces != null) {
-            long n = mRandom.nextLong();
-            long m = mNonces.addNonce(n, old_cert);
-            if ((n + m) != 0) {
-                header.addStringValue("nonce", Long.toString(m));
-            }
-        }
-
         boolean noInfo = false;
         X509CertImpl[] certsToRevoke = null;
 
         if (mAuthority instanceof ICertificateAuthority) {
+
+            if (certAuthority.noncesEnabled()) {
+                // generate nonce
+                long n = mRandom.nextLong();
+                // store nonce in session
+                Map<Object, Long> nonces = certAuthority.getNonces(cmsReq.getHttpReq(), "cert-revoke");
+                nonces.put(old_serial_no, n);
+                // return serial number and nonce to client
+                header.addStringValue("nonce", old_serial_no+":"+n);
+            }
+
             certsToRevoke = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificates(
                         old_cert.getSubjectDN().toString(),
                         ICertificateRepository.ALL_UNREVOKED_CERTS);

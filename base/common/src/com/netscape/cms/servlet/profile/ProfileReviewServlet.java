@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.ServletConfig;
@@ -29,11 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
@@ -68,8 +67,8 @@ public class ProfileReviewServlet extends ProfileServlet {
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
     private String mAuthorityId = null;
+    ICertificateAuthority authority = null;
     private Random mRandom = null;
-    private Nonces mNonces = null;
 
     public ProfileReviewServlet() {
     }
@@ -84,12 +83,10 @@ public class ProfileReviewServlet extends ProfileServlet {
         super.init(sc);
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
-        ICertificateAuthority authority = null;
         if (mAuthorityId != null)
             authority = (ICertificateAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority != null && authority.noncesEnabled()) {
-            mNonces = authority.getNonces();
             mRandom = new Random();
         }
     }
@@ -168,7 +165,6 @@ public class ProfileReviewServlet extends ProfileServlet {
         }
 
         // retrieve request
-        IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority == null) {
             CMS.debug("ProfileReviewServlet: Authority " + mAuthorityId +
@@ -253,12 +249,11 @@ public class ProfileReviewServlet extends ProfileServlet {
             }
         }
 
-        if (mNonces != null) {
+        if (authority != null && authority.noncesEnabled()) {
             long n = mRandom.nextLong();
-            long m = mNonces.addNonce(n, getSSLClientCertificate(request));
-            if ((n + m) != 0) {
-                args.set(ARG_REQUEST_NONCE, Long.toString(m));
-            }
+            Map<Object, Long> nonces = authority.getNonces(request, "cert-request");
+            nonces.put(req.getRequestId().toBigInteger(), n);
+            args.set(ARG_REQUEST_NONCE, Long.toString(n));
         }
 
         args.set(ARG_REQUEST_ID, req.getRequestId().toString());

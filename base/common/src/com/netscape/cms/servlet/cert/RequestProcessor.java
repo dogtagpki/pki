@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -71,7 +71,8 @@ public class RequestProcessor extends CertProcessor {
 
         String profileId = ireq.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
-        CertReviewResponse data = CertReviewResponseFactory.create(cmsReq, profile, nonces, locale);
+        CertReviewResponse data = CertReviewResponseFactory.create(
+                cmsReq, profile, authority.noncesEnabled(), locale);
 
         processRequest(req, data, request, op);
         return data;
@@ -99,41 +100,27 @@ public class RequestProcessor extends CertProcessor {
                 throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
             }
 
-            if (nonces != null) {
+            if (authority.noncesEnabled()) {
+                Object id = data.getRequestId().toBigInteger();
+
                 String requestNonce = data.getNonce();
-                boolean nonceVerified = false;
-                if (requestNonce != null) {
-                    long nonce = 0L;
-                    try {
-                        nonce = Long.parseLong(requestNonce.trim());
-                    } catch (NumberFormatException e) {
-                    }
-                    X509Certificate cert1 = nonces.getCertificate(nonce);
-                    X509Certificate cert2 = getSSLClientCertificate(request);
-                    if (cert1 == null) {
-                        CMS.debug("CertRequestExecutor:  Unknown nonce");
-                    } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
-                        nonceVerified = true;
-                        nonces.removeNonce(nonce);
-                    }
-                } else {
-                    CMS.debug("CertRequestExecutor:  Missing nonce");
+                if (requestNonce == null) {
+                    CMS.debug("RequestProcessor: Missing nonce");
+                    throw new BadRequestException("Missing nonce.");
                 }
-                CMS.debug("CertRequestExecutor:  nonceVerified=" + nonceVerified);
-                if (!nonceVerified) {
-                    CMS.debug("nonce not verified");
-                    throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
-                }
+
+                Long nonce = new Long(requestNonce.trim());
+                validateNonce(request, "cert-request", id, nonce);
             }
 
-            CMS.debug("CertRequestExecutor: processRequest: start serving");
+            CMS.debug("RequestProcessor: processRequest: start serving");
 
             RequestId requestId = data.getRequestId();
             if (requestId == null || requestId.equals("")) {
                 CMS.debug(CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
             }
-            CMS.debug("CertRequestExecutor: requestId=" + requestId);
+            CMS.debug("RequestProcessor: requestId=" + requestId);
 
             // check if the request is in one of the terminal states
             if (!req.getRequestStatus().equals(RequestStatus.PENDING)) {
@@ -147,10 +134,10 @@ public class RequestProcessor extends CertProcessor {
 
             String profileId = req.getExtDataInString("profileId");
             if (profileId == null || profileId.equals("")) {
-                CMS.debug("CertRequestExecutor: Profile Id not found in request");
+                CMS.debug("RequestProcessor: Profile Id not found in request");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"));
             }
-            CMS.debug("CertRequestExecutor: profileId=" + profileId);
+            CMS.debug("RequestProcessor: profileId=" + profileId);
 
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -158,7 +145,7 @@ public class RequestProcessor extends CertProcessor {
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
             }
             if (!ps.isProfileEnable(profileId)) {
-                CMS.debug("CertRequestExecutor: Profile " + profileId + " not enabled");
+                CMS.debug("RequestProcessor: Profile " + profileId + " not enabled");
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
@@ -168,7 +155,7 @@ public class RequestProcessor extends CertProcessor {
                 // assigned owner
                 if (owner != null && owner.length() > 0) {
                     if (!grantPermission(req, authToken)) {
-                        CMS.debug("CertRequestExecutor: Permission not granted to assign request.");
+                        CMS.debug("RequestProcessor: Permission not granted to assign request.");
                         throw new EAuthzException(CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
                     }
                 }
@@ -197,7 +184,7 @@ public class RequestProcessor extends CertProcessor {
                         req.setRequestOwner("");
                     }
                 } else {
-                    CMS.debug("CertRequestExecutor: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
+                    CMS.debug("RequestProcessor: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
                     throw new EAuthzException(CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
                 }
             }
@@ -211,6 +198,7 @@ public class RequestProcessor extends CertProcessor {
                 }
             }
             endTiming("approval");
+
         } finally {
             endAllEvents();
         }

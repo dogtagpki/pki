@@ -26,7 +26,6 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyDefault;
@@ -128,7 +127,8 @@ public class CertReviewResponseFactory {
         return ret;
     }
 
-    public static CertReviewResponse create(CMSRequest cmsReq, IProfile profile, Nonces nonces, Locale locale)
+    public static CertReviewResponse create(
+            CMSRequest cmsReq, IProfile profile, boolean noncesEnabled, Locale locale)
             throws EPropertyException, EProfileException {
         HttpServletRequest req = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
@@ -139,7 +139,7 @@ public class CertReviewResponseFactory {
         ret.setRequestNotes(req.getParameter("requestNotes"));
         ret.setRequestId(ireq.getRequestId());
 
-        if (nonces != null) {
+        if (noncesEnabled) {
             ret.setNonce(req.getParameter(Processor.ARG_REQUEST_NONCE));
         }
 

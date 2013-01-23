@@ -29,10 +29,15 @@ import java.security.PublicKey;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -65,6 +70,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.Nonces;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -219,7 +225,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
-    private Nonces mNonces = null;
 
     /**
      * Constructs a CA subsystem.
@@ -279,8 +284,34 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mUseNonces;
     }
 
-    public Nonces getNonces() {
-        return mNonces;
+    public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
+
+        // Create a new session or use an existing one.
+        HttpSession session = request.getSession(true);
+        if (session == null) {
+            throw new PKIException("Unable to create session.");
+        }
+
+        // Lock the session to prevent concurrent access.
+        // http://yet-another-dev.blogspot.com/2009/08/synchronizing-httpsession.html
+
+        Object lock = request.getSession().getId().intern();
+        synchronized (lock) {
+
+            // Find the existing storage in the session.
+            @SuppressWarnings("unchecked")
+            Map<Object, Long> nonces = (Map<Object, Long>)session.getAttribute("nonces-"+name);
+
+            if (nonces == null) {
+                // If not present, create a new storage.
+                nonces = Collections.synchronizedMap(new Nonces(mMaxNonces));
+
+                // Put the storage in the session.
+                session.setAttribute("nonces-"+name, nonces);
+            }
+
+            return nonces;
+        }
     }
 
     /**
@@ -319,10 +350,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             mUseNonces = mConfig.getBoolean("enableNonces", true);
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
-            if (mUseNonces) {
-                mNonces = new Nonces(mMaxNonces);
-                CMS.debug("CertificateAuthority init: Nonces enabled. (" + mNonces.size() + ")");
-            }
 
             // init request queue and related modules.
             CMS.debug("CertificateAuthority init: initRequestQueue");

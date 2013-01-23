@@ -226,6 +226,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
+    protected ICertificateAuthority certAuthority;
     protected IRequestQueue mRequestQueue = null;
 
     // system logger.
@@ -301,9 +302,11 @@ public abstract class CMSServlet extends HttpServlet {
             authority = sc.getInitParameter(PROP_AUTHORITYID);
         }
 
-        if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+        if (authority != null) {
+            mAuthority = (IAuthority) CMS.getSubsystem(authority);
+            if (mAuthority instanceof ICertificateAuthority)
+                certAuthority = (ICertificateAuthority) mAuthority;
+        }
         if (mAuthority != null)
             mRequestQueue = mAuthority.getRequestQueue();
 

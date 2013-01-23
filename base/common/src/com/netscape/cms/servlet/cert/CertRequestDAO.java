@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.ServletException;
@@ -29,7 +30,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -54,7 +54,6 @@ public class CertRequestDAO extends CMSRequestDAO {
     private IRequestQueue queue;
     private ICertificateAuthority ca;
     IProfileSubsystem ps;
-    private Nonces nonces = null;
     private Random random = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
@@ -65,7 +64,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
             random = new Random();
-            nonces = ca.getNonces();
         }
         ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     }
@@ -141,20 +139,19 @@ public class CertRequestDAO extends CMSRequestDAO {
         String profileId = request.getExtDataInString("profileId");
         IProfile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
+
         if (ca.noncesEnabled()) {
-            addNonce(info, servletRequest);
+            // generate nonce
+            long n = random.nextLong();
+
+            // store nonce in session
+            Map<Object, Long> nonces = ca.getNonces(servletRequest, "cert-request");
+            nonces.put(info.getRequestId().toBigInteger(), n);
+
+            // return nonce to client
+            info.setNonce(Long.toString(n));
         }
         return info;
-    }
-
-    private void addNonce(CertReviewResponse info, HttpServletRequest servletRequest) throws EBaseException {
-        if (nonces != null) {
-            long n = random.nextLong();
-            long m = nonces.addNonce(n, Processor.getSSLClientCertificate(servletRequest));
-            if ((n + m) != 0) {
-                info.setNonce(Long.toString(m));
-            }
-        }
     }
 
     /**

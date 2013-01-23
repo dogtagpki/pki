@@ -31,6 +31,14 @@ find_file(JAXRS_API_JAR
         ${RESTEASY_LIB}
 )
 
+find_file(SERVLET_JAR
+    NAMES
+        servlet.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 # build pki-ca
 javac(pki-ca-classes
     SOURCES
@@ -39,7 +47,7 @@ javac(pki-ca-classes
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
         ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${SERVLET_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS

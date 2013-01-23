@@ -17,107 +17,59 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.security.cert.X509Certificate;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * This class manages nonces sometimes used to control request state flow.
- * <P>
+ * This class provides a limited storage for nonces. Usually
+ * nonces are added and removed immediately. In case some of
+ * the nonces are abandoned, the oldest nonce will be removed
+ * if the storage size grows exceeding the limit.
  *
  * @version $Revision$, $Date$
  */
-public class Nonces {
+public class Nonces extends LinkedHashMap<Object,Long> {
 
-    private Hashtable<Long, X509Certificate> mNonces = new Hashtable<Long, X509Certificate>();
-    private Vector<Long> mNonceList = new Vector<Long>();
-    private int mNonceLimit;
+    private static final long serialVersionUID = 7953840029228765259L;
 
-    /**
-     * Constructs nonces.
-     */
+    private int limit;
+
     public Nonces() {
         this(100);
     }
 
     public Nonces(int limit) {
-        mNonceLimit = limit;
+        this.limit = limit;
     }
 
-    public long addNonce(long nonce, X509Certificate cert) {
-        long i;
-        long k = 0;
-        long n = nonce;
-        long m = (mNonceLimit / 2) + 1;
+    /**
+     * Override removeEldestEntry() to remove eldest entry
+     * if the size exceeds the limit.
+     */
+    protected boolean removeEldestEntry(Map.Entry<Object,Long> eldest) {
+        return size() > limit;
+    }
 
-        for (i = 0; i < m; i++) {
-            k = n + i;
-            // avoid collisions
-            if (!mNonceList.contains(k)) {
-                break;
-            }
-            k = n - i;
-            // avoid collisions
-            if (!mNonceList.contains(k)) {
-                break;
-            }
+    public static void main(String[] args) {
+        Nonces nonces = new Nonces(3);
+
+        System.out.println("Adding 3 entries.");
+        nonces.put("a", 1l);
+        nonces.put("b", 2l);
+        nonces.put("c", 3l);
+
+        System.out.println("Nonces:");
+        for (Object id : nonces.keySet()) {
+            System.out.println(" - "+id+": "+nonces.get(id));
         }
-        if (i < m) {
-            mNonceList.add(k);
-            mNonces.put(k, cert);
-            if (mNonceList.size() > mNonceLimit) {
-                n = mNonceList.firstElement().longValue();
-                mNonceList.remove(0);
-                mNonces.remove(n);
-            }
-        } else {
-            // failed to resolved collision
-            k = -nonce;
+
+        System.out.println("Adding 2 more entries.");
+        nonces.put("d", 4l);
+        nonces.put("e", 5l);
+
+        System.out.println("Nonces:");
+        for (Object id : nonces.keySet()) {
+            System.out.println(" - "+id+": "+nonces.get(id));
         }
-        return k;
-    }
-
-    public X509Certificate getCertificate(long nonce) {
-        X509Certificate cert = mNonces.get(nonce);
-        return cert;
-    }
-
-    public X509Certificate getCertificate(int index) {
-        X509Certificate cert = null;
-        if (index >= 0 && index < mNonceList.size()) {
-            long nonce = mNonceList.elementAt(index).longValue();
-            cert = mNonces.get(nonce);
-        }
-        return cert;
-    }
-
-    public long getNonce(int index) {
-        long nonce = 0;
-        if (index >= 0 && index < mNonceList.size()) {
-            nonce = mNonceList.elementAt(index).longValue();
-        }
-        return nonce;
-    }
-
-    public void removeNonce(long nonce) {
-        mNonceList.remove(nonce);
-        mNonces.remove(nonce);
-    }
-
-    public int size() {
-        return mNonceList.size();
-    }
-
-    public int maxSize() {
-        return mNonceLimit;
-    }
-
-    public void clear() {
-        mNonceList.clear();
-        mNonces.clear();
-    }
-
-    public boolean isInSync() {
-        return (mNonceList.size() == mNonces.size());
     }
 }

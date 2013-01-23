@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import netscape.security.pkcs.ContentInfo;
@@ -44,7 +45,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ICertPrettyPrint;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -80,7 +80,6 @@ public class CertService extends PKIService implements CertResource {
     ICertificateAuthority authority;
     ICertificateRepository repo;
     Random random;
-    Nonces nonces;
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -88,7 +87,6 @@ public class CertService extends PKIService implements CertResource {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
         if (authority.noncesEnabled()) {
             random = new Random();
-            nonces = authority.getNonces();
         }
         repo = authority.getCertificateRepository();
     }
@@ -195,7 +193,11 @@ public class CertService extends PKIService implements CertResource {
                 }
             }
 
-            processor.validateNonce(clientCert, request.getNonce());
+            if (authority.noncesEnabled() &&
+                !processor.isMemberOfSubsystemGroup(clientCert)) {
+                processor.validateNonce(servletRequest, "cert-revoke", id.toBigInteger(), request.getNonce());
+
+            }
 
             // Find target cert record if different from client cert.
             ICertRecord targetRecord = id.equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
@@ -470,12 +472,14 @@ public class CertService extends PKIService implements CertResource {
 
         certData.setStatus(record.getStatus());
 
-        if (generateNonce && nonces != null) {
+        if (authority.noncesEnabled() && generateNonce) {
+            // generate nonce
             long n = random.nextLong();
-            long m = nonces.addNonce(n, Processor.getSSLClientCertificate(servletRequest));
-            if (n + m != 0) {
-                certData.setNonce(m);
-            }
+            // store nonce in session
+            Map<Object, Long> nonces = authority.getNonces(servletRequest, "cert-revoke");
+            nonces.put(certId.toBigInteger(), n);
+            // return nonce to client
+            certData.setNonce(n);
         }
 
         URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(certId.toHexString());

@@ -18,8 +18,10 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.ServletConfig;
@@ -30,13 +32,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import netscape.security.x509.X509CertImpl;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -65,7 +68,6 @@ public class ReasonToRevoke extends CMSServlet {
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
     private Random mRandom = null;
-    private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
 
     public ReasonToRevoke() {
@@ -88,7 +90,6 @@ public class ReasonToRevoke extends CMSServlet {
 
         if (mCA != null && mCA.noncesEnabled()) {
             mRandom = new Random();
-            mNonces = mCA.getNonces();
         }
 
         mTemplates.remove(CMSRequest.SUCCESS);
@@ -222,14 +223,6 @@ public class ReasonToRevoke extends CMSServlet {
         header.addStringValue("revokeAll", revokeAll);
         header.addIntegerValue("totalRecordCount", totalRecordCount);
 
-        if (mNonces != null) {
-            long n = mRandom.nextLong();
-            long m = mNonces.addNonce(n, getSSLClientCertificate(req));
-            if ((n + m) != 0) {
-                header.addStringValue("nonce", Long.toString(m));
-            }
-        }
-
         try {
             if (mCA != null) {
                 X509CertImpl caCert = mCA.getSigningUnit().getCertImpl();
@@ -248,6 +241,7 @@ public class ReasonToRevoke extends CMSServlet {
             Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
+            ArrayList<String> noncesList = new ArrayList<String>();
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {
@@ -258,6 +252,17 @@ public class ReasonToRevoke extends CMSServlet {
                 X509CertImpl xcert = rec.getCertificate();
 
                 if (xcert != null)
+
+                    if (mCA != null && mCA.noncesEnabled()) {
+                        // generate nonce
+                        long n = mRandom.nextLong();
+                        // store nonce in session
+                        Map<Object, Long> nonces = mCA.getNonces(req, "cert-revoke");
+                        nonces.put(xcert.getSerialNumber(), n);
+                        // store serial number and nonce
+                        noncesList.add(xcert.getSerialNumber()+":"+n);
+                    }
+
                     if (!(rec.getStatus().equals(ICertRecord.STATUS_REVOKED))) {
                         count++;
                         IArgBlock rarg = CMS.createArgBlock();
@@ -277,6 +282,11 @@ public class ReasonToRevoke extends CMSServlet {
             }
 
             header.addIntegerValue("verifiedRecordCount", count);
+
+            if (mCA != null && mCA.noncesEnabled()) {
+                // return serial numbers and nonces to client
+                header.addStringValue("nonce", StringUtils.join(noncesList.toArray(), ","));
+            }
 
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, "Error " + e);

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -46,10 +47,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -87,7 +88,6 @@ public class DoRevoke extends CMSServlet {
     private ICertificateRepository mCertDB = null;
     private String mFormPath = null;
     private IPublisherProcessor mPublisherProcessor = null;
-    private Nonces mNonces = null;
     private int mTimeLimits = 30; /* in seconds */
     private IUGSubsystem mUG = null;
     private ICertUserLocator mUL = null;
@@ -111,9 +111,6 @@ public class DoRevoke extends CMSServlet {
 
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
-            if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
-                mNonces = ((ICertificateAuthority) mAuthority).getNonces();
-            }
         }
         if (mAuthority instanceof ICertAuthority) {
             mPublisherProcessor = ((ICertAuthority) mAuthority).getPublisherProcessor();
@@ -401,14 +398,27 @@ public class DoRevoke extends CMSServlet {
         processor.setInvalidityDate(invalidityDate);
         processor.setComments(comments);
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            processor.setAuthority((ICertificateAuthority)mAuthority);
-        }
-
+        Hashtable<BigInteger, Long> nonceMap = new Hashtable<BigInteger, Long>();
         X509Certificate clientCert = getSSLClientCertificate(req);
-        String requestedNonce = req.getParameter("nonce");
-        Long nonce = requestedNonce == null ? null : new Long(requestedNonce.trim());
-        processor.validateNonce(clientCert, nonce);
+
+        if (mAuthority instanceof ICertificateAuthority) {
+            processor.setAuthority(certAuthority);
+
+            if (certAuthority.noncesEnabled()) {
+                String nonces = req.getParameter("nonce");
+                if (nonces == null) {
+                    throw new ForbiddenException("Missing nonce.");
+                }
+
+                // parse serial numbers and nonces
+                for (String s : nonces.split(",")) {
+                    String[] elements = s.split(":");
+                    BigInteger serialNumber = new BigInteger(elements[0].trim());
+                    Long nonce = new Long(elements[1].trim());
+                    nonceMap.put(serialNumber, nonce);
+                }
+            }
+        }
 
         try {
             processor.createCRLExtension();
@@ -437,6 +447,14 @@ public class DoRevoke extends CMSServlet {
                     rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
 
                     try {
+                        if (mAuthority instanceof ICertificateAuthority &&
+                            certAuthority.noncesEnabled() &&
+                            !processor.isMemberOfSubsystemGroup(clientCert)) {
+                            // validate nonce for each certificate
+                            Long nonce = nonceMap.get(targetRecord.getSerialNumber());
+                            processor.validateNonce(req, "cert-revoke", targetRecord.getSerialNumber(), nonce);
+                        }
+
                         processor.validateCertificateToRevoke(eeSubjectDN, targetRecord, false);
                         processor.addCertificateToRevoke(targetCert);
                         rarg.addStringValue("error", null);
@@ -542,6 +560,9 @@ public class DoRevoke extends CMSServlet {
             processor.createRevocationRequest();
 
             processor.auditChangeRequest(ILogger.SUCCESS);
+
+        } catch (ForbiddenException e) {
+            throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
 
         } catch (CertificateException e) {
             processor.log(ILogger.LL_FAILURE, "Error " + e);

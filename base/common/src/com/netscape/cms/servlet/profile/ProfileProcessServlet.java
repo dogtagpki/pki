@@ -29,6 +29,7 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
@@ -106,6 +107,11 @@ public class ProfileProcessServlet extends ProfileServlet {
         CertReviewResponse data = null;
         try {
             data = processor.processRequest(cmsReq, req, op);
+
+        } catch (ForbiddenException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            setError(args, e.getMessage(), request, response);
+            return;
         } catch (EAuthException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             setError(args, e.getMessage(), request, response);

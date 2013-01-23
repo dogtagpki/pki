@@ -18,6 +18,9 @@
 package com.netscape.certsrv.ca;
 
 import java.util.Enumeration;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import netscape.security.x509.CertificateChain;
 import netscape.security.x509.CertificateVersion;
@@ -31,7 +34,6 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
@@ -132,7 +134,7 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public boolean noncesEnabled();
 
-    public Nonces getNonces();
+    public Map<Object, Long> getNonces(HttpServletRequest request, String name);
 
     /**
      * Retrieves the publishing processor of this certificate authority.

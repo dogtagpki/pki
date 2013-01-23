@@ -26,7 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.netscape.certsrv.authorization.EAuthzException;
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
 import netscape.security.x509.InvalidityDateExtension;
@@ -39,6 +44,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -188,47 +194,24 @@ public class RevocationProcessor extends CertProcessor {
         return request;
     }
 
-    public void validateNonce(X509Certificate clientCert, Long nonce) {
+    public boolean isMemberOfSubsystemGroup(X509Certificate clientCert) {
 
-        if (nonces != null) {
-            boolean nonceVerified = false;
-            boolean skipNonceVerification = false;
-
-            if (clientCert != null) {
-                X509Certificate certChain[] = new X509Certificate[1];
-                certChain[0] = clientCert;
-                IUser user = null;
-                try {
-                    user = ul.locateUser(new Certificates(certChain));
-                } catch (Exception e) {
-                    CMS.debug("RevocationProcessor:  Failed to map certificate '" +
-                            clientCert.getSubjectDN().getName() + "' to user.");
-                }
-                if (ug.isMemberOf(user, "Subsystem Group")) {
-                    skipNonceVerification = true;
-                }
-            }
-
-            if (nonce != null) {
-                X509Certificate storedCert = nonces.getCertificate(nonce);
-                if (storedCert == null) {
-                    CMS.debug("RevocationProcessor:  Unknown nonce");
-
-                } else if (clientCert != null && storedCert.equals(clientCert)) {
-                    nonceVerified = true;
-                    nonces.removeNonce(nonce);
-                }
-            } else {
-                CMS.debug("RevocationProcessor:  Missing nonce");
-            }
-
-            CMS.debug("RevocationProcessor:  nonceVerified=" + nonceVerified);
-            CMS.debug("RevocationProcessor:  skipNonceVerification=" + skipNonceVerification);
-            if ((!nonceVerified) && (!skipNonceVerification)) {
-                throw new ForbiddenException("Invalid nonce.");
-            }
+        if (clientCert == null) {
+            return false;
         }
 
+        try {
+            X509Certificate certChain[] = new X509Certificate[1];
+            certChain[0] = clientCert;
+
+            IUser user = ul.locateUser(new Certificates(certChain));
+            return ug.isMemberOf(user, "Subsystem Group");
+
+        } catch (Exception e) {
+            CMS.debug("RevocationProcessor:  Failed to map certificate '" +
+                    clientCert.getSubjectDN().getName() + "' to user.");
+            return false;
+        }
     }
 
     public void validateCertificateToRevoke(String subjectDN, ICertRecord targetRecord, boolean revokingCACert) {

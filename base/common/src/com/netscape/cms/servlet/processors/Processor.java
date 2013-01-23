@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
@@ -40,12 +41,13 @@ import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -138,7 +140,6 @@ public class Processor {
     protected String authzResourceName;
     protected String authMgr;
     protected String getClientCert = "false";
-    protected Nonces nonces;
     protected Locale locale;
 
     // subsystems
@@ -177,10 +178,6 @@ public class Processor {
 
         if (authority == null) {
             throw new EBaseException("CertProcessor: authority is null");
-        }
-
-        if (authority.noncesEnabled()) {
-            nonces = authority.getNonces();
         }
 
         queue = authority.getRequestQueue();
@@ -1236,5 +1233,31 @@ public class Processor {
         } else {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
+    }
+
+    public void validateNonce(
+            HttpServletRequest servletRequest,
+            String name,
+            Object id,
+            Long nonce) throws EBaseException {
+
+        if (nonce == null) {
+            throw new BadRequestException("Missing nonce.");
+        }
+
+        Map<Object, Long> nonces = authority.getNonces(servletRequest, name);
+
+        Long storedNonce = nonces.get(id);
+        if (storedNonce == null) {
+            throw new BadRequestException("Nonce for "+name+" "+id+" does not exist.");
+        }
+
+        if (!nonce.equals(storedNonce)) {
+            throw new ForbiddenException("Invalid nonce");
+        }
+
+        nonces.remove(id);
+
+        CMS.debug("Processor: Nonce verified");
     }
 }
