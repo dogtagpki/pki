@@ -680,19 +680,6 @@
                          <param-value> certServer.clone.configuration </param-value> </init-param>
    </servlet>
 
-   <servlet>
-      <servlet-name>  kraGetTokenInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGetTokenInfo </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
    <!-- ==================== RESTEasy Configuration =============== -->
 
    <listener>
@@ -937,11 +924,6 @@
    <servlet-mapping>
       <servlet-name>  kraDownloadPKCS12 </servlet-name>
       <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraGetTokenInfo </servlet-name>
-      <url-pattern>   /ee/kra/getTokenInfo </url-pattern>
    </servlet-mapping>
 
    <!-- ==================== Default Session Configuration =============== -->

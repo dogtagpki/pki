@@ -1767,19 +1767,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetTokenInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetTokenInfo  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetTokenInfo </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caProxyProfileSubmit  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
@@ -2338,11 +2325,6 @@
    <servlet-mapping>
       <servlet-name>  caTokenAuthenticate </servlet-name>
       <url-pattern>   /ee/ca/tokenAuthenticate  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetTokenInfo </servlet-name>
-      <url-pattern>   /ee/ca/getTokenInfo </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
