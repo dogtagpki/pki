@@ -195,6 +195,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         }
 
         try {
+            String cstype = config.getString("cs.type", "");
             config.putString("preop.subsystem.name", HttpInput.getName(request, "subsystemName"));
 
             if (select.equals("newsubsystem")) {
@@ -214,7 +215,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
                         config.putBoolean(PCERT_PREFIX + tag + ".enable", false);
                 }
 
-                // get the master CA
+                // get the masterURL
                 String index = request.getParameter("urls");
                 String url = "";
 
@@ -243,8 +244,12 @@ public class CreateSubsystemPanel extends WizardPanelBase {
                     throw new IOException("Invalid clone URI provided.  Does not match the available subsystems in " +
                             "the security domain");
                 }
+                if (cstype.equals("CA")) {
+                    int https_admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                                               host, https_ee_port, "CA", "SecurePort", "SecureAdminPort");
 
-                ConfigurationUtils.importCertChain(host, https_ee_port, "/ca/ee/ca/getCertChain", "clone");
+                    ConfigurationUtils.importCertChain(host, https_admin_port, "/ca/admin/ca/getCertChain", "clone");
+                }
             } else {
                 CMS.debug("CreateSubsystemPanel: invalid choice " + select);
                 context.put("updateStatus", "failure");

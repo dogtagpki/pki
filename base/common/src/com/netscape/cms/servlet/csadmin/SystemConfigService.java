@@ -251,7 +251,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             if (csType.equals("CA")) {
                 try {
-                    ConfigurationUtils.importCertChain(masterHost, masterPort, "/ca/ee/ca/getCertChain", "clone");
+                    int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                            masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
+                    ConfigurationUtils.importCertChain(masterHost, masterAdminPort, "/ca/admin/ca/getCertChain",
+                            "clone");
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new PKIException("Failed to import certificate chain from master" + e);
