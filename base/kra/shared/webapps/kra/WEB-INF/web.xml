@@ -652,7 +652,7 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> kraUpdateNumberRange </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
+                         <param-value> admin       </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> TokenAuth </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -918,7 +918,7 @@
 
    <servlet-mapping>
       <servlet-name>  kraUpdateNumberRange </servlet-name>
-      <url-pattern>   /ee/kra/updateNumberRange  </url-pattern>
+      <url-pattern>   /admin/kra/updateNumberRange  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

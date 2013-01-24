@@ -201,7 +201,7 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> caUpdateNumberRange </param-value> </init-param>
              <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
+                         <param-value> admin          </param-value> </init-param>
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> TokenAuth </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -1884,7 +1884,7 @@
 
    <servlet-mapping>     
       <servlet-name>  caUpdateNumberRange </servlet-name>
-      <url-pattern>   /ee/ca/updateNumberRange  </url-pattern>
+      <url-pattern>   /admin/ca/updateNumberRange  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

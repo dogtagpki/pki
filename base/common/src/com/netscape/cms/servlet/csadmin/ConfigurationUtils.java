@@ -564,24 +564,21 @@ public class ConfigurationUtils {
         cstype = cstype.toLowerCase();
 
         String session_id = CMS.getConfigSDSessionId();
-        String master_hostname = "";
-        int master_port = -1;
-        int master_ee_port = -1;
-        master_hostname = config.getString("preop.master.hostname", "");
-        master_port = config.getInteger("preop.master.httpsadminport", -1);
-        master_ee_port = config.getInteger("preop.master.httpsport", -1);
+        String master_hostname = config.getString("preop.master.hostname", "");
+        int master_port = config.getInteger("preop.master.httpsadminport", -1);
+        int master_ee_port = config.getInteger("preop.master.httpsport", -1);
 
         String content = "";
         if (cstype.equals("ca") || cstype.equals("kra")) {
             content = "type=request&xmlOutput=true&sessionID=" + session_id;
             CMS.debug("http content=" + content);
-            updateNumberRange(master_hostname, master_ee_port, true, content, "request");
+            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "request");
 
             content = "type=serialNo&xmlOutput=true&sessionID=" + session_id;
-            updateNumberRange(master_hostname, master_ee_port, true, content, "serialNo");
+            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "serialNo");
 
             content = "type=replicaId&xmlOutput=true&sessionID=" + session_id;
-            updateNumberRange(master_hostname, master_ee_port, true, content, "replicaId");
+            updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "replicaId");
         }
 
         String list = "";
@@ -639,51 +636,64 @@ public class ConfigurationUtils {
 
     }
 
-    public static void updateNumberRange(String hostname, int port, boolean https, String content, String type)
-            throws IOException, EBaseException, SAXException, ParserConfigurationException {
-        CMS.debug("updateNumberRange start host=" + hostname + " port=" + port);
+    public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https, String content,
+            String type) throws IOException, EBaseException, SAXException, ParserConfigurationException {
+        CMS.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         IConfigStore cs = CMS.getConfigStore();
 
         String cstype = "";
         cstype = cs.getString("cs.type", "");
         cstype = cstype.toLowerCase();
 
-        String serverPath = "/" + cstype + "/ee/" + cstype + "/updateNumberRange";
-        String c = getHttpResponse(hostname, port, https, serverPath, content, null, null);
-        if (c == null || c.equals("")) {
-            CMS.debug("updateNumberRange: content is null.");
-            throw new IOException("The server you want to contact is not available");
-        } else {
-            CMS.debug("content=" + c);
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = null;
-            parser = new XMLObject(bis);
-            String status = parser.getValue("Status");
-
-            CMS.debug("updateNumberRange(): status=" + status);
-            if (status.equals(SUCCESS)) {
-                String beginNum = parser.getValue("beginNumber");
-                String endNum = parser.getValue("endNumber");
-                if (type.equals("request")) {
-                    cs.putString("dbs.beginRequestNumber", beginNum);
-                    cs.putString("dbs.endRequestNumber", endNum);
-                } else if (type.equals("serialNo")) {
-                    cs.putString("dbs.beginSerialNumber", beginNum);
-                    cs.putString("dbs.endSerialNumber", endNum);
-                } else if (type.equals("replicaId")) {
-                    cs.putString("dbs.beginReplicaNumber", beginNum);
-                    cs.putString("dbs.endReplicaNumber", endNum);
-                }
-                // enable serial number management in clone
-                cs.putString("dbs.enableSerialManagement", "true");
-                cs.commit(false);
-                return;
-            } else if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
+        String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
+        String c = null;
+        try {
+            c = getHttpResponse(hostname, adminPort, https, serverPath, content, null, null);
+            if (c == null || c.equals("")) {
+                CMS.debug("updateNumberRange: content is null.");
+                throw new IOException("The server you want to contact is not available");
             }
+        } catch (Exception e) {
+            // for backward compatibility, try the old ee interface too
+            CMS.debug("updateNumberRange: Failed to contact master using admin port" + e);
+            CMS.debug("updateNumberRange: Attempting to contact master using EE port");
+            serverPath = "/" + cstype + "/ee/" + cstype + "/updateNumberRange";
+            c = getHttpResponse(hostname, eePort, https, serverPath, content, null, null);
+            if (c == null || c.equals("")) {
+                CMS.debug("updateNumberRange: content is null.");
+                throw new IOException("The server you want to contact is not available");
+            }
+        }
+
+        CMS.debug("content=" + c);
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = null;
+        parser = new XMLObject(bis);
+        String status = parser.getValue("Status");
+
+        CMS.debug("updateNumberRange(): status=" + status);
+        if (status.equals(SUCCESS)) {
+            String beginNum = parser.getValue("beginNumber");
+            String endNum = parser.getValue("endNumber");
+            if (type.equals("request")) {
+                cs.putString("dbs.beginRequestNumber", beginNum);
+                cs.putString("dbs.endRequestNumber", endNum);
+            } else if (type.equals("serialNo")) {
+                cs.putString("dbs.beginSerialNumber", beginNum);
+                cs.putString("dbs.endSerialNumber", endNum);
+            } else if (type.equals("replicaId")) {
+                cs.putString("dbs.beginReplicaNumber", beginNum);
+                cs.putString("dbs.endReplicaNumber", endNum);
+            }
+            // enable serial number management in clone
+            cs.putString("dbs.enableSerialManagement", "true");
+            cs.commit(false);
+            return;
+        } else if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        } else {
+            String error = parser.getValue("Error");
+            throw new IOException(error);
         }
     }
 
