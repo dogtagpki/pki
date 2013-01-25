@@ -2,6 +2,8 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -154,34 +156,101 @@ public class PKIConnection {
     }
 
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
+        // NOTE:  The following helper method defined as
+        //        'public String displayReason(int reason)'
+        //        should be moved into the JSS class called
+        //        'org.mozilla.jss.ssl.SSLCertificateApprovalCallback'
+        //        under its nested subclass called 'ValidityStatus'.
+
+        // While all reason values should be unique, this method has been
+        // written to return the name of the first defined reason that is
+        // encountered which contains the requested value, or null if no
+        // reason containing the requested value is encountered.
+        public String displayReason(int reason) {
+            Class<SSLCertificateApprovalCallback.ValidityStatus> c =
+                SSLCertificateApprovalCallback.ValidityStatus.class;
+            for (Field f : c.getDeclaredFields()) {
+                int mod = f.getModifiers();
+                if (Modifier.isStatic(mod) &&
+                    Modifier.isPublic(mod) &&
+                    Modifier.isFinal(mod)) {
+                    try {
+                        int value = f.getInt(null);
+                        if (value == reason) {
+                            return f.getName();
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
 
         // Callback to approve or deny returned SSL server cert.
         // Right now, simply approve the cert.
         public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
                 SSLCertificateApprovalCallback.ValidityStatus status) {
 
+            boolean approval = true;
+            String reasonName = null;
+
             if (verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
 
             SSLCertificateApprovalCallback.ValidityItem item;
 
+            // If there are no items in the Enumeration returned by
+            // getReasons(), you can assume that the certificate is
+            // trustworthy, and return true to allow the connection to
+            // continue, or you can continue to make further tests of
+            // your own to determine trustworthiness.
             Enumeration<?> errors = status.getReasons();
             while (errors.hasMoreElements()) {
                 item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
                 int reason = item.getReason();
 
-                if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER ||
-                        reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
-
-                    // Allow these two since we haven't installed the CA cert for trust.
-
-                    return true;
-
+                if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
+                    // Ignore the "UNTRUSTED_ISSUER" validity status
+                    // during PKI instance creation since we are
+                    // utilizing an untrusted temporary CA cert.
+                    if (!config.InstanceCreationMode) {
+                        // Otherwise, issue a WARNING, but allow this process
+                        // to continue since we haven't installed a trusted CA
+                        // cert for this operation.
+                        System.err.println("WARNING: UNTRUSTED ISSUER encountered on '"+serverCert.getSubjectDN()+"' indicates a non-trusted CA cert");
+                    }
+                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
+                    // Issue a WARNING, but allow this process to continue on
+                    // common-name mismatches.
+                    System.err.println("WARNING: BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch");
+                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
+                    // Ignore the "CA_CERT_INVALID" validity status
+                    // during PKI instance creation since we are
+                    // utilizing an untrusted temporary CA cert.
+                    if (!config.InstanceCreationMode) {
+                        // Otherwise, set approval false to deny this
+                        // certificate so that the connection is terminated.
+                        // (Expect an IOException on the outstanding
+                        //  read()/write() on the socket).
+                        System.err.println("ERROR: CA_CERT_INVALID encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
+                        approval = false;
+                    }
+                } else {
+                    // Set approval false to deny this certificate so that
+                    // the connection is terminated. (Expect an IOException
+                    // on the outstanding read()/write() on the socket).
+                    reasonName = displayReason(reason);
+                    if (reasonName != null ) {
+                        System.err.println("ERROR: "+reasonName+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
+                    } else {
+                        System.err.println("ERROR: Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
+                    }
+                    approval = false;
                 }
             }
 
-            // For other errors return false.
-
-            return false;
+            return approval;
         }
     }
 
