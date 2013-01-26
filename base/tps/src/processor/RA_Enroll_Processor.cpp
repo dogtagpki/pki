@@ -363,19 +363,25 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
       SECItem der;
       CERTSubjectPublicKeyInfo* spki = NULL;
                
-      Buffer *decodePubKey = Util::URLDecode(pKey);
-      char *pKey_ascii = NULL;
-      if (decodePubKey != NULL) {
-          pKey_ascii = 
-              BTOA_DataToAscii(decodePubKey->getBuf(), decodePubKey->size());
+      if (isECC) {
+          Buffer *decodePubKey = Util::URLDecode(pKey);
+          char *pKey_ascii = NULL;
+          if (decodePubKey != NULL) {
+              pKey_ascii = 
+                  BTOA_DataToAscii(decodePubKey->getBuf(), decodePubKey->size());
             
+          } else {
+              PR_snprintf(audit_msg, 512, "ServerSideKeyGen: failed to URL decode public key");
+            goto loser;
+          }
+
+          der.type = (SECItemType) 0; /* initialize it, since convertAsciiToItem does not set it */
+          rv = ATOB_ConvertAsciiToItem (&der, pKey_ascii);
       } else {
-          PR_snprintf(audit_msg, 512, "ServerSideKeyGen: failed to URL decode public key");
-        goto loser;
+          der.type = (SECItemType) 0; /* initialize it, since convertAsciiToItem does not set it */
+          rv = ATOB_ConvertAsciiToItem (&der, pKey);
       }
 
-      der.type = (SECItemType) 0; /* initialize it, since convertAsciiToItem does not set it */
-      rv = ATOB_ConvertAsciiToItem (&der, pKey_ascii);
       if (rv != SECSuccess){
         RA::Debug(LL_PER_CONNECTION,FN,
           "failed to convert b64 public key to binary");

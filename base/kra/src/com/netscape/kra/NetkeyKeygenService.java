@@ -486,9 +486,13 @@ public class NetkeyKeygenService implements IService {
                     return false;
                 } else {
                     //CMS.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
-                    /* url encode */
-                    PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(publicKeyData);
-                    CMS.debug("NetkeyKeygenService: EC PubKey special encoded");
+                    if (rKeytype.equals("EC")) {
+                        /* url encode */
+                        PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(publicKeyData);
+                        CMS.debug("NetkeyKeygenService: EC PubKey special encoded");
+                    } else {
+                        PubKey = base64Encode(publicKeyData);
+                    }
 
                     //CMS.debug("NetkeyKeygenService: public key length =" + PubKey.length());
                     request.setExtData("public_key", PubKey);
