@@ -163,13 +163,17 @@ Then submit the request for review.  This can be done without authentication.
 
 .B pki cert-request-submit <request file>
 
-Then, an agent needs to review the request.
+Then, an agent needs to review the request by running the following command:
 
 .B pki <agent authentication> cert-request-review <request ID> --output <request review file>
 
-The output file contains details about the request, as well as the defaults and constraints of the enrollment profile.  It contains all the values that can be overridden by the agent.  To approve a request, run the following command as an agent:
+The request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
 
-.B pki <agent authentication> cert-request-approve <request review file>
+.B Action (approve/reject/cancel/update/validate/assign/unassign):
+
+Alternatively, the agent can process the request in a single step with the following command:
+
+.B pki <agent authentication> cert-request-review <request ID> --action <action>
 
 .SS Group Management Commands
 All group commands must be executed as an administrator. Some representative commands are shown below.  Type \fBpki group\fP to get a list of additional commands.

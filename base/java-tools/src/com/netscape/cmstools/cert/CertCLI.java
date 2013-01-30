@@ -27,6 +27,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -51,7 +52,6 @@ public class CertCLI extends CLI {
         addModule(new CertRequestFindCLI(this));
         addModule(new CertRequestSubmitCLI(this));
         addModule(new CertRequestReviewCLI(this));
-        addModule(new CertRequestApproveCLI(this));
     }
 
     public void printHelp() {
@@ -146,7 +146,14 @@ public class CertCLI extends CLI {
 
     public static void printCertRequestInfo(CertRequestInfo info) {
         System.out.println("  Request ID: " + info.getRequestId());
-        System.out.println("  Status: " + info.getRequestStatus());
         System.out.println("  Type: " + info.getRequestType());
+        System.out.println("  Status: " + info.getRequestStatus());
+    }
+
+    public static void printCertReviewResponse(CertReviewResponse response) {
+        System.out.println("  Request ID: " + response.getRequestId());
+        System.out.println("  Profile: " + response.getProfileName());
+        System.out.println("  Type: " + response.getRequestType());
+        System.out.println("  Status: " + response.getRequestStatus());
     }
 }

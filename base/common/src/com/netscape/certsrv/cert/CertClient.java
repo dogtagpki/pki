@@ -84,6 +84,30 @@ public class CertClient extends PKIClient {
         certRequestResource.approveRequest(id, data);
     }
 
+    public void rejectRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.rejectRequest(id, data);
+    }
+
+    public void cancelRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.cancelRequest(id, data);
+    }
+
+    public void updateRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.updateRequest(id, data);
+    }
+
+    public void validateRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.validateRequest(id, data);
+    }
+
+    public void assignRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.assignRequest(id, data);
+    }
+
+    public void unassignRequest(RequestId id, CertReviewResponse data) {
+        certRequestResource.unassignRequest(id, data);
+    }
+
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) {
         return certRequestResource.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
