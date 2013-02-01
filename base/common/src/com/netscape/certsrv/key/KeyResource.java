@@ -10,10 +10,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 
 @Path("agent/keys")
 @ACLMapping("agent.keys")
+@AuthMethodMapping("agent")
 public interface KeyResource {
 
     @GET

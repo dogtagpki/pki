@@ -11,10 +11,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("agent/keyrequests")
 @ACLMapping("agent.keyrequests")
+@AuthMethodMapping("agent")
 public interface KeyRequestResource {
 
     public final String SYMMETRIC_KEY_TYPE = "symmetricKey";

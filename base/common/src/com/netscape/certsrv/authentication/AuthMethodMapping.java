@@ -12,32 +12,20 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.certsrv.account;
+package com.netscape.certsrv.authentication;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import com.netscape.certsrv.acls.ACLMapping;
-import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 /**
  * @author Endi S. Dewata
  */
-@Path("account")
-@AuthMethodMapping("account")
-public interface AccountResource {
-
-    @GET
-    @Path("login")
-    @ACLMapping("account.login")
-    public void login();
-
-    @GET
-    @Path("logout")
-    @ACLMapping("account.logout")
-    public void logout();
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AuthMethodMapping {
+    public String value();
 }

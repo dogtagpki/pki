@@ -11,6 +11,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.dbs.certdb.CertId;
 
 @Path("")
@@ -45,6 +46,7 @@ public interface CertResource {
     @Path("agent/certs/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certs")
+    @AuthMethodMapping("agent")
     public CertData reviewCert(@PathParam("id") CertId id);
 
     @POST
@@ -52,6 +54,7 @@ public interface CertResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certs")
+    @AuthMethodMapping("agent")
     public CertRequestInfo revokeCACert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
@@ -59,6 +62,7 @@ public interface CertResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certs")
+    @AuthMethodMapping("agent")
     public CertRequestInfo revokeCert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
@@ -66,5 +70,6 @@ public interface CertResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certs")
+    @AuthMethodMapping("agent")
     public CertRequestInfo unrevokeCert(@PathParam("id") CertId id, CertUnrevokeRequest request);
 }

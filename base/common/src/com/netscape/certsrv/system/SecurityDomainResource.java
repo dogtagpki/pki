@@ -24,6 +24,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 /**
  * @author alee
@@ -35,6 +36,7 @@ public interface SecurityDomainResource {
     @Path("installToken")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("securityDomain.installToken")
+    @AuthMethodMapping("securityDomain.installToken")
     public InstallToken getInstallToken(
             @QueryParam("hostname") String hostname,
             @QueryParam("subsystem") String subsystem);

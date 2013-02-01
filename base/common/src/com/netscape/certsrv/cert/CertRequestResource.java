@@ -28,38 +28,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("")
 public interface CertRequestResource {
-
-    /**
-     * Used to generate list of cert requests based on the search parameters
-     */
-    @GET
-    @Path("agent/certrequests")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certrequests")
-    public CertRequestInfos listRequests(@QueryParam("requestState") String requestState,
-            @QueryParam("requestType") String requestType,
-            @QueryParam("start") RequestId start,
-            @QueryParam("pageSize") Integer pageSize,
-            @QueryParam("maxResults") Integer maxResults,
-            @QueryParam("maxTime") Integer maxTime);
-
-    /**
-     * Used to retrieve cert request info for a specific request
-     */
-    @GET
-    @Path("certrequests/{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public CertRequestInfo getRequestInfo(@PathParam("id") RequestId id);
-
-    @GET
-    @Path("agent/certrequests/{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certrequests")
-    public CertReviewResponse reviewRequest(@PathParam("id") RequestId id);
 
     // Enrollment - used to test integration with a browser
     @POST
@@ -74,45 +47,82 @@ public interface CertRequestResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertRequestInfos enrollCert(CertEnrollmentRequest data);
 
+    /**
+     * Used to retrieve cert request info for a specific request
+     */
+    @GET
+    @Path("certrequests/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public CertRequestInfo getRequestInfo(@PathParam("id") RequestId id);
+
+    /**
+     * Used to generate list of cert requests based on the search parameters
+     */
+    @GET
+    @Path("agent/certrequests")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
+    public CertRequestInfos listRequests(@QueryParam("requestState") String requestState,
+            @QueryParam("requestType") String requestType,
+            @QueryParam("start") RequestId start,
+            @QueryParam("pageSize") Integer pageSize,
+            @QueryParam("maxResults") Integer maxResults,
+            @QueryParam("maxTime") Integer maxTime);
+
+    @GET
+    @Path("agent/certrequests/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
+    public CertReviewResponse reviewRequest(@PathParam("id") RequestId id);
+
     @POST
     @Path("agent/certrequests/{id}/approve")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/reject")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/cancel")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/update")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/validate")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/unassign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 
     @POST
     @Path("agent/certrequests/{id}/assign")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("agent.certrequests")
+    @AuthMethodMapping("agent")
     public void assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 }

@@ -434,11 +434,6 @@ class PKIConfigParser:
                         config.pki_master_dict['pki_instance_configuration_path'],
                         "tomcat.conf")
                 # in-place slot substitution name/value pairs
-                config.pki_master_dict['pki_target_auth_properties'] =\
-                    os.path.join(
-                        config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "auth.properties")
                 config.pki_master_dict['pki_target_velocity_properties'] =\
                     os.path.join(
                         config.pki_master_dict['pki_tomcat_webapps_subsystem_path'],

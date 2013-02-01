@@ -70,8 +70,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_target_tomcat_conf'],
                 overwrite_flag=True)
             util.file.apply_slot_substitution(
-                master['pki_target_auth_properties'])
-            util.file.apply_slot_substitution(
                 master['pki_target_velocity_properties'])
             util.file.apply_slot_substitution(
                 master['pki_target_subsystem_web_xml'])

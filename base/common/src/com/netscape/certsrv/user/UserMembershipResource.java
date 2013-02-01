@@ -32,12 +32,14 @@ import javax.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 /**
  * @author Endi S. Dewata
  */
 @Path("admin/users/{userID}/memberships")
 @ACLMapping("admin.users")
+@AuthMethodMapping("admin")
 public interface UserMembershipResource {
 
     @GET

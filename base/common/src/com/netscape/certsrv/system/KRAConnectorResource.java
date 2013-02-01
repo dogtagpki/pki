@@ -26,12 +26,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 /**
  * @author Ade Lee
  */
 @Path("admin/kraconnector")
 @ACLMapping("admin.kraconnector")
+@AuthMethodMapping("admin")
 public interface KRAConnectorResource {
 
     @POST

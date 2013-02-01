@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.core.Application;
 
 import com.netscape.certsrv.acls.ACLInterceptor;
+import com.netscape.certsrv.authentication.AuthMethodInterceptor;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupMemberService;
@@ -42,7 +43,8 @@ public class TKSApplication extends Application {
         // exception mapper
         classes.add(PKIException.Mapper.class);
 
-        // ACL interceptor
+        // interceptors
+        singletons.add(new AuthMethodInterceptor());
         singletons.add(new ACLInterceptor());
     }
 

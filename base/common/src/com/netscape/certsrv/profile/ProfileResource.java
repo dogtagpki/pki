@@ -6,8 +6,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 @Path("agent/profiles")
+@AuthMethodMapping("agent")
 public interface ProfileResource {
 
     @GET
