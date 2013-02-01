@@ -105,6 +105,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # get ports to remove selinux context
         util.configuration_file.populate_non_default_ports()
 
+        # get deinstallation token
+        token = util.security_domain.get_installation_token(
+            config.pki_secdomain_user, config.pki_secdomain_pass)
+
         # remove kra connector from CA if this is a KRA
         util.kra_connector.deregister()
 
@@ -116,7 +120,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #            instance's security domain may be a part of a
         #            tightly-coupled shared instance.
         #
-        util.security_domain.deregister()
+        util.security_domain.deregister(token)
         # ALWAYS Stop this Apache/Tomcat PKI Process
         util.systemd.stop()
         return self.rv

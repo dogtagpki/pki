@@ -119,6 +119,8 @@ default_deployment_cfg = None
 user_deployment_cfg = None
 #     'pkidestroy' ONLY
 pki_deployed_instance_name = None
+pki_secdomain_user = None
+pki_secdomain_pass = None
 
 # PKI Deployment "Optional" Command-Line Variables
 #     'pkispawn' ONLY

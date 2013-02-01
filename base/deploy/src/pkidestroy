@@ -100,6 +100,18 @@ def main(argv):
         nargs=1, metavar='<instance>',
         help='FORMAT:  ${pki_instance_name}')
 
+    parser.optional.add_argument('-u',
+        dest='pki_secdomain_user',
+        action='store',
+        nargs=1, metavar='<security domain user>',
+        help='security domain user')
+
+    parser.optional.add_argument('-w', 
+        dest='pki_secdomain_pass',
+        action='store',
+        nargs=1, metavar='<security domain password>',
+        help='security domain password')
+
     args = parser.process_command_line_arguments(argv)
 
     interactive = False
@@ -141,6 +153,14 @@ def main(argv):
 
         else:
             break
+
+    #    '-u'
+    if args.pki_secdomain_user:
+        config.pki_secdomain_user = str(args.pki_secdomain_user).strip('[\']')
+
+    #    '-w'
+    if args.pki_secdomain_pass:
+        config.pki_secdomain_pass = str(args.pki_secdomain_pass).strip('[\']')
 
     # verify that previously deployed instance exists
     deployed_pki_instance_path = config.pki_root_prefix +\

@@ -232,6 +232,8 @@ PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
 PKIHELPER_SECURITY_DOMAIN_CONTACT_1 =\
     "contacting the security domain master to update security domain '%s'"
+PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2 =\
+    "Failed to get installation token from security domain '%s:%s'"
 PKIHELPER_SECURITY_DOMAIN_UNDEFINED =\
     "No security domain defined.\n"\
     "If this is an unconfigured instance, then that is OK.\n"\
