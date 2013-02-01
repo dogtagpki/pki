@@ -641,18 +641,23 @@ public class ConfigurationUtils {
         CMS.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         IConfigStore cs = CMS.getConfigStore();
 
-        String cstype = "";
-        cstype = cs.getString("cs.type", "");
+        String cstype = cs.getString("cs.type", "");
         cstype = cstype.toLowerCase();
 
         String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
         String c = null;
+        XMLObject parser = null;
         try {
             c = getHttpResponse(hostname, adminPort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
                 CMS.debug("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available");
             }
+
+            CMS.debug("content from admin interface ="+ c);
+            // when the admin servlet is unavailable, we return a badly formatted error page
+            // in that case, this will throw an exception and be passed into the catch block.
+            parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
         } catch (Exception e) {
             // for backward compatibility, try the old ee interface too
             CMS.debug("updateNumberRange: Failed to contact master using admin port" + e);
@@ -663,12 +668,10 @@ public class ConfigurationUtils {
                 CMS.debug("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available");
             }
+            CMS.debug("content from ee interface =" + c);
+            parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
         }
 
-        CMS.debug("content=" + c);
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = null;
-        parser = new XMLObject(bis);
         String status = parser.getValue("Status");
 
         CMS.debug("updateNumberRange(): status=" + status);
@@ -948,10 +951,18 @@ public class ConfigurationUtils {
         // delete all existing certificates first
         deleteExistingCerts();
 
+        ArrayList<String> masterList = getMasterCertKeyList();
+
         for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
             PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
             String nickname = (String) pkeyinfo_v.elementAt(1);
+            if (! masterList.contains(nickname)) {
+                // TODO - fix this to only import the keys that we need.
+                CMS.debug("Ignoring " + nickname);
+                // only import the master's system keys
+            //    continue;
+            }
             byte[] x509cert = getX509Cert(nickname, cert_collection);
             X509Certificate cert = cm.importCACertPackage(x509cert);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -988,6 +999,11 @@ public class ConfigurationUtils {
             byte[] cert = (byte[]) cert_v.elementAt(0);
             if (cert_v.size() > 1) {
                 String name = (String) cert_v.elementAt(1);
+                if (! masterList.contains(name)) {
+                    CMS.debug("Not importing " + name);
+                    // only import the master's system certs
+                    continue;
+                }
                 // we need to delete the trusted CA certificate if it is
                 // the same as the ca signing certificate
                 if (isCASigningCert(name)) {
@@ -1098,6 +1114,26 @@ public class ConfigurationUtils {
         } catch (Exception e) {
             CMS.debug("deleteExistingCerts: Exception=" + e.toString());
         }
+    }
+
+    public static ArrayList<String> getMasterCertKeyList() throws EBaseException {
+        ArrayList<String> list = new ArrayList<String>();
+        IConfigStore cs = CMS.getConfigStore();
+        String certList = cs.getString("preop.cert.list", "");
+        StringTokenizer st = new StringTokenizer(certList, ",");
+        while (st.hasMoreTokens()) {
+            String s = st.nextToken();
+            if (s.equals("sslserver"))
+                    continue;
+            String name = "preop.master." + s + ".nickname";
+            String nickname = cs.getString(name);
+            list.add(nickname);
+
+            name = "preop.cert." + s + ".dn";
+            String dn = cs.getString(name);
+            list.add(dn);
+        }
+        return list;
     }
 
     public static byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
@@ -3251,9 +3287,8 @@ public class ConfigurationUtils {
         String eecaStr = (CMS.getEEClientAuthSSLPort() != null) ? "&eeclientauthsport=" + CMS.getEEClientAuthSSLPort()
                 : "";
 
-        updateDomainXML(sd_host, sd_agent_port, true,
-                "/ca/agent/ca/updateDomainXML",
-                "list=" + type + "List"
+        String url =  "/ca/admin/ca/updateDomainXML";
+        String content = "list=" + type + "List"
                 + "&type=" + type
                 + "&host=" + CMS.getEESSLHost()
                 + "&name=" + subsystemName
@@ -3263,7 +3298,19 @@ public class ConfigurationUtils {
                 + "&agentsport=" + CMS.getAgentPort()
                 + "&adminsport=" + CMS.getAdminPort()
                 + eecaStr
-                + "&httpport=" + CMS.getEENonSSLPort());
+                + "&httpport=" + CMS.getEENonSSLPort();
+
+        try {
+            String session_id = CMS.getConfigSDSessionId();
+            content += "&sessionID="+ session_id;
+            updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
+        } catch (Exception e) {
+            CMS.debug("updateSecurityDomain: failed to update security domain using admin port "
+                      + sd_admin_port + ": " + e);
+            CMS.debug("updateSecurityDomain: now trying agent port with client auth");
+            url =  "/ca/agent/ca/updateDomainXML";
+            updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
+        }
 
         // Fetch the "updated" security domain and display it
         CMS.debug("updateSecurityDomain(): Dump contents of updated Security Domain . . .");
@@ -3302,21 +3349,27 @@ public class ConfigurationUtils {
     }
 
     public static void updateDomainXML(String hostname, int port, boolean https,
-            String servlet, String uri) throws IOException, EBaseException, SAXException, ParserConfigurationException {
+            String servlet, String uri, boolean useClientAuth) throws IOException, EBaseException, SAXException,
+            ParserConfigurationException {
         CMS.debug("WizardPanelBase updateDomainXML start hostname=" + hostname + " port=" + port);
-        IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert.subsystem.nickname", "");
-        String tokenname = cs.getString("preop.module.token", "");
+        String c = null;
+        if (useClientAuth) {
+            IConfigStore cs = CMS.getConfigStore();
+            String nickname = cs.getString("preop.cert.subsystem.nickname", "");
+            String tokenname = cs.getString("preop.module.token", "");
 
-        if (!tokenname.equals("") &&
-                !tokenname.equals("Internal Key Storage Token") &&
-                !tokenname.equals("internal")) {
-            nickname = tokenname + ":" + nickname;
+            if (!tokenname.equals("") &&
+                    !tokenname.equals("Internal Key Storage Token") &&
+                    !tokenname.equals("internal")) {
+                nickname = tokenname + ":" + nickname;
+            }
+            CMS.debug("updateDomainXML() nickname=" + nickname);
+
+            c = getHttpResponse(hostname, port, https, servlet, uri, nickname, null);
+        } else {
+            c = getHttpResponse(hostname, port, https, servlet, uri, null, null);
         }
-        CMS.debug("updateDomainXML() nickname=" + nickname);
-
-        String c = getHttpResponse(hostname, port, https, servlet, uri, nickname, null);
-        if (c != null) {
+        if (c != null && !c.equals("")) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
             String status = obj.getValue("Status");
@@ -3328,6 +3381,8 @@ public class ConfigurationUtils {
                 String error = obj.getValue("Error");
                 throw new IOException(error);
             }
+        } else {
+            throw new IOException("Failed to get response when updating security domain");
         }
     }
 
