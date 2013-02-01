@@ -48,7 +48,7 @@ public class ClientConfig {
         }
     }
 
-    boolean InstanceCreationMode = false;
+    boolean instanceCreationMode;
 
     URI serverURI;
 
@@ -59,11 +59,11 @@ public class ClientConfig {
 
     @XmlElement(defaultValue="false")
     public boolean getInstanceCreationMode() {
-        return InstanceCreationMode;
+        return instanceCreationMode;
     }
 
     public void setInstanceCreationMode(boolean mode) {
-        this.InstanceCreationMode = mode;
+        this.instanceCreationMode = mode;
     }
 
     @XmlElement(name="ServerURI")

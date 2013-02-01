@@ -214,7 +214,7 @@ public class PKIConnection {
                     // Ignore the "UNTRUSTED_ISSUER" validity status
                     // during PKI instance creation since we are
                     // utilizing an untrusted temporary CA cert.
-                    if (!config.InstanceCreationMode) {
+                    if (!config.getInstanceCreationMode()) {
                         // Otherwise, issue a WARNING, but allow this process
                         // to continue since we haven't installed a trusted CA
                         // cert for this operation.
@@ -228,7 +228,7 @@ public class PKIConnection {
                     // Ignore the "CA_CERT_INVALID" validity status
                     // during PKI instance creation since we are
                     // utilizing an untrusted temporary CA cert.
-                    if (!config.InstanceCreationMode) {
+                    if (!config.getInstanceCreationMode()) {
                         // Otherwise, set approval false to deny this
                         // certificate so that the connection is terminated.
                         // (Expect an IOException on the outstanding

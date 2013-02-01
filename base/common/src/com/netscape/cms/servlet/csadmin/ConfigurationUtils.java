@@ -314,17 +314,19 @@ public class ConfigurationUtils {
 
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
         IConfigStore cs = CMS.getConfigStore();
-        boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", true);
+        boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", false);
 
         if (oldtoken) {
             return ConfigurationUtils.getOldToken(sdhost, sdport, user, passwd);
         }
+
         String csType = cs.getString("cs.type");
 
         ClientConfig config = new ClientConfig();
         config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
         config.setUsername(user);
         config.setPassword(passwd);
+        config.setInstanceCreationMode(true);
 
         PKIConnection connection = new PKIConnection(config);
         AccountClient accountClient = new AccountClient(connection);
