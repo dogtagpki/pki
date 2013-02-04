@@ -204,10 +204,10 @@ public class CertFindCLI extends CLI {
 
         //revocationPeriod
         option = new Option(null, "revokedOnFrom", true, "Revoked on or after this date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
         option = new Option(null, "revokedOnTo", true, "Revoked on or before this date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
 
         //revocationReason
@@ -250,18 +250,18 @@ public class CertFindCLI extends CLI {
 
         //validationNotBeforeInUse
         option = new Option(null, "validNotBeforeFrom", true, "Valid not before start date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
         option = new Option(null, "validNotBeforeTo", true, "Valid not before end date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
 
         //validityNotAfterinUse
         option = new Option(null, "validNotAfterFrom", true, "Valid not after start date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
         option = new Option(null, "validNotAfterTo", true, "Valid not after end date");
-        option.setArgName("date");
+        option.setArgName("YYYY-MM-DD");
         options.addOption(option);
 
         //validityLengthinUse
@@ -328,11 +328,13 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("revokedOnFrom")) {
             csd.setRevokedOnInUse(true);
-            csd.setRevokedOnFrom(cmd.getOptionValue("revokedOnFrom"));
+            Date date = dateFormat.parse(cmd.getOptionValue("revokedOnFrom"));
+            csd.setRevokedOnFrom(""+date.getTime());
         }
         if (cmd.hasOption("revokedOnTo")) {
             csd.setRevokedOnInUse(true);
-            csd.setRevokedOnTo(cmd.getOptionValue("revokedOnTo"));
+            Date date = dateFormat.parse(cmd.getOptionValue("revokedOnTo"));
+            csd.setRevokedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("revocationReason")) {
             csd.setRevocationReasonInUse(true);
@@ -374,19 +376,23 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("validNotBeforeFrom")) {
             csd.setValidNotBeforeInUse(true);
-            csd.setValidNotBeforeFrom(cmd.getOptionValue("validNotBeforeFrom"));
+            Date date = dateFormat.parse(cmd.getOptionValue("validNotBeforeFrom"));
+            csd.setValidNotBeforeFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotBeforeTo")) {
             csd.setValidNotBeforeInUse(true);
-            csd.setValidNotBeforeTo(cmd.getOptionValue("validNotBeforeTo"));
+            Date date = dateFormat.parse(cmd.getOptionValue("validNotBeforeTo"));
+            csd.setValidNotBeforeTo(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterFrom")) {
             csd.setValidNotAfterInUse(true);
-            csd.setValidNotAfterFrom(cmd.getOptionValue("validNotAfterFrom"));
+            Date date = dateFormat.parse(cmd.getOptionValue("validNotAfterFrom"));
+            csd.setValidNotAfterFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterTo")) {
             csd.setValidNotAfterInUse(true);
-            csd.setValidNotAfterTo(cmd.getOptionValue("validNotAfterTo"));
+            Date date = dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
+            csd.setValidNotAfterTo(""+date.getTime());
         }
         if (cmd.hasOption("validityOperation")) {
             csd.setValidityLengthInUse(true);

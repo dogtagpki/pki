@@ -138,12 +138,7 @@ public class FilterBuilder {
             String outStr, long adjustment,
             StringBuffer filter) {
         if (prefix == null || prefix.length() == 0) return;
-        long epoch = 0;
-        try {
-            epoch = Long.parseLong(prefix);
-        } catch (NumberFormatException e) {
-            // exception safely ignored
-        }
+        long epoch = Long.parseLong(prefix);
         Calendar from = Calendar.getInstance();
         from.setTimeInMillis(epoch);
         filter.append("(");
