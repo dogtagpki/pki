@@ -120,7 +120,7 @@ import javax.xml.bind.annotation.XmlRootElement;
         before.setName("CA");
 
         SecurityDomainHost host = new SecurityDomainHost();
-        host.setId("CA localhost:8443");
+        host.setId("CA localhost 8443");
         host.setHostname("localhost");
         host.setPort("8080");
         host.setSecurePort("8443");

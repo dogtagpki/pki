@@ -195,23 +195,17 @@ public class SecurityDomainProcessor extends Processor {
                         String attrValue = (String) nextAttr.getStringValues().nextElement();
                         CMS.debug("SecurityDomainProcessor:    - "+attrName+": "+attrValue);
 
-                        if ("SubsystemName".equalsIgnoreCase(attrName)) {
-                            host.setId(attrValue);
-
-                        } else if ("Host".equalsIgnoreCase(attrName)) {
+                        if ("Host".equalsIgnoreCase(attrName)) {
                             host.setHostname(attrValue);
+
+                        } else if ("UnSecurePort".equalsIgnoreCase(attrName)) {
+                            host.setPort(attrValue);
 
                         } else if ("SecurePort".equalsIgnoreCase(attrName)) {
                             host.setSecurePort(attrValue);
 
-                        } else if ("Clone".equalsIgnoreCase(attrName)) {
-                            host.setClone(attrValue);
-
-                        } else if ("DomainManager".equalsIgnoreCase(attrName)) {
-                            host.setDomainManager(attrValue);
-
-                        } else if ("UnSecurePort".equalsIgnoreCase(attrName)) {
-                            host.setPort(attrValue);
+                        } else if ("SecureEEClientAuthPort".equalsIgnoreCase(attrName)) {
+                            host.setSecureEEClientAuthPort(attrValue);
 
                         } else if ("SecureAgentPort".equalsIgnoreCase(attrName)) {
                             host.setSecureAgentPort(attrValue);
@@ -219,10 +213,20 @@ public class SecurityDomainProcessor extends Processor {
                         } else if ("SecureAdminPort".equalsIgnoreCase(attrName)) {
                             host.setSecureAdminPort(attrValue);
 
-                        } else if ("SecureEEClientAuthPort".equalsIgnoreCase(attrName)) {
-                            host.setSecureEEClientAuthPort(attrValue);
+                        } else if ("Clone".equalsIgnoreCase(attrName)) {
+                            host.setClone(attrValue);
+
+                        } else if ("SubsystemName".equalsIgnoreCase(attrName)) {
+                            host.setSubsystemName(attrValue);
+
+                        } else if ("DomainManager".equalsIgnoreCase(attrName)) {
+                            host.setDomainManager(attrValue);
                         }
                     }
+
+                    String port = host.getSecurePort();
+                    if (port == null) port = host.getSecureEEClientAuthPort();
+                    host.setId(subType+" "+host.getHostname()+" "+port);
 
                     domain.addHost(subType, host);
                 }
@@ -270,8 +274,14 @@ public class SecurityDomainProcessor extends Processor {
                     String value = host.getHostname();
                     if (value != null) xmlObject.addItemToContainer(node, "Host", value);
 
+                    value = host.getPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "UnSecurePort", value);
+
                     value = host.getSecurePort();
                     if (value != null) xmlObject.addItemToContainer(node, "SecurePort", value);
+
+                    value = host.getSecureEEClientAuthPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "SecureEEClientAuthPort", value);
 
                     value = host.getSecureAgentPort();
                     if (value != null) xmlObject.addItemToContainer(node, "SecureAgentPort", value);
@@ -279,16 +289,10 @@ public class SecurityDomainProcessor extends Processor {
                     value = host.getSecureAdminPort();
                     if (value != null) xmlObject.addItemToContainer(node, "SecureAdminPort", value);
 
-                    value = host.getSecureEEClientAuthPort();
-                    if (value != null) xmlObject.addItemToContainer(node, "SecureEEClientAuthPort", value);
-
-                    value = host.getPort();
-                    if (value != null) xmlObject.addItemToContainer(node, "UnSecurePort", value);
-
                     value = host.getClone();
                     if (value != null) xmlObject.addItemToContainer(node, "Clone", value);
 
-                    value = host.getId();
+                    value = host.getSubsystemName();
                     if (value != null) xmlObject.addItemToContainer(node, "SubsystemName", value);
 
                     value = host.getDomainManager();
@@ -318,23 +322,17 @@ public class SecurityDomainProcessor extends Processor {
                 Node hostNode = hosts.item(j);
                 SecurityDomainHost host = new SecurityDomainHost();
 
-                values = xmlObject.getValuesFromContainer(hostNode, "SubsystemName");
-                if (!values.isEmpty()) host.setId(values.firstElement());
-
                 values = xmlObject.getValuesFromContainer(hostNode, "Host");
                 if (!values.isEmpty()) host.setHostname(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "UnSecurePort");
+                if (!values.isEmpty()) host.setPort(values.firstElement());
 
                 values = xmlObject.getValuesFromContainer(hostNode, "SecurePort");
                 if (!values.isEmpty()) host.setSecurePort(values.firstElement());
 
-                values = xmlObject.getValuesFromContainer(hostNode, "Clone");
-                if (!values.isEmpty()) host.setClone(values.firstElement());
-
-                values = xmlObject.getValuesFromContainer(hostNode, "DomainManager");
-                if (!values.isEmpty()) host.setDomainManager(values.firstElement());
-
-                values = xmlObject.getValuesFromContainer(hostNode, "UnSecurePort");
-                if (!values.isEmpty()) host.setPort(values.firstElement());
+                values = xmlObject.getValuesFromContainer(hostNode, "SecureEEClientAuthPort");
+                if (!values.isEmpty()) host.setSecureEEClientAuthPort(values.firstElement());
 
                 values = xmlObject.getValuesFromContainer(hostNode, "SecureAgentPort");
                 if (!values.isEmpty()) host.setSecureAgentPort(values.firstElement());
@@ -342,8 +340,18 @@ public class SecurityDomainProcessor extends Processor {
                 values = xmlObject.getValuesFromContainer(hostNode, "SecureAdminPort");
                 if (!values.isEmpty()) host.setSecureAdminPort(values.firstElement());
 
-                values = xmlObject.getValuesFromContainer(hostNode, "SecureEEClientAuthPort");
-                if (!values.isEmpty()) host.setSecureEEClientAuthPort(values.firstElement());
+                values = xmlObject.getValuesFromContainer(hostNode, "Clone");
+                if (!values.isEmpty()) host.setClone(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SubsystemName");
+                if (!values.isEmpty()) host.setSubsystemName(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "DomainManager");
+                if (!values.isEmpty()) host.setDomainManager(values.firstElement());
+
+                String port = host.getSecurePort();
+                if (port == null) port = host.getSecureEEClientAuthPort();
+                host.setId(type+" "+host.getHostname()+" "+port);
 
                 domain.addHost(type, host);
             }
@@ -358,7 +366,7 @@ public class SecurityDomainProcessor extends Processor {
         before.setName("EXAMPLE");
 
         SecurityDomainHost host = new SecurityDomainHost();
-        host.setId("CA localhost:8443");
+        host.setId("CA localhost 8443");
         host.setHostname("localhost");
         host.setPort("8080");
         host.setSecurePort("8443");

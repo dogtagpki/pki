@@ -41,10 +41,11 @@ public class SecurityDomainHost {
     protected String hostname;
     protected String port;
     protected String securePort;
+    protected String secureEEClientAuthPort;
     protected String secureAgentPort;
     protected String secureAdminPort;
-    protected String secureEEClientAuthPort;
     protected String clone;
+    protected String subsystemName;
     protected String domainManager;
 
     @XmlAttribute(name="id")
@@ -119,6 +120,15 @@ public class SecurityDomainHost {
         this.clone = clone;
     }
 
+    @XmlElement(name="SubsystemName")
+    public String getSubsystemName() {
+        return subsystemName;
+    }
+
+    public void setSubsystemName(String subsystemName) {
+        this.subsystemName = subsystemName;
+    }
+
     @XmlElement(name="DomainManager")
     public String getDomainManager() {
         return domainManager;
@@ -159,10 +169,11 @@ public class SecurityDomainHost {
         result = prime * result + ((hostname == null) ? 0 : hostname.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((port == null) ? 0 : port.hashCode());
-        result = prime * result + ((secureAgentPort == null) ? 0 : secureAgentPort.hashCode());
         result = prime * result + ((secureAdminPort == null) ? 0 : secureAdminPort.hashCode());
+        result = prime * result + ((secureAgentPort == null) ? 0 : secureAgentPort.hashCode());
         result = prime * result + ((secureEEClientAuthPort == null) ? 0 : secureEEClientAuthPort.hashCode());
         result = prime * result + ((securePort == null) ? 0 : securePort.hashCode());
+        result = prime * result + ((subsystemName == null) ? 0 : subsystemName.hashCode());
         return result;
     }
 
@@ -200,15 +211,15 @@ public class SecurityDomainHost {
                 return false;
         } else if (!port.equals(other.port))
             return false;
-        if (secureAgentPort == null) {
-            if (other.secureAgentPort != null)
-                return false;
-        } else if (!secureAgentPort.equals(other.secureAgentPort))
-            return false;
         if (secureAdminPort == null) {
             if (other.secureAdminPort != null)
                 return false;
         } else if (!secureAdminPort.equals(other.secureAdminPort))
+            return false;
+        if (secureAgentPort == null) {
+            if (other.secureAgentPort != null)
+                return false;
+        } else if (!secureAgentPort.equals(other.secureAgentPort))
             return false;
         if (secureEEClientAuthPort == null) {
             if (other.secureEEClientAuthPort != null)
@@ -220,13 +231,18 @@ public class SecurityDomainHost {
                 return false;
         } else if (!securePort.equals(other.securePort))
             return false;
+        if (subsystemName == null) {
+            if (other.subsystemName != null)
+                return false;
+        } else if (!subsystemName.equals(other.subsystemName))
+            return false;
         return true;
     }
 
     public static void main(String args[]) throws Exception {
 
         SecurityDomainHost before = new SecurityDomainHost();
-        before.setId("CA localhost:8443");
+        before.setId("CA localhost 8443");
         before.setHostname("localhost");
         before.setPort("8080");
         before.setSecurePort("8443");
