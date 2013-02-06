@@ -22,7 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.security.InvalidKeyException;
 import java.security.Principal;
+import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -35,9 +37,11 @@ import java.util.Random;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
+import netscape.security.provider.RSAPublicKey;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -349,9 +353,9 @@ public class CertService extends PKIService implements CertResource {
         CertDataInfos infos;
         try {
             infos = getCertList(filter, maxResults, maxTime);
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException("Error listing certs in CertsResourceService.listCerts!");
+            throw new PKIException("Error listing certs in CertsResourceService.listCerts!", e);
         }
         return infos;
     }
@@ -397,8 +401,8 @@ public class CertService extends PKIService implements CertResource {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 infos.addLink(new Link("next", uri));
             }
-        } catch (EBaseException e1) {
-            throw new PKIException("Error listing certs in CertsResourceService.listCerts!" + e.toString());
+        } catch (Exception e1) {
+            throw new PKIException("Error listing certs in CertsResourceService.listCerts!", e1);
         }
 
         return infos;
@@ -414,9 +418,10 @@ public class CertService extends PKIService implements CertResource {
      * @param uriInfo
      * @return
      * @throws EBaseException
+     * @throws InvalidKeyException
      */
     private CertDataInfos getCertList(String filter, int maxResults, int maxTime)
-            throws EBaseException {
+            throws EBaseException, InvalidKeyException {
         List<CertDataInfo> list = new ArrayList<CertDataInfo>();
         Enumeration<ICertRecord> e = null;
 
@@ -488,7 +493,7 @@ public class CertService extends PKIService implements CertResource {
         return certData;
     }
 
-    private CertDataInfo createCertDataInfo(ICertRecord record) throws EBaseException {
+    private CertDataInfo createCertDataInfo(ICertRecord record) throws EBaseException, InvalidKeyException {
         CertDataInfo info = new CertDataInfo();
 
         CertId id = new CertId(record.getSerialNumber());
@@ -496,8 +501,26 @@ public class CertService extends PKIService implements CertResource {
 
         X509Certificate cert = record.getCertificate();
         info.setSubjectDN(cert.getSubjectDN().toString());
-
         info.setStatus(record.getStatus());
+        info.setVersion(cert.getVersion());
+        info.setType(cert.getType());
+
+        PublicKey key = cert.getPublicKey();
+        if (key instanceof X509Key) {
+            X509Key x509Key = (X509Key)key;
+            info.setKeyAlgorithmOID(x509Key.getAlgorithmId().getOID().toString());
+
+            if (x509Key.getAlgorithmId().toString().equalsIgnoreCase("RSA")) {
+                RSAPublicKey rsaKey = new RSAPublicKey(x509Key.getEncoded());
+                info.setKeyLength(rsaKey.getKeySize());
+            }
+        }
+
+        info.setNotValidBefore(cert.getNotBefore());
+        info.setNotValidAfter(cert.getNotAfter());
+
+        info.setIssuedOn(record.getCreateTime());
+        info.setIssuedBy(record.getIssuedBy());
 
         URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(id.toHexString());
         info.setLink(new Link("self", uri));

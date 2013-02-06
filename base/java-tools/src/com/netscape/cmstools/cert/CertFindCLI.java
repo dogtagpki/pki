@@ -21,7 +21,6 @@ package com.netscape.cmstools.cert;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.xml.bind.JAXBException;
@@ -42,7 +41,6 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertFindCLI extends CLI {
 
-    public SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public CertCLI parent;
 
     public CertFindCLI(CertCLI parent) {
@@ -347,12 +345,12 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("revokedOnFrom")) {
             csd.setRevokedOnInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("revokedOnFrom"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnFrom"));
             csd.setRevokedOnFrom(""+date.getTime());
         }
         if (cmd.hasOption("revokedOnTo")) {
             csd.setRevokedOnInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("revokedOnTo"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnTo"));
             csd.setRevokedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("revocationReason")) {
@@ -365,12 +363,12 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("issuedOnFrom")) {
             csd.setIssuedOnInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("issuedOnFrom"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnFrom"));
             csd.setIssuedOnFrom(""+date.getTime());
         }
         if (cmd.hasOption("issuedOnTo")) {
             csd.setIssuedOnInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("issuedOnTo"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnTo"));
             csd.setIssuedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("certTypeSubEmailCA")) {
@@ -395,22 +393,22 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("validNotBeforeFrom")) {
             csd.setValidNotBeforeInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("validNotBeforeFrom"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeFrom"));
             csd.setValidNotBeforeFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotBeforeTo")) {
             csd.setValidNotBeforeInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("validNotBeforeTo"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeTo"));
             csd.setValidNotBeforeTo(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterFrom")) {
             csd.setValidNotAfterInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("validNotAfterFrom"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterFrom"));
             csd.setValidNotAfterFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterTo")) {
             csd.setValidNotAfterInUse(true);
-            Date date = dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
+            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
             csd.setValidNotAfterTo(""+date.getTime());
         }
 

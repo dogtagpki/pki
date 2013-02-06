@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.cert;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +36,8 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Endi S. Dewata
  */
 public class CertCLI extends CLI {
+
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public MainCLI parent;
     public CertClient client;
@@ -103,10 +106,43 @@ public class CertCLI extends CLI {
         }
     }
 
+    public static String getAlgorithmNameFromOID(String oid) {
+        if (oid == null)
+            return "";
+        else if (oid.equals("1.2.840.113549.1.1.1"))
+            return "PKCS #1 RSA";
+        else if (oid.equals("1.2.840.113549.1.1.4"))
+            return "PKCS #1 MD5 With RSA";
+        else if (oid.equals("1.2.840.10040.4.1"))
+            return "DSA";
+        else
+            return "OID."+oid;
+    }
+
     public static void printCertInfo(CertDataInfo info) {
         System.out.println("  Serial Number: "+info.getID().toHexString());
         System.out.println("  Subject DN: "+info.getSubjectDN());
         System.out.println("  Status: "+info.getStatus());
+
+        String type = info.getType();
+        Integer version = info.getVersion();
+        if (version != null) {
+            type += " version " + (version + 1);
+        }
+        System.out.println("  Type: "+type);
+
+        String keyAlgorithm = getAlgorithmNameFromOID(info.getKeyAlgorithmOID());
+        Integer keyLength = info.getKeyLength();
+        if (keyLength != null) {
+            keyAlgorithm += " with " + keyLength + "-bit key";
+        }
+        System.out.println("  Key Algorithm: "+keyAlgorithm);
+
+        System.out.println("  Not Valid Before: "+info.getNotValidBefore());
+        System.out.println("  Not Valid After: "+info.getNotValidAfter());
+
+        System.out.println("  Issued On: "+info.getIssuedOn());
+        System.out.println("  Issued By: "+info.getIssuedBy());
 
         Link link = info.getLink();
         if (verbose && link != null) {
