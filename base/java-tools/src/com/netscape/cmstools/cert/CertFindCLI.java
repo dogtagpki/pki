@@ -265,15 +265,34 @@ public class CertFindCLI extends CLI {
         options.addOption(option);
 
         //validityLengthinUse
-        option = new Option(null, "validityOperation", true, "Validity operation: \"<=\" or \">=\"");
+        option = new Option(null, "validityOperation", true, "Validity duration operation: \"<=\" or \">=\"");
         option.setArgName("operation");
         options.addOption(option);
-        option = new Option(null, "validityCount", true, "Validity count");
+        option = new Option(null, "validityCount", true, "Validity duration count");
         option.setArgName("count");
         options.addOption(option);
-        option = new Option(null, "validityUnit", true, "Validity unit");
-        option.setArgName("milliseconds");
+        option = new Option(null, "validityUnit", true, "Validity duration unit: day, week, month (default), year");
+        option.setArgName("day|week|month|year");
         options.addOption(option);
+    }
+
+    public Long convertValidityDurationUnit(String unit) {
+
+        if (unit.equalsIgnoreCase("day")) {
+            return 86400000l;
+
+        } else if (unit.equalsIgnoreCase("week")) {
+            return 604800000l;
+
+        } else if (unit.equalsIgnoreCase("month")) {
+            return 2592000000l;
+
+        } else if (unit.equalsIgnoreCase("year")) {
+            return 31536000000l;
+
+        } else {
+            throw new Error("Invalid validity duration unit: "+unit);
+        }
     }
 
     public void addSearchAttribute(CommandLine cmd, CertSearchRequest csd)
@@ -394,18 +413,39 @@ public class CertFindCLI extends CLI {
             Date date = dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
             csd.setValidNotAfterTo(""+date.getTime());
         }
+
         if (cmd.hasOption("validityOperation")) {
             csd.setValidityLengthInUse(true);
             csd.setValidityOperation(cmd.getOptionValue("validityOperation"));
         }
+
         if (cmd.hasOption("validityCount")) {
             csd.setValidityLengthInUse(true);
-            csd.setValidityCount(cmd.getOptionValue("validityCount"));
-        }
-        if (cmd.hasOption("validityUnit")) {
-            csd.setValidityLengthInUse(true);
-            csd.setValidityUnit(cmd.getOptionValue("validityUnit"));
+            String count = cmd.getOptionValue("validityCount");
+            csd.setValidityCount(Integer.parseInt(count));
         }
 
+        if (cmd.hasOption("validityUnit")) {
+            csd.setValidityLengthInUse(true);
+            String unit = cmd.getOptionValue("validityUnit");
+            Long value = convertValidityDurationUnit(unit);
+            csd.setValidityUnit(value);
+        }
+
+        if (csd.getValidityLengthInUse()) {
+
+            if (csd.getValidityOperation() == null) {
+                throw new Error("Mising validity duration operation");
+            }
+
+            if (csd.getValidityCount() == null) {
+                throw new Error("Mising validity duration count");
+            }
+
+            if (csd.getValidityUnit() == null) {
+                Long value = convertValidityDurationUnit("month");
+                csd.setValidityUnit(value);
+            }
+        }
     }
 }

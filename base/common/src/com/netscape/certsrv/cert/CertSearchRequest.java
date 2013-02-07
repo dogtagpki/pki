@@ -134,10 +134,10 @@ public class CertSearchRequest {
     protected String validityOperation;
 
     @XmlElement
-    protected String validityCount;
+    protected Integer validityCount;
 
     @XmlElement
-    protected String validityUnit;
+    protected Long validityUnit;
 
     // Cert Type
 
@@ -478,19 +478,19 @@ public class CertSearchRequest {
         this.validityOperation = validityOperation;
     }
 
-    public String getValidityUnit() {
+    public Long getValidityUnit() {
         return validityUnit;
     }
 
-    public void setValidityUnit(String validityUnit) {
+    public void setValidityUnit(Long validityUnit) {
         this.validityUnit = validityUnit;
     }
 
-    public String getValidityCount() {
+    public Integer getValidityCount() {
         return validityCount;
     }
 
-    public void setValidityCount(String validityCount) {
+    public void setValidityCount(Integer validityCount) {
         this.validityCount = validityCount;
     }
 
