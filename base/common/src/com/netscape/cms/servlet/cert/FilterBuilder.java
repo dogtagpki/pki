@@ -42,6 +42,7 @@ public class FilterBuilder {
         StringBuffer filter = new StringBuffer();
         buildSerialNumberRangeFilter(filter);
         buildSubjectFilter(filter);
+        buildStatusFilter(filter);
         buildRevokedByFilter(filter);
         buildRevokedOnFilter(filter);
         buildRevocationReasonFilter(filter);
@@ -118,6 +119,16 @@ public class FilterBuilder {
             filter.append(lf);
             filter.append(")");
         }
+    }
+
+    private void buildStatusFilter(StringBuffer filter) {
+        String status = request.getStatus();
+        if (status == null || status.equals("")) {
+            return;
+        }
+        filter.append("(certStatus=");
+        filter.append(LDAPUtil.escapeFilter(status));
+        filter.append(")");
     }
 
     private void buildRevokedByFilter(StringBuffer filter) {

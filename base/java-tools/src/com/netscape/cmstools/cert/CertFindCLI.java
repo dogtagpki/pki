@@ -195,6 +195,11 @@ public class CertFindCLI extends CLI {
         options.addOption(option);
         options.addOption(null, "matchExactly", false, "Match exactly with the details provided");
 
+        //status
+        option = new Option(null, "status", true, "Certificate status: VALID, INVALID, REVOKED, EXPIRED, REVOKED_EXPIRED");
+        option.setArgName("status");
+        options.addOption(option);
+
         //revokedByInUse
         option = new Option(null, "revokedBy", true, "Certificate revoked by");
         option.setArgName("user id");
@@ -338,6 +343,9 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("matchExactly")) {
             csd.setMatchExactly(true);
+        }
+        if (cmd.hasOption("status")) {
+            csd.setStatus(cmd.getOptionValue("status"));
         }
         if (cmd.hasOption("revokedBy")) {
             csd.setRevokedByInUse(true);

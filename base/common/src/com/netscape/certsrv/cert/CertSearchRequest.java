@@ -81,6 +81,10 @@ public class CertSearchRequest {
     @XmlElement
     protected boolean matchExactly;
 
+    //Status
+    @XmlElement
+    protected String status;
+
     //Revoked By
 
     @XmlElement
@@ -364,6 +368,16 @@ public class CertSearchRequest {
 
     public void setMatchExactly(boolean matchExactly) {
         this.matchExactly = matchExactly;
+    }
+
+    //Status
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     //Revoked On
