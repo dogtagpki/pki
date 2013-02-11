@@ -32,6 +32,7 @@ public class UserClient extends PKIClient {
 
     public UserResource userClient;
     public UserCertResource userCertClient;
+    public UserMembershipResource userMembershipClient;
 
     public UserClient(PKIConnection connection) throws URISyntaxException {
         super(connection);
@@ -46,6 +47,7 @@ public class UserClient extends PKIClient {
     public void init() throws URISyntaxException {
         userClient = createProxy(UserResource.class);
         userCertClient = createProxy(UserCertResource.class);
+        userMembershipClient = createProxy(UserMembershipResource.class);
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) {
@@ -88,5 +90,19 @@ public class UserClient extends PKIClient {
 
     public void removeUserCert(String userID, String certID) {
         userCertClient.removeUserCert(userID, certID);
+    }
+
+    public UserMembershipCollection findUserMemberships(String userID, Integer start, Integer size) {
+        return userMembershipClient.findUserMemberships(userID, start, size);
+    }
+
+    public UserMembershipData addUserMembership(String userID, String groupID) {
+        @SuppressWarnings("unchecked")
+        ClientResponse<UserMembershipData> response = (ClientResponse<UserMembershipData>)userMembershipClient.addUserMembership(userID, groupID);
+        return getEntity(response);
+    }
+
+    public void removeUserMembership(String userD, String groupID) {
+        userMembershipClient.removeUserMembership(userD, groupID);
     }
 }

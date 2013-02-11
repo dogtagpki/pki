@@ -12,6 +12,7 @@ import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
 import com.netscape.cms.servlet.admin.UserCertService;
+import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.key.KeyService;
@@ -38,6 +39,7 @@ public class KeyRecoveryAuthorityApplication extends Application {
         classes.add(GroupMemberService.class);
         classes.add(GroupService.class);
         classes.add(UserCertService.class);
+        classes.add(UserMembershipService.class);
         classes.add(UserService.class);
 
         // system certs

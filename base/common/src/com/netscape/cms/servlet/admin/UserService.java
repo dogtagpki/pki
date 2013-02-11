@@ -161,7 +161,7 @@ public class UserService extends PKIService implements UserResource {
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
 
-                throw new UserNotFoundException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new UserNotFoundException(userID);
             }
 
             UserData userData = createUserData(user);

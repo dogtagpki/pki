@@ -112,7 +112,7 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
-                throw new UserNotFoundException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new UserNotFoundException(userID);
             }
 
             UserCertCollection response = new UserCertCollection();
@@ -164,7 +164,7 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (user == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
-                throw new UserNotFoundException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new UserNotFoundException(userID);
             }
 
             X509Certificate[] certs = user.getX509Certificates();

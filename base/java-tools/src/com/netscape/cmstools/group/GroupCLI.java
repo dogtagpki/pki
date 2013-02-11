@@ -114,7 +114,7 @@ public class GroupCLI extends CLI {
     }
 
     public static void printGroupMember(GroupMemberData groupMemberData) {
-        System.out.println("  Member: "+groupMemberData.getID());
+        System.out.println("  User: "+groupMemberData.getID());
 
         Link link = groupMemberData.getLink();
         if (verbose && link != null) {

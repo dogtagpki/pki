@@ -12,11 +12,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.certsrv.group;
+package com.netscape.certsrv.user;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,23 +31,23 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="GroupMembers")
-public class GroupMemberCollection {
+@XmlRootElement(name="UserMemberships")
+public class UserMembershipCollection {
 
-    Collection<GroupMemberData> members = new ArrayList<GroupMemberData>();
+    Collection<UserMembershipData> memberships = new ArrayList<UserMembershipData>();
     Collection<Link> links = new ArrayList<Link>();
 
-    @XmlElement(name="Member")
-    public Collection<GroupMemberData> getMembers() {
-        return members;
+    @XmlElement(name="Membership")
+    public Collection<UserMembershipData> getMemberships() {
+        return memberships;
     }
 
-    public void setMembers(Collection<GroupMemberData> members) {
-        this.members = members;
+    public void setMemberships(Collection<UserMembershipData> members) {
+        this.memberships = members;
     }
 
-    public void addMember(GroupMemberData member) {
-        members.add(member);
+    public void addMembership(UserMembershipData member) {
+        memberships.add(member);
     }
 
     @XmlElement(name="Link")
@@ -65,19 +65,19 @@ public class GroupMemberCollection {
 
     public static void main(String args[]) throws Exception {
 
-        GroupMemberCollection response = new GroupMemberCollection();
+        UserMembershipCollection response = new UserMembershipCollection();
 
-        GroupMemberData member1 = new GroupMemberData();
-        member1.setID("User 1");
-        member1.setGroupID("Group 1");
-        response.addMember(member1);
+        UserMembershipData membership1 = new UserMembershipData();
+        membership1.setID("Group 1");
+        membership1.setUserID("User 1");
+        response.addMembership(membership1);
 
-        GroupMemberData member2 = new GroupMemberData();
-        member2.setID("User 2");
-        member2.setGroupID("Group 1");
-        response.addMember(member2);
+        UserMembershipData membership2 = new UserMembershipData();
+        membership2.setID("Group 2");
+        membership2.setUserID("User 1");
+        response.addMembership(membership2);
 
-        JAXBContext context = JAXBContext.newInstance(GroupMemberCollection.class);
+        JAXBContext context = JAXBContext.newInstance(UserMembershipCollection.class);
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(response, System.out);

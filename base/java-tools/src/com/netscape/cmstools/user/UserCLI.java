@@ -26,6 +26,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
+import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -51,6 +52,10 @@ public class UserCLI extends CLI {
         addModule(new UserShowCertCLI(this));
         addModule(new UserAddCertCLI(this));
         addModule(new UserRemoveCertCLI(this));
+
+        addModule(new UserFindMembershipCLI(this));
+        addModule(new UserAddMembershipCLI(this));
+        addModule(new UserRemoveMembershipCLI(this));
     }
 
     public void printHelp() {
@@ -157,6 +162,15 @@ public class UserCLI extends CLI {
         if (showEncoded && encoded != null) {
             System.out.println();
             System.out.println(encoded);
+        }
+    }
+
+    public static void printUserMembership(UserMembershipData userMembershipData) {
+        System.out.println("  Group: "+userMembershipData.getID());
+
+        Link link = userMembershipData.getLink();
+        if (verbose && link != null) {
+            System.out.println("  Link: " + link.getHref());
         }
     }
 }
