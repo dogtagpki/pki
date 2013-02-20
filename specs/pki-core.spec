@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -190,22 +190,23 @@ Requires:         apache-commons-logging
 Requires:         java >= 1:1.6.0
 Requires:         javassist
 Requires:         jettison
-Requires:         ldapjdk
-Requires:         xalan-j2
-Requires:         xerces-j2
-Requires:         xml-commons-apis
-Requires:         xml-commons-resolver
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} || 0%{?fedora} >= 19
 Requires:         jss >= 4.2.6-28
 %else
 Requires:         jss >= 4.2.6-24
 %endif
+Requires:         ldapjdk
+Requires:         python-ldap
 %if  0%{?rhel}
 Requires:         resteasy-base
 %else
 Requires:         resteasy >= 2.3.2-1
 %endif
+Requires:         xalan-j2
+Requires:         xerces-j2
+Requires:         xml-commons-apis
+Requires:         xml-commons-resolver
 
 %description -n   pki-base
 The PKI Framework contains the common and client libraries and utilities.
@@ -993,6 +994,9 @@ fi
 
 
 %changelog
+* Thu Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-4
+- Added dependency on python-ldap.
+
 * Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-3
 - TRAC Ticket #517 - Clean up theme dependencies
 - TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .

@@ -23,6 +23,7 @@
 import ConfigParser
 import argparse
 import getpass
+import ldap
 import logging
 import os
 import random
@@ -241,6 +242,9 @@ class PKIConfigParser:
         config.user_config.set(section, property, value)
 
 
+    def print_text(self, message):
+        print ' ' * self.indent + message
+
     def read_text(self, message,
         section=None, property=None, default=None,
         options=None, sign=':', allowEmpty=True, caseSensitive=True):
@@ -287,20 +291,24 @@ class PKIConfigParser:
     def read_password(self, message, section=None, property=None,
         verifyMessage=None):
         message = ' ' * self.indent + message + ': '
-        verifyMessage = ' ' * self.indent + verifyMessage + ': '
+        if verifyMessage is not None:
+            verifyMessage = ' ' * self.indent + verifyMessage + ': '
+
         while True:
             password = ''
             while len(password) == 0:
                 password = getpass.getpass(prompt=message)
 
-            verification = ''
-            while len(verification) == 0:
-                verification = getpass.getpass(prompt=verifyMessage)
+            if verifyMessage is not None:
+                verification = ''
+                while len(verification) == 0:
+                    verification = getpass.getpass(prompt=verifyMessage)
 
-            if password == verification:
-                break
-            else:
-                print ' ' * self.indent  + 'Passwords do not match.'
+                if password != verification:
+                    self.print_text('Passwords do not match.')
+                    continue
+
+            break
 
         password = password.replace("%", "%%")
         if section:
@@ -346,6 +354,42 @@ class PKIConfigParser:
             subsystem_dict[0] = None
             config.pki_master_dict.update(subsystem_dict)
 
+
+    def ds_connect(self):
+
+        hostname = config.pki_master_dict['pki_ds_hostname']
+
+        if config.str2bool(config.pki_master_dict['pki_ds_secure_connection']):
+            protocol = 'ldaps'
+            port = config.pki_master_dict['pki_ds_ldaps_port']
+        else:
+            protocol = 'ldap'
+            port = config.pki_master_dict['pki_ds_ldap_port']
+
+        self.ds_connection = ldap.initialize(protocol + '://' + hostname + ':' + port)
+        self.ds_connection.search_s('', ldap.SCOPE_BASE)
+
+    def ds_bind(self):
+        self.ds_connection.simple_bind_s(
+            config.pki_master_dict['pki_ds_bind_dn'],
+            config.pki_master_dict['pki_ds_password'])
+
+    def ds_base_dn_exists(self):
+        try:
+            results = self.ds_connection.search_s(
+                config.pki_master_dict['pki_ds_base_dn'],
+                ldap.SCOPE_BASE)
+
+            if results is None or len(results) == 0:
+                return False
+
+            return True
+
+        except ldap.NO_SUCH_OBJECT as e:
+            return False
+
+    def ds_close(self):
+        self.ds_connection.unbind_s()
 
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"

@@ -27,6 +27,7 @@ if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     sys.exit(1)
 try:
     import argparse
+    import ldap
     import logging
     import os
     import socket
@@ -176,13 +177,51 @@ def main(argv):
             print
 
             print "Directory Server:"
-            parser.read_text('Hostname', config.pki_subsystem, 'pki_ds_hostname')
-            parser.read_text('Port', config.pki_subsystem, 'pki_ds_ldap_port')
-            parser.read_text('Base DN', config.pki_subsystem, 'pki_ds_base_dn')
-            parser.read_text('Bind DN', config.pki_subsystem, 'pki_ds_bind_dn')
-            parser.read_password(
-                'Password', config.pki_subsystem, 'pki_ds_password',
-                verifyMessage='Verify password')
+            while True:
+                parser.read_text('Hostname', config.pki_subsystem, 'pki_ds_hostname')
+                parser.read_text('Port', config.pki_subsystem, 'pki_ds_ldap_port')
+
+                try:
+                    parser.ds_connect()
+                    break
+
+                except ldap.LDAPError as e:
+                    parser.print_text('ERROR: ' + e.message['desc'])
+
+            while True:
+                parser.read_text('Bind DN', config.pki_subsystem, 'pki_ds_bind_dn')
+                parser.read_password('Password', config.pki_subsystem, 'pki_ds_password')
+
+                try:
+                    parser.ds_bind()
+                    break
+
+                except ldap.LDAPError as e:
+                    parser.print_text('ERROR: ' + e.message['desc'])
+
+            while True:
+                parser.read_text('Base DN', config.pki_subsystem, 'pki_ds_base_dn')
+                try:
+                    if not parser.ds_base_dn_exists():
+                        break
+
+                except ldap.LDAPError as e:
+                    parser.print_text('ERROR: ' + e.message['desc'])
+                    continue
+
+                remove = parser.read_text('Base DN already exists. Overwrite (Yes/No/Quit)',
+                    options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
+                    sign='?', allowEmpty=False, caseSensitive=False).lower()
+
+                if remove == 'q' or remove == 'quit':
+                    print "Installation canceled."
+                    sys.exit(0)
+
+                if remove == 'y' or remove == 'yes':
+                    break
+
+            parser.ds_close()
+
             print
 
             print "Security Domain:"
@@ -210,7 +249,7 @@ def main(argv):
                 print "Installation canceled."
                 sys.exit(0)
 
-            elif begin == 'y' or begin == 'yes':
+            if begin == 'y' or begin == 'yes':
                 break
 
         else:
@@ -281,6 +320,23 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
+    if not interactive:
+        try:
+            if not config.str2bool(config.pki_master_dict['pki_skip_configuration']):
+                parser.ds_connect()
+                parser.ds_bind()
+
+                if parser.ds_base_dn_exists() and\
+                    not config.str2bool(config.pki_master_dict['pki_ds_remove_data']):
+                    print 'ERROR:  Base DN already exists.'
+                    sys.exit(1)
+
+                parser.ds_close()
+
+        except ldap.LDAPError as e:
+            print 'ERROR:  ' + e.message['desc']
+            sys.exit(1)
 
     print "Installing " + config.pki_subsystem + " into " + config.pki_master_dict['pki_instance_path'] + "."
 
