@@ -341,10 +341,14 @@ public interface Constants {
      * Certificate Authority
      *========================================================*/
     public final static String PR_VALIDITY = "validity";
+    //public final static String PR_RANDOM_VALIDITY = "randomValidity";
+    //public final static String PR_RANDOM_VALIDITY_BITS = "randomValidityBits";
     public final static String PR_DEFAULT_ALGORITHM = "defaultSigningAlgorithm";
     public final static String PR_ALL_ALGORITHMS = "allSigningAlgorithms";
     public final static String PR_SERIAL = "startSerialNumber";
     public final static String PR_MAXSERIAL = "maxSerialNumber";
+    public final static String PR_SN_MANAGEMENT = "serialNumberManagement";
+    public final static String PR_RANDOM_SN = "randomSerialNumbers";
 
     /*========================================================
      * Access Control

@@ -59,6 +59,7 @@ public class DBSubsystem implements IDBSubsystem {
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
     private ISubsystem mOwner = null;
+    private int mReplicaID = -1;
 
     private Hashtable[] mRepos = null;
 
@@ -141,8 +142,6 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_INCREMENT_NAME = "increment_name";
     private static final String PROP_RANGE_DN="rangeDN";
 
-    private static final BigInteger BI_ONE = new BigInteger("1");
-
     private ILogger mLogger = null;
  
     // singleton enforcement
@@ -210,6 +209,10 @@ public class DBSubsystem implements IDBSubsystem {
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
         mEnableSerialMgmt = v;
+    }
+
+    public int getReplicaID() {
+        return mReplicaID;
     }
 
     public BigInteger getNextSerialConfig() {
@@ -437,7 +440,7 @@ public class DBSubsystem implements IDBSubsystem {
             conn.modify( dn, mods );
 
             // Add new range object
-            String endRange = nextRangeNo.add(incrementNo).subtract(BI_ONE).toString();
+            String endRange = nextRangeNo.add(incrementNo).subtract(BigInteger.ONE).toString();
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectClass", "top"));
             attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
@@ -449,6 +452,8 @@ public class DBSubsystem implements IDBSubsystem {
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
             conn.add(rangeEntry);
+            CMS.debug("DBSubsystem: getNextRange  Next range has been added: " +
+                      nextRange + " - " + endRange);
         } catch (Exception e) {
             CMS.debug("DBSubsystem: getNextRange. Unable to provide next range :" + e);
             e.printStackTrace();
@@ -547,6 +552,7 @@ public class DBSubsystem implements IDBSubsystem {
                 PROP_NEXT_SERIAL_NUMBER, "0"), 16);
 
             mEnableSerialMgmt = mDBConfig.getBoolean(PROP_ENABLE_SERIAL_MGMT, false);
+            CMS.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
 
             // populate the certs hash entry
             Hashtable certs = new Hashtable();
@@ -800,12 +806,70 @@ public class DBSubsystem implements IDBSubsystem {
                 reg.registerAttribute(IRepositoryRecord.ATTR_PUB_STATUS,
                     new StringMapper(RepositorySchema.LDAP_ATTR_PUB_STATUS));
             }
+            if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_DESCRIPTION)) {
+                reg.registerAttribute(IRepositoryRecord.ATTR_DESCRIPTION,
+                    new StringMapper(RepositorySchema.LDAP_ATTR_DESCRIPTION));
+            }
 
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;
             throw e;
         }
+
+        if (!CMS.isPreOpMode()) {
+            String dn = null;
+            try {
+                dn = "cn=replica,cn=\""+mBaseDN+"\",cn=mapping tree,cn=config";
+                mReplicaID = Integer.parseInt(getEntryAttribute(dn, "nsDS5ReplicaId", "0", "-1"));
+                CMS.debug("DBSubsystem: init()  mReplicaID="+mReplicaID);
+            } catch (Exception e) {
+                CMS.debug("DBSubsystem: init(). Unable to identify replica ID:" + e.getMessage());
+            }
+        }
+    }
+
+    public String getEntryAttribute(String dn, String attrName,
+                                    String defaultValue, String errorValue) {
+        LDAPConnection conn = null;
+        String attrValue = null;
+        //CMS.debug("DBSubsystem: getEntryAttribute:  dn="+dn+"  attrName="+attrName+
+        //          "  defaultValue="+defaultValue+"  errorValue="+errorValue);
+        try {
+            conn = mLdapConnFactory.getConn();
+            String[] attrs = { attrName };
+            LDAPEntry entry = conn.read(dn, attrs);
+            if (entry != null) {
+                LDAPAttribute attr =  entry.getAttribute(attrName);
+                if (attr != null) {
+                    attrValue = (String) attr.getStringValues().nextElement();
+                } else {
+                    attrValue = defaultValue;
+                }
+            } else {
+                attrValue = errorValue;
+            }
+        } catch (LDAPException e) {
+            CMS.debug("DBSubsystem: getEntryAttribute  LDAPException  code="+e.getLDAPResultCode());
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                attrValue = defaultValue;
+            }
+        } catch (Exception e) {
+            CMS.debug("DBSubsystem: getEntryAttribute. Unable to retrieve '"+attrName+"': "+ e);
+            attrValue = errorValue;
+        } finally {
+            try {
+                if ((conn != null) && (mLdapConnFactory != null)) {
+                    CMS.debug("Releasing ldap connection");
+                    mLdapConnFactory.returnConn(conn);
+                }
+            } catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+        }
+        CMS.debug("DBSubsystem: getEntryAttribute:  dn="+dn+"  attr="+attrName+":"+attrValue+";");
+
+        return attrValue;
     }
 
     /**
@@ -815,10 +879,17 @@ public class DBSubsystem implements IDBSubsystem {
     }
 	
     /**
-     * Retrieves configuration store.
+     * Retrieves internal DB configuration store.
      */
     public IConfigStore getConfigStore() {
         return mConfig;
+    }
+
+    /**
+     * Retrieves DB subsystem configuration store.
+     */
+    public IConfigStore getDBConfigStore() {
+        return mDBConfig;
     }
 
     /**

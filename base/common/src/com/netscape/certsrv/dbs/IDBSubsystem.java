@@ -205,6 +205,39 @@ public interface IDBSubsystem extends ISubsystem {
     public void setEnableSerialMgmt(boolean value) throws EBaseException;
 
     /**
+     * Gets replica ID
+     *
+     * @return replica ID
+     */
+    public int getReplicaID();
+
+    /**
+     * Gets internal DB configuration store
+     *
+     * @return internal DB configuration store
+     */
+    public IConfigStore getConfigStore();
+
+    /**
+     * Gets DB subsystem configuration store
+     *
+     * @return DB subsystem configuration store
+     */
+    public IConfigStore getDBConfigStore();
+
+    /**
+     * Gets attribute value for specified entry
+     *
+     * @param dn            entry's distinguished name 
+     * @param attrName      attribute's name 
+     * @param defaultValue  attribute's default value 
+     * @param errorValue    attribute's error value 
+     * @return attribute value
+     */
+    public String getEntryAttribute(String dn, String attrName,
+                                    String defaultValue, String errorValue);
+
+    /**
      * Returns LDAP connection to connection pool.
      *
      * @param conn connection to be returned

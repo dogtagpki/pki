@@ -1479,6 +1479,10 @@ public class CAAdminServlet extends AdminServlet {
         getSigningAlgConfig(params);
         getSerialConfig(params);
         getMaxSerialConfig(params);
+        params.add(Constants.PR_SN_MANAGEMENT,
+            Boolean.toString(mCA.getDBSubsystem().getEnableSerialMgmt()));
+        params.add(Constants.PR_RANDOM_SN,
+            Boolean.toString(mCA.getCertificateRepository().getEnableRandomSerialNumbers()));
   
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1555,6 +1559,11 @@ public class CAAdminServlet extends AdminServlet {
                 mCA.setStartSerial(value);
             } else if (key.equals(Constants.PR_MAXSERIAL)) {
                 mCA.setMaxSerial(value);
+            } else if (key.equals(Constants.PR_SN_MANAGEMENT)) {
+                mCA.getDBSubsystem().setEnableSerialMgmt(Boolean.valueOf(value));
+                //mCA.getCertificateRepository().setEnableSerialMgmt(Boolean.valueOf(value));
+            } else if (key.equals(Constants.PR_RANDOM_SN)) {
+                mCA.getCertificateRepository().setEnableRandomSerialNumbers(Boolean.valueOf(value), true);
             }
         }
 

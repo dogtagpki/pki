@@ -41,11 +41,13 @@ public class RepositoryRecord implements IRepositoryRecord {
 
     private BigInteger mSerialNo = null;
     private String mPublishingStatus = null;
+    private String mDescription = null;
 
     protected static Vector mNames = new Vector();
     static {
         mNames.addElement(IRepositoryRecord.ATTR_SERIALNO);
         mNames.addElement(IRepositoryRecord.ATTR_PUB_STATUS);
+        mNames.addElement(IRepositoryRecord.ATTR_DESCRIPTION);
     }
 
     /**
@@ -63,6 +65,8 @@ public class RepositoryRecord implements IRepositoryRecord {
             mSerialNo = (BigInteger) obj;
         } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
             mPublishingStatus = (String) obj;
+        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_DESCRIPTION)) {
+            mDescription = (String) obj;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -76,6 +80,8 @@ public class RepositoryRecord implements IRepositoryRecord {
             return mSerialNo;
         } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
             return mPublishingStatus;
+        } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_DESCRIPTION)) {
+            return mDescription;
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -108,5 +114,9 @@ public class RepositoryRecord implements IRepositoryRecord {
 
     public String getPublishingStatus() {
         return mPublishingStatus;
+    }
+
+    public String getDescription() {
+        return mDescription;
     }
 }

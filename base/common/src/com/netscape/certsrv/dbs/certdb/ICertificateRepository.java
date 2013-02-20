@@ -508,5 +508,22 @@ public interface ICertificateRepository extends IRepository {
      */
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException;
 
+    /**
+     * Retrieves serial number management mode.
+     *
+     * @return serial number management mode,
+     * "true" indicates random serial number management,
+     * "false" indicates sequential serial number management.
+     */
+    public boolean getEnableRandomSerialNumbers();
+
+    /**
+     * Sets serial number management mode for certificates..
+     *
+     * @param random "true" sets random serial number management, "false" sequential
+     * @param updateMode "true" updates "description" attribute in certificate repository
+     */
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode);
+
     public void shutdown();
 }

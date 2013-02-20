@@ -33,6 +33,7 @@ import com.netscape.certsrv.request.*;
 import com.netscape.certsrv.policy.*;
 import com.netscape.certsrv.security.*;
 import com.netscape.certsrv.publish.*;
+import com.netscape.certsrv.dbs.*;
 import com.netscape.certsrv.dbs.certdb.*;
 import com.netscape.certsrv.dbs.crldb.*;
 import com.netscape.certsrv.dbs.replicadb.*;
@@ -463,6 +464,13 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return CA service object
      */
     public IService getCAService();
+
+    /**
+     * Retrieves the DB subsystem managing internal data storage.
+     *
+     * @return DB subsystem object
+     */
+    public IDBSubsystem getDBSubsystem();
 
     /**
      * Returns the in-memory count of the processed OCSP requests.
