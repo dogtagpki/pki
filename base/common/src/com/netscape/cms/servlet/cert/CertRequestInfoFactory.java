@@ -26,11 +26,10 @@ import javax.ws.rs.core.UriInfo;
 
 import netscape.security.x509.X509CertImpl;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -57,27 +56,19 @@ public class CertRequestInfoFactory {
         reqBuilder.path(certRequestPath.value() + "/" + requestId);
         info.setRequestURL(reqBuilder.build().toString());
 
-        //Get Cert info if issued.
+        if (requestType == null || requestStatus != RequestStatus.COMPLETE) return info;
 
-        String serialNoStr = null;
+        X509CertImpl impl = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        if (impl == null) return info;
 
-        if (requestType != null && requestStatus == RequestStatus.COMPLETE) {
-            X509CertImpl impl[] = new X509CertImpl[1];
-            impl[0] = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        BigInteger serialNo = impl.getSerialNumber();
+        info.setCertId(new CertId(serialNo));
 
-            BigInteger serialNo;
-            if (impl[0] != null) {
-                serialNo = impl[0].getSerialNumber();
-                serialNoStr = serialNo.toString();
-            }
-        }
+        Path certPath = CertResource.class.getAnnotation(Path.class);
+        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
+        certBuilder.path(certPath.value() + "/" + serialNo);
 
-        if (!StringUtils.isEmpty(serialNoStr)) {
-            Path certPath = CertResource.class.getAnnotation(Path.class);
-            UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
-            certBuilder.path(certPath.value() + "/" + serialNoStr);
-            info.setCertURL(certBuilder.build().toString());
-        }
+        info.setCertURL(certBuilder.build().toString());
 
         return info;
     }

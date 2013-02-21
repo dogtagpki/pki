@@ -76,6 +76,10 @@ public class CertClient extends PKIClient {
         return certRequestResource.enrollCert(data);
     }
 
+    public CertRequestInfo getRequest(RequestId id) {
+        return certRequestResource.getRequestInfo(id);
+    }
+
     public CertReviewResponse reviewRequest(RequestId id) {
         return certRequestResource.reviewRequest(id);
     }

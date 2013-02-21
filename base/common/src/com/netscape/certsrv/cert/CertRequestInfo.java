@@ -28,8 +28,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.RequestStatus;
 
@@ -38,6 +40,10 @@ import com.netscape.certsrv.request.RequestStatus;
 public class CertRequestInfo extends CMSRequestInfo {
 
     public static final String REQ_COMPLETE = "complete";
+
+    @XmlElement
+    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    protected CertId certId;
 
     @XmlElement
     protected String certURL;
@@ -82,17 +88,19 @@ public class CertRequestInfo extends CMSRequestInfo {
     /**
      * @return the certId
      */
-
     public CertId getCertId() {
-        if (certURL == null) return null;
-        String id = certURL.substring(certURL.lastIndexOf("/") + 1);
-        return new CertId(id);
+        return certId;
+    }
+
+    public void setCertId(CertId certId) {
+        this.certId = certId;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
+        result = prime * result + ((certId == null) ? 0 : certId.hashCode());
         result = prime * result + ((certRequestType == null) ? 0 : certRequestType.hashCode());
         result = prime * result + ((certURL == null) ? 0 : certURL.hashCode());
         return result;
@@ -102,11 +110,16 @@ public class CertRequestInfo extends CMSRequestInfo {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
         CertRequestInfo other = (CertRequestInfo) obj;
+        if (certId == null) {
+            if (other.certId != null)
+                return false;
+        } else if (!certId.equals(other.certId))
+            return false;
         if (certRequestType == null) {
             if (other.certRequestType != null)
                 return false;
@@ -148,6 +161,7 @@ public class CertRequestInfo extends CMSRequestInfo {
         before.setRequestType("enrollment");
         before.setRequestStatus(RequestStatus.COMPLETE);
         before.setCertRequestType("pkcs10");
+        before.setCertId(new CertId("5"));
 
         String string = before.toString();
         System.out.println(string);

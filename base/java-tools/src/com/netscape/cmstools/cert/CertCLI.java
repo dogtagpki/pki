@@ -48,11 +48,12 @@ public class CertCLI extends CLI {
 
         addModule(new CertFindCLI(this));
         addModule(new CertShowCLI(this));
-
         addModule(new CertRevokeCLI(this));
         addModule(new CertHoldCLI(this));
         addModule(new CertReleaseHoldCLI(this));
+
         addModule(new CertRequestFindCLI(this));
+        addModule(new CertRequestShowCLI(this));
         addModule(new CertRequestSubmitCLI(this));
         addModule(new CertRequestReviewCLI(this));
     }
@@ -184,6 +185,10 @@ public class CertCLI extends CLI {
         System.out.println("  Request ID: " + info.getRequestId());
         System.out.println("  Type: " + info.getRequestType());
         System.out.println("  Status: " + info.getRequestStatus());
+
+        if (info.getCertId() != null) {
+            System.out.println("  Certificate ID: " + info.getCertId().toHexString());
+        }
     }
 
     public static void printCertReviewResponse(CertReviewResponse response) {
