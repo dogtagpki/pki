@@ -107,7 +107,7 @@ subca_token_password=
 
 ##  PKI Instance-Specific Backup Variables
 ##  (e. g. - Backup Key and Certificates Panel)
-subca_backup_password=
+subca_backup_password=redhat
 
 ##  PKI Email Variables
 ##
@@ -292,6 +292,7 @@ subca_key_type=rsa
 subca_signing_algorithm=SHA256withRSA
 subca_signing_signingalgorithm=SHA256withRSA
 subca_ocsp_signing_signingalgorithm=SHA256withRSA
+subca_save_p12=false
 subca_sign_cert_subject_name="cn=Certificate\ Authority\ 2,o=${pki_security_domain_name}"
 subca_subsystem_cert_subject_name="cn=CA\ Subsystem\ Certificate\ 2,o=${pki_security_domain_name}"
 subca_ocsp_cert_subject_name="cn=OCSP\ Signing\ Certificate\ 2,o=${pki_security_domain_name}"
@@ -498,6 +499,7 @@ pkisilent ConfigureSubCA \
 	-agent_key_size ${subca_agent_key_size} \
 	-agent_key_type ${subca_agent_key_type} \
 	-agent_cert_subject "${subca_agent_cert_subject}" \
+    -save_p12 ${subca_save_p12} \
 	-backup_pwd ${subca_backup_password} \
 	-subsystem_name "${ca_subsystem_name}" \
 	-subca_sign_cert_subject_name "${subca_sign_cert_subject_name}" \
@@ -512,4 +514,3 @@ pkisilent ConfigureSubCA \
 /sbin/service ${subca_init_script} restart ${subca_instance_name}
 
 exit 0
-

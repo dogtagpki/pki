@@ -119,10 +119,11 @@ tps_token_password=
 
 ##  PKI Instance-Specific Backup Variables
 ##  (e. g. - Backup Key and Certificates Panel)
-ca_backup_password=
-kra_backup_password=
-ocsp_backup_password=
-tks_backup_password=
+ca_backup_password=redhat
+kra_backup_password=redhat
+ocsp_backup_password=redhat
+tks_backup_password=redhat
+tps_backup_password=redhat
 
 ##  PKI Email Variables
 ##
@@ -557,6 +558,7 @@ kra_base_dn="dc=${pki_host}-${kra_instance_name}"
 kra_db_name="${pki_host}-${kra_instance_name}"
 kra_key_size=2048
 kra_key_type=rsa
+kra_save_p12=false
 kra_transport_cert_subject_name="cn=DRM\ Transport\ Certificate,o=${pki_security_domain_name}"
 kra_subsystem_cert_subject_name="cn=DRM\ Subsystem\ Certificate,o=${pki_security_domain_name}"
 kra_storage_cert_subject_name="cn=DRM\ Storage\ Certificate,o=${pki_security_domain_name}"
@@ -614,6 +616,7 @@ ocsp_base_dn="dc=${pki_host}-${ocsp_instance_name}"
 ocsp_db_name="${pki_host}-${ocsp_instance_name}"
 ocsp_key_size=2048
 ocsp_key_type=rsa
+ocsp_save_p12=false
 ocsp_sign_cert_subject_name="cn=OCSP\ Signing\ Certificate,o=${pki_security_domain_name}"
 ocsp_subsystem_cert_subject_name="cn=OCSP\ Subsystem\ Certificate,o=${pki_security_domain_name}"
 ocsp_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
@@ -671,6 +674,7 @@ tks_base_dn="dc=${pki_host}-${tks_instance_name}"
 tks_db_name="${pki_host}-${tks_instance_name}"
 tks_key_size=2048
 tks_key_type=rsa
+tks_save_p12=false
 tks_subsystem_cert_subject_name="cn=TKS\ Subsystem\ Certificate,o=${pki_security_domain_name}"
 tks_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
 tks_audit_signing_cert_subject_name="cn=TKS\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
@@ -784,6 +788,7 @@ tps_db_name="${pki_host}-${tps_instance_name}"
 tps_key_size=2048
 tps_key_type=rsa
 tps_ss_keygen=true
+tps_save_p12=false
 tps_server_cert_subject_name="cn=${pki_host},ou=${tps_instance_name},o=${pki_security_domain_name}"
 tps_server_cert_nickname="Server-Cert\ cert-${tps_instance_name}"
 tps_subsystem_cert_subject_name="cn=TPS\ Subsystem\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
@@ -1104,6 +1109,7 @@ pkisilent ConfigureCA \
         -signing_signingalgorithm ${ca_signing_signingalgorithm} \
         -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 	-save_p12 ${ca_save_p12} \
+    -backup_pwd ${ca_backup_password} \
 	-subsystem_name ${ca_subsystem_name} \
 	-token_name ${ca_token_name} \
 	-token_pwd ${ca_token_password} \
@@ -1171,6 +1177,7 @@ pkisilent ConfigureCA \
 #	-key_type ${ca_key_type} \
 #	-key_algorithm ${ca_key_algorithm} \
 #	-save_p12 ${ca_save_p12} \
+#	-backup_pwd ${ca_backup_password} \
 #	-subsystem_name ${ca_subsystem_name} \
 #	-token_name ${ca_token_name} \
 #	-token_pwd ${ca_token_password} \
@@ -1236,6 +1243,7 @@ pkisilent ConfigureCA \
 #       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
 #       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 #	-save_p12 ${ca_save_p12} \
+#	-backup_pwd ${ca_backup_password} \
 #	-subsystem_name ${ca_subsystem_name} \
 #	-token_name ${ca_token_name} \
 #	-token_pwd ${ca_token_password} \
@@ -1307,6 +1315,7 @@ pkisilent ConfigureCA \
 #       -signing_signingalgorithm ${ca_signing_signingalgorithm} \
 #       -ocsp_signing_signingalgorithm ${ca_ocsp_signing_signingalgorithm} \
 #	-save_p12 ${ca_save_p12} \
+#	-backup_pwd ${ca_backup_password} \
 #	-subsystem_name ${ca_subsystem_name} \
 #	-token_name ${ca_token_name} \
 #	-token_pwd ${ca_token_password} \
@@ -1378,6 +1387,7 @@ pkisilent ConfigureDRM \
 	-agent_key_type ${kra_agent_key_type} \
 	-agent_cert_subject "${kra_agent_cert_subject}" \
 	-subsystem_name ${kra_subsystem_name} \
+	-save_p12 ${kra_save_p12} \
 	-backup_pwd ${kra_backup_password} \
 	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
 	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
@@ -1447,6 +1457,7 @@ pkisilent ConfigureDRM \
 #	-agent_key_type ${kra_agent_key_type} \
 #	-agent_cert_subject "${kra_agent_cert_subject}" \
 #	-subsystem_name ${kra_subsystem_name} \
+#	-save_p12 ${kra_save_p12} \
 #	-backup_pwd ${kra_backup_password} \
 #	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
 #	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
@@ -1519,6 +1530,7 @@ pkisilent ConfigureOCSP \
 	-agent_key_type ${ocsp_agent_key_type} \
 	-agent_cert_subject "${ocsp_agent_cert_subject}" \
 	-subsystem_name ${ocsp_subsystem_name} \
+	-save_p12 ${ocsp_save_p12} \
 	-backup_pwd ${ocsp_backup_password} \
 	-ocsp_sign_cert_subject_name "${ocsp_sign_cert_subject_name}" \
 	-ocsp_subsystem_cert_subject_name "${ocsp_subsystem_cert_subject_name}" \
@@ -1586,6 +1598,7 @@ pkisilent ConfigureTKS \
 	-agent_key_type ${tks_agent_key_type} \
 	-agent_cert_subject "${tks_agent_cert_subject}" \
 	-subsystem_name ${tks_subsystem_name} \
+	-save_p12 ${tks_save_p12} \
 	-backup_pwd ${tks_backup_password} \
 	-tks_subsystem_cert_subject_name "${tks_subsystem_cert_subject_name}" \
 	-tks_server_cert_subject_name "${tks_server_cert_subject_name}" \
@@ -1722,6 +1735,8 @@ pkisilent ConfigureTPS \
 	-agent_key_size ${tps_agent_key_size} \
 	-agent_key_type ${tps_agent_key_type} \
 	-agent_cert_subject "${tps_agent_cert_subject}" \
+	-save_p12 ${tps_save_p12} \
+	-backup_pwd ${tps_backup_password} \
 	-subsystem_name ${tps_subsystem_name} \
 	-ldap_auth_host ${tps_ldap_auth_host} \
 	-ldap_auth_port ${tps_ldap_auth_port} \
