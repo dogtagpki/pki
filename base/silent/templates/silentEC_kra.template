@@ -1,0 +1,567 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2013 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##  Disallow script to be run as the name of this template
+pki_silent_script=`basename $0`
+if	[ "${pki_silent_script}" = "silentEC_kra.template" ] ; then
+	printf "Important:\n"
+	printf "       Use the following reference for essential EC setup prior to running this script:\n"
+	printf "       silentEC_readme.txt.\n\n"
+	printf "\n"
+	printf "\n"
+	printf "Usage:  (1) Install AND configure a directory server instance.\n\n"
+	printf "        (2) Install AND configure a Root CA subsystem instance\n"
+	printf "            that is its own security domain.\n\n"
+	printf "        (3) Install (but not configure) a DRM subsystem instance\n"
+    printf "            Follow ECC setup instruction in silentEC_readme.txt.\n"
+	printf "        (4) Install the 'pki-silent' package.\n\n"
+	printf "        (5) Copy '$0' to a new script name\n"
+	printf "            without the '.template' extension.\n"
+	printf "            (e .g. - 'configure_kra_ec_instances')\n\n"
+	printf "        (6) Fill in all MANDATORY user-defined variables\n"
+	printf "            in the new script.\n\n"
+	printf "        (7) Change any OPTIONAL user-defined variables\n"
+	printf "            in the new script as desired.\n\n"
+	printf "        (8) Become the DRM administrator user (not 'root' user),\n"
+	printf "            and execute the new script to\n"
+	printf "            configure the DRM subsystem instances.\n\n"
+	exit 255
+fi
+
+
+##
+##  This script should NOT be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+	MY_EUID=`/usr/bin/id -u`
+	MY_UID=`/usr/bin/id -ur`
+	USERNAME=`/usr/bin/id -un`
+else
+	printf "ERROR:  Unsupported operating system '${OS}'!\n"
+	exit 255
+fi
+
+if	[ "${MY_UID}"  == "${ROOTUID}" ] ||
+	[ "${MY_EUID}" == "${ROOTUID}" ] ; then
+	printf "ERROR:  The '$0' script should NOT be run as root!\n"
+	exit 255
+fi
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  V A R I A B L E   D E C L A R A T I O N         ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( M A N D A T O R Y )     ##
+##############################################################################
+
+##
+##  IMPORTANT:  'Escape' ALL spaces in EACH variable specified below!
+##
+##              For Example:
+##
+##                  pki_security_domain_name="My\ Security\ Domain"
+##
+
+##  PKI Silent Security Database Variables
+##  (e. g. - PKI Silent "browser" database)
+##  See "silentEC_readme.txt" for instruction on "Browser"
+##  Once Firefox is setup for EC, the following 
+##  pki_silent_security_database_repository
+##  parameter should be set to ~/.mozilla/firefox/<your new profile directory>
+##  Example:
+##pki_silent_security_database_repository="/home/jdoe/.mozilla/firefox/u7bdq5th.silent"
+##pki_silent_security_database_password="mypasswd"
+##pki_silent_security_token_name="Certicom\ FIPS\ Cert/Key\ Services"
+pki_silent_security_database_repository=
+pki_silent_security_database_password=
+pki_silent_security_token_name=
+
+##  PKI Security Domain Variables
+##  (e. g. - Security Domain Login Panel)
+## Example:
+##pki_security_domain_name="sample\ ECC\ domain"
+pki_security_domain_name=
+pki_security_domain_host=`hostname`
+pki_security_domain_admin_name=admin
+pki_security_domain_admin_password=
+
+##  PKI Internal LDAP Database Variables
+##  (e. g. - Database Panel)
+pki_ldap_host=localhost
+pki_ldap_port=389
+pki_bind_dn="cn=Directory\ Manager"
+pki_bind_password=
+
+##  PKI Instance-Specific Token Variables
+##  (e. g. - Module Panel)
+## ECC subsystems in general are set up with an HSM.
+## Example:
+##kra_token_name=NHSM6000-OCS
+##kra_token_password=hsmpasswd
+kra_token_name=
+kra_token_password=
+
+##  PKI Instance-Specific Backup Variables
+##  (e. g. - Backup Key and Certificates Panel)
+##  Note: in an ECC setup, you will most likely hook up the CS subsystems
+##  with an HSM, so the keys cannot be backed up in this software fashion
+##  so it's irrelevant
+kra_backup_password=redhat
+
+##  PKI Email Variables
+##
+##      For example, to specify 'pkitest@example.com':
+##
+##          pki_email_name=pkitest
+##          pki_email_company=example
+##          pki_email_domain=com
+##
+pki_email_name=
+pki_email_company=
+pki_email_domain=
+
+##  PKI Silent Admin Variables
+##  (e. g. - Import Admin Certificate into PKI Silent "browser" database)
+pki_silent_admin_user=
+pki_silent_admin_password=
+pki_silent_admin_email="${pki_email_name}\@${pki_email_company}\.${pki_email_domain}"
+
+
+
+##############################################################################
+##  P R E - D E F I N E D   " D E F A U L T "   V A R I A B L E S           ##
+##############################################################################
+
+##  PKI Subsystem Host (computed by default)
+pki_host=`hostname`
+
+##  PKI Subsystem Names
+## Example:
+#kra_subsystem_name="Data\ Recovery\ Manager\ EC"
+kra_subsystem_name=
+
+##  PKI Subsystem Instance Names
+## Example:
+#kra_instance_name="pki-kra-EC"
+kra_instance_name=
+
+##
+##  NOTE:  Default PKI Instance Ports
+##
+##      DRM:
+##
+##          *180 - non-secure port (not role specific)
+##          *701 - non-secure Tomcat port
+##          *443 - secure EE port
+##          *444 - secure Agent port
+##          *445 - secure Admin port
+##
+##
+##  For Example:
+##
+##      semanage port -l | grep pki
+##
+##      pki_kra_port_t         tcp      10180, 10701, 10443, 10444, 10445
+##
+
+## CA ports
+ca_nonssl_port=9180
+ca_agent_port=9443
+ca_ee_port=9444
+ca_admin_port=9445
+
+## DRM ports
+kra_nonssl_port=10180
+kra_agent_port=10443
+kra_ee_port=10444
+kra_admin_port=10445
+
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( O P T I O N A L )       ##
+##############################################################################
+
+##  PKI Silent Log Files
+pki_silent_kra_log=${pki_silent_security_database_repository}/kraEC.log
+
+
+##
+## NOTE:  For comparison's sake, if the default instances were manually
+##        configured using a Firefox browser, the content of the corresponding
+##        Firefox browser's security libraries would be something similar
+##        to this:
+##
+##            Certificate Nickname                          Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##            Certificate Authority - ${pki_security_domain_name}     CT,C,C
+##            KRA Administrator of Instance ${kra_instance_name}'s
+##                              ${pki_security_domain_name} ID        u,u,u
+##
+##        where:
+##
+##                Nickname:  "Certificate Authority - "
+##                        +  "${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority,"
+##                        +  "ou=${ca_instance_name},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "KRA Administrator of Instance "
+##                        +  "${kra_instance_name}'s "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=KRA Administrator of Instance "
+##                        +  "${kra_instance_name},"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+
+##  Miscellaneous DRM Variables
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${kra_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             transportCert cert-${kra_instance_name}               u,u,u
+##             Server-Cert cert-${kra_instance_name}                 u,u,u
+##             auditSigningCert cert-${kra_instance_name}            u,u,u
+##             Certificate Authority - ${pki_security_domain_name}   CT,c,
+##             storageCert cert-${kra_instance_name}                 u,u,u
+##             subsystemCert cert-${kra_instance_name}               u,u,u
+##
+##         where:
+##
+##                 Nickname:  "transportCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Transport Certificate,"
+##                         +  "ou=${kra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${kra_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${kra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Audit Signing Certificate,"
+##                         +  "ou=${kra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Certificate Authority - "
+##                         +  "${pki_security_domain_name}"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "ou=${ca_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "storageCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Storage Certificate,"
+##                         +  "ou=${kra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "subsystemCert cert-${kra_instance_name}"
+##             Subject Name:  "cn=DRM Subsystem Certificate,"
+##                         +  "ou=${kra_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+kra_agent_name="KRA\ Administrator\ of\ Instance\ ${kra_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+kra_agent_key_size=nistp256
+kra_agent_key_type=ecc
+kra_agent_cert_subject="cn=KRA\ Administrator\ of\ Instance\ ${kra_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+kra_base_dn="dc=${pki_host}-${kra_instance_name}"
+kra_db_name="${pki_host}-${kra_instance_name}"
+kra_save_p12=false
+kra_key_size=256
+kra_key_type=ecc
+kra_key_curvename=nistp256
+kra_signing_algorithm=SHA256withRSA
+kra_transport_cert_subject_name="cn=DRM\ Transport\ Certificate,ou=${kra_instance_name},o=${pki_security_domain_name}"
+kra_subsystem_cert_subject_name="cn=DRM\ Subsystem\ Certificate,ou=${kra_instance_name},o=${pki_security_domain_name}"
+kra_storage_cert_subject_name="cn=DRM\ Storage\ Certificate,ou=${kra_instance_name},o=${pki_security_domain_name}"
+kra_server_cert_subject_name="cn=${pki_host},ou=${kra_instance_name},o=${pki_security_domain_name}"
+kra_audit_signing_cert_subject_name="cn=DRM\ Audit\ Signing\ Certificate,ou=${kra_instance_name},o=${pki_security_domain_name}"
+
+##
+##  The following variables should then be uncommented and defined for the clone CA.
+##  kra_clone=true       
+##  kra_clone_p12_file=          
+##  kra_clone_p12_password=
+##  kra_clone_uri=
+##  clone_start_tls=false
+##
+##  NOTES: 
+##  1. drm_clone_p12_file must be just the filename relative to the alias directory.
+##     So in the example above, drm_clone_p12_file="drm-master.p12"
+##  2. drm_clone_uri has the following format: https://<hostname>:<EE port> of the DRM to be cloned
+##  3. clone_start_tls can be set to true if we require replication between the master and clone databases 
+##     to be encrypted using startTLS on the standard (non-ldaps) port.  The databases must 
+##     be ssl enabled first or the replication will fail.
+##
+##  ADDITIONAL NOTES:
+##  1. The clone DRM and master DRM cannot share the same database instance.  A new 
+##     instance should be created for the clone DRM.
+##  2. The variables kra_base_dn and kra_db_name defined above MUST be identical to the
+##     kra_base_dn and kra_name of the master CA. The following assignments attempt
+##     to ensure this is correct.
+##
+##  kra_master_instance_name=
+##  kra_base_dn="dc=${pki_host}-${kra_master_instance_name}"
+##  kra_db_name="${pki_host}-${kra_master_instance_name}"
+
+#kra_agent_name="KRA\ Administrator\ of\ Instance\ ${kra_instance_name}\'s\ ${pki_security_domain_name}\ ID"
+#kra_agent_key_size=2048
+#kra_agent_key_type=rsa
+#kra_agent_cert_subject="cn=KRA\ Administrator\ of\ Instance\ ${kra_instance_name},uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+#kra_base_dn="dc=${pki_host}-${kra_instance_name}"
+#kra_db_name="${pki_host}-${kra_instance_name}"
+#kra_key_size=2048
+#kra_key_type=rsa
+#kra_transport_cert_subject_name="cn=DRM\ Transport\ Certificate,o=${pki_security_domain_name}"
+#kra_subsystem_cert_subject_name="cn=DRM\ Subsystem\ Certificate,o=${pki_security_domain_name}"
+#kra_storage_cert_subject_name="cn=DRM\ Storage\ Certificate,o=${pki_security_domain_name}"
+#kra_server_cert_subject_name="cn=${pki_host},o=${pki_security_domain_name}"
+#kra_audit_signing_cert_subject_name="cn=DRM\ Audit\ Signing\ Certificate,o=${pki_security_domain_name}"
+
+
+##############################################################################
+##  C A L C U L A T E   P K I   I N S T A N C E   P I N S                   ##
+##############################################################################
+
+##  PKI Subsystem Instance PINS
+#preop_pin=`cat /var/lib/${kra_instance_name}/conf/CS.cfg \
+#	| grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+preop_pin=
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  S U B S Y S T E M   C O N F I G U R A T I O N   ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  P K I   S I L E N T   I N I T I A L I Z A T I O N                       ##
+##############################################################################
+
+## (1) Make certain that user has defined all MANDATORY user-defined variables!
+usage_errors=0
+usage_error_preamble="ERROR:  User MUST define a value for"
+
+if [ "${preop_pin}" = "" ] ; then
+    printf "${usage_error_preamble} 'preop_pin'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_database_repository}" = "" ] ; then
+    printf "${usage_error_preamble} 'pki_silent_security_database_repository'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_database_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_security_database_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_token_name}" = "" ] ; then
+    printf "${usage_error_preamble} 'pki_silent_security_token_name'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi 
+if [ "${pki_security_domain_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_bind_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_bind_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${kra_token_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'kra_token_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${kra_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'kra_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_company}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_company'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_domain}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_domain'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+
+
+## (2) Make certain that a PKI instance of the specified name EXISTS,
+##     but has NOT been previously CONFIGURED!
+existence_errors=0
+existence_error_preamble="ERROR:  No PKI Instance named"
+configuration_errors=0
+configuration_error_preamble="ERROR:  A PKI Instance named"
+configuration_error_postamble="EXISTS,\n        but has PREVIOUSLY been CONFIGURED!"
+
+#if [ ! -f "/var/lib/${ca_instance_name}/conf/CS.cfg" ] ; then
+#	printf "${existence_error_preamble} '${ca_instance_name}' EXISTS!\n"
+#	existence_errors=`expr ${existence_errors} + 1`
+#else
+#	ca_configuration_check=`grep -c preop /var/lib/${ca_instance_name}/conf/CS.cfg`
+#	if [ ${ca_configuration_check} -eq 0 ] ; then
+#	    printf "${configuration_error_preamble} '${ca_instance_name}' "
+#		printf "${configuration_error_postamble}\n"
+#		configuration_errors=`expr ${configuration_errors} + 1`
+#	fi
+#fi
+
+
+if	[ ${usage_errors} -ne 0 ]     ||
+	[ ${existence_errors} -ne 0 ] ||
+	[ ${configuration_errors} -ne 0 ] ; then
+	printf "\n"
+	printf "Please correct ALL errors listed above and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (3) Make certain that 'pkisilent' exists and is executable on this system.
+if [ ! -x "/usr/bin/pkisilent" ] ; then
+	printf "\n"
+	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (4) Check for old PKI Silent Security Databases, but DO NOT remove them!
+##     Instead, inform the user and exit this script.
+if	[ -f "${pki_silent_security_database_repository}/cert8.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/key3.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/secmod.db" ] ; then
+	printf "\n"
+	printf "WARNING:  At least one of the security databases\n"
+	printf "          (i. e. - 'cert8.db', 'key3.db', and/or 'secmod.db')\n"
+	printf "          required by '${pki_silent_script}' exists at the\n"
+	printf "          specified location '${pki_silent_security_database_repository}'.\n"
+	printf "\n"
+	printf "          Continue...\n\n"
+#	exit 255
+fi
+
+
+## (5) Remove ALL old PKI Silent log files
+printf "Removing old PKI Silent log files:\n"
+if [ -f ${pki_silent_kra_log} ] ; then
+	printf "    Removing old '${pki_silent_kra_log}' . . . "
+	rm ${pki_silent_kra_log}
+	printf "done.\n"
+fi
+printf "Done.\n\n"
+
+
+
+export NSS_USE_DECODED_CKA_EC_POINT=1
+##  Configure Subordinate ECC KRA
+printf "'${pki_silent_script}':  Configuring '${kra_instance_name}' . . .\n"
+pkisilent ConfigureDRM \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${kra_admin_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${pki_security_domain_host} \
+	-ca_port ${ca_nonssl_port} \
+	-ca_ssl_port ${ca_ee_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_token_name ${pki_silent_security_token_name} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-preop_pin ${preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${kra_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${kra_base_dn}" \
+	-db_name "${kra_db_name}" \
+	-key_size ${kra_key_size} \
+	-key_type ${kra_key_type} \
+	-key_curvename ${kra_key_curvename} \
+	-subsystem_key_size ${kra_key_size} \
+	-subsystem_key_type ${kra_key_type} \
+	-subsystem_key_curvename ${kra_key_curvename} \
+	-audit_signing_key_size 2048 \
+	-audit_signing_key_type rsa \
+	-sslserver_key_size ${kra_key_size} \
+	-sslserver_key_type ${kra_key_type} \
+	-sslserver_key_curvename ${kra_key_curvename} \
+	-save_p12 false \
+	-backup_pwd ${kra_backup_password} \
+	-transport_key_size 2048 \
+	-transport_key_type rsa \
+	-storage_key_size 2048 \
+	-storage_key_type rsa \
+	-token_name ${kra_token_name} \
+	-token_pwd ${kra_token_password} \
+	-signing_algorithm ${kra_signing_algorithm} \
+	-agent_key_size ${kra_agent_key_size} \
+	-agent_key_type ${kra_agent_key_type} \
+	-agent_cert_subject "${kra_agent_cert_subject}" \
+	-subsystem_name ${kra_subsystem_name} \
+	-drm_transport_cert_subject_name "${kra_transport_cert_subject_name}" \
+	-drm_subsystem_cert_subject_name "${kra_subsystem_cert_subject_name}" \
+	-drm_storage_cert_subject_name "${kra_storage_cert_subject_name}" \
+	-drm_server_cert_subject_name "${kra_server_cert_subject_name}" \
+	-drm_audit_signing_cert_subject_name \
+	"${kra_audit_signing_cert_subject_name}" \
+	| tee ${pki_silent_kra_log}
+
+##  Restart DRM
+## Do this manually as root
+	printf "If configured without errors, ask the OS root user to restart the CS instance:\n"
+	printf "/sbin/service '${kra_instance_name}' restart\n\n"
+
+exit 0
+

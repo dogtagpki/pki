@@ -81,6 +81,7 @@ fi
 ##  (e. g. - PKI Silent "browser" database)
 pki_silent_security_database_repository="/tmp"
 pki_silent_security_database_password=
+pki_silent_security_token_name=internal
 
 ##  PKI Security Domain Variables
 ##  (e. g. - Security Domain Login Panel)
@@ -1080,6 +1081,7 @@ pkisilent ConfigureCA \
 	-cs_port ${ca_admin_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${ca_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \
@@ -1149,6 +1151,7 @@ pkisilent ConfigureCA \
 #	-cs_port ${ca_admin_port} \
 #	-client_certdb_dir ${pki_silent_security_database_repository} \
 #	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-client_token_name ${pki_silent_security_token_name} \
 #	-preop_pin ${ca_preop_pin} \
 #	-domain_name "${pki_security_domain_name}" \
 #	-admin_user ${pki_silent_admin_user} \
@@ -1210,6 +1213,7 @@ pkisilent ConfigureCA \
 #	-cs_port ${ca_admin_port} \
 #	-client_certdb_dir ${pki_silent_security_database_repository} \
 #	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-client_token_name ${pki_silent_security_token_name} \
 #	-preop_pin ${ca_preop_pin} \
 #	-domain_name "${pki_security_domain_name}" \
 #	-admin_user ${pki_silent_admin_user} \
@@ -1280,6 +1284,7 @@ pkisilent ConfigureCA \
 #	-cs_port ${ca_admin_port} \
 #	-client_certdb_dir ${pki_silent_security_database_repository} \
 #	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-client_token_name ${pki_silent_security_token_name} \
 #	-preop_pin ${ca_preop_pin} \
 #	-domain_name "${pki_security_domain_name}" \
 #	-admin_user ${pki_silent_admin_user} \
@@ -1352,6 +1357,7 @@ pkisilent ConfigureDRM \
 	-ca_ssl_port ${ca_ee_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${kra_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \
@@ -1420,6 +1426,7 @@ pkisilent ConfigureDRM \
 #	-ca_ssl_port ${ca_ee_port} \
 #	-client_certdb_dir ${pki_silent_security_database_repository} \
 #	-client_certdb_pwd ${pki_silent_security_database_password} \
+#	-client_token_name ${pki_silent_security_token_name} \
 #	-preop_pin ${kra_preop_pin} \
 #	-domain_name "${pki_security_domain_name}" \
 #	-admin_user ${pki_silent_admin_user} \
@@ -1491,6 +1498,7 @@ pkisilent ConfigureOCSP \
 	-ca_ssl_port ${ca_ee_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${ocsp_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \
@@ -1557,6 +1565,7 @@ pkisilent ConfigureTKS \
 	-ca_ssl_port ${ca_ee_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${tks_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \
@@ -1621,6 +1630,7 @@ pkisilent ConfigureRA \
 	-ca_admin_port ${ra_chosen_ca_admin_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${ra_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \
@@ -1692,6 +1702,7 @@ pkisilent ConfigureTPS \
 	-tks_ssl_port ${tps_chosen_tks_ssl_port} \
 	-client_certdb_dir ${pki_silent_security_database_repository} \
 	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
 	-preop_pin ${tps_preop_pin} \
 	-domain_name "${pki_security_domain_name}" \
 	-admin_user ${pki_silent_admin_user} \

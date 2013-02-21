@@ -75,6 +75,7 @@ public class ConfigureCA {
     public static String cs_hostname = null;
     public static String cs_port = null;
     public static String client_certdb_dir = null;
+    public static String client_token_name = null;
     public static String client_certdb_pwd = null;
 
     public static String sd_hostname = null;
@@ -140,7 +141,7 @@ public class ConfigureCA {
     public static String agent_key_type = null;
     public static String agent_cert_subject = null;
 
-    public static String save_p12 = null;
+    public static String save_p12 = "false";
     public static String backup_pwd = null;
     public static String backup_fname = null;
 
@@ -996,7 +997,8 @@ public class ConfigureCA {
             ParseXML px = new ParseXML();
             String admin_cert_request = null;
 
-            ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
+            ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                client_token_name,  client_certdb_pwd,
                 agent_cert_subject, agent_key_size, agent_key_type);
 
             cCrypt.setDebug(true);
@@ -1072,7 +1074,7 @@ public class ConfigureCA {
             }
 
             System.out.println("Cert to Import =" + cert_to_import);
-            ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
+            ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_token_name, client_certdb_pwd,
                 null, null, null);
 
             cCrypt.setDebug(true);
@@ -1137,7 +1139,7 @@ public class ConfigureCA {
 
     public boolean ConfigureCAInstance() {
         // 0. login to cert db
-        ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_certdb_pwd,
+        ComCrypto cCrypt = new ComCrypto(client_certdb_dir, client_token_name, client_certdb_pwd,
                 null, null, null);
 
         cCrypt.setDebug(true);
@@ -1348,6 +1350,7 @@ public class ConfigureCA {
         StringHolder x_cs_hostname = new StringHolder();
         StringHolder x_cs_port = new StringHolder();
         StringHolder x_client_certdb_dir = new StringHolder();
+        StringHolder x_client_token_name = new StringHolder();
         StringHolder x_client_certdb_pwd = new StringHolder();
         StringHolder x_preop_pin = new StringHolder();
 
@@ -1454,6 +1457,8 @@ public class ConfigureCA {
         parser.addOption("-cs_port %s #CS SSL Admin port", x_cs_port); 
         parser.addOption("-client_certdb_dir %s #Client CertDB dir",
                 x_client_certdb_dir); 
+        parser.addOption("-client_token_name %s #client token name",
+                x_client_token_name); 
         parser.addOption("-client_certdb_pwd %s #client certdb password",
                 x_client_certdb_pwd); 
         parser.addOption("-preop_pin %s #pre op pin", x_preop_pin); 
@@ -1581,6 +1586,7 @@ public class ConfigureCA {
         cs_hostname = x_cs_hostname.value;
         cs_port = x_cs_port.value;
         client_certdb_dir = x_client_certdb_dir.value;
+        client_token_name = x_client_token_name.value;
         client_certdb_pwd = x_client_certdb_pwd.value;
         pin = x_preop_pin.value;
         domain_name = x_domain_name.value;

@@ -85,6 +85,7 @@ public class ConfigureTPS
 	public static String tks_ssl_port = null;
 
 	public static String client_certdb_dir = null;
+    public static String client_token_name = null;
 	public static String client_certdb_pwd = null;
 
 	// Login Panel 
@@ -113,6 +114,15 @@ public class ConfigureTPS
 	public static String key_type = null;
 	public static String token_name = null;
 	public static String token_pwd = null;
+
+    public static String subsystem_key_type = null;
+    public static String subsystem_key_size = null;
+
+    public static String audit_signing_key_type = null;
+    public static String audit_signing_key_size = null;
+
+    public static String sslserver_key_type = null;
+    public static String sslserver_key_size = null;
 
 	public static String agent_key_size = null;
 	public static String agent_key_type = null;
@@ -525,17 +535,17 @@ public class ConfigureTPS
 
 		String query_string = "p=11" +
 							"&keytype=" + key_type +
-							"&choice=default" +
+							"&choice=custom" +
 							"&custom_size=" + key_size +
-							"&sslserver_keytype=" + key_type +
+							"&sslserver_keytype=" + sslserver_key_type +
 							"&sslserver_choice=custom" +
-							"&sslserver_custom_size=" + key_size +
-							"&subsystem_keytype=" + key_type +
+							"&sslserver_custom_size=" + sslserver_key_size +
+							"&subsystem_keytype=" + subsystem_key_type +
 							"&subsystem_choice=custom"+
-							"&subsystem_custom_size=" + key_size +
-							"&audit_signing_keytype=" + key_type +
+							"&subsystem_custom_size=" + subsystem_key_size +
+							"&audit_signing_keytype=" + audit_signing_key_type +
 							"&audit_signing_choice=default" +
-							"&audit_signing_custom_size=" + key_size +
+							"&audit_signing_custom_size=" + audit_signing_key_size +
 							"&op=next" +
 							"&xml=true" ;
 
@@ -634,6 +644,7 @@ public class ConfigureTPS
 		requestor_name = "TPS-" + cs_hostname + "-" + cs_clientauth_port;
 
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
 										client_certdb_pwd,
 										agent_cert_subject,
 										agent_key_size,
@@ -729,6 +740,7 @@ public class ConfigureTPS
 		System.out.println("Imported Cert=" + cert_to_import);
 		
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
 										client_certdb_pwd,
 										null,
 										null,
@@ -771,6 +783,7 @@ public class ConfigureTPS
 	{
 		// 0. login to cert db
 		ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
 										client_certdb_pwd,
 										null,
 										null,
@@ -931,6 +944,7 @@ public class ConfigureTPS
 		StringHolder x_tks_ssl_port = new StringHolder();
 
 		StringHolder x_client_certdb_dir = new StringHolder();
+		StringHolder x_client_token_name = new StringHolder();
 		StringHolder x_client_certdb_pwd = new StringHolder();
 		StringHolder x_preop_pin = new StringHolder();
 
@@ -958,6 +972,15 @@ public class ConfigureTPS
 		StringHolder x_token_pwd = new StringHolder();
 		StringHolder x_key_size = new StringHolder();
 		StringHolder x_key_type = new StringHolder();
+
+        StringHolder x_subsystem_key_size = new StringHolder();
+        StringHolder x_subsystem_key_type = new StringHolder();
+
+        StringHolder x_sslserver_key_size = new StringHolder();
+        StringHolder x_sslserver_key_type = new StringHolder();
+
+        StringHolder x_audit_signing_key_size = new StringHolder();
+        StringHolder x_audit_signing_key_type = new StringHolder();
 
 		StringHolder x_agent_key_size = new StringHolder();
 		StringHolder x_agent_key_type = new StringHolder();
@@ -1025,6 +1048,8 @@ public class ConfigureTPS
 
 		parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
 							x_client_certdb_dir); 
+        parser.addOption ("-client_token_name %s #client token name",
+                            x_client_token_name);
 		parser.addOption ("-client_certdb_pwd %s #client certdb password",
 							x_client_certdb_pwd); 
 		parser.addOption ("-preop_pin %s #pre op pin",
@@ -1061,6 +1086,15 @@ public class ConfigureTPS
 							x_key_size); 
 		parser.addOption ("-key_type %s #Key type [rsa,ecc]",
 							x_key_type); 
+
+        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_audit_signing_key_type);
+        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_audit_signing_key_size);
+
+        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_subsystem_key_type);
+        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)", x_subsystem_key_size);
+
+        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_sslserver_key_type);
+        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)", x_sslserver_key_size);
 
 		parser.addOption ("-agent_key_size %s #Agent Cert Key Size",
 							x_agent_key_size); 
@@ -1137,6 +1171,7 @@ public class ConfigureTPS
 		drm_ssl_port = x_drm_ssl_port.value;
 
 		client_certdb_dir = x_client_certdb_dir.value;
+        client_token_name = x_client_token_name.value;
 		client_certdb_pwd = x_client_certdb_pwd.value;
 		pin = x_preop_pin.value;
 		domain_name = x_domain_name.value;
@@ -1161,6 +1196,15 @@ public class ConfigureTPS
 		key_type = x_key_type.value;
 		token_name = x_token_name.value;
 		token_pwd = x_token_pwd.value;
+
+        subsystem_key_type = x_subsystem_key_type.value;
+        subsystem_key_size = x_subsystem_key_size.value;
+
+        sslserver_key_type = x_sslserver_key_type.value;
+        sslserver_key_size = x_sslserver_key_size.value;
+
+        audit_signing_key_type = x_audit_signing_key_type.value;
+        audit_signing_key_size = x_audit_signing_key_size.value;
 
 		agent_key_size = x_agent_key_size.value;
 		agent_key_type = x_agent_key_type.value;

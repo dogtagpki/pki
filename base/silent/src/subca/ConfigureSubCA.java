@@ -83,6 +83,7 @@ public class ConfigureSubCA
     public static String ca_ssl_port = null;
 
     public static String client_certdb_dir = null;
+    public static String client_token_name = null;
     public static String client_certdb_pwd = null;
 
     // Login Panel 
@@ -166,6 +167,7 @@ public class ConfigureSubCA
     public static String ca_audit_signing_cert_pp = null;
     public static String ca_audit_signing_cert_cert = null;
 
+    public static String save_p12 = "false";
     public static String backup_pwd = null;
 
     public static String subsystem_name = null;
@@ -661,6 +663,9 @@ public class ConfigureSubCA
         ParseXML px = new ParseXML();
 
 
+        if (save_p12.equalsIgnoreCase("false")) {
+            return true;
+        }
         String query_string = "p=13" + "&op=next" + "&xml=true" +
                             "&choice=backupkey" + 
                             "&__pwd=" + URLEncoder.encode(backup_pwd) +
@@ -709,6 +714,7 @@ public class ConfigureSubCA
         String cert_subject = "CN=" + "subca-" + admin_user;
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
                                         client_certdb_pwd,
                                         agent_cert_subject,
                                         agent_key_size,
@@ -781,6 +787,7 @@ public class ConfigureSubCA
         System.out.println("Imported Cert=" + cert_to_import);
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
                                         client_certdb_pwd,
                                         null,
                                         null,
@@ -841,6 +848,7 @@ public class ConfigureSubCA
     {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
+                                        client_token_name,
                                         client_certdb_pwd,
                                         null,
                                         null,
@@ -1003,6 +1011,7 @@ public class ConfigureSubCA
         StringHolder x_ca_ssl_port = new StringHolder();
 
         StringHolder x_client_certdb_dir = new StringHolder();
+        StringHolder x_client_token_name = new StringHolder();
         StringHolder x_client_certdb_pwd = new StringHolder();
         StringHolder x_preop_pin = new StringHolder();
 
@@ -1065,6 +1074,7 @@ public class ConfigureSubCA
         StringHolder x_agent_cert_subject = new StringHolder();
 
         StringHolder x_agent_name = new StringHolder();
+        StringHolder x_save_p12 = new StringHolder();
         StringHolder x_backup_pwd = new StringHolder();
 
         // subsystem name
@@ -1107,6 +1117,8 @@ public class ConfigureSubCA
 
         parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
                             x_client_certdb_dir); 
+        parser.addOption("-client_token_name %s #client token name",
+                            x_client_token_name); 
         parser.addOption ("-client_certdb_pwd %s #client certdb password",
                             x_client_certdb_pwd); 
         parser.addOption ("-preop_pin %s #pre op pin",
@@ -1184,6 +1196,8 @@ public class ConfigureSubCA
         parser.addOption ("-agent_cert_subject %s #Agent Cert Subject",
                             x_agent_cert_subject); 
 
+        parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false]",
+                x_save_p12);
         parser.addOption ("-backup_pwd %s #PKCS12 backup password",
                             x_backup_pwd); 
 
@@ -1233,6 +1247,7 @@ public class ConfigureSubCA
         ca_ssl_port = x_ca_ssl_port.value;
 
         client_certdb_dir = x_client_certdb_dir.value;
+        client_token_name = x_client_token_name.value;
         client_certdb_pwd = x_client_certdb_pwd.value;
         pin = x_preop_pin.value;
         domain_name = x_domain_name.value;
@@ -1289,6 +1304,7 @@ public class ConfigureSubCA
         agent_key_type = x_agent_key_type.value;
         agent_cert_subject = x_agent_cert_subject.value;
 
+        save_p12 = x_save_p12.value;
         backup_pwd = x_backup_pwd.value;
         subsystem_name = x_subsystem_name.value;
         

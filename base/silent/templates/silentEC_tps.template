@@ -1,0 +1,536 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2013 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+
+##  Always switch into this base directory
+##  prior to script execution so that all
+##  of its output is written to this directory
+
+cd `dirname $0`
+
+
+##  Disallow script to be run as the name of this template
+pki_silent_script=`basename $0`
+if	[ "${pki_silent_script}" = "pki_silent.template" ] ; then
+    printf "Important:\n"
+    printf "       Use the following reference for essential EC setup prior to running this script:\n"
+    printf "       silentEC_readme.txt.\n\n"
+    printf "\n"
+    printf "\n"
+    printf "Usage:  (1) Install AND configure a directory server instance.\n\n"
+    printf "        (2) Install AND configure a Root CA subsystem instance\n"
+    printf "            that is its own security domain.\n\n"
+	printf "        (3) Install and configure a TKS subsystem instance\n"
+	printf "        (4) (optionally) Install and configure a DRM subsystem instance\n"
+    printf "        (5) Install (but not configure) a TPS subsystem instance\n"
+    printf "            Follow ECC setup instruction in silentEC_readme.txt.\n"
+    printf "        (6) Install the 'pki-silent' package.\n\n"
+    printf "        (7) Copy '$0' to a new script name\n"
+    printf "            without the '.template' extension.\n"
+    printf "            (e .g. - 'configure_tps_ec_instances')\n\n"
+    printf "        (8) Fill in all MANDATORY user-defined variables\n"
+    printf "            in the new script.\n\n"
+    printf "        (9) Change any OPTIONAL user-defined variables\n"
+    printf "            in the new script as desired.\n\n"
+    printf "        (10) Become the TPS administrator user (not 'root' user),\n"
+    printf "            and execute the new script to\n"
+    printf "            configure the TPS subsystem instances.\n\n"
+	exit 255
+fi
+
+
+##
+##  This script should NOT be run as root!
+##
+
+ROOTUID=0
+
+OS=`uname`
+if [ "${OS}" = "Linux" ] ; then
+	MY_EUID=`/usr/bin/id -u`
+	MY_UID=`/usr/bin/id -ur`
+	USERNAME=`/usr/bin/id -un`
+else
+	printf "ERROR:  Unsupported operating system '${OS}'!\n"
+	exit 255
+fi
+
+if	[ "${MY_UID}"  == "${ROOTUID}" ] ||
+	[ "${MY_EUID}" == "${ROOTUID}" ] ; then
+	printf "ERROR:  The '$0' script should NOT be run as root!\n"
+	exit 255
+fi
+
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  V A R I A B L E   D E C L A R A T I O N         ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( M A N D A T O R Y )     ##
+##############################################################################
+
+##
+##  IMPORTANT:  'Escape' ALL spaces in EACH variable specified below!
+##
+##              For Example:
+##
+##                  pki_security_domain_name="My\ Security\ Domain"
+##
+
+##  PKI Silent Security Database Variables
+##  (e. g. - PKI Silent "browser" database)
+##  See "silentEC_readme.txt" for instruction on "Browser"
+##  Once Firefox is setup for EC, the following 
+##  pki_silent_security_database_repository
+##  parameter should be set to ~/.mozilla/firefox/<your new profile directory>
+##  Example:
+##pki_silent_security_database_repository="/home/jdoe/.mozilla/firefox/u7bdq5th.silent"
+##pki_silent_security_database_password="mypasswd"
+##pki_silent_security_token_name="Certicom\ FIPS\ Cert/Key\ Services"
+pki_silent_security_database_repository=
+pki_silent_security_database_password=
+pki_silent_security_token_name=
+
+
+##  PKI Security Domain Variables
+##  (e. g. - Security Domain Login Panel)
+## Example:
+##pki_security_domain_name="sample\ ECC\ domain"
+pki_security_domain_name=
+pki_security_domain_host=`hostname`
+pki_security_domain_admin_name=admin
+pki_security_domain_admin_password=
+
+##  PKI Internal LDAP Database Variables
+##  (e. g. - Database Panel)
+pki_ldap_host=localhost
+pki_ldap_port=389
+pki_bind_dn="cn=Directory\ Manager"
+pki_bind_password=
+
+##  PKI Instance-Specific Token Variables
+##  (e. g. - Module Panel)
+## ECC subsystems in general are set up with an HSM.
+## Example:
+##tps_token_name=NHSM6000-OCS
+##tps_token_password=hsmpasswd
+tps_token_name=
+tps_token_password=
+
+##  PKI Instance-Specific Backup Variables
+##  (e. g. - Backup Key and Certificates Panel)
+##  Note: in an ECC setup, you will most likely hook up the CS subsystems
+##  with an HSM, so the keys cannot be backed up in this software fashion
+##  so it's irrelevant
+tps_backup_password=redhat
+
+##  PKI Email Variables
+##
+##      For example, to specify 'pkitest@example.com':
+##
+##          pki_email_name=pkitest
+##          pki_email_company=example
+##          pki_email_domain=com
+##
+pki_email_name=
+pki_email_company=
+pki_email_domain=
+
+##  PKI Silent Admin Variables
+##  (e. g. - Import Admin Certificate into PKI Silent "browser" database)
+pki_silent_admin_user=admin
+pki_silent_admin_password=
+pki_silent_admin_email="${pki_email_name}\@${pki_email_company}\.${pki_email_domain}"
+
+
+
+##############################################################################
+##  P R E - D E F I N E D   " D E F A U L T "   V A R I A B L E S           ##
+##############################################################################
+
+##  PKI Subsystem Host (computed by default)
+pki_host=`hostname`
+
+##  PKI Subsystem Names
+## Example:
+##tps_subsystem_name="Token\ Processing\ System\ silentEC"
+tps_subsystem_name=
+
+##  PKI Subsystem Instance Names
+## Example:
+##tps_instance_name="pki-tps-silentEC"
+tps_instance_name=
+
+##
+##  NOTE:  Default PKI Instance Ports
+##
+##      TPS:
+##
+##          *888 - non-secure port
+##          *889 - secure port (clientauth)
+##          *890 - secure port (non-clientauth)
+##
+##
+##  For Example:
+##
+##      semanage port -l | grep pki
+##
+##      pki_tps_port_t         tcp      7890, 7888, 7889
+##
+
+## CA ports
+ca_nonssl_port=31180
+ca_agent_port=31443
+ca_ee_port=31444
+ca_admin_port=31445
+
+## DRM ports
+kra_nonssl_port=10180
+kra_agent_port=10443
+kra_ee_port=10444
+kra_admin_port=10445
+
+## TKS ports
+tks_nonssl_port=13180
+tks_agent_port=13443
+tks_ee_port=13444
+tks_admin_port=13445
+
+## TPS ports
+tps_nonssl_port=9088
+tps_clientauth_port=9089
+tps_nonclientauth_port=9090
+
+
+
+##############################################################################
+##  U S E R - D E F I N E D   V A R I A B L E S   ( O P T I O N A L )       ##
+##############################################################################
+
+##  PKI Silent Log Files
+pki_silent_tps_log=${pki_silent_security_database_repository}/tpsEC.log
+
+
+##
+## NOTE:  For comparison's sake, if the default instances were manually
+##        configured using a Firefox browser, the content of the corresponding
+##        Firefox browser's security libraries would be something similar
+##        to this:
+##
+##            Certificate Nickname                          Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##            Certificate Authority - ${pki_security_domain_name}     CT,C,C
+##            TPS Administrator's ${pki_security_domain_name} ID      u,u,u
+##
+##        where:
+##
+##                Nickname:  "Certificate Authority - "
+##                        +  "${pki_security_domain_name}"
+##            Subject Name:  "cn=Certificate Authority,"
+##                        +  "ou=${ca_instance_name},"
+##                        +  "o=${pki_security_domain_name}"
+##
+##                Nickname:  "TPS Administrator's "
+##                        +  "${pki_security_domain_name} ID"
+##            Subject Name:  "cn=TPS Administrator,"
+##                        +  "uid=admin,"
+##                        +  "e=${pki_silent_admin_email},"
+##                        +  "o=${pki_security_domain_name}"
+##
+
+
+##
+##  REMINDER:  'Escape' ALL spaces in EACH variable specified below!
+##
+##  NOTE:  For comparison's sake, if the default instances were manually
+##         configured using a Firefox browser, the content of the corresponding
+##         "/var/lib/${tps_instance_name}/alias/" security libraries would be
+##         something similar to this:
+##
+##             Certificate Nickname                         Trust Attributes
+##                                                          SSL,S/MIME,JAR/XPI
+##
+##             subsystemCert cert-${tps_instance_name}        u,u,u
+##             caCert                                         CT,C,C
+##             Server-Cert cert-${tps_instance_name}          u,u,u
+##             auditSigningCert cert-${tps_instance_name}     u,u,u
+##
+##         where:
+##
+##                 Nickname:  "subsystemCert cert-${tps_instance_name}"
+##             Subject Name:  "cn=TPS Subsystem Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "caCert"
+##             Subject Name:  "cn=Certificate Authority,"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "Server-Cert cert-${tps_instance_name}"
+##             Subject Name:  "cn=${pki_host},"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+##                 Nickname:  "auditSigningCert cert-${tps_instance_name}"
+##             Subject Name:  "cn=TPS Audit Signing Certificate,"
+##                         +  "ou=${tps_instance_name},"
+##                         +  "o=${pki_security_domain_name}"
+##
+
+tps_chosen_ca_hostname=${pki_security_domain_host}
+tps_chosen_ca_nonssl_port=${ca_nonssl_port}
+tps_chosen_ca_ssl_port=${ca_ee_port}
+tps_chosen_ca_admin_port=${ca_admin_port}
+tps_chosen_tks_hostname=${pki_host}
+tps_chosen_tks_ssl_port=${tks_ee_port}
+tps_chosen_drm_hostname=${pki_host}
+tps_chosen_drm_ssl_port=${kra_ee_port}
+tps_agent_name="TPS\ Administrator\'s\ ${pki_security_domain_name}\ ID"
+tps_agent_key_size=nistp256
+tps_agent_key_type=ecc
+tps_agent_cert_subject="cn=TPS\ Administrator,uid=admin,e=${pki_silent_admin_email},o=${pki_security_domain_name}"
+tps_ldap_auth_host=localhost
+tps_ldap_auth_port=389
+tps_ldap_auth_base_dn="dc=${pki_email_company},dc=${pki_email_domain}"
+tps_base_dn="dc=${pki_host}-${tps_instance_name}"
+tps_db_name="${pki_host}-${tps_instance_name}"
+tps_key_size=256
+tps_key_type=ecc
+tps_key_curvename=nistp256
+tps_ss_keygen=true
+tps_server_cert_subject_name="cn=${pki_host},ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_server_cert_nickname="Server-Cert\ cert-${tps_instance_name}"
+tps_subsystem_cert_subject_name="cn=TPS\ Subsystem\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_subsystem_cert_nickname="subsystemCert\ cert-${tps_instance_name}"
+tps_audit_signing_cert_subject_name="cn=TPS\ Audit\ Signing\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
+tps_audit_signing_cert_nickname="auditSigningCert\ cert-${tps_instance_name}"
+
+
+##############################################################################
+##  C A L C U L A T E   P K I   I N S T A N C E   P I N S                   ##
+##############################################################################
+
+##  PKI Subsystem Instance PINS
+#preop_pin=`cat /var/lib/${tps_instance_name}/conf/CS.cfg \
+#   | grep preop.pin | grep -v grep | awk -F= '{print $2}'`
+preop_pin=
+
+##############################################################################
+##############################################################################
+##                                                                          ##
+##  P K I   S I L E N T  -  S U B S Y S T E M   C O N F I G U R A T I O N   ##
+##                                                                          ##
+##############################################################################
+##############################################################################
+
+##############################################################################
+##  P K I   S I L E N T   I N I T I A L I Z A T I O N                       ##
+##############################################################################
+
+## (1) Make certain that user has defined all MANDATORY user-defined variables!
+usage_errors=0
+usage_error_preamble="ERROR:  User MUST define a value for"
+
+if [ "${preop_pin}" = "" ] ; then
+    printf "${usage_error_preamble} 'preop_pin'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_database_repository}" = "" ] ; then
+    printf "${usage_error_preamble} 'pki_silent_security_database_repository'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_database_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_security_database_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_security_token_name}" = "" ] ; then
+    printf "${usage_error_preamble} 'pki_silent_security_token_name'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_security_domain_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_security_domain_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_bind_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_bind_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${tps_token_name}" = "" ] ; then
+    printf "${usage_error_preamble} 'tps_token_name'!\n"
+    usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${tps_token_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'tps_token_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_name}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_name'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_company}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_company'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_email_domain}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_email_domain'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+if [ "${pki_silent_admin_password}" = "" ] ; then
+	printf "${usage_error_preamble} 'pki_silent_admin_password'!\n"
+	usage_errors=`expr ${usage_errors} + 1`
+fi
+
+
+## (2) Make certain that a PKI instance of the specified name EXISTS,
+##     but has NOT been previously CONFIGURED!
+existence_errors=0
+existence_error_preamble="ERROR:  No PKI Instance named"
+configuration_errors=0
+configuration_error_preamble="ERROR:  A PKI Instance named"
+configuration_error_postamble="EXISTS,\n        but has PREVIOUSLY been CONFIGURED!"
+
+#if [ ! -f "/var/lib/${ca_instance_name}/conf/CS.cfg" ] ; then
+#	printf "${existence_error_preamble} '${ca_instance_name}' EXISTS!\n"
+#	existence_errors=`expr ${existence_errors} + 1`
+#else
+#	ca_configuration_check=`grep -c preop /var/lib/${ca_instance_name}/conf/CS.cfg`
+#	if [ ${ca_configuration_check} -eq 0 ] ; then
+#	    printf "${configuration_error_preamble} '${ca_instance_name}' "
+#		printf "${configuration_error_postamble}\n"
+#		configuration_errors=`expr ${configuration_errors} + 1`
+#	fi
+#fi
+
+
+if	[ ${usage_errors} -ne 0 ]     ||
+	[ ${existence_errors} -ne 0 ] ||
+	[ ${configuration_errors} -ne 0 ] ; then
+	printf "\n"
+	printf "Please correct ALL errors listed above and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (3) Make certain that 'pkisilent' exists and is executable on this system.
+if [ ! -x "/usr/bin/pkisilent" ] ; then
+	printf "\n"
+	printf "ERROR:  Please install the 'pki-silent' package and re-run\n"
+	printf "the '$0' script!\n\n"
+	exit 255
+fi
+
+
+## (4) Check for old PKI Silent Security Databases, but DO NOT remove them!
+##     Instead, inform the user and exit this script.
+if	[ -f "${pki_silent_security_database_repository}/cert8.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/key3.db" ] ||
+	[ -f "${pki_silent_security_database_repository}/secmod.db" ] ; then
+	printf "\n"
+	printf "WARNING:  At least one of the security databases\n"
+	printf "          (i. e. - 'cert8.db', 'key3.db', and/or 'secmod.db')\n"
+	printf "          required by '${pki_silent_script}' exists at the\n"
+	printf "          specified location '${pki_silent_security_database_repository}'.\n"
+	printf "\n"
+	printf "          Please MANUALLY move or erase these security database(s),\n"
+	printf "          or specify a different location before re-running this script.\n\n"
+#	exit 255
+fi
+
+
+## (5) Remove ALL old PKI Silent log files
+printf "Removing old PKI Silent log files:\n"
+if [ -f ${pki_silent_tps_log} ] ; then
+	printf "    Removing old '${pki_silent_tps_log}' . . . "
+	rm ${pki_silent_tps_log}
+	printf "done.\n"
+fi
+printf "Done.\n\n"
+
+
+
+
+export NSS_USE_DECODED_CKA_EC_POINT=1
+##  Configure Subordinate ECC TPS
+printf "'${pki_silent_script}':  Configuring '${tps_instance_name}' . . .\n"
+pkisilent ConfigureTPS \
+	-cs_hostname "${pki_host}" \
+	-cs_port ${tps_nonclientauth_port} \
+	-cs_clientauth_port ${tps_clientauth_port} \
+	-sd_hostname "${pki_security_domain_host}" \
+	-sd_ssl_port ${ca_ee_port} \
+	-sd_agent_port ${ca_agent_port} \
+	-sd_admin_port ${ca_admin_port} \
+	-sd_admin_name "${pki_security_domain_admin_name}" \
+	-sd_admin_password ${pki_security_domain_admin_password} \
+	-ca_hostname ${tps_chosen_ca_hostname} \
+	-ca_port ${tps_chosen_ca_nonssl_port} \
+	-ca_ssl_port ${tps_chosen_ca_ssl_port} \
+	-ca_admin_port ${tps_chosen_ca_admin_port} \
+	-drm_hostname ${tps_chosen_drm_hostname} \
+	-drm_ssl_port ${tps_chosen_drm_ssl_port} \
+	-ss_keygen ${tps_ss_keygen} \
+	-tks_hostname ${tps_chosen_tks_hostname} \
+	-tks_ssl_port ${tps_chosen_tks_ssl_port} \
+	-client_certdb_dir ${pki_silent_security_database_repository} \
+	-client_certdb_pwd ${pki_silent_security_database_password} \
+	-client_token_name ${pki_silent_security_token_name} \
+	-preop_pin ${preop_pin} \
+	-domain_name "${pki_security_domain_name}" \
+	-admin_user ${pki_silent_admin_user} \
+	-admin_password ${pki_silent_admin_password} \
+	-admin_email "${pki_silent_admin_email}" \
+	-agent_name ${tps_agent_name} \
+	-ldap_host ${pki_ldap_host} \
+	-ldap_port ${pki_ldap_port} \
+	-bind_dn "${pki_bind_dn}" \
+	-bind_password ${pki_bind_password} \
+	-base_dn "${tps_base_dn}" \
+	-db_name "${tps_db_name}" \
+	-key_size ${tps_key_curvename} \
+	-key_type ${tps_key_type} \
+	-token_name ${tps_token_name} \
+	-token_pwd ${tps_token_password} \
+	-agent_key_size ${tps_agent_key_size} \
+	-agent_key_type ${tps_agent_key_type} \
+	-agent_cert_subject "${tps_agent_cert_subject}" \
+	-subsystem_name ${tps_subsystem_name} \
+	-subsystem_key_type ${tps_key_type} \
+	-subsystem_key_size ${tps_key_curvename} \
+	-audit_signing_key_size 2048 \
+	-audit_signing_key_type rsa \
+	-sslserver_key_size ${tps_key_curvename} \
+	-sslserver_key_type ${tps_key_type} \
+	-ldap_auth_host ${tps_ldap_auth_host} \
+	-ldap_auth_port ${tps_ldap_auth_port} \
+	-ldap_auth_base_dn ${tps_ldap_auth_base_dn} \
+	-tps_server_cert_subject_name "${tps_server_cert_subject_name}" \
+	-tps_server_cert_nickname "${tps_server_cert_nickname}" \
+	-tps_subsystem_cert_subject_name "${tps_subsystem_cert_subject_name}" \
+	-tps_subsystem_cert_nickname "${tps_subsystem_cert_nickname}" \
+	-tps_audit_signing_cert_subject_name \
+	"${tps_audit_signing_cert_subject_name}" \
+	-tps_audit_signing_cert_nickname \
+	"${tps_audit_signing_cert_nickname}" \
+	| tee ${pki_silent_tps_log}
+
+##  Restart TPS
+## Do this manually as root
+    printf "If configured without errors, ask the OS root user to restart the CS instance:\n"
+    printf "/sbin/service '${tps_instance_name}' restart\n\n"
+
+exit 0
+
