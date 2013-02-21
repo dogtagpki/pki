@@ -242,6 +242,7 @@ public class CertificateRepository extends Repository
         BigInteger randomNumber = null;
 
         synchronized (nextSerialNumberMonitor) {
+            super.initCacheIfNeeded();
             CMS.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
             if (mEnableRandomSerialNumbers) {
