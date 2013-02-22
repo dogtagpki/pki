@@ -38,6 +38,9 @@ import pkilogging
 import pkiconfig as config
 import pkimessages as log
 
+import pki.account
+import pki.client
+import pki.system
 
 class PKIConfigParser:
 
@@ -390,6 +393,26 @@ class PKIConfigParser:
 
     def ds_close(self):
         self.ds_connection.unbind_s()
+
+    def sd_connect(self):
+        self.sd_connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=config.pki_master_dict['pki_security_domain_hostname'],
+            port=config.pki_master_dict['pki_security_domain_https_port'],
+            subsystem='ca')
+
+    def sd_get_info(self):
+        sd = pki.system.SecurityDomainClient(self.sd_connection)
+        return sd.getSecurityDomainInfo()
+
+    def sd_authenticate(self):
+        self.sd_connection.authenticate(
+            config.pki_master_dict['pki_security_domain_user'],
+            config.pki_master_dict['pki_security_domain_password'])
+
+        account = pki.account.AccountClient(self.sd_connection)
+        account.login()
+        account.logout()
 
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"

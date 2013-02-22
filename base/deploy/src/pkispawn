@@ -30,10 +30,12 @@ try:
     import ldap
     import logging
     import os
+    import requests
     import socket
     import struct
     import subprocess
     import time
+    import urllib2
     from time import strftime as date
     from pki.deployment import pkiconfig as config
     from pki.deployment.pkiparser import PKIConfigParser
@@ -225,15 +227,33 @@ def main(argv):
             print
 
             print "Security Domain:"
-            parser.read_text('Name', config.pki_subsystem, 'pki_security_domain_name')
 
-            if config.pki_subsystem != "CA":
-                parser.read_text('Hostname', config.pki_subsystem, 'pki_security_domain_hostname')
-                parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_security_domain_https_port')
-                parser.read_text('Username', config.pki_subsystem, 'pki_security_domain_user')
-                parser.read_password(
-                    'Password', config.pki_subsystem, 'pki_security_domain_password',
-                    verifyMessage='Verify password')
+            if config.pki_subsystem == "CA":
+                parser.read_text('Name', config.pki_subsystem, 'pki_security_domain_name')
+
+            else:
+                while True:
+                    parser.read_text('Hostname', config.pki_subsystem, 'pki_security_domain_hostname')
+                    parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_security_domain_https_port')
+
+                    try:
+                        parser.sd_connect()
+                        info = parser.sd_get_info()
+                        parser.print_text('Name: ' + info.name)
+                        parser.set_property(config.pki_subsystem, 'pki_security_domain_name', info.name)
+                        break
+                    except requests.exceptions.ConnectionError as e:
+                        parser.print_text('ERROR: ' + str(e))
+
+                while True:
+                    parser.read_text('Username', config.pki_subsystem, 'pki_security_domain_user')
+                    parser.read_password('Password', config.pki_subsystem, 'pki_security_domain_password')
+
+                    try:
+                        parser.sd_authenticate()
+                        break
+                    except requests.exceptions.HTTPError as e:
+                        parser.print_text('ERROR: ' + str(e))
 
             print
 
@@ -321,22 +341,39 @@ def main(argv):
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    if not interactive:
+    if not interactive and\
+        not config.str2bool(config.pki_master_dict['pki_skip_configuration']):
         try:
-            if not config.str2bool(config.pki_master_dict['pki_skip_configuration']):
-                parser.ds_connect()
-                parser.ds_bind()
+            parser.ds_connect()
+            parser.ds_bind()
 
-                if parser.ds_base_dn_exists() and\
-                    not config.str2bool(config.pki_master_dict['pki_ds_remove_data']):
-                    print 'ERROR:  Base DN already exists.'
-                    sys.exit(1)
+            if parser.ds_base_dn_exists() and\
+                not config.str2bool(config.pki_master_dict['pki_ds_remove_data']):
+                print 'ERROR:  Base DN already exists.'
+                sys.exit(1)
 
-                parser.ds_close()
+            parser.ds_close()
 
         except ldap.LDAPError as e:
-            print 'ERROR:  ' + e.message['desc']
+            print 'ERROR:  Unable to access directory server: ' + e.message['desc']
             sys.exit(1)
+
+        if config.pki_subsystem != "CA" or\
+            config.str2bool(config.pki_master_dict['pki_clone']) or\
+            config.str2bool(config.pki_master_dict['pki_subordinate']):
+            try:
+                parser.sd_connect()
+                info = parser.sd_get_info()
+                parser.set_property(config.pki_subsystem, 'pki_security_domain_name', info.name)
+                parser.sd_authenticate()
+
+            except requests.exceptions.ConnectionError as e:
+                print('ERROR:  Unable to access security domain: ' + str(e))
+                sys.exit(1)
+
+            except requests.exceptions.HTTPError as e:
+                print('ERROR:  Unable to access security domain: ' + str(e))
+                sys.exit(1)
 
     print "Installing " + config.pki_subsystem + " into " + config.pki_master_dict['pki_instance_path'] + "."
 

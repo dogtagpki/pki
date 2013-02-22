@@ -119,6 +119,16 @@ endif ()
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
 find_package(Threads)
 
+find_package(PythonInterp REQUIRED)
+execute_process(
+    COMMAND
+        ${PYTHON_EXECUTABLE} -c
+        "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+    OUTPUT_VARIABLE
+        PYTHON_SITE_PACKAGES
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 # config.h checks
 include(ConfigureChecks.cmake)
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -198,6 +198,7 @@ Requires:         jss >= 4.2.6-24
 %endif
 Requires:         ldapjdk
 Requires:         python-ldap
+Requires:         python-requests
 %if  0%{?rhel}
 Requires:         resteasy-base
 %else
@@ -805,6 +806,10 @@ fi
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
+%dir %{python_sitelib}/pki
+%{python_sitelib}/pki/*.py
+%{python_sitelib}/pki/*.pyc
+%{python_sitelib}/pki/*.pyo
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -849,8 +854,6 @@ fi
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
-%dir %{python_sitelib}/pki
-%{python_sitelib}/pki/_*
 %{python_sitelib}/pki/deployment/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
@@ -994,6 +997,10 @@ fi
 
 
 %changelog
+* Wed Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-5
+- Added dependency on python-requests.
+- Reorganized Python module packaging.
+
 * Thu Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-4
 - Added dependency on python-ldap.
 

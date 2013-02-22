@@ -1,5 +1,13 @@
 project(common NONE)
 
+# install Python libraries
+install(
+    DIRECTORY
+        python/
+    DESTINATION
+        ${PYTHON_SITE_PACKAGES}
+)
+
 # install systemd scripts
 install(
     FILES

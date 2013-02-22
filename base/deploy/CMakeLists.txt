@@ -105,15 +105,6 @@ install(
         ${SYSCONF_INSTALL_DIR}/pki/
 )
 
-find_package(PythonInterp REQUIRED)
-execute_process(
-    COMMAND
-        ${PYTHON_EXECUTABLE} -c
-        "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-    OUTPUT_VARIABLE
-        PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
 install(
     FILES
         src/scriptlets/configuration.jy
@@ -141,13 +132,6 @@ install(
         OWNER_WRITE OWNER_READ
         GROUP_READ
         WORLD_READ
-)
-install(
-    CODE
-        "execute_process(
-            COMMAND
-                ${CMAKE_COMMAND} -E touch
-                \"\$ENV{DESTDIR}${PYTHON_SITE_PACKAGES}/pki/__init__.py\")"
 )
 install(
     CODE

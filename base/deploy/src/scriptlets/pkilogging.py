@@ -43,42 +43,34 @@ def format(dict):
     return pp.pformat(new_dict)
 
 # PKI Deployment Logging Functions
-def enable_pki_logger(log_dir, log_name, log_level, console_log_level, logger):
+def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     if not os.path.isdir(log_dir):
         try:
             os.makedirs(log_dir)
         except OSError:
             return OSError
 
-    # Establish 'file' logger using 'basicConfig()'
-    logging.LoggerAdapter(logging.getLogger(''), {'indent' : ''})
-    logging.basicConfig(level=log_level,
-                        format='%(asctime)s %(name)-12s ' +\
-                               '%(levelname)-8s ' +\
-                               '%(indent)s%(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=log_dir + "/" + log_name,
-                        filemode='w')
+    # Configure logger
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
 
-    # Establish 'console' logger
+    # Configure console handler
     console = logging.StreamHandler()
-    logging.LoggerAdapter(console, {'indent' : ''})
     console.setLevel(console_log_level)
     console_format = logging.Formatter('%(name)-12s: ' +\
                                        '%(levelname)-8s ' +\
                                        '%(indent)s%(message)s')
     console.setFormatter(console_format)
-    logging.getLogger('').addHandler(console)
+    logger.addHandler(console)
 
-    # Establish 'file' logger
-#   file = logging.FileHandler(log_dir + "/" + log_name, 'w')
-#   logging.LoggerAdapter(file, {'indent' : ''})
-#   file.setLevel(log_level)
-#   file_format = logging.Formatter('%(asctime)s %(name)-12s: ' +\
-#                                   '%(levelname)-8s ' +\
-#                                   '%(indent)s%(message)s',
-#                                   '%Y-%m-%d %H:%M:%S')
-#   file.setFormatter(file_format)
-#   logging.getLogger('').addHandler(file)
+    # Configure file handler
+    file = logging.FileHandler(log_dir + "/" + log_name, 'w')
+    file.setLevel(log_level)
+    file_format = logging.Formatter('%(asctime)s %(name)-12s: ' +\
+                                    '%(levelname)-8s ' +\
+                                    '%(indent)s%(message)s',
+                                    '%Y-%m-%d %H:%M:%S')
+    file.setFormatter(file_format)
+    logger.addHandler(file)
 
-    return logging.getLogger(logger)
+    return logger
