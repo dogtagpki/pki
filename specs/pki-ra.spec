@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.0.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -18,7 +18,7 @@ Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         pki-server >= 10.0.0
-Requires:         pki-ra-theme >= 10.0.0
+Requires:         pki-server-theme >= 10.0.0
 Requires:         perl-DBD-SQLite
 Requires:         sqlite
 Requires:         /usr/sbin/sendmail
@@ -52,7 +52,11 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the following
 "Mutually-Exclusive" PKI Theme packages:
 
   * dogtag-pki-theme (Dogtag Certificate System deployments)
-  * redhat-pki-theme (Red Hat Certificate System deployments)
+    * dogtag-pki-server-theme
+  * redhat-pki-server-theme (Red Hat Certificate System deployments)
+    * redhat-pki-server-theme
+  * customized pki theme (Customized Certificate System deployments)
+    * <customized>-pki-server-theme
 
 
 %prep
@@ -190,6 +194,10 @@ fi
 
 
 %changelog
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
 * Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
 - Update to official release for rc1
 

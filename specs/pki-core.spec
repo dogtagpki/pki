@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          1%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -124,12 +124,21 @@ PKI Core also includes the following components:                       \
                                                                        \
   * pki-javadoc                                                        \
                                                                        \
-Finally, for deployment purposes, Certificate System requires ONE AND  \
-ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
+Finally, if Certificate System is being deployed as an individual or   \
+set of standalone rather than embedded server(s)/service(s), it is     \
+strongly recommended (though not explicitly required) to include at    \
+least one PKI Theme package:                                           \
                                                                        \
   * dogtag-pki-theme (Dogtag Certificate System deployments)           \
-  * ipa-pki-theme    (IPA deployments)                                 \
-  * redhat-pki-theme (Red Hat Certificate System deployments)          \
+    * dogtag-pki-server-theme                                          \
+  * redhat-pki-server-theme (Red Hat Certificate System deployments)   \
+    * redhat-pki-server-theme                                          \
+  * customized pki theme (Customized Certificate System deployments)   \
+    * <customized>-pki-server-theme                                    \
+                                                                       \
+  NOTE:  As a convenience for standalone deployments, top-level meta   \
+         packages may be provided which bind a particular theme to     \
+         these certificate server packages.                            \
                                                                        \
 %{nil}
 
@@ -253,7 +262,6 @@ Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         jython >= 2.2.1
-Requires:         pki-server-theme >= 10.0.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
@@ -985,6 +993,14 @@ fi
 
 
 %changelog
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-3
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
+* Fri Mar  1 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-2
+- Removed runtime dependency on 'pki-server-theme' to resolve
+  Bugzilla Bug #916134 - unresolved dependency in pki-server: pki-server-theme
+
 * Tue Jan 15 2013 Ade Lee <alee@redhat.com> 10.0.1-1
 - TRAC Ticket 214 - Missing error description for duplicate user
 - TRAC Ticket 213 - Add nonces for cert revocation

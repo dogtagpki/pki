@@ -57,15 +57,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 master['pki_tomcat_webapps_root_path'],
                 overwrite_flag=True)
 
-            # Copy /usr/share/pki/common-ui
+            # If desired and available,
+            # copy selected server theme
             # to <instance>/webapps/pki
-            util.directory.create(master['pki_tomcat_webapps_common_path'])
-            util.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "common-ui"),
-                master['pki_tomcat_webapps_common_path'],
-                overwrite_flag=True)
+            if config.str2bool(master['pki_theme_enable']) and\
+               os.path.exists(master['pki_theme_server_dir']):
+                util.directory.create(master['pki_tomcat_webapps_common_path'])
+                util.directory.copy(master['pki_theme_server_dir'],
+                                    master['pki_tomcat_webapps_common_path'],
+                                    overwrite_flag=True)
 
             # Copy /usr/share/pki/server/webapps/pki/js
             # to <instance>/webapps/pki/js

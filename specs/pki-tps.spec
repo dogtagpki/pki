@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.0.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -27,7 +27,7 @@ Requires:         mod_revocator
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
 Requires:         pki-server >= 10.0.0
-Requires:         pki-tps-theme >= 10.0.0
+Requires:         pki-server-theme >= 10.0.0
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -65,7 +65,11 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the         \
 following "Mutually-Exclusive" PKI Theme packages:                        \
                                                                           \
   * dogtag-pki-theme (Dogtag Certificate System deployments)              \
-  * redhat-pki-theme (Red Hat Certificate System deployments)             \
+    * dogtag-pki-server-theme                                             \
+  * redhat-pki-server-theme (Red Hat Certificate System deployments)      \
+    * redhat-pki-server-theme                                             \
+  * customized pki theme (Customized Certificate System deployments)      \
+    * <customized>-pki-server-theme                                       \
                                                                           \
 %{nil}
 
@@ -74,7 +78,7 @@ following "Mutually-Exclusive" PKI Theme packages:                        \
 
 ==================================
 ||  ABOUT "CERTIFICATE SYSTEM"  ||
-================================== 
+==================================
 ${overview}
 
 
@@ -223,6 +227,10 @@ fi
 
 
 %changelog
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
 * Fri Dec 7 2012 Ade Lee <alee@redhat.com> 10.0.0-1
 - Update to official release for rc1
 

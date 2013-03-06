@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.0.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -93,8 +93,6 @@ Requires:         jss-javadoc >= %{jss_version}
 # of ALL Dogtag PKI theme packages
 Requires:         dogtag-pki-server-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-ra-theme >= %{dogtag_pki_theme_version}
-Requires:         dogtag-pki-tps-theme >= %{dogtag_pki_theme_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
@@ -130,27 +128,14 @@ Requires:         pki-console >= %{pki_console_version}
 # of ALL Dogtag PKI clients
 Requires:         esc >= %{esc_version}
 
-# NOTE:  Several PKI packages require a "virtual" theme component.  These
-#        "virtual" theme components are "Provided" by various theme "flavors"
-#        including "dogtag", "redhat", and "ipa".  Consequently,
-#        all "dogtag", "redhat", and "ipa" theme components MUST be
-#        mutually exclusive!
+# NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
+#        top-level meta package supplies Dogtag themes for use by the
+#        certificate server packages:
 #
-#        On Fedora systems, the "dogtag" theme packages are the ONLY available
-#        theme components.
+#          * dogtag-pki-theme (Dogtag Certificate System deployments)
+#            * dogtag-pki-server-theme
+#            * dogtag-pki-console-theme
 #
-#        Similarly, the "ipa" theme packages are ONLY available on RHEL
-#        systems, and represent the default theme components.
-#
-#        Alternatively, on RHEL systems, if the "dogtag" theme packages are
-#        available as EPEL packages, while they may be used as a transparent
-#        replacement for their corresponding "ipa" theme package, they are not
-#        intended to be used as a replacement for their corresponding "redhat"
-#        theme components.
-#
-#        Finally, if available for a RHEL system (e. g. - RHCS subscription),
-#        each "redhat" theme package MUST be used as a transparent replacement
-#        for its corresponding "ipa" theme package or "dogtag" theme package.
 Obsoletes:        ipa-pki
 Conflicts:        redhat-pki
 
@@ -201,6 +186,10 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-2
+- TRAC Ticket #517 - Clean up theme dependencies
+- TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
+
 * Tue Jan 15 2013 Ade Lee <alee@rdhat.com> 10.0.1-1
 - Update for release of 10.0.1 for pki-core
 
