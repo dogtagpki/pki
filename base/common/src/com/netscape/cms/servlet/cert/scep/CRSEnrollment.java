@@ -206,7 +206,6 @@ public class CRSEnrollment extends HttpServlet {
 
     public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
         Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
-        @SuppressWarnings("unchecked")
         Enumeration<String> names = req.getParameterNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();

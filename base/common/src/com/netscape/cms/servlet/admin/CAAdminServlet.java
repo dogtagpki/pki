@@ -229,7 +229,6 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -290,7 +289,6 @@ public class CAAdminServlet extends AdminServlet {
 
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -325,7 +323,6 @@ public class CAAdminServlet extends AdminServlet {
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -378,7 +375,6 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         //set rest of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -483,7 +479,6 @@ public class CAAdminServlet extends AdminServlet {
 
             if (ip != null) {
 
-                @SuppressWarnings("unchecked")
                 Enumeration<String> e = req.getParameterNames();
                 String value = "";
 
@@ -942,7 +937,6 @@ public class CAAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         String ipId = null;
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -1018,7 +1012,6 @@ public class CAAdminServlet extends AdminServlet {
             if (id != null) {
                 IConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(id);
 
-                @SuppressWarnings("unchecked")
                 Enumeration<String> e = req.getParameterNames();
 
                 while (e.hasMoreElements()) {
@@ -1229,7 +1222,6 @@ public class CAAdminServlet extends AdminServlet {
             IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
             //set reset of the parameters
-            @SuppressWarnings("unchecked")
             Enumeration<String> e = req.getParameterNames();
 
             while (e.hasMoreElements()) {
@@ -1320,7 +1312,6 @@ public class CAAdminServlet extends AdminServlet {
                 mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -1354,7 +1345,6 @@ public class CAAdminServlet extends AdminServlet {
             caConnectorConfig = connectorConfig.getSubStore("CLA");
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         NameValuePairs params = new NameValuePairs();
 
@@ -1391,7 +1381,6 @@ public class CAAdminServlet extends AdminServlet {
             caConnectorConfig = connectorConfig.getSubStore("CLA");
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         if (caConnectorConfig != null) {
@@ -1427,7 +1416,6 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private boolean isKRAConnector(HttpServletRequest req) {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -1446,7 +1434,6 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private boolean isCLAConnector(HttpServletRequest req) {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -1533,7 +1520,6 @@ public class CAAdminServlet extends AdminServlet {
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 

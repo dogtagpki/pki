@@ -185,7 +185,6 @@ class ProxyWrapper extends HttpServletRequestWrapper {
             mValueMap = v;
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, String[]> getParameterMap() {
         try {
             // If we haven't specified any parameter mapping, just

@@ -2316,7 +2316,6 @@ public class LogAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 

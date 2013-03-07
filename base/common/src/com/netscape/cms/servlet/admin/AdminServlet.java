@@ -200,7 +200,6 @@ public class AdminServlet extends HttpServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("AdminServlet:service() uri = " + httpReq.getRequestURI());
-        @SuppressWarnings("unchecked")
         Enumeration<String> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();
@@ -847,7 +846,6 @@ public class AdminServlet extends HttpServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -879,7 +877,6 @@ public class AdminServlet extends HttpServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -1078,7 +1075,6 @@ public class AdminServlet extends HttpServlet {
         // identify any remaining request parameters
         Map<String, String> params = new LinkedHashMap<String, String>();
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {

@@ -22,13 +22,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.PrivateKey;
 import java.security.MessageDigest;
+import java.security.PublicKey;
 
+import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509Key;
-import netscape.security.pkcs.PKCS10;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
@@ -37,11 +36,9 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.*;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.primitive.AVA;
@@ -50,10 +47,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.cmsutil.util.HMACDigest;
-import com.netscape.cmsutil.util.Utils;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -135,7 +131,7 @@ public class PKCS10Client {
             } else if (name.equals("-s")) {
                 String ec_sensitive_s = args[i+1];
                 ec_sensitive = Integer.parseInt(ec_sensitive_s);
-                if ((ec_sensitive != 0) && 
+                if ((ec_sensitive != 0) &&
                     (ec_sensitive != 1) &&
                     (ec_sensitive != -1)) {
                       System.out.println("PKCS10Client: Illegal input parameters for -s.");
@@ -145,7 +141,7 @@ public class PKCS10Client {
             } else if (name.equals("-e")) {
                 String ec_extractable_s = args[i+1];
                 ec_extractable = Integer.parseInt(ec_extractable_s);
-                if ((ec_extractable != 0) && 
+                if ((ec_extractable != 0) &&
                     (ec_extractable != 1) &&
                     (ec_extractable != -1)) {
                       System.out.println("PKCS10Client: Illegal input parameters for -e.");
@@ -179,7 +175,7 @@ public class PKCS10Client {
         if (dbdir == null)
             dbdir = ".";
 
-        try { 
+        try {
             // initialize CryptoManager
             String mPrefix = "";
             CryptoManager.InitializationValues vals =
@@ -210,9 +206,9 @@ public class PKCS10Client {
             KeyPair pair = null;
 
             if (alg.equals("rsa")) {
-                KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA); 
+                KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
                 kg.initialize(rsa_keylen);
-                pair = kg.genKeyPair(); 
+                pair = kg.genKeyPair();
             }  else if (alg.equals("ec")) {
                 // used with SSL server cert that does ECDH ECDSA
                 org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
@@ -277,11 +273,6 @@ public class PKCS10Client {
                 certRequest = new CertificationRequest(certReqInfo,
                 pair.getPrivate(), SignatureAlgorithm.RSASignatureWithMD5Digest);
                 System.out.println("PKCS10Client: CertificationRequest created.");
-                if (certRequest == null) {
-                    System.out.println("PKCS10Client: certRequest null.");
-                    System.exit(1);
-                } else
-                    System.out.println("PKCS10Client: certRequest not null.");
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 certRequest.encode(bos);
@@ -304,7 +295,7 @@ public class PKCS10Client {
                 xKey = CryptoUtil.getPublicX509ECCKey(pubk_encoded);
                 System.out.println("PKCS10Client: calling CryptoUtil.createCertificationRequest");
                 PKCS10 certReq = CryptoUtil.createCertificationRequest(
-                    subjectName, xKey, (org.mozilla.jss.crypto.PrivateKey) pair.getPrivate(), 
+                    subjectName, xKey, (org.mozilla.jss.crypto.PrivateKey) pair.getPrivate(),
                     "SHA256withEC");
 
                 System.out.println("PKCS10Client: created cert request");
@@ -316,11 +307,11 @@ public class PKCS10Client {
                 byte[] certReqb = certReq.toByteArray();
                 b64E = CryptoUtil.base64Encode(certReqb);
             }
- 
+
             System.out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
             System.out.println(b64E);
             System.out.println("-----END NEW CERTIFICATE REQUEST-----");
-    
+
             PrintStream ps = null;
             ps = new PrintStream(new FileOutputStream(ofilename));
             ps.println("-----BEGIN NEW CERTIFICATE REQUEST-----");

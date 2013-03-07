@@ -757,7 +757,6 @@ public class ProcessCertReq extends CMSServlet {
                                 }
 
                                 if (mExtraAgentParams) {
-                                    @SuppressWarnings("unchecked")
                                     Enumeration<String> extraparams = req.getParameterNames();
                                     int l = IRequest.AGENT_PARAMS.length() + 1;
                                     int ap_counter = 0;

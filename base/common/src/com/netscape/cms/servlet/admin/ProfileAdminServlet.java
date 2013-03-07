@@ -579,7 +579,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
 
@@ -705,7 +704,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
 
@@ -807,7 +805,6 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String policyId = "";
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -928,7 +925,6 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String inputId = "";
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1046,7 +1042,6 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             String profileId = "";
             String outputId = "";
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1195,7 +1190,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1332,7 +1326,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1470,7 +1463,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1599,7 +1591,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfileInput input = profile.getProfileInput(inputId);
             IConfigStore inputConfig = input.getConfigStore();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1719,7 +1710,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfileOutput output = profile.getProfileOutput(outputId);
             IConfigStore outputConfig = output.getConfigStore();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -1843,7 +1833,6 @@ public class ProfileAdminServlet extends AdminServlet {
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
 
             CMS.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con);

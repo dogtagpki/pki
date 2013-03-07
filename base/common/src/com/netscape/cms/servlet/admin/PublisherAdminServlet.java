@@ -433,7 +433,6 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         IConfigStore ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP);
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -515,7 +514,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //set reset of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
         String pwd = null;
 
@@ -636,7 +634,6 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //set reset of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
         String pwd = null;
 

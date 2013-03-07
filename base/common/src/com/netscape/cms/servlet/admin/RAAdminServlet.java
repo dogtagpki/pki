@@ -185,7 +185,6 @@ public class RAAdminServlet extends AdminServlet {
             HttpServletResponse resp, IConfigStore rc) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -251,7 +250,6 @@ public class RAAdminServlet extends AdminServlet {
 
         IConfigStore riq = nc.getSubStore(IRegistrationAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -287,7 +285,6 @@ public class RAAdminServlet extends AdminServlet {
         IConfigStore riq = nc.getSubStore(IRegistrationAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -325,7 +322,6 @@ public class RAAdminServlet extends AdminServlet {
             HttpServletResponse resp, IConfigStore rc, IRequestListener thisListener) throws ServletException,
             IOException, EBaseException {
         //set rest of the parameters
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -408,7 +404,6 @@ public class RAAdminServlet extends AdminServlet {
          }
          */
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         NameValuePairs params = new NameValuePairs();
 
@@ -446,7 +441,6 @@ public class RAAdminServlet extends AdminServlet {
             caConnectorConfig = connectorConfig.getSubStore("KRA");
         }
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         if (caConnectorConfig != null) {
@@ -475,7 +469,6 @@ public class RAAdminServlet extends AdminServlet {
 
     private boolean isCAConnector(HttpServletRequest req) {
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -495,7 +488,6 @@ public class RAAdminServlet extends AdminServlet {
 
     private boolean isRAConnector(HttpServletRequest req) {
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -515,7 +507,6 @@ public class RAAdminServlet extends AdminServlet {
 
     private boolean isKRAConnector(HttpServletRequest req) {
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {

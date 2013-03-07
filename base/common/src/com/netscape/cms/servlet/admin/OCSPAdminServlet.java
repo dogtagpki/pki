@@ -344,7 +344,6 @@ public class OCSPAdminServlet extends AdminServlet {
 
             IOCSPStore store = mOCSP.getOCSPStore(id);
 
-            @SuppressWarnings("unchecked")
             Enumeration<String> e = req.getParameterNames();
 
             while (e.hasMoreElements()) {
@@ -489,7 +488,6 @@ public class OCSPAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
 
             while (enum1.hasMoreElements()) {

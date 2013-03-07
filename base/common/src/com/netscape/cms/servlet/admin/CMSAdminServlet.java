@@ -523,7 +523,6 @@ public final class CMSAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             NameValuePairs params = new NameValuePairs();
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
@@ -840,7 +839,6 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         IConfigStore dbConfig = mConfig.getSubStore(PROP_INTERNAL_DB);
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -868,7 +866,6 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
         String newKeyName = null, selectedToken = null;
         while (e.hasMoreElements()) {
@@ -902,7 +899,6 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -951,7 +947,6 @@ public final class CMSAdminServlet extends AdminServlet {
         IConfigStore dbConfig = mConfig.getSubStore(PROP_DB);
         IConfigStore ldapConfig = dbConfig.getSubStore("ldap");
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
@@ -1014,7 +1009,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void loggedInToken(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         String tokenName = "";
         String pwd = "";
@@ -1043,7 +1037,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void checkTokenStatus(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         String key = "";
         String value = "";
@@ -1090,7 +1083,6 @@ public final class CMSAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             NameValuePairs params = new NameValuePairs();
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
             String keyType = "";
@@ -1461,7 +1453,6 @@ public final class CMSAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
             String keyType = "RSA";
@@ -1885,7 +1876,6 @@ public final class CMSAdminServlet extends AdminServlet {
             String serverRoot = "";
             String serverID = "";
             String certpath = "";
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
 
             while (enum1.hasMoreElements()) {
@@ -2302,7 +2292,6 @@ public final class CMSAdminServlet extends AdminServlet {
             String serverRoot = "";
             String serverID = "";
             String certpath = "";
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             NameValuePairs results = new NameValuePairs();
 
@@ -2528,7 +2517,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void getCertInfo(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         NameValuePairs results = new NameValuePairs();
         String pkcs = "";
@@ -2626,7 +2614,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void getCertPrettyPrint(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
@@ -2670,7 +2657,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void getRootCertTrustBit(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
@@ -2786,7 +2772,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void deleteCerts(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
@@ -2819,7 +2804,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void validateSubjectName(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -2847,7 +2831,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void validateCurveName(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         String curveName = null;
 
@@ -2878,7 +2861,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private void validateCertExtension(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         String certExt = "";
 
@@ -2903,7 +2885,6 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         String nickname = "";
@@ -2930,7 +2911,6 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
 
         String nickname = "";
@@ -3016,7 +2996,6 @@ public final class CMSAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                     CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
@@ -3117,7 +3096,6 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
                         + "  ENTERING . . .");
             }
-            @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
             String request = "";
             NameValuePairs results = new NameValuePairs();

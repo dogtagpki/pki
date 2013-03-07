@@ -22,8 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.SecureRandom;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.Hashtable;
 
 import netscape.security.util.BigInt;
@@ -39,7 +39,6 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
@@ -208,9 +207,7 @@ public class TokenKeyRecoveryService implements IService {
         String iv_s = "";
 
         CMS.debug("KRA services token key recovery request");
-        CryptoManager cm = null;
         IConfigStore config = null;
-        String tokName = "";
         Boolean allowEncDecrypt_recovery = false;
 
         try {
@@ -485,7 +482,7 @@ public class TokenKeyRecoveryService implements IService {
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
- 
+
                 wrapper.initWrap(sk, algParam);
                 wrapped = wrapper.wrap(privKey);
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
@@ -610,7 +607,7 @@ public class TokenKeyRecoveryService implements IService {
      * Recovers key.
      *     - with allowEncDecrypt_archival == false
      */
-    public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean allowEncDecrypt_archival) 
+    public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean allowEncDecrypt_archival)
         throws EBaseException {
         CMS.debug( "TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being false");
         if (allowEncDecrypt_archival) {
@@ -642,7 +639,7 @@ public class TokenKeyRecoveryService implements IService {
                 keyRecord.getAlgorithm(),
                 iv,
                 pri,
-                (PublicKey) pubkey);
+                pubkey);
             if (privKey == null) {
                 CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery failure");
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key recovery/unwrapping failure"));

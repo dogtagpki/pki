@@ -248,7 +248,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         if (CMS.debugOn()) {
             CMS.debug("Start of ProfileSubmitCMCServlet Input Parameters");
-            @SuppressWarnings("unchecked")
             Enumeration<String> paramNames = request.getParameterNames();
 
             while (paramNames.hasMoreElements()) {

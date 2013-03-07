@@ -188,7 +188,6 @@ public class KRAAdminServlet extends AdminServlet {
     private void setGeneralConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 

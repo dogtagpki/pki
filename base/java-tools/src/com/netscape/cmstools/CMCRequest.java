@@ -30,7 +30,6 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -52,7 +51,6 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -1040,8 +1038,6 @@ public class CMCRequest {
                 System.exit(1);
             }
 
-            CryptoStore store = token.getCryptoStore();
-            X509Certificate[] list = store.getCertificates();
             X509Certificate signerCert = null;
 
             StringBuffer certname = new StringBuffer();

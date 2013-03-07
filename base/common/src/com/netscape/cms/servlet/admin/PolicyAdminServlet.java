@@ -1183,8 +1183,7 @@ public class PolicyAdminServlet extends AdminServlet {
                 return;
             }
             // XXX
-            for (@SuppressWarnings("unchecked")
-            Enumeration<String> n = req.getParameterNames(); n.hasMoreElements();) {
+            for (Enumeration<String> n = req.getParameterNames(); n.hasMoreElements();) {
                 String p = n.nextElement();
                 String l = req.getParameter(p);
 

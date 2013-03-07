@@ -19,8 +19,8 @@ package com.netscape.cmstools;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,7 +50,6 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.*;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.Signature;
@@ -71,10 +70,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.cmsutil.util.HMACDigest;
-import com.netscape.cmsutil.util.Utils;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -167,13 +165,12 @@ public class CRMFPopClient {
         int ec_extractable = -1; /* -1, 0, or 1 */
         boolean ec_ssl_ecdh = false;
 
-        int PORT = 0;
         String USER_NAME = null;
         String REQUESTOR_NAME = null;
         String PROFILE_NAME = null;
- 
+
         // format: "host:port"
-        String HOST_PORT = null; 
+        String HOST_PORT = null;
         String SUBJ_DN = null;
         int doServerHit = 0;
 
@@ -213,7 +210,7 @@ public class CRMFPopClient {
             } else if (name.equals("-s")) {
                 String ec_sensitive_s = args[i+1];
                 ec_sensitive = Integer.parseInt(ec_sensitive_s);
-                if ((ec_sensitive != 0) && 
+                if ((ec_sensitive != 0) &&
                     (ec_sensitive != 1) &&
                     (ec_sensitive != -1)) {
                       System.out.println("PKCS10Client: Illegal input parameters for -s.");
@@ -223,7 +220,7 @@ public class CRMFPopClient {
             } else if (name.equals("-e")) {
                 String ec_extractable_s = args[i+1];
                 ec_extractable = Integer.parseInt(ec_extractable_s);
-                if ((ec_extractable != 0) && 
+                if ((ec_extractable != 0) &&
                     (ec_extractable != 1) &&
                     (ec_extractable != -1)) {
                       System.out.println("PKCS10Client: Illegal input parameters for -e.");
@@ -248,7 +245,7 @@ public class CRMFPopClient {
             } else if (name.equals("-q")) {
                 POP_OPTION = args[i+1];
                 if (!POP_OPTION.equals("POP_SUCCESS") &&
-                    !POP_OPTION.equals("POP_FAIL") && 
+                    !POP_OPTION.equals("POP_FAIL") &&
                     !POP_OPTION.equals("POP_NONE")) {
                     System.out.println("CRMFPopClient: ERROR: invalid POP option: "+ POP_OPTION);
                     System.exit(1);
@@ -270,7 +267,6 @@ public class CRMFPopClient {
         InputStream is = null;
         BufferedReader reader = null;
         boolean success = false;
-        int num = 1;
         long total_time = 0;
         KeyPair pair = null;
 
@@ -295,18 +291,18 @@ public class CRMFPopClient {
              }
         }
 
-        try { 
+        try {
             CryptoManager.initialize( DB_DIR );
         } catch (AlreadyInitializedException ae) {
-            // it is ok if it is already initialized 
+            // it is ok if it is already initialized
             System.out.println("CRMFPopClient: already initialized, continue");
-        } catch (Exception e) { 
+        } catch (Exception e) {
             System.out.println("CRMFPopClient: INITIALIZATION ERROR: " + e.toString());
             System.exit(1);
         }
 
         try {
-            CryptoManager manager = CryptoManager.getInstance(); 
+            CryptoManager manager = CryptoManager.getInstance();
             String token_pwd = TOKEN_PWD;
             if (token_pwd == null) {
                System.out.println("missing password");
@@ -322,9 +318,9 @@ public class CRMFPopClient {
             }
             System.out.println("CRMFPopClient: getting token: "+TOKEN_NAME);
             manager.setThreadToken(token);
-            Password password = new Password(token_pwd.toCharArray()); 
+            Password password = new Password(token_pwd.toCharArray());
             try {
-                token.login(password); 
+                token.login(password);
             } catch (Exception e) {
                 System.out.println("CRMFPopClient: login Exception: " + e.toString());
                 System.exit(1);
@@ -347,10 +343,10 @@ public class CRMFPopClient {
 
             if (alg.equals("rsa")) {
                 KeyPairGenerator kg = token.getKeyPairGenerator(
-                KeyPairAlgorithm.RSA); 
+                KeyPairAlgorithm.RSA);
                 kg.initialize(RSA_keylen);
 
-                pair = kg.genKeyPair(); 
+                pair = kg.genKeyPair();
             } else if (alg.equals("ec")) {
                 /*
                  * used with SSL server cert that does ECDH ECDSA
@@ -388,7 +384,7 @@ public class CRMFPopClient {
             System.out.println(".before KeyWrapper");
 
             // wrap private key using session
-            KeyWrapper wrapper1 = 
+            KeyWrapper wrapper1 =
                 token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
 
             System.out.println(".key wrapper created");
@@ -404,11 +400,11 @@ public class CRMFPopClient {
             // currently, a transport cert has to be an RSA cert,
             // regardless of the key you are wrapping
             KeyWrapper rsaWrap = token.getKeyWrapper(
-            KeyWrapAlgorithm.RSA); 
+            KeyWrapAlgorithm.RSA);
 
             System.out.println(".got rsaWrapper");
 
-            rsaWrap.initWrap(tcert.getPublicKey(), null); 
+            rsaWrap.initWrap(tcert.getPublicKey(), null);
 
             System.out.println(".rsaWrap inited");
 
@@ -423,10 +419,10 @@ public class CRMFPopClient {
 
                 Name n1 = getJssName(SUBJ_DN);
 
-                Name n = new Name(); 
+                Name n = new Name();
 
-                n.addCommonName("Me"); 
-                n.addCountryName("US"); 
+                n.addCommonName("Me");
+                n.addCountryName("US");
                 n.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString("MyUid")));
 
                 if (n1 != null)
@@ -463,7 +459,7 @@ public class CRMFPopClient {
                 }
 
                 /* Example of adding the POP link witness control to CRMF */
-                byte[] b = 
+                byte[] b =
                 { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
                      0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
                      0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
@@ -491,7 +487,7 @@ public class CRMFPopClient {
                 ByteArrayOutputStream bo = new ByteArrayOutputStream();
                 certReq.encode(bo);
                 byte[] toBeVerified = bo.toByteArray();
-                                    
+
                 byte popdata[] = ASN1Util.encode(certReq);
                 byte signature[];
 
@@ -539,7 +535,7 @@ public class CRMFPopClient {
                     if (alg.equals("rsa")) {
                         algID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithMD5Digest.toOID(), null );
                     } else { // "ec"
-                        algID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA1Digest.toOID(), null ); 
+                        algID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA1Digest.toOID(), null );
                     }
                     POPOSigningKey popoKey = new POPOSigningKey(null,algID, new BIT_STRING(signature,0));
 
@@ -554,7 +550,7 @@ public class CRMFPopClient {
 
                 SEQUENCE s1 = new SEQUENCE();
                 s1.addElement(crmfMsg);
-                byte encoded[] = ASN1Util.encode(s1); 
+                byte encoded[] = ASN1Util.encode(s1);
 
                 String Req1 = CMS.BtoA(encoded);
 
@@ -579,10 +575,10 @@ public class CRMFPopClient {
                     if (doServerHit == 0)
                         return;
                     }
-                                    
+
                     String Req = URLEncoder.encode(Req1);
 
-                    url = 
+                    url =
                             new URL("http://"
                                 + HOST_PORT + "/ca/ee/ca/profileSubmit?cert_request_type=crmf&cert_request="
                                 + Req + "&renewal=false&uid=" + USER_NAME + "&xmlOutput=false&&profileId="
@@ -591,33 +587,33 @@ public class CRMFPopClient {
 
                     System.out.println("CRMFPopClient: Posting " + url);
 
-                    System.out.println(""); 
+                    System.out.println("");
                     System.out.println("CRMFPopClient: Server Response.....");
                     System.out.println("--------------------");
                     System.out.println("");
 
-                    long start_time = (new Date()).getTime(); 
-                    conn = url.openConnection(); 
-                    is = conn.getInputStream(); 
-                    reader = new BufferedReader(new InputStreamReader(is)); 
-                    String line = null; 
+                    long start_time = (new Date()).getTime();
+                    conn = url.openConnection();
+                    is = conn.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(is));
+                    String line = null;
 
-                    while ((line = reader.readLine()) != null) { 
+                    while ((line = reader.readLine()) != null) {
                         System.out.println(line);
-                        if (line.equals("CMS Enroll Request Success")) { 
-                            success = true; 
+                        if (line.equals("CMS Enroll Request Success")) {
+                            success = true;
                             System.out.println("CRMFPopClient: Enrollment Successful: ......");
                             System.out.println("");
-                        } 
-                    } /* while */ 
+                        }
+                    } /* while */
 
-                    long end_time = (new Date()).getTime(); 
-                    total_time += (end_time - start_time); 
-                } catch (Exception e) { 
+                    long end_time = (new Date()).getTime();
+                    total_time += (end_time - start_time);
+                } catch (Exception e) {
                     System.out.println("CRMFPopClient: WARNING: " + e.toString());
                     e.printStackTrace();
                 }
-        } catch (Exception e) { 
+        } catch (Exception e) {
                 System.out.println("CRMFPopClient: ERROR: " + e.toString());
                 e.printStackTrace();
         }
