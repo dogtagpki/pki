@@ -277,6 +277,7 @@ class PKIConfigParser:
                     done = True
                     break
 
+        value = value.replace("%", "%%")
         if section:
             self.set_property(section, property, value)
 
@@ -301,6 +302,7 @@ class PKIConfigParser:
             else:
                 print ' ' * self.indent  + 'Passwords do not match.'
 
+        password = password.replace("%", "%%")
         if section:
             self.set_property(section, property, password)
 
