@@ -81,18 +81,19 @@ public class SubjectDirAttributesExtension extends Extension
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        //encoding the attributes
-        Enumeration<Attribute> attrs = attrList.elements();
-        while (attrs.hasMoreElements()) {
-            Attribute attr = attrs.nextElement();
-            attr.encode(tmp);
+            //encoding the attributes
+            Enumeration<Attribute> attrs = attrList.elements();
+            while (attrs.hasMoreElements()) {
+                Attribute attr = attrs.nextElement();
+                attr.encode(tmp);
+            }
+
+            out.write(DerValue.tag_SequenceOf, tmp);
+            this.extensionValue = out.toByteArray();
         }
-
-        out.write(DerValue.tag_SequenceOf, tmp);
-        this.extensionValue = out.toByteArray();
     }
 
     // Decode this extension value

@@ -68,7 +68,7 @@ import com.netscape.cmsutil.util.Utils;
 public class ExtJoiner {
 
     public static void main(String args[]) {
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             if (args.length == 0) {
                 System.out.println("Usage:  ExtJoiner <ext_file0> <ext_file1> ... <ext_fileN>");
                 System.exit(0);
@@ -80,7 +80,6 @@ public class ExtJoiner {
 
                 exts[i] = new DerValue(data);
             }
-            DerOutputStream out = new DerOutputStream();
 
             out.putSequence(exts);
             System.out.println(Utils.base64encode(out.toByteArray()));

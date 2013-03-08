@@ -191,12 +191,13 @@ public class PKCS9Attributes {
     }
 
     private byte[] generateDerEncoding() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        Object[] attribVals = attributes.values().toArray();
+        try (DerOutputStream out = new DerOutputStream()) {
+            Object[] attribVals = attributes.values().toArray();
 
-        out.putOrderedSetOf(DerValue.tag_SetOf,
-                castToDerEncoder(attribVals));
-        return out.toByteArray();
+            out.putOrderedSetOf(DerValue.tag_SetOf,
+                    castToDerEncoder(attribVals));
+            return out.toByteArray();
+        }
     }
 
     /**

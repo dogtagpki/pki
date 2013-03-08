@@ -169,29 +169,28 @@ public class CertificateValidity implements CertAttrSet, Serializable {
      * @exception IOException on errors.
      */
     public void encode(OutputStream out) throws IOException {
-
         // in cases where default constructor is used check for
         // null values
         if (notBefore == null || notAfter == null) {
             throw new IOException("CertAttrSet:CertificateValidity:" +
-                                  " null values to encode.\n");
+                    " null values to encode.\n");
         }
-        DerOutputStream pair = new DerOutputStream();
+        try (DerOutputStream pair = new DerOutputStream();
+             DerOutputStream seq = new DerOutputStream()) {
+            if (notBefore.getTime() < YR_2050) {
+                pair.putUTCTime(notBefore);
+            } else
+                pair.putGeneralizedTime(notBefore);
 
-        if (notBefore.getTime() < YR_2050) {
-            pair.putUTCTime(notBefore);
-        } else
-            pair.putGeneralizedTime(notBefore);
+            if (notAfter.getTime() < YR_2050) {
+                pair.putUTCTime(notAfter);
+            } else {
+                pair.putGeneralizedTime(notAfter);
+            }
+            seq.write(DerValue.tag_Sequence, pair);
 
-        if (notAfter.getTime() < YR_2050) {
-            pair.putUTCTime(notAfter);
-        } else {
-            pair.putGeneralizedTime(notAfter);
+            out.write(seq.toByteArray());
         }
-        DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.tag_Sequence, pair);
-
-        out.write(seq.toByteArray());
     }
 
     /**

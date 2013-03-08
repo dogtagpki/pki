@@ -176,7 +176,7 @@ public class NetkeyKeygenService implements IService {
                         tp = true;
                         sp = false;
                         ep = true;
-                    } else   
+                    } else
                         tp = true;
                     }
             } catch (Exception e) {
@@ -270,7 +270,7 @@ public class NetkeyKeygenService implements IService {
                     // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
                     kp = kpGen.genKeyPair();
                 }
-                while (isBadDSAKeyPair(kp)); 
+                while (isBadDSAKeyPair(kp));
                 */
                 return kp;
             }
@@ -312,18 +312,16 @@ public class NetkeyKeygenService implements IService {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                        FilterOutputStream(output)
-                )
-                );
+        try (Base64OutputStream b64 = new Base64OutputStream(
+                new PrintStream(new FilterOutputStream(output)))) {
 
-        b64.write(bytes);
-        b64.flush();
+            b64.write(bytes);
+            b64.flush();
 
-        // This is internationally safe because Base64 chars are
-        // contained within 8859_1
-        return output.toString("8859_1");
+            // This is internationally safe because Base64 chars are
+            // contained within 8859_1
+            return output.toString("8859_1");
+        }
     }
 
     // this encrypts bytes with a symmetric key
@@ -443,7 +441,7 @@ public class NetkeyKeygenService implements IService {
             CMS.debug("NetkeyKeygenService: failed getting keygenToken");
             request.setExtData(IRequest.RESULT, Integer.valueOf(10));
             return false;
-        } else 
+        } else
             CMS.debug("NetkeyKeygenService: got keygenToken");
 
         if ((wrapped_des_key != null) &&
@@ -659,7 +657,7 @@ public class NetkeyKeygenService implements IService {
                             oidDescription);
 
                         rec.set(IKeyRecord.ATTR_META_INFO, metaInfo);
-                        // key size does not apply to EC; 
+                        // key size does not apply to EC;
                         rec.setKeySize(-1);
                     }
 

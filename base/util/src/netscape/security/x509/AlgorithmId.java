@@ -227,16 +227,16 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
-        DerOutputStream bytes = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
-
-        bytes.putOID(algid);
-        if (params == null)
-            bytes.putNull();
-        else
-            bytes.putDerValue(params);
-        tmp.write(DerValue.tag_Sequence, bytes);
-        out.write(tmp.toByteArray());
+        try (DerOutputStream tmp = new DerOutputStream()) {
+            DerOutputStream bytes = new DerOutputStream();
+            bytes.putOID(algid);
+            if (params == null)
+                bytes.putNull();
+            else
+                bytes.putDerValue(params);
+            tmp.write(DerValue.tag_Sequence, bytes);
+            out.write(tmp.toByteArray());
+        }
     }
 
     // XXXX cleaning required
@@ -244,16 +244,17 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Returns the DER-encoded X.509 AlgorithmId as a byte array.
      */
     public final byte[] encode() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream bytes = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream bytes = new DerOutputStream();
 
-        bytes.putOID(algid);
-        if (params == null)
-            bytes.putNull();
-        else
-            bytes.putDerValue(params);
-        out.write(DerValue.tag_Sequence, bytes);
-        return out.toByteArray();
+            bytes.putOID(algid);
+            if (params == null)
+                bytes.putNull();
+            else
+                bytes.putDerValue(params);
+            out.write(DerValue.tag_Sequence, bytes);
+            return out.toByteArray();
+        }
     }
 
     /**

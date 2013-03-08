@@ -135,10 +135,11 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
+        try (DerOutputStream os = new DerOutputStream()) {
 
-        os.putUnalignedBitString(mBitString);
-        this.extensionValue = os.toByteArray();
+            os.putUnalignedBitString(mBitString);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

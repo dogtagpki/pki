@@ -148,31 +148,32 @@ public class SignerInfo implements DerEncoder {
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        seq.putInteger(version);
-        DerOutputStream issuerAndSerialNumber = new DerOutputStream();
-        issuerName.encode(issuerAndSerialNumber);
-        issuerAndSerialNumber.putInteger(certificateSerialNumber);
-        seq.write(DerValue.tag_Sequence, issuerAndSerialNumber);
+        try (DerOutputStream tmp = new DerOutputStream()) {
+            DerOutputStream seq = new DerOutputStream();
+            seq.putInteger(version);
+            DerOutputStream issuerAndSerialNumber = new DerOutputStream();
+            issuerName.encode(issuerAndSerialNumber);
+            issuerAndSerialNumber.putInteger(certificateSerialNumber);
+            seq.write(DerValue.tag_Sequence, issuerAndSerialNumber);
 
-        digestAlgorithmId.encode(seq);
+            digestAlgorithmId.encode(seq);
 
-        // encode authenticated attributes if there are any
-        if (authenticatedAttributes != null)
-            authenticatedAttributes.encode((byte) 0xA0, seq);
+            // encode authenticated attributes if there are any
+            if (authenticatedAttributes != null)
+                authenticatedAttributes.encode((byte) 0xA0, seq);
 
-        digestEncryptionAlgorithmId.encode(seq);
+            digestEncryptionAlgorithmId.encode(seq);
 
-        seq.putOctetString(encryptedDigest);
+            seq.putOctetString(encryptedDigest);
 
-        // encode unauthenticated attributes if there are any
-        if (unauthenticatedAttributes != null)
-            unauthenticatedAttributes.encode((byte) 0xA1, seq);
+            // encode unauthenticated attributes if there are any
+            if (unauthenticatedAttributes != null)
+                unauthenticatedAttributes.encode((byte) 0xA1, seq);
 
-        DerOutputStream tmp = new DerOutputStream();
-        tmp.write(DerValue.tag_Sequence, seq);
+            tmp.write(DerValue.tag_Sequence, seq);
 
-        out.write(tmp.toByteArray());
+            out.write(tmp.toByteArray());
+        }
     }
 
     public X509Certificate getCertificate(PKCS7 block)

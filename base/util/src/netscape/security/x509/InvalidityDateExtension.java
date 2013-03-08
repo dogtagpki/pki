@@ -74,9 +74,10 @@ public class InvalidityDateExtension extends Extension
     private void encodeThis() throws IOException {
         if (invalidityDate == null)
             throw new IOException("Unintialized invalidity date extension");
-        DerOutputStream os = new DerOutputStream();
-        os.putGeneralizedTime(this.invalidityDate);
-        this.extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putGeneralizedTime(this.invalidityDate);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

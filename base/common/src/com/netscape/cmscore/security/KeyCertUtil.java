@@ -175,36 +175,34 @@ public class KeyCertUtil {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                        FilterOutputStream(output)
-                )
-                );
+        try (Base64OutputStream b64 = new Base64OutputStream(
+                new PrintStream(new FilterOutputStream(output)))) {
 
-        b64.write(bytes);
-        b64.flush();
+            b64.write(bytes);
+            b64.flush();
 
-        // This is internationally safe because Base64 chars are
-        // contained within 8859_1
-        return output.toString("8859_1");
+            // This is internationally safe because Base64 chars are
+            // contained within 8859_1
+            return output.toString("8859_1");
+        }
     }
 
     public static byte[] makeDSSParms(BigInteger P, BigInteger Q, BigInteger G)
             throws IOException {
+        try (DerOutputStream sequence = new DerOutputStream()) {
 
-        // Write P, Q, G to a DER stream
-        DerOutputStream contents = new DerOutputStream();
+            // Write P, Q, G to a DER stream
+            DerOutputStream contents = new DerOutputStream();
 
-        contents.putInteger(new BigInt(P));
-        contents.putInteger(new BigInt(Q));
-        contents.putInteger(new BigInt(G));
+            contents.putInteger(new BigInt(P));
+            contents.putInteger(new BigInt(Q));
+            contents.putInteger(new BigInt(G));
 
-        // Make a sequence from the PQG stream
-        DerOutputStream sequence = new DerOutputStream();
+            // Make a sequence from the PQG stream
+            sequence.write(DerValue.tag_Sequence, contents);
 
-        sequence.write(DerValue.tag_Sequence, contents);
-
-        return sequence.toByteArray();
+            return sequence.toByteArray();
+        }
     }
 
     public static PrivateKey getPrivateKey(String tokenname, String nickname)
@@ -235,7 +233,7 @@ public class KeyCertUtil {
     public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
             SignatureAlgorithm sigAlg)
             throws NoSuchTokenException, EBaseException, NotInitializedException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             CertificateAlgorithmId sId = (CertificateAlgorithmId)
                     certInfo.get(X509CertInfo.ALGORITHM_ID);
             AlgorithmId sigAlgId =
@@ -246,7 +244,6 @@ public class KeyCertUtil {
             CryptoToken token = priKey.getOwningToken();
 
             DerOutputStream tmp = new DerOutputStream();
-            DerOutputStream out = new DerOutputStream();
 
             certInfo.encode(tmp);
 

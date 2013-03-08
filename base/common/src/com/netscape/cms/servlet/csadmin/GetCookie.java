@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -49,7 +48,6 @@ public class GetCookie extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 2466968231929541707L;
-    private static Random mRandom = null;
     private String mErrorFormPath = null;
     private String mFormPath = null;
 
@@ -72,7 +70,6 @@ public class GetCookie extends CMSServlet {
 
         CMS.debug("GetCookie init");
         mTemplates.remove(CMSRequest.SUCCESS);
-        mRandom = new Random();
         mErrorFormPath = sc.getInitParameter("errorTemplatePath");
         if (mOutputTemplatePath != null) {
             mFormPath = mOutputTemplatePath;

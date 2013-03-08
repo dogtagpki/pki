@@ -181,9 +181,10 @@ public final class CRLReasonExtension extends Extension implements CertAttrSet {
     private void encodeThis() throws IOException {
         if (mReason == null)
             throw new IOException("Unintialized CRLReason extension");
-        DerOutputStream os = new DerOutputStream();
-        os.putEnumerated(mReason.toInt());
-        this.extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putEnumerated(mReason.toInt());
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

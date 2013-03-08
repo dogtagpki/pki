@@ -92,16 +92,18 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
      */
     public void derEncode(OutputStream out)
             throws IOException {
+        try (DerOutputStream attrOut = new DerOutputStream()) {
+            // first copy the elements into an array
+            PKCS10Attribute[] attribs = new PKCS10Attribute[size()];
+            copyInto(attribs);
 
-        // first copy the elements into an array
-        PKCS10Attribute[] attribs = new PKCS10Attribute[size()];
-        copyInto(attribs);
+            attrOut.putOrderedSetOf(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
+                    attribs);
 
-        DerOutputStream attrOut = new DerOutputStream();
-        attrOut.putOrderedSetOf(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
-                attribs);
-
-        out.write(attrOut.toByteArray());
+            out.write(attrOut.toByteArray());
+        } catch (IOException e) {
+            throw e;
+        }
     }
 
     /**

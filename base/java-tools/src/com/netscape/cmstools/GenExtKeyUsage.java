@@ -19,12 +19,12 @@ package com.netscape.cmstools;
 
 import java.util.Vector;
 
-import com.netscape.cmsutil.util.Utils;
-
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
+
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Generates a DER-encoded Extended Key Usage extension.
@@ -38,7 +38,8 @@ import netscape.security.x509.Extension;
 public class GenExtKeyUsage {
 
     public static void main(String[] args) {
-        try {
+        try (DerOutputStream seq = new DerOutputStream();
+             DerOutputStream octetString = new DerOutputStream()) {
             if (args.length < 2) {
                 System.out.println("Usage:  GenExtKeyUsage [true|false] <OID> ...");
                 System.exit(-1);
@@ -72,13 +73,9 @@ public class GenExtKeyUsage {
             }
 
             // stuff the object identifiers into a SEQUENCE
-            DerOutputStream seq = new DerOutputStream();
-
             seq.write(DerValue.tag_Sequence, contents);
 
             // encode the SEQUENCE in an octet string
-            DerOutputStream octetString = new DerOutputStream();
-
             octetString.putOctetString(seq.toByteArray());
 
             // Construct an extension

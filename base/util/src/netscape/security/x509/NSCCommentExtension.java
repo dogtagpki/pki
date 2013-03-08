@@ -63,12 +63,12 @@ public class NSCCommentExtension extends Extension implements CertAttrSet {
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
-
-        os.putIA5String(mComment);
-        // DerOutputStream tmp = new DerOutputStream();
-        // os.write(DerValue.tag_Sequence,tmp);
-        extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putIA5String(mComment);
+            // DerOutputStream tmp = new DerOutputStream();
+            // os.write(DerValue.tag_Sequence,tmp);
+            extensionValue = os.toByteArray();
+        }
     }
 
     /**

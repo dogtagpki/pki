@@ -130,19 +130,20 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
     }
 
     public void encodeThis() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream temp = new DerOutputStream();
-        temp.putInteger(new BigInt(mVersion));
-        temp.putOctetString(mStreetAddress.getBytes());
-        temp.putOctetString(mTelephoneNumber.getBytes());
-        temp.putOctetString(mRFC822Name.getBytes());
-        temp.putOctetString(mID.getBytes());
-        temp.putOctetString(mHostName.getBytes());
-        temp.putInteger(new BigInt(mPortNumber));
-        temp.putInteger(new BigInt(mMaxUsers));
-        temp.putInteger(new BigInt(mServiceLevel));
-        out.write(DerValue.tag_Sequence, temp);
-        this.extensionValue = out.toByteArray();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream temp = new DerOutputStream();
+            temp.putInteger(new BigInt(mVersion));
+            temp.putOctetString(mStreetAddress.getBytes());
+            temp.putOctetString(mTelephoneNumber.getBytes());
+            temp.putOctetString(mRFC822Name.getBytes());
+            temp.putOctetString(mID.getBytes());
+            temp.putOctetString(mHostName.getBytes());
+            temp.putInteger(new BigInt(mPortNumber));
+            temp.putInteger(new BigInt(mMaxUsers));
+            temp.putInteger(new BigInt(mServiceLevel));
+            out.write(DerValue.tag_Sequence, temp);
+            this.extensionValue = out.toByteArray();
+        }
     }
 
     public void decodeThis() throws IOException {

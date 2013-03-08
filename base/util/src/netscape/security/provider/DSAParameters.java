@@ -103,14 +103,15 @@ public class DSAParameters extends AlgorithmParametersSpi {
     }
 
     protected byte[] engineGetEncoded() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream bytes = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream bytes = new DerOutputStream();
 
-        bytes.putInteger(new BigInt(p.toByteArray()));
-        bytes.putInteger(new BigInt(q.toByteArray()));
-        bytes.putInteger(new BigInt(g.toByteArray()));
-        out.write(DerValue.tag_Sequence, bytes);
-        return out.toByteArray();
+            bytes.putInteger(new BigInt(p.toByteArray()));
+            bytes.putInteger(new BigInt(q.toByteArray()));
+            bytes.putInteger(new BigInt(g.toByteArray()));
+            out.write(DerValue.tag_Sequence, bytes);
+            return out.toByteArray();
+        }
     }
 
     protected byte[] engineGetEncoded(String encodingMethod)

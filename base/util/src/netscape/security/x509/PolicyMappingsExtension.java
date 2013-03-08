@@ -69,14 +69,15 @@ public class PolicyMappingsExtension extends Extension
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream os = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        for (int i = 0; i < maps.size(); i++) {
-            maps.elementAt(i).encode(tmp);
+            for (int i = 0; i < maps.size(); i++) {
+                maps.elementAt(i).encode(tmp);
+            }
+            os.write(DerValue.tag_Sequence, tmp);
+            extensionValue = os.toByteArray();
         }
-        os.write(DerValue.tag_Sequence, tmp);
-        extensionValue = os.toByteArray();
     }
 
     /**

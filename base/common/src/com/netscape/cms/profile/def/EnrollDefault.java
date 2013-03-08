@@ -620,8 +620,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
         // if the OID isn't valid (ex. n.n) the error isn't caught til
         // encoding time leaving a bad request in the request queue.
-        try {
-            DerOutputStream derOut = new DerOutputStream();
+        try (DerOutputStream derOut = new DerOutputStream()) {
 
             derOut.putOID(v);
             new ObjectIdentifier(new DerInputStream(derOut.toByteArray()));

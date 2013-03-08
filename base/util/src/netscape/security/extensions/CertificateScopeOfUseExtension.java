@@ -147,20 +147,21 @@ public class CertificateScopeOfUseExtension extends Extension
     }
 
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream();
+             DerOutputStream tmp = new DerOutputStream()) {
 
-        if (mEntries == null)
-            throw new IOException("Invalid Scope Entries");
+            if (mEntries == null)
+                throw new IOException("Invalid Scope Entries");
 
-        for (int i = 0; i < mEntries.size(); i++) {
-            CertificateScopeEntry se = mEntries.elementAt(i);
+            for (int i = 0; i < mEntries.size(); i++) {
+                CertificateScopeEntry se = mEntries.elementAt(i);
 
-            se.encode(tmp);
+                se.encode(tmp);
+            }
+
+            seq.write(DerValue.tag_Sequence, tmp);
+            this.extensionValue = seq.toByteArray();
         }
-
-        seq.write(DerValue.tag_Sequence, tmp);
-        this.extensionValue = seq.toByteArray();
     }
 
     /**

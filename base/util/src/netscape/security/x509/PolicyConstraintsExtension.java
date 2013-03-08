@@ -79,23 +79,24 @@ public class PolicyConstraintsExtension extends Extension
 
     // Encode this extension value.
     private void encodeThis() throws IOException {
-        DerOutputStream tagged = new DerOutputStream();
-        DerOutputStream seq = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream()) {
+            DerOutputStream tagged = new DerOutputStream();
 
-        if (require != -1) {
-            DerOutputStream tmp = new DerOutputStream();
-            tmp.putInteger(new BigInt(require));
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                         false, TAG_REQUIRE), tmp);
+            if (require != -1) {
+                DerOutputStream tmp = new DerOutputStream();
+                tmp.putInteger(new BigInt(require));
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        false, TAG_REQUIRE), tmp);
+            }
+            if (inhibit != -1) {
+                DerOutputStream tmp = new DerOutputStream();
+                tmp.putInteger(new BigInt(inhibit));
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        false, TAG_INHIBIT), tmp);
+            }
+            seq.write(DerValue.tag_Sequence, tagged);
+            extensionValue = seq.toByteArray();
         }
-        if (inhibit != -1) {
-            DerOutputStream tmp = new DerOutputStream();
-            tmp.putInteger(new BigInt(inhibit));
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                         false, TAG_INHIBIT), tmp);
-        }
-        seq.write(DerValue.tag_Sequence, tagged);
-        extensionValue = seq.toByteArray();
     }
 
     /**

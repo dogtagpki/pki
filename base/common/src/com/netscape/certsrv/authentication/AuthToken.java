@@ -257,9 +257,9 @@ public class AuthToken implements IAuthToken {
         if (value == null) {
             return false;
         }
-        DerOutputStream out = new DerOutputStream();
+
         DerValue[] derValues = new DerValue[value.length];
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             for (int i = 0; i < value.length; i++) {
                 derValues[i] = new DerValue(value[i]);
             }
@@ -343,10 +343,9 @@ public class AuthToken implements IAuthToken {
         if (value == null) {
             return false;
         }
-        DerOutputStream derStream = new DerOutputStream();
         X509Certificate[] certArray = value.getCertificates();
         DerValue[] derValues = new DerValue[certArray.length];
-        try {
+        try (DerOutputStream derStream = new DerOutputStream()) {
             for (int i = 0; i < certArray.length; i++) {
                 ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
                 try {
@@ -386,9 +385,9 @@ public class AuthToken implements IAuthToken {
         if (value == null) {
             return false;
         }
-        DerOutputStream out = new DerOutputStream();
+
         DerValue[] derValues = new DerValue[value.length];
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             for (int i = 0; i < value.length; i++) {
                 derValues[i] = new DerValue(DerValue.tag_OctetString, value[i]);
             }

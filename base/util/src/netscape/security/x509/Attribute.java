@@ -229,38 +229,40 @@ public final class Attribute implements Serializable, DerEncoder {
     //encode the attribute object
     private void encodeThis(OutputStream out)
             throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream tmp2 = new DerOutputStream();
+        try (DerOutputStream tmp2 = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        tmp.putOID(oid);
-        encodeValueSet(tmp);
-        tmp2.write(DerValue.tag_Sequence, tmp);
-        out.write(tmp2.toByteArray());
+            tmp.putOID(oid);
+            encodeValueSet(tmp);
+            tmp2.write(DerValue.tag_Sequence, tmp);
+            out.write(tmp2.toByteArray());
+        }
     }
 
     //encode the attribute object
     private void encodeValueSet(OutputStream out)
             throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream tmp2 = new DerOutputStream();
+        try (DerOutputStream tmp2 = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        //get the attribute converter
-        AVAValueConverter converter = attrMap.getValueConverter(oid);
-        if (converter == null) {
-            converter = new GenericValueConverter();
-            //throw new IOException("Converter not found: unsupported attribute type");
+            //get the attribute converter
+            AVAValueConverter converter = attrMap.getValueConverter(oid);
+            if (converter == null) {
+                converter = new GenericValueConverter();
+                //throw new IOException("Converter not found: unsupported attribute type");
+            }
+
+            //loop through all the values and encode
+            Enumeration<String> vals = valueSet.elements();
+            while (vals.hasMoreElements()) {
+                String val = vals.nextElement();
+                DerValue derobj = converter.getValue(val);
+                derobj.encode(tmp);
+            }
+
+            tmp2.write(DerValue.tag_SetOf, tmp);
+            out.write(tmp2.toByteArray());
         }
-
-        //loop through all the values and encode
-        Enumeration<String> vals = valueSet.elements();
-        while (vals.hasMoreElements()) {
-            String val = vals.nextElement();
-            DerValue derobj = converter.getValue(val);
-            derobj.encode(tmp);
-        }
-
-        tmp2.write(DerValue.tag_SetOf, tmp);
-        out.write(tmp2.toByteArray());
     }
 
     //decode the attribute object

@@ -81,23 +81,24 @@ public class PrivateKeyUsageExtension extends Extension
 
     // Encode this extension value.
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream()) {
 
-        DerOutputStream tagged = new DerOutputStream();
-        if (notBefore != null) {
-            DerOutputStream tmp = new DerOutputStream();
-            tmp.putGeneralizedTime(notBefore);
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 false, TAG_BEFORE), tmp);
+            DerOutputStream tagged = new DerOutputStream();
+            if (notBefore != null) {
+                DerOutputStream tmp = new DerOutputStream();
+                tmp.putGeneralizedTime(notBefore);
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        false, TAG_BEFORE), tmp);
+            }
+            if (notAfter != null) {
+                DerOutputStream tmp = new DerOutputStream();
+                tmp.putGeneralizedTime(notAfter);
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        false, TAG_AFTER), tmp);
+            }
+            seq.write(DerValue.tag_Sequence, tagged);
+            extensionValue = seq.toByteArray();
         }
-        if (notAfter != null) {
-            DerOutputStream tmp = new DerOutputStream();
-            tmp.putGeneralizedTime(notAfter);
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 false, TAG_AFTER), tmp);
-        }
-        seq.write(DerValue.tag_Sequence, tagged);
-        extensionValue = seq.toByteArray();
     }
 
     /**

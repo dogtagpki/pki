@@ -127,18 +127,16 @@ public class PasswordCache {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                        FilterOutputStream(output)
-                )
-                );
+        try (Base64OutputStream b64 = new Base64OutputStream(
+                new PrintStream(new FilterOutputStream(output)))) {
 
-        b64.write(bytes);
-        b64.flush();
+            b64.write(bytes);
+            b64.flush();
 
-        // This is internationally safe because Base64 chars are
-        // contained within 8859_1
-        return output.toString("8859_1");
+            // This is internationally safe because Base64 chars are
+            // contained within 8859_1
+            return output.toString("8859_1");
+        }
     }
 
     public static void main(String[] av) {

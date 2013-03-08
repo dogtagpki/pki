@@ -758,117 +758,113 @@ public class PKCS9Attribute implements DerEncoder {
      * <code>PrintableString</code>s, without checking whether they should be encoded as <code>T61String</code>s.
      */
     public void derEncode(OutputStream out) throws IOException {
-        DerOutputStream temp = new DerOutputStream();
-        temp.putOID(getOID());
-        switch (index) {
-        case 1: // email address
-        case 2: // unstructured name
-        { // open scope
-            String[] values = (String[]) value;
-            DerOutputStream[] temps = new
-                    DerOutputStream[values.length];
+        try (DerOutputStream temp = new DerOutputStream();
+             DerOutputStream temp2 = new DerOutputStream();
+             DerOutputStream derOut = new DerOutputStream()) {
+            temp.putOID(getOID());
+            switch (index) {
+            case 1: // email address
+            case 2: // unstructured name
+            { // open scope
+                String[] values = (String[]) value;
+                DerOutputStream[] temps = new
+                        DerOutputStream[values.length];
 
-            for (int i = 0; i < values.length; i++) {
-                temps[i] = new DerOutputStream();
+                for (int i = 0; i < values.length; i++) {
+                    temps[i] = new DerOutputStream();
 
-                temps[i].putIA5String(values[i]);
+                    temps[i].putIA5String(values[i]);
+                }
+                temp.putOrderedSetOf(DerValue.tag_Set, temps);
+            } // close scope
+                break;
+
+            case 3: // content type
+            {
+                temp2.putOID((ObjectIdentifier) value);
+                temp.write(DerValue.tag_Set, temp2.toByteArray());
             }
-            temp.putOrderedSetOf(DerValue.tag_Set, temps);
-        } // close scope
-            break;
+                break;
 
-        case 3: // content type
-        {
-            DerOutputStream temp2 = new DerOutputStream();
-            temp2.putOID((ObjectIdentifier) value);
-            temp.write(DerValue.tag_Set, temp2.toByteArray());
-        }
-            break;
-
-        case 4: // message digest
-        {
-            DerOutputStream temp2 = new DerOutputStream();
-            temp2.putOctetString((byte[]) value);
-            temp.write(DerValue.tag_Set, temp2.toByteArray());
-        }
-            break;
-
-        case 5: // signing time
-        {
-            DerOutputStream temp2 = new DerOutputStream();
-            temp2.putUTCTime((Date) value);
-            temp.write(DerValue.tag_Set, temp2.toByteArray());
-        }
-            break;
-
-        case 6: // countersignature
-            temp.putOrderedSetOf(DerValue.tag_Set, (DerEncoder[]) value);
-            break;
-
-        case 7: // challenge password
-        {
-            DerOutputStream temp2 = new DerOutputStream();
-            temp2.putPrintableString((String) value);
-            temp.write(DerValue.tag_Set, temp2.toByteArray());
-        }
-            break;
-
-        case 8: // unstructured address
-        { // open scope
-            String[] values = (String[]) value;
-            DerOutputStream[] temps = new
-                    DerOutputStream[values.length];
-
-            for (int i = 0; i < values.length; i++) {
-                temps[i] = new DerOutputStream();
-
-                temps[i].putPrintableString(values[i]);
+            case 4: // message digest
+            {
+                temp2.putOctetString((byte[]) value);
+                temp.write(DerValue.tag_Set, temp2.toByteArray());
             }
-            temp.putOrderedSetOf(DerValue.tag_Set, temps);
-        } // close scope
-            break;
+                break;
 
-        case 9: // extended-certificate attribute -- not
-            // supported
-            throw new IOException("PKCS9 extended-certificate " +
-                    "attribute not supported.");
+            case 5: // signing time
+            {
+                temp2.putUTCTime((Date) value);
+                temp.write(DerValue.tag_Set, temp2.toByteArray());
+            }
+                break;
 
-        case 10: // IssuerAndSerialNumber attribute -- not
-            // supported
-            throw new IOException("PKCS9 IssuerAndSerialNumber " +
-                    "attribute not supported.");
+            case 6: // countersignature
+                temp.putOrderedSetOf(DerValue.tag_Set, (DerEncoder[]) value);
+                break;
 
-        case 11: // passwordCheck attribute -- not
-            // supported
-            throw new IOException("PKCS9 passwordCheck " +
-                    "attribute not supported.");
-        case 12: // PublicKey attribute -- not
-            // supported
-            throw new IOException("PKCS9 PublicKey " +
-                    "attribute not supported.");
-        case 13: // SigningDescription attribute -- not
-            // supported
-            throw new IOException("PKCS9 SigningDescription " +
-                    "attribute not supported.");
-        case 14: // ExtensionRequest attribute
-            try {
-                DerOutputStream temp2 = new DerOutputStream();
-                //temp2.putSequence((CertificateExtensions) value);
-                ((CertificateExtensions) value).encode(temp2);
-                temp.write(DerValue.tag_Sequence, temp2.toByteArray());
-            } catch (CertificateException e) {
-                throw new IOException("PKCS9 extension attributes not encoded");
+            case 7: // challenge password
+            {
+                temp2.putPrintableString((String) value);
+                temp.write(DerValue.tag_Set, temp2.toByteArray());
+            }
+                break;
+
+            case 8: // unstructured address
+            { // open scope
+                String[] values = (String[]) value;
+                DerOutputStream[] temps = new
+                        DerOutputStream[values.length];
+
+                for (int i = 0; i < values.length; i++) {
+                    temps[i] = new DerOutputStream();
+
+                    temps[i].putPrintableString(values[i]);
+                }
+                temp.putOrderedSetOf(DerValue.tag_Set, temps);
+            } // close scope
+                break;
+
+            case 9: // extended-certificate attribute -- not
+                // supported
+                throw new IOException("PKCS9 extended-certificate " +
+                        "attribute not supported.");
+
+            case 10: // IssuerAndSerialNumber attribute -- not
+                // supported
+                throw new IOException("PKCS9 IssuerAndSerialNumber " +
+                        "attribute not supported.");
+
+            case 11: // passwordCheck attribute -- not
+                // supported
+                throw new IOException("PKCS9 passwordCheck " +
+                        "attribute not supported.");
+            case 12: // PublicKey attribute -- not
+                // supported
+                throw new IOException("PKCS9 PublicKey " +
+                        "attribute not supported.");
+            case 13: // SigningDescription attribute -- not
+                // supported
+                throw new IOException("PKCS9 SigningDescription " +
+                        "attribute not supported.");
+            case 14: // ExtensionRequest attribute
+                try {
+                    //temp2.putSequence((CertificateExtensions) value);
+                    ((CertificateExtensions) value).encode(temp2);
+                    temp.write(DerValue.tag_Sequence, temp2.toByteArray());
+                } catch (CertificateException e) {
+                    throw new IOException("PKCS9 extension attributes not encoded");
+                }
+
+                // break unnecessary
+            default: // can't happen
             }
 
-            // break unnecessary
-        default: // can't happen
+            derOut.write(DerValue.tag_Sequence, temp.toByteArray());
+
+            out.write(derOut.toByteArray());
         }
-
-        DerOutputStream derOut = new DerOutputStream();
-        derOut.write(DerValue.tag_Sequence, temp.toByteArray());
-
-        out.write(derOut.toByteArray());
-
     }
 
     /**

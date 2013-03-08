@@ -31,29 +31,31 @@ public class StringTestUtil {
 
     public static byte[] normalizeUnicode(byte[] data) throws Exception {
 
-        DerValue value = new DerValue(data);
-        byte[] tmp = value.data.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            DerValue value = new DerValue(data);
+            byte[] tmp = value.data.toByteArray();
 
-        if (tmp[0] == -2 && tmp[1] == -1) { // remove optional big-endian byte-order mark
+            if (tmp[0] == -2 && tmp[1] == -1) { // remove optional big-endian byte-order mark
 
-            byte tag = value.tag;
-            int length = value.length() - 2;
+                byte tag = value.tag;
+                int length = value.length() - 2;
 
-            DerOutputStream os = new DerOutputStream();
-            os.putTag((byte) 0, false, tag);
-            os.putLength(length);
-            os.write(tmp, 2, length);
+                os.putTag((byte) 0, false, tag);
+                os.putLength(length);
+                os.write(tmp, 2, length);
 
-            return os.toByteArray();
+                return os.toByteArray();
+            }
+
+            return data;
         }
-
-        return data;
     }
 
     public static byte[] encode(byte tag, String string) throws Exception {
-        DerOutputStream os = new DerOutputStream();
-        os.putStringType(tag, string);
-        return os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putStringType(tag, string);
+            return os.toByteArray();
+        }
     }
 
     public static String decode(byte tag, byte[] bytes) throws Exception {

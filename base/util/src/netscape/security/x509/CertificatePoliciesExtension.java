@@ -74,14 +74,15 @@ public class CertificatePoliciesExtension extends Extension
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream os = new DerOutputStream();) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        for (int i = 0; i < mInfos.size(); i++) {
-            mInfos.elementAt(i).encode(tmp);
+            for (int i = 0; i < mInfos.size(); i++) {
+                mInfos.elementAt(i).encode(tmp);
+            }
+            os.write(DerValue.tag_Sequence, tmp);
+            extensionValue = os.toByteArray();
         }
-        os.write(DerValue.tag_Sequence, tmp);
-        extensionValue = os.toByteArray();
     }
 
     public CertificatePoliciesExtension(boolean critical, Vector<CertificatePolicyInfo> infos) throws IOException {

@@ -591,23 +591,23 @@ public class X500Name implements Principal, GeneralNameInterface {
      *         null if no names are present.
      */
     public byte[] getEncoded() throws IOException {
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+            int len = 0;
 
-        int len = 0;
+            if (names == null) {
+                len = 0;
+            } else {
+                len = names.length;
+            }
 
-        if (names == null) {
-            len = 0;
-        } else {
-            len = names.length;
+            for (int i = 0; i < len; i++)
+                names[i].encode(tmp);
+
+            out.write(DerValue.tag_Sequence, tmp);
+            return out.toByteArray();
         }
-
-        for (int i = 0; i < len; i++)
-            names[i].encode(tmp);
-
-        out.write(DerValue.tag_Sequence, tmp);
-        return out.toByteArray();
     }
 
     /*

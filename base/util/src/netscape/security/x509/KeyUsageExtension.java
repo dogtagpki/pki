@@ -99,9 +99,10 @@ public class KeyUsageExtension extends Extension
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream os = new DerOutputStream();
-        os.putUnalignedBitString(this.bitString);
-        this.extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putUnalignedBitString(this.bitString);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

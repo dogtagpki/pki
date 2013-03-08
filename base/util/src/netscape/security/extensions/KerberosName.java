@@ -69,34 +69,35 @@ public class KerberosName {
      */
     public void encode(OutputStream out) throws IOException {
 
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream realm = new DerOutputStream();
-        realm.putGeneralString(m_realm);
-        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte) 0), realm);
+        try (DerOutputStream seq = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
+            DerOutputStream realm = new DerOutputStream();
+            realm.putGeneralString(m_realm);
+            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                    true, (byte) 0), realm);
 
-        DerOutputStream seq1 = new DerOutputStream();
-        DerOutputStream tmp1 = new DerOutputStream();
-        DerOutputStream name_type = new DerOutputStream();
-        name_type.putInteger(new BigInt(m_name_type));
-        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte) 0), name_type);
+            DerOutputStream seq1 = new DerOutputStream();
+            DerOutputStream tmp1 = new DerOutputStream();
+            DerOutputStream name_type = new DerOutputStream();
+            name_type.putInteger(new BigInt(m_name_type));
+            tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                    true, (byte) 0), name_type);
 
-        DerOutputStream name_strings = new DerOutputStream();
-        DerOutputStream name_string = new DerOutputStream();
-        for (int i = 0; i < m_name_strings.size(); i++) {
-            name_string.putGeneralString(m_name_strings.elementAt(i));
+            DerOutputStream name_strings = new DerOutputStream();
+            DerOutputStream name_string = new DerOutputStream();
+            for (int i = 0; i < m_name_strings.size(); i++) {
+                name_string.putGeneralString(m_name_strings.elementAt(i));
+            }
+            name_strings.write(DerValue.tag_SequenceOf, name_string);
+            tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                    true, (byte) 1), name_strings);
+            seq1.write(DerValue.tag_Sequence, tmp1);
+            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                    true, (byte) 1), seq1);
+
+            seq.write(DerValue.tag_Sequence, tmp);
+            out.write(seq.toByteArray());
         }
-        name_strings.write(DerValue.tag_SequenceOf, name_string);
-        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte) 1), name_strings);
-        seq1.write(DerValue.tag_Sequence, tmp1);
-        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte) 1), seq1);
-
-        seq.write(DerValue.tag_Sequence, tmp);
-        out.write(seq.toByteArray());
     }
 
     public byte[] toByteArray() throws IOException {

@@ -162,10 +162,10 @@ public class Extensions extends Vector<Extension>
                 throw new CertificateException("Invalid extension object");
         }
 
-        DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.tag_Sequence, extOut);
-
-        out.write(seq.toByteArray());
+        try (DerOutputStream seq = new DerOutputStream()) {
+            seq.write(DerValue.tag_Sequence, extOut);
+            out.write(seq.toByteArray());
+        }
     }
 
     /**

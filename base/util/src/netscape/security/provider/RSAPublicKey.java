@@ -73,9 +73,7 @@ public final class RSAPublicKey extends X509Key implements Serializable {
         this.publicExponent = publicExponent;
         this.algid = new AlgorithmId(ALGORITHM_OID);
 
-        try {
-            DerOutputStream out = new DerOutputStream();
-
+        try (DerOutputStream out = new DerOutputStream()) {
             out.putInteger(modulus);
             out.putInteger(publicExponent);
             key = (new DerValue(DerValue.tag_Sequence,

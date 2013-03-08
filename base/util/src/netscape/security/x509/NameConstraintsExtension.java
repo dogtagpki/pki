@@ -85,26 +85,27 @@ public class NameConstraintsExtension extends Extension implements CertAttrSet {
 
     // Encode this extension value.
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream()) {
 
-        DerOutputStream tagged = new DerOutputStream();
-        if ((permitted != null) && (permitted.getSubtrees().size() > 0)) {
-            DerOutputStream tmp = new DerOutputStream();
-            permitted.encode(tmp);
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, TAG_PERMITTED), tmp);
-        }
-        if ((excluded != null) && (excluded.getSubtrees().size() > 0)) {
-            DerOutputStream tmp = new DerOutputStream();
-            excluded.encode(tmp);
-            tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, TAG_EXCLUDED), tmp);
-        }
-        if (permitted == null && excluded == null) {
-            extensionValue = null; // no need to encode this extension
-        } else {
-            seq.write(DerValue.tag_Sequence, tagged);
-            this.extensionValue = seq.toByteArray();
+            DerOutputStream tagged = new DerOutputStream();
+            if ((permitted != null) && (permitted.getSubtrees().size() > 0)) {
+                DerOutputStream tmp = new DerOutputStream();
+                permitted.encode(tmp);
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        true, TAG_PERMITTED), tmp);
+            }
+            if ((excluded != null) && (excluded.getSubtrees().size() > 0)) {
+                DerOutputStream tmp = new DerOutputStream();
+                excluded.encode(tmp);
+                tagged.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        true, TAG_EXCLUDED), tmp);
+            }
+            if (permitted == null && excluded == null) {
+                extensionValue = null; // no need to encode this extension
+            } else {
+                seq.write(DerValue.tag_Sequence, tagged);
+                this.extensionValue = seq.toByteArray();
+            }
         }
     }
 

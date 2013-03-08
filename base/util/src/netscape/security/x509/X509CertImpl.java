@@ -405,7 +405,7 @@ public class X509CertImpl extends X509Certificate
     public void sign(PrivateKey key, String algorithm, String provider)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()){
             if (readOnly)
                 throw new CertificateEncodingException(
                               "cannot over-write existing certificate");
@@ -420,7 +420,6 @@ public class X509CertImpl extends X509Certificate
             // in case the name is reset
             algId = AlgorithmId.get(sigEngine.getAlgorithm());
 
-            DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
 
             // encode certificate info

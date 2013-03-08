@@ -61,9 +61,10 @@ public class CRLNumberExtension extends Extension
     private void encodeThis() throws IOException {
         if (crlNumber == null)
             throw new IOException("Unintialized CRL number extension");
-        DerOutputStream os = new DerOutputStream();
-        os.putInteger(this.crlNumber);
-        this.extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putInteger(this.crlNumber);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

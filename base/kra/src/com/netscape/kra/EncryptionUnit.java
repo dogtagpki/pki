@@ -82,7 +82,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
      */
     public byte[] encryptInternalPrivate(byte priKey[])
             throws EBaseException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             CMS.debug("EncryptionUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
@@ -112,7 +112,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             // }
 
             DerOutputStream tmp = new DerOutputStream();
-            DerOutputStream out = new DerOutputStream();
 
             tmp.putOctetString(session);
             tmp.putOctetString(pri);
@@ -641,7 +640,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
      * Internal wrap, accounts for either private or symmetric key
      */
     private byte[] _wrap(PrivateKey priKey, SymmetricKey symmKey) throws EBaseException {
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
                 return null;
             }
@@ -691,7 +690,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             // }
 
             DerOutputStream tmp = new DerOutputStream();
-            DerOutputStream out = new DerOutputStream();
 
             tmp.putOctetString(session);
             tmp.putOctetString(pri);

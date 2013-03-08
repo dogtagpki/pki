@@ -130,12 +130,12 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
      */
     private void initializeParams()
             throws IOException {
-        DerOutputStream out = new DerOutputStream();
-
-        out.putInteger(new BigInt(p.toByteArray()));
-        out.putInteger(new BigInt(q.toByteArray()));
-        out.putInteger(new BigInt(g.toByteArray()));
-        params = new DerValue(DerValue.tag_Sequence, out.toByteArray());
+        try (DerOutputStream out = new DerOutputStream()) {
+            out.putInteger(new BigInt(p.toByteArray()));
+            out.putInteger(new BigInt(q.toByteArray()));
+            out.putInteger(new BigInt(g.toByteArray()));
+            params = new DerValue(DerValue.tag_Sequence, out.toByteArray());
+        }
     }
 
     /**

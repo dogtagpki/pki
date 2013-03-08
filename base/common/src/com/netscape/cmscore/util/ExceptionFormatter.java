@@ -35,12 +35,10 @@ public class ExceptionFormatter {
     public static String getStackTraceAsString(Throwable e) {
         String returnvalue = e.toString();
 
-        try {
-            PipedOutputStream po = new PipedOutputStream();
-            PipedInputStream pi = new PipedInputStream(po);
+        PipedOutputStream po = new PipedOutputStream();
+        try (PipedInputStream pi = new PipedInputStream(po)) {
 
             PrintWriter ps = new PrintWriter(po);
-
             e.printStackTrace(ps);
             ps.flush();
 
@@ -52,7 +50,6 @@ public class ExceptionFormatter {
         } catch (Exception ex) {
         }
         return returnvalue;
-
     }
 
     /* test code below */

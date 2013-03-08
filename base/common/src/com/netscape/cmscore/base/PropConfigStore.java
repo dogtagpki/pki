@@ -355,10 +355,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public void putByteArray(String name, byte value[]) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new FilterOutputStream(output)));
-
-        try {
+        try (Base64OutputStream b64 = new Base64OutputStream(new
+                PrintStream(new FilterOutputStream(output)))) {
             b64.write(value);
             b64.flush();
 

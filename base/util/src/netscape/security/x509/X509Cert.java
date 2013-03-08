@@ -805,24 +805,25 @@ public class X509Cert implements Certificate, Serializable {
          * Encode the to-be-signed data, then the algorithm used
          * to create the signature.
          */
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        tmp.write(data);
-        issuer.getAlgorithmId().encode(tmp);
+            tmp.write(data);
+            issuer.getAlgorithmId().encode(tmp);
 
-        /*
-         * Create and encode the signature itself.
-         */
-        issuer.update(data, 0, data.length);
-        signature = issuer.sign();
-        tmp.putBitString(signature);
+            /*
+             * Create and encode the signature itself.
+             */
+            issuer.update(data, 0, data.length);
+            signature = issuer.sign();
+            tmp.putBitString(signature);
 
-        /*
-         * Wrap the signed data in a SEQUENCE { data, algorithm, sig }
-         */
-        out.write(DerValue.tag_Sequence, tmp);
-        return out.toByteArray();
+            /*
+             * Wrap the signed data in a SEQUENCE { data, algorithm, sig }
+             */
+            out.write(DerValue.tag_Sequence, tmp);
+            return out.toByteArray();
+        }
     }
 
     /**

@@ -88,7 +88,7 @@ public class PKCS10Client {
     }
 
     public static void main(String args[]) throws Exception {
-        String dbdir = null, ofilename = null, password = null, subjectName = null, type = null, tokenName = null;
+        String dbdir = null, ofilename = null, password = null, subjectName = null, tokenName = null;
 
         String alg = "rsa";
         String ecc_curve = "nistp256";

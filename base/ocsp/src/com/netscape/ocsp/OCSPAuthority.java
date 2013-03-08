@@ -429,8 +429,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException {
-        try {
-            DerOutputStream out = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
             String algname = mSigningUnit.getDefaultAlgorithm();

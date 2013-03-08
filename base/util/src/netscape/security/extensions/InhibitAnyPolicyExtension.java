@@ -152,21 +152,22 @@ public class InhibitAnyPolicyExtension
     }
 
     public void encode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream os = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        if (this.extensionValue == null) {
-            try {
-                extensionId = ObjectIdentifier.getObjectIdentifier(OID);
-            } catch (IOException e) {
-                // never here
+            if (this.extensionValue == null) {
+                try {
+                    extensionId = ObjectIdentifier.getObjectIdentifier(OID);
+                } catch (IOException e) {
+                    // never here
+                }
+                os.putInteger(mSkipCerts);
+                this.extensionValue = os.toByteArray();
             }
-            DerOutputStream os = new DerOutputStream();
-            os.putInteger(mSkipCerts);
-            this.extensionValue = os.toByteArray();
-        }
 
-        super.encode(tmp);
-        out.write(tmp.toByteArray());
+            super.encode(tmp);
+            out.write(tmp.toByteArray());
+        }
     }
 
     private void encodeExtValue() {

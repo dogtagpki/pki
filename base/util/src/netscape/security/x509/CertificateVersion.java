@@ -160,14 +160,15 @@ public class CertificateVersion implements CertAttrSet {
         if (version == V1) {
             return;
         }
-        DerOutputStream tmp = new DerOutputStream();
-        tmp.putInteger(new BigInt(version));
+        try (DerOutputStream tmp = new DerOutputStream();
+                DerOutputStream seq = new DerOutputStream()) {
+            tmp.putInteger(new BigInt(version));
 
-        DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
-                  tmp);
+            seq.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
+                    tmp);
 
-        out.write(seq.toByteArray());
+            out.write(seq.toByteArray());
+        }
     }
 
     /**

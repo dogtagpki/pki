@@ -73,17 +73,18 @@ public class BasicConstraintsExtension extends Extension
 
     // Encode this extension value
     private void encodeThis() throws IOException {
-        DerOutputStream out = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
+            DerOutputStream tmp = new DerOutputStream();
 
-        if (ca) {
-            tmp.putBoolean(ca);
+            if (ca) {
+                tmp.putBoolean(ca);
+            }
+            if (pathLen >= 0) {
+                tmp.putInteger(new BigInt(pathLen));
+            }
+            out.write(DerValue.tag_Sequence, tmp);
+            this.extensionValue = out.toByteArray();
         }
-        if (pathLen >= 0) {
-            tmp.putInteger(new BigInt(pathLen));
-        }
-        out.write(DerValue.tag_Sequence, tmp);
-        this.extensionValue = out.toByteArray();
     }
 
     /**

@@ -154,9 +154,11 @@ public class AuthTokenTest extends CMSBaseTestCase {
         authToken.set("key2", new byte[] { 1, 2, 3, 4 });
         assertNull(authToken.getInStringArray("key2"));
 
-        DerOutputStream out = new DerOutputStream();
-        out.putPrintableString("testing");
-        authToken.set("key3", out.toByteArray());
+        try (DerOutputStream out = new DerOutputStream()) {
+            out.putPrintableString("testing");
+            authToken.set("key3", out.toByteArray());
+        }
+
         assertNull(authToken.getInStringArray("key3"));
 
         assertFalse(authToken.set("key4", (String[]) null));

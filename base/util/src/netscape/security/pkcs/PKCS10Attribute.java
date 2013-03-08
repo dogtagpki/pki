@@ -168,25 +168,26 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
      */
     public void encode(OutputStream out)
             throws CertificateException, IOException {
-        // Encode the attribute value
-        DerOutputStream outAttrValue = new DerOutputStream();
-        attributeValue.encode(outAttrValue);
+        try (DerOutputStream tmp = new DerOutputStream()) {
+            // Encode the attribute value
+            DerOutputStream outAttrValue = new DerOutputStream();
+            attributeValue.encode(outAttrValue);
 
-        // Wrap the encoded attribute value into a SET
-        DerValue outAttrValueSet = new DerValue(DerValue.tag_Set,
-                        outAttrValue.toByteArray());
+            // Wrap the encoded attribute value into a SET
+            DerValue outAttrValueSet = new DerValue(DerValue.tag_Set,
+                    outAttrValue.toByteArray());
 
-        // Create the attribute
-        DerOutputStream outAttr = new DerOutputStream();
-        outAttr.putOID(attributeId);
-        outAttr.putDerValue(outAttrValueSet);
+            // Create the attribute
+            DerOutputStream outAttr = new DerOutputStream();
+            outAttr.putOID(attributeId);
+            outAttr.putDerValue(outAttrValueSet);
 
-        // Wrap the OID and the set of attribute values into a SEQUENCE
-        DerOutputStream tmp = new DerOutputStream();
-        tmp.write(DerValue.tag_Sequence, outAttr);
+            // Wrap the OID and the set of attribute values into a SEQUENCE
+            tmp.write(DerValue.tag_Sequence, outAttr);
 
-        // write the results to out
-        out.write(tmp.toByteArray());
+            // write the results to out
+            out.write(tmp.toByteArray());
+        }
     }
 
     /**

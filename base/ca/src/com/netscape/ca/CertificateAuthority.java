@@ -960,8 +960,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             statsSub.startTiming("signing");
         }
 
-        try {
-            DerOutputStream out = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
             if (algname == null) {
@@ -1034,8 +1033,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             statsSub.startTiming("signing");
         }
 
-        try {
-            DerOutputStream out = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
             if (certInfo == null) {
@@ -1931,8 +1929,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     private BasicOCSPResponse sign(ResponseData rd) throws EBaseException {
-        try {
-            DerOutputStream out = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
             String algname = mOCSPSigningUnit.getDefaultAlgorithm();

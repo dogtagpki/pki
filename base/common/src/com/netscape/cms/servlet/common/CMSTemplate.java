@@ -145,14 +145,9 @@ public class CMSTemplate extends CMSFile {
         Enumeration<IArgBlock> q = null;
         IArgBlock r = null;
         CMSTemplateParams data = input;
-        HTTPOutputStreamWriter http_out = null;
 
-        if (mCharset == null)
-            http_out = new HTTPOutputStreamWriter(rout);
-        else
-            http_out = new HTTPOutputStreamWriter(rout, mCharset);
-
-        try {
+        try (HTTPOutputStreamWriter http_out = (mCharset == null ?
+                new HTTPOutputStreamWriter(rout): new HTTPOutputStreamWriter(rout, mCharset))) {
             templateLine out = new templateLine();
 
             // Output the prolog

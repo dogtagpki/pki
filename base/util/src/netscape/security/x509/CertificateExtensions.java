@@ -187,25 +187,26 @@ public class CertificateExtensions extends Vector<Extension>
      */
     public void encode(OutputStream out)
             throws CertificateException, IOException {
-        DerOutputStream extOut = new DerOutputStream();
-        for (int i = 0; i < size(); i++) {
-            Object thisOne = elementAt(i);
-            if (thisOne instanceof CertAttrSet)
-                ((CertAttrSet) thisOne).encode(extOut);
-            else if (thisOne instanceof Extension)
-                ((Extension) thisOne).encode(extOut);
-            else
-                throw new CertificateException("Invalid extension object");
+        try (DerOutputStream tmp = new DerOutputStream()) {
+            DerOutputStream extOut = new DerOutputStream();
+            for (int i = 0; i < size(); i++) {
+                Object thisOne = elementAt(i);
+                if (thisOne instanceof CertAttrSet)
+                    ((CertAttrSet) thisOne).encode(extOut);
+                else if (thisOne instanceof Extension)
+                    ((Extension) thisOne).encode(extOut);
+                else
+                    throw new CertificateException("Invalid extension object");
+            }
+
+            DerOutputStream seq = new DerOutputStream();
+            seq.write(DerValue.tag_Sequence, extOut);
+
+            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 3),
+                    seq);
+
+            out.write(tmp.toByteArray());
         }
-
-        DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.tag_Sequence, extOut);
-
-        DerOutputStream tmp = new DerOutputStream();
-        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 3),
-                  seq);
-
-        out.write(tmp.toByteArray());
     }
 
     /**

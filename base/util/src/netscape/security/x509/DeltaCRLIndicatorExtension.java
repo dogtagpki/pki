@@ -73,9 +73,10 @@ public class DeltaCRLIndicatorExtension extends Extension
     private void encodeThis() throws IOException {
         if (baseCRLNumber == null)
             throw new IOException("Unintialized delta CRL indicator extension");
-        DerOutputStream os = new DerOutputStream();
-        os.putInteger(this.baseCRLNumber);
-        this.extensionValue = os.toByteArray();
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putInteger(this.baseCRLNumber);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

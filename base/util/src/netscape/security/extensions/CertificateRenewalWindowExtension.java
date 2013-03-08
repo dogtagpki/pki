@@ -148,15 +148,16 @@ public class CertificateRenewalWindowExtension extends Extension
     }
 
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream();
+             DerOutputStream tmp = new DerOutputStream()) {
 
-        tmp.putGeneralizedTime(mBeginTime);
-        if (mEndTime != null) {
-            tmp.putGeneralizedTime(mEndTime);
+            tmp.putGeneralizedTime(mBeginTime);
+            if (mEndTime != null) {
+                tmp.putGeneralizedTime(mEndTime);
+            }
+            seq.write(DerValue.tag_Sequence, tmp);
+            this.extensionValue = seq.toByteArray();
         }
-        seq.write(DerValue.tag_Sequence, tmp);
-        this.extensionValue = seq.toByteArray();
     }
 
     /**

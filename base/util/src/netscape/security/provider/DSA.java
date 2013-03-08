@@ -163,8 +163,7 @@ public final class DSA extends Signature {
         BigInt rAsBigInt = new BigInt(r.toByteArray());
         BigInt sAsBigInt = new BigInt(s.toByteArray());
 
-        try {
-            DerOutputStream outseq = new DerOutputStream(100);
+        try (DerOutputStream outseq = new DerOutputStream(100)) {
             outseq.putInteger(rAsBigInt);
             outseq.putInteger(sAsBigInt);
             DerValue result = new DerValue(DerValue.tag_Sequence,

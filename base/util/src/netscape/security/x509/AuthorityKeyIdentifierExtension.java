@@ -83,32 +83,34 @@ public class AuthorityKeyIdentifierExtension extends Extension
 
     // Encode only the extension value
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
-        if (id != null) {
-            DerOutputStream tmp1 = new DerOutputStream();
-            id.encode(tmp1);
-            tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                              false, TAG_ID), tmp1);
-        }
-        try {
-            if (names != null) {
+        try (DerOutputStream tmp = new DerOutputStream();
+             DerOutputStream seq = new DerOutputStream()) {
+
+            if (id != null) {
                 DerOutputStream tmp1 = new DerOutputStream();
-                names.encode(tmp1);
+                id.encode(tmp1);
                 tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                  true, TAG_NAMES), tmp1);
+                        false, TAG_ID), tmp1);
             }
-        } catch (Exception e) {
-            throw new IOException(e.toString());
+            try {
+                if (names != null) {
+                    DerOutputStream tmp1 = new DerOutputStream();
+                    names.encode(tmp1);
+                    tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                            true, TAG_NAMES), tmp1);
+                }
+            } catch (Exception e) {
+                throw new IOException(e.toString());
+            }
+            if (serialNum != null) {
+                DerOutputStream tmp1 = new DerOutputStream();
+                serialNum.encode(tmp1);
+                tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        false, TAG_SERIAL_NUM), tmp1);
+            }
+            seq.write(DerValue.tag_Sequence, tmp);
+            this.extensionValue = seq.toByteArray();
         }
-        if (serialNum != null) {
-            DerOutputStream tmp1 = new DerOutputStream();
-            serialNum.encode(tmp1);
-            tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                              false, TAG_SERIAL_NUM), tmp1);
-        }
-        seq.write(DerValue.tag_Sequence, tmp);
-        this.extensionValue = seq.toByteArray();
     }
 
     /**

@@ -49,13 +49,14 @@ public class AccessDescription implements Serializable {
      */
     private void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream();
+             DerOutputStream tmp = new DerOutputStream()) {
 
-        tmp.putOID(mOID);
-        mLocation.encode(tmp);
-        seq.write(DerValue.tag_Sequence, tmp);
-        out.write(seq.toByteArray());
+            tmp.putOID(mOID);
+            mLocation.encode(tmp);
+            seq.write(DerValue.tag_Sequence, tmp);
+            out.write(seq.toByteArray());
+        }
     }
 
     /**

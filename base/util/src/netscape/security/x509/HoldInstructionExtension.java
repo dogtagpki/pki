@@ -113,9 +113,11 @@ public class HoldInstructionExtension extends Extension
     private void encodeThis() throws IOException {
         if (holdInstructionCodeOID == null)
             throw new IOException("Unintialized hold instruction extension");
-        DerOutputStream os = new DerOutputStream();
-        os.putOID(holdInstructionCodeOID);
-        this.extensionValue = os.toByteArray();
+
+        try (DerOutputStream os = new DerOutputStream()) {
+            os.putOID(holdInstructionCodeOID);
+            this.extensionValue = os.toByteArray();
+        }
     }
 
     /**

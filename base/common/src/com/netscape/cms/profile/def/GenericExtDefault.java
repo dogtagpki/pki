@@ -230,7 +230,7 @@ public class GenericExtDefault extends EnrollExtDefault {
     public Extension createExtension(IRequest request) {
         Extension ext = null;
 
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             ObjectIdentifier oid = new ObjectIdentifier(getConfig(CONFIG_OID));
             byte data[] = null;
@@ -241,7 +241,6 @@ public class GenericExtDefault extends EnrollExtDefault {
                 data = getBytes(mapPattern(request, getConfig(CONFIG_DATA)));
             }
 
-            DerOutputStream out = new DerOutputStream();
             out.putOctetString(data);
 
             ext = new Extension(oid, critical, out.toByteArray());

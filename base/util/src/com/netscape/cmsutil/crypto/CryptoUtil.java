@@ -379,16 +379,16 @@ public class CryptoUtil {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                        FilterOutputStream(output)));
+        try (Base64OutputStream b64 = new Base64OutputStream(
+                new PrintStream(new FilterOutputStream(output)))) {
 
-        b64.write(bytes);
-        b64.flush();
+            b64.write(bytes);
+            b64.flush();
 
-        // This is internationally safe because Base64 chars are
-        // contained within 8859_1
-        return output.toString("8859_1");
+            // This is internationally safe because Base64 chars are
+            // contained within 8859_1
+            return output.toString("8859_1");
+        }
     }
 
     public static byte[] base64Decode(String s) throws IOException {
@@ -824,7 +824,6 @@ public class CryptoUtil {
         CryptoToken token = priKey.getOwningToken();
 
         DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream out = new DerOutputStream();
 
         certInfo.encode(tmp);
         Signature signer = token.getSignatureContext(sigAlg);
@@ -835,10 +834,11 @@ public class CryptoUtil {
 
         aid.encode(tmp);
         tmp.putBitString(signed);
-        out.write(DerValue.tag_Sequence, tmp);
-        X509CertImpl signedCert = new X509CertImpl(out.toByteArray());
-
-        return signedCert;
+        try (DerOutputStream out = new DerOutputStream()) {
+            out.write(DerValue.tag_Sequence, tmp);
+            X509CertImpl signedCert = new X509CertImpl(out.toByteArray());
+            return signedCert;
+        }
     }
 
     /**

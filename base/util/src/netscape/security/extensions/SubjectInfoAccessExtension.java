@@ -166,19 +166,20 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
     }
 
     private void encodeThis() throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream seq = new DerOutputStream();
+             DerOutputStream tmp = new DerOutputStream()) {
 
-        for (int i = 0; i < mDesc.size(); i++) {
-            DerOutputStream tmp0 = new DerOutputStream();
-            AccessDescription ad = mDesc.elementAt(i);
+            for (int i = 0; i < mDesc.size(); i++) {
+                DerOutputStream tmp0 = new DerOutputStream();
+                AccessDescription ad = mDesc.elementAt(i);
 
-            tmp0.putOID(ad.getMethod());
-            ad.getLocation().encode(tmp0);
-            tmp.write(DerValue.tag_Sequence, tmp0);
+                tmp0.putOID(ad.getMethod());
+                ad.getLocation().encode(tmp0);
+                tmp.write(DerValue.tag_Sequence, tmp0);
+            }
+            seq.write(DerValue.tag_Sequence, tmp);
+            this.extensionValue = seq.toByteArray();
         }
-        seq.write(DerValue.tag_Sequence, tmp);
-        this.extensionValue = seq.toByteArray();
     }
 
     /**

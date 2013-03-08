@@ -1828,7 +1828,6 @@ public class DRMTool {
         KeyWrapper target_rsaWrap = null;
         byte target_session[] = null;
         DerOutputStream tmp = null;
-        DerOutputStream out = null;
         byte[] rewrappedKeyData = null;
 
         // public byte[]
@@ -1909,7 +1908,7 @@ public class DRMTool {
         // public byte[]
         // mStorageUnit.encryptInternalPrivate( byte priKey[] )
         // throws EBaseException
-        try {
+        try (DerOutputStream out = new DerOutputStream()) {
             // Use "mSourceToken" to get "KeyWrapAlgorithm.RSA"
             target_rsaWrap = mSourceToken.getKeyWrapper(
                                  KeyWrapAlgorithm.RSA);
@@ -1917,7 +1916,6 @@ public class DRMTool {
             target_session = target_rsaWrap.wrap(sk);
 
             tmp = new DerOutputStream();
-            out = new DerOutputStream();
 
             tmp.putOctetString(target_session);
             tmp.putOctetString(pri);

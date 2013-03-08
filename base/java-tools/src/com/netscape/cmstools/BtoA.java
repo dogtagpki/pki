@@ -82,6 +82,10 @@ public class BtoA {
         } catch (IOException e) {
             System.out.println("BtoA():  unable to open file " +
                     argv[1] + " for writing:\n" + e);
+            try {
+                inputBlob.close();
+            } catch (IOException e1) {
+            }
             return;
         }
 
