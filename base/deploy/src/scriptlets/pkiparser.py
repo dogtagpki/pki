@@ -170,11 +170,10 @@ class PKIConfigParser:
             'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
             shell=True).strip()
 
-        # arch dependent libpath
-        if config.pki_architecture == 64:
-            arch_java_lib = '/usr/lib64/java'
-        else:
-            arch_java_lib = '/usr/lib/java'
+        # JNI jar location
+        jni_jar_dir = subprocess.check_output(\
+            'source /etc/pki/pki.conf && echo $JNI_JAR_DIR',
+            shell=True).strip()
 
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             default_instance_name = 'pki-tomcat'
@@ -194,7 +193,7 @@ class PKIConfigParser:
             'pki_subsystem_type': config.pki_subsystem.lower(),
             'pki_root_prefix' : config.pki_root_prefix,
             'resteasy_lib': resteasy_lib,
-            'arch_java_lib': arch_java_lib,
+            'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': config.pki_hostname})
 

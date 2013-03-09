@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          5%{?dist}
+Release:          6%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -498,6 +498,15 @@ cd build
 	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
 %else
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%endif
+%if 0%{?fedora} <= 18
+%ifarch x86_64
+	-DJNI_JAR_DIR=/usr/lib64/java \
+%else
+	-DJNI_JAR_DIR=/usr/lib/java \
+%endif
+%else
+	-DJNI_JAR_DIR=/usr/lib/java \
 %endif
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
@@ -997,7 +1006,10 @@ fi
 
 
 %changelog
-* Wed Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-5
+* Fri Mar 8 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-6
+- Bugzilla Bug #919476 - pkispawn crashes due to dangling symlink to jss4.jar
+
+* Thu Mar 7 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-5
 - Added dependency on python-requests.
 - Reorganized Python module packaging.
 
