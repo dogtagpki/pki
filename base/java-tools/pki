@@ -111,4 +111,8 @@ foreach (@ARGV) {
     push(@args, quotemeta($_));
 }
 
-system("java -cp $ENV{CLASSPATH} com.netscape.cmstools.cli.MainCLI @args");
+my $command = "java -cp $ENV{CLASSPATH} com.netscape.cmstools.cli.MainCLI @args";
+
+system($command) and do {
+    exit $? >> 8;
+}
