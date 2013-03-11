@@ -31,8 +31,9 @@ class SecurityDomainClient:
 
     def getSecurityDomainInfo(self):
         r = self.connection.get('securityDomain/domainInfo')
+        j = r.json()
 
         info = SecurityDomainInfo()
-        info.name = r.json['DomainInfo']['@id']
+        info.name = j['DomainInfo']['@id']
 
         return info

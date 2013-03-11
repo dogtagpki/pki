@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          6%{?dist}
+Release:          7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -198,7 +198,7 @@ Requires:         jss >= 4.2.6-24
 %endif
 Requires:         ldapjdk
 Requires:         python-ldap
-Requires:         python-requests
+Requires:         python-requests >= 1.1.0-3
 %if  0%{?rhel}
 Requires:         resteasy-base
 %else
@@ -1006,6 +1006,9 @@ fi
 
 
 %changelog
+* Mon Mar 11 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-7
+- Added minimum python-requests version.
+
 * Fri Mar 8 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.1-6
 - Bugzilla Bug #919476 - pkispawn crashes due to dangling symlink to jss4.jar
 
