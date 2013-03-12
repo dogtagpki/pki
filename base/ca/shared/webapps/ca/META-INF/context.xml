@@ -24,7 +24,11 @@
 -->
 <Context crossContext="true" allowLinking="true">
 
-    <Valve className="com.netscape.cms.tomcat.SSLAuthenticatorWithFallback" />
+    <Manager
+        secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
+
+    <Valve className="com.netscape.cms.tomcat.SSLAuthenticatorWithFallback"
+        secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
 
     <Realm className="com.netscape.cms.tomcat.ProxyRealm" />
 
