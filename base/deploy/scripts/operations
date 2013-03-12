@@ -1088,11 +1088,7 @@ verify_symlinks()
     declare -A systemd_symlinks
 
     # Dogtag 10 Conditional Variables
-    if [ ${ARCHITECTURE} == "x86_64" ]; then
-        jni_dir="/usr/lib64/java"
-    else
-        jni_dir="/usr/lib/java"
-    fi
+    jni_dir=`source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
 
     # Dogtag 10 Symbolic Link Target Variables
     java_dir="/usr/share/java"

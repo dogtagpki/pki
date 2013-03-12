@@ -1203,7 +1203,7 @@ fi
 * Thu Jun 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.18.a1
 - Updated release of 'tomcatjss' to rely on Tomcat 7 for Fedora 18
 
-* Mon May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
+* Tue May 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.17.a1
 - Added CLI for REST services
 
 * Fri May 18 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.16.a1
@@ -1218,7 +1218,7 @@ fi
 * Thu Apr  5 2012 Christina Fu <cfu@redhat.com> 10.0.0-0.14.a1
 - Bug 745278 - [RFE] ECC encryption keys cannot be archived
 
-* Fri Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
+* Tue Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
 - Replaced candlepin-deps with resteasy
 
 * Fri Mar 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.12.a1
@@ -1254,7 +1254,7 @@ fi
 -      Bugzilla Bug #739708 - Selinux fix for ephemeral ports (F16)
 -      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess (F17)
 
-* Wed Feb 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
+* Thu Feb 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
 - Added dependency on Apache Commons Codec.
 
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
