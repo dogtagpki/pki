@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.0.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -17,6 +17,7 @@ BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    pcre-devel
+BuildRequires:    python
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
@@ -227,6 +228,9 @@ fi
 
 
 %changelog
+* Tue Mar 12 2013 Endi S. Dewata <edewata@redhat.com> 10.0.0-3
+- Added python build-time dependency.
+
 * Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
 - TRAC Ticket #517 - Clean up theme dependencies
 - TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .

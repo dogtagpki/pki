@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.0.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -13,6 +13,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake  >= 2.8.9-1
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
+BuildRequires:    python
 
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
@@ -194,6 +195,9 @@ fi
 
 
 %changelog
+* Tue Mar 12 2013 Endi S. Dewata <edewata@redhat.com> 10.0.0-3
+- Added python build-time dependency.
+
 * Mon Mar  4 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-2
 - TRAC Ticket #517 - Clean up theme dependencies
 - TRAC Ticket #518 - Remove UI dependencies from pkispawn . . .
