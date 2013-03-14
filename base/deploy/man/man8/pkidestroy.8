@@ -32,10 +32,12 @@ An instance can contain multiple subsystems, although it may contain at most one
 .SH OPTIONS
 .TP
 .B -s <subsystem>
-Specifies the subsystem to be removed, where <subsystem> is CA, KRA, OCSP, or TKS.
+Specifies the subsystem to be removed, where <subsystem> is CA, KRA, OCSP, or TKS. If this option is not specified, \fBpkidestroy\fP
+will prompt for its value.
 .TP
 .B -i <instance>
-Specifies the name of the instance from which the subsystem should be removed.  The instance is located at /var/log/pki/<instance>.
+Specifies the name of the instance from which the subsystem should be removed.  The instance is located at /var/log/pki/<instance>. If this option is not specified, \fBpkidestroy\fP
+will prompt for its value.
 .TP
 .B -h, --help
 Prints additional help information.
@@ -45,11 +47,12 @@ Displays verbose information about the installation.  This flag can be provided 
 .B pkidestroy -h 
 for details.
 
+
 .SH BUGS
 Report bugs to http://bugzilla.redhat.com.
 
 .SH AUTHORS
-Ade Lee <alee@redhat.com>.  \fBpkidestroy\fP was written by the Dogtag project.
+Ade Lee <alee@redhat.com>.  \fBpkidestroy\fP was written by the Certificate Server project.
 
 .SH COPYRIGHT
 Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

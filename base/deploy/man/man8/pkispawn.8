@@ -82,6 +82,90 @@ Displays verbose information about the installation.  This flag can be provided 
 .B pkispawn -h 
 for details.
 
+.SH INTERACTIVE MODE
+.PP
+If no options are specified, pkispawn will provide an interactive menu to collect the parameters needed to install
+the Certificate Server instance.  Note that only the most basic installation options are provided.  This includes root CAs,
+KRAs, OCSPs and TKS, connecting to the LDAP port of a directory server.  More complicated setups such as: cloned subsystems, subordinate or externally signed CAs, subsystems that connect to the directory server using LDAPS, and subsystems that are customized beyond the options described below -  require the use of a configuration file with the
+-f option.
+.PP
+The interactive option is most useful for those users getting familiar with Certificate Server.  The parameters collected are
+written to the installation file of the subsystem, which can be found at \fB/etc/sysconfig/pki/tomcat/<instance name>/<subsystem>/deployment.cfg.\fP
+.PP
+The following parameters are queried interactively during the installation process:
+.PP
+\fBSubsystem Type\fP
+.TP
+\fISubsystem (CA/KRA/OCSP/TKS):\fP
+the type of subsystem to be installed. Prompted when the -s option is not specified.  The default value chosen is CA.
+.PP
+\fBInstance Specific Parameters\fP
+.TP
+\fIInstance name:\fP
+the name of the tomcat instance in which the subsystem is to be installed. The default value is pki-tomcat.
+.br
+\fBNote:\fP Only one subsystem of a given type (CA, KRA, OCSP, TKS) can exist within a given instance.
+.TP
+\fIHTTP port:\fP
+the HTTP port of the Tomcat instance. The default value is 8080.
+.TP
+\fISecure HTTP port:\fP
+the HTTPS port of the Tomcat instance. The default value is 8443.
+.TP
+\fIAJP port:\fP
+the AJP port of the Tomcat instance. The default value is 8009.
+.TP
+\fIManagement port:\fP
+the management port of the Tomcat instance. The default value is 8005.
+.PP
+\fBAdministrative User Parameters\f
+.TP
+\fIUsername:\fP
+the username of the administrator of this subsystem. The default value is <ca/kra/tks/ocsp>admin.
+.TP
+\fIPassword:\fP
+password for the administrator user.
+.TP
+\fIImport certificate:\fP
+An optional parameter that can be used to import an already available CA admin certificate into this instance.
+.TP
+\fIExport certificate:\fP
+setup the path where the admin certificate of this <subsystem> should be stored. The default value is /root/.pki/pki-tomcat/<ca/kra/tks/ocsp>_admin.cert.
+.PP
+\fBDirectory Server Parameters\f
+.TP
+\fIHostname:\fP
+Hostname of the directory server instance.  The default value is the hostname of the system.
+.TP
+\fIPort:\fP
+Port for the directory server instance. The default value is 389.
+.TP
+\fIBase DN:\fP
+the Base DN to be used for the internal database for this subsystem. The default value is o=pki-tomcat-<subsystem>.
+.TP
+\fIBind DN:\fP
+the bind DN required to connect for the directory server. This user must have sufficient permissions to install the required schema and database.  The default value is cn=Directory Manager.
+.TP
+\fIPassword:\fP
+password for the bind DN.
+.PP
+\fBSecurity Domain Parameters\f
+.TP
+\fIName:\fP
+the name of the security domain. Required only if installing a root CA. Default value: <DNS domain name> Security Domain.
+.TP
+\fIHostname:\fP
+the hostname for the security domain CA. Required only for non-CA subsystems. The default value is the hostname of this system.
+.TP
+\fISecure HTTP port:\fP
+the https port for the security domain. Required only for non-CA subsystems. The default value is 8443.
+.TP
+\fIUsername:\fP
+the username of the security domain administrator of the CA. Required only for non-CA subsystems. The default value is caadmin.
+.TP
+\fIPassword:\fP
+password for the security domain administrator. Required for all subsystems that are not root CAs.
+
 .SH EXAMPLES
 .SS CA using default configuration
 \x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
@@ -286,7 +370,7 @@ Then, the \fBpkispawn\fP command is run again:
 Report bugs to http://bugzilla.redhat.com.
 
 .SH AUTHORS
-Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Dogtag project.
+Ade Lee <alee@redhat.com>.  \fBpkispawn\fP was written by the Certificate Server project.
 
 .SH COPYRIGHT
 Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
