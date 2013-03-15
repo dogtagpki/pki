@@ -858,7 +858,9 @@ fi
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/deploy/LICENSE
-%{_sysconfdir}/pki/
+%dir %{_sysconfdir}/pki/
+%config(noreplace) %{_sysconfdir}/pki/pki.conf
+%{_sysconfdir}/pki/default.cfg
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
