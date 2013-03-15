@@ -94,7 +94,6 @@ pki_admin_password=\fIpassword123\fP
 pki_backup_password=\fIpassword123\fP
 pki_client_pkcs12_password=\fIpassword123\fP
 pki_ds_password=\fIpassword123\fP
-pki_security_domain_password=\fIpassword123\fP
 .fi
 .PP
 Prior to running this command, a Directory Server instance should be created and running. This command assumes that the Directory Server instance is using its default configuration:
@@ -115,7 +114,18 @@ To access the agent pages, first import the CA certificate by accessing the CA E
 .SS KRA, OCSP, or TKS using default configuration
 \x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
 .PP
-where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP is the same as the one used for the default CA example.  This command should be run after a CA is installed.  This installs another subsystem within the same default instance using the certificate generated for the CA administrator for the subsystem's administrator.  This allows a user to access both subsystems on the browser with a single administrator certificate.  To access the new subsystem's functionality, simply point the browser to https://<hostname>:8443 and click the relevant top-level links.
+where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text: 
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_backup_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+.fi
+.PP
+The \fBpki_security_domain_password\fP is the admin password of the CA installed in the same default instance. This command should be run after a CA is installed.  This installs another subsystem within the same default instance using the certificate generated for the CA administrator for the subsystem's administrator.  This allows a user to access both subsystems on the browser with a single administrator certificate.  To access the new subsystem's functionality, simply point the browser to https://<hostname>:8443 and click the relevant top-level links.
 .SS KRA, OCSP, or TKS connecting to a remote CA
 \x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
 .PP
@@ -217,9 +227,12 @@ pki_security_domain_user=caadmin
 [CA]
 pki_subordinate=True
 pki_issuing_ca=https://<master_ca_hostname>:<master_ca_https_port>
+pki_ca_signing_subject_dn=cn=CA Subordinate Signing ,o=example.com
 .fi
 .PP
 A sub-CA derives its certificate configuration -- such as allowed extensions and validity periods -- from a superior or root CA. Otherwise, the configuration of the CA is independent of the root CA, so it is its own instance rather than a clone. A sub-CA is configured using the pki_subordinate parameter and a pointer to the CA which issues the sub-CA's certificates.
+.PP
+\fBNote:\fP The value of \fBpki_ca_signing_subject_dn\fP of a subordinate CA should be different from the root CA's signing subject DN.
 .SS Installing an externally signed CA
 \x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
 .PP
