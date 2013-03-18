@@ -25,8 +25,8 @@ import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import netscape.security.x509.X500Name;
 
@@ -230,7 +230,7 @@ public class ConfigurationTest {
 
         System.out.println("status: " + response.getStatus());
         System.out.println("adminCert: " + response.getAdminCert().getCert());
-        Collection<SystemCertData> certs = response.getSystemCerts();
+        List<SystemCertData> certs = response.getSystemCerts();
         Iterator<SystemCertData> iterator = certs.iterator();
         while (iterator.hasNext()) {
             SystemCertData cdata = iterator.next();
@@ -279,7 +279,7 @@ public class ConfigurationTest {
         data.setAdminCertRequestType("crmf");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -383,7 +383,7 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -485,7 +485,7 @@ public class ConfigurationTest {
         data.setIssuingCA("External CA");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -588,7 +588,7 @@ public class ConfigurationTest {
         data.setStepTwo("true");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -695,7 +695,7 @@ public class ConfigurationTest {
         data.setBackupKeys("false");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");
         cert3.setKeyAlgorithm("SHA256withRSA");
@@ -754,7 +754,7 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("transport");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -857,7 +857,7 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
         cert1.setTag("signing");
         cert1.setKeyAlgorithm("SHA256withRSA");
@@ -949,7 +949,7 @@ public class ConfigurationTest {
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
-        Collection<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
+        List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
 
         SystemCertData cert3 = new SystemCertData();
         cert3.setTag("sslserver");

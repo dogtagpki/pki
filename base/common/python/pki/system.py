@@ -19,6 +19,12 @@
 # All rights reserved.
 #
 
+import pki.encoder as encoder
+
+encoder.TYPES['ConfigurationRequest'] = ConfigurationRequest
+encoder.TYPES['ConfigurationResponse'] = ConfigurationResponse
+encoder.NOTYPES['SystemCertData'] = SystemCertData
+
 class SecurityDomainInfo:
 
     def __init__(self):
@@ -30,10 +36,54 @@ class SecurityDomainClient:
         self.connection = connection
 
     def getSecurityDomainInfo(self):
-        r = self.connection.get('securityDomain/domainInfo')
+        r = self.connection.get('/rest/securityDomain/domainInfo')
         j = r.json()
 
         info = SecurityDomainInfo()
         info.name = j['DomainInfo']['@id']
 
         return info
+
+class ConfigurationRequest:
+
+    def __init__(self):
+        self.token = "Internal Key Storage Token"
+        self.isClone = "false"
+        self.secureConn = "off"
+        self.importAdminCert = "false"
+        self.generateServerCert = "true"
+
+class ConfigurationResponse:
+
+    def __init__(self):
+        pass
+
+class SystemCertData:
+
+    def __init__(self):
+        pass
+
+class SystemConfigClient:
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def configure(self, data):
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        r = self.connection.post('/rest/installer/configure', data, headers)
+        info = r.json()['ConfigurationResponse']
+        return info
+
+class SystemStatusClient:
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def getStatus(self):
+        r = self.connection.get('/admin/' +\
+                self.connection.subsystem + '/getStatus')
+        return r.text
+
+
+

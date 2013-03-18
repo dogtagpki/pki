@@ -96,15 +96,12 @@ class PKIConfigParser:
         # Process 'Optional' command-line options
         #    '-v'
         if args.pki_verbosity == 1:
-            config.pki_jython_log_level = config.PKI_JYTHON_INFO_LOG_LEVEL
             config.pki_console_log_level = logging.INFO
             config.pki_log_level = logging.INFO
         elif args.pki_verbosity == 2:
-            config.pki_jython_log_level = config.PKI_JYTHON_INFO_LOG_LEVEL
             config.pki_console_log_level = logging.INFO
             config.pki_log_level = logging.DEBUG
         elif args.pki_verbosity == 3:
-            config.pki_jython_log_level = config.PKI_JYTHON_DEBUG_LOG_LEVEL
             config.pki_console_log_level = logging.DEBUG
             config.pki_log_level = logging.DEBUG
         elif args.pki_verbosity > 3:
@@ -114,7 +111,6 @@ class PKIConfigParser:
             self.arg_parser.exit(-1);
         else:
             # Set default log levels
-            config.pki_jython_log_level = config.PKI_JYTHON_WARNING_LOG_LEVEL
             config.pki_console_log_level = logging.WARNING
             config.pki_log_level = logging.INFO
 
@@ -424,8 +420,6 @@ class PKIConfigParser:
             config.pki_master_dict['pki_certificate_timestamp'] =\
                 config.pki_certificate_timestamp
             config.pki_master_dict['pki_architecture'] = config.pki_architecture
-            config.pki_master_dict['pki_jython_log_level'] =\
-                config.pki_jython_log_level
             config.pki_master_dict['pki_default_deployment_cfg'] = config.default_deployment_cfg
             config.pki_master_dict['pki_user_deployment_cfg'] = config.user_deployment_cfg
             config.pki_master_dict['pki_deployed_instance_name'] =\
@@ -857,21 +851,7 @@ class PKIConfigParser:
                 config.pki_master_dict['pki_client_database_password'] =\
                     str(config.pki_master_dict['pki_client_pin'])
 
-            # Jython scriptlet name/value pairs
-            config.pki_master_dict['pki_jython_configuration_scriptlet'] =\
-                os.path.join(sys.prefix,
-                             "lib",
-                             "python" + str(sys.version_info[0]) + "." +
-                             str(sys.version_info[1]),
-                             "site-packages",
-                             "pki",
-                             "deployment",
-                             "configuration.jy")
-            config.pki_master_dict['pki_jython_base_uri'] =\
-                "https" + "://" + config.pki_master_dict['pki_hostname'] + ":" +\
-                config.pki_master_dict['pki_https_port'] + "/" +\
-                config.pki_master_dict['pki_subsystem'].lower()
-            # Jython scriptlet
+            # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs
             # 'Subsystem Name'  Configuration name/value pairs
             # 'Token'           Configuration name/value pairs
@@ -945,7 +925,6 @@ class PKIConfigParser:
                 # PKI CA
                 config.pki_master_dict['pki_security_domain_type'] = "new"
 
-            # Jython scriptlet
             # 'External CA' Configuration name/value pairs
             #
             #     Tomcat - [External CA]
@@ -959,7 +938,6 @@ class PKIConfigParser:
             #        config.pki_master_dict['pki_external_step_two']
             #
 
-            # Jython scriptlet
             # 'Backup' Configuration name/value pairs
             #
             #     Apache - [RA], [TPS]

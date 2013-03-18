@@ -107,7 +107,6 @@ install(
 
 install(
     FILES
-        src/scriptlets/configuration.jy
         src/scriptlets/configuration.py
         src/scriptlets/finalization.py
         src/scriptlets/infrastructure_layout.py
@@ -115,7 +114,6 @@ install(
         src/scriptlets/instance_layout.py
         src/scriptlets/pkiconfig.py
         src/scriptlets/pkihelper.py
-        src/scriptlets/pkijython.py
         src/scriptlets/pkilogging.py
         src/scriptlets/pkimanifest.py
         src/scriptlets/pkimessages.py

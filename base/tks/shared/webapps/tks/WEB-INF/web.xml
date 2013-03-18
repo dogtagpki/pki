@@ -263,6 +263,17 @@
                          <param-value> certServer.clone.configuration.GetConfigEntries </param-value> </init-param>
    </servlet>
 
+   <servlet>
+      <servlet-name>  tksGetStatus  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> tks          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> tksGetStatus </param-value> </init-param>
+   </servlet>
+
    <listener>
       <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
    </listener>
@@ -389,6 +400,11 @@
    <servlet-mapping>
       <servlet-name>  tksDownloadPKCS12 </servlet-name>
       <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  tksGetStatus  </servlet-name>
+      <url-pattern>   /admin/tks/getStatus  </url-pattern>
    </servlet-mapping>
 
    <!-- ==================== Default Session Configuration =============== -->

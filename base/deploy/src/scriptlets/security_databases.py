@@ -62,7 +62,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.file.modify(master['pki_secmod_database'], perms=\
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-        if util.instance.tomcat_instance_subsystems() < 2:
+        if len(util.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance  
             rv = util.certutil.verify_certificate_exists(
                  master['pki_database_path'],
@@ -111,7 +111,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.delete(master['pki_secmod_database'])
             util.file.delete(master['pki_shared_password_conf'])
         elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-             util.instance.tomcat_instance_subsystems() == 0:
+             len(util.instance.tomcat_instance_subsystems()) == 0:
             util.file.delete(master['pki_cert_database'])
             util.file.delete(master['pki_key_database'])
             util.file.delete(master['pki_secmod_database'])

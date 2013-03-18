@@ -170,7 +170,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.directory.delete(
                     master['pki_instance_type_registry_path'])
         elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-             util.instance.tomcat_instance_subsystems() == 0:
+             len(util.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base
             util.directory.delete(master['pki_instance_path'])
             # remove Tomcat instance logs

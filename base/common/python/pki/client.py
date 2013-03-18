@@ -27,7 +27,8 @@ class PKIConnection:
             protocol='http',
             hostname='localhost',
             port=80,
-            subsystem='ca'):
+            subsystem='ca',
+            accept='application/json'):
 
         self.protocol = protocol
         self.hostname = hostname
@@ -39,15 +40,26 @@ class PKIConnection:
             self.subsystem
 
         self.session = requests.Session()
-        self.session.headers.update({'Accept': 'application/json'})
+        if accept:
+            self.session.headers.update({'Accept': accept})
 
     def authenticate(self, username=None, password=None):
         if username is not None and password is not None:
             self.session.auth = (username, password)
 
-    def get(self, path):
+    def get(self, path, headers=None):
         r = self.session.get(
-            self.serverURI + '/rest/' + path,
-            verify=False)
+            self.serverURI + path,
+            verify=False,
+            headers=headers)
+        r.raise_for_status()
+        return r
+
+    def post(self, path, payload, headers=None):
+        r = self.session.post(
+                self.serverURI + path,
+                verify=False,
+                data=payload,
+                headers=headers)
         r.raise_for_status()
         return r

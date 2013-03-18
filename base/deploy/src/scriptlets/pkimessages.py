@@ -149,12 +149,17 @@ PKIHELPER_APACHE_INSTANCES_2 = "PKI Apache registry '%s' contains '%d' "\
                                "Apache PKI instances"
 PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = "applying in-place "\
                                       "slot substitutions on '%s'"
+PKIHELPER_CERTUTIL_GENERATE_CSR_1 = "executing '%s'"
+PKIHELPER_CERTUTIL_MISSING_INPUT_FILE = "certutil: Missing "\
+                                        "'-i input-file' option!"
 PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = "certutil:  Missing "\
                                          "'-c issuer-name' option!"
 PKIHELPER_CERTUTIL_MISSING_NICKNAME = "certutil:  Missing "\
                                       "'-n nickname' option!"
 PKIHELPER_CERTUTIL_MISSING_NOISE_FILE = "certutil:  Missing "\
                                         "'-z noise-file' option!"
+PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE = "certutil:  Missing "\
+                                        "'-f password-file' option!"
 PKIHELPER_CERTUTIL_MISSING_PATH = "certutil:  Missing '-d path' option!"
 PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER = "certutil:  Missing "\
                                            "'-m serial-number' option!"
@@ -189,7 +194,6 @@ PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
 PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
 PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT = "port %s has invalid selinux "\
                                              "context %s"
-PKIHELPER_INVOKE_JYTHON_1 = "executing '%s'"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
@@ -224,6 +228,15 @@ PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
 PKIHELPER_PASSWORD_NOT_FOUND_1 = "no password found for '%s'!"
+PKIHELPER_PK12UTIL_MISSING_DBPWFILE = "pk12util missing "\
+                                     "-k db-password-file option!"
+PKIHELPER_PK12UTIL_MISSING_NICKNAME = "pk12util missing "\
+                                     "-n nickname option!"
+PKIHELPER_PK12UTIL_MISSING_OUTFILE = "pk12util missing "\
+                                     "-o output-file option!"
+PKIHELPER_PK12UTIL_MISSING_PWFILE = "pk12util missing "\
+                                     "-w pw-file option!"
+
 PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
                                       "PKI subsystems"
 PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
@@ -279,47 +292,25 @@ PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."
 PKIHELPER_USER_ADD_KEYERROR_1 = "KeyError:  pki_user %s"
 PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
-
-# PKI Deployment Jython "Scriptlet" Messages
-# (MUST contain NO embedded formats since Jython 2.2 does not support logging!)
-PKI_JYTHON_ADMIN_CERT_EXPORT = "exporting Admin Certificate from "\
-                               "NSS client security database:"
-PKI_JYTHON_ADMIN_CERT_IMPORT = "importing Admin Certificate into "\
-                               "NSS client security database:"
-PKI_JYTHON_ADMIN_CERT_SAVE = "saving Admin Certificate to file:"
-PKI_JYTHON_ADMIN_CERT_ATOB = "converting Admin Certificate to binary:"
-PKI_JYTHON_CDATA_TAG = "tag:"
-PKI_JYTHON_CDATA_CERT = "cert:"
-PKI_JYTHON_CDATA_REQUEST = "request:"
-PKI_JYTHON_CHMOD = "performing chmod:"
-PKI_JYTHON_CONFIGURING_PKI_DATA = "configuring PKI configuration data for"
-PKI_JYTHON_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data for"
-PKI_JYTHON_CRMF_SUPPORT_ONLY = "only the 'crmf' certificate request type "\
+PKI_CONFIG_ADMIN_CERT_SAVE = "saving Admin Certificate to file:"
+PKI_CONFIG_ADMIN_CERT_ATOB = "converting Admin Certificate to binary:"
+PKI_CONFIG_CDATA_TAG = "tag:"
+PKI_CONFIG_CDATA_CERT = "cert:"
+PKI_CONFIG_CDATA_REQUEST = "request:"
+PKI_CONFIG_CONFIGURING_PKI_DATA = "configuring PKI configuration data."
+PKI_CONFIG_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data."
+PKI_CONFIG_PKCS10_SUPPORT_ONLY = "only the 'pkcs10' certificate request type "\
                                "is currently supported"
-PKI_JYTHON_IS_DUALKEY = "dualkey = true"
-PKI_JYTHON_EXCEPTION_PARSER = "Problem parsing"
-PKI_JYTHON_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
+PKI_CONFIG_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
                               "from file:"
-PKI_JYTHON_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
+PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
                                     "chain from file:"
-PKI_JYTHON_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
-PKI_JYTHON_INDENTATION_0 = "pkispawn    : JYTHON  "
-PKI_JYTHON_INDENTATION_1 = "pkispawn    : JYTHON   ..."
-PKI_JYTHON_INDENTATION_2 = "pkispawn    : JYTHON   ......."
-PKI_JYTHON_INDENTATION_3 = "pkispawn    : JYTHON   ..........."
-PKI_JYTHON_INDENTATION_4 = "pkispawn    : JYTHON   ..............."
-PKI_JYTHON_INITIALIZATION_ERROR = "INITIALIZATION ERROR:"
-PKI_JYTHON_INITIALIZING_REST_CLIENT = "initializing REST client via"
-PKI_JYTHON_INITIALIZING_TOKEN = "initializing token located in"
-PKI_JYTHON_JAVA_CONFIGURATION_EXCEPTION =\
+PKI_CONFIG_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
+PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION =\
     "Exception from Java Configuration Servlet:"
-PKI_JYTHON_LOG_INTO_TOKEN = "logging into token located in"
-PKI_JYTHON_LOGIN_EXCEPTION = "login Exception:"
-PKI_JYTHON_RESPONSE_ADMIN_CERT = "adminCert:"
-PKI_JYTHON_RESPONSE_STATUS = "status:"
-PKI_JYTHON_TOKEN_LOGIN_EXCEPTION = "Exception in logging into token:"
-PKI_JYTHON_NOT_YET_IMPLEMENTED = "NOT YET IMPLEMENTED"
-
+PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
+PKI_CONFIG_RESPONSE_STATUS = "status:"
+PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 
 # PKI Deployment "Scriptlet" Messages
 ADMIN_DOMAIN_DESTROY_1 = "depopulating '%s'"

@@ -105,7 +105,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
            util.instance.apache_instance_subsystems() >= 1:
             util.systemd.start()
         elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-           util.instance.tomcat_instance_subsystems() >= 1:
+           len(util.instance.tomcat_instance_subsystems()) >= 1:
             util.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             master['pki_subsystem'],

@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.netscape.certsrv.system.SystemCertData;
 
@@ -37,8 +38,8 @@ public class SystemCertDataFactory {
         return data;
     }
 
-    public static Collection<SystemCertData> create(Collection<Cert> certs) {
-        Collection<SystemCertData> result = new ArrayList<SystemCertData>();
+    public static List<SystemCertData> create(Collection<Cert> certs) {
+        List<SystemCertData> result = new ArrayList<SystemCertData>();
         for (Cert cert : certs) {
             result.add(create(cert));
         }

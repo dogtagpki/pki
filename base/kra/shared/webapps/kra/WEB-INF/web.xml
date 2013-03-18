@@ -680,6 +680,18 @@
                          <param-value> certServer.clone.configuration </param-value> </init-param>
    </servlet>
 
+   <servlet>
+      <servlet-name>  kraGetStatus  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetStatus </param-value> </init-param>
+   </servlet>
+
+
    <!-- ==================== RESTEasy Configuration =============== -->
 
    <listener>
@@ -924,6 +936,11 @@
    <servlet-mapping>
       <servlet-name>  kraDownloadPKCS12 </servlet-name>
       <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetStatus  </servlet-name>
+      <url-pattern>   /admin/kra/getStatus  </url-pattern>
    </servlet-mapping>
 
    <!-- ==================== Default Session Configuration =============== -->

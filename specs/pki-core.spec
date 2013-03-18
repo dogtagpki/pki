@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          7%{?dist}
+Release:          8%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -263,7 +263,6 @@ Requires:         perl(XML::LibXML)
 Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
-Requires:         jython >= 2.2.1
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
@@ -1006,6 +1005,9 @@ fi
 
 
 %changelog
+* Tue Mar 19 2013 Ade Lee <alee@redhat.com> 10.0.1-8
+- Removed jython dependency
+
 * Mon Mar 11 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-7
 - Added minimum python-requests version.
 

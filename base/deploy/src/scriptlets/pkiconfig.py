@@ -94,14 +94,6 @@ PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT = 8443
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT = 8005
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT = 8009
 
-# PKI Deployment Jython 2.2 Constants
-PKI_JYTHON_CRITICAL_LOG_LEVEL = 1
-PKI_JYTHON_ERROR_LOG_LEVEL = 2
-PKI_JYTHON_WARNING_LOG_LEVEL = 3
-PKI_JYTHON_INFO_LOG_LEVEL = 4
-PKI_JYTHON_DEBUG_LOG_LEVEL = 5
-
-
 # PKI Deployment Global Variables
 pki_install_time = None
 pki_timestamp = None
@@ -173,7 +165,6 @@ def wait_to_attach_an_external_java_debugger():
 
 
 # PKI Deployment Logger Variables
-pki_jython_log_level = None
 pki_log = None
 pki_log_dir = None
 pki_log_name = None
@@ -184,7 +175,6 @@ pki_console_log_level = None
 # PKI Deployment Global Dictionaries
 pki_master_dict = {}
 pki_slots_dict = None
-pki_master_jython_dict = None
 
 # PKI Selinux Constants and parameters
 PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"

@@ -25,6 +25,9 @@ from pkiconfig import pki_master_dict as master
 import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
+import json
+import pki.system
+import pki.encoder
 
 
 # PKI Deployment Configuration Scriptlet
@@ -85,16 +88,45 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.prepare_for_an_external_java_debugger(
                     master['pki_target_tomcat_conf_instance_id'])
             tomcat_instance_subsystems =\
-                util.instance.tomcat_instance_subsystems()
+                len(util.instance.tomcat_instance_subsystems())
             if tomcat_instance_subsystems == 1:
                 util.systemd.start()
             elif tomcat_instance_subsystems > 1:
                 util.systemd.restart()
 
-        # Pass control to the Java servlet via Jython 2.2 'configuration.jy'
-        util.jython.invoke(
-            master['pki_jython_configuration_scriptlet'],
-            master['resteasy_lib'])
+        # wait for startup
+        status = util.instance.wait_for_startup(60)
+        if status == None:
+            config.pki_log.error("server failed to restart",
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
+
+        # Optionally wait for debugger to attach (e. g. - 'eclipse'):
+        if config.str2bool(master['pki_enable_java_debugger']):
+            config.wait_to_attach_an_external_java_debugger()
+
+        config_client = util.config_client()
+        # Construct PKI Subsystem Configuration Data
+        data = None
+        if master['pki_instance_type'] == "Apache":
+            if master['pki_subsystem'] == "RA":
+                config.pki_log.info(log.PKI_CONFIG_NOT_YET_IMPLEMENTED_1,
+                    master['pki_subsystem'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                return rv
+        elif master['pki_subsystem'] == "TPS":
+                config.pki_log.info(log.PKI_CONFIG_NOT_YET_IMPLEMENTED_1,
+                    master['pki_subsystem'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                return rv
+        elif master['pki_instance_type'] == "Tomcat":
+            # CA, KRA, OCSP, or TKS
+            data = config_client.construct_pki_configuration_data()
+        
+        # Configure the substem
+        config_client.configure_pki_data(
+            json.dumps(data, cls=pki.encoder.CustomTypeEncoder))
+
         return self.rv
 
     def respawn(self):
@@ -111,7 +143,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 util.directory.delete(master['pki_client_dir'])
             util.symlink.delete(master['pki_systemd_service_link'])
         elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-             util.instance.tomcat_instance_subsystems() == 1:
+             len(util.instance.tomcat_instance_subsystems()) == 1:
             if util.directory.exists(master['pki_client_dir']):
                 util.directory.delete(master['pki_client_dir'])
             util.symlink.delete(master['pki_systemd_service_link'])

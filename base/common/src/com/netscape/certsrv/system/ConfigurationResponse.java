@@ -19,12 +19,11 @@ package com.netscape.certsrv.system;
 
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import netscape.security.x509.X509CertImpl;
@@ -39,8 +38,8 @@ import com.netscape.certsrv.apps.CMS;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigurationResponse {
 
-    @XmlElementRef
-    protected Collection<SystemCertData> systemCerts;
+    @XmlElement
+    protected List<SystemCertData> systemCerts;
 
     @XmlElement
     protected SystemCertData adminCert;
@@ -56,14 +55,14 @@ public class ConfigurationResponse {
     /**
      * @return the systemCerts
      */
-    public Collection<SystemCertData> getSystemCerts() {
+    public List<SystemCertData> getSystemCerts() {
         return systemCerts;
     }
 
     /**
      * @param systemCerts the systemCerts to set
      */
-    public void setSystemCerts(Collection<SystemCertData> systemCerts) {
+    public void setSystemCerts(List<SystemCertData> systemCerts) {
         this.systemCerts = systemCerts;
     }
 

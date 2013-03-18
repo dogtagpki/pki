@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -158,8 +157,8 @@ public class ConfigurationRequest {
     @XmlElement
     protected String replicationSecurity;
 
-    @XmlElementRef
-    protected Collection<SystemCertData> systemCerts;
+    @XmlElement
+    protected List<SystemCertData> systemCerts;
 
     @XmlElement
     protected String issuingCA;
@@ -553,7 +552,7 @@ public class ConfigurationRequest {
      *
      * @return systemCerts
      */
-    public Collection<SystemCertData> getSystemCerts() {
+    public List<SystemCertData> getSystemCerts() {
         return systemCerts;
     }
 
@@ -561,7 +560,7 @@ public class ConfigurationRequest {
      *
      * @param systemCerts
      */
-    public void setSystemCerts(Collection<SystemCertData> systemCerts) {
+    public void setSystemCerts(List<SystemCertData> systemCerts) {
         this.systemCerts = systemCerts;
     }
 

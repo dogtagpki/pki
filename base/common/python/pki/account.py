@@ -25,7 +25,7 @@ class AccountClient:
         self.connection = connection
 
     def login(self):
-        self.connection.get('account/login')
+        self.connection.get('/rest/account/login')
 
     def logout(self):
-        self.connection.get('account/logout')
+        self.connection.get('/rest/account/logout')

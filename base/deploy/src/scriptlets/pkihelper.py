@@ -28,13 +28,16 @@ import fileinput
 import pickle
 import random
 import re
+import requests
 import shutil
 import string
 import subprocess
+import time
 from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
+import xml.etree.ElementTree as ET
 import zipfile
 import selinux
 if selinux.is_selinux_enabled():
@@ -49,7 +52,9 @@ from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
 import pkimessages as log
 from pkiparser import PKIConfigParser
-
+import pki.account
+import pki.client
+import pki.system
 
 # PKI Deployment Helper Functions
 def pki_copytree(src, dst, symlinks=False, ignore=None):
@@ -921,19 +926,15 @@ class instance:
         return rv
 
     def tomcat_instance_subsystems(self):
-        rv = 0
+        # Return list of PKI subsystems in the specified tomcat instance
+        rv = []
         try:
-            # count number of PKI subsystems present
-            # within the specified Tomcat instance
             for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
                 path = master['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
-                    rv = rv + 1
-            config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2,
-                                 master['pki_instance_path'],
-                                 rv, extra=config.PKI_INDENTATION_LEVEL_2)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                    rv.append(subsystem)
+        except OSErr as e:
+            config.pki_log.error(log.PKI_OSERROR_1, str(e),
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
         return rv
@@ -991,6 +992,38 @@ class instance:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             sys.exit(1)
 
+    def get_instance_status(self):
+        self.connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=master['pki_hostname'],
+            port=master['pki_https_port'],
+            subsystem=master['pki_subsystem_type'],
+            accept = 'application/xml')
+
+        try:
+            client = pki.system.SystemStatusClient(self.connection)
+            response = client.getStatus()
+            config.pki_log.debug(response,
+                extra=config.PKI_INDENTATION_LEVEL_3)
+
+            root = ET.fromstring(response)
+            status = root.findtext("Status")
+            return status
+        except requests.exceptions.ConnectionError:
+            config.pki_log.debug("No connection", 
+                extra=config.PKI_INDENTATION_LEVEL_3)
+            return None
+
+    def wait_for_startup(self, timeout):
+        tries = 1   
+        status = self.get_instance_status()
+        while status != "running":
+            if tries >= timeout:
+                return None
+            time.sleep(1)
+            status = self.get_instance_status()
+            tries = tries + 1
+        return status
 
 # PKI Deployment Directory Class
 class directory:
@@ -2282,6 +2315,198 @@ class certutil:
                 sys.exit(1)
         return
 
+    def import_cert(self, nickname, trust, input_file, password_file,
+                    path=None, token=None, critical_failure=True):
+        try:
+            command = ["certutil","-A"]
+            if path:
+                command.extend(["-d", path])
+
+            if token:
+                command.extend(["-h", token])
+
+            if nickname:
+                command.extend(["-n", nickname ])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if trust:
+                command.extend(["-t", trust])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if input_file:
+                command.extend(["-i", input_file])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if password_file:
+                command.extend(["-f", password_file])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            config.pki_log.info(command, 
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            subprocess.call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+    def generate_certificate_request(self, subject, key_size,
+                                     password_file, noise_file,
+                                     output_file = None, path = None,
+                                     ascii_format = None, token = None,
+                                     critical_failure=True):
+        try:
+            command = ["certutil", "-R"]
+            if path:
+                command.extend(["-d", path])
+            else:
+                command.extend(["-d", "."])
+
+            if token:
+                command.extend(["-h", token])
+
+            if subject:
+                command.extend(["-s", subject])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_SUBJECT,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if key_size:
+                command.extend(["-g", str(key_size)])
+
+            if noise_file:
+                command.extend(["-z", noise_file])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if password_file:
+                command.extend(["-f", password_file])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            if output_file:
+                command.extend(["-o", output_file])
+
+            # set acsii output
+            if ascii_format:
+                command.append("-a")
+
+            # Display this "certutil" command
+            config.pki_log.info(
+                log.PKIHELPER_CERTUTIL_GENERATE_CSR_1, command,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            if not os.path.exists(noise_file):
+                config.pki_log.error(
+                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
+                    noise_file,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if not os.path.exists(password_file) or\
+               not os.path.isfile(password_file):
+                config.pki_log.error(
+                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                    password_file,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            # Execute this "certutil" command
+            with open(os.devnull, "w") as fnull:
+                subprocess.call(command, stdout=fnull, stderr=fnull)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+# pk12util class
+class pk12util:
+    def create_file(self, out_file, nickname, out_pwfile,
+                    db_pwfile, path=None):
+        try:
+            command = ["pk12util"]
+            if path:
+                command.extend(["-d", path])
+            if out_file:
+                command.extend(["-o", out_file])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_PK12UTIL_MISSING_OUTFILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if nickname:
+                command.extend(["-n", nickname])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_PK12UTIL_MISSING_NICKNAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if out_pwfile:
+                command.extend(["-w", out_pwfile])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_PK12UTIL_MISSING_OUTPWFILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+            if db_pwfile:
+                command.extend(["-k", db_pwfile])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                sys.exit(1)
+
+            config.pki_log.info(command, 
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+            with open(os.devnull, "w") as fnull:
+                subprocess.call(command, stdout=fnull, stderr=fnull)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                sys.exit(1)
+        return
+
+
 # KRA Connector Class
 class kra_connector:
     def deregister(self, critical_failure=False):
@@ -2748,73 +2973,411 @@ class systemd:
         return
 
 
-# PKI Deployment 'jython' Class
-class jython:
-    def invoke(self, scriptlet, resteasy_lib, critical_failure=True):
+class config_client:
+
+    def configure_pki_data(self, data):
+        config.pki_log.info(log.PKI_CONFIG_CONFIGURING_PKI_DATA,
+                             extra=config.PKI_INDENTATION_LEVEL_2)
+
+        self.connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=master['pki_hostname'],
+            port=master['pki_https_port'],
+            subsystem=master['pki_subsystem_type'])
+
         try:
-            # JSS JNI Jars
-            #
-            # NOTE:  Always load 64-bit JNI 'jss4.jar'
-            #        PRIOR to 32-bit JNI 'jss4.jar'
-            #
-            classpath = "/usr/lib64/java/jss4.jar" +\
-                ":/usr/lib/java/jss4.jar" +\
-                ":/usr/share/java/httpcomponents/httpclient.jar" +\
-                ":/usr/share/java/httpcomponents/httpcore.jar" +\
-                ":/usr/share/java/apache-commons-cli.jar" +\
-                ":/usr/share/java/apache-commons-codec.jar" +\
-                ":/usr/share/java/apache-commons-logging.jar" +\
-                ":/usr/share/java/istack-commons-runtime.jar" +\
-                ":/usr/share/java/glassfish-jaxb/jaxb-impl.jar" +\
-                ":/usr/share/java/scannotation.jar"
+            client = pki.system.SystemConfigClient(self.connection)
+            response = client.configure(data)
 
-            # RESTEasy Jars
-            classpath = classpath +\
-                ":" + resteasy_lib + "/jaxrs-api.jar" +\
-                ":" + resteasy_lib + "/resteasy-atom-provider.jar" +\
-                ":" + resteasy_lib + "/resteasy-jaxb-provider.jar" +\
-                ":" + resteasy_lib + "/resteasy-jaxrs.jar" +\
-                ":" + resteasy_lib + "/resteasy-jettison-provider.jar"
-
-            # PKI Jars
-            classpath = classpath +\
-                ":/usr/share/java/pki/pki-certsrv.jar" +\
-                ":/usr/share/java/pki/pki-client.jar" +\
-                ":/usr/share/java/pki/pki-cmsutil.jar" +\
-                ":/usr/share/java/pki/pki-nsutil.jar"
-
-            properties = ""
-
-            # From 'http://www.jython.org/archive/22/userfaq.html':
-            # Setting this to false will allow Jython to provide access to
-            # non-public fields, methods, and constructors of Java objects.
-            # properties = properties + " -Dpython.security.respectJavaAccessibility=false"
-
-            # Compose this "jython" command
-            data = pickle.dumps(master)
-            if master['pki_architecture'] == 64:
-                ld_library_path = "/usr/lib64/jss:/usr/lib64:/lib64:" +\
-                                  "/usr/lib/jss:/usr/lib:/lib"
-            else:
-                ld_library_path = "/usr/lib/jss:/usr/lib:/lib"
-            command = "export LD_LIBRARY_PATH=" + ld_library_path +\
-                ";export CLASSPATH=" + classpath +\
-                ";jython " + properties + " " + scriptlet
-            # Display this "jython" command
-            config.pki_log.info(
-                log.PKIHELPER_INVOKE_JYTHON_1,
-                command,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            # Invoke this "jython" command
-            subprocess.call(command + " \"" + data + "\"", shell=True)
-        except subprocess.CalledProcessError as exc:
-            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+            config.pki_log.debug(log.PKI_CONFIG_RESPONSE_STATUS +\
+                                   " " + str(response['status']),
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure == True:
-                sys.exit(1)
+            certs = response['systemCerts']
+            for cdata in certs:
+                if master['pki_subsystem'] == "CA" and\
+                   config.str2bool(master['pki_external']) and\
+                   not config.str2bool(master['pki_external_step_two']):
+                    # External CA Step 1
+                    if cdata['tag'].lower() == "signing":
+                        config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST +\
+                            " " + cdata['request'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+
+                        # Save 'External CA Signing Certificate' CSR (Step 1)
+                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE +\
+                            " '" + master['pki_external_csr_path'] + "'",
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        directory.create(
+                            os.path.dirname(master['pki_external_csr_path']))
+                        with open(master['pki_external_csr_path'], "w") as f:
+                            f.write(cdata['request'])
+                        return
+                else:
+                    config.pki_log.debug(log.PKI_CONFIG_CDATA_TAG +\
+                                           " " + cdata['tag'],
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                    config.pki_log.debug(log.PKI_CONFIG_CDATA_CERT +\
+                                           " " + cdata['cert'],
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                    config.pki_log.debug(log.PKI_CONFIG_CDATA_REQUEST +\
+                                           " " + cdata['request'],
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+
+            # Cloned PKI subsystems do not return an Admin Certificate
+            if not config.str2bool(master['pki_clone']) and \
+               not config.str2bool(master['pki_import_admin_cert']):
+                admin_cert = response['adminCert']['cert']
+                self.process_admin_cert(admin_cert)
+        except Exception, e:
+            config.pki_log.error(
+                log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " + str(e),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
         return
 
+    def process_admin_cert(self, admin_cert):
+        config.pki_log.debug(log.PKI_CONFIG_RESPONSE_ADMIN_CERT +\
+                             " " + admin_cert,
+                             extra=config.PKI_INDENTATION_LEVEL_2)
 
+        # Store the Administration Certificate in a file
+        admin_cert_file = master['pki_client_admin_cert']
+        admin_cert_bin_file = admin_cert_file + ".der"
+        config.pki_log.debug(log.PKI_CONFIG_ADMIN_CERT_SAVE +\
+                               " '" + admin_cert_file + "'",
+                             extra=config.PKI_INDENTATION_LEVEL_2)
+        with open(admin_cert_file, "w") as f:
+            f.write(admin_cert)
+
+        # convert the cert file to binary
+        command = ["AtoB", admin_cert_file, admin_cert_bin_file]
+        config.pki_log.info(command,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+        subprocess.call(command)
+
+        os.chmod(admin_cert_file,
+                 config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+
+        os.chmod(admin_cert_bin_file,
+                 config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+
+        # Import the Administration Certificate
+        # into the client NSS security database
+        certutil.import_cert(
+            re.sub("&#39;", "'", master['pki_admin_nickname']),
+            "u,u,u",
+            admin_cert_bin_file,
+            master['pki_client_password_conf'],
+            master['pki_client_database_dir'],
+            None,
+            True)
+
+        # create directory for p12 file if it does not exist
+        directory.create(os.path.dirname(
+            master['pki_client_admin_cert_p12']))
+
+        # Export the Administration Certificate from the
+        # client NSS security database into a PKCS #12 file
+        pk12util.create_file(
+            master['pki_client_admin_cert_p12'],
+            re.sub("&#39;","'", master['pki_admin_nickname']),
+            master['pki_client_pkcs12_password_conf'],
+            master['pki_client_password_conf'],
+            master['pki_client_database_dir'])
+
+        os.chmod(master['pki_client_admin_cert_p12'],
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+
+        
+    def construct_pki_configuration_data(self):
+        config.pki_log.info(log.PKI_CONFIG_CONSTRUCTING_PKI_DATA,
+                             extra=config.PKI_INDENTATION_LEVEL_2)
+        
+        data = pki.system.ConfigurationRequest()
+
+        # Miscellaneous Configuration Information
+        data.pin = master['pki_one_time_pin']
+        data.subsystemName = master['pki_subsystem_name']
+
+        # Cloning parameters
+        if master['pki_instance_type'] == "Tomcat":
+            if config.str2bool(master['pki_clone']):
+                self.set_cloning_parameters(data)
+            else:
+                data.isClone = "false"
+
+        # Hierarchy
+        self.set_hierarchy_parameters(data)
+
+        # Security Domain
+        if master['pki_subsystem'] != "CA" or\
+           config.str2bool(master['pki_clone']) or\
+           config.str2bool(master['pki_subordinate']):
+            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+            # Subordinate CA
+            self.set_existing_security_domain(data)
+        else:
+            # PKI CA or External CA
+            self.set_new_security_domain(data)
+
+        # database 
+        if master['pki_subsystem'] != "RA":
+            self.set_database_parameters(data)
+
+        # backup
+        if master['pki_instance_type'] == "Tomcat":
+            self.set_backup_parameters(data)
+
+        # admin user 
+        if not config.str2bool(master['pki_clone']):
+            self.set_admin_parameters(data)
+
+        # Issuing CA Information
+        self.set_issuing_ca_parameters(data)
+
+        # Create system certs
+        self.set_system_certs(data)
+
+        return data
+
+    def set_system_certs(self, data):
+        systemCerts = []
+
+        # Create 'CA Signing Certificate'
+        if master['pki_subsystem'] == "CA":
+            if not config.str2bool(master['pki_clone']):
+                cert1 = self.create_system_cert("ca_signing")
+                cert1.signingAlgorithm =\
+                    master['pki_ca_signing_signing_algorithm']
+                if config.str2bool(master['pki_external_step_two']):
+                    # Load the 'External CA Signing Certificate' (Step 2)
+                    print(
+                        log.PKI_CONFIG_EXTERNAL_CA_LOAD + " " +\
+                        "'" + master['pki_external_ca_cert_path'] + "'")
+                    with open(master['pki_external_ca_cert_path']) as f:
+                        external_cert = f.read()
+                    cert1.cert = external_cert
+
+                    # Load the 'External CA Signing Certificate Chain' (Step 2)
+                    print(
+                        log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD + " " +\
+                        "'" + master['pki_external_ca_cert_chain_path'] +\
+                        "'")
+                    with open(master['pki_external_ca_cert_chain_path']) as f:
+                        external_cert_chain = f.read()
+
+                    cert1.certChain = external_cert_chain
+                systemCerts.append(cert1)
+
+        # Create 'OCSP Signing Certificate'
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] == "CA" or\
+               master['pki_subsystem'] == "OCSP":
+                # External CA, Subordinate CA, PKI CA, or PKI OCSP
+                cert2 = self.create_system_cert("ocsp_signing")
+                cert2.signingAlgorithm =\
+                    master['pki_ocsp_signing_signing_algorithm']
+                systemCerts.append(cert2)
+
+        # Create 'SSL Server Certificate'
+        # all subsystems
+
+        # create new sslserver cert only if this is a new instance
+        cert3 = None
+        system_list = instance.tomcat_instance_subsystems()
+        if len(system_list) >= 2:
+            data.generateServerCert = "false"
+            for subsystem in system_list:
+                dst = master['pki_instance_path'] + '/conf/' +\
+                    subsystem.lower() + '/CS.cfg'
+                if subsystem != master['pki_subsystem'] and \
+                   os.path.exists(dst):
+                    cert3 = self.retrieve_existing_server_cert(dst)
+                    break
+        else:
+            cert3 = self.create_system_cert("ssl_server")
+        systemCerts.append(cert3)
+
+        # Create 'Subsystem Certificate'
+        if not config.str2bool(master['pki_clone']):
+            cert4 = self.create_system_cert("subsystem")
+            systemCerts.append(cert4)
+
+        # Create 'Audit Signing Certificate'
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] != "RA":
+                cert5 = self.create_system_cert("audit_signing")
+                cert5.signingAlgorithm =\
+                    master['pki_audit_signing_signing_algorithm']
+                systemCerts.append(cert5)
+
+        # Create DRM Transport and storage Certificates
+        if not config.str2bool(master['pki_clone']):
+            if master['pki_subsystem'] == "KRA":
+                cert6 = self.create_system_cert("transport")
+                systemCerts.append(cert6)
+
+                cert7 = self.create_system_cert("storage")
+                systemCerts.append(cert7)
+
+        data.systemCerts = systemCerts
+
+    def set_cloning_parameters(self, data):
+        data.isClone = "true"
+        data.cloneUri = master['pki_clone_uri']
+        data.p12File = master['pki_clone_pkcs12_path']
+        data.p12Password = master['pki_clone_pkcs12_password']
+        data.replicateSchema = master['pki_clone_replicate_schema']
+        data.replicationSecurity =\
+            master['pki_clone_replication_security']
+        if master['pki_clone_replication_master_port']:
+            data.masterReplicationPort =\
+                master['pki_clone_replication_master_port']
+        if master['pki_clone_replication_clone_port']:
+            data.cloneReplicationPort =\
+                master['pki_clone_replication_clone_port']
+
+    def set_hierarchy_parameters(self, data):
+        if master['pki_subsystem'] == "CA":
+            if config.str2bool(master['pki_clone']):
+                # Cloned CA
+                data.hierarchy = "root"
+            elif config.str2bool(master['pki_external']):
+                # External CA
+                data.hierarchy = "join"
+            elif config.str2bool(master['pki_subordinate']):
+                # Subordinate CA
+                data.hierarchy = "join"
+            else:
+                # PKI CA
+                data.hierarchy = "root"
+
+    def set_existing_security_domain(self, data):
+        data.securityDomainType = "existingdomain"
+        data.securityDomainUri = master['pki_security_domain_uri']
+        data.securityDomainUser = master['pki_security_domain_user']
+        data.securityDomainPassword = master['pki_security_domain_password']
+
+    def set_new_security_domain(self, data):
+        data.securityDomainType = "newdomain"
+        data.securityDomainName = master['pki_security_domain_name']
+
+    def set_database_parameters(self, data):
+        data.dsHost = master['pki_ds_hostname']
+        data.dsPort = master['pki_ds_ldap_port']
+        data.baseDN = master['pki_ds_base_dn']
+        data.bindDN = master['pki_ds_bind_dn']
+        data.database = master['pki_ds_database']
+        data.bindpwd = master['pki_ds_password']
+        if config.str2bool(master['pki_ds_remove_data']):
+            data.removeData = "true"
+        else:
+            data.removeData = "false"
+        if config.str2bool(master['pki_ds_secure_connection']):
+            data.secureConn = "true"
+        else:
+            data.secureConn = "false"
+
+    def set_backup_parameters(self, data):
+        if config.str2bool(master['pki_backup_keys']):
+            data.backupKeys = "true"
+            data.backupFile = master['pki_backup_keys_p12']
+            data.backupPassword = master['pki_backup_password']
+        else:
+            data.backupKeys = "false"
+
+    def set_admin_parameters(self, data):
+        data.adminEmail = master['pki_admin_email']
+        data.adminName = master['pki_admin_name']
+        data.adminPassword = master['pki_admin_password']
+        data.adminProfileID = master['pki_admin_profile_id']
+        data.adminUID = master['pki_admin_uid']
+        data.adminSubjectDN = master['pki_admin_subject_dn']
+        if config.str2bool(master['pki_import_admin_cert']):
+            data.importAdminCert = "true"
+            # read config from file
+            with open(master['pki_admin_cert_file']) as f:
+                b64 = f.read().replace('\n','')
+            data.adminCert = b64
+        else:
+            data.importAdminCert = "false"
+            data.adminSubjectDN = master['pki_admin_subject_dn']
+            if master['pki_admin_cert_request_type'] == "pkcs10":
+                data.adminCertRequestType = "pkcs10"
+
+                noise_file = os.path.join(
+                    master['pki_client_database_dir'], "noise")
+
+                output_file = os.path.join(
+                    master['pki_client_database_dir'], "admin_pkcs10.bin")
+
+                file.generate_noise_file(
+                    noise_file, int(master['pki_admin_keysize']))
+
+                certutil.generate_certificate_request(
+                                     master['pki_admin_subject_dn'],
+                                     master['pki_admin_keysize'],
+                                     master['pki_client_password_conf'], 
+                                     noise_file,
+                                     output_file, 
+                                     master['pki_client_database_dir'], 
+                                     None, None, True)
+
+                # convert output to ascii
+                command = ["BtoA", output_file, output_file + ".asc"]
+                config.pki_log.info(command, 
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                subprocess.call(command)
+                
+                with open(output_file + ".asc") as f:
+                    b64 = f.read().replace('\n','')
+
+                data.adminCertRequest = b64
+            else:
+                print "log.PKI_CONFIG_PKCS10_SUPPORT_ONLY"
+                sys.exit(1)
+
+    def set_issuing_ca_parameters(self, data):
+        if master['pki_subsystem'] != "CA" or\
+           config.str2bool(master['pki_clone']) or\
+           config.str2bool(master['pki_subordinate']) or\
+           config.str2bool(master['pki_external']):
+            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
+            # Subordinate CA, or External CA
+            data.issuingCA = master['pki_issuing_ca']
+            if master['pki_subsystem'] == "CA"  and\
+               config.str2bool(master['pki_external_step_two']):
+                # External CA Step 2
+                data.stepTwo = "true";
+
+    def create_system_cert(self, tag):
+        cert = pki.system.SystemCertData()
+        cert.tag = master["pki_%s_tag" % tag]
+        cert.keyAlgorithm = master["pki_%s_key_algorithm" % tag]
+        cert.keySize = master["pki_%s_key_size" % tag]
+        cert.keyType = master["pki_%s_key_type" % tag]
+        cert.nickname = master["pki_%s_nickname" % tag]
+        cert.subjectDN = master["pki_%s_subject_dn" % tag]
+        cert.token = master["pki_%s_token" % tag]
+        return cert
+
+    def retrieve_existing_server_cert(self, cfg_file):
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)
+        cstype = cs_cfg.get('cs.type').lower()
+        cert = pki.system.SystemCertData()
+        cert.tag = master["pki_ssl_server_tag"]
+        cert.keyAlgorithm = master["pki_ssl_server_key_algorithm"]
+        cert.keySize = master["pki_ssl_server_key_size"]
+        cert.keyType = master["pki_ssl_server_key_type"]
+        cert.nickname = cs_cfg.get(cstype + ".sslserver.nickname")
+        cert.cert = cs_cfg.get(cstype + ".sslserver.cert")
+        cert.request = cs_cfg.get(cstype + ".sslserver.certreq")
+        cert.subjectDN = master["pki_ssl_server_subject_dn"]
+        cert.token = cs_cfg.get(cstype + ".sslserver.tokenname")
+        return cert
+  
 # PKI Deployment Helper Class Instances
 identity = identity()
 namespace = namespace()
@@ -2827,7 +3390,7 @@ symlink = symlink()
 war = war()
 password = password()
 certutil = certutil()
+pk12util = pk12util()
 security_domain = security_domain()
 kra_connector = kra_connector()
 systemd = systemd()
-jython = jython()
