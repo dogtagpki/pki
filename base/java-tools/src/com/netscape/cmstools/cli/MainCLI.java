@@ -50,6 +50,8 @@ public class MainCLI extends CLI {
     public PKIConnection connection;
     public AccountClient accountClient;
 
+    String output;
+
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
@@ -132,12 +134,19 @@ public class MainCLI extends CLI {
         option.setArgName("password");
         options.addOption(option);
 
+        option = new Option(null, "output", true, "Folder to store HTTP messages");
+        option.setArgName("folder");
+        options.addOption(option);
+
         options.addOption("v", false, "Verbose");
         options.addOption(null, "help", false, "Help");
         options.addOption(null, "version", false, "Version");
     }
 
     public void parseOptions(CommandLine cmd) throws URISyntaxException {
+
+        verbose = cmd.hasOption("v");
+        output = cmd.getOptionValue("output");
 
         String uri = cmd.getOptionValue("U");
 
@@ -174,6 +183,12 @@ public class MainCLI extends CLI {
         connection = new PKIConnection(config);
         connection.setVerbose(verbose);
 
+        if (output != null) {
+            File file = new File(output);
+            file.mkdirs();
+            connection.setOutput(file);
+        }
+
         accountClient = new AccountClient(connection);
     }
 
@@ -204,7 +219,7 @@ public class MainCLI extends CLI {
                 System.exit(1);
             }
 
-            verbose = cmd.hasOption("v");
+            parseOptions(cmd);
 
             if (verbose) {
                 System.out.print("Command:");
@@ -214,8 +229,6 @@ public class MainCLI extends CLI {
                 }
                 System.out.println();
             }
-
-            parseOptions(cmd);
 
             String command = cmdArgs[0];
             String moduleName;

@@ -2,6 +2,9 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.InetAddress;
@@ -18,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -34,11 +38,13 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.ClientParamsStack;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.EntityEnclosingRequestWrapper;
 import org.apache.http.impl.client.RequestWrapper;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.jboss.resteasy.client.ClientExecutor;
@@ -58,8 +64,6 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 public class PKIConnection {
 
-    boolean verbose;
-
     ClientConfig config;
 
     DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -67,6 +71,12 @@ public class PKIConnection {
     ResteasyProviderFactory providerFactory;
     ClientErrorHandler errorHandler;
     ClientExecutor executor;
+
+    int requestCounter;
+    int responseCounter;
+
+    File output;
+    boolean verbose;
 
     public PKIConnection(ClientConfig config) {
         this.config = config;
@@ -88,11 +98,19 @@ public class PKIConnection {
         httpClient.addRequestInterceptor(new HttpRequestInterceptor() {
             @Override
             public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+
+                requestCounter++;
+
                 if (verbose) {
                     System.out.println("HTTP request: "+request.getRequestLine());
                     for (Header header : request.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
                     }
+                }
+
+                if (output != null) {
+                    File file = new File(output, "http-request-"+requestCounter);
+                    storeRequest(file, request);
                 }
 
                 // Set the request parameter to follow redirections.
@@ -108,11 +126,19 @@ public class PKIConnection {
         httpClient.addResponseInterceptor(new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+
+                responseCounter++;
+
                 if (verbose) {
                     System.out.println("HTTP response: "+response.getStatusLine());
                     for (Header header : response.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
                     }
+                }
+
+                if (output != null) {
+                    File file = new File(output, "http-response-"+responseCounter);
+                    storeResponse(file, response);
                 }
             }
         });
@@ -153,6 +179,76 @@ public class PKIConnection {
         providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.addClientErrorInterceptor(new PKIErrorInterceptor());
         errorHandler = new ClientErrorHandler(providerFactory.getClientErrorInterceptors());
+    }
+
+    public void storeRequest(File file, HttpRequest request) throws IOException {
+
+        try (PrintStream out = new PrintStream(file)) {
+
+            out.println(request.getRequestLine());
+
+            for (Header header : request.getAllHeaders()) {
+                out.println(header.getName()+": "+header.getValue());
+            }
+
+            out.println();
+
+            if (request instanceof EntityEnclosingRequestWrapper) {
+                EntityEnclosingRequestWrapper wrapper = (EntityEnclosingRequestWrapper) request;
+
+                HttpEntity entity = wrapper.getEntity();
+                if (entity == null) return;
+
+                if (!entity.isRepeatable()) {
+                    BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+                    wrapper.setEntity(bufferedEntity);
+                    entity = bufferedEntity;
+                }
+
+                storeEntity(out, entity);
+            }
+        }
+    }
+
+    public void storeResponse(File file, HttpResponse response) throws IOException {
+
+        try (PrintStream out = new PrintStream(file)) {
+
+            out.println(response.getStatusLine());
+
+            for (Header header : response.getAllHeaders()) {
+                out.println(header.getName()+": "+header.getValue());
+            }
+
+            out.println();
+
+            if (response instanceof BasicHttpResponse) {
+                BasicHttpResponse basicResponse = (BasicHttpResponse) response;
+
+                HttpEntity entity = basicResponse.getEntity();
+                if (entity == null) return;
+
+                if (!entity.isRepeatable()) {
+                    BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+                    basicResponse.setEntity(bufferedEntity);
+                    entity = bufferedEntity;
+                }
+
+                storeEntity(out, entity);
+            }
+        }
+    }
+
+    public void storeEntity(OutputStream out, HttpEntity entity) throws IOException {
+
+        byte[] buffer = new byte[1024];
+        int c;
+
+        try (InputStream in = entity.getContent()) {
+            while ((c = in.read(buffer)) > 0) {
+                out.write(buffer, 0, c);
+            }
+        }
     }
 
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
@@ -370,6 +466,14 @@ public class PKIConnection {
         ClientRequest request = executor.createRequest(config.getServerURI().toString());
         request.body(MediaType.APPLICATION_FORM_URLENCODED, content);
         return request.post(String.class);
+    }
+
+    public File getOutput() {
+        return output;
+    }
+
+    public void setOutput(File output) {
+        this.output = output;
     }
 
     public boolean isVerbose() {
