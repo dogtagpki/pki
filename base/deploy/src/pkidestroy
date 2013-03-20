@@ -21,6 +21,8 @@
 
 # System Imports
 import sys
+import signal
+
 if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print "Python version %s.%s.%s is too old." % sys.version_info[:3]
     print "Please upgrade to at least Python 2.7.0."
@@ -47,6 +49,11 @@ error was:
 """ % sys.exc_value
     sys.exit(1)
 
+#Handle the Keyboard Interrupt
+def interrupt_handler(signal, frame):
+    print
+    print '\nUninstallation canceled.'
+    sys.exit(1)
 
 # PKI Deployment Functions
 def main(argv):
@@ -251,4 +258,5 @@ def main(argv):
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, interrupt_handler)
     main(sys.argv)
