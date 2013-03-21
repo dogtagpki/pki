@@ -112,12 +112,13 @@ def main(argv):
         action='store',
         nargs=1, metavar='<security domain user>',
         help='security domain user')
-
-    parser.optional.add_argument('-w', 
-        dest='pki_secdomain_pass',
+    
+    parser.optional.add_argument('-W',
+        dest='pki_secdomain_pass_file',
         action='store',
-        nargs=1, metavar='<security domain password>',
-        help='security domain password')
+        nargs=1, metavar='<security domain password file>',
+        help='security domain password file path')
+                                 
 
     args = parser.process_command_line_arguments(argv)
 
@@ -165,10 +166,12 @@ def main(argv):
     if args.pki_secdomain_user:
         config.pki_secdomain_user = str(args.pki_secdomain_user).strip('[\']')
 
-    #    '-w'
-    if args.pki_secdomain_pass:
-        config.pki_secdomain_pass = str(args.pki_secdomain_pass).strip('[\']')
+    #    '-W' password file
+    if args.pki_secdomain_pass_file:
+        with open(str(args.pki_secdomain_pass_file).strip('[\']'),'r') as pwd_file:
+            config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
+    print "Password: " + config.pki_secdomain_pass
     # verify that previously deployed instance exists
     deployed_pki_instance_path = config.pki_root_prefix +\
                                  config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
