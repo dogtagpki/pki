@@ -861,6 +861,7 @@ fi
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %{_sysconfdir}/pki/default.cfg
+%{_sbindir}/pki-upgrade
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 #%{_bindir}/pki-setup-proxy
@@ -1006,6 +1007,9 @@ fi
 
 
 %changelog
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.2
+- Added pki-upgrade script.
+
 * Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
 - Updated version number to 10.0.2-0.1.
 

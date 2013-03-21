@@ -46,6 +46,7 @@ install(
 
 install(
     FILES
+        src/pki-upgrade
         src/pkispawn
         src/pkidestroy
     DESTINATION

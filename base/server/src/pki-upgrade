@@ -1,0 +1,162 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+
+import getopt
+import os
+import re
+import signal
+import subprocess
+import sys
+import traceback
+
+import pki.upgrade
+
+
+def interrupt_handler(signal, frame):
+    print
+    print
+    print 'Upgrade canceled.'
+    sys.exit(1)
+
+
+def usage():
+    print 'Usage: pki-upgrade [OPTIONS]'
+    print '  -i, --instance <instance>      Upgrade a specific instance only.'
+    print '  -s, --subsystem <subsystem>    Upgrade a specific subsystem in an instance only.'
+    print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
+    print '  --scriptlet-index <index>      Run a specific scriptlet only.'
+    print '  --silent                       Upgrade in silent mode. Ignore any failures.'
+    print '  --status                       Show upgrade status only. Do not perform upgrade.'
+    print '  -X                             Show advanced usage.'
+    print '  -v, --verbose                  Run in verbose mode.'
+    print '  -h, --help                     Show this help message.'
+
+
+def advancedUsage():
+    print 'WARNING: These options may render the system unusable.'
+    print 'Usage: pki-upgrade [OPTIONS]'
+    print '  --remove-tracker             Remove tracker'
+    print '  --reset-tracker              Reset tracker to match package version'
+
+
+def main(argv):
+
+    signal.signal(signal.SIGINT, interrupt_handler)
+
+    try:
+        opts, args = getopt.getopt(argv[1:], 'hi:s:vX', [
+            'instance=', 'subsystem=',
+            'scriptlet-version=', 'scriptlet-index=',
+            'silent', 'status',
+            'remove-tracker', 'reset-tracker',
+            'verbose', 'help'])
+
+    except getopt.GetoptError as e:
+        print 'ERROR: ' + str(e)
+        usage()
+        sys.exit(1)
+
+    instance = None
+    subsystem = None
+    version = None
+    index = None
+    silent = False
+    status = False
+    remove_tracker = False
+    reset_tracker = False
+
+    for o, a in opts:
+        if o in ('-i', '--instance'):
+            instance = a
+
+        elif o in ('-s', '--subsystem'):
+            subsystem = a
+
+        elif o == '--scriptlet-version':
+            version = pki.upgrade.Version(a)
+
+        elif o == '--scriptlet-index':
+            index = int(a)
+
+        elif o == '--silent':
+            silent = True
+
+        elif o == '--status':
+            status = True
+
+        elif o == '--remove-tracker':
+            remove_tracker = True
+
+        elif o == '--reset-tracker':
+            reset_tracker = True
+
+        elif o in ('-v', '--verbose'):
+            pki.upgrade.verbose = True
+
+        elif o in ('-h', '--help'):
+            usage()
+            sys.exit()
+
+        elif o == '-X':
+            advancedUsage()
+            sys.exit()
+
+        else:
+            print 'ERROR: unknown option ' + o
+            usage()
+            sys.exit(1)
+
+    if subsystem and not instance:
+        print 'ERROR: --subsystem requires --instance'
+        usage()
+        sys.exit(1)
+
+    if index and not version:
+        print 'ERROR: --scriptlet-index requires --scriptlet-version'
+        usage()
+        sys.exit(1)
+
+    try:
+        upgrader = pki.upgrade.PKIUpgrader(
+            instance = instance,
+            subsystem = subsystem,
+            version = version,
+            index = index,
+            silent = silent)
+
+        if status:
+            upgrader.status()
+
+        elif remove_tracker:
+            upgrader.remove_tracker()
+
+        elif reset_tracker:
+            upgrader.reset_tracker()
+
+        else:
+            upgrader.upgrade()
+
+    except pki.upgrade.PKIUpgradeException as e:
+        print e.message
+
+
+if __name__ == '__main__':
+    main(sys.argv)
