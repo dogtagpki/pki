@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.1%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -198,6 +198,7 @@ Requires:         jss >= 4.2.6-24
 %endif
 Requires:         ldapjdk
 Requires:         python-ldap
+Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
 %if  0%{?rhel}
 Requires:         resteasy-base
@@ -1007,6 +1008,9 @@ fi
 
 
 %changelog
+* Mon Apr 15 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.3
+- Added dependency on python-lxml.
+
 * Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.2
 - Added pki-upgrade script.
 
