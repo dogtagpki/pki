@@ -21,10 +21,6 @@
 
 import pki.encoder as encoder
 
-encoder.TYPES['ConfigurationRequest'] = ConfigurationRequest
-encoder.TYPES['ConfigurationResponse'] = ConfigurationResponse
-encoder.NOTYPES['SystemCertData'] = SystemCertData
-
 class SecurityDomainInfo:
 
     def __init__(self):
@@ -86,4 +82,6 @@ class SystemStatusClient:
         return r.text
 
 
-
+encoder.TYPES['ConfigurationRequest'] = ConfigurationRequest
+encoder.TYPES['ConfigurationResponse'] = ConfigurationResponse
+encoder.NOTYPES['SystemCertData'] = SystemCertData
