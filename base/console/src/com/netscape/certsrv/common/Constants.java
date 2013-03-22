@@ -216,6 +216,7 @@ public interface Constants {
     public final static String PR_ENABLE_FREQ = "enableUpdateInterval";
     public final static String PR_UPDATE_FREQ = "autoUpdateInterval";
     public final static String PR_GRACE_PERIOD = "nextUpdateGracePeriod";
+    public final static String PR_NEXT_AS_THIS_EXTENSION = "nextAsThisUpdateExtension";
     public final static String PR_ENABLE_CACHE = "enableCRLCache";
     public final static String PR_CACHE_FREQ = "cacheUpdateInterval";
     public final static String PR_CACHE_RECOVERY = "enableCacheRecovery";
