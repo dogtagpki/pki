@@ -294,7 +294,7 @@ class RA_Enroll_Processor : public RA_Processor
 	private:
 		int GetNextFreeCertIdNumber(PKCS11Obj *pkcs11objx);
                 bool isCertRenewable(CERTCertificate *cert, int graceBefore, int graceAfter);
-                int UnrevokeRecoveredCert(const LDAPMessage *e, char *&statusString);
+                int UnrevokeRecoveredCert(LDAPMessage *e, char *&statusString);
 };
 
 #endif /* RA_ENROLL_PROCESSOR_H */

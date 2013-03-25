@@ -18,6 +18,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+#include "cert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2539,7 +2540,15 @@ bool RA_Processor::RevokeCertificates(RA_Session *session, char *cuid,char *audi
                         rc = RA::ra_delete_certificate_entry(e);
                         continue;
                     }
-                    statusNum = certEnroll->RevokeCertificate("1", serial, connid, statusString);
+
+                    CERTCertificate **attr_certificate= RA::ra_get_certificates(e);
+                    statusNum = certEnroll->RevokeCertificate(
+                        true,
+                        attr_certificate[0],
+                        "1", serial, connid, statusString);
+                    if (attr_certificate[0] != NULL)
+                        CERT_DestroyCertificate(attr_certificate[0]);
+
                     RA::Debug("RA_Processor::RevokeCertificates", "Revoke cert %s status %d",serial,statusNum);
 
                     if (statusNum == 0) {

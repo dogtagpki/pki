@@ -33,6 +33,7 @@
 #include "pk11func.h"
 #include "cryptohi.h"
 #include "keyhi.h"
+#include "cert.h"
 #include "base64.h"
 #include "nssb64.h"
 #include "prlock.h"
@@ -240,6 +241,7 @@ TOKENDB_PUBLIC int CertEnroll::RevokeCertificate(const char *reason, const char 
     return num;
 }
 
+
 TOKENDB_PUBLIC int CertEnroll::UnrevokeCertificate(const char *serialno, const char *connid,
   char *&o_status)
 {
@@ -280,6 +282,313 @@ TOKENDB_PUBLIC int CertEnroll::UnrevokeCertificate(const char *serialno, const c
     }
 
     return num;
+}
+
+
+/*
+ * searches through all defined ca entries to find the cert's
+ * signing ca for revocation
+ *   revoke: true to revoke; false to unrevoke  
+ *   cert: cert to (un)revoke
+ *   serialno: parameter for the (Un)RevokeCertificate() functions
+ *   o_status: parameter for the (Un)RevokeCertificate() functions
+ *   reason: parameter for the RevocakeCertificate() function
+ */
+TPS_PUBLIC int CertEnroll::revokeFromOtherCA(
+        bool revoke,
+        CERTCertificate *cert,
+        const char*serialno, char *&o_status,
+        const char *reason) {
+
+    int ret = 1;
+    const char *caList = NULL;
+    const char *nick = NULL;
+    char configname[256] = {0};
+    char configname_nick[256] = {0};
+    char configname_caSKI[256] = {0};
+    const char *caSKI_s = NULL;
+    char *caSKI_x = NULL;
+    char *caSKI_y = NULL;
+    ConfigStore *store = RA::GetConfigStore();
+    CERTCertDBHandle *certdb = CERT_GetDefaultCertDB();
+    CERTCertificate *caCert = NULL;
+    SECItem ca_ski;
+    SECStatus rv = SECFailure;
+
+    if (store == NULL)
+        return 1;
+
+    PR_ASSERT(certdb != NULL);
+    RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA: %s",
+        revoke? "revoking":"unrevoking");
+    PR_snprintf((char *)configname, 256, "conn.ca.list");
+    caList = store->GetConfigAsString(configname, NULL);
+    if (caList == NULL) {
+        RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+            "conn.ca.list not found");
+        return 1;
+    }
+
+    char *caList_x = PL_strdup(caList);
+    PR_ASSERT(caList_x != NULL);
+    RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+        "found ca list:%s", caList_x);
+    char *sresult = NULL;
+    char *lasts = NULL;
+
+    sresult = PL_strtok_r(caList_x, ",", &lasts);
+
+    while (sresult != NULL) {
+        ret = 1;
+        /* first, see if ca Subject Key Identifier (SKI) is in store */
+        bool foundCaSKI = false;
+        PRBool match = PR_FALSE;
+        PR_snprintf((char *)configname_caSKI, 256, "conn.%s.caSKI",
+            sresult);
+        caSKI_s = store->GetConfigAsString(configname_caSKI, NULL);
+        if ((caSKI_s == NULL) || *caSKI_s==0) {
+            RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                "CA cert SKI not found in config for ca: %s", sresult);
+        } else {
+            caSKI_x = PL_strdup(caSKI_s);
+            PR_ASSERT(caSKI_x != NULL);
+            RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                "CA cert SKI found in config for: %s", sresult);
+            foundCaSKI = true;
+            /* convert from ASCII to SECItem */
+            rv = ATOB_ConvertAsciiToItem(&ca_ski, caSKI_x);
+            if (rv != SECSuccess) {
+                RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                    "CA cert SKI failed ATOB_ConvertAsciiToItem() call");
+                /* this will correct the ca SKI if caNickname is in store */
+                foundCaSKI = false;
+            }
+        }
+
+        if (!foundCaSKI) { /* get from cert db */
+            PR_snprintf((char *)configname_nick, 256, "conn.%s.caNickname",
+                sresult);
+            nick = store->GetConfigAsString(configname_nick, NULL);
+            if ((nick == NULL) || *nick==0) {
+                RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                    "CA cert nickname not found for ca: %s", sresult);
+                goto cleanup;
+            }
+
+            RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                "CA cert check for nickname: %s", nick);
+            caCert = CERT_FindCertByNickname(certdb, nick);
+            if (caCert == NULL) {
+                RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                    "CA cert for nickname %s not found in trust database", nick);
+                /* out of luck with this ca... next */
+                goto cleanup;
+            }
+            ca_ski = caCert->subjectKeyID;
+
+            /* store it in config */
+            caSKI_y = BTOA_ConvertItemToAscii(&ca_ski);
+            if (caSKI_y == NULL) {
+                goto cleanup;
+            }
+            store->Add(configname_caSKI, caSKI_y);
+            RA::Debug(LL_PER_SERVER, "CertEnroll::revokeFromOtherCA",
+                "Commiting ca AKI Add for %s", sresult);
+            char error_msg[512] = {0};
+            int status = 0;
+            status = store->Commit(true, error_msg, 512);
+            if (status != 0) {
+                /* commit error.. log it and keep going */
+                RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+                "Commit error for ca AKI Add : %s", error_msg);
+            }
+        }
+
+        match = SECITEM_ItemsAreEqual(
+            &cert->authKeyID->keyID, &ca_ski);
+        if (!match) {
+            RA::Debug("CertEnroll::revokeFromOtherCA", "cert AKI and caCert SKI do not match");
+            goto cleanup;
+        } else {
+            RA::Debug("CertEnroll::revokeFromOtherCA", "cert AKI and caCert SKI matched");
+            if (revoke) {
+                ret = RevokeCertificate(
+                    reason, serialno, sresult /*connid*/, o_status);
+            } else { /*unrevoke*/
+                ret = UnrevokeCertificate(
+                    serialno, sresult /*connid*/, o_status);
+            }
+        }
+
+cleanup:
+        if (caSKI_x != NULL) {
+            PL_strfree(caSKI_x);
+            caSKI_x = NULL;
+        }
+        if (caSKI_y != NULL) {
+            PORT_Free(caSKI_y);
+            caSKI_y = NULL;
+        }
+        if (caCert != NULL) {
+            CERT_DestroyCertificate(caCert);
+            caCert = NULL;
+        }
+        if (ret == 0) /* success, break out */
+            break;
+
+        sresult = PL_strtok_r(NULL, ",", &lasts);
+    } /* while */
+
+    if (caList_x != NULL) {
+        PL_strfree(caList_x);
+    }
+    return ret;
+}
+
+
+/*
+ * revoke/unrevoke a certificate
+ *    revoke: true to revoke; false to unrevoke  
+ *    cert: the certificate to revoke or unrevoke
+ *    reason: only applies if revoke is true; reason for revocation
+ *    serialno: the serial number of cert to revoke or unrevoke
+ *    connid: the enrollment CA connection. In (un)revocation it is first tested
+ *        to see if it matches the cert's issuing CA signing cert; if not
+ *        other ca's are searched, if available
+ *    o_status: the return status
+ */
+TOKENDB_PUBLIC int CertEnroll::RevokeCertificate(bool revoke, CERTCertificate *cert, const char *reason, const char *serialno, const char *connid, char *&o_status)
+{
+    int ret = 1;
+    char configname[5000] = {0};
+    CERTCertDBHandle *certdb = CERT_GetDefaultCertDB();
+    CERTCertificate *caCert = NULL;
+    const char *caNickname = NULL;
+    char configname_caSKI[256] = {0};
+    const char *caSKI_s = NULL;
+    char *caSKI_x = NULL;
+    char *caSKI_y = NULL;
+    SECItem ca_ski;
+    SECStatus rv;
+    ConfigStore *store = RA::GetConfigStore();
+
+    if (store == NULL)
+        return 1;
+    PR_ASSERT(certdb != NULL);
+    if ((cert == NULL) || (reason == NULL) ||
+        (serialno == NULL) || (connid == NULL)) {
+        RA::Debug("CertEnroll::RevokeCertificate", "missing info in call");
+        return 1;
+    }
+    if (revoke) {
+        RA::Debug("CertEnroll::RevokeCertificate", "revoke begins");
+        if (reason == NULL) {
+            RA::Debug("CertEnroll::RevokeCertificate", "missing reason in call to revoke");
+            return 1;
+            
+        }
+    } else {
+        RA::Debug("CertEnroll::RevokeCertificate", "unrevoke begins");
+    }
+
+    /* first, see if ca Subject Key Identifier (SKI) is in store*/
+    bool foundCaSKI = false;
+    PR_snprintf((char *)configname_caSKI, 256, "conn.%s.caSKI",
+        connid);
+    caSKI_s = store->GetConfigAsString(configname_caSKI, NULL);
+    if ((caSKI_s == NULL) || *caSKI_s==0) {
+        RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+            "CA cert SKI not found in config for ca: %s", connid);
+    } else {
+        caSKI_x = PL_strdup(caSKI_s);
+        PR_ASSERT(caSKI_x != NULL);
+        RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+            "CA cert SKI found in config for: %s", connid);
+        /* convert from ASCII to SECItem */
+        rv = ATOB_ConvertAsciiToItem(&ca_ski, caSKI_x);
+        if (rv != SECSuccess) {
+            RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+                "CA cert SKI found in config faiiled ascii to SECItem conversion for ca:%s", connid);
+            /* allows ca SKI to be retrieved again later if ca nickname is in store*/
+            foundCaSKI = false;
+        } else {
+            foundCaSKI = true;
+        }
+    }
+
+    PRBool match = PR_TRUE;
+    PRBool skipMatch = PR_FALSE;
+    if (!foundCaSKI) { /* get from cert db */
+        PR_snprintf((char *)configname, 256, "conn.%s.caNickname", connid);
+        caNickname = store->GetConfigAsString(configname);
+        if ((caNickname != NULL) && *caNickname !=0) {
+            caCert = CERT_FindCertByNickname(certdb, caNickname);
+            if (caCert != NULL) {
+                ca_ski = caCert->subjectKeyID;
+
+                /* store it in config */
+                caSKI_y = BTOA_ConvertItemToAscii(&ca_ski);
+                store->Add(configname_caSKI, caSKI_y);
+                RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+                    "Commiting ca AKI Add for %s", connid);
+                char error_msg[512] = {0};
+                int status = 0;
+                status = store->Commit(true, error_msg, 512);
+                if (status != 0) {
+                    /* commit error.. log it and keep going */
+                    RA::Debug(LL_PER_SERVER, "CertEnroll::RevokeCertificate",
+                    "Commit error for ca AKI Add : %s", error_msg);
+                }
+            } else {
+                /* ca cert not found; no match needed */
+                skipMatch = PR_TRUE;
+            }
+        } else {
+            /*
+             *  if it gets here, that means config is missing both:
+             *  1. conn.ca<n>.caSKI
+             *  2. conn.ca<n>.caNickname
+             *  now assume default of just using the issuing ca and
+             *  no search performed
+             */
+            skipMatch = PR_TRUE;
+        }
+    }
+
+    if (!skipMatch) {
+        /* now compare cert's AKI to the ca's SKI 
+         *   if matched, continue,
+         *   if not, search in the ca list
+         */
+        match = SECITEM_ItemsAreEqual(
+            &cert->authKeyID->keyID, &ca_ski);
+        if (!match) {
+            RA::Debug("CertEnroll::RevokeCertificate", "cert AKI and caCert SKI of the designated issuing ca do not match... searching for another ca.");
+            ret = CertEnroll::revokeFromOtherCA(
+                revoke /*revoke or unrevoke*/, cert,
+                serialno, o_status, reason);
+            goto cleanup;
+        } else {
+            RA::Debug("CertEnroll::RevokeCertificate", "cert AKI and caCert SKI matched");
+        } 
+    }
+
+    if (revoke)
+        ret = RevokeCertificate(reason, serialno, connid, o_status);
+    else
+        ret = UnrevokeCertificate(serialno, connid, o_status);
+
+cleanup:
+    if (caSKI_x != NULL) {
+        PORT_Free(caSKI_x);
+    }
+    if (caSKI_y != NULL) {
+        PORT_Free(caSKI_y);
+    }
+    if (caCert != NULL) {
+        CERT_DestroyCertificate(caCert);
+    }
+    return ret;
 }
 
 TOKENDB_PUBLIC Buffer *CertEnroll::RenewCertificate(PRUint64 serialno, const char *connid, const char *profileId, char *error_msg)

@@ -2411,7 +2411,7 @@ Buffer Secure_Channel::CreatePKCS11ECCPriKeyAttrsBuffer(TokenKeyType type, const
                 SECKEYECParams *ecParams, const char *opType, const char *tokenType, const char *keyTypePrefix)
 {
 
-    BYTE keytype[8] = { 3,0,0,0 };
+    BYTE keytype[8] = { 0,0,0,3 };
     BYTE p11class[4] = { 3,0,0,0 };
 
     Buffer b(256);               // allocate some space
@@ -2527,7 +2527,7 @@ Buffer Secure_Channel::CreatePKCS11ECCPubKeyAttrsBuffer(TokenKeyType key_type, c
     // BYTE ONE[1] = { 1 };
     // char configname[256];
 
-    BYTE keytype[4] = { 3,0,0,0 };
+    BYTE keytype[4] = { 0,0,0,3 };
     Buffer b(256);        // allocate some space
     b.resize(7);          // this keeps the allocated space around
 

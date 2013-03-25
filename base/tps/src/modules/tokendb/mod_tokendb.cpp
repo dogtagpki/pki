@@ -3884,8 +3884,14 @@ mod_tokendb_handler( request_rec *rq )
 
                         PR_snprintf( serial, 100, "0x%s", attr_serial );
 
-                        statusNum = certEnroll->RevokeCertificate(revokeReason,
+                        CERTCertificate **attr_certificate= get_certificates( e );
+                        statusNum = certEnroll->RevokeCertificate(
+                                    true,
+                                    attr_certificate[0],
+                                    revokeReason,
                                     serial, connid, statusString );
+                        if (attr_certificate[0] != NULL)
+                            CERT_DestroyCertificate(attr_certificate[0]);
 
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
@@ -4105,11 +4111,18 @@ mod_tokendb_handler( request_rec *rq )
 
                         PR_snprintf( serial, 100, "0x%s", attr_serial );
 
+                        CERTCertificate **attr_certificate= get_certificates( e );
                         statusNum = certEnroll->
-                                    RevokeCertificate( revokeReason,
+                                    RevokeCertificate(
+                                                       true,
+                                                       attr_certificate[0],
+                                                       revokeReason,
                                                        serial,
                                                        connid,
                                                        statusString );
+                        if (attr_certificate[0] != NULL)
+                            CERT_DestroyCertificate(attr_certificate[0]);
+
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
                                 PR_snprintf((char *)msg, 256, "Errors in marking certificate on_hold '%s' : %s", attr_cn, statusString);
@@ -4341,11 +4354,17 @@ mod_tokendb_handler( request_rec *rq )
 
                         PR_snprintf( serial, 100, "0x%s", attr_serial );
 
+                        CERTCertificate **attr_certificate= get_certificates( e );
                         statusNum = certEnroll->
-                                    RevokeCertificate( revokeReason,
+                                    RevokeCertificate (
+                                                       true,
+                                                       attr_certificate[0],
+                                                       revokeReason,
                                                        serial,
                                                        connid,
                                                        statusString );
+                        if (attr_certificate[0] != NULL)
+                            CERT_DestroyCertificate(attr_certificate[0]);
 
                         if (statusNum != 0) { // revocation errors
                             if( strcmp( revokeReason, "6" ) == 0 ) {
@@ -4556,10 +4575,17 @@ mod_tokendb_handler( request_rec *rq )
 
                         PR_snprintf( serial, 100, "0x%s", attr_serial );
 
+                        CERTCertificate **attr_certificate= get_certificates( e );
                          int statusNum = certEnroll->
-                                          UnrevokeCertificate( serial,
-                                                               connid,
-                                                               statusString );
+                                          RevokeCertificate(
+                                                     false,
+                                                     attr_certificate[0],
+                                                     "",
+                                                     serial,
+                                                     connid,
+                                                     statusString );
+                        if (attr_certificate[0] != NULL)
+                            CERT_DestroyCertificate(attr_certificate[0]);
 
                         if (statusNum == 0) {
                             PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as active", attr_cn);
@@ -4720,12 +4746,17 @@ mod_tokendb_handler( request_rec *rq )
 
                         PR_snprintf( serial, 100, "0x%s", attr_serial );
 
+                        CERTCertificate **attr_certificate= get_certificates( e );
                         int statusNum = 0;
                         if(( strcmp( attr_status, "revoked_on_hold" ) == 0 ) && (strcmp(revokeReason, "6" ) != 0)) {
                             statusNum = certEnroll->
-                                        UnrevokeCertificate( serial,
-                                                             connid,
-                                                             statusString );
+                                        RevokeCertificate(
+                                                     false,
+                                                     attr_certificate[0],
+                                                     "",
+                                                     serial,
+                                                     connid,
+                                                     statusString );
                             if (statusNum == 0) {
                                 PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as active", attr_cn);
                                 RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "initiated", msg, cuidUserId, attr_tokenType);
@@ -4735,11 +4766,18 @@ mod_tokendb_handler( request_rec *rq )
                                   "Success", "unrevoke", serial, connid, "");
 
                                 do_free(statusString);
+
                                 statusNum = certEnroll->
-                                        RevokeCertificate( revokeReason,
-                                                           serial,
-                                                           connid,
-                                                           statusString );
+                                        RevokeCertificate(
+                                                     true,
+                                                     attr_certificate[0],
+                                                     revokeReason,
+                                                     serial,
+                                                     connid,
+                                                     statusString );
+                                if (attr_certificate[0] != NULL)
+                                    CERT_DestroyCertificate(attr_certificate[0]);
+
                                 if (statusNum == 0) {
                                     PR_snprintf((char *)msg, 256, "Certificate '%s' is marked as revoked", attr_cn);
                                     RA::tdb_activity(rq->connection->client_ip, cuid, "do_token", "success", msg, cuidUserId, attr_tokenType);

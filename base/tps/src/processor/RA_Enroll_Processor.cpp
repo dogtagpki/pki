@@ -632,6 +632,14 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
       objid[1] = 0x00;
       objid[2] = 0xFF;
       objid[3] = 0xF3;
+
+      BYTE keytype = 0x09; // RSAPKCS8Pair
+
+
+      if( isECC) {
+          keytype =  14 ; //ECCPKCS8Pair
+      }
+
       Buffer priv_keyblob;
       /* url decode wrappedPrivKey */
       {
@@ -639,7 +647,7 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 	// RA::DebugBuffer("cfu debug"," private key =",decodeKey);
 	priv_keyblob =
 	  Buffer(1, 0x01) + // encryption
-	  Buffer(1, 0x09)+ // keytype is RSAPKCS8Pair
+	  Buffer(1, keytype)+ // keytype is RSAPKCS8Pair or ECCPKCS8Pair
 	  Buffer(1,(BYTE)(keysize/256)) + // keysize is two bytes
 	  Buffer(1,(BYTE)(keysize%256)) +
 	  Buffer((BYTE*) *decodeKey, decodeKey->size());
@@ -718,6 +726,15 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
             alg = 0x81;
         }
 
+        Buffer eccPublicKeyData;
+        if (isECC) {
+            alg = algorithm;
+            eccPublicKeyData = Buffer(1, pk_p->u.ec.publicValue.len) +
+                Buffer((BYTE *) pk_p->u.ec.publicValue.data, pk_p->u.ec.publicValue.len);
+
+                //RA::DebugBuffer("cfu debug", "ImportKeyEnc ecc public key data buffer =", &eccPublicKeyData);
+        }
+
 	data =
 	  Buffer((BYTE*)objid, 4)+ // object id
 	  Buffer(1,alg) +
@@ -728,10 +745,13 @@ RA_Status RA_Enroll_Processor::DoEnrollment(AuthParams *login, RA_Session *sessi
 	  Buffer(1, (BYTE) decodeKeyCheck->size()) + //keycheck size
 	  Buffer((BYTE *) *decodeKeyCheck , decodeKeyCheck->size())+ // keycheck
 	  Buffer(1, iv_decoded->size())+ // IV_Length
-	  Buffer((BYTE*)*iv_decoded, iv_decoded->size());
+	  Buffer((BYTE*)*iv_decoded, iv_decoded->size()) ;
 
-	delete iv_decoded;
-	//      RA::DebugBuffer("cfu debug", "ImportKeyEnc data buffer =", &data);
+          if (isECC) {
+              data = data + eccPublicKeyData;
+          }
+          delete iv_decoded;
+	  //    RA::DebugBuffer("cfu debug", "ImportKeyEnc final data buffer =", &data);
 
 	delete decodeKey;
 	delete decodeKeyCheck;
@@ -5199,13 +5219,14 @@ int RA_Enroll_Processor::GetNextFreeCertIdNumber(PKCS11Obj *pkcs11objx)
 }
 
 //Unrevoke a cert that has been recovered
-int RA_Enroll_Processor::UnrevokeRecoveredCert(const LDAPMessage *e, char *&statusString)
+int RA_Enroll_Processor::UnrevokeRecoveredCert(LDAPMessage *e, char *&statusString)
 {
     char configname[256];
     CertEnroll certEnroll;
     //Default to error return
     int statusNum = 0;
     char serial[100]="";
+    CERTCertificate **attr_certificate = NULL;
 
     RA::Debug("RA_Enroll_Processor::ProcessRecovery",
                       "About to unrevoke recovered certificate.");
@@ -5243,13 +5264,19 @@ int RA_Enroll_Processor::UnrevokeRecoveredCert(const LDAPMessage *e, char *&stat
         if (connid) {
             PR_snprintf( serial, 100, "0x%s", attr_serial );
 
+            attr_certificate= RA::ra_get_certificates(e);
             //Actually make call to the CA to unrevoke
-            statusNum = certEnroll.UnrevokeCertificate(serial, connid, statusString);
+            statusNum = certEnroll.RevokeCertificate(
+                false,
+                attr_certificate[0], "", serial, connid, statusString);
 
             RA::Debug("RA_Enroll_Processor::UnrevokeRecoveredCert",
                "Recovered Cert statusNum %d statusString %s \n", statusNum, statusString);
        } 
     }
+
+    if (attr_certificate[0] != NULL)
+        CERT_DestroyCertificate(attr_certificate[0]);
 
     if (attr_serial) {
         PL_strfree(attr_serial);
