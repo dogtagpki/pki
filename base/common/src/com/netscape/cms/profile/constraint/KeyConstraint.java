@@ -607,9 +607,12 @@ public class KeyConstraint extends EnrollConstraint {
                     try {
                         keySize = Integer.parseInt(params[i]);
                     } catch (Exception e) {
+                        if (isOptional(keyType)) {
+                            isECCurve = arrayContainsString(ecCurves, params[i]);
+                        }
                         keySize = 0;
                     }
-                    if (keySize <= 0) {
+                    if ((keySize <= 0) && (isECCurve == false)) {
                         keyType = "";
                         keyParams = "";
                         throw new EPropertyException(CMS.getUserMessage(
