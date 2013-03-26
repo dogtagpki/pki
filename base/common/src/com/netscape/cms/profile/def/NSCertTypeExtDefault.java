@@ -405,9 +405,10 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
         bits[1] = getConfigBoolean(CONFIG_SSL_SERVER);
         bits[2] = getConfigBoolean(CONFIG_EMAIL);
         bits[3] = getConfigBoolean(CONFIG_OBJECT_SIGNING);
-        bits[4] = getConfigBoolean(CONFIG_SSL_CA);
-        bits[5] = getConfigBoolean(CONFIG_EMAIL_CA);
-        bits[6] = getConfigBoolean(CONFIG_OBJECT_SIGNING_CA);
+        bits[4] = false;
+        bits[5] = getConfigBoolean(CONFIG_SSL_CA);
+        bits[6] = getConfigBoolean(CONFIG_EMAIL_CA);
+        bits[7] = getConfigBoolean(CONFIG_OBJECT_SIGNING_CA);
         try {
             ext = new NSCertTypeExtension(critical, bits);
         } catch (Exception e) {
