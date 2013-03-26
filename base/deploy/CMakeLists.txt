@@ -107,18 +107,18 @@ install(
 
 install(
     FILES
+        src/engine/pkiconfig.py
+        src/engine/pkihelper.py
+        src/engine/pkilogging.py
+        src/engine/pkimanifest.py
+        src/engine/pkimessages.py
+        src/engine/pkiparser.py
+        src/engine/pkiscriptlet.py
         src/scriptlets/configuration.py
         src/scriptlets/finalization.py
         src/scriptlets/infrastructure_layout.py
         src/scriptlets/initialization.py
         src/scriptlets/instance_layout.py
-        src/scriptlets/pkiconfig.py
-        src/scriptlets/pkihelper.py
-        src/scriptlets/pkilogging.py
-        src/scriptlets/pkimanifest.py
-        src/scriptlets/pkimessages.py
-        src/scriptlets/pkiparser.py
-        src/scriptlets/pkiscriptlet.py
         src/scriptlets/security_databases.py
         src/scriptlets/selinux_setup.py
         src/scriptlets/slot_substitution.py

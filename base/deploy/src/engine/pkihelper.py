@@ -1011,7 +1011,7 @@ class instance:
             status = root.findtext("Status")
             return status
         except requests.exceptions.ConnectionError:
-            config.pki_log.debug("No connection", 
+            config.pki_log.debug("No connection",
                 extra=config.PKI_INDENTATION_LEVEL_3)
             return None
 
@@ -2358,7 +2358,7 @@ class certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
 
-            config.pki_log.info(command, 
+            config.pki_log.info(command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
             subprocess.call(command)
         except subprocess.CalledProcessError as exc:
@@ -2491,7 +2491,7 @@ class pk12util:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 sys.exit(1)
 
-            config.pki_log.info(command, 
+            config.pki_log.info(command,
                     extra=config.PKI_INDENTATION_LEVEL_2)
             with open(os.devnull, "w") as fnull:
                 subprocess.call(command, stdout=fnull, stderr=fnull)
@@ -2577,7 +2577,7 @@ class kra_connector:
                 else:
                     return
 
-            self.execute_using_sslget(caport, cahost, subsystemnick, 
+            self.execute_using_sslget(caport, cahost, subsystemnick,
                                  token_pwd, krahost, kraport)
 
         except subprocess.CalledProcessError as exc:
@@ -2592,7 +2592,7 @@ class kra_connector:
                 sys.exit(-1)
         return
 
-    def execute_using_pki(self, caport, cahost, subsystemnick, 
+    def execute_using_pki(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport, critical_failure=False):
         command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -w '{}' "\
                   "kraconnector-del {} {}".format(
@@ -2616,7 +2616,7 @@ class kra_connector:
         if critical_failure == True:
             sys.exit(-1)
 
-    def execute_using_sslget(self, caport, cahost, subsystemnick, 
+    def execute_using_sslget(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport):
         urlheader = "https://{}:{}".format(cahost, caport)
         updateURL = "/ca/rest/admin/kraconnector/remove"
@@ -2717,20 +2717,20 @@ class security_domain:
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
                     secname,
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                output = self.update_domain_using_agent_port(typeval, 
-                    secname, params, updateURL, sechost, secagentport, 
+                output = self.update_domain_using_agent_port(typeval,
+                    secname, params, updateURL, sechost, secagentport,
                     critical_failure)
         else:
-            output = self.update_domain_using_agent_port(typeval, 
-                secname, params, updateURL, sechost, secagentport, 
+            output = self.update_domain_using_agent_port(typeval,
+                secname, params, updateURL, sechost, secagentport,
                 critical_failure)
 
-        if not output: 
+        if not output:
             if critical_failure == True:
                 sys.exit(-1)
             else:
                 return
-            
+
         config.pki_log.debug(log.PKIHELPER_SSLGET_OUTPUT_1,
                              output,
                              extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3089,11 +3089,11 @@ class config_client:
         os.chmod(master['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-        
+
     def construct_pki_configuration_data(self):
         config.pki_log.info(log.PKI_CONFIG_CONSTRUCTING_PKI_DATA,
                              extra=config.PKI_INDENTATION_LEVEL_2)
-        
+
         data = pki.system.ConfigurationRequest()
 
         # Miscellaneous Configuration Information
@@ -3122,7 +3122,7 @@ class config_client:
             # PKI CA or External CA
             self.set_new_security_domain(data)
 
-        # database 
+        # database
         if master['pki_subsystem'] != "RA":
             self.set_database_parameters(data)
 
@@ -3130,7 +3130,7 @@ class config_client:
         if master['pki_instance_type'] == "Tomcat":
             self.set_backup_parameters(data)
 
-        # admin user 
+        # admin user
         if not config.str2bool(master['pki_clone']):
             self.set_admin_parameters(data)
 
@@ -3319,18 +3319,18 @@ class config_client:
                 certutil.generate_certificate_request(
                                      master['pki_admin_subject_dn'],
                                      master['pki_admin_keysize'],
-                                     master['pki_client_password_conf'], 
+                                     master['pki_client_password_conf'],
                                      noise_file,
-                                     output_file, 
-                                     master['pki_client_database_dir'], 
+                                     output_file,
+                                     master['pki_client_database_dir'],
                                      None, None, True)
 
                 # convert output to ascii
                 command = ["BtoA", output_file, output_file + ".asc"]
-                config.pki_log.info(command, 
+                config.pki_log.info(command,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 subprocess.call(command)
-                
+
                 with open(output_file + ".asc") as f:
                     b64 = f.read().replace('\n','')
 
@@ -3378,7 +3378,7 @@ class config_client:
         cert.subjectDN = master["pki_ssl_server_subject_dn"]
         cert.token = cs_cfg.get(cstype + ".sslserver.tokenname")
         return cert
-  
+
 # PKI Deployment Helper Class Instances
 identity = identity()
 namespace = namespace()
