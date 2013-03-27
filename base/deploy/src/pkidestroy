@@ -171,7 +171,6 @@ def main(argv):
         with open(str(args.pki_secdomain_pass_file).strip('[\']'),'r') as pwd_file:
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
-    print "Password: " + config.pki_secdomain_pass
     # verify that previously deployed instance exists
     deployed_pki_instance_path = config.pki_root_prefix +\
                                  config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
