@@ -47,9 +47,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -278,9 +278,9 @@ public class PKCS10Client {
                 certRequest.encode(bos);
                 byte[] bb = bos.toByteArray();
 
-                System.out.println("PKCS10Client: calling BtoA().");
-                b64E = CMS.BtoA(bb);
-                System.out.println("PKCS10Client: BtoA() completes.");
+                System.out.println("PKCS10Client: calling Utils.b64encode.");
+                b64E = Utils.base64encode(bb);
+                System.out.println("PKCS10Client: b64encode completes.");
             } else { // "ec"
 
                 CryptoToken t = cm.getThreadToken();
