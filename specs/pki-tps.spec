@@ -1,6 +1,6 @@
 Name:             pki-tps
-Version:          10.0.0
-Release:          3%{?dist}
+Version:          10.0.2
+Release:          0.1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -228,6 +228,9 @@ fi
 
 
 %changelog
+* Wed Mar 27 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
 * Tue Mar 12 2013 Endi S. Dewata <edewata@redhat.com> 10.0.0-3
 - Added python build-time dependency.
 

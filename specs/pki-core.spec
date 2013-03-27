@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.1
-Release:          9%{?dist}
+Version:          10.0.2
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1006,6 +1006,9 @@ fi
 
 
 %changelog
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.1
+- Updated version number to 10.0.2-0.1.
+
 * Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-9
 - Renamed base/deploy to base/server.
 - Moved pki.conf into pki-base.
