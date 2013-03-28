@@ -33,6 +33,7 @@ import shutil
 import string
 import subprocess
 import time
+from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
@@ -1015,14 +1016,14 @@ class instance:
             return None
 
     def wait_for_startup(self, timeout):
-        tries = 1   
-        status = self.get_instance_status()
+        start_time = datetime.today()
+        status = None
         while status != "running":
-            if tries >= timeout:
-                return None
-            time.sleep(1)
             status = self.get_instance_status()
-            tries = tries + 1
+            time.sleep(1);
+            stop_time = datetime.today()
+            if (stop_time - start_time).total_seconds() >= timeout:
+                break
         return status
 
 # PKI Deployment Directory Class
