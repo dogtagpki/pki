@@ -110,12 +110,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         self.restore_context()
         return self.rv
 
-    def respawn(self):
-        config.pki_log.info(log.SELINUX_RESPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        self.restore_context()
-        return self.rv
-
     def destroy(self):
         if not bool(selinux.is_selinux_enabled()):
             config.pki_log.info(log.SELINUX_DISABLED_DESTROY_1, __name__,

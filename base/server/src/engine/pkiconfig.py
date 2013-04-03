@@ -114,10 +114,6 @@ pki_deployed_instance_name = None
 pki_secdomain_user = None
 pki_secdomain_pass = None
 
-# PKI Deployment "Optional" Command-Line Variables
-#     'pkispawn' ONLY
-pki_update_flag = False
-
 # PKI Deployment "Test" Command-Line Variables
 pki_root_prefix = None
 

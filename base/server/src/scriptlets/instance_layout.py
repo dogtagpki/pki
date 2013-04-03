@@ -144,11 +144,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_instance_logs_link'])
         return self.rv
 
-    def respawn(self):
-        config.pki_log.info(log.INSTANCE_RESPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        return self.rv
-
     def destroy(self):
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

@@ -34,12 +34,6 @@ class AbstractBasePkiScriptlet(object):
         return
 
     @abc.abstractmethod
-    def respawn(self):
-        """Retrieve data from the specified PKI dictionary and
-           use it to update an existing PKI instance."""
-        return
-
-    @abc.abstractmethod
     def destroy(self):
         """Retrieve data from the specified PKI dictionary and
            use it to destroy an existing PKI instance."""

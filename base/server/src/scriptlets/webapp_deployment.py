@@ -156,12 +156,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv
 
-    def respawn(self):
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_log.info(log.WEBAPP_DEPLOYMENT_RESPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
-        return self.rv
-
     def destroy(self):
         if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,

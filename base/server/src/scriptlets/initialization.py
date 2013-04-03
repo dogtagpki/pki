@@ -72,19 +72,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         util.configuration_file.verify_selinux_ports()
         return self.rv
 
-    def respawn(self):
-        # begin official logging
-        config.pki_log.info(log.PKIRESPAWN_BEGIN_MESSAGE_2,
-                            master['pki_subsystem'],
-                            master['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.info(log.INITIALIZATION_RESPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" currently EXISTS
-        # for this "instance"
-        util.instance.verify_subsystem_exists()
-        return self.rv
-
     def destroy(self):
         # begin official logging
         config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,

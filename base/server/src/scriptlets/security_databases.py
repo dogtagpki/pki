@@ -96,11 +96,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             util.file.delete(master['pki_shared_pfile'])
         return self.rv
 
-    def respawn(self):
-        config.pki_log.info(log.SECURITY_DATABASES_RESPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        return self.rv
-
     def destroy(self):
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

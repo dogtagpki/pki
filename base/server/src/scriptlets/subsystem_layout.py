@@ -101,11 +101,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_subsystem_registry_link'])
         return self.rv
 
-    def respawn(self):
-        config.pki_log.info(log.SUBSYSTEM_RESPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        return self.rv
-
     def destroy(self):
         config.pki_log.info(log.SUBSYSTEM_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

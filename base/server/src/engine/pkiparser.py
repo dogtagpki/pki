@@ -412,7 +412,7 @@ class PKIConfigParser:
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"
         try:
-            # 'pkispawn'/'pkirespawn'/'pkidestroy' name/value pairs
+            # 'pkispawn'/'pkidestroy' name/value pairs
             config.pki_master_dict['pki_deployment_executable'] =\
                 config.pki_deployment_executable
             config.pki_master_dict['pki_install_time'] = config.pki_install_time
@@ -987,26 +987,12 @@ class PKIConfigParser:
                 "spawn" + "_" +\
                 config.USER_DEPLOYMENT_CONFIGURATION + "." +\
                 config.pki_master_dict['pki_timestamp']
-            config.pki_master_dict['pki_default_deployment_cfg_respawn_archive'] =\
-                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
-                "respawn" + "_" +\
-                config.DEFAULT_DEPLOYMENT_CONFIGURATION + "." +\
-                config.pki_master_dict['pki_timestamp']
-            config.pki_master_dict['pki_user_deployment_cfg_respawn_archive'] =\
-                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
-                "respawn" + "_" +\
-                config.USER_DEPLOYMENT_CONFIGURATION + "." +\
-                config.pki_master_dict['pki_timestamp']
             config.pki_master_dict['pki_manifest'] =\
                 config.pki_master_dict['pki_subsystem_registry_path'] + "/" +\
                 "manifest"
             config.pki_master_dict['pki_manifest_spawn_archive'] =\
                 config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
                 "spawn" + "_" + "manifest" + "." +\
-                config.pki_master_dict['pki_timestamp']
-            config.pki_master_dict['pki_manifest_respawn_archive'] =\
-                config.pki_master_dict['pki_subsystem_archive_log_path'] + "/" +\
-                "respawn" + "_" + "manifest" + "." +\
                 config.pki_master_dict['pki_timestamp']
             # Construct the configuration URL containing the one-time pin
             # and add this to the "sensitive" key value pairs read in from

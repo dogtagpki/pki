@@ -121,10 +121,6 @@ PKIDESTROY_EPILOG =\
 "    prepended to the default PKI instance path which is placed in front\n"\
 "    of the specified '-i <instance>' parameter.\n\n" +\
 PKI_VERBOSITY
-PKIRESPAWN_BEGIN_MESSAGE_2 = "BEGIN respawning subsystem '%s' of "\
-                             "instance '%s' . . ."
-PKIRESPAWN_END_MESSAGE_2 = "END respawning subsystem '%s' of "\
-                           "instance '%s'"
 PKISPAWN_BEGIN_MESSAGE_2 = "BEGIN spawning subsystem '%s' of "\
                            "instance '%s' . . ."
 PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
@@ -314,39 +310,28 @@ PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 
 # PKI Deployment "Scriptlet" Messages
 ADMIN_DOMAIN_DESTROY_1 = "depopulating '%s'"
-ADMIN_DOMAIN_RESPAWN_1 = "repopulating '%s'"
 ADMIN_DOMAIN_SPAWN_1 = "populating '%s'"
 CONFIGURATION_DESTROY_1 = "unconfiguring '%s'"
-CONFIGURATION_RESPAWN_1 = "reconfiguring '%s'"
 CONFIGURATION_SPAWN_1 = "configuring '%s'"
 FINALIZATION_DESTROY_1 = "finalizing '%s'"
-FINALIZATION_RESPAWN_1 = "finalizing '%s'"
 FINALIZATION_SPAWN_1 = "finalizing '%s'"
 INITIALIZATION_DESTROY_1 = "initializing '%s'"
-INITIALIZATION_RESPAWN_1 = "initializing '%s'"
 INITIALIZATION_SPAWN_1 = "initializing '%s'"
 INSTANCE_DESTROY_1 = "depopulating '%s'"
-INSTANCE_RESPAWN_1 = "repopulating '%s'"
 INSTANCE_SPAWN_1 = "populating '%s'"
 RESIDUAL_DESTROY_1 = "depopulating '%s'"
-RESIDUAL_RESPAWN_1 = "repopulating '%s'"
 RESIDUAL_SPAWN_1 = "populating '%s'"
 SECURITY_DATABASES_DESTROY_1 = "removing '%s'"
-SECURITY_DATABASES_RESPAWN_1 = "regenerating '%s'"
 SECURITY_DATABASES_SPAWN_1 = "generating '%s'"
 SELINUX_DESTROY_1 = "depopulating '%s'"
-SELINUX_RESPAWN_1 = "repopulating '%s'"
 SELINUX_SPAWN_1 = "populating '%s'"
 SELINUX_DISABLED_DESTROY_1 = "selinux disabled. skipping unlabelling '%s'"
 SELINUX_DISABLED_SPAWN_1 = "selinux disabled. skipping labelling '%s'"
 SLOT_ASSIGNMENT_DESTROY_1 = "unassigning slots for '%s'"
-SLOT_ASSIGNMENT_RESPAWN_1 = "reassigning slots for '%s'"
 SLOT_ASSIGNMENT_SPAWN_1 = "assigning slots for '%s'"
 SUBSYSTEM_DESTROY_1 = "depopulating '%s'"
-SUBSYSTEM_RESPAWN_1 = "repopulating '%s'"
 SUBSYSTEM_SPAWN_1 = "populating '%s'"
 WEBAPP_DEPLOYMENT_DESTROY_1 = "removing '%s'"
-WEBAPP_DEPLOYMENT_RESPAWN_1 = "redeploying '%s'"
 WEBAPP_DEPLOYMENT_SPAWN_1 = "deploying '%s'"
 SKIP_ADMIN_DOMAIN_SPAWN_1 = "skip populating '%s'"
 SKIP_CONFIGURATION_SPAWN_1 = "skip configuring '%s'"

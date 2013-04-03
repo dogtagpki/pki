@@ -110,10 +110,6 @@ def main(argv):
         help='configuration filename '
             '(MUST specify complete path)')
 
-    parser.optional.add_argument('-u',
-        dest='pki_update_flag', action='store_true',
-        help='update instance of specified subsystem')
-
     args = parser.process_command_line_arguments(argv)
 
     config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
@@ -121,9 +117,6 @@ def main(argv):
     # -f <user deployment config>
     if args.user_deployment_cfg is not None:
         config.user_deployment_cfg = str(args.user_deployment_cfg).strip('[\']')
-
-    # -u
-    config.pki_update_flag = args.pki_update_flag
 
     parser.validate()
     interactive = False
@@ -290,30 +283,17 @@ def main(argv):
 
     # Enable 'pkispawn' logging.
     rv = 0
-    if not config.pki_update_flag:
-        config.pki_log_dir = config.pki_root_prefix +\
-                             config.PKI_DEPLOYMENT_LOG_ROOT
-        config.pki_log_name = "pki" + "-" +\
-                              config.pki_subsystem.lower() +\
-                              "-" + "spawn" + "." +\
-                              config.pki_timestamp + "." + "log"
-        rv = pkilogging.enable_pki_logger(config.pki_log_dir,
-                                          config.pki_log_name,
-                                          config.pki_log_level,
-                                          config.pki_console_log_level,
-                                          "pkispawn")
-    else:
-        config.pki_log_dir = config.pki_root_prefix +\
-                             config.PKI_DEPLOYMENT_LOG_ROOT
-        config.pki_log_name = "pki" + "-" +\
-                              config.pki_subsystem.lower() +\
-                              "-" + "respawn" + "." +\
-                              config.pki_timestamp + "." + "log"
-        rv = pkilogging.enable_pki_logger(config.pki_log_dir,
-                                          config.pki_log_name,
-                                          config.pki_log_level,
-                                          config.pki_console_log_level,
-                                          "pkirespawn")
+    config.pki_log_dir = config.pki_root_prefix +\
+                         config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_name = "pki" + "-" +\
+                          config.pki_subsystem.lower() +\
+                          "-" + "spawn" + "." +\
+                          config.pki_timestamp + "." + "log"
+    rv = pkilogging.enable_pki_logger(config.pki_log_dir,
+                                      config.pki_log_name,
+                                      config.pki_log_level,
+                                      config.pki_console_log_level,
+                                      "pkispawn")
     if rv != OSError:
         config.pki_log = rv
     else:
@@ -337,12 +317,8 @@ def main(argv):
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    if not config.pki_update_flag:
-        config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" +\
-                                                  config.pki_log_name
-    else:
-        config.pki_master_dict['pki_respawn_log'] = config.pki_log_dir + "/" +\
-                                                    config.pki_log_name
+    config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" +\
+                                              config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.format(config.pki_master_dict),
@@ -392,10 +368,7 @@ def main(argv):
                                pki_scriptlet,
                                fromlist = [pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
-        if not config.pki_update_flag:
-            rv = instance.spawn()
-        else:
-            rv = instance.respawn()
+        rv = instance.spawn()
         if rv != 0:
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
