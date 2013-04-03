@@ -376,7 +376,7 @@ public class CertificateRepository extends Repository
             if (count.compareTo(BigInteger.ZERO) > 0) {
                 counter = counter.add(count);
             }
-        } else if (s.equals("-2")) {
+        } else if (s.equals("-2") || (c.equals("-1") && CMS.isPreOpMode())) {
             count = getInRangeCount(t, minSerialNo, maxSerialNo);
             if (count.compareTo(BigInteger.ZERO) >= 0) {
                 counter = count;

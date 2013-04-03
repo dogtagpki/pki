@@ -290,7 +290,10 @@ public abstract class Repository implements IRepository {
         String increment = mDB.getIncrementConfig(mRepo);
         String lowWaterMark = mDB.getLowWaterMarkConfig(mRepo);
 
-        CMS.debug("Repository: minSerial " + mMinSerial + " maxSerial: " + mMaxSerial);
+        CMS.debug("Repository: minSerial:" + mMinSerial + " maxSerial: " + mMaxSerial);
+        CMS.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)?"":mNextMinSerial) +
+                             " nextMaxSerial: " + ((mNextMaxSerial == null)?"":mNextMaxSerial));
+        CMS.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
 
         if(mMinSerial != null) 
             mMinSerialNo = new BigInteger(mMinSerial,mRadix);
@@ -423,7 +426,7 @@ public abstract class Repository implements IRepository {
         }
         CMS.debug("Repository: checkRange  mLastSerialNo="+mLastSerialNo);
         if (mLastSerialNo.compareTo( mMaxSerialNo ) > 0 ||
-            (randomLimit != null && mCounter.compareTo(randomLimit) > 0)) {
+            ((!CMS.isPreOpMode()) && randomLimit != null && mCounter.compareTo(randomLimit) > 0)) {
 
             if (mDB.getEnableSerialMgmt()) {
                 CMS.debug("Reached the end of the range.  Attempting to move to next range");
