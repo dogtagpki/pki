@@ -34,6 +34,7 @@ admin.interface.uri=ca/admin/console/config/wizard
 ee.interface.uri=ca/ee/ca
 agent.interface.uri=ca/agent/ca
 preop.securitydomain.admin_url=https://[PKI_MACHINE_NAME]:9445
+securitydomain.checkIP=false
 securitydomain.flushinterval=86400000
 securitydomain.source=ldap
 securitydomain.checkinterval=300000
