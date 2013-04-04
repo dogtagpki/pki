@@ -1563,7 +1563,7 @@ public class CAAdminServlet extends AdminServlet {
                 mCA.getDBSubsystem().setEnableSerialMgmt(Boolean.valueOf(value));
                 //mCA.getCertificateRepository().setEnableSerialMgmt(Boolean.valueOf(value));
             } else if (key.equals(Constants.PR_RANDOM_SN)) {
-                mCA.getCertificateRepository().setEnableRandomSerialNumbers(Boolean.valueOf(value), true);
+                mCA.getCertificateRepository().setEnableRandomSerialNumbers(Boolean.valueOf(value), true, false);
             }
         }
 

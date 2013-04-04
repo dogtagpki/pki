@@ -106,8 +106,9 @@ public class CertificateRepository extends Repository
         return mEnableRandomSerialNumbers;
     }
 
-    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode) {
-        if (mEnableRandomSerialNumbers ^ random) {
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
+        CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
+        if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
             mEnableRandomSerialNumbers = random;
             CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
                       ((random)?PROP_RANDOM_MODE:PROP_SEQUENTIAL_MODE) + " mode");
@@ -294,12 +295,14 @@ public class CertificateRepository extends Repository
 
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
+        CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        CMS.debug("CertificateRepository: updateCounter  CertificateRepositoryMode ="+crMode);
         CMS.debug("CertificateRepository: updateCounter  modeChange="+modeChange);
         if (modeChange) {
             if (mForceModeChange) {
-                setEnableRandomSerialNumbers(mEnableRandomSerialNumbers, true);
+                setEnableRandomSerialNumbers(mEnableRandomSerialNumbers, true, mForceModeChange);
             } else {
-                setEnableRandomSerialNumbers(!mEnableRandomSerialNumbers, false);
+                setEnableRandomSerialNumbers(!mEnableRandomSerialNumbers, false, mForceModeChange);
             }
         } else if (mEnableRandomSerialNumbers && mCounter != null &&
                    mCounter.compareTo(BigInteger.ZERO) >= 0) {
@@ -476,6 +479,10 @@ public class CertificateRepository extends Repository
                      ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1) ))
                 {
                     CMS.debug("getLastSerialNumberInRange returning: " + serial);
+                    if (modeChange && mEnableRandomSerialNumbers) {
+                        mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
+                        CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+                    }
                     return serial;
                 }
             } else {
@@ -489,6 +496,10 @@ public class CertificateRepository extends Repository
         ret = ret.subtract(BigInteger.ONE); 
 
         CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        if (modeChange && mEnableRandomSerialNumbers) {
+            mCounter = BigInteger.ZERO;
+            CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+        }
         return ret; 
 
     }

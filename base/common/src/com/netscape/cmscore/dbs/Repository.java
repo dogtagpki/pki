@@ -418,10 +418,12 @@ public abstract class Repository implements IRepository {
         // check if we have reached the end of the range
         // if so, move to next range
         BigInteger randomLimit = null;
+        BigInteger rangeLength = null;
         if ((this instanceof ICertificateRepository) &&
             mDB.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
-            randomLimit = mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
-            randomLimit = randomLimit.subtract(mLowWaterMarkNo.shiftRight(1));
+            rangeLength = mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
+            randomLimit = rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
+            CMS.debug("Repository: checkRange  rangeLength="+rangeLength);
             CMS.debug("Repository: checkRange  randomLimit="+randomLimit);
         }
         CMS.debug("Repository: checkRange  mLastSerialNo="+mLastSerialNo);
@@ -430,15 +432,20 @@ public abstract class Repository implements IRepository {
 
             if (mDB.getEnableSerialMgmt()) {
                 CMS.debug("Reached the end of the range.  Attempting to move to next range");
+                if ((mNextMinSerialNo == null) || (mNextMaxSerialNo == null)) {
+                    if (rangeLength != null && mCounter.compareTo(rangeLength) < 0) {
+                        return;
+                    } else {
+                        throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
+                                                                  mLastSerialNo.toString()));
+                    }
+                }
                 mMinSerialNo = mNextMinSerialNo;
                 mMaxSerialNo = mNextMaxSerialNo;
                 mLastSerialNo = mMinSerialNo;
                 mNextMinSerialNo  = null;
                 mNextMaxSerialNo  = null;
-                if ((mMaxSerialNo == null) || (mMinSerialNo == null)) {
-                    throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
-                        mLastSerialNo.toString()));
-                }
+                mCounter = BigInteger.ZERO;
 
                 // persist the changes
                 mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));

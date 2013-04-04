@@ -531,8 +531,9 @@ public interface ICertificateRepository extends IRepository {
      *
      * @param random "true" sets random serial number management, "false" sequential
      * @param updateMode "true" updates "description" attribute in certificate repository
+     * @param forceModeChange "true" forces certificate repository mode change
      */
-    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode);
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange);
 
     public void shutdown();
 }
