@@ -406,7 +406,7 @@ public class CertUtil {
                 CMS.debug("Creating local request exception:" + e.toString());
             }
 
-            processor.populate(info);
+            processor.populate(req, info);
 
             String caPriKeyID = config.getString(
                     prefix + "signing" + ".privkey.id");

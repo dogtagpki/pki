@@ -462,7 +462,9 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                                 // call the mapPattern that does server-side gen
                                 // request is not used, but needed for the substitute
                                 // function
-                                gname = mapPattern(randUUID.toString(), request, pattern);
+                                if (request != null) {
+                                    gname = mapPattern(randUUID.toString(), request, pattern);
+                                }
                             } else { //expand more server-gen types here
                                 CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "
                                         + source + ". Supported: UUID4");
