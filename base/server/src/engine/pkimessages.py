@@ -53,6 +53,7 @@ PKI_VERBOSITY=\
 "  -vvv             error|warning|info|debug    error|warning|info|debug\n"\
 " "
 
+
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
 PKI_CONFIGURATION_RESTART_1 = "After configuration, the server can be "\
@@ -307,6 +308,17 @@ PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION =\
 PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
 PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
+PKI_CHECK_STATUS_MESSAGE = "\tTo check the status of the subsystem: "\
+"systemctl status pki-tomcatd\@%s.service"
+PKI_ACCESS_URL = "\tThe URL for the subsystem is https://%s:%s/%s"
+PKI_INSTANCE_RESTART_MESSAGE = "\tTo restart the subsystem: systemctl restart pki-tomcatd\@%s.service"
+
+PKI_SPAWN_INFORMATION_HEADER = "\n\t==========================================================================\n"\
+                               "\t                         INSTALLATION INFORMATION\n"\
+                               "\t==========================================================================\n"
+
+PKI_SPAWN_INFORMATION_FOOTER = "\n\t==========================================================================\n"
+
 
 # PKI Deployment "Scriptlet" Messages
 ADMIN_DOMAIN_DESTROY_1 = "depopulating '%s'"
