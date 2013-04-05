@@ -1,4 +1,4 @@
-project(deploy)
+project(server)
 
 set(PKI_SUBSYSTEMS
     ca

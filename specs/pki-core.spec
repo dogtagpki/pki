@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.1
-Release:          8%{?dist}
+Release:          9%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -810,6 +810,8 @@ fi
 %doc base/common/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
+%dir %{_sysconfdir}/pki
+%config(noreplace) %{_sysconfdir}/pki/pki.conf
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
@@ -857,9 +859,7 @@ fi
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
-%doc base/deploy/LICENSE
-%dir %{_sysconfdir}/pki/
-%config(noreplace) %{_sysconfdir}/pki/pki.conf
+%doc base/server/LICENSE
 %{_sysconfdir}/pki/default.cfg
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
@@ -902,7 +902,6 @@ fi
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 
 %{_datadir}/pki/setup/
-%dir %{_datadir}/pki/server
 %{_datadir}/pki/server/
 
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
@@ -1007,6 +1006,11 @@ fi
 
 
 %changelog
+* Fri Apr 5 2013 Endi S. Dewata <edewata@redhat.com> 10.0.1-9
+- Renamed base/deploy to base/server.
+- Moved pki.conf into pki-base.
+- Removed redundant pki/server folder declaration.
+
 * Tue Mar 19 2013 Ade Lee <alee@redhat.com> 10.0.1-8
 - Removed jython dependency
 

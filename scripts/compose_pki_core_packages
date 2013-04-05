@@ -39,7 +39,7 @@ PKI_CORE_VERSION="10.0.1"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
-PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools deploy selinux ca kra ocsp tks silent"
+PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools server selinux ca kra ocsp tks silent"
 
 if [ "$JAVADOC" = "" ]; then
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
