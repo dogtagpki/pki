@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -726,10 +726,14 @@ fi
 %fix_tomcat_log tks
 
 
-## %post -n pki-server
+%post -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
+
+echo "Starting pki-upgrade at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+/sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 
 
 %preun -n pki-ca
@@ -1008,6 +1012,9 @@ fi
 
 
 %changelog
+* Tue Apr 16 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.4
+- Run pki-upgrade on post server installation.
+
 * Mon Apr 15 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.3
 - Added dependency on python-lxml.
 
