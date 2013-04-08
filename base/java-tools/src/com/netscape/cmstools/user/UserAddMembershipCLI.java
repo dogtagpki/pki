@@ -35,7 +35,7 @@ public class UserAddMembershipCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {

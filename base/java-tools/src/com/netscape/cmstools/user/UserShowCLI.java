@@ -35,7 +35,7 @@ public class UserShowCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <User ID>", options);
     }
 
     public void execute(String[] args) throws Exception {

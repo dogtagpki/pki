@@ -40,7 +40,7 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name, options);
+        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {

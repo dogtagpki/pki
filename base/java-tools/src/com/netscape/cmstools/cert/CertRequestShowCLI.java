@@ -19,7 +19,7 @@ public class CertRequestShowCLI extends CLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Request ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <Request ID>", options);
     }
 
     @Override

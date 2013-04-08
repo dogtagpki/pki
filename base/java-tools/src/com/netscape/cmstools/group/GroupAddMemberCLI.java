@@ -35,7 +35,7 @@ public class GroupAddMemberCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID>", options);
     }
 
     public void execute(String[] args) throws Exception {

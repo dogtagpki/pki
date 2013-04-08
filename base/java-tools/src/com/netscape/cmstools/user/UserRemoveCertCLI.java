@@ -37,7 +37,7 @@ public class UserRemoveCertCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID>", options);
     }
 
     public void execute(String[] args) throws Exception {

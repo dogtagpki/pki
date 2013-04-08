@@ -35,7 +35,7 @@ public class GroupShowCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> [OPTIONS...]", options);
+        formatter.printHelp(parent.name + "-" + name + " <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
