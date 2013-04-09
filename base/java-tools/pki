@@ -76,6 +76,7 @@ chomp($RESTEASY_LIB);
 
 $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-nsutil.jar:"
+                . "/usr/share/java/${PRODUCT}/pki-cmsutil.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-tools.jar:"
                 . "/usr/share/java/apache-commons-cli.jar:"
                 . "/usr/share/java/apache-commons-codec.jar:"

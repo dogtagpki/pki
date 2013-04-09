@@ -1,8 +1,10 @@
 package com.netscape.certsrv.client;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -12,12 +14,15 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
@@ -58,8 +63,15 @@ import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.netscape.cmsutil.util.Utils;
 
 
 public class PKIConnection {
@@ -284,9 +296,66 @@ public class PKIConnection {
             return null;
         }
 
+        public boolean handleUntrustedIssuer(X509Certificate serverCert) {
+            try {
+                System.err.println("WARNING: UNTRUSTED ISSUER encountered on '" +
+                        serverCert.getSubjectDN() + "' indicates a non-trusted CA cert '" +
+                        serverCert.getIssuerDN() + "'");
+                System.out.print("Import CA certificate (Y/n)? ");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                String line = reader.readLine().trim();
+
+                if (!line.equals("") && !line.equalsIgnoreCase("Y"))
+                    return false;
+
+                URI serverURI = config.getServerURI();
+                URI caURI = new URI("http://" + serverURI.getHost() + ":8080/ca");
+
+                System.out.print("CA server URI [" + caURI + "]: ");
+                System.out.flush();
+
+                line = reader.readLine().trim();
+                if (!line.equals("")) {
+                    caURI = new URI(line);
+                }
+
+                URL url = new URL(caURI+"/ee/ca/getCertChain");
+                if (verbose) System.out.println("Downloading CA cert chain from " + url + ":");
+
+                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+
+                Document document = documentBuilder.parse(url.openStream());
+                NodeList list = document.getElementsByTagName("ChainBase64");
+                Element element = (Element)list.item(0);
+
+                String encodedChain = element.getTextContent();
+                if (verbose) System.out.println(encodedChain);
+
+                byte[] chain = Utils.base64decode(encodedChain);
+
+                if (verbose) System.out.println("Importing CA certificate.");
+                CryptoManager manager = CryptoManager.getInstance();
+                InternalCertificate internalCert = (InternalCertificate)manager.importCACertPackage(chain);
+
+                internalCert.setSSLTrust(
+                        InternalCertificate.VALID_CA |
+                        InternalCertificate.TRUSTED_CA |
+                        InternalCertificate.TRUSTED_CLIENT_CA);
+
+                if (verbose) System.out.println("Imported CA certificate.");
+                return true;
+
+            } catch (Exception e) {
+                System.err.println("ERROR: "+e);
+                return false;
+            }
+        }
+
         // Callback to approve or deny returned SSL server cert.
         // Right now, simply approve the cert.
-        public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
+        public boolean approve(X509Certificate serverCert,
                 SSLCertificateApprovalCallback.ValidityStatus status) {
 
             boolean approval = true;
@@ -314,12 +383,14 @@ public class PKIConnection {
                         // Otherwise, issue a WARNING, but allow this process
                         // to continue since we haven't installed a trusted CA
                         // cert for this operation.
-                        System.err.println("WARNING: UNTRUSTED ISSUER encountered on '"+serverCert.getSubjectDN()+"' indicates a non-trusted CA cert");
+                        handleUntrustedIssuer(serverCert);
                     }
+
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
                     // Issue a WARNING, but allow this process to continue on
                     // common-name mismatches.
                     System.err.println("WARNING: BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch");
+
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
                     // Ignore the "CA_CERT_INVALID" validity status
                     // during PKI instance creation since we are
@@ -332,6 +403,7 @@ public class PKIConnection {
                         System.err.println("ERROR: CA_CERT_INVALID encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
                         approval = false;
                     }
+
                 } else {
                     // Set approval false to deny this certificate so that
                     // the connection is terminated. (Expect an IOException
