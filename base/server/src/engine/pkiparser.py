@@ -326,6 +326,7 @@ class PKIConfigParser:
             if config.user_deployment_cfg:
                 print 'Loading deployment configuration from ' + config.user_deployment_cfg + '.'
                 self.pki_config.read([config.user_deployment_cfg])
+                config.user_config.read([config.user_deployment_cfg])
 
         except ConfigParser.ParsingError, err:
             print err

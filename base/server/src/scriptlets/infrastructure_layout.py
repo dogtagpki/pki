@@ -60,12 +60,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                        master['pki_default_deployment_cfg_replica'])
 
         print "Storing deployment configuration into " + config.pki_master_dict['pki_user_deployment_cfg_replica'] + "."
-        if master['pki_user_deployment_cfg']:
-            util.file.copy(master['pki_user_deployment_cfg'],
-                           master['pki_user_deployment_cfg_replica'])
-        else:
-            with open(master['pki_user_deployment_cfg_replica'], 'w') as f:
-                config.user_config.write(f)
+
+        #Archive the user deployment configuration excluding the sensitive parameters
+        sensitive_parameters = config.pki_master_dict['sensitive_parameters'].split()
+        sections = config.user_config.sections()
+        for s in sections:
+            for k in sensitive_parameters:
+                config.user_config.set(s, k, 'XXXXXXXX')
+        with open(master['pki_user_deployment_cfg_replica'], 'w') as f:
+            config.user_config.write(f)
 
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that
