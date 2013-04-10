@@ -27,68 +27,27 @@ import shutil
 import sys
 import traceback
 
+import pki
 
-DEFAULT_VERSION   = '10.0.1'
 
-CONF_DIR          = '/etc/pki'
-SHARE_DIR         = '/usr/share/pki'
-INSTANCE_BASE_DIR = '/var/lib/pki'
+DEFAULT_VERSION   = '10.0.0'
 
-VERSION_FILE      = 'VERSION'
 VERSION_KEY       = 'Configuration-Version'
 INDEX_KEY         = 'Scriptlet-Index'
 
-UPGRADE_DIR       = SHARE_DIR + '/server/upgrade'
+UPGRADE_DIR       = pki.SHARE_DIR + '/server/upgrade'
 VERSION_DIR       = UPGRADE_DIR + '/%s'
 SCRIPTLET_FILE    = VERSION_DIR + '/%s'
 
-PACKAGE_VERSION   = SHARE_DIR + '/' + VERSION_FILE
-SYSTEM_VERSION    = CONF_DIR + '/' + VERSION_FILE
+SYSTEM_VERSION    = pki.CONF_DIR + '/' + pki.VERSION_FILE
 
-INSTANCE_CONF     = CONF_DIR + '/%s'
-INSTANCE_VERSION  = INSTANCE_CONF + '/' + VERSION_FILE
+INSTANCE_CONF     = pki.CONF_DIR + '/%s'
+INSTANCE_VERSION  = INSTANCE_CONF + '/' + pki.VERSION_FILE
 
 SUBSYSTEM_CONF    = INSTANCE_CONF + '/%s'
-SUBSYSTEM_VERSION = SUBSYSTEM_CONF + '/' + VERSION_FILE
+SUBSYSTEM_VERSION = SUBSYSTEM_CONF + '/' + pki.VERSION_FILE
 
 verbose           = False
-
-
-def read_text(message,
-    options=None, default=None, delimiter=':',
-    allowEmpty=True, caseSensitive=True):
-
-    if default:
-        message = message + ' [' + default + ']'
-    message = message + delimiter + ' '
-
-    done = False
-    while not done:
-        value = raw_input(message)
-        value = value.strip()
-
-        if len(value) == 0:  # empty value
-            if allowEmpty:
-                value = default
-                done = True
-                break
-
-        else:  # non-empty value
-            if options is not None:
-                for v in options:
-                    if caseSensitive:
-                        if v == value:
-                            done = True
-                            break
-                    else:
-                        if v.lower() == value.lower():
-                            done = True
-                            break
-            else:
-                done = True
-                break
-
-    return value
 
 
 @functools.total_ordering
@@ -329,7 +288,6 @@ class PKIUpgradeScriptlet(object):
     def __init__(self):
 
         self.version = None
-        self.next_version = None
 
         self.index = None
         self.last = False
@@ -361,7 +319,7 @@ class PKIUpgradeScriptlet(object):
 
         else:
             tracker.remove_index()
-            tracker.set_version(self.next_version)
+            tracker.set_version(self.version.next)
 
         tracker.write()
 
@@ -403,7 +361,7 @@ class PKIUpgradeScriptlet(object):
                 if self.upgrader.silent:
                     print message
                 else:
-                    result = read_text(message + ' Continue (Yes/No)',
+                    result = pki.read_text(message + ' Continue (Yes/No)',
                         options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                     if result == 'y': continue
 
@@ -440,7 +398,7 @@ class PKIUpgradeScriptlet(object):
                 if self.upgrader.silent:
                     print message
                 else:
-                    result = read_text(message + ' Continue (Yes/No)',
+                    result = pki.read_text(message + ' Continue (Yes/No)',
                         options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                     if result == 'y': continue
 
@@ -475,7 +433,7 @@ class PKIUpgradeScriptlet(object):
             if self.upgrader.silent:
                 print message
             else:
-                result = read_text(message + ' Continue (Yes/No)',
+                result = pki.read_text(message + ' Continue (Yes/No)',
                     options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                 if result == 'y': return
 
@@ -526,21 +484,40 @@ class PKIUpgrader():
 
     def versions(self):
 
-        if self.version:
-            return [self.version]
+        current_version = self.get_current_version()
+        target_version = self.get_target_version()
 
-        versions = []
+        all_versions = []
 
         if os.path.exists(UPGRADE_DIR):
             for version in os.listdir(UPGRADE_DIR):
-                versions.append(Version(version))
+                version = Version(version)
 
-        versions.sort()
+                # skip old versions
+                if version >= current_version:
+                    all_versions.append(version)
+
+        all_versions.sort()
+
+        versions = []
+
+        for index, version in enumerate(all_versions):
+
+            # link versions
+            if index < len(all_versions) - 1:
+                version.next = all_versions[index + 1]
+            else:
+                version.next = target_version
+
+            # if no scriptlet version is specified, add all versions to the list
+            # if scriptlet version is specified, add only that version to the list
+            if not self.version or str(version) == self.version:
+                versions.append(version)
 
         return versions
 
 
-    def scriptlets(self, version, next_version):
+    def scriptlets(self, version):
 
         filenames = os.listdir(VERSION_DIR % str(version))
         scriptlets = []
@@ -548,7 +525,11 @@ class PKIUpgrader():
         for filename in filenames:
 
             # parse <index>-<classname>
-            i = filename.index('-')
+            try:
+                i = filename.index('-')
+            except ValueError as e:
+                raise PKIUpgradeException('Invalid scriptlet name: ' + filename, e)
+
             index = int(filename[0:i])
             classname = filename[i+1:]
 
@@ -564,7 +545,6 @@ class PKIUpgrader():
 
             scriptlet.upgrader = self
             scriptlet.version = version
-            scriptlet.next_version = next_version
             scriptlet.index = index
             scriptlet.last = index == len(filenames)
 
@@ -581,10 +561,10 @@ class PKIUpgrader():
         if self.instance:
             return [self.instance]
 
-        if not os.path.exists(INSTANCE_BASE_DIR):
+        if not os.path.exists(pki.INSTANCE_BASE_DIR):
             return []
 
-        list = os.listdir(INSTANCE_BASE_DIR)
+        list = os.listdir(pki.INSTANCE_BASE_DIR)
         list.sort()
 
         return list
@@ -597,7 +577,7 @@ class PKIUpgrader():
 
         list = []
 
-        instance_dir = os.path.join(INSTANCE_BASE_DIR, instance)
+        instance_dir = os.path.join(pki.INSTANCE_BASE_DIR, instance)
         for folder in os.listdir(instance_dir):
 
             # check whether it is a subsystem folder
@@ -678,25 +658,7 @@ class PKIUpgrader():
 
     def get_target_version(self):
 
-        with open(PACKAGE_VERSION, 'r') as f:
-            for line in f:
-                line = line.strip('\n')
-
-                # parse <key>: <value>
-                match = re.match('^\s*(\S*)\s*:\s*(.*)\s*$', line)
-
-                if not match:
-                    continue
-
-                key = match.group(1)
-                value = match.group(2)
-
-                if key.lower() != 'implementation-version':
-                    continue
-
-                return Version(value)
-
-        raise Exception('Invalid version file.')
+        return Version(pki.implementation_version())
 
 
     def is_complete(self):
@@ -707,11 +669,38 @@ class PKIUpgrader():
         return current_version == target_version
 
 
-    def upgrade_version(self, version, next_version):
+    def upgrade_version(self, version):
 
-        print 'Upgrading from version ' + str(version) + ':'
+        print 'Upgrading from version ' + str(version) + ' to ' + str(version.next) + ':'
 
-        scriptlets = self.scriptlets(version, next_version)
+        scriptlets = self.scriptlets(version)
+
+        if len(scriptlets) == 0:
+
+            print 'No upgrade scriptlets.'
+
+            for instance in self.instances():
+                for subsystem in self.subsystems(instance):
+
+                    # update subsystem tracker
+                    tracker = self.get_tracker(instance, subsystem)
+                    tracker.remove_index()
+                    tracker.set_version(version.next)
+                    tracker.write()
+
+                # update instance tracker
+                tracker = self.get_tracker(instance)
+                tracker.remove_index()
+                tracker.set_version(version.next)
+                tracker.write()
+
+            # update system tracker
+            tracker = self.get_tracker()
+            tracker.remove_index()
+            tracker.set_version(version.next)
+            tracker.write()
+
+            return
 
         # execute scriptlets
         for index, scriptlet in enumerate(scriptlets):
@@ -722,7 +711,7 @@ class PKIUpgrader():
                 print message
 
             else:
-                result = read_text(message + ' (Yes/No)',
+                result = pki.read_text(message + ' (Yes/No)',
                     options=['Y', 'N'], default='Y', caseSensitive=False).lower()
 
                 if result == 'n':
@@ -747,43 +736,21 @@ class PKIUpgrader():
 
                 print
 
-                result = read_text('Continue (Yes/No)',
+                result = pki.read_text('Continue (Yes/No)',
                     options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
 
                 if result == 'n':
                     raise PKIUpgradeException(message, e)
 
-            print
-
 
     def upgrade(self):
 
-        current_version = self.get_current_version()
-        target_version = self.get_target_version()
-
-        if verbose:
-            print 'Upgrading from version ' + str(current_version) + ' to ' + str(target_version) + '.'
-            print
-
         versions = self.versions()
 
-        # run scriptlets from source version to target version
         for index, version in enumerate(versions):
 
-            if version < current_version:
-                # skip old scriptlets
-                continue
-
-            if index < len(versions) - 1:
-                next_version = versions[index + 1]
-            else:
-                next_version = target_version
-
-            if index > 0:
-                print
-
-            self.upgrade_version(version, next_version)
-
+            self.upgrade_version(version)
+            print
 
         if self.is_complete():
             print 'Upgrade complete.'
@@ -822,24 +789,27 @@ class PKIUpgrader():
             print 'Upgrade incomplete.'
 
 
-    def reset_tracker(self):
-
-        target_version = self.get_target_version()
-
+    def set_tracker(self, version):
         if not self.instance:
             tracker = self.get_tracker()
-            tracker.reset(target_version)
+            tracker.reset(version)
 
         for instance in self.instances():
 
             if not self.subsystem:
                 tracker = self.get_tracker(instance)
-                tracker.reset(target_version)
+                tracker.reset(version)
 
             for subsystem in self.subsystems(instance):
 
                 tracker = self.get_tracker(instance, subsystem)
-                tracker.reset(target_version)
+                tracker.reset(version)
+
+
+    def reset_tracker(self):
+
+        target_version = self.get_target_version()
+        self.set_tracker(target_version)
 
 
     def remove_tracker(self):

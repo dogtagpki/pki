@@ -27,6 +27,7 @@ import signal
 import sys
 from lxml import etree
 
+import pki
 import pki.upgrade
 
 
@@ -41,7 +42,7 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
     def upgrade_subsystem(self, instance, subsystem):
 
         context_xml = os.path.join(
-            pki.upgrade.INSTANCE_BASE_DIR,
+            pki.INSTANCE_BASE_DIR,
             instance, 'webapps', subsystem,
             'META-INF', 'context.xml')
 
@@ -63,7 +64,7 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
     def update_root_context_xml(self, instance):
 
         context_xml = os.path.join(
-            pki.upgrade.INSTANCE_BASE_DIR,
+            pki.INSTANCE_BASE_DIR,
             instance, 'webapps', 'ROOT',
             'META-INF', 'context.xml')
 
@@ -83,7 +84,7 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
         source = '/usr/share/pki/server/webapps/pki/META-INF/context.xml'
 
         meta_inf_dir = os.path.join(
-            pki.upgrade.INSTANCE_BASE_DIR,
+            pki.INSTANCE_BASE_DIR,
             instance, 'webapps', 'pki',
             'META-INF')
         context_xml = os.path.join(meta_inf_dir, 'context.xml')

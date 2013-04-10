@@ -91,7 +91,7 @@ def main(argv):
             subsystem = a
 
         elif o == '--scriptlet-version':
-            version = pki.upgrade.Version(a)
+            version = a
 
         elif o == '--scriptlet-index':
             index = int(a)

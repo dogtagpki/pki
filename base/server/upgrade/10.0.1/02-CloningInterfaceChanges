@@ -22,6 +22,8 @@
 import os
 import sys
 from lxml import etree as ET
+
+import pki
 import pki.upgrade
 
 class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
@@ -100,7 +102,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
 
     def upgrade_subsystem(self, instance, subsystem):
         web_xml = os.path.join(
-            pki.upgrade.INSTANCE_BASE_DIR,
+            pki.INSTANCE_BASE_DIR,
             instance, 'webapps', subsystem,
             'WEB-INF', 'web.xml')
 
