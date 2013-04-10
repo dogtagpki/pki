@@ -370,16 +370,25 @@ public class CertificateRepository extends Repository
         } else {
             c = s;
         }
-        CMS.debug("CertificateRepository: getInRangeCounter:  c=" + c + ((t != null)?("  t="+t):""));
+        CMS.debug("CertificateRepository: getInRangeCounter:  c=" + c + ((t != null)?("  t="+t):"null"));
 
         BigInteger counter = new BigInteger(c);
         BigInteger count = BigInteger.ZERO;
-        if (t != null) {
+        if (CMS.isPreOpMode()) {
+            CMS.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
+            counter = new BigInteger("-2");
+            mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
+            try {
+                CMS.getConfigStore().commit(false);
+            } catch (Exception e) {
+                CMS.debug("CertificateRepository: updateCounter  Exception committing ConfigStore="+e.getMessage());
+            }
+        } else if (t != null) {
             count = getInRangeCount(t, minSerialNo, maxSerialNo);
             if (count.compareTo(BigInteger.ZERO) > 0) {
                 counter = counter.add(count);
             }
-        } else if (s.equals("-2") || (c.equals("-1") && CMS.isPreOpMode())) {
+        } else if (s.equals("-2")) {
             count = getInRangeCount(t, minSerialNo, maxSerialNo);
             if (count.compareTo(BigInteger.ZERO) >= 0) {
                 counter = count;
