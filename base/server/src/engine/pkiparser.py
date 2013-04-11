@@ -33,7 +33,9 @@ import sys
 import time
 
 
-# PKI Deployment Imports
+# PKI Imports
+import pki
+import pki.upgrade
 import pkilogging
 import pkiconfig as config
 import pkimessages as log
@@ -180,7 +182,10 @@ class PKIConfigParser:
             default_http_port = '80'
             default_https_port = '443'
 
+        application_version = str(pki.upgrade.Version(pki.implementation_version()))
+
         self.pki_config = ConfigParser.SafeConfigParser({
+            'application_version': application_version,
             'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
             'pki_https_port': default_https_port,

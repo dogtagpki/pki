@@ -290,7 +290,7 @@ sub render_panel
     }
     $symbol{p}        = $panelnum;
     $symbol{subpanelno}        = $panelnum+1;
-    $symbol{productversion}    =  $::config->get("preop.product.version");
+    $symbol{productversion}    =  $::config->get("cms.product.version");
     $symbol{csstate}        = "1";
 
 #    $symbol{urls}        = [ "cert1", "cert2" ];  #createsubsystem

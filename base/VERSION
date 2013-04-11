@@ -1,3 +1,3 @@
 Name: pki
-Specification-Version: ${APPLICATION_VERSION}
-Implementation-Version: ${VERSION}
+Specification-Version: ${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}
+Implementation-Version: ${APPLICATION_VERSION}

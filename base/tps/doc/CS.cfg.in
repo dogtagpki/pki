@@ -370,7 +370,7 @@ channel.defKeyIndex=0
 #            * channel.appletMemorySize=5000
 #
 preop.pin=[PKI_RANDOM_NUMBER]
-preop.product.version=@APPLICATION_VERSION@
+cms.product.version=@APPLICATION_VERSION@
 preop.cert._000=#########################################
 preop.cert._001=# Installation configuration "preop" certs parameters
 preop.cert._002=#########################################

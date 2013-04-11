@@ -90,7 +90,7 @@ public class WelcomePanel extends WizardPanelBase {
             context.put("productname",
                     cs.getString("preop.product.name"));
             context.put("productversion",
-                    cs.getString("preop.product.version"));
+                    cs.getString("cms.product.version"));
         } catch (EBaseException e) {
         }
         context.put("panel", "admin/console/config/welcomepanel.vm");

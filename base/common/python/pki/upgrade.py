@@ -32,20 +32,17 @@ import pki
 
 DEFAULT_VERSION   = '10.0.0'
 
-VERSION_KEY       = 'Configuration-Version'
-INDEX_KEY         = 'Scriptlet-Index'
-
 UPGRADE_DIR       = pki.SHARE_DIR + '/server/upgrade'
 VERSION_DIR       = UPGRADE_DIR + '/%s'
 SCRIPTLET_FILE    = VERSION_DIR + '/%s'
 
-SYSTEM_VERSION    = pki.CONF_DIR + '/' + pki.VERSION_FILE
+SYSTEM_TRACKER    = pki.CONF_DIR + '/pki.conf'
 
 INSTANCE_CONF     = pki.CONF_DIR + '/%s'
-INSTANCE_VERSION  = INSTANCE_CONF + '/' + pki.VERSION_FILE
+INSTANCE_TRACKER  = INSTANCE_CONF + '/tomcat.conf'
 
 SUBSYSTEM_CONF    = INSTANCE_CONF + '/%s'
-SUBSYSTEM_VERSION = SUBSYSTEM_CONF + '/' + pki.VERSION_FILE
+SUBSYSTEM_TRACKER = SUBSYSTEM_CONF + '/CS.cfg'
 
 verbose           = False
 
@@ -128,9 +125,17 @@ class PKIUpgradeException(Exception):
 
 class PKIUpgradeTracker(object):
 
-    def __init__(self, name, filename):
+    def __init__(self, name, filename,
+        delimiter='=',
+        version_key='PKI_VERSION',
+        index_key='PKI_UPGRADE_INDEX'):
+
         self.name = name
         self.filename = filename
+
+        self.delimiter = delimiter
+        self.version_key = version_key
+        self.index_key = index_key
 
         self.read()
 
@@ -161,17 +166,17 @@ class PKIUpgradeTracker(object):
 
         print 'Removing ' + self.name + ' tracker.'
 
-        if os.path.exists(self.filename):
-            if verbose: print 'Removing ' + self.filename
-            os.remove(self.filename)
+        self.remove_version()
+        self.remove_index()
+        self.write()
 
 
     def reset(self, version):
 
         print 'Resetting ' + self.name + ' tracker.'
 
-        self.lines = []
         self.set_version(version)
+        self.remove_index()
         self.write()
 
 
@@ -179,8 +184,12 @@ class PKIUpgradeTracker(object):
 
         print self.name + ':'
 
-        for line in self.lines:
-            print '  ' + line
+        version = self.get_version()
+        print '  Configuration version: ' + str(version)
+
+        index = self.get_index()
+        if index > 0:
+            print '  Last completed scriptlet: ' + str(index)
 
         print
 
@@ -191,8 +200,8 @@ class PKIUpgradeTracker(object):
 
         for line in self.lines:
 
-            # parse <key>: <value>
-            match = re.match('^\s*(\S*)\s*:\s*(.*)\s*$', line)
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -213,8 +222,8 @@ class PKIUpgradeTracker(object):
 
         for index, line in enumerate(self.lines):
 
-            # parse <key>: <value>
-            match = re.match('^\s*(\S*)\s*:\s*(.*)\s*$', line)
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -224,20 +233,20 @@ class PKIUpgradeTracker(object):
             if key.lower() != name.lower():
                 continue
 
-            self.lines[index] = key + ': ' + value
+            self.lines[index] = key + self.delimiter + value
             found = True
             break
 
         if not found:
-            self.lines.append(name + ': ' + value)
+            self.lines.append(name + self.delimiter + value)
 
 
     def remove_property(self, name):
 
         for index, line in enumerate(self.lines):
 
-            # parse <key>: <value>
-            match = re.match('^\s*(\S*)\s*: \s*(.*)\s*$', line)
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -252,7 +261,7 @@ class PKIUpgradeTracker(object):
 
     def get_index(self):
 
-        index = self.get_property(INDEX_KEY)
+        index = self.get_property(self.index_key)
 
         if index:
             return int(index)
@@ -261,16 +270,16 @@ class PKIUpgradeTracker(object):
 
 
     def set_index(self, index):
-        self.set_property(INDEX_KEY, str(index))
+        self.set_property(self.index_key, str(index))
 
 
     def remove_index(self):
-        self.remove_property(INDEX_KEY)
+        self.remove_property(self.index_key)
 
 
     def get_version(self):
 
-        version = self.get_property(VERSION_KEY)
+        version = self.get_property(self.version_key)
 
         if version:
             return Version(version)
@@ -279,7 +288,11 @@ class PKIUpgradeTracker(object):
 
 
     def set_version(self, version):
-        self.set_property(VERSION_KEY, str(version))
+        self.set_property(self.version_key, str(version))
+
+
+    def remove_version(self):
+        self.remove_property(self.version_key)
 
 
 @functools.total_ordering
@@ -602,7 +615,9 @@ class PKIUpgrader():
                 tracker = self.subsystem_trackers[instance]
             except KeyError:
                 tracker = PKIUpgradeTracker(name + ' subsystem',
-                    SUBSYSTEM_VERSION % (instance, subsystem))
+                    SUBSYSTEM_TRACKER % (instance, subsystem),
+                    version_key='cms.product.version',
+                    index_key='cms.upgrade.index')
                 self.subsystem_trackers[name] = tracker
 
         elif instance:
@@ -610,14 +625,18 @@ class PKIUpgrader():
                 tracker = self.instance_trackers[instance]
             except KeyError:
                 tracker = PKIUpgradeTracker(instance + ' instance',
-                    INSTANCE_VERSION % instance)
+                    INSTANCE_TRACKER % instance,
+                    version_key='PKI_VERSION',
+                    index_key='PKI_UPGRADE_INDEX')
                 self.instance_trackers[instance] = tracker
 
         else:
             if self.system_tracker:
                 tracker = self.system_tracker
             else:
-                tracker = PKIUpgradeTracker('system', SYSTEM_VERSION)
+                tracker = PKIUpgradeTracker('system', SYSTEM_TRACKER,
+                    version_key='PKI_VERSION',
+                    index_key='PKI_UPGRADE_INDEX')
                 self.system_tracker = tracker
 
         return tracker
