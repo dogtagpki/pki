@@ -59,6 +59,7 @@ public class CertificateRepository extends Repository
     private static final String PROP_SEQUENTIAL_MODE = "sequential";
     private static final String PROP_COLLISION_RECOVERY_STEPS = "collisionRecoverySteps";
     private static final String PROP_COLLISION_RECOVERY_REGENERATIONS = "collisionRecoveryRegenerations";
+    private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
     private final int REPLICA_BITS = 16;
 
@@ -153,17 +154,25 @@ public class CertificateRepository extends Repository
 
         if (mRangeSize == null || mReplicaID == null) {
             mRangeSize = (mMaxSerialNo.subtract(mMinSerialNo)).add(BigInteger.ONE);
+            CMS.debug("CertificateRepository: getRandomNumber  mRangeSize="+mRangeSize);
             mBitLength = mRangeSize.bitLength();
+            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength);
             int rid = mDBService.getReplicaID();
-            rid = -1;  // shared ranges using replica IDs are postponed
+            CMS.debug("CertificateRepository: getRandomNumber  rid="+rid);
             if (rid > -1) {
                 mReplicaID = new BigInteger((new Integer(rid)).toString());
             } else {
                 mReplicaBitLength = 0;
             }
+            mReplicaBitLength = 0;  // shared ranges using replica IDs are postponed
             mRandomRangeSize = mRangeSize.shiftRight(mReplicaBitLength);
+            CMS.debug("CertificateRepository: getRandomNumber  mRandomRangeSize="+mRandomRangeSize);
+            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+                      " -mReplicaBitLength="+mReplicaBitLength+" >mMinRandomBitLength="+mMinRandomBitLength);
         }
         if (mBitLength - mReplicaBitLength < mMinRandomBitLength) {
+            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+                      " -mReplicaBitLength="+mReplicaBitLength+" <mMinRandomBitLength="+mMinRandomBitLength);
             CMS.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
@@ -182,7 +191,7 @@ public class CertificateRepository extends Repository
         } else {
             nextSerialNumber = randomNumber;
         }
-        nextSerialNumber = (nextSerialNumber.add(mMinSerialNo)).subtract(BigInteger.ONE);
+        nextSerialNumber = nextSerialNumber.add(mMinSerialNo);
         CMS.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
 
         return nextSerialNumber; 
@@ -413,12 +422,14 @@ public class CertificateRepository extends Repository
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
         String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        mMinRandomBitLength = mDBConfig.getInteger(PROP_MINIMUM_RANDOM_BITS, 4);
         mMaxCollisionRecoverySteps = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_STEPS, 10);
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
         CMS.debug("CertificateRepository: getLastSerialNumberInRange"+
                   "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+
+                  "  mMinRandomBitLength="+mMinRandomBitLength+
                   "  CollisionRecovery="+mMaxCollisionRecoveryRegenerations+","+mMaxCollisionRecoverySteps);
         CMS.debug("CertificateRepository: getLastSerialNumberInRange  modeChange="+modeChange+
                   "  mForceModeChange="+mForceModeChange+((crMode != null)?("  mode="+crMode):""));
