@@ -18,6 +18,7 @@
 package com.netscape.cms.authentication;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -136,30 +137,36 @@ public class TokenAuthentication implements IAuthManager,
 
         String sessionId = (String) authCred.get(CRED_SESSION_ID);
         String givenHost = (String) authCred.get("clientHost");
-        String auth_host = sconfig.getString("securitydomain.host");
-        int auth_port = sconfig.getInteger("securitydomain.httpseeport");
+        String authHost = sconfig.getString("securitydomain.host");
+        int authAdminPort = sconfig.getInteger("securitydomain.httpsadminport");
+        int authEEPort = sconfig.getInteger("securitydomain.httpseeport");
+        String authURL = "/ca/admin/ca/tokenAuthenticate";
 
-        HttpClient httpclient = new HttpClient();
+        String content = CRED_SESSION_ID + "=" + sessionId + "&hostname=" + givenHost;
+        CMS.debug("TokenAuthentication: content=" + content);
+
         String c = null;
         try {
-            JssSSLSocketFactory factory = new JssSSLSocketFactory();
-            httpclient = new HttpClient(factory);
-            String content = CRED_SESSION_ID + "=" + sessionId + "&hostname=" + givenHost;
-            CMS.debug("TokenAuthentication: content=" + content);
-            httpclient.connect(auth_host, auth_port);
-            HttpRequest httprequest = new HttpRequest();
-            httprequest.setMethod(HttpRequest.POST);
-            httprequest.setURI("/ca/ee/ca/tokenAuthenticate");
-            httprequest.setHeader("user-agent", "HTTPTool/1.0");
-            httprequest.setHeader("content-length", "" + content.length());
-            httprequest.setHeader("content-type",
-                    "application/x-www-form-urlencoded");
-            httprequest.setContent(content);
-            HttpResponse httpresponse = httpclient.send(httprequest);
-
-            c = httpresponse.getContent();
+            c = sendAuthRequest(authHost, authAdminPort, authURL, content);
+            // in case where the new interface does not exist, EE will return a badly
+            // formatted response which will throw an exception during parsing
+            if (c != null) {
+                @SuppressWarnings("unused")
+                XMLObject parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
+            }
         } catch (Exception e) {
-            CMS.debug("TokenAuthentication authenticate Exception=" + e.toString());
+
+            CMS.debug("TokenAuthenticate: failed to contact admin host:port "
+                    + authHost + ":" + authAdminPort + " " + e);
+            CMS.debug("TokenAuthenticate: attempting ee port " + authEEPort);
+            authURL = "/ca/ee/ca/tokenAuthenticate";
+            try {
+                c = sendAuthRequest(authHost, authEEPort, authURL, content);
+            } catch (IOException e1) {
+                CMS.debug("TokenAuthenticate: failed to contact EE host:port "
+                        + authHost + ":" + authAdminPort + " " + e1);
+                throw new EBaseException(e1.getMessage());
+            }
         }
 
         if (c != null) {
@@ -202,6 +209,29 @@ public class TokenAuthentication implements IAuthManager,
         }
 
         return authToken;
+    }
+
+    private String sendAuthRequest(String authHost, int authPort, String authUrl, String content)
+            throws IOException {
+        HttpClient httpclient = new HttpClient();
+        String c = null;
+
+        JssSSLSocketFactory factory = new JssSSLSocketFactory();
+        httpclient = new HttpClient(factory);
+        httpclient.connect(authHost, authPort);
+        HttpRequest httprequest = new HttpRequest();
+        httprequest.setMethod(HttpRequest.POST);
+        httprequest.setURI(authUrl);
+        httprequest.setHeader("user-agent", "HTTPTool/1.0");
+        httprequest.setHeader("content-length", "" + content.length());
+        httprequest.setHeader("content-type",
+                "application/x-www-form-urlencoded");
+        httprequest.setContent(content);
+
+        HttpResponse httpresponse = httpclient.send(httprequest);
+        c = httpresponse.getContent();
+
+        return c;
     }
 
     /**

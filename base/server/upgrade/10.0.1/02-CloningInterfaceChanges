@@ -21,7 +21,7 @@
 
 import os
 import sys
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 import pki.upgrade
 
 class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
@@ -32,7 +32,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
              <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
              <init-param>
                  <param-name>  GetClientCert  </param-name>
-                 <param-value> true       </param-value>
+                 <param-value> false          </param-value>
              </init-param>
              <init-param>
                  <param-name>  authority   </param-name>
@@ -44,11 +44,11 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
              </init-param>
              <init-param>
                  <param-name>  interface   </param-name>
-                 <param-value> agent          </param-value>
+                 <param-value> admin       </param-value>
              </init-param>
              <init-param>
                  <param-name>  AuthMgr     </param-name>
-                 <param-value> certUserDBAuthMgr </param-value>
+                 <param-value> TokenAuth </param-value>
              </init-param>
              <init-param>
                  <param-name>  AuthzMgr    </param-name>
@@ -66,6 +66,33 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             <url-pattern>   /admin/ca/updateDomainXML  </url-pattern>
         </servlet-mapping> """
 
+    tokenAuthenticateServletData = """
+        <servlet>
+            <servlet-name>  caTokenAuthenticate-admin  </servlet-name>
+            <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+            <init-param>
+                 <param-name>  GetClientCert  </param-name>
+                 <param-value> false       </param-value>
+            </init-param>
+            <init-param>
+                 <param-name>  authority   </param-name>
+                 <param-value> ca          </param-value>
+            </init-param>
+            <init-param>
+                 <param-name>  ID          </param-name>
+                 <param-value> caTokenAuthenticate  </param-value>
+            </init-param>
+            <init-param>
+                <param-name>  interface   </param-name>
+                <param-value> admin       </param-value>
+            </init-param>
+        </servlet>"""
+
+    tokenAuthenticateMappingData = """
+        <servlet-mapping>
+            <servlet-name>  caTokenAuthenticate-admin </servlet-name>
+            <url-pattern>   /admin/ca/tokenAuthenticate  </url-pattern>
+        </servlet-mapping>"""
 
     def __init__(self):
 
@@ -83,6 +110,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
         if subsystem == "ca":
             self.modify_update_number_range(subsystem)
             self.modify_update_domain_xml()
+            self.modify_token_authenticate()
         if subsystem == "kra":
             self.modify_update_number_range(subsystem)
 
@@ -124,15 +152,44 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             name = servlet.find('servlet-name').text.strip()
             if name == 'caUpdateDomainXML-admin':
                 found = True
+            if name == 'caUpdateDomainXML':
+                index = list(self.root).index(servlet) + 1
         if not found:
             servlet = ET.fromstring(self.updateDomainServletData)
-            self.root.append(servlet)
+            self.root.insert(index, servlet)
 
         found = False
         for mapping in self.doc.findall('.//servlet-mapping'):
             name = mapping.find('servlet-name').text.strip()
             if name == 'caUpdateDomainXML-admin':
                 found = True
+            if name == 'caUpdateDomainXML':
+                index = list(self.root).index(mapping) + 1
         if not found:
             mapping = ET.fromstring(self.updateDomainMappingData)
-            self.root.append(mapping)
+            self.root.insert(index, mapping)
+
+
+    def modify_token_authenticate(self):
+        #add caTokenAuthenticate-admin servlet and mapping
+        found = False
+        for servlet in self.doc.findall('.//servlet'):
+            name = servlet.find('servlet-name').text.strip()
+            if name == 'caTokenAuthenticate-admin':
+                found = True
+            if name == 'caTokenAuthenticate':
+                index = list(self.root).index(servlet) + 1
+        if not found:
+            servlet = ET.fromstring(self.tokenAuthenticateServletData)
+            self.root.insert(index, servlet)
+
+        found = False
+        for mapping in self.doc.findall('.//servlet-mapping'):
+            name = mapping.find('servlet-name').text.strip()
+            if name == 'caTokenAuthenticate-admin':
+                found = True
+            if name == 'caTokenAuthenticate':
+                index = list(self.root).index(mapping) + 1
+        if not found:
+            mapping = ET.fromstring(self.tokenAuthenticateMappingData)
+            self.root.insert(index, mapping)
