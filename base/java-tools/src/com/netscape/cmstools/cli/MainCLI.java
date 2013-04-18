@@ -19,7 +19,9 @@
 package com.netscape.cmstools.cli;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -96,7 +98,7 @@ public class MainCLI extends CLI {
         plugin.printHelp();
     }
 
-    public void createOptions(Options options) {
+    public void createOptions(Options options) throws UnknownHostException {
 
         Option option = new Option("U", true, "Server URI");
         option.setArgName("uri");
@@ -106,7 +108,7 @@ public class MainCLI extends CLI {
         option.setArgName("protocol");
         options.addOption(option);
 
-        option = new Option("h", true, "Hostname (default: localhost)");
+        option = new Option("h", true, "Hostname (default: "+ InetAddress.getLocalHost().getCanonicalHostName() + ")");
         option.setArgName("hostname");
         options.addOption(option);
 
@@ -143,7 +145,7 @@ public class MainCLI extends CLI {
         options.addOption(null, "version", false, "Version");
     }
 
-    public void parseOptions(CommandLine cmd) throws URISyntaxException {
+    public void parseOptions(CommandLine cmd) throws URISyntaxException, UnknownHostException {
 
         verbose = cmd.hasOption("v");
         output = cmd.getOptionValue("output");
@@ -151,7 +153,7 @@ public class MainCLI extends CLI {
         String uri = cmd.getOptionValue("U");
 
         String protocol = cmd.getOptionValue("P", "http");
-        String hostname = cmd.getOptionValue("h", "localhost");
+        String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
         String port = cmd.getOptionValue("p", "8080");
         String type = cmd.getOptionValue("t", "ca");
 
