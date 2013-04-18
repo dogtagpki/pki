@@ -367,19 +367,19 @@ sub display
     my $instanceID = $::config->get("service.instanceID");
 
     my $initDaemon = "pki-rad";
-    my $initCommand = "";
+    my $restartCommand = "";
     if( $^O eq "linux" ) {
-        $initCommand = "/sbin/service $initDaemon";
+        $restartCommand = "systemctl restart $initDaemon\@$instanceID.service";
     } else {
         ## default case:  e. g. - ( $^O eq "solaris" )
-        $initCommand  = "/etc/init.d/$initDaemon";
+        $restartCommand  = "/etc/init.d/$initDaemon restart $instanceID";
     }
 
     $::symbol{host}  = $machineName;
     $::symbol{unsecurePort}  = $unsecurePort;
     $::symbol{port}  = $securePort;
     $::symbol{non_clientauth_port}  = $non_clientauth_securePort;
-    $::symbol{initCommand}  = $initCommand;
+    $::symbol{restartCommand}  = $restartCommand;
     $::symbol{instanceID}  = $instanceID;
 
     $::config->deleteSubstore("preop.");

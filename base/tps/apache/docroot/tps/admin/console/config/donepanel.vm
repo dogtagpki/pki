@@ -31,21 +31,12 @@ function performPanel() {
 #if ($errorString != "")
 <img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
-#if ($systemType == "tks")
-As 'root', restart the server on the command line by typing "$initCommand restart $instanceID". After performing this restart, the server should become operational. 
-#else
-#if ($externalCA == "true" && $systemType == "kra")
-As 'root', restart the server on the command line by typing "$initCommand restart $instanceID". Startup the administration console to add the peer CA to the Trusted Manager's Group. Make sure to add the transport certificate and connector information to the peer CA. After performing this restart, the server should become operational.
-#else
-As 'root', restart the server on the command line by typing "$initCommand
- restart $instanceID". After performing this restart, the server should become operational.
+As 'root', restart the server on the command line by typing "$restartCommand". After performing this restart, the server should become operational.
 <br/>
 Please go to the <A href="https://$host:$non_clientauth_port">services page</A> to access all of the available interfaces.
 <br/>
 Each Enterprise Security Client (ESC) talks to a TPS config URL for token management functions located at <A href="http://$host:$unsecurePort/cgi-bin/home/index.cgi">http://$host:$unsecurePort/cgi-bin/home/index.cgi</A>.
 <br/>
-#end
-#end
 <br/>
 To create additional instances, type "/usr/bin/pkicreate" on the command line.
 <br/>

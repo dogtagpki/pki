@@ -32,8 +32,7 @@ function performPanel() {
 #if ($errorString != "")
 <img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
 #end
-As 'root', restart the server on the command line by typing "$initCommand
- restart $instanceID". After performing this restart, the server should become operational.
+As 'root', restart the server on the command line by typing "$restartCommand". After performing this restart, the server should become operational.
 <br/>
 Please go to the <A href="https://$host:$non_clientauth_port"><b>services page</b></A> to access all of the available interfaces.
 <br/>

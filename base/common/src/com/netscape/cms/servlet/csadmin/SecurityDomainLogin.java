@@ -67,6 +67,7 @@ public class SecurityDomainLogin extends BaseServlet {
             context.put("sd_pwd", "");
             context.put("url", url);
             context.put("host", u.getHost());
+            context.put("errorString", "");
             context.put("sdhost", CMS.getEESSLHost());
             if (subsystem.equals("KRA")) {
                 subsystem = "DRM";
