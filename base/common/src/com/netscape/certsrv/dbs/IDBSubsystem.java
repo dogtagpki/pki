@@ -205,13 +205,6 @@ public interface IDBSubsystem extends ISubsystem {
     public void setEnableSerialMgmt(boolean value) throws EBaseException;
 
     /**
-     * Gets replica ID
-     *
-     * @return replica ID
-     */
-    public int getReplicaID();
-
-    /**
      * Gets internal DB configuration store
      *
      * @return internal DB configuration store

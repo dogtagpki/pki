@@ -59,7 +59,6 @@ public class DBSubsystem implements IDBSubsystem {
     private DBRegistry mRegistry = null;
     private String mBaseDN = null;
     private ISubsystem mOwner = null;
-    private int mReplicaID = -1;
 
     private Hashtable[] mRepos = null;
 
@@ -209,10 +208,6 @@ public class DBSubsystem implements IDBSubsystem {
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
         mEnableSerialMgmt = v;
-    }
-
-    public int getReplicaID() {
-        return mReplicaID;
     }
 
     public BigInteger getNextSerialConfig() {
@@ -815,17 +810,6 @@ public class DBSubsystem implements IDBSubsystem {
             if (CMS.isPreOpMode())
                 return;
             throw e;
-        }
-
-        if (!CMS.isPreOpMode()) {
-            String dn = null;
-            try {
-                dn = "cn=replica,cn=\""+mBaseDN+"\",cn=mapping tree,cn=config";
-                mReplicaID = Integer.parseInt(getEntryAttribute(dn, "nsDS5ReplicaId", "0", "-1"));
-                CMS.debug("DBSubsystem: init()  mReplicaID="+mReplicaID);
-            } catch (Exception e) {
-                CMS.debug("DBSubsystem: init(). Unable to identify replica ID:" + e.getMessage());
-            }
         }
     }
 

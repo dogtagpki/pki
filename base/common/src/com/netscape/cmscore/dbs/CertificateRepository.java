@@ -61,7 +61,6 @@ public class CertificateRepository extends Repository
     private static final String PROP_COLLISION_RECOVERY_REGENERATIONS = "collisionRecoveryRegenerations";
     private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
-    private final int REPLICA_BITS = 16;
 
     private IDBSubsystem mDBService;
     private String mBaseDN;
@@ -78,10 +77,7 @@ public class CertificateRepository extends Repository
     private Random mRandom = null;
     private int mBitLength = 0;
     private BigInteger mRangeSize = null;
-    private BigInteger mRandomRangeSize = null;
-    private BigInteger mReplicaID = null;
     private int mMinRandomBitLength = 4;
-    private int mReplicaBitLength = REPLICA_BITS;
     private int mMaxCollisionRecoverySteps = 10;
     private int mMaxCollisionRecoveryRegenerations = 3;
     private IConfigStore mDBConfig = null;
@@ -152,32 +148,21 @@ public class CertificateRepository extends Repository
         }
         super.initCacheIfNeeded();
 
-        if (mRangeSize == null || mReplicaID == null) {
+        if (mRangeSize == null) {
             mRangeSize = (mMaxSerialNo.subtract(mMinSerialNo)).add(BigInteger.ONE);
             CMS.debug("CertificateRepository: getRandomNumber  mRangeSize="+mRangeSize);
             mBitLength = mRangeSize.bitLength();
-            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength);
-            int rid = mDBService.getReplicaID();
-            CMS.debug("CertificateRepository: getRandomNumber  rid="+rid);
-            if (rid > -1) {
-                mReplicaID = new BigInteger((new Integer(rid)).toString());
-            } else {
-                mReplicaBitLength = 0;
-            }
-            mReplicaBitLength = 0;  // shared ranges using replica IDs are postponed
-            mRandomRangeSize = mRangeSize.shiftRight(mReplicaBitLength);
-            CMS.debug("CertificateRepository: getRandomNumber  mRandomRangeSize="+mRandomRangeSize);
             CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
-                      " -mReplicaBitLength="+mReplicaBitLength+" >mMinRandomBitLength="+mMinRandomBitLength);
+                      " >mMinRandomBitLength="+mMinRandomBitLength);
         }
-        if (mBitLength - mReplicaBitLength < mMinRandomBitLength) {
+        if (mBitLength < mMinRandomBitLength) {
             CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
-                      " -mReplicaBitLength="+mReplicaBitLength+" <mMinRandomBitLength="+mMinRandomBitLength);
+                      " <mMinRandomBitLength="+mMinRandomBitLength);
             CMS.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
-        randomNumber = new BigInteger((mBitLength-mReplicaBitLength), mRandom);
-        randomNumber = (randomNumber.multiply(mRandomRangeSize)).shiftRight(mBitLength-mReplicaBitLength);
+        randomNumber = new BigInteger((mBitLength), mRandom);
+        randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
         CMS.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
 
         return randomNumber; 
@@ -186,12 +171,7 @@ public class CertificateRepository extends Repository
     private BigInteger getRandomSerialNumber(BigInteger randomNumber) throws EBaseException {
         BigInteger nextSerialNumber = null;
 
-        if (mReplicaBitLength > 0) {
-            nextSerialNumber = (randomNumber.shiftLeft(mReplicaBitLength)).add(mReplicaID);
-        } else {
-            nextSerialNumber = randomNumber;
-        }
-        nextSerialNumber = nextSerialNumber.add(mMinSerialNo);
+        nextSerialNumber = randomNumber.add(mMinSerialNo);
         CMS.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
 
         return nextSerialNumber; 
