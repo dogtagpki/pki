@@ -102,19 +102,19 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
 
     def upgrade_subsystem(self, instance, subsystem):
         web_xml = os.path.join(
-            pki.INSTANCE_BASE_DIR,
-            instance, 'webapps', subsystem,
+            instance.base_dir,
+            'webapps', subsystem.name,
             'WEB-INF', 'web.xml')
 
         self.doc = ET.parse(web_xml)
-        self.root = self.doc.find('.')
-        self.remove_get_token_info(subsystem)
-        if subsystem == "ca":
-            self.modify_update_number_range(subsystem)
+        self.root = self.doc.getroot()
+        self.remove_get_token_info(subsystem.name)
+        if subsystem.name == "ca":
+            self.modify_update_number_range(subsystem.name)
             self.modify_update_domain_xml()
             self.modify_token_authenticate()
-        if subsystem == "kra":
-            self.modify_update_number_range(subsystem)
+        if subsystem.name == "kra":
+            self.modify_update_number_range(subsystem.name)
 
         self.doc.write(web_xml)
 
@@ -155,7 +155,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             if name == 'caUpdateDomainXML-admin':
                 found = True
             if name == 'caUpdateDomainXML':
-                index = list(self.root).index(servlet) + 1
+                index = self.root.index(servlet) + 1
         if not found:
             servlet = ET.fromstring(self.updateDomainServletData)
             self.root.insert(index, servlet)
@@ -166,7 +166,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             if name == 'caUpdateDomainXML-admin':
                 found = True
             if name == 'caUpdateDomainXML':
-                index = list(self.root).index(mapping) + 1
+                index = self.root.index(mapping) + 1
         if not found:
             mapping = ET.fromstring(self.updateDomainMappingData)
             self.root.insert(index, mapping)
@@ -180,7 +180,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             if name == 'caTokenAuthenticate-admin':
                 found = True
             if name == 'caTokenAuthenticate':
-                index = list(self.root).index(servlet) + 1
+                index = self.root.index(servlet) + 1
         if not found:
             servlet = ET.fromstring(self.tokenAuthenticateServletData)
             self.root.insert(index, servlet)
@@ -191,7 +191,7 @@ class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
             if name == 'caTokenAuthenticate-admin':
                 found = True
             if name == 'caTokenAuthenticate':
-                index = list(self.root).index(mapping) + 1
+                index = self.root.index(mapping) + 1
         if not found:
             mapping = ET.fromstring(self.tokenAuthenticateMappingData)
             self.root.insert(index, mapping)

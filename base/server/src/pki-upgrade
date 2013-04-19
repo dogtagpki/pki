@@ -28,6 +28,7 @@ import sys
 import traceback
 
 import pki.upgrade
+import pki
 
 
 def interrupt_handler(signal, frame):
@@ -41,6 +42,8 @@ def usage():
     print 'Usage: pki-upgrade [OPTIONS]'
     print '  -i, --instance <instance>      Upgrade a specific instance only.'
     print '  -s, --subsystem <subsystem>    Upgrade a specific subsystem in an instance only.'
+    print '  -t, --instance-type <type>     Specify 9 for upgraded Dogtag 9 instances only,'
+    print '                                 10 for Dogtag 10 instances only.'
     print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
     print '  --scriptlet-index <index>      Run a specific scriptlet only.'
     print '  --silent                       Upgrade in silent mode. Ignore any failures.'
@@ -62,8 +65,8 @@ def main(argv):
     signal.signal(signal.SIGINT, interrupt_handler)
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'hi:s:vX', [
-            'instance=', 'subsystem=',
+        opts, args = getopt.getopt(argv[1:], 'hi:s:t:vX', [
+            'instance=', 'subsystem=', 'instance-type=',
             'scriptlet-version=', 'scriptlet-index=',
             'silent', 'status',
             'remove-tracker', 'reset-tracker',
@@ -74,8 +77,9 @@ def main(argv):
         usage()
         sys.exit(1)
 
-    instance = None
-    subsystem = None
+    instanceName = None
+    subsystemName = None
+    instanceType = None
     version = None
     index = None
     silent = False
@@ -85,10 +89,13 @@ def main(argv):
 
     for o, a in opts:
         if o in ('-i', '--instance'):
-            instance = a
+            instanceName = a
 
         elif o in ('-s', '--subsystem'):
-            subsystem = a
+            subsystemName = a
+
+        elif o in ('-t', '--instance-type'):
+            instanceType = int(a)
 
         elif o == '--scriptlet-version':
             version = a
@@ -124,7 +131,7 @@ def main(argv):
             usage()
             sys.exit(1)
 
-    if subsystem and not instance:
+    if subsystemName and not instanceName:
         print 'ERROR: --subsystem requires --instance'
         usage()
         sys.exit(1)
@@ -136,8 +143,9 @@ def main(argv):
 
     try:
         upgrader = pki.upgrade.PKIUpgrader(
-            instance = instance,
-            subsystem = subsystem,
+            instanceName = instanceName,
+            subsystemName = subsystemName,
+            instanceType = instanceType,
             version = version,
             index = index,
             silent = silent)
@@ -154,7 +162,7 @@ def main(argv):
         else:
             upgrader.upgrade()
 
-    except pki.upgrade.PKIUpgradeException as e:
+    except pki.PKIException as e:
         print e.message
 
 

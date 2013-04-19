@@ -42,14 +42,24 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
     def upgrade_subsystem(self, instance, subsystem):
 
         context_xml = os.path.join(
-            pki.INSTANCE_BASE_DIR,
-            instance, 'webapps', subsystem,
+            instance.base_dir,
+            'webapps', subsystem.name,
             'META-INF', 'context.xml')
+
+        if not os.path.exists(context_xml):
+            self.create_context_xml(
+                instance,
+                subsystem.name,
+                subsystem.name)
 
         document = etree.parse(context_xml, self.parser)
 
         self.add_manager(document)
-        self.update_authenticator(document)
+        if subsystem.type >=10:
+            self.update_authenticator(document)
+        else:
+            self.remove_authenticator(document)
+            self.remove_realm(document)
 
         with open(context_xml, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
@@ -58,15 +68,35 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
     def upgrade_instance(self, instance):
 
         self.update_root_context_xml(instance)
-        self.create_pki_context_xml(instance)
+        self.update_pki_context_xml(instance)
 
 
     def update_root_context_xml(self, instance):
 
         context_xml = os.path.join(
-            pki.INSTANCE_BASE_DIR,
-            instance, 'webapps', 'ROOT',
+            instance.base_dir,
+            'webapps', 'ROOT',
             'META-INF', 'context.xml')
+
+        if not os.path.exists(context_xml):
+            self.create_context_xml(instance, 'server', 'ROOT')
+
+        document = etree.parse(context_xml, self.parser)
+
+        self.add_manager(document)
+
+        with open(context_xml, 'w') as f:
+            f.write(etree.tostring(document, pretty_print=True))
+
+    def update_pki_context_xml(self, instance):
+
+        context_xml = os.path.join(
+            instance.base_dir,
+            'webapps', 'pki',
+            'META-INF', 'context.xml')
+
+        if not os.path.exists(context_xml):
+            self.create_context_xml(instance, 'server', 'pki')
 
         document = etree.parse(context_xml, self.parser)
 
@@ -76,16 +106,17 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
             f.write(etree.tostring(document, pretty_print=True))
 
 
-    def create_pki_context_xml(self, instance):
+    def create_context_xml(self, instance, pkg, context):
 
         uid = pwd.getpwnam('pkiuser').pw_uid
         gid = grp.getgrnam('pkiuser').gr_gid
 
-        source = '/usr/share/pki/server/webapps/pki/META-INF/context.xml'
+        source = '/usr/share/pki/%s/webapps/%s/META-INF/context.xml' %\
+            (pkg, context)
 
         meta_inf_dir = os.path.join(
-            pki.INSTANCE_BASE_DIR,
-            instance, 'webapps', 'pki',
+            instance.base_dir,
+            'webapps', context,
             'META-INF')
         context_xml = os.path.join(meta_inf_dir, 'context.xml')
 
@@ -100,14 +131,6 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
 
         os.chown(context_xml, uid, gid)
         os.chmod(context_xml, 0660)
-
-        document = etree.parse(context_xml, self.parser)
-
-        self.add_manager(document)
-
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
-
 
     def add_manager(self, document):
 
@@ -151,3 +174,25 @@ class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
         # Update authenticator's attributes
         authenticator.set('secureRandomProvider', 'Mozilla-JSS')
         authenticator.set('secureRandomAlgorithm', 'pkcs11prng')
+
+    def remove_authenticator(self, document):
+
+        context = document.getroot()
+        valves = context.findall('Valve')
+
+        for valve in valves:
+            className = valve.get('className')
+            if className != 'com.netscape.cms.tomcat.SSLAuthenticatorWithFallback':
+                continue
+            context.remove(valve)
+
+    def remove_realm(self, document):
+
+        context = document.getroot()
+        realms = context.findall('Realm')
+
+        for realm in realms:
+            className = realm.get('className')
+            if className != 'com.netscape.cms.tomcat.ProxyRealm':
+                continue
+            context.remove(realm)

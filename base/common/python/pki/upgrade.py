@@ -37,12 +37,8 @@ VERSION_DIR       = UPGRADE_DIR + '/%s'
 SCRIPTLET_FILE    = VERSION_DIR + '/%s'
 
 SYSTEM_TRACKER    = pki.CONF_DIR + '/pki.conf'
-
-INSTANCE_CONF     = pki.CONF_DIR + '/%s'
-INSTANCE_TRACKER  = INSTANCE_CONF + '/tomcat.conf'
-
-SUBSYSTEM_CONF    = INSTANCE_CONF + '/%s'
-SUBSYSTEM_TRACKER = SUBSYSTEM_CONF + '/CS.cfg'
+INSTANCE_TRACKER  = '%s/tomcat.conf'
+SUBSYSTEM_TRACKER = '%s/CS.cfg'
 
 verbose           = False
 
@@ -110,18 +106,6 @@ class Version(object):
 
     def __repr__(self):
         return self.version
-
-
-class PKIUpgradeException(Exception):
-
-    def __init__(self, message, exception=None, instance=None, subsystem=None):
-
-        Exception.__init__(self, message)
-
-        self.exception = exception
-        self.instance = instance
-        self.subsystem = subsystem
-
 
 class PKIUpgradeTracker(object):
 
@@ -357,11 +341,11 @@ class PKIUpgradeScriptlet(object):
         for subsystem in self.upgrader.subsystems(instance):
 
             if not self.can_upgrade(instance, subsystem):
-                if verbose: print 'Skipping ' + instance + '/' + subsystem + ' subsystem.'
+                if verbose: print 'Skipping ' + str(subsystem) + ' subsystem.'
                 continue
 
             try:
-                if verbose: print 'Upgrading ' + instance + '/' + subsystem + ' subsystem.'
+                if verbose: print 'Upgrading ' + str(subsystem) + ' subsystem.'
                 self.upgrade_subsystem(instance, subsystem)
                 self.update_tracker(instance, subsystem)
 
@@ -370,7 +354,7 @@ class PKIUpgradeScriptlet(object):
                 if verbose: traceback.print_exc()
                 else: print 'ERROR: ' + e.message
 
-                message = 'Failed upgrading ' + instance + '/' + subsystem + ' subsystem.'
+                message = 'Failed upgrading ' + str(subsystem) + ' subsystem.'
                 if self.upgrader.silent:
                     print message
                 else:
@@ -378,8 +362,8 @@ class PKIUpgradeScriptlet(object):
                         options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                     if result == 'y': continue
 
-                raise PKIUpgradeException(
-                    'Upgrade failed in ' + instance + '/' + subsystem + ': ' + e.message,
+                raise pki.PKIException(
+                    'Upgrade failed in ' + str(subsystem) + ': ' + e.message,
                     e, instance, subsystem)
 
 
@@ -390,15 +374,15 @@ class PKIUpgradeScriptlet(object):
             self.upgrade_subsystems(instance)
 
             # If upgrading a specific subsystem don't upgrade the instance.
-            if self.upgrader.subsystem:
+            if self.upgrader.subsystemName:
                 continue
 
             if not self.can_upgrade(instance):
-                if verbose: print 'Skipping ' + instance + ' instance.'
+                if verbose: print 'Skipping ' + str(instance) + ' instance.'
                 continue
 
             try:
-                if verbose: print 'Upgrading ' + instance + ' instance.'
+                if verbose: print 'Upgrading ' + str(instance) + ' instance.'
                 self.upgrade_instance(instance)
                 self.update_tracker(instance)
 
@@ -407,7 +391,7 @@ class PKIUpgradeScriptlet(object):
                 if verbose: traceback.print_exc()
                 else: print 'ERROR: ' + e.message
 
-                message = 'Failed upgrading ' + instance + ' instance.'
+                message = 'Failed upgrading ' + str(instance) + ' instance.'
                 if self.upgrader.silent:
                     print message
                 else:
@@ -415,8 +399,8 @@ class PKIUpgradeScriptlet(object):
                         options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                     if result == 'y': continue
 
-                raise PKIUpgradeException(
-                    'Upgrade failed in ' + instance + ': ' + e.message,
+                raise pki.PKIException(
+                    'Upgrade failed in ' + str(instance) + ': ' + e.message,
                     e, instance)
 
 
@@ -425,7 +409,7 @@ class PKIUpgradeScriptlet(object):
         self.upgrade_instances()
 
         # If upgrading a specific instance don't upgrade the system.
-        if self.upgrader.instance:
+        if self.upgrader.instanceName:
             return
 
         try:
@@ -450,7 +434,7 @@ class PKIUpgradeScriptlet(object):
                     options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
                 if result == 'y': return
 
-            raise PKIUpgradeException('Upgrade failed: ' + e.message, e)
+            raise pki.PKIException('Upgrade failed: ' + e.message, e)
 
 
     def __eq__(self, other):
@@ -466,29 +450,26 @@ class PKIUpgradeScriptlet(object):
 
 class PKIUpgrader():
 
-    def __init__(self, instance=None, subsystem=None, \
-        version=None, index=None, silent=False):
+    def __init__(self, instanceName=None, instanceType=None, \
+        subsystemName=None, version=None, index=None, silent=False):
 
-        self.instance = instance
-        self.subsystem = subsystem
+        self.instanceName = instanceName
+        self.subsystemName = subsystemName
         self.version = version
         self.index = index
         self.silent = silent
+        self.instanceType = instanceType
 
         if version and not os.path.exists(VERSION_DIR % str(version)):
-            raise PKIUpgradeException(
+            raise pki.PKIException(
                 'Invalid version: ' + str(version),
                 None)
 
-        if instance and not os.path.exists(INSTANCE_CONF % instance):
-            raise PKIUpgradeException(
-                'Invalid instance: ' + instance,
-                None, instance)
-
-        if subsystem and not os.path.exists(SUBSYSTEM_CONF % (instance, subsystem)):
-            raise PKIUpgradeException(
-                'Invalid subsystem: ' + instance + '/' + subsystem,
-                None, instance, subsystem)
+        if subsystemName and not instanceName:
+            raise pki.PKIException(
+                'Invalid subsystem: ' + subsystemName +\
+                ', Instance not defined',
+                None)
 
         self.system_tracker = None
         self.instance_trackers = {}
@@ -541,7 +522,7 @@ class PKIUpgrader():
             try:
                 i = filename.index('-')
             except ValueError as e:
-                raise PKIUpgradeException('Invalid scriptlet name: ' + filename, e)
+                raise pki.PKIException('Invalid scriptlet name: ' + filename, e)
 
             index = int(filename[0:i])
             classname = filename[i+1:]
@@ -571,36 +552,51 @@ class PKIUpgrader():
 
     def instances(self):
 
-        if self.instance:
-            return [self.instance]
+        if self.instanceName and self.instanceType:
+            return [pki.PKIInstance(self.instanceName, self.instanceType)]
 
-        if not os.path.exists(pki.INSTANCE_BASE_DIR):
-            return []
+        list = []
+        if not self.instanceType or self.instanceType >=10:
+            if os.path.exists(os.path.join(pki.REGISTRY_DIR,'tomcat')):
+                for instanceName in os.listdir(pki.INSTANCE_BASE_DIR):
+                    if not self.instanceName or \
+                        self.instanceName == instanceName:
+                        list.append(pki.PKIInstance(instanceName))
 
-        list = os.listdir(pki.INSTANCE_BASE_DIR)
+        if not self.instanceType or self.instanceType == 9:
+            for s in pki.SUBSYSTEM_TYPES:
+                if os.path.exists(os.path.join(pki.REGISTRY_DIR, s)):
+                    for instanceName in \
+                        os.listdir(os.path.join(pki.REGISTRY_DIR, s)):
+                        if not self.instanceName or \
+                            self.instanceName == instanceName:
+                            list.append(pki.PKIInstance(instanceName, 9))
+
         list.sort()
-
         return list
 
 
     def subsystems(self, instance):
 
-        if self.subsystem:
-            return [self.subsystem]
+        if self.subsystemName:
+            return [pki.PKISubsystem(instance, self.subsystemName)]
 
         list = []
 
-        instance_dir = os.path.join(pki.INSTANCE_BASE_DIR, instance)
-        for folder in os.listdir(instance_dir):
-
-            # check whether it is a subsystem folder
-            subsystem_conf = os.path.join(
-                instance_dir, folder, 'conf', 'CS.cfg')
-
-            if not os.path.exists(subsystem_conf):
-                continue
-
-            list.append(folder)
+        if instance.type >= 10:
+            registry_dir = os.path.join(pki.REGISTRY_DIR, 'tomcat',
+                instance.name)
+            for subsystemName in os.listdir(registry_dir):
+                if subsystemName in pki.SUBSYSTEM_TYPES:
+                    list.append(pki.PKISubsystem(instance, subsystemName))
+        else:
+            for subsystemName in pki.SUBSYSTEM_TYPES:
+                registry_dir = os.path.join(
+                    pki.REGISTRY_DIR,
+                    subsystemName,
+                    instance.name)
+                if os.path.exists(registry_dir):
+                    list.append(pki.PKISubsystem(instance, subsystemName))
 
         list.sort()
 
@@ -610,25 +606,25 @@ class PKIUpgrader():
     def get_tracker(self, instance=None, subsystem=None):
 
         if subsystem:
-            name = instance + '/' + subsystem
+            name = str(subsystem)
             try:
                 tracker = self.subsystem_trackers[instance]
             except KeyError:
                 tracker = PKIUpgradeTracker(name + ' subsystem',
-                    SUBSYSTEM_TRACKER % (instance, subsystem),
+                    SUBSYSTEM_TRACKER % subsystem.conf_dir,
                     version_key='cms.product.version',
                     index_key='cms.upgrade.index')
                 self.subsystem_trackers[name] = tracker
 
         elif instance:
             try:
-                tracker = self.instance_trackers[instance]
+                tracker = self.instance_trackers[str(instance)]
             except KeyError:
-                tracker = PKIUpgradeTracker(instance + ' instance',
-                    INSTANCE_TRACKER % instance,
+                tracker = PKIUpgradeTracker(str(instance) + ' instance',
+                    INSTANCE_TRACKER % instance.conf_dir,
                     version_key='PKI_VERSION',
                     index_key='PKI_UPGRADE_INDEX')
-                self.instance_trackers[instance] = tracker
+                self.instance_trackers[str(instance)] = tracker
 
         else:
             if self.system_tracker:
@@ -647,14 +643,14 @@ class PKIUpgrader():
         current_version = None
 
         # if upgrading the entire system, get the system version
-        if not self.instance:
+        if not self.instanceName:
             tracker = self.get_tracker()
             current_version = tracker.get_version()
 
         for instance in self.instances():
 
             # if upgrading the entire instance, check the instance version
-            if not self.subsystem:
+            if not self.subsystemName:
                 tracker = self.get_tracker(instance)
                 version = tracker.get_version()
 
@@ -734,12 +730,12 @@ class PKIUpgrader():
                     options=['Y', 'N'], default='Y', caseSensitive=False).lower()
 
                 if result == 'n':
-                    raise PKIUpgradeException('Upgrade canceled.')
+                    raise pki.PKIException('Upgrade canceled.')
 
             try:
                 scriptlet.upgrade()
 
-            except PKIUpgradeException as e:
+            except pki.PKIException as e:
                 raise
 
             except Exception as e:
@@ -759,7 +755,7 @@ class PKIUpgrader():
                     options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
 
                 if result == 'n':
-                    raise PKIUpgradeException(message, e)
+                    raise pki.PKIException(message, e)
 
 
     def upgrade(self):
@@ -781,13 +777,13 @@ class PKIUpgrader():
 
     def show_tracker(self):
 
-        if not self.instance:
+        if not self.instanceName:
             tracker = self.get_tracker()
             tracker.show()
 
         for instance in self.instances():
 
-            if not self.subsystem:
+            if not self.subsystemName:
                 tracker = self.get_tracker(instance)
                 tracker.show()
 
@@ -809,13 +805,13 @@ class PKIUpgrader():
 
 
     def set_tracker(self, version):
-        if not self.instance:
+        if not self.instanceName:
             tracker = self.get_tracker()
             tracker.reset(version)
 
         for instance in self.instances():
 
-            if not self.subsystem:
+            if not self.subsystemName:
                 tracker = self.get_tracker(instance)
                 tracker.reset(version)
 
@@ -833,13 +829,13 @@ class PKIUpgrader():
 
     def remove_tracker(self):
 
-        if not self.instance:
+        if not self.instanceName:
             tracker = self.get_tracker()
             tracker.remove()
 
         for instance in self.instances():
 
-            if not self.subsystem:
+            if not self.subsystemName:
                 tracker = self.get_tracker(instance)
                 tracker.remove()
 
