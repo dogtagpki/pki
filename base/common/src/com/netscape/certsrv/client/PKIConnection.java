@@ -17,7 +17,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -46,6 +48,7 @@ import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.ClientParamsStack;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.EntityEnclosingRequestWrapper;
 import org.apache.http.impl.client.RequestWrapper;
@@ -78,6 +81,12 @@ public class PKIConnection {
 
     ClientConfig config;
 
+    Collection<Integer> rejectedCertStatuses;
+    Collection<Integer> ignoredCertStatuses;
+
+    // List to prevent displaying the same warnings/errors again.
+    Collection<Integer> statuses = new HashSet<Integer>();
+
     DefaultHttpClient httpClient = new DefaultHttpClient();
 
     ResteasyProviderFactory providerFactory;
@@ -96,6 +105,9 @@ public class PKIConnection {
         // Register https scheme.
         Scheme scheme = new Scheme("https", 443, new JSSProtocolSocketFactory());
         httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
+
+        // Don't retry operations.
+        httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
 
         if (config.getUsername() != null && config.getPassword() != null) {
             List<String> authPref = new ArrayList<String>();
@@ -264,6 +276,7 @@ public class PKIConnection {
     }
 
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
+
         // NOTE:  The following helper method defined as
         //        'public String displayReason(int reason)'
         //        should be moved into the JSS class called
@@ -296,11 +309,33 @@ public class PKIConnection {
             return null;
         }
 
+        public String getMessage(X509Certificate serverCert, int reason) {
+
+            if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
+
+                return "BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch";
+            }
+
+            if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
+                return "UNTRUSTED ISSUER encountered on '" +
+                        serverCert.getSubjectDN() + "' indicates a non-trusted CA cert '" +
+                        serverCert.getIssuerDN() + "'";
+            }
+
+            if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
+                return "CA_CERT_INVALID encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
+            }
+
+            String reasonName = displayReason(reason);
+            if (reasonName != null) {
+                return reasonName+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
+            }
+
+            return "Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
+        }
+
         public boolean handleUntrustedIssuer(X509Certificate serverCert) {
             try {
-                System.err.println("WARNING: UNTRUSTED ISSUER encountered on '" +
-                        serverCert.getSubjectDN() + "' indicates a non-trusted CA cert '" +
-                        serverCert.getIssuerDN() + "'");
                 System.out.print("Import CA certificate (Y/n)? ");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -359,7 +394,6 @@ public class PKIConnection {
                 SSLCertificateApprovalCallback.ValidityStatus status) {
 
             boolean approval = true;
-            String reasonName = null;
 
             if (verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
 
@@ -375,7 +409,15 @@ public class PKIConnection {
                 item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
                 int reason = item.getReason();
 
-                if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
+                if (isRejected(reason)) {
+                    if (!statuses.contains(reason))
+                        System.err.println("ERROR: " + getMessage(serverCert, reason));
+                    approval = false;
+
+                } else if (isIgnored(reason)) {
+                    // Ignore validity status
+
+                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
                     // Ignore the "UNTRUSTED_ISSUER" validity status
                     // during PKI instance creation since we are
                     // utilizing an untrusted temporary CA cert.
@@ -383,13 +425,17 @@ public class PKIConnection {
                         // Otherwise, issue a WARNING, but allow this process
                         // to continue since we haven't installed a trusted CA
                         // cert for this operation.
-                        handleUntrustedIssuer(serverCert);
+                        if (!statuses.contains(reason)) {
+                            System.err.println("WARNING: " + getMessage(serverCert, reason));
+                            handleUntrustedIssuer(serverCert);
+                        }
                     }
 
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
                     // Issue a WARNING, but allow this process to continue on
                     // common-name mismatches.
-                    System.err.println("WARNING: BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch");
+                    if (!statuses.contains(reason))
+                        System.err.println("WARNING: " + getMessage(serverCert, reason));
 
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
                     // Ignore the "CA_CERT_INVALID" validity status
@@ -400,7 +446,8 @@ public class PKIConnection {
                         // certificate so that the connection is terminated.
                         // (Expect an IOException on the outstanding
                         //  read()/write() on the socket).
-                        System.err.println("ERROR: CA_CERT_INVALID encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
+                        if (!statuses.contains(reason))
+                            System.err.println("ERROR: " + getMessage(serverCert, reason));
                         approval = false;
                     }
 
@@ -408,14 +455,12 @@ public class PKIConnection {
                     // Set approval false to deny this certificate so that
                     // the connection is terminated. (Expect an IOException
                     // on the outstanding read()/write() on the socket).
-                    reasonName = displayReason(reason);
-                    if (reasonName != null ) {
-                        System.err.println("ERROR: "+reasonName+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
-                    } else {
-                        System.err.println("ERROR: Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!");
-                    }
+                    if (!statuses.contains(reason))
+                        System.err.println("ERROR: " + getMessage(serverCert, reason));
                     approval = false;
                 }
+
+                statuses.add(reason);
             }
 
             return approval;
@@ -538,6 +583,22 @@ public class PKIConnection {
         ClientRequest request = executor.createRequest(config.getServerURI().toString());
         request.body(MediaType.APPLICATION_FORM_URLENCODED, content);
         return request.post(String.class);
+    }
+
+    public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
+        this.rejectedCertStatuses = rejectedCertStatuses;
+    }
+
+    public boolean isRejected(Integer certStatus) {
+        return this.rejectedCertStatuses != null && this.rejectedCertStatuses.contains(certStatus);
+    }
+
+    public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
+        this.ignoredCertStatuses = ignoredCertStatuses;
+    }
+
+    public boolean isIgnored(Integer certStatus) {
+        return this.ignoredCertStatuses != null && this.ignoredCertStatuses.contains(certStatus);
     }
 
     public File getOutput() {

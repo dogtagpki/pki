@@ -19,9 +19,11 @@
 package com.netscape.cmstools.cli;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -29,6 +31,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
@@ -48,6 +51,9 @@ import com.netscape.cmstools.user.UserCLI;
 public class MainCLI extends CLI {
 
     public ClientConfig config = new ClientConfig();
+
+    public Collection<Integer> rejectedCertStatuses;
+    public Collection<Integer> ignoredCertStatuses;
 
     public PKIConnection connection;
     public AccountClient accountClient;
@@ -140,12 +146,20 @@ public class MainCLI extends CLI {
         option.setArgName("folder");
         options.addOption(option);
 
+        option = new Option(null, "reject-cert-status", true, "Comma-separated list of rejected certificate validity statuses");
+        option.setArgName("list");
+        options.addOption(option);
+
+        option = new Option(null, "ignore-cert-status", true, "Comma-separated list of ignored certificate validity statuses");
+        option.setArgName("list");
+        options.addOption(option);
+
         options.addOption("v", false, "Verbose");
         options.addOption(null, "help", false, "Help");
         options.addOption(null, "version", false, "Version");
     }
 
-    public void parseOptions(CommandLine cmd) throws URISyntaxException, UnknownHostException {
+    public void parseOptions(CommandLine cmd) throws Exception {
 
         verbose = cmd.hasOption("v");
         output = cmd.getOptionValue("output");
@@ -179,11 +193,40 @@ public class MainCLI extends CLI {
 
         if (password != null)
             config.setPassword(password);
+
+        String list = cmd.getOptionValue("reject-cert-status");
+        rejectedCertStatuses = convertCertStatusList(list);
+
+        list = cmd.getOptionValue("ignore-cert-status");
+        ignoredCertStatuses = convertCertStatusList(list);
+    }
+
+    public Collection<Integer> convertCertStatusList(String list) throws Exception {
+
+        if (list == null) return null;
+
+        Collection<Integer> statuses = new HashSet<Integer>();
+
+        Class<SSLCertificateApprovalCallback.ValidityStatus> clazz = SSLCertificateApprovalCallback.ValidityStatus.class;
+
+        for (String status : list.split(",")) {
+            try {
+                Field field = clazz.getField(status);
+                statuses.add(field.getInt(null));
+
+            } catch (NoSuchFieldException e) {
+                throw new Error("Invalid cert status \"" + status + "\".", e);
+            }
+        }
+
+        return statuses;
     }
 
     public void connect() throws Exception {
         connection = new PKIConnection(config);
         connection.setVerbose(verbose);
+        connection.setRejectedCertStatuses(rejectedCertStatuses);
+        connection.setIgnoredCertStatuses(ignoredCertStatuses);
 
         if (output != null) {
             File file = new File(output);

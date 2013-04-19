@@ -107,12 +107,15 @@ if( $ARCHITECTURE eq "x86_64" ) {
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
 
+my $PKI_CLI_OPTIONS = `source /etc/pki/pki.conf && echo \$PKI_CLI_OPTIONS`;
+chomp($PKI_CLI_OPTIONS);
+
 my @args = ();
 foreach (@ARGV) {
     push(@args, quotemeta($_));
 }
 
-my $command = "java -cp $ENV{CLASSPATH} com.netscape.cmstools.cli.MainCLI @args";
+my $command = "java -cp $ENV{CLASSPATH} com.netscape.cmstools.cli.MainCLI $PKI_CLI_OPTIONS @args";
 
 system($command) and do {
     exit $? >> 8;
