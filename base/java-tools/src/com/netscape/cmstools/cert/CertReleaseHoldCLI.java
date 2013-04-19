@@ -98,12 +98,20 @@ public class CertReleaseHoldCLI extends CLI {
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
-            MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
-            CertData certData = parent.client.getCert(certID);
-            CertCLI.printCertData(certData, false, false);
-
+            if (certRequestInfo.getOperationResult().equals(CertRequestInfo.RES_ERROR)) {
+                String error = certRequestInfo.getErrorMessage();
+                if (error != null) {
+                    System.out.println(error);
+                }
+                MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" off-hold");
+            } else {
+                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
+                CertData certData = parent.client.getCert(certID);
+                CertCLI.printCertData(certData, false, false);
+            }
         } else {
-            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": " + certRequestInfo.getRequestStatus());
+            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": "
+                    + certRequestInfo.getRequestStatus());
         }
     }
 }

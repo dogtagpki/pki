@@ -40,6 +40,8 @@ import com.netscape.certsrv.request.RequestStatus;
 public class CertRequestInfo extends CMSRequestInfo {
 
     public static final String REQ_COMPLETE = "complete";
+    public static final String RES_SUCCESS = "success";
+    public static final String RES_ERROR = "error";
 
     @XmlElement
     @XmlJavaTypeAdapter(CertIdAdapter.class)
@@ -50,6 +52,12 @@ public class CertRequestInfo extends CMSRequestInfo {
 
     @XmlElement
     protected String certRequestType;
+
+    @XmlElement
+    protected String operationResult;
+
+    @XmlElement
+    protected String errorMessage;
 
     public CertRequestInfo() {
         // required to be here for JAXB (defaults)
@@ -94,6 +102,22 @@ public class CertRequestInfo extends CMSRequestInfo {
 
     public void setCertId(CertId certId) {
         this.certId = certId;
+    }
+
+    public String getOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(String operationResult) {
+        this.operationResult = operationResult;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     @Override

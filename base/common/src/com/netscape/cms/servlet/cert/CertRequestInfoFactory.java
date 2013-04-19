@@ -56,10 +56,21 @@ public class CertRequestInfoFactory {
         reqBuilder.path(certRequestPath.value() + "/" + requestId);
         info.setRequestURL(reqBuilder.build().toString());
 
-        if (requestType == null || requestStatus != RequestStatus.COMPLETE) return info;
+        Integer result = request.getExtDataInInteger(IRequest.RESULT);
+        if (result == null || result.equals(IRequest.RES_SUCCESS)) {
+            info.setOperationResult(CertRequestInfo.RES_SUCCESS);
+        } else {
+            info.setOperationResult(CertRequestInfo.RES_ERROR);
+            String error = request.getExtDataInString(IRequest.ERROR);
+            info.setErrorMessage(error);
+        }
+
+        if (requestType == null || requestStatus != RequestStatus.COMPLETE)
+            return info;
 
         X509CertImpl impl = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-        if (impl == null) return info;
+        if (impl == null)
+            return info;
 
         BigInteger serialNo = impl.getSerialNumber();
         info.setCertId(new CertId(serialNo));

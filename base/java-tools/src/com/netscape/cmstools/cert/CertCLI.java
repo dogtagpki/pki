@@ -184,7 +184,13 @@ public class CertCLI extends CLI {
     public static void printCertRequestInfo(CertRequestInfo info) {
         System.out.println("  Request ID: " + info.getRequestId());
         System.out.println("  Type: " + info.getRequestType());
-        System.out.println("  Status: " + info.getRequestStatus());
+        System.out.println("  Request Status: " + info.getRequestStatus());
+        System.out.println("  Operation Result: " + info.getOperationResult());
+
+        String error = info.getErrorMessage();
+        if (error != null) {
+            System.out.println("  Reason: " + error);
+        }
 
         if (info.getCertId() != null) {
             System.out.println("  Certificate ID: " + info.getCertId().toHexString());

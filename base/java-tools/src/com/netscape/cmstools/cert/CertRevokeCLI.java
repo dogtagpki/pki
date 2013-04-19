@@ -148,19 +148,27 @@ public class CertRevokeCLI extends CLI {
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
-            if (reason == RevocationReason.CERTIFICATE_HOLD) {
-                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
-            } else if (reason == RevocationReason.REMOVE_FROM_CRL) {
-                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
+            if (certRequestInfo.getOperationResult().equals(CertRequestInfo.RES_ERROR)) {
+                String error = certRequestInfo.getErrorMessage();
+                if (error != null) {
+                    System.out.println(error);
+                }
+                MainCLI.printMessage("Could not revoke certificate \"" + certID.toHexString());
             } else {
-                MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
+                if (reason == RevocationReason.CERTIFICATE_HOLD) {
+                    MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
+                } else if (reason == RevocationReason.REMOVE_FROM_CRL) {
+                    MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
+                } else {
+                    MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
+                }
+
+                certData = parent.client.getCert(certID);
+                CertCLI.printCertData(certData, false, false);
             }
-
-            certData = parent.client.getCert(certID);
-            CertCLI.printCertData(certData, false, false);
-
         } else {
-            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": " + certRequestInfo.getRequestStatus());
+            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": "
+                    + certRequestInfo.getRequestStatus());
         }
     }
 }
