@@ -32,6 +32,7 @@ public interface IRepositoryRecord extends IDBObj {
 
     public final static String ATTR_SERIALNO = "serialNo";
     public final static String ATTR_PUB_STATUS = "publishingStatus";
+    public final static String ATTR_DESCRIPTION = "description";
 
     /**
      * Retrieves serial number.
@@ -41,4 +42,6 @@ public interface IRepositoryRecord extends IDBObj {
     public BigInteger getSerialNumber();
 
     public String getPublishingStatus();
+
+    public String getDescription();
 }

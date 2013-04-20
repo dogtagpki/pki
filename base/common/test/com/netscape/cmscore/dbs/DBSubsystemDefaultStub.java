@@ -168,4 +168,17 @@ public class DBSubsystemDefaultStub implements IDBSubsystem {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public IConfigStore getDBConfigStore() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getEntryAttribute(String dn, String attrName,
+                                    String defaultValue, String errorValue) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

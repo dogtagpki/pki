@@ -346,6 +346,8 @@ public interface Constants {
     public final static String PR_ALL_ALGORITHMS = "allSigningAlgorithms";
     public final static String PR_SERIAL = "startSerialNumber";
     public final static String PR_MAXSERIAL = "maxSerialNumber";
+    public final static String PR_SN_MANAGEMENT = "serialNumberManagement";
+    public final static String PR_RANDOM_SN = "randomSerialNumbers";
 
     /*========================================================
      * Access Control

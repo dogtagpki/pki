@@ -810,6 +810,10 @@ class PKIConfigParser:
                     "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," +\
                     "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," +\
                     "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+                if config.pki_master_dict['pki_subsystem'] == "CA":
+                    config.pki_master_dict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS']=\
+                        config.pki_master_dict\
+                        ['pki_random_serial_numbers_enable'].lower()
             # Shared Apache/Tomcat NSS security database name/value pairs
             config.pki_master_dict['pki_shared_pfile'] =\
                 os.path.join(

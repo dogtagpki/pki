@@ -42,6 +42,16 @@ import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollec
 public interface ICertificateRepository extends IRepository {
 
     /**
+     * Retrieves the next certificate serial number, and also increases
+     * the serial number by one.
+     *
+     * @return serial number
+     * @exception EBaseException failed to retrieve next serial number
+     */
+    public BigInteger getNextSerialNumber()
+            throws EBaseException;
+
+    /**
      * Adds a certificate record to the repository. Each certificate
      * record contains four parts: certificate, meta-attributes,
      * issue information and reovcation information.
@@ -511,6 +521,24 @@ public interface ICertificateRepository extends IRepository {
      * @param endS BigInteger with radix 16
      */
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException;
+
+    /**
+     * Retrieves serial number management mode.
+     *
+     * @return serial number management mode,
+     * "true" indicates random serial number management,
+     * "false" indicates sequential serial number management.
+     */
+    public boolean getEnableRandomSerialNumbers();
+
+    /**
+     * Sets serial number management mode for certificates..
+     *
+     * @param random "true" sets random serial number management, "false" sequential
+     * @param updateMode "true" updates "description" attribute in certificate repository
+     * @param forceModeChange "true" forces certificate repository mode change
+     */
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange);
 
     public void shutdown();
 }

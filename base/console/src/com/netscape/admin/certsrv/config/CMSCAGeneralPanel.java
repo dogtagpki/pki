@@ -47,6 +47,8 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     private JTextField mSerialNumber;
     private JTextField mMaxSerialNumber;
     private JCheckBox mValidity;
+    private JCheckBox mEnableSerialNumberManagement;
+    private JCheckBox mEnableRandomSerialNumbers;
     private Vector mGroupData;
     private static final String HELPINDEX =
       "configuration-ca-general-help";
@@ -189,49 +191,86 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         gb2.setConstraints(dummy1, gbc);
         signingPanel.add(dummy1);
 
+        // add serial number management
+        CMSAdminUtil.resetGBC(gbc);
+        mEnableSerialNumberManagement = makeJCheckBox("MANAGEMENT");
+        //mEnableSerialNumberManagement.setEnabled(false);
+        gbc.anchor = gbc.CENTER;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gb3.setConstraints(mEnableSerialNumberManagement, gbc);
+        serialPanel.add(mEnableSerialNumberManagement);
+
+        // add random serial numbers
+        CMSAdminUtil.resetGBC(gbc);
+        mEnableRandomSerialNumbers = makeJCheckBox("RANDOM");
+        gbc.anchor = gbc.CENTER;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = gbc.REMAINDER; //1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gb3.setConstraints(mEnableRandomSerialNumbers, gbc);
+        serialPanel.add(mEnableRandomSerialNumbers);
+
         // add serial number block
         CMSAdminUtil.resetGBC(gbc);
         JLabel serialLabel = makeJLabel("SERIAL");
+        serialLabel.setEnabled(false);
         gbc.anchor = gbc.CENTER;
         gb3.setConstraints(serialLabel, gbc);
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.0;
         gbc.weighty = 1.0;
-        //gbc.insets = new Insets(COMPONENT_SPACE,0,COMPONENT_SPACE,0);
-        serialPanel.add(serialLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        //serialPanel.add(serialLabel);
 
         CMSAdminUtil.resetGBC(gbc);
         mSerialNumber = makeJTextField(17);
         mSerialNumber.setEnabled(false);
         gbc.anchor = gbc.NORTHWEST;
-        //gbc.gridwidth = gbc.REMAINDER;
-        //gbc.gridheight = gbc.REMAINDER;
-        //gbc.weightx = 1.0;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.0;
         gbc.weighty = 1.0;
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         gb3.setConstraints(mSerialNumber, gbc);
-        serialPanel.add(mSerialNumber);
+        //serialPanel.add(mSerialNumber);
 
         // add end serial number block
         CMSAdminUtil.resetGBC(gbc);
         JLabel maxSerialLabel = makeJLabel("MAXSERIAL");
-        gbc.anchor = gbc.EAST;
-        //gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
-        gbc.weightx = 0.0;
+        maxSerialLabel.setEnabled(false);
+        gbc.anchor = gbc.CENTER;
         gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.0;
+        gbc.weighty = 1.0;
         gbc.gridx = 0;
+        gbc.gridy = 3;
         gb3.setConstraints(maxSerialLabel, gbc);
-        //gbc.weighty = 1.0;
-        serialPanel.add(maxSerialLabel);
+        //serialPanel.add(maxSerialLabel);
 
         CMSAdminUtil.resetGBC(gbc);
         mMaxSerialNumber = makeJTextField(17);
         mMaxSerialNumber.setEnabled(false);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridy = 1;
-        //gbc.gridwidth = gbc.REMAINDER;
-        //gbc.gridheight = gbc.REMAINDER;
-        //gbc.weightx = 1.0;
+        gbc.anchor = gbc.CENTER;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.0;
         gbc.weighty = 1.0;
+        gbc.gridx = 1;
+        gbc.gridy = 3;
         gb3.setConstraints(mMaxSerialNumber, gbc);
-        serialPanel.add(mMaxSerialNumber);
+        //serialPanel.add(mMaxSerialNumber);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy2 = new JLabel(" ");
@@ -249,13 +288,15 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.put(Constants.PR_EE_ENABLED, "");
+        //nvps.put(Constants.PR_EE_ENABLED, "");
         //nvps.add(Constants.PR_RA_ENABLED, "");
         nvps.put(Constants.PR_DEFAULT_ALGORITHM, "");
         nvps.put(Constants.PR_ALL_ALGORITHMS, "");
         nvps.put(Constants.PR_SERIAL, "");
         nvps.put(Constants.PR_MAXSERIAL, "");
         nvps.put(Constants.PR_VALIDITY, "");
+        nvps.put(Constants.PR_SN_MANAGEMENT, "");
+        nvps.put(Constants.PR_RANDOM_SN, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_CA_ADMIN,
@@ -268,22 +309,27 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         }
         mModel.progressStop();
         clearDirtyFlag();
+        enableFields();
     }
 
     protected void populate(NameValuePairs nvps) {
         String defaultAlgorithm = "";
         for (String name : nvps.keySet()) {
             String value = nvps.get(name);
+/*
             if (name.equals(Constants.PR_EE_ENABLED)) {
                 mEEEnable.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_OCSP_ENABLED)) {
                 mOCSPEnable.setSelected(getBoolean(value));
-/*
             } else if (name.equals(Constants.PR_RA_ENABLED)) {
                 mRAEnable.setSelected(getBoolean(nvp.getValue()));
 */
-            } else if (name.equals(Constants.PR_VALIDITY)) {
+            if (name.equals(Constants.PR_VALIDITY)) {
                 mValidity.setSelected(getBoolean(value));
+            } else if (name.equals(Constants.PR_SN_MANAGEMENT)) {
+                mEnableSerialNumberManagement.setSelected(getBoolean(value));
+            } else if (name.equals(Constants.PR_RANDOM_SN)) {
+                mEnableRandomSerialNumbers.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_DEFAULT_ALGORITHM)) {
                 defaultAlgorithm = value;
             } else if (name.equals(Constants.PR_ALL_ALGORITHMS)) {
@@ -321,7 +367,17 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+        if (e.getSource().equals(mEnableSerialNumberManagement)) {
+            enableFields();
+        }
         super.actionPerformed(e);
+    }
+
+    private void enableFields() {
+        boolean enable = mEnableSerialNumberManagement.isSelected();
+        mEnableRandomSerialNumbers.setEnabled(enable);
+        if (!enable) mEnableRandomSerialNumbers.setSelected(enable);
+        CMSAdminUtil.repaintComp(mEnableRandomSerialNumbers);
     }
 
     private String hexToDecimal(String hex)
@@ -338,6 +394,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     public boolean applyCallback() {
         NameValuePairs nvps = new NameValuePairs();
 
+/*
         if (mEEEnable.isSelected())
             nvps.put(Constants.PR_EE_ENABLED, Constants.TRUE);
         else
@@ -348,7 +405,6 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         else
             nvps.put(Constants.PR_OCSP_ENABLED, Constants.FALSE);
 
-/*
         if (mRAEnable.isSelected())
             nvps.add(Constants.PR_RA_ENABLED, Constants.TRUE);
         else
@@ -359,6 +415,17 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
             nvps.put(Constants.PR_VALIDITY, Constants.TRUE);
         else
             nvps.put(Constants.PR_VALIDITY, Constants.FALSE);
+
+        if (mEnableSerialNumberManagement.isSelected())
+            nvps.put(Constants.PR_SN_MANAGEMENT, Constants.TRUE);
+        else
+            nvps.put(Constants.PR_SN_MANAGEMENT, Constants.FALSE);
+
+        if (mEnableSerialNumberManagement.isSelected() &&
+            mEnableRandomSerialNumbers.isSelected())
+            nvps.put(Constants.PR_RANDOM_SN, Constants.TRUE);
+        else
+            nvps.put(Constants.PR_RANDOM_SN, Constants.FALSE);
 
         nvps.put(Constants.PR_DEFAULT_ALGORITHM,
                 (String) mAlgorithms.getSelectedItem());

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -43,8 +44,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -56,6 +59,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
 
 /**
@@ -71,6 +75,15 @@ public class CertificateRepository extends Repository
         implements ICertificateRepository {
 
     public final String CERT_X509ATTRIBUTE = "x509signedcert";
+    private static final String PROP_ENABLE_RANDOM_SERIAL_NUMBERS = "enableRandomSerialNumbers";
+    private static final String PROP_RANDOM_SERIAL_NUMBER_COUNTER = "randomSerialNumberCounter";
+    private static final String PROP_FORCE_MODE_CHANGE = "forceModeChange";
+    private static final String PROP_RANDOM_MODE = "random";
+    private static final String PROP_SEQUENTIAL_MODE = "sequential";
+    private static final String PROP_COLLISION_RECOVERY_STEPS = "collisionRecoverySteps";
+    private static final String PROP_COLLISION_RECOVERY_REGENERATIONS = "collisionRecoveryRegenerations";
+    private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
+    private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
 
     private IDBSubsystem mDBService;
     private String mBaseDN;
@@ -85,6 +98,15 @@ public class CertificateRepository extends Repository
     private int mTransitMaxRecords = 1000000;
     private int mTransitRecordPageSize = 200;
 
+    private Random mRandom = null;
+    private int mBitLength = 0;
+    private BigInteger mRangeSize = null;
+    private int mMinRandomBitLength = 4;
+    private int mMaxCollisionRecoverySteps = 10;
+    private int mMaxCollisionRecoveryRegenerations = 3;
+    private IConfigStore mDBConfig = null;
+    private boolean mForceModeChange = false;
+
     public CertStatusUpdateTask certStatusUpdateTask;
     public RetrieveModificationsTask retrieveModificationsTask;
 
@@ -96,10 +118,300 @@ public class CertificateRepository extends Repository
         super(dbService, increment, baseDN);
         mBaseDN = certRepoBaseDN;
         mDBService = dbService;
+        mDBConfig = mDBService.getDBConfigStore();
     }
 
     public ICertRecord createCertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
         return new CertRecord(id, cert, meta);
+    }
+
+    public boolean getEnableRandomSerialNumbers() {
+        return mEnableRandomSerialNumbers;
+    }
+
+    public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
+        CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
+        if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
+            mEnableRandomSerialNumbers = random;
+            CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
+                      ((random)?PROP_RANDOM_MODE:PROP_SEQUENTIAL_MODE) + " mode");
+            if (updateMode) {
+                setCertificateRepositoryMode((mEnableRandomSerialNumbers)? PROP_RANDOM_MODE: PROP_SEQUENTIAL_MODE);
+            }
+            mDBConfig.putBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, mEnableRandomSerialNumbers);
+
+            BigInteger lastSerialNumber = null;
+            try {
+                lastSerialNumber = getLastSerialNumberInRange(mMinSerialNo,mMaxSerialNo);
+            } catch (Exception e) {
+            }
+            if (lastSerialNumber != null) {
+                super.setLastSerialNo(lastSerialNumber);
+                if (mEnableRandomSerialNumbers) {
+                    mCounter = lastSerialNumber.subtract(mMinSerialNo).add(BigInteger.ONE);
+                    CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers  mCounter="+
+                               mCounter+"="+lastSerialNumber+"-"+mMinSerialNo+"+1");
+                    long t = System.currentTimeMillis();
+                    mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString()+","+t);
+                } else {
+                    mCounter = BI_MINUS_ONE;
+                    mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString());
+                }
+            }
+
+            try {
+                CMS.getConfigStore().commit(false);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    private BigInteger getRandomNumber() throws EBaseException {
+        BigInteger randomNumber = null;
+
+        if (mRandom == null) {
+            mRandom = new Random();
+        }
+        super.initCacheIfNeeded();
+
+        if (mRangeSize == null) {
+            mRangeSize = (mMaxSerialNo.subtract(mMinSerialNo)).add(BigInteger.ONE);
+            CMS.debug("CertificateRepository: getRandomNumber  mRangeSize="+mRangeSize);
+            mBitLength = mRangeSize.bitLength();
+            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+                      " >mMinRandomBitLength="+mMinRandomBitLength);
+        }
+        if (mBitLength < mMinRandomBitLength) {
+            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+                      " <mMinRandomBitLength="+mMinRandomBitLength);
+            CMS.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
+            throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
+        }
+        randomNumber = new BigInteger((mBitLength), mRandom);
+        randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
+        CMS.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
+
+        return randomNumber; 
+    }
+
+    private BigInteger getRandomSerialNumber(BigInteger randomNumber) throws EBaseException {
+        BigInteger nextSerialNumber = null;
+
+        nextSerialNumber = randomNumber.add(mMinSerialNo);
+        CMS.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
+
+        return nextSerialNumber; 
+    }
+
+    private BigInteger checkSerialNumbers(BigInteger randomNumber, BigInteger serialNumber) throws EBaseException {
+        BigInteger nextSerialNumber = null;
+        BigInteger initialRandomNumber = randomNumber;
+        BigInteger delta = BigInteger.ZERO;
+        int i = 0;
+        int n = mMaxCollisionRecoverySteps;
+
+        do {
+            CMS.debug("CertificateRepository: checkSerialNumbers  checking("+(i+1)+")="+serialNumber);
+            try {
+                if (readCertificateRecord(serialNumber) != null) {
+                    CMS.debug("CertificateRepository: checkSerialNumbers  collision detected for serialNumber="+serialNumber);
+                }
+            } catch (EDBRecordNotFoundException nfe) {
+                CMS.debug("CertificateRepository: checkSerialNumbers  serial number "+serialNumber+" is available");
+                nextSerialNumber = serialNumber;
+            } catch (Exception e) {
+                CMS.debug("CertificateRepository: checkSerialNumbers  Exception="+e.getMessage());
+            }
+
+            if (nextSerialNumber == null) {
+                if (i%2 == 0) {
+                    delta = delta.add(BigInteger.ONE);
+                    serialNumber = getRandomSerialNumber(initialRandomNumber.add(delta));
+
+                    if (mMaxSerialNo != null && serialNumber.compareTo(mMaxSerialNo) > 0) {
+                        serialNumber = getRandomSerialNumber(initialRandomNumber.subtract(delta));
+                        i++;
+                        n++;
+                    }
+                } else {
+                    serialNumber = getRandomSerialNumber(initialRandomNumber.subtract(delta));
+                    if (mMinSerialNo != null && serialNumber.compareTo(mMinSerialNo) < 0) {
+                        delta = delta.add(BigInteger.ONE);
+                        serialNumber = getRandomSerialNumber(initialRandomNumber.add(delta));
+                        i++;
+                        n++;
+                    }
+                }
+                i++;
+            }
+        } while (nextSerialNumber == null && i < n);
+
+        return nextSerialNumber; 
+    }
+
+    private Object nextSerialNumberMonitor = new Object();
+
+    public BigInteger getNextSerialNumber() throws
+            EBaseException {
+
+        BigInteger nextSerialNumber = null;
+        BigInteger randomNumber = null;
+
+        synchronized (nextSerialNumberMonitor) {
+            super.initCacheIfNeeded();
+            CMS.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+
+            if (mEnableRandomSerialNumbers) {
+                int i = 0;
+                do {
+                    if (i > 0) {
+                        CMS.debug("CertificateRepository: getNextSerialNumber  regenerating serial number");
+                    }
+                    randomNumber = getRandomNumber();
+                    nextSerialNumber = getRandomSerialNumber(randomNumber);
+                    nextSerialNumber = checkSerialNumbers(randomNumber, nextSerialNumber);
+                    i++;
+                } while (nextSerialNumber == null && i < mMaxCollisionRecoveryRegenerations);
+
+                if (nextSerialNumber == null) {
+                    CMS.debug("CertificateRepository: in getNextSerialNumber  nextSerialNumber is null");
+                    throw new EBaseException( "nextSerialNumber is null" );
+                }
+
+                if (mCounter.compareTo(BigInteger.ZERO) >= 0 &&
+                    mMinSerialNo != null && mMaxSerialNo != null &&
+                    nextSerialNumber != null &&
+                    nextSerialNumber.compareTo(mMinSerialNo) >= 0 &&
+                    nextSerialNumber.compareTo(mMaxSerialNo) <= 0) {
+                    mCounter = mCounter.add(BigInteger.ONE);
+                }
+                CMS.debug("CertificateRepository: getNextSerialNumber  nextSerialNumber="+
+                          nextSerialNumber+"  mCounter="+mCounter);
+
+                super.checkRange();
+            } else {
+                nextSerialNumber = super.getNextSerialNumber();
+            }
+        }
+
+        return nextSerialNumber; 
+    }
+
+    private void updateCounter() {
+        CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
+                  mEnableRandomSerialNumbers+"  mCounter="+mCounter);
+        try {
+            super.initCacheIfNeeded();
+        } catch (Exception e) {
+            CMS.debug("CertificateRepository: updateCounter  Exception from initCacheIfNeeded: "+e.getMessage());
+        }
+
+        String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+
+        boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
+                             ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
+        CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        CMS.debug("CertificateRepository: updateCounter  CertificateRepositoryMode ="+crMode);
+        CMS.debug("CertificateRepository: updateCounter  modeChange="+modeChange);
+        if (modeChange) {
+            if (mForceModeChange) {
+                setEnableRandomSerialNumbers(mEnableRandomSerialNumbers, true, mForceModeChange);
+            } else {
+                setEnableRandomSerialNumbers(!mEnableRandomSerialNumbers, false, mForceModeChange);
+            }
+        } else if (mEnableRandomSerialNumbers && mCounter != null &&
+                   mCounter.compareTo(BigInteger.ZERO) >= 0) {
+            long t = System.currentTimeMillis();
+            mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString()+","+t);
+            try {
+                CMS.getConfigStore().commit(false);
+            } catch (Exception e) {
+                CMS.debug("CertificateRepository: updateCounter  Exception committing ConfigStore="+e.getMessage());
+            }
+        }
+        CMS.debug("CertificateRepository: UpdateCounter  mEnableRandomSerialNumbers="+
+                  mEnableRandomSerialNumbers+"  mCounter="+mCounter);
+    }
+
+    private BigInteger getInRangeCount(String fromTime, BigInteger  minSerialNo, BigInteger maxSerialNo)
+    throws EBaseException {
+        BigInteger count = BigInteger.ZERO;
+        String filter = null;
+
+        if (fromTime != null && fromTime.length() > 0) {
+            filter = "(certCreateTime >= "+fromTime+")";
+        } else {
+            filter = "(&("+ICertRecord.ATTR_ID+">="+minSerialNo+")("+
+                           ICertRecord.ATTR_ID+"<="+maxSerialNo+"))";
+        }
+        CMS.debug("CertificateRepository: getInRangeCount  filter="+filter+
+                  "  minSerialNo="+minSerialNo+"  maxSerialNo="+maxSerialNo);
+
+        Enumeration<Object> e = findCertRecs(filter, new String[] {ICertRecord.ATTR_ID, "objectclass"});
+        while (e != null && e.hasMoreElements()) {
+            ICertRecord rec = (ICertRecord) e.nextElement();
+            if (rec != null) {
+                BigInteger sn = rec.getSerialNumber();
+                if (fromTime == null || fromTime.length() == 0 ||
+                    (minSerialNo != null && maxSerialNo != null &&
+                     sn != null && sn.compareTo(minSerialNo) >= 0 &&
+                     sn.compareTo(maxSerialNo) <= 0)) {
+                    count = count.add(BigInteger.ONE);
+                }
+            }
+        }
+        CMS.debug("CertificateRepository: getInRangeCount  count=" + count);
+
+        return count; 
+    }
+
+    private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
+    throws EBaseException {
+        String c = null;
+        String t = null;
+        String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
+        CMS.debug("CertificateRepository: getInRangeCounter:  saved counter string="+s);
+        int i = s.indexOf(',');
+        int n = s.length();
+        if (i > -1) {
+            if (i > 0) {
+                c = s.substring(0, i);
+                if (i < n) {
+                    t = s.substring(i+1);
+                }
+            } else {
+                c = "-1";
+            }
+        } else {
+            c = s;
+        }
+        CMS.debug("CertificateRepository: getInRangeCounter:  c=" + c + ((t != null)?("  t="+t):"null"));
+
+        BigInteger counter = new BigInteger(c);
+        BigInteger count = BigInteger.ZERO;
+        if (CMS.isPreOpMode()) {
+            CMS.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
+            counter = new BigInteger("-2");
+            mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
+            try {
+                CMS.getConfigStore().commit(false);
+            } catch (Exception e) {
+                CMS.debug("CertificateRepository: updateCounter  Exception committing ConfigStore="+e.getMessage());
+            }
+        } else if (t != null) {
+            count = getInRangeCount(t, minSerialNo, maxSerialNo);
+            if (count.compareTo(BigInteger.ZERO) > 0) {
+                counter = counter.add(count);
+            }
+        } else if (s.equals("-2")) {
+            count = getInRangeCount(t, minSerialNo, maxSerialNo);
+            if (count.compareTo(BigInteger.ZERO) >= 0) {
+                counter = count;
+            }
+        }
+        CMS.debug("CertificateRepository: getInRangeCounter:  counter=" + counter);
+
+        return counter; 
     }
 
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
@@ -114,7 +426,43 @@ public class CertificateRepository extends Repository
 
         }
 
-        String ldapfilter = "(" + "certstatus" + "=*" + ")";
+        mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
+        mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
+        String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
+        mMinRandomBitLength = mDBConfig.getInteger(PROP_MINIMUM_RANDOM_BITS, 4);
+        mMaxCollisionRecoverySteps = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_STEPS, 10);
+        mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
+        boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
+                             ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
+        CMS.debug("CertificateRepository: getLastSerialNumberInRange"+
+                  "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+
+                  "  mMinRandomBitLength="+mMinRandomBitLength+
+                  "  CollisionRecovery="+mMaxCollisionRecoveryRegenerations+","+mMaxCollisionRecoverySteps);
+        CMS.debug("CertificateRepository: getLastSerialNumberInRange  modeChange="+modeChange+
+                  "  mForceModeChange="+mForceModeChange+((crMode != null)?("  mode="+crMode):""));
+        if (modeChange) {
+            if (mForceModeChange) {
+                setCertificateRepositoryMode((mEnableRandomSerialNumbers)? PROP_RANDOM_MODE: PROP_SEQUENTIAL_MODE);
+                mForceModeChange = false;
+                mDBConfig.remove(PROP_FORCE_MODE_CHANGE);
+            } else {
+                mEnableRandomSerialNumbers = !mEnableRandomSerialNumbers;
+                mDBConfig.putBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, mEnableRandomSerialNumbers);
+            }
+        }  
+        if (mEnableRandomSerialNumbers && mCounter == null) {
+            mCounter = getInRangeCounter(serial_low_bound, serial_upper_bound);
+        } else {
+            mCounter = BI_MINUS_ONE;
+        }
+        mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString());
+        try {
+            CMS.getConfigStore().commit(false);
+        } catch (Exception e) {
+        }
+        CMS.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+
+        String ldapfilter = "("+ICertRecord.ATTR_CERT_STATUS+"=*"+")";
 
         String[] attrs = null;
 
@@ -130,7 +478,7 @@ public class CertificateRepository extends Repository
 
             BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
-            ret = ret.add(new BigInteger("-1"));
+            ret = ret.subtract(BigInteger.ONE); 
             CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
@@ -156,6 +504,10 @@ public class CertificateRepository extends Repository
                 if (((serial.compareTo(serial_low_bound) == 0) || (serial.compareTo(serial_low_bound) == 1)) &&
                         ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1))) {
                     CMS.debug("getLastSerialNumberInRange returning: " + serial);
+                    if (modeChange && mEnableRandomSerialNumbers) {
+                        mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
+                        CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+                    }
                     return serial;
                 }
             } else {
@@ -165,9 +517,13 @@ public class CertificateRepository extends Repository
 
         BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
-        ret = ret.add(new BigInteger("-1"));
+        ret = ret.subtract(BigInteger.ONE); 
 
         CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        if (modeChange && mEnableRandomSerialNumbers) {
+            mCounter = BigInteger.ZERO;
+            CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+        }
         return ret;
 
     }
@@ -275,6 +631,7 @@ public class CertificateRepository extends Repository
         transitRevokedExpiredCertificates();
         CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
+        updateCounter();
     }
 
     /**
@@ -644,6 +1001,50 @@ public class CertificateRepository extends Repository
                 s.close();
         }
         return rec;
+    }
+
+    public boolean checkCertificateRecord(BigInteger serialNo)
+        throws EBaseException {
+        IDBSSession s = mDBService.createSession();
+        CertRecord rec = null;
+        boolean exists = true;
+
+        try {
+            String name = "cn" + "=" +
+                serialNo.toString() + "," + getDN();
+            String attrs[] = { "DN" };
+
+            rec = (CertRecord) s.read(name, attrs);
+            if (rec == null) exists = false;
+        } catch (EDBRecordNotFoundException e) {
+            exists = false;
+        } catch (Exception e) {
+            throw new EBaseException(e.getMessage());
+        } finally {
+            if (s != null) 
+                s.close();
+        }
+        return exists;
+    }
+
+    private void setCertificateRepositoryMode(String mode) {
+        IDBSSession s = null;
+
+        CMS.debug("CertificateRepository: setCertificateRepositoryMode   setting mode: "+mode);
+        try {
+            s = mDBService.createSession();
+            ModificationSet mods = new ModificationSet();
+            String name = getDN();
+            mods.add(IRepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
+            s.modify(name, mods);
+        } catch (Exception e) {
+            CMS.debug("CertificateRepository: setCertificateRepositoryMode   Exception: "+e.getMessage());
+        }
+        try {
+            if (s != null) s.close();
+        } catch (Exception e) {
+            CMS.debug("CertificateRepository: setCertificateRepositoryMode   Exception: "+e.getMessage());
+        }
     }
 
     public synchronized void modifyCertificateRecord(BigInteger serialNo,
@@ -1195,7 +1596,7 @@ public class CertificateRepository extends Repository
             String fromVal = "0";
             try {
                 if (from != null) {
-                    Integer.parseInt(from);
+                    new BigInteger(from);
                     fromVal = from;
                 }
             } catch (Exception e1) {
