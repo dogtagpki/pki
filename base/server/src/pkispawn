@@ -381,35 +381,17 @@ def main(argv):
     print "Installation complete."
     print
 
-
 def print_install_information():
-    config.pki_log.info(log.PKI_SPAWN_INFORMATION_HEADER, extra=config.PKI_INDENTATION_LEVEL_0)
+
     print log.PKI_SPAWN_INFORMATION_HEADER
-
-    config.pki_log.info("\tAdmin username: %s",config.pki_master_dict['pki_admin_uid'], extra=config.PKI_INDENTATION_LEVEL_0)
     print "\tAdmin username: %s" % config.pki_master_dict['pki_admin_uid']
-
-    config.pki_log.info("\tLocation of client database: %s",config.pki_master_dict['pki_client_database_dir'], extra=config.PKI_INDENTATION_LEVEL_0)
     print "\tLocation of client database: %s" % config.pki_master_dict['pki_client_database_dir']
-
-    config.pki_log.info("Client certificate nickname: %s", config.pki_master_dict['pki_admin_nickname'], extra=config.PKI_INDENTATION_LEVEL_0)
     print "\tClient certificate nickname: %s" % config.pki_master_dict['pki_admin_nickname']
-
-    config.pki_log.info(log.PKI_CHECK_STATUS_MESSAGE, config.pki_master_dict['pki_instance_name'], extra=config.PKI_INDENTATION_LEVEL_0)
     print log.PKI_CHECK_STATUS_MESSAGE % config.pki_master_dict['pki_instance_name']
-
-    config.pki_log.info(log.PKI_INSTANCE_RESTART_MESSAGE, config.pki_master_dict['pki_instance_name'], extra=config.PKI_INDENTATION_LEVEL_0)
     print log.PKI_INSTANCE_RESTART_MESSAGE % config.pki_master_dict['pki_instance_name']
-
-    config.pki_log.info(log.PKI_ACCESS_URL, config.pki_master_dict['pki_hostname'],
-                        config.pki_master_dict['pki_https_port'],
-                        config.pki_subsystem.lower(),
-                        extra=config.PKI_INDENTATION_LEVEL_0)
     print log.PKI_ACCESS_URL % (config.pki_master_dict['pki_hostname'],
                                 config.pki_master_dict['pki_https_port'],
                                 config.pki_subsystem.lower())
-
-    config.pki_log.info(log.PKI_SPAWN_INFORMATION_FOOTER, extra=config.PKI_INDENTATION_LEVEL_0)
     print log.PKI_SPAWN_INFORMATION_FOOTER
 
 # PKI Deployment Entry Point

@@ -314,7 +314,7 @@ PKI_ACCESS_URL = "\tThe URL for the subsystem is https://%s:%s/%s"
 PKI_INSTANCE_RESTART_MESSAGE = "\tTo restart the subsystem: systemctl restart pki-tomcatd\@%s.service"
 
 PKI_SPAWN_INFORMATION_HEADER = "\n\t==========================================================================\n"\
-                               "\t                         INSTALLATION INFORMATION\n"\
+                               "\t                            INSTALLATION SUMMARY\n"\
                                "\t==========================================================================\n"
 
 PKI_SPAWN_INFORMATION_FOOTER = "\n\t==========================================================================\n"
