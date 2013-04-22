@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -581,6 +581,8 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
   done                                                                       \
 fi                                                                           \
 )
+%{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
+%{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
 %pre -n pki-selinux
@@ -825,6 +827,7 @@ fi
 %{python_sitelib}/pki/*.py
 %{python_sitelib}/pki/*.pyc
 %{python_sitelib}/pki/*.pyo
+%dir %{_localstatedir}/log/pki
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -891,6 +894,7 @@ fi
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_localstatedir}/lock/pki/tomcat
 %dir %{_localstatedir}/run/pki/tomcat
+%dir %{_sharedstatedir}/pki
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
@@ -1012,6 +1016,9 @@ fi
 
 
 %changelog
+* Mon Apr 22 2013 Ade Lee <alee@redhat.com> 10.0.2-0.5
+- Add /var/log/pki and /var/lib/pki directories
+
 * Tue Apr 16 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.4
 - Run pki-upgrade on post server installation.
 
