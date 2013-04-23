@@ -23,31 +23,30 @@ import org.jboss.resteasy.client.ClientResponse;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserClient extends PKIClient {
+public class UserClient {
 
+    public PKIClient client;
     public UserResource userClient;
     public UserCertResource userCertClient;
     public UserMembershipResource userMembershipClient;
 
-    public UserClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public UserClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public UserClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public UserClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        userClient = createProxy(UserResource.class);
-        userCertClient = createProxy(UserCertResource.class);
-        userMembershipClient = createProxy(UserMembershipResource.class);
+        userClient = client.createProxy(UserResource.class);
+        userCertClient = client.createProxy(UserCertResource.class);
+        userMembershipClient = client.createProxy(UserMembershipResource.class);
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) {
@@ -61,13 +60,13 @@ public class UserClient extends PKIClient {
     public UserData addUser(UserData userData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.addUser(userData);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public UserData modifyUser(String userID, UserData userData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.modifyUser(userID, userData);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public void removeUser(String userID) {
@@ -85,7 +84,7 @@ public class UserClient extends PKIClient {
     public UserCertData addUserCert(String userID, UserCertData userCertData) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserCertData> response = (ClientResponse<UserCertData>)userCertClient.addUserCert(userID, userCertData);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public void removeUserCert(String userID, String certID) {
@@ -99,7 +98,7 @@ public class UserClient extends PKIClient {
     public UserMembershipData addUserMembership(String userID, String groupID) {
         @SuppressWarnings("unchecked")
         ClientResponse<UserMembershipData> response = (ClientResponse<UserMembershipData>)userMembershipClient.addUserMembership(userID, groupID);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public void removeUserMembership(String userD, String groupID) {

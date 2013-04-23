@@ -37,6 +37,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.group.GroupCLI;
@@ -55,6 +56,7 @@ public class MainCLI extends CLI {
     public Collection<Integer> rejectedCertStatuses;
     public Collection<Integer> ignoredCertStatuses;
 
+    public PKIClient client;
     public PKIConnection connection;
     public AccountClient accountClient;
 
@@ -223,8 +225,11 @@ public class MainCLI extends CLI {
     }
 
     public void connect() throws Exception {
-        connection = new PKIConnection(config);
-        connection.setVerbose(verbose);
+
+        client = new PKIClient(config);
+        client.setVerbose(verbose);
+
+        connection = client.getConnection();
         connection.setRejectedCertStatuses(rejectedCertStatuses);
         connection.setIgnoredCertStatuses(ignoredCertStatuses);
 
@@ -234,7 +239,7 @@ public class MainCLI extends CLI {
             connection.setOutput(file);
         }
 
-        accountClient = new AccountClient(connection);
+        accountClient = new AccountClient(client);
     }
 
     public void execute(String[] args) throws Exception {
@@ -355,8 +360,8 @@ public class MainCLI extends CLI {
         try {
             connect();
 
-            // login
-            if (config.getCertDatabase() != null || config.getUsername() != null) {
+            // login if username or nickname is specified
+            if (config.getUsername() != null || config.getCertNickname() != null) {
                 accountClient.login();
                 loggedIn = true;
             }

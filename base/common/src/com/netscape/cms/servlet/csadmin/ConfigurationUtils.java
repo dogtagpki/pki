@@ -140,6 +140,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -213,7 +214,8 @@ public class ConfigurationUtils {
         config.setServerURI(protocol + "://" + hostname + ":" + port + path);
         config.setCertNickname(clientnickname);
 
-        PKIConnection connection = new PKIConnection(config);
+        PKIClient client = new PKIClient(config);
+        PKIConnection connection = client.getConnection();
         ClientResponse<String> response = connection.post(content);
 
         return response;
@@ -328,9 +330,9 @@ public class ConfigurationUtils {
         config.setPassword(passwd);
         config.setInstanceCreationMode(true);
 
-        PKIConnection connection = new PKIConnection(config);
-        AccountClient accountClient = new AccountClient(connection);
-        SecurityDomainClient sdClient = new SecurityDomainClient(connection);
+        PKIClient client = new PKIClient(config);
+        AccountClient accountClient = new AccountClient(client);
+        SecurityDomainClient sdClient = new SecurityDomainClient(client);
 
         try {
             accountClient.login();

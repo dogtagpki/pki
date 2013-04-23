@@ -21,31 +21,30 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 
 /**
  * @author Endi S. Dewata
  */
-public class CertClient extends PKIClient {
+public class CertClient {
 
+    public PKIClient client;
     public CertResource certClient;
     public CertRequestResource certRequestResource;
 
-    public CertClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public CertClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public CertClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public CertClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        certClient = createProxy(CertResource.class);
-        certRequestResource = createProxy(CertRequestResource.class);
+        certClient = client.createProxy(CertResource.class);
+        certRequestResource = client.createProxy(CertRequestResource.class);
     }
 
     public CertData getCert(CertId id) {

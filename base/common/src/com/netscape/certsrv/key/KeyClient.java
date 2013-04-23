@@ -21,30 +21,29 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.request.RequestId;
 
 /**
  * @author Endi S. Dewata
  */
-public class KeyClient extends PKIClient {
+public class KeyClient {
 
+    public PKIClient client;
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
 
-    public KeyClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public KeyClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public KeyClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public KeyClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        keyClient = createProxy(KeyResource.class);
-        keyRequestClient = createProxy(KeyRequestResource.class);
+        keyClient = client.createProxy(KeyResource.class);
+        keyRequestClient = client.createProxy(KeyRequestResource.class);
     }
 
     public KeyDataInfos findKeys(String clientID, String status, Integer maxSize, Integer maxTime) {

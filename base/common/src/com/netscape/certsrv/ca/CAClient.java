@@ -31,33 +31,32 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.request.RequestId;
 
-public class CAClient extends PKIClient {
+public class CAClient {
 
+    private PKIClient client;
     private CertResource certClient;
     private CertRequestResource certRequestClient;
     private ProfileResource profileClient;
 
-    public CAClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public CAClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public CAClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public CAClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        certRequestClient = createProxy(CertRequestResource.class);
-        certClient = createProxy(CertResource.class);
-        profileClient = createProxy(ProfileResource.class);
+        certRequestClient = client.createProxy(CertRequestResource.class);
+        certClient = client.createProxy(CertResource.class);
+        profileClient = client.createProxy(ProfileResource.class);
     }
 
     public Collection<CertRequestInfo> listRequests(String requestState, String requestType) {

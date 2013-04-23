@@ -81,7 +81,7 @@ public class UserCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new UserClient(parent.connection);
+        client = new UserClient(parent.client);
 
         if (args.length == 0) {
             printHelp();

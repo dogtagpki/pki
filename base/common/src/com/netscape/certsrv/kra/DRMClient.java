@@ -9,7 +9,6 @@ import org.jboss.resteasy.client.ClientResponse;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
@@ -24,33 +23,33 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cmsutil.util.Utils;
 
-public class DRMClient  extends PKIClient {
+public class DRMClient {
 
+    private PKIClient client;
     private KeyResource keyClient;
     private KeyRequestResource keyRequestClient;
     private SystemCertResource systemCertClient;
 
-    public DRMClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public DRMClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public DRMClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public DRMClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        systemCertClient = createProxy(SystemCertResource.class);
-        keyRequestClient = createProxy(KeyRequestResource.class);
-        keyClient = createProxy(KeyResource.class);
+        systemCertClient = client.createProxy(SystemCertResource.class);
+        keyRequestClient = client.createProxy(KeyRequestResource.class);
+        keyClient = client.createProxy(KeyResource.class);
     }
 
     public String getTransportCert() {
         @SuppressWarnings("unchecked")
         ClientResponse<CertData> response = (ClientResponse<CertData>) systemCertClient
                 .getTransportCert();
-        CertData certData = getEntity(response);
+        CertData certData = client.getEntity(response);
         String transportCert = certData.getEncoded();
         return transportCert;
     }

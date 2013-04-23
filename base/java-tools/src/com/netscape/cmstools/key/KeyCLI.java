@@ -67,7 +67,7 @@ public class KeyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        keyClient = new KeyClient(parent.connection);
+        keyClient = new KeyClient(parent.client);
 
         if (args.length == 0) {
             printHelp();

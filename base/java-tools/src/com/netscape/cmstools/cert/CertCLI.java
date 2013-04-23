@@ -81,7 +81,7 @@ public class CertCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new CertClient(parent.connection);
+        client = new CertClient(parent.client);
 
         if (args.length == 0) {
             printHelp();

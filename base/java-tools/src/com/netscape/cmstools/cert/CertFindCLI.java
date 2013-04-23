@@ -63,12 +63,12 @@ public class CertFindCLI extends CLI {
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(-1);
+            System.exit(1);
         }
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(-1);
+            System.exit(1);
         }
 
         String fileName = null;
@@ -78,20 +78,24 @@ public class CertFindCLI extends CLI {
             if (fileName == null || fileName.length() < 1) {
                 System.err.println("Error: No file name specified.");
                 printHelp();
-                System.exit(-1);
+                System.exit(1);
             }
         }
+
         if (fileName != null) {
             FileReader reader = null;
             try {
                 reader = new FileReader(fileName);
                 searchData = CertSearchRequest.valueOf(reader);
+
             } catch (FileNotFoundException e) {
                 System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
+                System.exit(1);
+
             } catch (JAXBException e) {
                 System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
+                System.exit(1);
+
             } finally {
                 if (reader != null)
                     try {
@@ -100,10 +104,12 @@ public class CertFindCLI extends CLI {
                         e.printStackTrace();
                     }
             }
+
         } else {
             searchData = new CertSearchRequest();
             searchData.setSerialNumberRangeInUse(true);
         }
+
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
 
@@ -111,18 +117,21 @@ public class CertFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         addSearchAttribute(cmd, searchData);
+
         CertDataInfos certs = null;
         try {
             certs = parent.client.findCerts(searchData, start, size);
         } catch (PKIException e) {
             System.err.println("Error: Cannot list certificates. " + e.getMessage());
-            System.exit(-1);
+            System.exit(1);
         }
+
         if (certs.getCertInfos() == null || certs.getCertInfos().isEmpty()) {
-            MainCLI.printMessage("No matches found.");
-            System.exit(-1);
+            MainCLI.printMessage("No certificates found");
+            System.exit(0); // valid result
         }
-        MainCLI.printMessage(certs.getCertInfos().size() + " certificate(s) matched");
+
+        MainCLI.printMessage(certs.getCertInfos().size() + " certificate(s) found");
 
         boolean first = true;
 

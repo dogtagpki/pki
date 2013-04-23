@@ -21,26 +21,26 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 
 /**
  * @author Ade Lee
  */
-public class KRAConnectorClient extends PKIClient {
+public class KRAConnectorClient {
+
+    public PKIClient client;
     public KRAConnectorResource kraConnectorClient;
 
-    public KRAConnectorClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public KRAConnectorClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public KRAConnectorClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public KRAConnectorClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        kraConnectorClient = createProxy(KRAConnectorResource.class);
+        kraConnectorClient = client.createProxy(KRAConnectorResource.class);
     }
 
     public void addConnector(KRAConnectorInfo info) {

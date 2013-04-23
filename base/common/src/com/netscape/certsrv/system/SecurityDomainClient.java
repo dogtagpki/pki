@@ -21,35 +21,34 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 
 
 /**
  * @author alee
  */
-public class SecurityDomainClient extends PKIClient {
+public class SecurityDomainClient {
 
-    private SecurityDomainResource client;
-
-    public SecurityDomainClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
-    }
+    private PKIClient client;
+    private SecurityDomainResource securityDomainClient;
 
     public SecurityDomainClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+        this(new PKIClient(config));
+    }
+
+    public SecurityDomainClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        client = createProxy(SecurityDomainResource.class);
+        securityDomainClient = client.createProxy(SecurityDomainResource.class);
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) {
-        return client.getInstallToken(hostname, subsystem);
+        return securityDomainClient.getInstallToken(hostname, subsystem);
     }
 
     public DomainInfo getDomainInfo() {
-        return client.getDomainInfo();
+        return securityDomainClient.getDomainInfo();
     }
 }

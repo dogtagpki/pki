@@ -23,29 +23,28 @@ import org.jboss.resteasy.client.ClientResponse;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.PKIConnection;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupClient extends PKIClient {
+public class GroupClient {
 
+    public PKIClient client;
     public GroupResource groupClient;
     public GroupMemberResource groupMemberClient;
 
-    public GroupClient(PKIConnection connection) throws URISyntaxException {
-        super(connection);
-        init();
+    public GroupClient(ClientConfig config) throws URISyntaxException {
+        this(new PKIClient(config));
     }
 
-    public GroupClient(ClientConfig config) throws URISyntaxException {
-        super(config);
+    public GroupClient(PKIClient client) throws URISyntaxException {
+        this.client = client;
         init();
     }
 
     public void init() throws URISyntaxException {
-        groupClient = createProxy(GroupResource.class);
-        groupMemberClient = createProxy(GroupMemberResource.class);
+        groupClient = client.createProxy(GroupResource.class);
+        groupMemberClient = client.createProxy(GroupMemberResource.class);
     }
 
     public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) {
@@ -59,13 +58,13 @@ public class GroupClient extends PKIClient {
     public GroupData addGroup(GroupData groupData) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.addGroup(groupData);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public GroupData modifyGroup(String groupID, GroupData groupData) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.modifyGroup(groupID, groupData);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public void removeGroup(String groupID) {
@@ -83,7 +82,7 @@ public class GroupClient extends PKIClient {
     public GroupMemberData addGroupMember(String groupID, String memberID) {
         @SuppressWarnings("unchecked")
         ClientResponse<GroupMemberData> response = (ClientResponse<GroupMemberData>)groupMemberClient.addGroupMember(groupID, memberID);
-        return getEntity(response);
+        return client.getEntity(response);
     }
 
     public void removeGroupMember(String groupID, String memberID) {

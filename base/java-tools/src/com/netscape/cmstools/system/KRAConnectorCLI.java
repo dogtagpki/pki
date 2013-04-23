@@ -62,7 +62,7 @@ public class KRAConnectorCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new KRAConnectorClient(parent.connection);
+        client = new KRAConnectorClient(parent.client);
 
         if (args.length == 0) {
             printHelp();

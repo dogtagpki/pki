@@ -14,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,8 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
@@ -66,19 +63,14 @@ import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.netscape.cmsutil.util.Utils;
 
 
 public class PKIConnection {
 
+    PKIClient client;
     ClientConfig config;
 
     Collection<Integer> rejectedCertStatuses;
@@ -97,10 +89,12 @@ public class PKIConnection {
     int responseCounter;
 
     File output;
-    boolean verbose;
 
-    public PKIConnection(ClientConfig config) {
-        this.config = config;
+    public PKIConnection(final PKIClient client) {
+
+        this.client = client;
+
+        config = client.getConfig();
 
         // Register https scheme.
         Scheme scheme = new Scheme("https", 443, new JSSProtocolSocketFactory());
@@ -125,7 +119,7 @@ public class PKIConnection {
 
                 requestCounter++;
 
-                if (verbose) {
+                if (client.verbose) {
                     System.out.println("HTTP request: "+request.getRequestLine());
                     for (Header header : request.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
@@ -153,7 +147,7 @@ public class PKIConnection {
 
                 responseCounter++;
 
-                if (verbose) {
+                if (client.verbose) {
                     System.out.println("HTTP response: "+response.getStatusLine());
                     for (Header header : response.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
@@ -175,7 +169,7 @@ public class PKIConnection {
                 HttpUriRequest uriRequest = super.getRedirect(request, response, context);
 
                 URI uri = uriRequest.getURI();
-                if (verbose) System.out.println("HTTP redirect: "+uri);
+                if (client.verbose) System.out.println("HTTP redirect: "+uri);
 
                 // Redirect the original request to the new URI.
                 RequestWrapper wrapper;
@@ -344,42 +338,23 @@ public class PKIConnection {
                 if (!line.equals("") && !line.equalsIgnoreCase("Y"))
                     return false;
 
-                URI serverURI = config.getServerURI();
-                URI caURI = new URI("http://" + serverURI.getHost() + ":8080/ca");
+                String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
 
-                System.out.print("CA server URI [" + caURI + "]: ");
+                System.out.print("CA server URI [" + caServerURI + "]: ");
                 System.out.flush();
 
                 line = reader.readLine().trim();
                 if (!line.equals("")) {
-                    caURI = new URI(line);
+                    caServerURI = line;
                 }
 
-                URL url = new URL(caURI+"/ee/ca/getCertChain");
-                if (verbose) System.out.println("Downloading CA cert chain from " + url + ":");
+                if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURI + ".");
+                byte[] bytes = client.downloadCACertChain(new URI(caServerURI));
 
-                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+                if (client.verbose) System.out.println("Importing CA certificate chain.");
+                client.importCACertPackage(bytes);
 
-                Document document = documentBuilder.parse(url.openStream());
-                NodeList list = document.getElementsByTagName("ChainBase64");
-                Element element = (Element)list.item(0);
-
-                String encodedChain = element.getTextContent();
-                if (verbose) System.out.println(encodedChain);
-
-                byte[] chain = Utils.base64decode(encodedChain);
-
-                if (verbose) System.out.println("Importing CA certificate.");
-                CryptoManager manager = CryptoManager.getInstance();
-                InternalCertificate internalCert = (InternalCertificate)manager.importCACertPackage(chain);
-
-                internalCert.setSSLTrust(
-                        InternalCertificate.VALID_CA |
-                        InternalCertificate.TRUSTED_CA |
-                        InternalCertificate.TRUSTED_CLIENT_CA);
-
-                if (verbose) System.out.println("Imported CA certificate.");
+                if (client.verbose) System.out.println("Imported CA certificate.");
                 return true;
 
             } catch (Exception e) {
@@ -395,7 +370,7 @@ public class PKIConnection {
 
             boolean approval = true;
 
-            if (verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
+            if (client.verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
 
             SSLCertificateApprovalCallback.ValidityItem item;
 
@@ -536,7 +511,7 @@ public class PKIConnection {
 
             String certNickname = config.getCertNickname();
             if (certNickname != null) {
-                if (verbose) System.out.println("Client certificate: "+certNickname);
+                if (client.verbose) System.out.println("Client certificate: "+certNickname);
                 socket.setClientCertNickname(certNickname);
             }
 
@@ -607,13 +582,5 @@ public class PKIConnection {
 
     public void setOutput(File output) {
         this.output = output;
-    }
-
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
     }
 }

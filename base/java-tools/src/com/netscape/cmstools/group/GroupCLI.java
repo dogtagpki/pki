@@ -75,7 +75,7 @@ public class GroupCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        client = new GroupClient(parent.connection);
+        client = new GroupClient(parent.client);
 
         if (args.length == 0) {
             printHelp();
