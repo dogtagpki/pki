@@ -33,6 +33,7 @@ import shutil
 import string
 import subprocess
 import time
+import types
 from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
@@ -2994,6 +2995,8 @@ class config_client:
                                    " " + str(response['status']),
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             certs = response['systemCerts']
+            if not isinstance(certs, types.ListType):
+                certs = [certs]
             for cdata in certs:
                 if master['pki_subsystem'] == "CA" and\
                    config.str2bool(master['pki_external']) and\
