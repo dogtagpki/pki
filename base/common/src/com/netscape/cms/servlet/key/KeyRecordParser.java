@@ -50,6 +50,7 @@ public class KeyRecordParser {
     public final static String OUT_STATE = "state";
     public final static String OUT_OWNER_NAME = "ownerName";
     public final static String OUT_SERIALNO = "serialNumber";
+    public final static String OUT_SERIALNO_IN_HEX = "serialNumberInHex";
     public final static String OUT_KEY_ALGORITHM = "keyAlgorithm";
     public final static String OUT_PUBLIC_KEY = "publicKey";
     public final static String OUT_KEY_LEN = "keyLength";
@@ -73,6 +74,8 @@ public class KeyRecordParser {
             rec.getOwnerName());
         rarg.addBigIntegerValue(OUT_SERIALNO,
             rec.getSerialNumber(), 10);
+        rarg.addBigIntegerValue(OUT_SERIALNO_IN_HEX,
+            rec.getSerialNumber(), 16);
         rarg.addStringValue(OUT_KEY_ALGORITHM,
             rec.getAlgorithm());
         // Possible Enhancement: sun's BASE64Encode is not 

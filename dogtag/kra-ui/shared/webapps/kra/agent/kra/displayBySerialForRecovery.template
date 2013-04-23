@@ -43,7 +43,8 @@ function toHex(number)
 
 function renderHexNumber(number,width)
 {
-    var num = toHex(number);
+    //var num = toHex(number);
+    var num = number;
     while (num.length < width)
         num = "0"+num;
     return "0x"+num;
@@ -97,7 +98,7 @@ if (result.header.errorDetails != null) {
 	'op=displayBySerial&serialNumber=' + result.header.serialNumber + '"' +
         'onMouseOver=" return helpstatus(\'Click to redisplay this ' +
         'request \')" onMouseOut="return helpstatus(\'\')">' +
-        renderHexNumber(result.header.serialNumber,8) +
+        renderHexNumber(result.header.serialNumberInHex,8) +
         '</a></font></font>');
 
         document.writeln('<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/graphics/hr.gif"><TR><TD>&nbsp;</TD></TR></TABLE>');

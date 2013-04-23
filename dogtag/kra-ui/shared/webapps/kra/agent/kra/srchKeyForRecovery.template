@@ -47,7 +47,8 @@ function renderOidName(oid)
 
 function renderHexNumber(number,width)
 {
-    var num = toHex(number);
+    //var num = toHex(number);
+    var num = number;
     while (num.length < width)
 	num = "0"+num;
     return "0x"+num;
@@ -120,8 +121,8 @@ function displayKeyRecord(rec)
 	document.write('</tr>');
 
 	document.write('<tr>');
-	// document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><a href="' + '/kra/agent/kra/displayBySerialForRecovery?' + 'op=displayBySerialForRecovery&serialNumber=' + rec.serialNumber + '">' + renderHexNumber(rec.serialNumber,8) + '</a></font></td>');
-	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(rec.serialNumber,8) + '</font></td>');
+	// document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif"><a href="' + '/kra/agent/kra/displayBySerialForRecovery?' + 'op=displayBySerialForRecovery&serialNumber=' + rec.serialNumber + '">' + renderHexNumber(rec.serialNumberInHex,8) + '</a></font></td>');
+	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(rec.serialNumberInHex,8) + '</font></td>');
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + rec.state + '</font></td>');
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(rec.archivedOn) + '</font></td>');
 	document.write('<td align=left><font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderDateFromSecs(rec.archivedOn) + '</font></td>');
