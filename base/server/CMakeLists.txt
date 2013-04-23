@@ -98,24 +98,12 @@ install(
         ${DATA_INSTALL_DIR}/deployment
 )
 
+# install server configuration files
 install(
     DIRECTORY
         etc/
     DESTINATION
         ${SYSCONF_INSTALL_DIR}/pki
-    PATTERN "pki.conf" EXCLUDE
-)
-
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/etc/pki.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
-)
-
-install(
-    FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
-    DESTINATION
-        ${SYSCONF_INSTALL_DIR}/pki/
 )
 
 install(
