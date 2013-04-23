@@ -43,7 +43,7 @@ function toHex(number)
 
 function renderHexNumber(number,width)
 {
-    var num = toHex(number);
+    var num = number;
     while (num.length < width)
         num = "0"+num;
     return "0x"+num;
