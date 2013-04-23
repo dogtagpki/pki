@@ -40,6 +40,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.cert.CertCLI;
+import com.netscape.cmstools.client.ClientCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
 import com.netscape.cmstools.system.KRAConnectorCLI;
@@ -66,6 +67,7 @@ public class MainCLI extends CLI {
         super("pki", "PKI command-line interface");
 
         addModule(new CertCLI(this));
+        addModule(new ClientCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KeyCLI(this));
         addModule(new KRAConnectorCLI(this));

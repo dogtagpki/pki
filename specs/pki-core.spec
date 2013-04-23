@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.5%{?dist}
+Release:          0.6%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -185,6 +185,7 @@ Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
 Requires:         apache-commons-codec
+Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         java >= 1:1.6.0
@@ -1016,6 +1017,9 @@ fi
 
 
 %changelog
+* Tue Apr 23 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.6
+- Added dependency on commons-io.
+
 * Mon Apr 22 2013 Ade Lee <alee@redhat.com> 10.0.2-0.5
 - Add /var/log/pki and /var/lib/pki directories
 

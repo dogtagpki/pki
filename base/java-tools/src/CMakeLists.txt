@@ -29,6 +29,13 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_IO_JAR
+    NAMES
+        commons-io.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
@@ -87,7 +94,7 @@ javac(pki-tools-classes
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
