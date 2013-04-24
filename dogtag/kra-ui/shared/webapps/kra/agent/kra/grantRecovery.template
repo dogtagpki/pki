@@ -33,7 +33,8 @@ if (result.header.errorDetails != null) {
 	document.write("<p>");
 	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=-1>');
 	document.write('Recovery of key with key identifier ' + 
-		toHex(result.header.serialNumber) + 
+                ((typeof(result.header.serialNumberInHex) != "undefined")?
+                 result.header.serialNumberInHex: toHex(result.header.serialNumber)) +
 		' has been granted by ' + result.header.agentID);
 	document.write('</font>');
 }

@@ -35,7 +35,8 @@ if (result.header.errorDetails != null) {
 	document.write("<p>");
 	document.write('<font face="PrimaSans BT, Verdana, sans-serif" size=-1>');
 	document.write('Recovery request for Key with key identifier ' + 
-		toHex(result.header.serialNumber) + 
+                ((typeof(result.header.serialNumberInHex) != "undefined")?
+                 result.header.serialNumberInHex: toHex(result.header.serialNumber)) +
 		' has been submitted.\n' +
 		'Waiting for recovery agents\' approval...');
 

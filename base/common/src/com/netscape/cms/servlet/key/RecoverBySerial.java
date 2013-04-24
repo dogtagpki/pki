@@ -68,6 +68,7 @@ public class RecoverBySerial extends CMSServlet {
 
     private final static String OUT_OP = "op";
     private final static String OUT_SERIALNO = IN_SERIALNO;
+    private final static String OUT_SERIALNO_IN_HEX = "serialNumberInHex";
     private final static String OUT_RECOVERY_SUCCESS = "recoverySuccess";
     private final static String OUT_SERVICE_URL = "serviceURL";
     private final static String OUT_ERROR = "errorDetails";
@@ -288,6 +289,8 @@ public class RecoverBySerial extends CMSServlet {
                   new BigInteger(seq), x509cert,
                       (String) sContext.get(SessionContext.USER_ID));
             header.addStringValue(OUT_SERIALNO, req.getParameter(IN_SERIALNO));
+            header.addStringValue(OUT_SERIALNO_IN_HEX,
+                new BigInteger(req.getParameter(IN_SERIALNO)).toString(16));
             header.addStringValue("requestID", reqID);
         } catch (EBaseException e) {
             String error =
@@ -404,6 +407,8 @@ public class RecoverBySerial extends CMSServlet {
                 req.getParameter(OUT_OP));
             header.addBigIntegerValue(OUT_SERIALNO,
                 new BigInteger(seq), 10);
+            header.addBigIntegerValue(OUT_SERIALNO_IN_HEX,
+                new BigInteger(seq), 16);
             header.addStringValue(OUT_SERVICE_URL,
                 req.getRequestURI());
             byte pkcs12[] = mService.doKeyRecovery(

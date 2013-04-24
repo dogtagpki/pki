@@ -154,6 +154,8 @@ public class GetApprovalStatus extends CMSServlet {
             }
             header.addStringValue("serialNumber",
                 (String) params.get("keyID"));
+            header.addStringValue("serialNumberInHex",
+                new BigInteger((String) params.get("keyID")).toString(16));
 
             int requiredNumber = mService.getNoOfRequiredAgents();
 
