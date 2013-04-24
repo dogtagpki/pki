@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.key;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Hashtable;
 import java.util.Locale;
 
@@ -253,6 +254,8 @@ public class GrantRecovery extends CMSServlet {
             }
             header.addStringValue("serialNumber",
                     (String) h.get("keyID"));
+            header.addStringValue("serialNumberInHex",
+                    new BigInteger((String) h.get("keyID")).toString(16));
 
             mService.addDistributedCredential(recoveryID, agentID, agentPWD);
             header.addStringValue("agentID",

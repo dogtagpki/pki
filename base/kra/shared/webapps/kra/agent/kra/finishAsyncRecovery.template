@@ -34,7 +34,8 @@ function toHex(number)
 
 function renderHexNumber(number,width)
 {
-    var num = toHex(number);
+    //var num = toHex(number);
+    var num = number;
     while (num.length < width)
         num = "0"+num;
     return "0x"+num;
@@ -52,7 +53,7 @@ if (result.header.errorDetails != null) {
         document.writeln('</tr>');
 
         document.writeln('<tr>');
-        document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key Identifier:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(result.header.serialNumber,8) + '</font></td>');
+        document.write('<td><font size="-1" face="PrimaSans BT, Verdana, sans-serif">Key Identifier:</font> <font size="-1" face="PrimaSans BT, Verdana, sans-serif">' + renderHexNumber(result.header.serialNumberInHex,8) + '</font></td>');
         document.writeln('</tr>');
         document.write('</table>');
 

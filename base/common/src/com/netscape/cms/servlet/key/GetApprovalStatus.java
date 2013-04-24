@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.key;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -148,6 +149,8 @@ public class GetApprovalStatus extends CMSServlet {
             }
             header.addStringValue("serialNumber",
                     (String) params.get("keyID"));
+            header.addStringValue("serialNumberInHex",
+                    new BigInteger((String) params.get("keyID")).toString(16));
 
             int requiredNumber = mService.getNoOfRequiredAgents();
 
