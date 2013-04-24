@@ -57,6 +57,8 @@ public class MainCLI extends CLI {
     public Collection<Integer> rejectedCertStatuses;
     public Collection<Integer> ignoredCertStatuses;
 
+    public File certDatabase;
+
     public PKIClient client;
     public PKIConnection connection;
     public AccountClient accountClient;
@@ -328,33 +330,41 @@ public class MainCLI extends CLI {
 
         if (verbose) System.out.println("Server URI: "+config.getServerURI());
 
-        // initialize certificate database if specified
-        if (config.getCertDatabase() != null) {
+        // initialize certificate database
+        if (config.getCertDatabase() == null) {
+            this.certDatabase = new File(
+                    System.getProperty("user.home") + File.separator +
+                    ".dogtag" + File.separator + "nssdb");
 
-            try {
-                if (verbose) System.out.println("Certificate database: "+config.getCertDatabase());
-                CryptoManager.initialize(config.getCertDatabase());
+        } else {
+            this.certDatabase = new File(config.getCertDatabase());
+        }
 
-                if (config.getPassword() != null) {
-                    try {
-                        CryptoManager manager = CryptoManager.getInstance();
-                        CryptoToken token = manager.getInternalKeyStorageToken();
-                        Password password = new Password(config.getPassword().toCharArray());
-                        token.login(password);
+        certDatabase.mkdirs();
 
-                    } catch (IncorrectPasswordException e) {
-                        throw new Error("Incorrect certificate database password.", e);
-                    }
+        try {
+            if (verbose) System.out.println("Certificate database: "+certDatabase.getAbsolutePath());
+            CryptoManager.initialize(certDatabase.getAbsolutePath());
+
+            if (config.getPassword() != null) {
+                try {
+                    CryptoManager manager = CryptoManager.getInstance();
+                    CryptoToken token = manager.getInternalKeyStorageToken();
+                    Password password = new Password(config.getPassword().toCharArray());
+                    token.login(password);
+
+                } catch (IncorrectPasswordException e) {
+                    throw new Error("Incorrect certificate database password.", e);
                 }
-
-            } catch (Throwable t) {
-                if (verbose) {
-                    t.printStackTrace(System.err);
-                } else {
-                    System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
-                }
-                System.exit(1);
             }
+
+        } catch (Throwable t) {
+            if (verbose) {
+                t.printStackTrace(System.err);
+            } else {
+                System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
+            }
+            System.exit(1);
         }
 
         // execute command

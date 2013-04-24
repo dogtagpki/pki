@@ -61,8 +61,6 @@ import org.jboss.resteasy.client.core.BaseClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -457,29 +455,6 @@ public class PKIConnection {
                 throws IOException,
                 UnknownHostException,
                 ConnectTimeoutException {
-
-            // Initialize JSS before using SSLSocket,
-            // otherwise it will throw UnsatisfiedLinkError.
-            if (config.getCertDatabase() == null) {
-                try {
-                    // No database specified, use $HOME/.pki/nssdb.
-                    File homeDir = new File(System.getProperty("user.home"));
-                    File pkiDir = new File(homeDir, ".pki");
-                    File nssdbDir = new File(pkiDir, "nssdb");
-                    nssdbDir.mkdirs();
-
-                    CryptoManager.initialize(nssdbDir.getAbsolutePath());
-
-                } catch (AlreadyInitializedException e) {
-                    // ignore
-
-                } catch (Exception e) {
-                    throw new Error(e);
-                }
-
-            } else {
-                // Database specified, already initialized by the main program.
-            }
 
             String hostName = null;
             int port = 0;
