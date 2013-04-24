@@ -28,10 +28,10 @@ import sys
 from lxml import etree
 
 import pki
-import pki.upgrade
+import pki.server.upgrade
 
 
-class ReplaceRandomNumberGenerator(pki.upgrade.PKIUpgradeScriptlet):
+class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
 

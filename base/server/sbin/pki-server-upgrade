@@ -20,15 +20,11 @@
 #
 
 import getopt
-import os
-import re
 import signal
-import subprocess
 import sys
-import traceback
 
-import pki.upgrade
 import pki
+import pki.server.upgrade
 
 
 def interrupt_handler(signal, frame):
@@ -39,15 +35,19 @@ def interrupt_handler(signal, frame):
 
 
 def usage():
-    print 'Usage: pki-upgrade [OPTIONS]'
+    print 'Usage: pki-server-upgrade [OPTIONS]'
+    print
     print '  -i, --instance <instance>      Upgrade a specific instance only.'
     print '  -s, --subsystem <subsystem>    Upgrade a specific subsystem in an instance only.'
     print '  -t, --instance-type <type>     Specify 9 for upgraded Dogtag 9 instances only,'
     print '                                 10 for Dogtag 10 instances only.'
+    print
     print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
     print '  --scriptlet-index <index>      Run a specific scriptlet only.'
+    print
     print '  --silent                       Upgrade in silent mode. Ignore any failures.'
     print '  --status                       Show upgrade status only. Do not perform upgrade.'
+    print
     print '  -X                             Show advanced usage.'
     print '  -v, --verbose                  Run in verbose mode.'
     print '  -h, --help                     Show this help message.'
@@ -80,8 +80,10 @@ def main(argv):
     instanceName = None
     subsystemName = None
     instanceType = None
+
     version = None
     index = None
+
     silent = False
     status = False
     remove_tracker = False
@@ -142,7 +144,7 @@ def main(argv):
         sys.exit(1)
 
     try:
-        upgrader = pki.upgrade.PKIUpgrader(
+        upgrader = pki.server.upgrade.PKIServerUpgrader(
             instanceName = instanceName,
             subsystemName = subsystemName,
             instanceType = instanceType,

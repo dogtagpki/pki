@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.6%{?dist}
+Release:          0.7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -585,6 +585,14 @@ fi                                                                           \
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
+
+%post -n pki-base
+
+echo "Upgrading base at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+/sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+
+
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -734,9 +742,9 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-echo "Starting pki-upgrade at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-/sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+/sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 
 %preun -n pki-ca
@@ -829,6 +837,8 @@ fi
 %{python_sitelib}/pki/*.pyc
 %{python_sitelib}/pki/*.pyo
 %dir %{_localstatedir}/log/pki
+%{_sbindir}/pki-upgrade
+%{_datadir}/pki/upgrade/
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -870,11 +880,12 @@ fi
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %{_sysconfdir}/pki/default.cfg
-%{_sbindir}/pki-upgrade
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
+%{_sbindir}/pki-server-upgrade
 #%{_bindir}/pki-setup-proxy
 %{python_sitelib}/pki/deployment/
+%{python_sitelib}/pki/server/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/scripts
@@ -1017,6 +1028,10 @@ fi
 
 
 %changelog
+* Tue Apr 24 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.7
+- Added pki-server-upgrade script and pki.server module.
+- Call upgrade scripts in %post for pki-base and pki-server.
+
 * Tue Apr 23 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.6
 - Added dependency on commons-io.
 

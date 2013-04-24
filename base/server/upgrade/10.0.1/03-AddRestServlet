@@ -24,9 +24,9 @@ import sys
 from lxml import etree as ET
 
 import pki
-import pki.upgrade
+import pki.server.upgrade
 
-class AddRestServlet(pki.upgrade.PKIUpgradeScriptlet):
+class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     restServicesServletData = """
         <servlet>

@@ -24,9 +24,9 @@ import sys
 from lxml import etree as ET
 
 import pki
-import pki.upgrade
+import pki.server.upgrade
 
-class CloningInterfaceChanges(pki.upgrade.PKIUpgradeScriptlet):
+class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     updateDomainServletData = """
         <servlet>

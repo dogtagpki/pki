@@ -44,11 +44,30 @@ install(
         WORLD_EXECUTE WORLD_READ
 )
 
+# install Python libraries
+install(
+    DIRECTORY
+        python/
+    DESTINATION
+        ${PYTHON_SITE_PACKAGES}
+)
+
+# install executables
 install(
     FILES
-        src/pki-upgrade
         src/pkispawn
         src/pkidestroy
+    DESTINATION
+        ${SBIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    FILES
+        sbin/pki-server-upgrade
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS
