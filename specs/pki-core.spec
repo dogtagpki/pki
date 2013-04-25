@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.7%{?dist}
+Release:          0.8%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -259,6 +259,7 @@ Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java >= 1:1.6.0
+Requires:         java-atk-wrapper
 Requires:         net-tools
 Requires:         perl(File::Slurp)
 Requires:         perl(XML::LibXML)
@@ -585,6 +586,32 @@ fi                                                                           \
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
+%if ! 0%{?rhel} && 0%{?fedora} >= 19
+%pretrans -n pki-base -p <lua>
+function test(a)
+    if posix.stat(a) then
+        for f in posix.files(a) do
+            if f~=".." and f~="." then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+if (test("/etc/sysconfig/pki/ca") or
+    test("/etc/sysconfig/pki/kra") or
+    test("/etc/sysconfig/pki/ocsp") or
+    test("/etc/sysconfig/pki/tks")) then
+   msg = "Unable to upgrade to Fedora 19.  There are Dogtag 9 instances\n" ..
+         "that will no longer work since they require Tomcat 6, and \n" ..
+         "Tomcat 6 is no longer available in Fedora 19.\n\n" ..
+         "Please follow these instructions to migrate the instances to \n" ..
+         "Dogtag 10:\n\n" ..
+         "http://pki.fedoraproject.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+   error(msg)
+end
+%endif
 
 %post -n pki-base
 
@@ -1028,6 +1055,10 @@ fi
 
 
 %changelog
+* Thu Apr 25 2013 Ade Lee <alee@redhat.com> 10.0.2-0.8
+- Added %pretrans script for f19
+- Added java-atk-wrapper dependency
+
 * Tue Apr 24 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.7
 - Added pki-server-upgrade script and pki.server module.
 - Call upgrade scripts in %post for pki-base and pki-server.
