@@ -347,7 +347,7 @@ public class PKIConnection {
                 }
 
                 if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURI + ".");
-                byte[] bytes = client.downloadCACertChain(new URI(caServerURI));
+                byte[] bytes = client.downloadCACertChain(caServerURI);
 
                 if (client.verbose) System.out.println("Importing CA certificate chain.");
                 client.importCACertPackage(bytes);

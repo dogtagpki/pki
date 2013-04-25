@@ -19,7 +19,6 @@
 package com.netscape.cmstools.client;
 
 import java.io.File;
-import java.net.URI;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -74,36 +73,45 @@ public class ClientImportCertCLI extends CLI {
 
         String certPath = cmd.getOptionValue("cert");
         String caCertPath = cmd.getOptionValue("ca-cert");
-        boolean importCACert = cmd.hasOption("ca-server");
+        boolean importFromCAServer = cmd.hasOption("ca-server");
 
+        boolean isCACert = false;
+
+        // load the certificate
         if (certPath != null) {
             if (verbose) System.out.println("Loading certificate from " + certPath + ".");
             bytes = FileUtils.readFileToByteArray(new File(certPath));
 
-            if (verbose) System.out.println("Importing certificate.");
-            cert = parent.parent.client.importCertPackage(bytes, parent.parent.client.config.getCertNickname());
 
         } else if (caCertPath != null) {
             if (verbose) System.out.println("Loading CA certificate from " + caCertPath + ".");
             bytes = FileUtils.readFileToByteArray(new File(caCertPath));
 
-            if (verbose) System.out.println("Importing CA certificate.");
-            cert = parent.parent.client.importCACertPackage(bytes);
+            isCACert = true;
 
-        } else if (importCACert) {
+        } else if (importFromCAServer) {
             ClientConfig config = parent.parent.config;
             String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
 
             if (verbose) System.out.println("Downloading CA certificate from " + caServerURI + ".");
-            bytes = parent.parent.client.downloadCACertChain(new URI(caServerURI));
+            bytes = parent.parent.client.downloadCACertChain(caServerURI);
 
-            if (verbose) System.out.println("Importing CA certificate.");
-            cert = parent.parent.client.importCACertPackage(bytes);
+            isCACert = true;
 
         } else {
             System.err.println("Error: Missing certificate to import");
             printHelp();
             System.exit(1);
+        }
+
+        // import the certificate
+        if (isCACert) {
+            if (verbose) System.out.println("Importing CA certificate.");
+            cert = parent.parent.client.importCACertPackage(bytes);
+
+        } else {
+            if (verbose) System.out.println("Importing certificate.");
+            cert = parent.parent.client.importCertPackage(bytes, parent.parent.client.config.getCertNickname());
         }
 
         MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");

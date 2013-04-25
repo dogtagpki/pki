@@ -1,7 +1,6 @@
 package com.netscape.certsrv.client;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
@@ -77,10 +76,16 @@ public class PKIClient {
         return manager.getCACerts();
     }
 
-    public byte[] downloadCACertChain(URI caServerURI)
+    public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
+        return downloadCACertChain(serverURI, "/ee/ca/getCertChain");
+    }
+
+    public byte[] downloadCACertChain(String uri, String servletPath)
             throws ParserConfigurationException, SAXException, IOException {
 
-        URL url = new URL(caServerURI+"/ee/ca/getCertChain");
+        URL url = new URL(uri + servletPath);
+
+        if (verbose) System.out.println("Retrieving CA certificate chain from " + url + ".");
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
