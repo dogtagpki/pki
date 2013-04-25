@@ -38,6 +38,7 @@ try:
     import subprocess
     import time
     import urllib2
+    import traceback
     from time import strftime as date
     from pki.deployment import pkiconfig as config
     from pki.deployment.pkiparser import PKIConfigParser
@@ -368,8 +369,15 @@ def main(argv):
                                pki_scriptlet,
                                fromlist = [pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
-        rv = instance.spawn()
+        try:
+            rv = instance.spawn()
+        except:
+            log_error_details()
+            print "Installation failed."
+            print
+            sys.exit(1)
         if rv != 0:
+            print "Installation failed."
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
@@ -393,6 +401,17 @@ def print_install_information():
                                 config.pki_master_dict['pki_https_port'],
                                 config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
+    
+def log_error_details():
+        type, value, stacktrace = sys.exc_info()
+        config.pki_log.debug("Error Type: " + type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+        config.pki_log.debug("Error Message: " + str(value), extra=config.PKI_INDENTATION_LEVEL_2)
+        stacktrace_list = traceback.format_list(traceback.extract_tb(stacktrace))
+        stacktrace = ""
+        for l in stacktrace_list:
+            stacktrace += l
+        config.pki_log.debug(stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
+        sys.exc_clear()
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":

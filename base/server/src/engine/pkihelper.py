@@ -34,6 +34,7 @@ import string
 import subprocess
 import time
 import types
+import urllib2
 from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
@@ -178,7 +179,7 @@ class identity:
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return
 
     def __add_uid(self, pki_user, pki_group):
@@ -253,7 +254,7 @@ class identity:
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return
 
     def add_uid_and_gid(self, pki_user, pki_group):
@@ -268,7 +269,7 @@ class identity:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return pki_uid
 
     def get_gid(self, critical_failure=True):
@@ -278,7 +279,7 @@ class identity:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return pki_gid
 
     def set_uid(self, name, critical_failure=True):
@@ -294,7 +295,7 @@ class identity:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return pki_uid
 
     def set_gid(self, name, critical_failure=True):
@@ -310,7 +311,7 @@ class identity:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return pki_gid
 
 
@@ -869,7 +870,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return rv
 
     def apache_instances(self):
@@ -896,7 +897,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return rv
 
     def pki_instance_subsystems(self):
@@ -924,7 +925,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return rv
 
     def tomcat_instance_subsystems(self):
@@ -938,7 +939,7 @@ class instance:
         except OSErr as e:
             config.pki_log.error(log.PKI_OSERROR_1, str(e),
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return rv
 
     def tomcat_instances(self):
@@ -965,7 +966,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return rv
 
     def verify_subsystem_exists(self):
@@ -979,7 +980,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
 
     def verify_subsystem_does_not_exist(self):
         try:
@@ -992,7 +993,7 @@ class instance:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
 
     def get_instance_status(self):
         self.connection = pki.client.PKIConnection(
@@ -1075,7 +1076,7 @@ class directory:
                 config.pki_log.error(log.PKI_OSERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 if critical_failure == True:
-                    sys.exit(1)
+                    raise
         return
 
     def modify(self, name, uid=None, gid=None,
@@ -1130,7 +1131,7 @@ class directory:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def delete(self, name, recursive_flag=True, critical_failure=True):
@@ -1155,7 +1156,7 @@ class directory:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def exists(self, name):
@@ -1167,7 +1168,7 @@ class directory:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
 
     def is_empty(self, name):
         try:
@@ -1182,7 +1183,7 @@ class directory:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
 
     def set_mode(self, name, uid=None, gid=None,
                  dir_perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
@@ -1317,7 +1318,7 @@ class directory:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
 
     def copy(self, old_name, new_name, uid=None, gid=None,
              dir_perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
@@ -1371,12 +1372,12 @@ class directory:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except shutil.Error as exc:
             config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
 
@@ -1428,7 +1429,7 @@ class file:
                 config.pki_log.error(log.PKI_OSERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 if critical_failure == True:
-                    sys.exit(1)
+                    raise
         return
 
     def modify(self, name, uid=None, gid=None,
@@ -1483,7 +1484,7 @@ class file:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def delete(self, name, critical_failure=True):
@@ -1502,7 +1503,7 @@ class file:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def exists(self, name):
@@ -1514,7 +1515,7 @@ class file:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
 
     def copy(self, old_name, new_name, uid=None, gid=None,
              perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS, acls=None,
@@ -1566,12 +1567,12 @@ class file:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except shutil.Error as exc:
             config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def apply_slot_substitution(
@@ -1626,12 +1627,12 @@ class file:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except shutil.Error as exc:
             config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def copy_with_slot_substitution(
@@ -1696,12 +1697,12 @@ class file:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except shutil.Error as exc:
             config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def generate_noise_file(self, name, bytes, uid=None, gid=None,
@@ -1756,7 +1757,7 @@ class file:
                 config.pki_log.error(log.PKI_OSERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 if critical_failure == True:
-                    sys.exit(1)
+                    raise
         return
 
 
@@ -1813,7 +1814,7 @@ class symlink:
                 config.pki_log.error(log.PKI_OSERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 if critical_failure == True:
-                    sys.exit(1)
+                    raise
         return
 
     def modify(self, link, uid=None, gid=None,
@@ -1866,7 +1867,7 @@ class symlink:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def delete(self, link, critical_failure=True):
@@ -1885,7 +1886,7 @@ class symlink:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def exists(self, name):
@@ -1897,8 +1898,7 @@ class symlink:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
-
+            raise
 
 # PKI Deployment War File Class
 class war:
@@ -1934,17 +1934,17 @@ class war:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except zipfile.BadZipfile as exc:
             config.pki_log.error(log.PKI_BADZIPFILE_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except zipfile.LargeZipFile as exc:
             config.pki_log.error(log.PKI_LARGEZIPFILE_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
 
@@ -1989,7 +1989,7 @@ class password:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def create_client_pkcs12_password_conf(self, path, overwrite_flag=False,
@@ -2015,7 +2015,7 @@ class password:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def get_password(self, path, token_name, critical_failure=True):
@@ -2097,12 +2097,12 @@ class certutil:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def verify_certificate_exists(self, path, pki_cert_database,
@@ -2175,7 +2175,7 @@ class certutil:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return True
 
     def generate_self_signed_certificate(self, path, pki_cert_database,
@@ -2309,12 +2309,12 @@ class certutil:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def import_cert(self, nickname, trust, input_file, password_file,
@@ -2366,12 +2366,12 @@ class certutil:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def generate_certificate_request(self, subject, key_size,
@@ -2447,12 +2447,12 @@ class certutil:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
 # pk12util class
@@ -2500,12 +2500,12 @@ class pk12util:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
 
@@ -2590,7 +2590,7 @@ class kra_connector:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(-1)
+                raise
         return
 
     def execute_using_pki(self, caport, cahost, subsystemnick,
@@ -2836,7 +2836,7 @@ class security_domain:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(-1)
+                raise
 
         return None
 
@@ -2891,7 +2891,7 @@ class security_domain:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(-1)
+                raise
         return None
 
 # PKI Deployment 'systemd' Execution Management Class
@@ -2919,7 +2919,7 @@ class systemd:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def stop(self, critical_failure=True):
@@ -2945,7 +2945,7 @@ class systemd:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
     def restart(self, critical_failure=True):
@@ -2971,7 +2971,7 @@ class systemd:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
-                sys.exit(1)
+                raise
         return
 
 
@@ -3032,11 +3032,20 @@ class config_client:
                not config.str2bool(master['pki_import_admin_cert']):
                 admin_cert = response['adminCert']['cert']
                 self.process_admin_cert(admin_cert)
+                
         except Exception, e:
+            if hasattr(e, 'response'):
+                root = ET.fromstring(e.response.text)
+                if root.tag == 'PKIException':
+                    message = root.findall('.//Message')[0].text
+                    if message is not None:
+                        config.pki_log.error(log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " + message,
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                        raise
             config.pki_log.error(
                 log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " + str(e),
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return
 
     def process_admin_cert(self, admin_cert):
