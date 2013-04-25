@@ -385,7 +385,7 @@ public class CertificateRepository extends Repository
         } else {
             c = s;
         }
-        CMS.debug("CertificateRepository: getInRangeCounter:  c=" + c + ((t != null)?("  t="+t):"null"));
+        CMS.debug("CertificateRepository: getInRangeCounter:  c="+c+"  t="+((t != null)?t:"null"));
 
         BigInteger counter = new BigInteger(c);
         BigInteger count = BigInteger.ZERO;
@@ -434,17 +434,22 @@ public class CertificateRepository extends Repository
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
+        boolean enableRsnAtConfig = mEnableRandomSerialNumbers && CMS.isPreOpMode() &&
+                                    (crMode == null || crMode.length() == 0);
         CMS.debug("CertificateRepository: getLastSerialNumberInRange"+
                   "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+
                   "  mMinRandomBitLength="+mMinRandomBitLength+
                   "  CollisionRecovery="+mMaxCollisionRecoveryRegenerations+","+mMaxCollisionRecoverySteps);
         CMS.debug("CertificateRepository: getLastSerialNumberInRange  modeChange="+modeChange+
-                  "  mForceModeChange="+mForceModeChange+((crMode != null)?("  mode="+crMode):""));
-        if (modeChange) {
-            if (mForceModeChange) {
+                  "  enableRsnAtConfig="+enableRsnAtConfig+"  mForceModeChange="+mForceModeChange+
+                  ((crMode != null)?"  mode="+crMode:""));
+        if (modeChange || enableRsnAtConfig) {
+            if (mForceModeChange || enableRsnAtConfig) {
                 setCertificateRepositoryMode((mEnableRandomSerialNumbers)? PROP_RANDOM_MODE: PROP_SEQUENTIAL_MODE);
-                mForceModeChange = false;
-                mDBConfig.remove(PROP_FORCE_MODE_CHANGE);
+                if (mForceModeChange) {
+                    mForceModeChange = false;
+                    mDBConfig.remove(PROP_FORCE_MODE_CHANGE);
+                }
             } else {
                 mEnableRandomSerialNumbers = !mEnableRandomSerialNumbers;
                 mDBConfig.putBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, mEnableRandomSerialNumbers);
