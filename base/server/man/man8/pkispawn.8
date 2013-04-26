@@ -127,7 +127,7 @@ password for the administrator user.
 An optional parameter that can be used to import an already available CA admin certificate into this instance.
 .TP
 \fIExport certificate:\fP
-setup the path where the admin certificate of this <subsystem> should be stored. The default value is /root/.pki/pki-tomcat/<ca/kra/tks/ocsp>_admin.cert.
+setup the path where the admin certificate of this <subsystem> should be stored. The default value is /root/.dogtag/pki-tomcat/<ca/kra/tks/ocsp>_admin.cert.
 .PP
 \fBDirectory Server Parameters\f
 .TP
@@ -188,7 +188,7 @@ This invocation of \fBpkispawn\fP creates a Tomcat instance containing a CA runn
 .PP
 The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pkispawn-pki-tomcat-<timestamp>.log\fP.
 .PP
-A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.pki/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.  
+A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.dogtag/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.
 .PP
 To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
 .SS KRA, OCSP, or TKS using default configuration
@@ -229,7 +229,7 @@ A remote CA is one where the CA resides in another Certificate Server instance, 
 .PP
 The subsystem section is [KRA], [OCSP], or [TKS].  This example assumes that the specified CA hosts the security domain.  The CA must be running and accessible.  
 .PP 
-A new administrator certificate is generated for the new subsystem and stored in a PKCS #12 file in \fI$HOME/.pki/pki-tomcat\fP. 
+A new administrator certificate is generated for the new subsystem and stored in a PKCS #12 file in \fI$HOME/.dogtag/pki-tomcat\fP.
 .SS Installing a CA clone
 \x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
 .PP 

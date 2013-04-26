@@ -82,7 +82,7 @@ fi
 
 ##  PKI Silent Security Database Variables
 ##  (e. g. - PKI Silent "browser" database)
-pki_silent_security_database_repository="${HOME}/.pki/certs"
+pki_silent_security_database_repository="${HOME}/.dogtag/certs"
 pki_silent_security_database_password=
 
 ##  PKI Security Domain Variables
