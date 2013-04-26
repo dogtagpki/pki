@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          0.8%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1055,6 +1055,9 @@ fi
 
 
 %changelog
+* Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
+- Change release number for official release.
+
 * Thu Apr 25 2013 Ade Lee <alee@redhat.com> 10.0.2-0.8
 - Added %pretrans script for f19
 - Added java-atk-wrapper dependency
