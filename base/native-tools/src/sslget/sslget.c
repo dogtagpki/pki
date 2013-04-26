@@ -340,6 +340,33 @@ do_writes(
 }
 
 
+int isLinkLocalAddress(char *address, int family)
+{
+    if ( !address || ( strlen(address) == 0 ) ) {
+        return 0;
+    }
+
+    if ( ( family != PR_AF_INET ) && ( family != PR_AF_INET6 ) ) {
+        return 0;
+    }
+
+    /* Check for both ipv4 and ipv6 link local addresses */
+    if ( family == PR_AF_INET6 ) {
+        /* ipv6 link local addresses: */
+        if ( ( strncasecmp( address, "fe80", 4 ) >= 0 ) &&
+             ( strncasecmp( address, "feb0", 4 ) <= 0 ) ) {
+            return 1; 
+        }
+    } else {
+        /* ipv4 link local addresses */
+        if ( ( strcasecmp( address, "169.254.1.0" ) >= 0 ) &&
+             ( strcasecmp( address, "169.254.254.255" ) <= 0 ) ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 
 SECStatus
@@ -588,6 +615,7 @@ client_main(
     PRAddrInfo *ai;
     void *iter;
     PRNetAddr addr;
+    char addrBuf[80];
     int family = PR_AF_INET;
 
     ai = PR_GetAddrInfoByName(hostName, PR_AF_UNSPEC, PR_AI_ADDRCONFIG);
@@ -597,62 +625,77 @@ client_main(
         while ((iter = PR_EnumerateAddrInfo(iter, ai, 0, &addr)) != NULL) {
             family = PR_NetAddrFamily(&addr);
             FPRINTF( stderr, "family='%d'\n", family );
+
+            PR_NetAddrToString(&addr, addrBuf, 80);
+            FPRINTF( stderr, "IP='%s'\n", addrBuf );
+
+            if ( isLinkLocalAddress(addrBuf, family) ) {
+                FPRINTF( stderr,
+                         "Skipping link local address '%s' (family '%d')\n",
+                         addrBuf, family );
+                continue;
+            }
+
+            PR_SetNetAddr( PR_IpAddrNull, family, port, &addr );
+
+            model_sock = PR_OpenTCPSocket( family );
+            if (model_sock == NULL) {
+                errExit("PR_OpenTCPSocket on tcp socket");
+            }
+
+            /* Should we really be re-using the same socket? */
+            model_sock = SSL_ImportFD(NULL, model_sock);
+
+            /* check on success of call to SSL_ImportFD() */
+            if (model_sock == NULL) {
+                errExit("SSL_ImportFD");
+            }
+
+            /* enable ECC cipher also */
+
+            /* do SSL configuration. */
+
+            rv = SSL_OptionSet(model_sock, SSL_SECURITY, 1);
+
+            if (rv < 0) {
+                if( model_sock != NULL ) {
+                    PR_Close( model_sock );
+                    model_sock = NULL;
+                }
+                errExit("SSL_OptionSet SSL_SECURITY");
+            }
+
+            SSL_SetURL(model_sock, hostName);
+            SSL_AuthCertificateHook(model_sock, mySSLAuthCertificate,
+                                    (void *)CERT_GetDefaultCertDB());
+            SSL_BadCertHook(model_sock, myBadCertHandler, NULL);
+            if( nickName) {
+                SSL_GetClientAuthDataHook(model_sock,
+                    (SSLGetClientAuthData)my_GetClientAuthData,
+                    nickName);
+            }
+
+            /* I'm not going to set the HandshakeCallback function. */
+
+            /* end of ssl configuration. */
+
+            rv = do_connect(&addr, model_sock, 1);
+
+            if( model_sock != NULL ) {
+                PR_Close( model_sock );
+                model_sock = NULL;
+            }
+
             break;
         }
-        PR_FreeAddrInfo(ai);
-    }
 
-    PR_SetNetAddr( PR_IpAddrNull, family, port, &addr );
-
-    model_sock = PR_OpenTCPSocket( family );
-    if (model_sock == NULL) {
-        errExit("PR_OpenTCPSocket on tcp socket");
-    }
-
-    /* Should we really be re-using the same socket? */
-    model_sock = SSL_ImportFD(NULL, model_sock);
-
-
-    /* check on success of call to SSL_ImportFD() */
-    if (model_sock == NULL) {
-        errExit("SSL_ImportFD");
-    }
-
-    /* enable ECC cipher also */
-
-    /* do SSL configuration. */
-
-    rv = SSL_OptionSet(model_sock, SSL_SECURITY, 1);
-    if (rv < 0) {
         if( model_sock != NULL ) {
             PR_Close( model_sock );
             model_sock = NULL;
         }
-        errExit("SSL_OptionSet SSL_SECURITY");
-    }
 
-    SSL_SetURL(model_sock, hostName);
-
-    SSL_AuthCertificateHook(model_sock, mySSLAuthCertificate, 
-                            (void *)CERT_GetDefaultCertDB());
-
-    SSL_BadCertHook(model_sock, myBadCertHandler, NULL);
-
-    if( nickName) {
-    	SSL_GetClientAuthDataHook(model_sock, 
-                              (SSLGetClientAuthData)my_GetClientAuthData, 
-                              nickName);
-    }
-
-    /* I'm not going to set the HandshakeCallback function. */
-
-    /* end of ssl configuration. */
-
-    rv = do_connect(&addr, model_sock, 1);
-
-    if( model_sock != NULL ) {
-        PR_Close( model_sock );
-        model_sock = NULL;
+        FPRINTF( stderr, "Done with possible addresses - exiting.\n" );
+        PR_FreeAddrInfo(ai);
     }
 }
 
