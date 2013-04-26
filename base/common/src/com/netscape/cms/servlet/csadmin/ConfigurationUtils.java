@@ -328,9 +328,20 @@ public class ConfigurationUtils {
         config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
         config.setUsername(user);
         config.setPassword(passwd);
-        config.setInstanceCreationMode(true);
 
         PKIClient client = new PKIClient(config);
+        PKIConnection connection = client.getConnection();
+
+        // Ignore the "UNTRUSTED_ISSUER" validity status
+        // during PKI instance creation since we are
+        // utilizing an untrusted temporary CA cert.
+        connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
+
+        // Ignore the "CA_CERT_INVALID" validity status
+        // during PKI instance creation since we are
+        // utilizing an untrusted temporary CA cert.
+        connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
+
         AccountClient accountClient = new AccountClient(client);
         SecurityDomainClient sdClient = new SecurityDomainClient(client);
 

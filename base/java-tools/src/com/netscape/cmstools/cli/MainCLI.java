@@ -54,8 +54,8 @@ public class MainCLI extends CLI {
 
     public ClientConfig config = new ClientConfig();
 
-    public Collection<Integer> rejectedCertStatuses;
-    public Collection<Integer> ignoredCertStatuses;
+    public Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
+    public Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
 
     public File certDatabase;
 
@@ -201,17 +201,15 @@ public class MainCLI extends CLI {
             config.setPassword(password);
 
         String list = cmd.getOptionValue("reject-cert-status");
-        rejectedCertStatuses = convertCertStatusList(list);
+        convertCertStatusList(list, rejectedCertStatuses);
 
         list = cmd.getOptionValue("ignore-cert-status");
-        ignoredCertStatuses = convertCertStatusList(list);
+        convertCertStatusList(list, ignoredCertStatuses);
     }
 
-    public Collection<Integer> convertCertStatusList(String list) throws Exception {
+    public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
 
-        if (list == null) return null;
-
-        Collection<Integer> statuses = new HashSet<Integer>();
+        if (list == null) return;
 
         Class<SSLCertificateApprovalCallback.ValidityStatus> clazz = SSLCertificateApprovalCallback.ValidityStatus.class;
 
@@ -224,8 +222,6 @@ public class MainCLI extends CLI {
                 throw new Error("Invalid cert status \"" + status + "\".", e);
             }
         }
-
-        return statuses;
     }
 
     public void connect() throws Exception {

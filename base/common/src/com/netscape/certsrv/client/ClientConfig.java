@@ -48,23 +48,12 @@ public class ClientConfig {
         }
     }
 
-    boolean instanceCreationMode;
-
     URI serverURI;
 
     String certDatabase;
     String certNickname;
     String username;
     String password;
-
-    @XmlElement(defaultValue="false")
-    public boolean getInstanceCreationMode() {
-        return instanceCreationMode;
-    }
-
-    public void setInstanceCreationMode(boolean mode) {
-        this.instanceCreationMode = mode;
-    }
 
     @XmlElement(name="ServerURI")
     public URI getServerURI() {
@@ -186,7 +175,6 @@ public class ClientConfig {
     public static void main(String args[]) throws Exception {
 
         ClientConfig before = new ClientConfig();
-        before.setInstanceCreationMode(false);
         before.setServerURI("http://localhost:9180/ca");
         before.setCertDatabase("certs");
         before.setCertNickname("caadmin");

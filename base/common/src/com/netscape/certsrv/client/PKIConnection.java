@@ -71,8 +71,8 @@ public class PKIConnection {
     PKIClient client;
     ClientConfig config;
 
-    Collection<Integer> rejectedCertStatuses;
-    Collection<Integer> ignoredCertStatuses;
+    Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
+    Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
 
     // List to prevent displaying the same warnings/errors again.
     Collection<Integer> statuses = new HashSet<Integer>();
@@ -391,17 +391,12 @@ public class PKIConnection {
                     // Ignore validity status
 
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
-                    // Ignore the "UNTRUSTED_ISSUER" validity status
-                    // during PKI instance creation since we are
-                    // utilizing an untrusted temporary CA cert.
-                    if (!config.getInstanceCreationMode()) {
-                        // Otherwise, issue a WARNING, but allow this process
-                        // to continue since we haven't installed a trusted CA
-                        // cert for this operation.
-                        if (!statuses.contains(reason)) {
-                            System.err.println("WARNING: " + getMessage(serverCert, reason));
-                            handleUntrustedIssuer(serverCert);
-                        }
+                    // Issue a WARNING, but allow this process
+                    // to continue since we haven't installed a trusted CA
+                    // cert for this operation.
+                    if (!statuses.contains(reason)) {
+                        System.err.println("WARNING: " + getMessage(serverCert, reason));
+                        handleUntrustedIssuer(serverCert);
                     }
 
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
@@ -411,18 +406,13 @@ public class PKIConnection {
                         System.err.println("WARNING: " + getMessage(serverCert, reason));
 
                 } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
-                    // Ignore the "CA_CERT_INVALID" validity status
-                    // during PKI instance creation since we are
-                    // utilizing an untrusted temporary CA cert.
-                    if (!config.getInstanceCreationMode()) {
-                        // Otherwise, set approval false to deny this
-                        // certificate so that the connection is terminated.
-                        // (Expect an IOException on the outstanding
-                        //  read()/write() on the socket).
-                        if (!statuses.contains(reason))
-                            System.err.println("ERROR: " + getMessage(serverCert, reason));
-                        approval = false;
-                    }
+                    // Set approval false to deny this
+                    // certificate so that the connection is terminated.
+                    // (Expect an IOException on the outstanding
+                    //  read()/write() on the socket).
+                    if (!statuses.contains(reason))
+                        System.err.println("ERROR: " + getMessage(serverCert, reason));
+                    approval = false;
 
                 } else {
                     // Set approval false to deny this certificate so that
@@ -535,20 +525,32 @@ public class PKIConnection {
         return request.post(String.class);
     }
 
+    public void addRejectedCertStatus(Integer rejectedCertStatus) {
+        rejectedCertStatuses.add(rejectedCertStatus);
+    }
+
     public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
-        this.rejectedCertStatuses = rejectedCertStatuses;
+        this.rejectedCertStatuses.clear();
+        if (rejectedCertStatuses == null) return;
+        this.rejectedCertStatuses.addAll(rejectedCertStatuses);
     }
 
     public boolean isRejected(Integer certStatus) {
-        return this.rejectedCertStatuses != null && this.rejectedCertStatuses.contains(certStatus);
+        return rejectedCertStatuses.contains(certStatus);
+    }
+
+    public void addIgnoredCertStatus(Integer ignoredCertStatus) {
+        ignoredCertStatuses.add(ignoredCertStatus);
     }
 
     public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
-        this.ignoredCertStatuses = ignoredCertStatuses;
+        this.ignoredCertStatuses.clear();
+        if (ignoredCertStatuses == null) return;
+        this.ignoredCertStatuses.addAll(ignoredCertStatuses);
     }
 
     public boolean isIgnored(Integer certStatus) {
-        return this.ignoredCertStatuses != null && this.ignoredCertStatuses.contains(certStatus);
+        return ignoredCertStatuses.contains(certStatus);
     }
 
     public File getOutput() {
