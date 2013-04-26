@@ -47,10 +47,9 @@ PKI_DICTIONARY_WEB_SERVER="\n"\
 PKI_VERBOSITY=\
 "VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL\n"\
 "=======================================================================\n"\
-"  NONE             error|warning               error|warning|info\n"\
-"  -v               error|warning|info          error|warning|info\n"\
-"  -vv              error|warning|info          error|warning|info|debug\n"\
-"  -vvv             error|warning|info|debug    error|warning|info|debug\n"\
+"  NONE             error|warning               error|warning|info|debug\n"\
+"  -v               error|warning|info          error|warning|info|debug\n"\
+"  -vv              error|warning|info|debug    error|warning|info|debug\n"\
 " "
 
 
@@ -103,7 +102,6 @@ PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1 = "Symlink '%s' is either missing "\
                                          "or is NOT a symbolic link!"
 PKI_UNABLE_TO_PARSE_1 = "'Could not parse:  '%s'"
 PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 = "Could not create log directory '%s'!"
-PKI_VERBOSITY_LEVELS_MESSAGE = "Only up to 3 levels of verbosity are supported!"
 
 
 # PKI Deployment 'pkispawn' and 'pkidestroy' Messages

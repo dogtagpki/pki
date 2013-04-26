@@ -99,22 +99,14 @@ class PKIConfigParser:
         #    '-v'
         if args.pki_verbosity == 1:
             config.pki_console_log_level = logging.INFO
-            config.pki_log_level = logging.INFO
-        elif args.pki_verbosity == 2:
-            config.pki_console_log_level = logging.INFO
-            config.pki_log_level = logging.DEBUG
-        elif args.pki_verbosity == 3:
+        elif args.pki_verbosity >= 2:
             config.pki_console_log_level = logging.DEBUG
-            config.pki_log_level = logging.DEBUG
-        elif args.pki_verbosity > 3:
-            print "ERROR:  " + log.PKI_VERBOSITY_LEVELS_MESSAGE
-            print
-            self.arg_parser.print_help()
-            self.arg_parser.exit(-1);
         else:
             # Set default log levels
             config.pki_console_log_level = logging.WARNING
-            config.pki_log_level = logging.INFO
+
+        # Debug log is always at DEBUG level
+        config.pki_log_level = logging.DEBUG
 
         # Process 'Test' command-line options
         #    '-p'

@@ -34,7 +34,6 @@ import string
 import subprocess
 import time
 import types
-import urllib2
 from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
