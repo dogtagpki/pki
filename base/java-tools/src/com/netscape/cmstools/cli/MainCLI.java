@@ -29,11 +29,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.util.IncorrectPasswordException;
-import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
@@ -232,7 +228,7 @@ public class MainCLI extends CLI {
         }
     }
 
-    public void connect() throws Exception {
+    public void init() throws Exception {
 
         client = new PKIClient(config);
         client.setVerbose(verbose);
@@ -248,6 +244,11 @@ public class MainCLI extends CLI {
         }
 
         accountClient = new AccountClient(client);
+
+        // initialize certificate database if specified
+        if (config.getCertDatabase() != null) {
+            client.initCertDatabase();
+        }
     }
 
     public void execute(String[] args) throws Exception {
@@ -334,47 +335,10 @@ public class MainCLI extends CLI {
 
         if (verbose) System.out.println("Server URI: "+config.getServerURI());
 
-        // initialize certificate database
-        if (config.getCertDatabase() == null) {
-            this.certDatabase = new File(
-                    System.getProperty("user.home") + File.separator +
-                    ".dogtag" + File.separator + "nssdb");
-
-        } else {
-            this.certDatabase = new File(config.getCertDatabase());
-        }
-
-        certDatabase.mkdirs();
-
-        try {
-            if (verbose) System.out.println("Certificate database: "+certDatabase.getAbsolutePath());
-            CryptoManager.initialize(certDatabase.getAbsolutePath());
-
-            if (config.getCertPassword() != null) {
-                try {
-                    CryptoManager manager = CryptoManager.getInstance();
-                    CryptoToken token = manager.getInternalKeyStorageToken();
-                    Password password = new Password(config.getCertPassword().toCharArray());
-                    token.login(password);
-
-                } catch (IncorrectPasswordException e) {
-                    throw new Error("Incorrect certificate database password.", e);
-                }
-            }
-
-        } catch (Throwable t) {
-            if (verbose) {
-                t.printStackTrace(System.err);
-            } else {
-                System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
-            }
-            System.exit(1);
-        }
-
         // execute command
         boolean loggedIn = false;
         try {
-            connect();
+            init();
 
             // login if username or nickname is specified
             if (config.getUsername() != null || config.getCertNickname() != null) {

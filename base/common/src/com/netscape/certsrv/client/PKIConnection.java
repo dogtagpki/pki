@@ -61,6 +61,7 @@ import org.jboss.resteasy.client.core.BaseClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -445,6 +446,19 @@ public class PKIConnection {
                 throws IOException,
                 UnknownHostException,
                 ConnectTimeoutException {
+
+            // Make sure certificate database is initialized
+            // before using SSLSocket, otherwise it will throw
+            // UnsatisfiedLinkError.
+            try {
+                client.initCertDatabase();
+
+            } catch (AlreadyInitializedException e) {
+                // ignore
+
+            } catch (Exception e) {
+                throw new Error(e);
+            }
 
             String hostName = null;
             int port = 0;
