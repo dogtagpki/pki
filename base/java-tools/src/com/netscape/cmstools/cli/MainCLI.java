@@ -140,6 +140,10 @@ public class MainCLI extends CLI {
         option.setArgName("nickname");
         options.addOption(option);
 
+        option = new Option("c", true, "Certificate password");
+        option.setArgName("password");
+        options.addOption(option);
+
         option = new Option("u", true, "Username");
         option.setArgName("username");
         options.addOption(option);
@@ -184,6 +188,7 @@ public class MainCLI extends CLI {
 
         String certDatabase = cmd.getOptionValue("d");
         String certNickname = cmd.getOptionValue("n");
+        String certPassword = cmd.getOptionValue("c");
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
 
@@ -193,6 +198,9 @@ public class MainCLI extends CLI {
 
         if (certNickname != null)
             config.setCertNickname(certNickname);
+
+        if (certPassword != null)
+            config.setCertPassword(certPassword);
 
         if (username != null)
             config.setUsername(username);
@@ -342,11 +350,11 @@ public class MainCLI extends CLI {
             if (verbose) System.out.println("Certificate database: "+certDatabase.getAbsolutePath());
             CryptoManager.initialize(certDatabase.getAbsolutePath());
 
-            if (config.getPassword() != null) {
+            if (config.getCertPassword() != null) {
                 try {
                     CryptoManager manager = CryptoManager.getInstance();
                     CryptoToken token = manager.getInternalKeyStorageToken();
-                    Password password = new Password(config.getPassword().toCharArray());
+                    Password password = new Password(config.getCertPassword().toCharArray());
                     token.login(password);
 
                 } catch (IncorrectPasswordException e) {
