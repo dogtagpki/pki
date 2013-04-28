@@ -2594,8 +2594,7 @@ class kra_connector:
 
     def execute_using_pki(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport, critical_failure=False):
-        command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -w '{}' "\
-                  "--ignore-cert-status UNTRUSTED_ISSUER "\
+        command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -c '{}' "\
                   "kraconnector-del {} {}".format(
                       caport, cahost, subsystemnick,
                       master['pki_database_path'],
@@ -2858,11 +2857,11 @@ class security_domain:
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
         secselect = cs_cfg.get('securitydomain.select')
 
-        command = "/bin/pki -p '{}' -h '{}' -P https -u '{}' -w '{}' "\
-                  "--ignore-cert-status UNTRUSTED_ISSUER "\
+        command = "/bin/pki -p '{}' -h '{}' -P https -u '{}' -w '{}' -d '{}' "\
                   "securitydomain-get-install-token --hostname {} "\
                   "--subsystem {}".format(
                       secadminport, sechost, secuser, secpass,
+                      master['pki_database_path'],
                       machinename, cstype)
         try:
             output = subprocess.check_output(command,

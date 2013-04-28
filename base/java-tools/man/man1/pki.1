@@ -26,6 +26,9 @@ pki [CLI options] <command> [command arguments]
   
 .SH OPTIONS
 .TP
+.B -c <database password>
+Specifies the certificate database password.
+.TP
 .B -d <database>
 Specifies the certificate database to be used.
 .TP
@@ -60,7 +63,7 @@ Displays verbose information.
 Displays 'pki' CLI version information.
 .TP
 .B -w <password>
-Specifies the password.
+Specifies the user password.
 
 .SH OPERATIONS
 To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands. To view the sub-commands, type \fBpki <command>\fP.  To view each command's usage, type \fB pki <command> --help\fP.
@@ -89,7 +92,7 @@ To authenticate with a username and password:
 
 To authenticate with a client certificate:
 
-.B pki -d <certificate database directory> -w <certificate database password> -n "<certificate nickname>" <command>
+.B pki -d <certificate database directory> -c <certificate database password> -n "<certificate nickname>" <command>
     
 .SS Viewing Certificates
 Certificates can be viewed anonymously.
