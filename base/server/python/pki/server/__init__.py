@@ -41,8 +41,8 @@ class PKISubsystem(object):
             self.base_dir = os.path.join(INSTANCE_BASE_DIR, \
                 instance.name, subsystemName)
         else:
-            self.conf_dir = os.path.join(BASE_DIR, instance.name, 'conf')
-            self.base_dir = os.path.join(BASE_DIR, instance.name)
+            self.conf_dir = os.path.join(pki.BASE_DIR, instance.name, 'conf')
+            self.base_dir = os.path.join(pki.BASE_DIR, instance.name)
 
         self.validate()
 
@@ -66,8 +66,8 @@ class PKIInstance(object):
             self.conf_dir = os.path.join(INSTANCE_BASE_DIR, name, 'conf')
             self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
         else:
-            self.conf_dir = os.path.join(BASE_DIR, name, 'conf')
-            self.base_dir = os.path.join(BASE_DIR, name)
+            self.conf_dir = os.path.join(pki.BASE_DIR, name, 'conf')
+            self.base_dir = os.path.join(pki.BASE_DIR, name)
 
         self.validate()
 
