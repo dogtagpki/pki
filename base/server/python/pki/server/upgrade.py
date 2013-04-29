@@ -263,6 +263,10 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 if not current_version or version < current_version:
                     current_version = version
 
+        # if no instances defined, no upgrade required
+        if not current_version:
+            current_version = self.get_target_version()
+
         return current_version
 
     def show_tracker(self):
