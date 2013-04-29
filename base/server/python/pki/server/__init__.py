@@ -48,7 +48,7 @@ class PKISubsystem(object):
 
     def validate(self):
         if not os.path.exists(self.conf_dir):
-            raise PKIException(
+            raise pki.PKIException(
                 'Invalid subsystem: ' + self.__repr__(),
                  None, self.instance)
 
@@ -73,7 +73,7 @@ class PKIInstance(object):
 
     def validate(self):
         if not os.path.exists(self.conf_dir):
-            raise PKIException(
+            raise pki.PKIException(
                 'Invalid instance: ' + self.__repr__(), None)
 
     def __repr__(self):
