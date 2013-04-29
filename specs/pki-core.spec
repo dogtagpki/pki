@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -615,6 +615,12 @@ end
 
 %post -n pki-base
 
+# Generate pki.conf if it doesn't exist
+if [ ! -e /etc/pki/pki.conf ]
+then
+    cp /usr/share/pki/etc/pki.conf /etc/pki/pki.conf
+fi
+
 echo "Upgrading base at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
@@ -853,8 +859,9 @@ fi
 %doc base/common/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
+%{_datadir}/pki/etc/pki.conf
+%{_datadir}/pki/upgrade/
 %dir %{_sysconfdir}/pki
-%config(noreplace) %{_sysconfdir}/pki/pki.conf
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
@@ -865,7 +872,6 @@ fi
 %{python_sitelib}/pki/*.pyo
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
-%{_datadir}/pki/upgrade/
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -1055,6 +1061,10 @@ fi
 
 
 %changelog
+* Mon Apr 29 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-2
+- Moved /etc/pki/pki.conf into /usr/share/pki/etc
+- Generate /etc/pki/pki.conf from the default on post install
+
 * Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
 - Change release number for official release.
 
@@ -1062,7 +1072,7 @@ fi
 - Added %pretrans script for f19
 - Added java-atk-wrapper dependency
 
-* Tue Apr 24 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.7
+* Wed Apr 24 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-0.7
 - Added pki-server-upgrade script and pki.server module.
 - Call upgrade scripts in %post for pki-base and pki-server.
 

@@ -97,3 +97,120 @@ class PKIException(Exception):
         Exception.__init__(self, message)
 
         self.exception = exception
+
+
+class PropertyFile(object):
+
+    def __init__(self, filename, delimiter='='):
+
+        self.filename = filename
+        self.delimiter = delimiter
+
+        self.lines = []
+
+    def read(self):
+
+        self.lines = []
+
+        if not os.path.exists(self.filename):
+            return
+
+        # read all lines and preserve the original order
+        with open(self.filename, 'r') as f:
+            for line in f:
+                line = line.strip('\n')
+                self.lines.append(line)
+
+    def write(self):
+
+        # write all lines in the original order
+        with open(self.filename, 'w') as f:
+            for line in self.lines:
+                f.write(line + '\n')
+
+    def show(self):
+
+        for line in self.lines:
+            print line
+
+    def insert_line(self, index, line):
+
+        self.lines.insert(index, line)
+
+    def index(self, name):
+
+        for i, line in enumerate(self.lines):
+
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+
+            if not match:
+                continue
+
+            key = match.group(1)
+
+            if key.lower() == name.lower():
+                return i
+
+        return -1
+
+    def get(self, name):
+
+        result = None
+
+        for line in self.lines:
+
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+
+            if not match:
+                continue
+
+            key = match.group(1)
+            value = match.group(2)
+
+            if key.lower() == name.lower():
+                return value
+
+        return result
+
+    def set(self, name, value, index=None):
+
+        for i, line in enumerate(self.lines):
+
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+
+            if not match:
+                continue
+
+            key = match.group(1)
+
+            if key.lower() == name.lower():
+                self.lines[i] = key + self.delimiter + value
+                return
+
+        if index is None:
+            self.lines.append(name + self.delimiter + value)
+
+        else:
+            self.insert_line(index, name + self.delimiter + value)
+
+    def remove(self, name):
+
+        for i, line in enumerate(self.lines):
+
+            # parse <key> <delimiter> <value>
+            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+
+            if not match:
+                continue
+
+            key = match.group(1)
+            value = match.group(2)
+
+            if key.lower() == name.lower():
+                self.lines.pop(i)
+                return value
+
+        return None

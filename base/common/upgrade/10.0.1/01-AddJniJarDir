@@ -1,0 +1,66 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+
+import pki
+import pki.upgrade
+
+
+class AddJniJarDir(pki.upgrade.PKIUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Add JNI_JAR_DIR into pki.conf'
+
+    def upgrade_system(self):
+
+        # read pki.conf.default
+        default_conf = pki.PropertyFile(
+            os.path.join(pki.SHARE_DIR, 'etc', 'pki.conf'))
+        default_conf.read()
+
+        default_path = default_conf.get('JNI_JAR_DIR')
+
+        # read pki.conf
+        conf = pki.PropertyFile(os.path.join(pki.CONF_DIR, 'pki.conf'))
+        conf.read()
+
+        # find JNI_JAR_DIR
+        if conf.index('JNI_JAR_DIR') >= 0:
+            # already exists
+            return
+
+        # find RESTEASY_LIB
+        index = conf.index('RESTEASY_LIB')
+
+        # insert JNI_JAR_DIR after RESTEASY_LIB
+        index = index + 1
+        conf.insert_line(index, '')
+
+        index = index + 1
+        conf.insert_line(index, '# JNI jar file location')
+
+        index = index + 1
+        conf.set('JNI_JAR_DIR', default_path, index=index)
+
+        # update pki.conf
+        conf.write()

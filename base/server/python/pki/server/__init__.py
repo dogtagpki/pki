@@ -87,7 +87,7 @@ class PKIServerException(pki.PKIException):
     def __init__(self, message, exception=None,\
                  instance=None, subsystem=None):
 
-        pki.upgrade.PKIException.__init__(self, message, exception)
+        pki.PKIException.__init__(self, message, exception)
 
         self.instance = instance
         self.subsystem = subsystem

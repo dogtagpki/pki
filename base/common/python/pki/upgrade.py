@@ -108,36 +108,14 @@ class PKIUpgradeTracker(object):
         index_key='PKI_UPGRADE_INDEX'):
 
         self.name = name
-        self.filename = filename
 
-        self.delimiter = delimiter
         self.version_key = version_key
         self.index_key = index_key
 
-        self.read()
+        # properties must be read and written immediately to avoid
+        # interfering with scriptlets that update the same file
 
-
-    def read(self):
-
-        self.lines = []
-
-        if not os.path.exists(self.filename):
-            return
-
-        # read all lines and preserve the original order
-        with open(self.filename, 'r') as f:
-            for line in f:
-                line = line.strip('\n')
-                self.lines.append(line)
-
-
-    def write(self):
-
-        # write all lines in the original order
-        with open(self.filename, 'w') as f:
-            for line in self.lines:
-                f.write(line + '\n')
-
+        self.properties = pki.PropertyFile(filename, delimiter)
 
     def remove(self):
 
@@ -145,8 +123,6 @@ class PKIUpgradeTracker(object):
 
         self.remove_version()
         self.remove_index()
-        self.write()
-
 
     def set(self, version):
 
@@ -154,8 +130,6 @@ class PKIUpgradeTracker(object):
 
         self.set_version(version)
         self.remove_index()
-        self.write()
-
 
     def show(self):
 
@@ -170,106 +144,93 @@ class PKIUpgradeTracker(object):
 
         print
 
-
-    def get_property(self, name):
-
-        result = None
-
-        for line in self.lines:
-
-            # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
-
-            if not match:
-                continue
-
-            key = match.group(1)
-            value = match.group(2)
-
-            if key.lower() == name.lower():
-                result = value
-                break
-
-        return result
-
-
-    def set_property(self, name, value):
-
-        found = False
-
-        for index, line in enumerate(self.lines):
-
-            # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
-
-            if not match:
-                continue
-
-            key = match.group(1)
-
-            if key.lower() != name.lower():
-                continue
-
-            self.lines[index] = key + self.delimiter + value
-            found = True
-            break
-
-        if not found:
-            self.lines.append(name + self.delimiter + value)
-
-
-    def remove_property(self, name):
-
-        for index, line in enumerate(self.lines):
-
-            # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
-
-            if not match:
-                continue
-
-            key = match.group(1)
-
-            if key.lower() != name.lower():
-                continue
-
-            self.lines.pop(index)
-
-
     def get_index(self):
 
-        index = self.get_property(self.index_key)
+        self.properties.read()
+
+        index = self.properties.get(self.index_key)
 
         if index:
             return int(index)
 
         return 0
 
-
     def set_index(self, index):
-        self.set_property(self.index_key, str(index))
 
+        self.properties.read()
+
+        # find index
+        i = self.properties.index(self.index_key)
+        if i >= 0:
+            # if already exists, update index
+            self.properties.set(self.index_key, str(index))
+
+        else:
+            # find version
+            i = self.properties.index(self.version_key)
+            if i >= 0:
+                # if version exists, add index after version
+                self.properties.set(self.index_key, str(index), index=i+1)
+
+            else:
+                # otherwise, add index at the end separated by a blank line
+
+                # if last line is not empty, append empty line
+                length = len(self.properties.lines)
+                if length > 0 and self.properties.lines[length-1] != '':
+                    self.properties.insert_line(length, '')
+                    length = length + 1
+
+                # add index
+                self.properties.set(self.index_key, str(index), index=length)
+
+        self.properties.write()
 
     def remove_index(self):
-        self.remove_property(self.index_key)
 
+        self.properties.read()
+        self.properties.remove(self.index_key)
+        self.properties.write()
 
     def get_version(self):
 
-        version = self.get_property(self.version_key)
+        self.properties.read()
 
+        version = self.properties.get(self.version_key)
         if version:
             return Version(version)
 
         return Version(DEFAULT_VERSION)
 
-
     def set_version(self, version):
-        self.set_property(self.version_key, str(version))
 
+        self.properties.read()
+
+        # find version
+        i = self.properties.index(self.version_key)
+        if i >= 0:
+            # if already exists, update version
+            self.properties.set(self.version_key, str(version))
+
+        else:
+            # otherwise, add version at the end separated by a blank line
+
+            # if last line is not empty, append empty line
+            length = len(self.properties.lines)
+            if length > 0 and self.properties.lines[length-1] != '':
+                self.properties.insert_line(length, '')
+                length = length + 1
+
+            # add version
+            self.properties.set(self.version_key, str(version), index=length)
+
+        self.properties.write()
 
     def remove_version(self):
-        self.remove_property(self.version_key)
+
+        self.properties.read()
+        self.properties.remove(self.version_key)
+        self.properties.write()
 
 
 @functools.total_ordering
@@ -308,8 +269,6 @@ class PKIUpgradeScriptlet(object):
         else:
             tracker.remove_index()
             tracker.set_version(self.version.next)
-
-        tracker.write()
 
     def upgrade_system(self):
         # Callback method to upgrade the system.

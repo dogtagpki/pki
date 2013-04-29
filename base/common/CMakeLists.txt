@@ -2,15 +2,15 @@ project(common NONE)
 
 # install common configuration files
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/etc/pki.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
+    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/pki.conf
+    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
 )
 
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
+        ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
     DESTINATION
-        ${SYSCONF_INSTALL_DIR}/pki/
+        ${DATA_INSTALL_DIR}/etc/
 )
 
 # install Python libraries
@@ -59,7 +59,8 @@ install(
         WORLD_EXECUTE WORLD_READ
 )
 
-# install directories
+# install server files
+# TODO: move into base/server
 install(
     DIRECTORY
         shared/

@@ -64,8 +64,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             tracker.remove_index()
             tracker.set_version(self.version.next)
 
-        tracker.write()
-
     def upgrade(self):
 
         for instance in self.upgrader.instances():
