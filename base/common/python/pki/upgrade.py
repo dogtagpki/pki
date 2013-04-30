@@ -30,7 +30,7 @@ import pki
 DEFAULT_VERSION    = '10.0.0'
 
 UPGRADE_DIR        = pki.SHARE_DIR + '/upgrade'
-SYSTEM_TRACKER     = pki.CONF_DIR + '/pki.conf'
+SYSTEM_TRACKER     = pki.CONF_DIR + '/pki.version'
 
 verbose            = False
 
@@ -412,8 +412,9 @@ class PKIUpgrader(object):
 
         else:
             tracker = PKIUpgradeTracker('system', SYSTEM_TRACKER,
-                version_key='PKI_VERSION',
-                index_key='PKI_UPGRADE_INDEX')
+                delimiter=': ',
+                version_key='Configuration-Version',
+                index_key='Scriptlet-Index')
             self.system_tracker = tracker
 
         return tracker

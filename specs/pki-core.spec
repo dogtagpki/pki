@@ -615,16 +615,25 @@ end
 
 %post -n pki-base
 
-# Generate pki.conf if it doesn't exist
-if [ ! -e /etc/pki/pki.conf ]
+if [ $1 -eq 1 ]
 then
-    cp /usr/share/pki/etc/pki.conf /etc/pki/pki.conf
+    # On RPM installation create system upgrade tracker
+    echo "Configuration-Version: %{version}" > %{_sysconfdir}/pki/pki.version
+
+else
+    # On RPM upgrade run system upgrade
+    echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
 
-echo "Upgrading base at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-/sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+%postun -n pki-base
 
+if [ $1 -eq 0 ]
+then
+    # On RPM uninstallation remove system upgrade tracker
+    rm -f %{_sysconfdir}/pki/pki.version
+fi
 
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
 %pre -n pki-selinux
@@ -862,6 +871,7 @@ fi
 %{_datadir}/pki/etc/pki.conf
 %{_datadir}/pki/upgrade/
 %dir %{_sysconfdir}/pki
+%config(noreplace) %{_sysconfdir}/pki/pki.conf
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
@@ -1062,8 +1072,8 @@ fi
 
 %changelog
 * Mon Apr 29 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-2
-- Moved /etc/pki/pki.conf into /usr/share/pki/etc
-- Generate /etc/pki/pki.conf from the default on post install
+- Added default pki.conf in /usr/share/pki/etc
+- Create upgrade tracker on install and remove it on uninstall
 
 * Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
 - Change release number for official release.

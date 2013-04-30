@@ -13,6 +13,13 @@ install(
         ${DATA_INSTALL_DIR}/etc/
 )
 
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
+    DESTINATION
+        ${SYSCONF_INSTALL_DIR}/pki/
+)
+
 # install Python libraries
 install(
     DIRECTORY
