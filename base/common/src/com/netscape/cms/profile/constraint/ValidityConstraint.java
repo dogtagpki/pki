@@ -204,6 +204,8 @@ public class ValidityConstraint extends EnrollConstraint {
             return true;
         if (def instanceof CAValidityDefault)
             return true;
+        if (def instanceof RandomizedValidityDefault)
+            return true;
         return false;
     }
 }

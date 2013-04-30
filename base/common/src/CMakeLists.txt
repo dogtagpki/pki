@@ -749,6 +749,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/profile/def/NSCCommentExtDefault.java
     com/netscape/cms/profile/def/CertificateVersionDefault.java
     com/netscape/cms/profile/def/ValidityDefault.java
+    com/netscape/cms/profile/def/RandomizedValidityDefault.java
     com/netscape/cms/profile/def/ImageDefault.java
     com/netscape/cms/profile/def/PolicyMappingsExtDefault.java
     com/netscape/cms/profile/def/NSCertTypeExtDefault.java
