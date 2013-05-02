@@ -806,6 +806,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         OBJECT_IDENTIFIER id = ci.getContentType();
         OCTET_STRING content = ci.getContent();
 
+        boolean tokenSwitched = false;
+        CryptoToken signToken = null;
+        CryptoToken savedToken = null;
+        CryptoManager cm = null;
         try {
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
             PKIData pkiData = (PKIData) (new PKIData.Template()).decode(s);
@@ -912,12 +916,27 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 pubK = PK11PubKey.fromSPKI(/*keyType,*/ ((X509Key) signKey).getKey());
                             }
 
+                            String tokenName =
+                                CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+                            // by default JSS will use internal crypto token
+                            if (!tokenName.equals("internal")) {
+                                cm = CryptoManager.getInstance(); 
+                                savedToken = cm.getThreadToken();
+                                signToken = cm.getTokenByName(tokenName);
+                                if(signToken != null) {
+                                    cm.setThreadToken(signToken);
+                                    tokenSwitched = true;
+                                    CMS.debug("CMCAuth: verifySignerInfo token switched:"+ tokenName);
+                                } else {
+                                    CMS.debug("CMCAuth: verifySignerInfo token not found:"+ tokenName+ ", trying internal");
+                                }
+                            }
+
                             CMS.debug("CMCAuth: verifying signature with public key");
                             si.verify(digest, id, pubK);
                         }
                         CMS.debug("CMCAuth: finished checking signature");
                         // verify signer's certificate using the revocator
-                        CryptoManager cm = CryptoManager.getInstance();
                         if (!cm.isCertValid(certByteArray, true, CryptoManager.CertUsage.SSLClient))
                             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
@@ -957,6 +976,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (Exception e) {
             CMS.debug("CMCAuth: " + e.toString());
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+        } finally {
+            if ((tokenSwitched == true) && (savedToken != null)){
+                cm.setThreadToken(savedToken);
+                CMS.debug("CMCAuth: verifySignerInfo token restored");
+            }
         }
         return null;
 
