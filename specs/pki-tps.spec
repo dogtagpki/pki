@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.0.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -15,7 +15,7 @@ BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel
+BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    pcre-devel
 BuildRequires:    python
 BuildRequires:    svrcore-devel
@@ -25,6 +25,8 @@ BuildRequires:    zlib-devel
 Requires:         mod_nss
 Requires:         mod_perl
 Requires:         mod_revocator
+Requires:         nss >= 3.14.3
+Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
 Requires:         pki-server >= 10.0.0
@@ -228,6 +230,9 @@ fi
 
 
 %changelog
+* Tue Apr 30 2013 Ade Lee <alee@redhat.com> 10.0.2-2
+- Added nss, nss-tools dependencies
+
 * Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
 - Change release number for official release.
 

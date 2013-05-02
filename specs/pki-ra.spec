@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.0.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -12,12 +12,14 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake  >= 2.8.9-1
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel
+BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    python
 
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
+Requires:         nss >= 3.14.3
+Requires:         nss-tools >= 3.14.3
 Requires:         pki-server >= 10.0.0
 Requires:         pki-server-theme >= 10.0.0
 Requires:         perl-DBD-SQLite
@@ -195,6 +197,9 @@ fi
 
 
 %changelog
+* Tue Apr 30 2013 Ade Lee <alee@redhat.com> 10.0.2-2
+- Added nss, nss-tools dependencies
+
 * Fri Apr 26 2013 Ade Lee <alee@redhat.com> 10.0.2-1
 - Change release number for official release.
 
