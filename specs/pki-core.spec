@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1071,6 +1071,10 @@ fi
 
 
 %changelog
+* Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-4
+- TRAC Ticket 605 Junit internal function used in TestRunner,
+  breaks F19 build
+
 * Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-3
 - TRAC Ticket 604 Added fallback methods for pkispawn tests
 
