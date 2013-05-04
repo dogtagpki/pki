@@ -27,6 +27,7 @@ import ldap
 import logging
 import os
 import random
+import requests
 import string
 import subprocess
 import sys
@@ -396,7 +397,15 @@ class PKIConfigParser:
 
     def sd_get_info(self):
         sd = pki.system.SecurityDomainClient(self.sd_connection)
-        return sd.getSecurityDomainInfo()
+        try:
+            info = sd.getSecurityDomainInfo()
+        except requests.exceptions.HTTPError as e:
+            config.pki_log.info(
+                "unable to access security domain through REST interface.  " +\
+                "Trying old interface. " + str(e),
+                 extra=config.PKI_INDENTATION_LEVEL_2)
+            info = sd.getOldSecurityDomainInfo()
+        return info
 
     def sd_authenticate(self):
         self.sd_connection.authenticate(
@@ -404,8 +413,18 @@ class PKIConfigParser:
             config.pki_master_dict['pki_security_domain_password'])
 
         account = pki.account.AccountClient(self.sd_connection)
-        account.login()
-        account.logout()
+        try:
+            account.login()
+            account.logout()
+        except requests.exceptions.HTTPError as e:
+            code = e.response.status_code
+            if code == 404 or code == 501:
+                config.pki_log.warning(
+                    "unable to validate security domain user/password " +\
+                    "through REST interface. Interface not available",
+                     extra=config.PKI_INDENTATION_LEVEL_2)
+            else:
+                raise
 
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"

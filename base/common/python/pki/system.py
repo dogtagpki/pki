@@ -20,6 +20,7 @@
 #
 
 import pki.encoder as encoder
+import xml.etree.ElementTree as ET
 
 class SecurityDomainInfo:
 
@@ -37,6 +38,15 @@ class SecurityDomainClient:
 
         info = SecurityDomainInfo()
         info.name = j['DomainInfo']['@id']
+
+        return info
+
+    def getOldSecurityDomainInfo(self):
+        r = self.connection.get('/admin/ca/getDomainXML')
+        root = ET.fromstring(r.text)
+        domaininfo = ET.fromstring(root.find("DomainInfo").text)
+        info = SecurityDomainInfo()
+        info.name = domaininfo.find("Name").text
 
         return info
 

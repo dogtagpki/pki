@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1071,6 +1071,9 @@ fi
 
 
 %changelog
+* Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-3
+- TRAC Ticket 604 Added fallback methods for pkispawn tests
+
 * Mon Apr 29 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-2
 - Added default pki.conf in /usr/share/pki/etc
 - Create upgrade tracker on install and remove it on uninstall
