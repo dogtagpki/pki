@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.0.2
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -80,6 +80,9 @@ cd build
 
 
 %changelog
+* Mon May 6 2013 Ade Lee <alee@redhat.com> 10.0.2-3
+- New srpm generated due to changes in java test framework
+
 * Thu May 2 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.2-2
 - Fix console wrapper script to work in Fedora 19
 
