@@ -6,6 +6,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/etc/pki.conf
+    ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
+)
+
 install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
@@ -15,7 +20,7 @@ install(
 
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
+        ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
     DESTINATION
         ${SYSCONF_INSTALL_DIR}/pki/
 )

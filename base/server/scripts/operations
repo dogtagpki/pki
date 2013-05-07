@@ -1088,7 +1088,7 @@ verify_symlinks()
     declare -A systemd_symlinks
 
     # Dogtag 10 Conditional Variables
-    jni_dir=`source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
+    jni_jar_dir=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
 
     # Dogtag 10 Symbolic Link Target Variables
     java_dir="/usr/share/java"
@@ -1198,7 +1198,7 @@ verify_symlinks()
         [javassist.jar]=${java_dir}/javassist.jar
         [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
         [jettison.jar]=${java_dir}/jettison.jar
-        [jss4.jar]=${jni_dir}/jss4.jar
+        [jss4.jar]=${jni_jar_dir}/jss4.jar
         [ldapjdk.jar]=${java_dir}/ldapjdk.jar
         [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
         [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
@@ -1213,7 +1213,7 @@ verify_symlinks()
         [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
 
     if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
-        common_jar_symlinks[symkey.jar]=${jni_dir}/symkey.jar
+        common_jar_symlinks[symkey.jar]=${jni_jar_dir}/symkey.jar
     fi
 
     # '${pki_systemd_dir}' symlinks

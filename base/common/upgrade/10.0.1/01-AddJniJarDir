@@ -47,6 +47,8 @@ class AddJniJarDir(pki.upgrade.PKIUpgradeScriptlet):
         # find JNI_JAR_DIR
         if conf.index('JNI_JAR_DIR') >= 0:
             # already exists
+            conf.set('JNI_JAR_DIR', default_path)
+            conf.write()
             return
 
         # find RESTEASY_LIB

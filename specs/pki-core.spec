@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.2
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -501,15 +501,6 @@ cd build
 %else
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
 %endif
-%if 0%{?fedora} <= 18
-%ifarch x86_64
-	-DJNI_JAR_DIR=/usr/lib64/java \
-%else
-	-DJNI_JAR_DIR=/usr/lib/java \
-%endif
-%else
-	-DJNI_JAR_DIR=/usr/lib/java \
-%endif
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
         -DBUILD_PKI_SELINUX:BOOL=ON \
@@ -615,6 +606,17 @@ end
 
 %post -n pki-base
 
+%if 0%{?fedora} <= 18
+if [ "`uname -i`" == "x86_64" ]
+then
+	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib64\/java/' %{_datadir}/pki/etc/pki.conf
+else
+	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
+fi
+%else
+	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
+%endif
+
 if [ $1 -eq 1 ]
 then
     # On RPM installation create system upgrade tracker
@@ -623,6 +625,7 @@ then
 else
     # On RPM upgrade run system upgrade
     echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    /sbin/pki-upgrade --remove-tracker >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
@@ -1071,6 +1074,9 @@ fi
 
 
 %changelog
+* Mon May 6 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-5
+- Fixed incorrect JNI_JAR_DIR.
+
 * Sat May 4 2013 Ade Lee <alee@redhat.com> 10.0.2-4
 - TRAC Ticket 605 Junit internal function used in TestRunner,
   breaks F19 build

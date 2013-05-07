@@ -163,7 +163,7 @@ class PKIConfigParser:
 
         # JNI jar location
         jni_jar_dir = subprocess.check_output(\
-            'source /etc/pki/pki.conf && echo $JNI_JAR_DIR',
+            'source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR',
             shell=True).strip()
 
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
