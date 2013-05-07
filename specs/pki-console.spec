@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          10.0.2
-Release:          3%{?dist}
+Version:          10.1.0
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -80,6 +80,9 @@ cd build
 
 
 %changelog
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
 * Mon May 6 2013 Ade Lee <alee@redhat.com> 10.0.2-3
 - New srpm generated due to changes in java test framework
 

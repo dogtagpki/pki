@@ -1,6 +1,6 @@
 Name:             pki-tps
-Version:          10.0.2
-Release:          2%{?dist}
+Version:          10.1.0
+Release:          0.1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -230,6 +230,9 @@ fi
 
 
 %changelog
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
+- Change release number for 10.1 development
+
 * Tue Apr 30 2013 Ade Lee <alee@redhat.com> 10.0.2-2
 - Added nss, nss-tools dependencies
 
