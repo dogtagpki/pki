@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.2
-Release:          5%{?dist}
+Version:          10.0.3
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1074,6 +1074,9 @@ fi
 
 
 %changelog
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.0.3-0.1
+- Roll release to next version.
+
 * Mon May 6 2013 Endi S. Dewata <edewata@redhat.com> 10.0.2-5
 - Fixed incorrect JNI_JAR_DIR.
 

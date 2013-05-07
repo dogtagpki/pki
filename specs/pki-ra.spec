@@ -1,6 +1,6 @@
 Name:             pki-ra
-Version:          10.0.2
-Release:          2%{?dist}
+Version:          10.0.3
+Release:          0.1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -197,6 +197,9 @@ fi
 
 
 %changelog
+* Tue May 7 2013 Ade Lee <alee@redhat.com> 10.0.3-0.1
+- Roll release to next version.
+
 * Tue Apr 30 2013 Ade Lee <alee@redhat.com> 10.0.2-2
 - Added nss, nss-tools dependencies
 

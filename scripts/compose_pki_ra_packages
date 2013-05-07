@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_RA="pki-ra"
-PKI_RA_VERSION="10.0.2"
+PKI_RA_VERSION="10.0.3"
 
 
 ##
