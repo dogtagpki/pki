@@ -625,7 +625,6 @@ then
 else
     # On RPM upgrade run system upgrade
     echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
-    /sbin/pki-upgrade --remove-tracker >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi

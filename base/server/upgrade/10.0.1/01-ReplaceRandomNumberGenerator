@@ -46,6 +46,8 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             'webapps', subsystem.name,
             'META-INF', 'context.xml')
 
+        self.backup(context_xml)
+
         if not os.path.exists(context_xml):
             self.create_context_xml(
                 instance,
@@ -64,12 +66,10 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         with open(context_xml, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
 
-
     def upgrade_instance(self, instance):
 
         self.update_root_context_xml(instance)
         self.update_pki_context_xml(instance)
-
 
     def update_root_context_xml(self, instance):
 
@@ -77,6 +77,8 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             instance.base_dir,
             'webapps', 'ROOT',
             'META-INF', 'context.xml')
+
+        self.backup(context_xml)
 
         if not os.path.exists(context_xml):
             self.create_context_xml(instance, 'server', 'ROOT')
@@ -95,6 +97,8 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             'webapps', 'pki',
             'META-INF', 'context.xml')
 
+        self.backup(context_xml)
+
         if not os.path.exists(context_xml):
             self.create_context_xml(instance, 'server', 'pki')
 
@@ -104,7 +108,6 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
 
         with open(context_xml, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
-
 
     def create_context_xml(self, instance, pkg, context):
 
@@ -146,7 +149,6 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         # Update manager's attributes
         manager.set('secureRandomProvider', 'Mozilla-JSS')
         manager.set('secureRandomAlgorithm', 'pkcs11prng')
-
 
     def update_authenticator(self, document):
 
