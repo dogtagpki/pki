@@ -29,6 +29,7 @@ import pki.server
 from pki.upgrade import verbose
 
 UPGRADE_DIR       = pki.SHARE_DIR + '/server/upgrade'
+BACKUP_DIR        = pki.LOG_DIR + '/server/upgrade'
 
 INSTANCE_TRACKER  = '%s/tomcat.conf'
 SUBSYSTEM_TRACKER = '%s/CS.cfg'
@@ -39,6 +40,9 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
     def __init__(self):
 
         super(PKIServerUpgradeScriptlet, self).__init__()
+
+    def get_backup_dir(self):
+        return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
 
     def can_upgrade(self, instance, subsystem=None):
 
@@ -292,6 +296,8 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
                 tracker = self.get_tracker(instance, subsystem)
                 tracker.set(version)
+
+        print 'Tracker has been set to version ' + str(version) + '.'
 
     def remove_tracker(self):
 

@@ -19,13 +19,14 @@
 # All rights reserved.
 #
 
-import re
 import os
+import re
 
 
 CONF_DIR          = '/etc/pki'
 SHARE_DIR         = '/usr/share/pki'
 BASE_DIR          = '/var/lib'
+LOG_DIR           = '/var/log/pki'
 
 PACKAGE_VERSION   = SHARE_DIR + '/VERSION'
 
@@ -136,6 +137,10 @@ class PropertyFile(object):
     def insert_line(self, index, line):
 
         self.lines.insert(index, line)
+
+    def remove_line(self, index):
+
+        self.lines.pop(index)
 
     def index(self, name):
 

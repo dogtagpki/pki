@@ -53,6 +53,8 @@ class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
             'webapps', subsystem.name,
             'WEB-INF', 'web.xml')
 
+        self.backup(web_xml)
+
         self.doc = ET.parse(web_xml)
         self.root = self.doc.getroot()
         self.add_rest_services_servlet()

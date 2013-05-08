@@ -43,6 +43,7 @@ def usage():
     print
     print '  --silent                       Upgrade in silent mode. Ignore any failures.'
     print '  --status                       Show upgrade status only. Do not perform upgrade.'
+    print '  --revert                       Revert the last version'
     print
     print '  -X                             Show advanced usage.'
     print '  -v, --verbose                  Run in verbose mode.'
@@ -52,8 +53,9 @@ def usage():
 def advancedUsage():
     print 'WARNING: These options may render the system unusable.'
     print 'Usage: pki-upgrade [OPTIONS]'
-    print '  --remove-tracker             Remove tracker'
-    print '  --reset-tracker              Reset tracker to match package version'
+    print '  --remove-tracker               Remove tracker'
+    print '  --reset-tracker                Reset tracker to match package version'
+    print '  --set-tracker <version>        Set tracker to a specific version'
 
 
 def main(argv):
@@ -63,8 +65,8 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'scriptlet-version=', 'scriptlet-index=',
-            'silent', 'status',
-            'remove-tracker', 'reset-tracker',
+            'silent', 'status', 'revert',
+            'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'help'])
 
     except getopt.GetoptError as e:
@@ -72,20 +74,24 @@ def main(argv):
         usage()
         sys.exit(1)
 
-    version = None
-    index = None
+    scriptlet_version = None
+    scriptlet_index = None
 
     silent = False
     status = False
+    revert = False
+
     remove_tracker = False
     reset_tracker = False
 
+    tracker_version = None
+
     for o, a in opts:
         if o == '--scriptlet-version':
-            version = a
+            scriptlet_version = a
 
         elif o == '--scriptlet-index':
-            index = int(a)
+            scriptlet_index = int(a)
 
         elif o == '--silent':
             silent = True
@@ -93,11 +99,17 @@ def main(argv):
         elif o == '--status':
             status = True
 
+        elif o == '--revert':
+            revert = True
+
         elif o == '--remove-tracker':
             remove_tracker = True
 
         elif o == '--reset-tracker':
             reset_tracker = True
+
+        elif o == '--set-tracker':
+            tracker_version = pki.upgrade.Version(a)
 
         elif o in ('-v', '--verbose'):
             pki.upgrade.verbose = True
@@ -115,25 +127,31 @@ def main(argv):
             usage()
             sys.exit(1)
 
-    if index and not version:
+    if scriptlet_index and not scriptlet_version:
         print 'ERROR: --scriptlet-index requires --scriptlet-version'
         usage()
         sys.exit(1)
 
     try:
         upgrader = pki.upgrade.PKIUpgrader(
-            version = version,
-            index = index,
+            version = scriptlet_version,
+            index = scriptlet_index,
             silent = silent)
 
         if status:
             upgrader.status()
+
+        elif revert:
+            upgrader.revert()
 
         elif remove_tracker:
             upgrader.remove_tracker()
 
         elif reset_tracker:
             upgrader.reset_tracker()
+
+        elif tracker_version is not None:
+            upgrader.set_tracker(tracker_version)
 
         else:
             upgrader.upgrade()

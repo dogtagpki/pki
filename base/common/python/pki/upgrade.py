@@ -22,16 +22,18 @@
 import functools
 import os
 import re
+import shutil
 import traceback
 
 import pki
+import pki.util
 
 
 DEFAULT_VERSION    = '10.0.0'
 
 UPGRADE_DIR        = pki.SHARE_DIR + '/upgrade'
+BACKUP_DIR         = pki.LOG_DIR + '/upgrade'
 SYSTEM_TRACKER     = pki.CONF_DIR + '/pki.version'
-
 verbose            = False
 
 
@@ -246,6 +248,9 @@ class PKIUpgradeScriptlet(object):
         self.message = None
         self.upgrader = None
 
+    def get_backup_dir(self):
+        return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
+
     def can_upgrade(self):
 
         # A scriptlet can run if the version matches the tracker and
@@ -276,6 +281,15 @@ class PKIUpgradeScriptlet(object):
 
     def upgrade(self):
 
+        backup_dir = self.get_backup_dir()
+
+        if os.path.exists(backup_dir):
+           # remove old backup dir
+            shutil.rmtree(backup_dir)
+
+        # create backup dir
+        os.makedirs(backup_dir)
+
         try:
             if not self.can_upgrade():
                 if verbose: print 'Skipping system.'
@@ -299,6 +313,58 @@ class PKIUpgradeScriptlet(object):
                 if result == 'y': return
 
             raise pki.PKIException('Upgrade failed: ' + e.message, e)
+
+    def revert(self):
+
+        backup_dir = self.get_backup_dir()
+
+        if not os.path.exists(backup_dir):
+            return
+
+        oldfiles = backup_dir + '/oldfiles'
+        if os.path.exists(oldfiles):
+
+            # restore all backed up files
+            for root, dirnames, filenames in os.walk(oldfiles):
+                path = root[len(oldfiles):]
+                for filename in filenames:
+                    source = root + '/' + filename
+                    target = path + '/' + filename
+
+                    if verbose: print 'Restoring ' + target
+                    pki.util.copyfile(source, target)
+
+        newfiles = backup_dir + '/newfiles'
+        if os.path.exists(newfiles):
+
+            # remove files that did not exist before upgrade
+            with open(newfiles, 'r') as f:
+                for filename in f:
+                    filename = filename.strip('\n')
+
+                    if os.path.exists(filename):
+                        if verbose: print 'Deleting ' + filename
+                        os.remove(filename)
+
+    def backup(self, filename):
+
+        backup_dir = self.get_backup_dir()
+        backup_file = backup_dir + '/oldfiles' + filename
+
+        if os.path.exists(filename):
+
+            # if file exists, keep a copy
+
+            if verbose: print 'Saving ' + filename
+            pki.util.copyfile(filename, backup_file)
+
+        else:
+
+            # otherwise, keep the name
+
+            if verbose: print 'Recording ' + filename
+            with open(backup_dir + '/newfiles', 'a') as f:
+                f.write(filename + '\n')
 
     def __eq__(self, other):
         return self.version == other.version and self.index == other.index
@@ -330,30 +396,41 @@ class PKIUpgrader(object):
 
         return os.path.join(self.upgrade_dir, str(version))
 
-    def versions(self):
-
-        current_version = self.get_current_version()
-        target_version = self.get_target_version()
+    def all_versions(self):
 
         all_versions = []
 
         if os.path.exists(self.upgrade_dir):
             for version in os.listdir(self.upgrade_dir):
                 version = Version(version)
-
-                # skip old versions
-                if version >= current_version:
-                    all_versions.append(version)
+                all_versions.append(version)
 
         all_versions.sort()
 
+        return all_versions
+
+    def versions(self):
+
+        current_version = self.get_current_version()
+        target_version = self.get_target_version()
+
+        current_versions = []
+
+        for version in self.all_versions():
+
+            # skip old versions
+            if version >= current_version:
+                current_versions.append(version)
+
+        current_versions.sort()
+
         versions = []
 
-        for index, version in enumerate(all_versions):
+        for index, version in enumerate(current_versions):
 
             # link versions
-            if index < len(all_versions) - 1:
-                version.next = all_versions[index + 1]
+            if index < len(current_versions) - 1:
+                version.next = current_versions[index + 1]
             else:
                 version.next = target_version
 
@@ -367,10 +444,13 @@ class PKIUpgrader(object):
 
     def scriptlets(self, version):
 
-        version_dir = self.version_dir(version)
-        filenames = os.listdir(version_dir)
         scriptlets = []
 
+        version_dir = self.version_dir(version)
+        if not os.path.exists(version_dir):
+            return scriptlets
+
+        filenames = os.listdir(version_dir)
         for filename in filenames:
 
             # parse <index>-<classname>
@@ -449,7 +529,7 @@ class PKIUpgrader(object):
             return
 
         # execute scriptlets
-        for index, scriptlet in enumerate(scriptlets):
+        for scriptlet in scriptlets:
 
             message = str(scriptlet.index) + '. ' + scriptlet.message
 
@@ -493,7 +573,7 @@ class PKIUpgrader(object):
 
         versions = self.versions()
 
-        for index, version in enumerate(versions):
+        for version in versions:
 
             self.upgrade_version(version)
             print
@@ -505,6 +585,72 @@ class PKIUpgrader(object):
             self.show_tracker()
             print 'Upgrade incomplete.'
 
+
+    def revert_version(self, version):
+
+        print 'Reverting to version ' + str(version) + ':'
+
+        scriptlets = self.scriptlets(version)
+        scriptlets.reverse()
+
+        for scriptlet in scriptlets:
+
+            message = str(scriptlet.index) + '. ' + scriptlet.message
+
+            if self.silent:
+                print message
+
+            else:
+                result = pki.read_text(message + ' (Yes/No)',
+                    options=['Y', 'N'], default='Y', caseSensitive=False).lower()
+
+                if result == 'n':
+                    raise pki.PKIException('Revert canceled.')
+
+            try:
+                scriptlet.revert()
+
+            except pki.PKIException as e:
+                raise
+
+            except Exception as e:
+
+                print
+
+                message = 'Revert failed: ' + e.message
+
+                if verbose:
+                    traceback.print_exc()
+                else:
+                    print e.message
+
+                print
+
+                result = pki.read_text('Continue (Yes/No)',
+                    options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+
+                if result == 'n':
+                    raise pki.PKIException(message, e)
+
+        self.set_tracker(version)
+
+    def revert(self):
+
+        current_version = self.get_current_version()
+
+        versions = self.all_versions()
+        versions.reverse()
+
+        # find the first version smaller than the current version
+        for version in versions:
+
+            if version >= current_version:
+                continue
+
+            self.revert_version(version)
+            return
+
+        print 'Unable to revert from version ' + str(current_version) + '.'
 
     def show_tracker(self):
 
@@ -527,12 +673,12 @@ class PKIUpgrader(object):
         tracker = self.get_tracker()
         tracker.set(version)
 
+        print 'Tracker has been set to version ' + str(version) + '.'
+
     def reset_tracker(self):
 
         target_version = self.get_target_version()
         self.set_tracker(target_version)
-
-        print 'Tracker has been set to version ' + str(target_version) + '.'
 
     def remove_tracker(self):
 

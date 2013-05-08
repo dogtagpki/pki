@@ -106,6 +106,8 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
             'webapps', subsystem.name,
             'WEB-INF', 'web.xml')
 
+        self.backup(web_xml)
+
         self.doc = ET.parse(web_xml)
         self.root = self.doc.getroot()
         self.remove_get_token_info(subsystem.name)
