@@ -1,0 +1,77 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+
+import pki
+import pki.upgrade
+
+
+class RemoveJniJarDir(pki.upgrade.PKIUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Remove JNI_JAR_DIR from /etc/pki/pki.conf'
+
+    def upgrade_system(self):
+
+        file = os.path.join(pki.CONF_DIR, 'pki.conf')
+        self.backup(file)
+
+        # read pki.conf
+        conf = pki.PropertyFile(file)
+        conf.read()
+
+        self.update_system_config(conf)
+
+        # update pki.conf
+        conf.write()
+
+    def update_system_config(self, conf):
+
+        # find JNI_JAR_DIR
+        index = conf.index('JNI_JAR_DIR')
+
+        if index < 0:
+            return
+
+        # remove JNI_JAR_DIR
+        conf.remove_line(index)
+
+        if index == 0:
+            return
+
+        index = index - 1
+        if conf.lines[index] != '# JNI jar file location':
+            return
+
+        # remove comment
+        conf.remove_line(index)
+
+        if index == 0:
+            return
+
+        index = index - 1
+        if conf.lines[index] != '':
+            return
+
+        # remove blank line
+        conf.remove_line(index)
