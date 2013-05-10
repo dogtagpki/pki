@@ -42,6 +42,7 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -509,7 +510,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             CryptoToken savedToken = null;
                             sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                             try {
-                                cm = CryptoManager.getInstance(); 
+                                cm = CryptoManager.getInstance();
                                 if (sigver == true) {
                                     String tokenName =
                                         CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
@@ -811,6 +812,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         CryptoToken savedToken = null;
         CryptoManager cm = null;
         try {
+            cm = CryptoManager.getInstance();
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
             PKIData pkiData = (PKIData) (new PKIData.Template()).decode(s);
 
@@ -920,7 +922,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
                             // by default JSS will use internal crypto token
                             if (!tokenName.equals("internal")) {
-                                cm = CryptoManager.getInstance(); 
                                 savedToken = cm.getThreadToken();
                                 signToken = cm.getTokenByName(tokenName);
                                 if(signToken != null) {
@@ -972,6 +973,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (InvalidBERException e) {
             CMS.debug("CMCAuth: " + e.toString());
         } catch (IOException e) {
+            CMS.debug("CMCAuth: " + e.toString());
+        } catch (NotInitializedException e) {
             CMS.debug("CMCAuth: " + e.toString());
         } catch (Exception e) {
             CMS.debug("CMCAuth: " + e.toString());
