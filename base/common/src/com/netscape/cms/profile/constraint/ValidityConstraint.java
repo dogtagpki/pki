@@ -36,6 +36,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 
@@ -209,6 +210,8 @@ public class ValidityConstraint extends EnrollConstraint {
         if (def instanceof ValidityDefault)
             return true;
         if (def instanceof CAValidityDefault)
+            return true;
+        if (def instanceof RandomizedValidityDefault)
             return true;
         return false;
     }
