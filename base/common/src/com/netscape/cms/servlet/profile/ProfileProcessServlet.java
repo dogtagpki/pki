@@ -37,8 +37,8 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileOutput;
-import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
@@ -157,7 +157,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             for (ProfileOutput output: data.getOutputs()) {
                 for (ProfileAttribute attr: output.getAttrs()){
                     ArgSet outputset = new ArgSet();
-                    Descriptor desc = attr.getDescriptor();
+                    IDescriptor desc = attr.getDescriptor();
                     outputset.set(ARG_OUTPUT_ID, attr.getName());
                     outputset.set(ARG_OUTPUT_SYNTAX, desc.getSyntax());
                     outputset.set(ARG_OUTPUT_CONSTRAINT, desc.getConstraint());

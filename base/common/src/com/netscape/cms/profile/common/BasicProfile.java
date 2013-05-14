@@ -20,6 +20,7 @@ package com.netscape.cms.profile.common;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -116,12 +117,20 @@ public abstract class BasicProfile implements IProfile {
         }
     }
 
+    public void setRenewal(boolean renewal) {
+        mConfig.putBoolean(PROP_IS_RENEWAL, renewal);
+    }
+
     public String isXmlOutput() {
         try {
             return mConfig.getString(PROP_XML_OUTPUT, "false");
         } catch (EBaseException e) {
             return "false";
         }
+    }
+
+    public void setXMLOutput(boolean xmlOutput) {
+        mConfig.putBoolean(PROP_XML_OUTPUT, xmlOutput);
     }
 
     public String getApprovedBy() {
@@ -173,6 +182,11 @@ public abstract class BasicProfile implements IProfile {
     public void setAuthenticatorId(String id) {
         mAuthInstanceId = id;
         mConfig.putString("auth." + PROP_INSTANCE_ID, id);
+    }
+
+    public void setAuthzAcl(String id) {
+        mAuthzAcl = id;
+        mConfig.putString("authz.acl", id);
     }
 
     public String getAuthzAcl() {
@@ -459,6 +473,18 @@ public abstract class BasicProfile implements IProfile {
 
     }
 
+    public void deleteAllProfilePolicies() throws EProfileException {
+        for (Map.Entry<String, Vector<ProfilePolicy>> entry : mPolicySet.entrySet()) {
+            String setId = entry.getKey();
+            Vector<ProfilePolicy> pList = new Vector<ProfilePolicy>(entry.getValue());
+            for (ProfilePolicy policy: pList) {
+                deleteProfilePolicy(setId, policy.getId());
+            }
+        }
+
+        mPolicySet.clear();
+    }
+
     public void deleteProfileInput(String inputId) throws EProfileException {
         try {
             mConfig.removeSubStore("input." + inputId);
@@ -499,6 +525,14 @@ public abstract class BasicProfile implements IProfile {
         }
     }
 
+    public void deleteAllProfileInputs() throws EProfileException {
+        // need to use a copy here because we are removing elements from the vector
+        Vector<String> inputs = new Vector<String>(mInputIds);
+        for (String id: inputs) {
+            deleteProfileInput(id);
+        }
+    }
+
     public void deleteProfileOutput(String outputId) throws EProfileException {
         try {
             mConfig.removeSubStore("output." + outputId);
@@ -536,6 +570,14 @@ public abstract class BasicProfile implements IProfile {
                     Long.toString(CMS.getCurrentDate().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
+        }
+    }
+
+    public void deleteAllProfileOutputs() throws EProfileException {
+     // need to use a copy here because we are removing elements from the vector
+        Vector<String> outputs = new Vector<String>(mOutputIds);
+        for (String id: outputs) {
+            deleteProfileOutput(id);
         }
     }
 

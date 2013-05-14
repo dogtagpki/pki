@@ -32,11 +32,17 @@ public class PolicyDefault {
     @XmlAttribute(name="id")
     private String name;
 
+    @XmlAttribute
+    private String classId;
+
     @XmlElement(name="description")
     private String text;
 
     @XmlElement(name="policyAttribute")
     private List<ProfileAttribute> attributes = new ArrayList<ProfileAttribute>();
+
+    @XmlElement(name = "params")
+    private List<ProfileParameter> params = new ArrayList<ProfileParameter>();
 
     public PolicyDefault() {
         // required for jaxb
@@ -62,12 +68,28 @@ public class PolicyDefault {
         this.text = text;
     }
 
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
+
     public List<ProfileAttribute> getAttributes() {
         return attributes;
     }
 
     public void setAttributes(List<ProfileAttribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public List<ProfileParameter> getParams() {
+        return params;
+    }
+
+    public void setParams(List<ProfileParameter> params) {
+        this.params = params;
     }
 
 }

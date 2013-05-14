@@ -18,26 +18,20 @@
 package com.netscape.certsrv.profile;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.property.Descriptor;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileOutput {
-
-    public ProfileOutput() {
-        // required for jaxb
-    }
-
-    @XmlElement
-    private String outputId;
-
-    @XmlElement(name = "attributes")
-    private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
 
     @XmlElement
     private String name;
@@ -45,12 +39,34 @@ public class ProfileOutput {
     @XmlElement
     private String text;
 
-    public String getOutputId() {
-        return outputId;
+    @XmlElement
+    private String classId;
+
+    @XmlElement(name = "attributes")
+    private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
+
+
+    public ProfileOutput() {
+        // required for jaxb
     }
 
-    public void setOutputId(String OutputId) {
-        this.outputId = OutputId;
+    public ProfileOutput(IProfileOutput output, String classId, Locale locale) {
+        this.name = output.getName(locale);
+        this.classId = classId;
+        Enumeration<String> names = output.getValueNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            addAttribute(new ProfileAttribute(name, null,
+                    (Descriptor) output.getValueDescriptor(locale, name)));
+        }
+    }
+
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
     }
 
     public List<ProfileAttribute> getAttrs() {
@@ -79,6 +95,14 @@ public class ProfileOutput {
 
     public void addAttribute(ProfileAttribute attr) {
         attrs.add(attr);
+    }
+
+    public void removeAttribute(ProfileAttribute attr) {
+        attrs.remove(attr);
+    }
+
+    public void clearAttributes() {
+        attrs.clear();
     }
 
 }

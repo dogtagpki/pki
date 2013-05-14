@@ -27,18 +27,21 @@ import com.netscape.certsrv.property.Descriptor;
 
 public class PolicyConstraintFactory {
 
-    public static PolicyConstraint create(Locale locale, IPolicyConstraint cons) {
+    public static PolicyConstraint create(Locale locale, IPolicyConstraint cons, String classId) {
         PolicyConstraint ret = new PolicyConstraint();
         ret.setName(cons.getName(locale));
         ret.setText(cons.getText(locale));
+        ret.setClassId(classId);
 
         Enumeration<String> conNames = cons.getConfigNames();
         while (conNames.hasMoreElements()) {
             String conName = conNames.nextElement();
             PolicyConstraintValue dataVal =
-                    new PolicyConstraintValue(conName, (Descriptor) cons.getConfigDescriptor(locale, conName));
+                    new PolicyConstraintValue(conName, (Descriptor) cons.getConfigDescriptor(locale, conName),
+                            cons.getConfig(conName));
             ret.addConstraint(dataVal);
         }
+
         return ret;
     }
 }

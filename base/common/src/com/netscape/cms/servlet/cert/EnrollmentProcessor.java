@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.cert;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,6 +34,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -51,9 +51,8 @@ public class EnrollmentProcessor extends CertProcessor {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
-            Map<String, String> attrs = input.getAttributes();
-            for (Map.Entry<String, String> entry : attrs.entrySet()) {
-                dataInputs.put(entry.getKey(), entry.getValue());
+            for (ProfileAttribute attr: input.getAttrs()) {
+                dataInputs.put(attr.getName(), attr.getValue());
             }
         }
 

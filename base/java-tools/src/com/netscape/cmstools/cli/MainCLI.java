@@ -39,6 +39,7 @@ import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.client.ClientCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
+import com.netscape.cmstools.profile.ProfileCLI;
 import com.netscape.cmstools.system.KRAConnectorCLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
@@ -69,6 +70,7 @@ public class MainCLI extends CLI {
         addModule(new GroupCLI(this));
         addModule(new KeyCLI(this));
         addModule(new KRAConnectorCLI(this));
+        addModule(new ProfileCLI(this));
         addModule(new SecurityDomainCLI(this));
         addModule(new UserCLI(this));
     }

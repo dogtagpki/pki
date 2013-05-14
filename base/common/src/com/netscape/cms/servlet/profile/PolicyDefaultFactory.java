@@ -17,13 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileParameter;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
@@ -61,6 +64,33 @@ public class PolicyDefaultFactory {
                     (Descriptor) def.getValueDescriptor(locale, defName));
             ret.addAttribute(attr);
         }
+        return ret;
+    }
+
+    public static PolicyDefault create(Locale locale, IPolicyDefault def, String classId) throws EPropertyException {
+        PolicyDefault ret = new PolicyDefault();
+        ret.setName(def.getName(locale));
+        ret.setText(def.getText(locale));
+        ret.setClassId(classId);
+
+        Enumeration<String> defNames  = def.getValueNames();
+        while (defNames.hasMoreElements()) {
+            String defName = defNames.nextElement();
+            ProfileAttribute attr = new ProfileAttribute();
+            attr.setName(defName);
+            attr.setDescriptor((Descriptor) def.getValueDescriptor(locale, defName));
+            ret.addAttribute(attr);
+        }
+
+        List<ProfileParameter> pList = new ArrayList<ProfileParameter>();
+        Enumeration<String> paramNames  = def.getConfigNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            ProfileParameter p = new ProfileParameter(paramName, def.getConfig(paramName));
+            pList.add(p);
+        }
+        ret.setParams(pList);
+
         return ret;
     }
 

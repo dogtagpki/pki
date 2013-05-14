@@ -25,9 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
@@ -39,6 +37,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
 
@@ -111,7 +110,7 @@ public class CertEnrollmentRequest {
     }
 
     public void addInput(ProfileInput input) {
-        ProfileInput curInput = getInput(input.getInputId());
+        ProfileInput curInput = getInput(input.getName());
         if (curInput != null) {
             getInputs().remove(curInput);
         }
@@ -119,7 +118,7 @@ public class CertEnrollmentRequest {
     }
 
     public void deleteInput(ProfileInput input) {
-        ProfileInput curInput = getInput(input.getInputId());
+        ProfileInput curInput = getInput(input.getName());
         if (curInput != null) {
             getInputs().remove(curInput);
         }
@@ -133,7 +132,7 @@ public class CertEnrollmentRequest {
             return oldInput;
 
         ProfileInput newInput = new ProfileInput();
-        newInput.setInputId(name);
+        newInput.setName(name);
 
         getInputs().add(newInput);
 
@@ -141,23 +140,16 @@ public class CertEnrollmentRequest {
     }
 
     public ProfileInput getInput(String name) {
-
         ProfileInput input = null;
-
-        Iterator<ProfileInput> it = getInputs().iterator();
-
-        ProfileInput curInput = null;
-        while (it.hasNext()) {
-            curInput = it.next();
-            if (curInput != null && curInput.getInputId().equals(name))
+        for (ProfileInput curInput: getInputs()) {
+            if (curInput != null && curInput.getName().equals(name))
                 break;
         }
-
         return input;
     }
 
     public void addOutput(ProfileOutput output) {
-        ProfileOutput curOutput = getOutput(output.getOutputId());
+        ProfileOutput curOutput = getOutput(output.getName());
         if (curOutput != null) {
             getOutputs().remove(curOutput);
         }
@@ -165,7 +157,7 @@ public class CertEnrollmentRequest {
     }
 
     public void deleteOutput(ProfileOutput output) {
-        ProfileOutput curOutput = getOutput(output.getOutputId());
+        ProfileOutput curOutput = getOutput(output.getName());
         if (curOutput != null) {
             getInputs().remove(curOutput);
         }
@@ -173,15 +165,10 @@ public class CertEnrollmentRequest {
 
     public ProfileOutput getOutput(String name) {
         ProfileOutput output = null;
-        ProfileOutput curOutput = null;
-
-        Iterator<ProfileOutput> it = getOutputs().iterator();
-        while (it.hasNext()) {
-            curOutput = it.next();
-            if (curOutput != null && curOutput.getOutputId().equals(name))
+        for (ProfileOutput curOutput: getOutputs()) {
+            if (curOutput != null && curOutput.getName().equals(name))
                 break;
         }
-
         return output;
     }
 
@@ -201,9 +188,8 @@ public class CertEnrollmentRequest {
         if (remoteAddr != null) ret.put("remoteAddr", remoteAddr);
 
         for (ProfileInput input: inputs) {
-            Map<String, String> attrs = input.getAttributes();
-            for (Map.Entry<String, String> entry: attrs.entrySet()) {
-                ret.put(entry.getKey(), entry.getValue());
+            for (ProfileAttribute attr:input.getAttrs()) {
+                ret.put(attr.getName(), attr.getValue());
             }
         }
 
@@ -218,26 +204,27 @@ public class CertEnrollmentRequest {
         //Simulate a "caUserCert" Profile enrollment
 
         ProfileInput certReq = data.createInput("KeyGenInput");
-        certReq.setInputAttr("cert_request_type", "crmf");
-        certReq.setInputAttr(
+        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
+        certReq.addAttribute(new ProfileAttribute(
                 "cert_request",
-                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz");
+                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz",
+                null));
 
         ProfileInput subjectName = data.createInput("SubjectNameInput");
-        subjectName.setInputAttr("sn_uid", "jmagne");
-        subjectName.setInputAttr("sn_e", "jmagne@redhat.com");
-        subjectName.setInputAttr("sn_c", "US");
-        subjectName.setInputAttr("sn_ou", "Development");
-        subjectName.setInputAttr("sn_ou1", "IPA");
-        subjectName.setInputAttr("sn_ou2", "Dogtag");
-        subjectName.setInputAttr("sn_ou3", "CA");
-        subjectName.setInputAttr("sn_cn", "Common");
-        subjectName.setInputAttr("sn_o", "RedHat");
+        subjectName.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_c", "US", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
 
         ProfileInput submitter = data.createInput("SubmitterInfoInput");
-        submitter.setInputAttr("requestor_name", "admin");
-        submitter.setInputAttr("requestor_email", "admin@redhat.com");
-        submitter.setInputAttr("requestor_phone", "650-555-5555");
+        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
 
         try {
             JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);

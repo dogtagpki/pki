@@ -133,4 +133,5 @@ public interface IPolicyDefault extends IConfigTemplate {
      */
     public String getValue(String name, Locale locale, IRequest request)
             throws EPropertyException;
+
 }

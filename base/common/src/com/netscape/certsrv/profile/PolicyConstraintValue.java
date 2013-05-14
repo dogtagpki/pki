@@ -34,13 +34,17 @@ public class PolicyConstraintValue {
     @XmlElement
     private Descriptor descriptor;
 
+    @XmlElement
+    private String value;
+
     public PolicyConstraintValue() {
         // required for jax-b
     }
 
-    public PolicyConstraintValue(String name, Descriptor descriptor) {
+    public PolicyConstraintValue(String name, Descriptor descriptor, String value) {
         this.name = name;
         this.descriptor = descriptor;
+        this.value = value;
     }
 
     public String getName() {
@@ -57,5 +61,13 @@ public class PolicyConstraintValue {
 
     public void setDescriptor(Descriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

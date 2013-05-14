@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -34,9 +35,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Descriptor implements IDescriptor {
 
+    @XmlElement(name = "syntax")
     protected String mSyntax = null;
+
+    @XmlElement(name = "constraint")
     protected String mConstraint = null;
+
+    @XmlElement(name = "description")
     protected String mDescription = null;
+
+    @XmlElement(name = "defaultValue")
     protected String mDef = null;
 
     public Descriptor() {

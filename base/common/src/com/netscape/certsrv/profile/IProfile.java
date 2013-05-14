@@ -120,6 +120,8 @@ public interface IProfile {
      */
     public void setAuthenticatorId(String id);
 
+    public void setAuthzAcl(String id);
+
     /**
      * Retrieves the associated authenticator instance.
      *
@@ -266,12 +268,24 @@ public interface IProfile {
     public void deleteProfileInput(String inputId) throws EProfileException;
 
     /**
+     * Delete all profile inputs
+     * @throws EProfileException
+     */
+    public void deleteAllProfileInputs() throws EProfileException;
+
+    /**
      * Deletes output policy by id.
      *
      * @param outputId id of the output policy
      * @exception EProfileException failed to delete
      */
     public void deleteProfileOutput(String outputId) throws EProfileException;
+
+    /**
+     * Delete all profile inputs
+     * @exception EProfileException
+     */
+    public void deleteAllProfileOutputs() throws EProfileException;
 
     /**
      * Creates a input policy.
@@ -307,6 +321,12 @@ public interface IProfile {
      */
     public void deleteProfilePolicy(String setId, String policyId)
             throws EProfileException;
+
+    /**
+     * Delete all profile policies
+     * @exception EProfileException
+     */
+    public void deleteAllProfilePolicies() throws EProfileException;
 
     /**
      * Retrieves a policy.
@@ -405,4 +425,8 @@ public interface IProfile {
      */
     public void submit(IAuthToken token, IRequest request)
             throws EDeferException, EProfileException;
+
+    public void setRenewal(boolean renewal);
+
+    public void setXMLOutput(boolean xmlOutput);
 }

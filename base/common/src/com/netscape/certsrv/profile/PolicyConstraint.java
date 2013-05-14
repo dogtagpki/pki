@@ -35,6 +35,9 @@ public class PolicyConstraint {
     @XmlElement(name="description")
     private String text;
 
+    @XmlElement
+    private String classId;
+
     @XmlElement(name = "constraint")
     private List<PolicyConstraintValue> constraints = new ArrayList<PolicyConstraintValue>();
 
@@ -60,6 +63,14 @@ public class PolicyConstraint {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
     }
 
     public List<PolicyConstraintValue> getConstraints() {

@@ -18,77 +18,104 @@
 package com.netscape.certsrv.profile;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.netscape.certsrv.property.Descriptor;
 
 public class ProfileInput {
+
+    private String classId;
+    private String name;
+    private String text;
+    private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
+    private List<ProfileAttribute> configAttrs = new ArrayList<ProfileAttribute>();
 
     public ProfileInput() {
         // required for jaxb
     }
 
+    public ProfileInput(IProfileInput input, String classId, Locale locale) {
+        this.name = input.getName(locale);
+        this.classId = classId;
+        Enumeration<String> names = input.getValueNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            addAttribute(new ProfileAttribute(name, null,
+                    (Descriptor) input.getValueDescriptor(locale, name)));
+        }
+    }
+
     @XmlElement
-    public String getInputId() {
-        return inputId;
+    public String getClassId() {
+        return classId;
     }
 
-    private String inputId;
-
-    @XmlJavaTypeAdapter(InputAttrsAdapter.class)
-    public Map<String, String> InputAttrs = new LinkedHashMap<String, String>();
-
-    public void setInputAttr(String name, String value) {
-        InputAttrs.put(name, value);
+    @XmlElement
+    public String getName() {
+        return name;
     }
 
-    public void setInputId(String inputId) {
-        this.inputId = inputId;
+    @XmlElement
+    public String getText() {
+        return text;
     }
 
-    public static class InputAttrsAdapter extends XmlAdapter<InputAttrList, Map<String, String>> {
-
-        public InputAttrList marshal(Map<String, String> map) {
-            InputAttrList list = new InputAttrList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                Attribute attribute = new Attribute();
-                attribute.name = entry.getKey();
-                attribute.value = entry.getValue();
-                list.attributes.add(attribute);
-            }
-            return list;
-        }
-
-        public Map<String, String> unmarshal(InputAttrList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
-            for (Attribute attribute : list.attributes) {
-                map.put(attribute.name, attribute.value);
-            }
-            return map;
-        }
+    public void setClassId(String classId) {
+        this.classId = classId;
     }
 
-    public static class InputAttrList {
-        @XmlElement(name = "InputAttr")
-        public List<Attribute> attributes = new ArrayList<Attribute>();
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public static class Attribute {
-
-        @XmlAttribute
-        public String name;
-
-        @XmlValue
-        public String value;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public Map<String, String> getAttributes() {
-        return InputAttrs;
+    @XmlElement(name = "attribute")
+    public List<ProfileAttribute> getAttrs() {
+        return attrs;
     }
+
+    public void setAttrs(List<ProfileAttribute> attrs) {
+        this.attrs = attrs;
+    }
+
+    public void addAttribute(ProfileAttribute attr) {
+        attrs.add(attr);
+    }
+
+    public void removeAttribute(ProfileAttribute attr) {
+        attrs.remove(attr);
+    }
+
+    public void clearAttributes() {
+        attrs.clear();
+    }
+
+    @XmlElement(name = "config_attribute")
+    public List<ProfileAttribute> getConfigAttrs() {
+        return configAttrs;
+    }
+
+    public void setConfigAttrs(List<ProfileAttribute> configAttrs) {
+        this.configAttrs = configAttrs;
+    }
+
+    public void addConfigAttribute(ProfileAttribute configAttr) {
+        attrs.add(configAttr);
+    }
+
+    public void removeConfigAttribute(ProfileAttribute configAttr) {
+        attrs.remove(configAttr);
+    }
+
+    public void clearConfigAttributes() {
+        configAttrs.clear();
+    }
+
 }

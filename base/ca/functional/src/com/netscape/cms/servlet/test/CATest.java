@@ -18,8 +18,6 @@
 package com.netscape.cms.servlet.test;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
@@ -45,6 +43,7 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -319,26 +318,26 @@ public class CATest {
         //Simulate a "caUserCert" Profile enrollment
 
         ProfileInput certReq = data.createInput("Key Generation");
-        certReq.setInputAttr("cert_request_type", "crmf");
-        certReq.setInputAttr(
+        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
+        certReq.addAttribute(new ProfileAttribute(
                 "cert_request",
-                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz");
+                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz", null));
 
         ProfileInput subjectName = data.createInput("Subject Name");
-        subjectName.setInputAttr("sn_uid", "jmagne");
-        subjectName.setInputAttr("sn_e", "jmagne@redhat.com");
-        subjectName.setInputAttr("sn_c", "US");
-        subjectName.setInputAttr("sn_ou", "Development");
-        subjectName.setInputAttr("sn_ou1", "IPA");
-        subjectName.setInputAttr("sn_ou2", "Dogtag");
-        subjectName.setInputAttr("sn_ou3", "CA");
-        subjectName.setInputAttr("sn_cn", "Common");
-        subjectName.setInputAttr("sn_o", "RedHat");
+        subjectName.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_c", "US", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
 
         ProfileInput submitter = data.createInput("Requestor Information");
-        submitter.setInputAttr("requestor_name", "admin");
-        submitter.setInputAttr("requestor_email", "admin@redhat.com");
-        submitter.setInputAttr("requestor_phone", "650-555-5555");
+        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
         return data;
     }
 
@@ -350,20 +349,20 @@ public class CATest {
         //Simulate a "caUserCert" Profile enrollment
 
         ProfileInput certReq = data.createInput("Key Generation");
-        certReq.setInputAttr("cert_request_type", "crmf");
-        certReq.setInputAttr(
+        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
+        certReq.addAttribute(new ProfileAttribute(
                 "cert_request",
-                "MIIB5DCCAeAwggFGAgQTosnaMIIBB4ABAqVOMEwxETAPBgNVBAMTCGFsZWUgcmEzMR4wHAYJKoZIhvcNAQkBFg9hbGVlQHJlZGhhdC5jb20xFzAVBgoJkiaJk/IsZAEBEwdhbGVlcmEzpoGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkQh3k+1323YgQD+oA9yzftqxbGQlsbz0f2OEeOL5h0uhg/qPlSNMjRN3mAeuaNyF0n/Bdxv4699gRTsyEaVJu7HX+kauSCZv+J0tvHiYuHQz1/TSscU9TNLyQjgXVKQFHEdjZa2cQNdmMDUFWrftAK6BFnsP3Tu712qZPAuBH9QIDAQABqRAwDgYDVR0PAQH/BAQDAgXgMDMwFQYJKwYBBQUHBQEBDAhyZWdUb2tlbjAaBgkrBgEFBQcFAQIMDWF1dGhlbnRpY2F0b3KhgZMwDQYJKoZIhvcNAQEFBQADgYEATNi3vMxn9KMto999sR4ik851jqbb6L0GL1KKgQ/hjIAACQb2H+0OpqeZ2+DcGd+oAQn1YZe8aPoFu+HOWjHlY1E2tm7TI1B6JpCL3TMag3mYryROX7l7LFEa1P730aGOWJF874bG8UWisU190zhCBQUqUjsd9DwaP42qM0gnzas=");
+                "MIIB5DCCAeAwggFGAgQTosnaMIIBB4ABAqVOMEwxETAPBgNVBAMTCGFsZWUgcmEzMR4wHAYJKoZIhvcNAQkBFg9hbGVlQHJlZGhhdC5jb20xFzAVBgoJkiaJk/IsZAEBEwdhbGVlcmEzpoGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkQh3k+1323YgQD+oA9yzftqxbGQlsbz0f2OEeOL5h0uhg/qPlSNMjRN3mAeuaNyF0n/Bdxv4699gRTsyEaVJu7HX+kauSCZv+J0tvHiYuHQz1/TSscU9TNLyQjgXVKQFHEdjZa2cQNdmMDUFWrftAK6BFnsP3Tu712qZPAuBH9QIDAQABqRAwDgYDVR0PAQH/BAQDAgXgMDMwFQYJKwYBBQUHBQEBDAhyZWdUb2tlbjAaBgkrBgEFBQcFAQIMDWF1dGhlbnRpY2F0b3KhgZMwDQYJKoZIhvcNAQEFBQADgYEATNi3vMxn9KMto999sR4ik851jqbb6L0GL1KKgQ/hjIAACQb2H+0OpqeZ2+DcGd+oAQn1YZe8aPoFu+HOWjHlY1E2tm7TI1B6JpCL3TMag3mYryROX7l7LFEa1P730aGOWJF874bG8UWisU190zhCBQUqUjsd9DwaP42qM0gnzas=", null));
 
         ProfileInput subjectName = data.createInput("Subject Name");
-        subjectName.setInputAttr("sn_uid", "aleera3");
-        subjectName.setInputAttr("sn_e", "alee@redhat.com");
-        subjectName.setInputAttr("sn_cn", "alee ra3");
+        subjectName.addAttribute(new ProfileAttribute("sn_uid", "aleera3", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_e", "alee@redhat.com", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_cn", "alee ra3", null));
 
         ProfileInput submitter = data.createInput("Requestor Information");
-        submitter.setInputAttr("requestor_name", "admin");
-        submitter.setInputAttr("requestor_email", "admin@redhat.com");
-        submitter.setInputAttr("requestor_phone", "650-555-1234");
+        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-1234", null));
         return data;
     }
 
@@ -375,19 +374,20 @@ public class CATest {
         //Simulate a "caUserCert" Profile enrollment
 
         ProfileInput certReq = data.createInput("Key Generation");
-        certReq.setInputAttr("cert_request_type", "pkcs10");
-        certReq.setInputAttr(
+        certReq.addAttribute(new ProfileAttribute("cert_request_type", "pkcs10", null));
+        certReq.addAttribute(new ProfileAttribute(
                 "cert_request",
-                "MIIBZjCB0AIBADAnMQ8wDQYDVQQKEwZyZWRoYXQxFDASBgNVBAMTC2FsZWUtd29ya3BjMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJtuKg9osJEBUwz8LoMQwwm1m7D97NNJEmvEhvBMet+VCtbd/erAFMoVXEgSKks/XFK2ViTeZYpp0A2pe4bm4yxowZm0b6von9BKGQ0jNtLemoOkGRWC/PP+fYP16aH62xu4z8MH1pBubdlAEp3Ppnr93aB1lzQaPVmcR3B4OWhwIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAgZhZOe0LqQD5iywAO7sY0PANVGzzdcmoLZJjjASY3kU5E3K8u3FKh24WJxcWzdC+/FysDkJixJb7xGUm697QwZvGxmAIQH4yIebWJ2KLHQQgRJytjVYySrRo2Fuo/dm2zzf3+o8WBuD2eMsEjsZfuKxhz7EahvyC2y/CuTBA08s="
+                "MIIBZjCB0AIBADAnMQ8wDQYDVQQKEwZyZWRoYXQxFDASBgNVBAMTC2FsZWUtd29ya3BjMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJtuKg9osJEBUwz8LoMQwwm1m7D97NNJEmvEhvBMet+VCtbd/erAFMoVXEgSKks/XFK2ViTeZYpp0A2pe4bm4yxowZm0b6von9BKGQ0jNtLemoOkGRWC/PP+fYP16aH62xu4z8MH1pBubdlAEp3Ppnr93aB1lzQaPVmcR3B4OWhwIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAgZhZOe0LqQD5iywAO7sY0PANVGzzdcmoLZJjjASY3kU5E3K8u3FKh24WJxcWzdC+/FysDkJixJb7xGUm697QwZvGxmAIQH4yIebWJ2KLHQQgRJytjVYySrRo2Fuo/dm2zzf3+o8WBuD2eMsEjsZfuKxhz7EahvyC2y/CuTBA08s=",
+                null)
         );
         ProfileInput subjectName = data.createInput("Subject Name");
-        subjectName.setInputAttr("sn_cn", "alee-workpc");
-        subjectName.setInputAttr("sn_o", "redhat");
+        subjectName.addAttribute(new ProfileAttribute("sn_cn", "alee-workpc", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_o", "redhat", null));
 
         ProfileInput submitter = data.createInput("Requestor Information");
-        submitter.setInputAttr("requestor_name", "admin");
-        submitter.setInputAttr("requestor_email", "admin@redhat.com");
-        submitter.setInputAttr("requestor_phone", "650-555-5555");
+        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
         return data;
     }
 
@@ -399,18 +399,9 @@ public class CATest {
         }
 
         Collection<ProfileDataInfo> listProfiles = pInfos.getProfileInfos();
-        Iterator<ProfileDataInfo> iter = null;
-
         if (listProfiles != null) {
-            iter = listProfiles.iterator();
-        }
-
-        log("\nProfiles found. \n");
-
-        while (iter != null && iter.hasNext()) {
-            ProfileDataInfo info = iter.next();
-
-            if (info != null) {
+            log("\nProfiles found. \n");
+            for (ProfileDataInfo info: listProfiles) {
                 printProfileDataInfo(info);
             }
         }
@@ -436,40 +427,19 @@ public class CATest {
         log("Name: " + info.getName());
         log("Description: " + info.getDescription());
         log("EnabledBy: " + info.getEnabledBy());
-        log("IsEnabled: " + info.getIsEnabled());
-        log("IsVisible: " + info.getIsVisible() + "\n\n");
+        log("Enabled: " + info.isEnabled());
+        log("Visible: " + info.isVisible() + "\n\n");
 
         log("Profile Input Information: \n");
 
-        List<ProfileInput> inputs = info.getProfileInputsList();
-
-        if (inputs != null) {
-            Iterator<ProfileInput> it = inputs.iterator();
-
-            ProfileInput curInput = null;
-            while (it.hasNext()) {
-                curInput = it.next();
-
-                if (curInput != null) {
-
-                    log("Input Name: " + curInput.getInputId());
-
-                    Map<String, String> attrs = curInput.getAttributes();
-
-                    if (!attrs.isEmpty()) {
-                        for (String key : attrs.keySet()) {
-                            String value = attrs.get(key);
-
-                            log("Input Attribute Name: " + key + "\n");
-                            log("Input Attribute Value: " + value + "\n");
-                        }
-                    }
-
-                }
+        Map<String, ProfileInput> inputs = info.getInputs();
+        for (Map.Entry<String, ProfileInput> entry : inputs.entrySet()) {
+            log("Input Id: " + entry.getKey());
+            for (ProfileAttribute attr: entry.getValue().getAttrs()) {
+                log("Input Attribute Name: " + attr.getName() + "\n");
+                log("Input Attribute Value: " + attr.getValue() + "\n");
             }
-
         }
-
     }
 
     private static void printCertInfos(CertDataInfos infos, String filter) {
@@ -480,18 +450,10 @@ public class CATest {
         }
 
         Collection<CertDataInfo> listCerts = infos.getCertInfos();
-        Iterator<CertDataInfo> iter = null;
-
         if (listCerts != null) {
-            iter = listCerts.iterator();
-        }
-
-        log("\nCertificates found with search filter: " + filter + "\n");
-
-        while (iter != null && iter.hasNext()) {
-            CertDataInfo info = iter.next();
-            if (info != null) {
-                printCertInfo(info);
+            log("\nCertificates found with search filter: " + filter + "\n");
+            for (CertDataInfo info: listCerts) {
+                if (info != null) printCertInfo(info);
             }
         }
     }
@@ -533,11 +495,7 @@ public class CATest {
             log("No requests found");
             return;
         }
-
-        Iterator<CertRequestInfo> iter = list.iterator();
-
-        while (iter != null && iter.hasNext()) {
-            CertRequestInfo info = iter.next();
+        for (CertRequestInfo info: list) {
             printRequestInfo(info);
         }
     }

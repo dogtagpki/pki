@@ -113,7 +113,9 @@ public class CertReviewResponseFactory {
                 dataPolicy.setDef(dataDef);
 
                 //populate constraints
-                PolicyConstraint dataCons = PolicyConstraintFactory.create(locale, policy.getConstraint());
+                // TODO - fix this.
+                PolicyConstraint dataCons = PolicyConstraintFactory.create(locale, policy.getConstraint(),
+                        policy.getConstraint().getClass().getSimpleName());
                 dataPolicy.setConstraint(dataCons);
 
                 dataPolicySet.addPolicy(dataPolicy);
