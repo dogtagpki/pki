@@ -59,6 +59,9 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
     private JLabel mGracePeriodLabel;
     private JTextField mGracePeriod;
     private JLabel mGracePeriodMinLabel;
+    private JLabel mNextAsThisUpdateExtensionLabel;
+    private JTextField mNextAsThisUpdateExtension;
+    private JLabel mNextAsThisUpdateExtensionMinLabel;
 
     private Color mActiveColor;
     private AdminConnection _admin;
@@ -279,6 +282,31 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mGracePeriodMinLabel, gbc);
 
+        // next update as this update extension
+        CMSAdminUtil.resetGBC(gbc);
+        mNextAsThisUpdateExtensionLabel = makeJLabel("NEXTASTHISEXTENSION");
+        gbc.anchor = gbc.WEST;
+        gbc.fill = gbc.NONE;
+        gbc.gridx = 0;
+        // gbc.gridx = 2;
+        gbc.weightx = 0.0;
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
+        freqPanel.add(mNextAsThisUpdateExtensionLabel, gbc);
+
+        mNextAsThisUpdateExtension = makeJTextField(5);
+        gbc.anchor = gbc.WEST;
+        gbc.gridx++;
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
+        freqPanel.add(mNextAsThisUpdateExtension, gbc);
+
+        mNextAsThisUpdateExtensionMinLabel = makeJLabel("MINUTES");
+        gbc.anchor = gbc.WEST;
+        gbc.gridx++;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = gbc.REMAINDER;
+        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
+        freqPanel.add(mNextAsThisUpdateExtensionMinLabel, gbc);
 
         refresh();
     }
@@ -295,6 +323,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         nvps.put(Constants.PR_ENABLE_FREQ, "");
         nvps.put(Constants.PR_UPDATE_FREQ, "");
         nvps.put(Constants.PR_GRACE_PERIOD, "");
+        nvps.put(Constants.PR_NEXT_AS_THIS_EXTENSION, "");
 
         try {
             NameValuePairs val = null;
@@ -339,6 +368,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 mFrequency.setText(value);
             } else if (name.equals(Constants.PR_GRACE_PERIOD)) {
                 mGracePeriod.setText(value);
+            } else if (name.equals(Constants.PR_NEXT_AS_THIS_EXTENSION)) {
+                mNextAsThisUpdateExtension.setText(value);
             }
         }
     }
@@ -527,6 +558,21 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 showMessageDialog("GRACENUMBER");
                 return false;
             }
+
+            if (mNextAsThisUpdateExtension.getText().trim().equals("")) {
+                showMessageDialog("BLANKNEXTASTHISEXTENSION");
+                return false;
+            }
+            try {
+                int nextAsThisUpdateExtension = Integer.parseInt(mNextAsThisUpdateExtension.getText().trim());
+                if (nextAsThisUpdateExtension < 0) {
+                    showMessageDialog("NEXTASTHISEXTENSIONNUMBER");
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                showMessageDialog("NEXTASTHISEXTENSIONNUMBER");
+                return false;
+            }
         }
 
         NameValuePairs nvps = new NameValuePairs();
@@ -568,6 +614,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
 
         nvps.put(Constants.PR_GRACE_PERIOD, mGracePeriod.getText().trim());
 
+        nvps.put(Constants.PR_NEXT_AS_THIS_EXTENSION, mNextAsThisUpdateExtension.getText().trim());
 
         _model.progressStart();
 
@@ -614,6 +661,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 CMSAdminUtil.repaintComp(mGracePeriodLabel);
                 mGracePeriodMinLabel.setEnabled(true);
                 CMSAdminUtil.repaintComp(mGracePeriodMinLabel);
+                CMSAdminUtil.enableJTextField(mNextAsThisUpdateExtension, true, mActiveColor);
+                mNextAsThisUpdateExtensionLabel.setEnabled(true);
+                CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionLabel);
+                mNextAsThisUpdateExtensionMinLabel.setEnabled(true);
+                CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionMinLabel);
             } else {
                 CMSAdminUtil.enableJTextField(mDailyAt, false, getBackground());
                 if (!mEnableFreq.isSelected()) {
@@ -622,6 +674,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                     CMSAdminUtil.repaintComp(mGracePeriodLabel);
                     mGracePeriodMinLabel.setEnabled(false);
                     CMSAdminUtil.repaintComp(mGracePeriodMinLabel);
+                    CMSAdminUtil.enableJTextField(mNextAsThisUpdateExtension, false, getBackground());
+                    mNextAsThisUpdateExtensionLabel.setEnabled(false);
+                    CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionLabel);
+                    mNextAsThisUpdateExtensionMinLabel.setEnabled(false);
+                    CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionMinLabel);
                 }
             }
         }
@@ -635,6 +692,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 CMSAdminUtil.repaintComp(mGracePeriodLabel);
                 mGracePeriodMinLabel.setEnabled(true);
                 CMSAdminUtil.repaintComp(mGracePeriodMinLabel);
+                CMSAdminUtil.enableJTextField(mNextAsThisUpdateExtension, true, mActiveColor);
+                mNextAsThisUpdateExtensionLabel.setEnabled(true);
+                CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionLabel);
+                mNextAsThisUpdateExtensionMinLabel.setEnabled(true);
+                CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionMinLabel);
             } else {
                 CMSAdminUtil.enableJTextField(mFrequency, false, getBackground());
                 mMinLabel.setEnabled(false);
@@ -645,6 +707,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                     CMSAdminUtil.repaintComp(mGracePeriodLabel);
                     mGracePeriodMinLabel.setEnabled(false);
                     CMSAdminUtil.repaintComp(mGracePeriodMinLabel);
+                    CMSAdminUtil.enableJTextField(mNextAsThisUpdateExtension, false, getBackground());
+                    mNextAsThisUpdateExtensionLabel.setEnabled(false);
+                    CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionLabel);
+                    mNextAsThisUpdateExtensionMinLabel.setEnabled(false);
+                    CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionMinLabel);
                 }
             }
         }
@@ -693,6 +760,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         CMSAdminUtil.repaintComp(mGracePeriodLabel);
         mGracePeriodMinLabel.setEnabled(enable3);
         CMSAdminUtil.repaintComp(mGracePeriodMinLabel);
+        CMSAdminUtil.enableJTextField(mNextAsThisUpdateExtension, enable3, color3);
+        mNextAsThisUpdateExtensionLabel.setEnabled(enable3);
+        CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionLabel);
+        mNextAsThisUpdateExtensionMinLabel.setEnabled(enable3);
+        CMSAdminUtil.repaintComp(mNextAsThisUpdateExtensionMinLabel);
     }
 }
 
