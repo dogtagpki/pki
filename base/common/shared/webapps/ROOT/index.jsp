@@ -198,6 +198,37 @@
 
 <%
     }
+
+    ServletContext tpsContext = getServletContext().getContext("/tps");
+    String tpsName = tpsContext.getServletContextName();
+    String tpsPath = tpsContext.getContextPath();
+    if (!"".equals(tpsPath) && request.isSecure()) {
+%>
+<p>
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+<%= tpsName %>
+</font>
+</p>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr valign="TOP">
+    <td>
+        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
+        <a href="/tps/agent/tps">Agent Services</a></font>
+    </td>
+</tr>
+<tr valign="TOP">
+    <td>
+        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
+        <a href="/tps/services">Admin Services</a></font>
+    </td>
+</tr>
+</table>
+
+<br>
+
+<%
+    }
 %>
 
 </center>

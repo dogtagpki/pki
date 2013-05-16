@@ -520,7 +520,7 @@ class configuration_file:
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_pkcs12_password",
                                                                                          master['pki_user_deployment_cfg']))
             # Verify existence of Security Domain Password File
-            # (ONLY for Clones, KRA, OCSP, TKS, or Subordinate CA)
+            # (ONLY for Clones, KRA, OCSP, TKS, TPS, or Subordinate CA)
             if config.str2bool(master['pki_clone']) or\
                not master['pki_subsystem'] == "CA" or\
                config.str2bool(master['pki_subordinate']):
@@ -3169,7 +3169,7 @@ class config_client:
            config.str2bool(master['pki_clone']) or\
            config.str2bool(master['pki_subordinate']):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
             # Subordinate CA
             self.set_existing_security_domain(data)
         else:
@@ -3399,7 +3399,7 @@ class config_client:
            config.str2bool(master['pki_subordinate']) or\
            config.str2bool(master['pki_external']):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-            # CA Clone, KRA Clone, OCSP Clone, TKS Clone,
+            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
             # Subordinate CA, or External CA
             data.issuingCA = master['pki_issuing_ca']
             if master['pki_subsystem'] == "CA"  and\

@@ -1,0 +1,67 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<CMS_TEMPLATE>
+
+<TITLE>TPS Processing Error!</TITLE>
+
+<BODY BGCOLOR="white">
+
+<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+Problem Processing Your Request
+</font>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" BACKGROUND="/pki/images/hr.gif" >
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+<font size="-1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
+
+<SCRIPT LANGUAGE="JavaScript">
+var authority = 'Certificate System';
+if (result.fixed.authorityName != null)  {
+	authority = result.fixed.authorityName;
+}
+
+document.writeln('<P>');
+document.write('The '+authority+' encountered an unexpected error ');
+document.writeln(' while processing your request.');
+document.writeln(
+	'The following is a detailed message of the error that occurred.');
+
+document.writeln('<P>');
+document.writeln('<BLOCKQUOTE><B><PRE>');
+if (result.fixed.unexpectedError != null) {
+    document.write(result.fixed.unexpectedError);
+} else {
+    document.write('No further details provided.');
+}
+document.writeln('</PRE></B></BLOCKQUOTE>');
+
+document.writeln('<P>');
+document.writeln(
+	'Please consult your local administrator for further assistance.');
+document.writeln('The Certificate System logs may provide further information.');
+</SCRIPT>
+
+</font>
+</BODY>
+</HTML>

@@ -134,6 +134,7 @@ public interface ILogger {
      */
 
     public static final int S_TKS = 16;
+    public static final int S_TPS = 17;
 
     /**
      * log source: identify the log entry is from other subsystem

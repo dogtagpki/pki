@@ -1,0 +1,12 @@
+[Unit]
+Description=PKI Token Processing Service %i
+After=pki-tpsd.target
+BindTo=pki-tpsd.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/pkicontrol start tps %i
+ExecStop=/usr/bin/pkicontrol stop tps %i
+
+[Install]
+WantedBy=multi-user.target

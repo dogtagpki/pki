@@ -880,9 +880,9 @@ class PKIConfigParser:
             # 'Subsystem Name'  Configuration name/value pairs
             # 'Token'           Configuration name/value pairs
             #
-            #     Apache - [RA], [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
-            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone]
+            #     Apache - [RA]
+            #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
+            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone], [TPS Clone]
             #            - [External CA]
             #            - [Subordinate CA]
             #
@@ -932,7 +932,7 @@ class PKIConfigParser:
                config.str2bool(config.pki_master_dict['pki_clone']) or\
                config.str2bool(config.pki_master_dict['pki_subordinate']):
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, or
+                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
                 # Subordinate CA
                 config.pki_master_dict['pki_security_domain_type'] = "existing"
                 config.pki_master_dict['pki_security_domain_uri'] =\
@@ -964,8 +964,8 @@ class PKIConfigParser:
 
             # 'Backup' Configuration name/value pairs
             #
-            #     Apache - [RA], [TPS]
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS]
+            #     Apache - [RA]
+            #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
             #            - [External CA]
             #            - [Subordinate CA]
             #

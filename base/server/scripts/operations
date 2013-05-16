@@ -1080,11 +1080,13 @@ verify_symlinks()
     declare -A kra_symlinks
     declare -A ocsp_symlinks
     declare -A tks_symlinks
+    declare -A tps_symlinks
     declare -A common_jar_symlinks
     declare -A ca_jar_symlinks
     declare -A kra_jar_symlinks
     declare -A ocsp_jar_symlinks
     declare -A tks_jar_symlinks
+    declare -A tps_jar_symlinks
     declare -A systemd_symlinks
 
     # Dogtag 10 Conditional Variables
@@ -1104,6 +1106,7 @@ verify_symlinks()
     pki_kra_jar_dir="${PKI_INSTANCE_PATH}/webapps/kra/WEB-INF/lib"
     pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/webapps/ocsp/WEB-INF/lib"
     pki_tks_jar_dir="${PKI_INSTANCE_PATH}/webapps/tks/WEB-INF/lib"
+    pki_tps_jar_dir="${PKI_INSTANCE_PATH}/webapps/tps/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
@@ -1186,6 +1189,24 @@ verify_symlinks()
         [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
         [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
         [pki-tks.jar]=${java_dir}/pki/pki-tks.jar)
+
+    # '${PKI_INSTANCE_PATH}/tps' symlinks
+    tps_symlinks=(
+        [alias]=${PKI_INSTANCE_PATH}/alias
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tps
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tps
+        [registry]=${pki_registry_dir}
+        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+
+    # '${pki_tps_jar_dir}' symlinks
+    tps_jar_symlinks=(
+        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
+        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
+        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
+        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
+        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
+        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
+        [pki-tps.jar]=${java_dir}/pki/pki-tps.jar)
 
     # '${pki_common_jar_dir}' symlinks
     common_jar_symlinks=(

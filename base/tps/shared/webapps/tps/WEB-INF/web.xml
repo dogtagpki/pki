@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- BEGIN COPYRIGHT BLOCK
+     Copyright (C) 2006 Red Hat, Inc.
+     All rights reserved.
+     END COPYRIGHT BLOCK -->
+<!DOCTYPE web-app
+   PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
+<web-app>
+
+    <display-name>Token Processing Service</display-name>
+
+    <servlet>
+        <servlet-name>csadmin-login</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>properties</param-name>
+            <param-value>/WEB-INF/velocity.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tpsstart</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.base.CMSStartServlet</servlet-class>
+        <init-param>
+            <param-name>AuthzMgr</param-name>
+            <param-value>BasicAclAuthz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cfgPath</param-name>
+            <param-value>[PKI_INSTANCE_PATH]/conf/[PKI_SUBSYSTEM_TYPE]/CS.cfg</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ID</param-name>
+            <param-value>tpsstart</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tpsug</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.admin.UsrGrpAdminServlet</servlet-class>
+        <init-param>
+            <param-name>ID</param-name>
+            <param-value>tpsug</param-value>
+        </init-param>
+        <init-param>
+            <param-name>AuthzMgr</param-name>
+            <param-value>BasicAclAuthz</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tpslog</servlet-name>
+        <servlet-class>com.netscape.cms.servlet.admin.LogAdminServlet</servlet-class>
+        <init-param>
+            <param-name>ID</param-name>
+            <param-value>tpslog</param-value> </init-param>
+        <init-param>
+            <param-name>AuthzMgr</param-name>
+            <param-value>BasicAclAuthz</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tpsGetStatus </servlet-name>
+        <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus</servlet-class>
+        <init-param>
+            <param-name>GetClientCert</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authority</param-name>
+            <param-value>tps</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ID</param-name>
+            <param-value>tpsGetStatus</param-value>
+        </init-param>
+    </servlet>
+
+    <listener>
+        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+    </listener>
+
+    <context-param>
+        <param-name>resteasy.servlet.mapping.prefix</param-name>
+        <param-value>/rest</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.resource.method-interceptors</param-name>
+        <param-value>org.jboss.resteasy.core.ResourceMethodSecurityInterceptor</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>Resteasy</servlet-name>
+        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.dogtagpki.tps.server.TPSApplication</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tpsstart</servlet-name>
+        <url-pattern>/start</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tpsug</servlet-name>
+        <url-pattern>/ug</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tpslog</servlet-name>
+        <url-pattern>/log</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>csadmin-login</servlet-name>
+        <url-pattern>/admin/console/config/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tpsGetStatus</servlet-name>
+        <url-pattern>/admin/tps/getStatus</url-pattern>
+    </servlet-mapping>
+
+    <!-- ==================== Default Session Configuration =============== -->
+    <!-- You can set the default session timeout (in minutes) for all newly -->
+    <!-- created sessions by modifying the value below.                     -->
+    <!--                                                                    -->
+    <!-- To disable session timeouts for this instance, set a value of -1.  -->
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Account Services</web-resource-name>
+            <url-pattern>/rest/account/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Services</web-resource-name>
+            <url-pattern>/rest/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <login-config>
+        <realm-name>Token Processing Service</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>*</role-name>
+    </security-role>
+
+</web-app>

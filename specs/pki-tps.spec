@@ -17,11 +17,13 @@ BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    pcre-devel
+BuildRequires:    pki-server = %{version}-%{release}
 BuildRequires:    python
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+Requires:         java >= 1:1.7.0
 Requires:         mod_nss
 Requires:         mod_perl
 Requires:         mod_revocator
@@ -29,8 +31,8 @@ Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
-Requires:         pki-server >= 10.0.0
-Requires:         pki-server-theme >= 10.0.0
+Requires:         pki-server = %{version}-%{release}
+Requires:         pki-symkey = %{version}-%{release}
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -120,6 +122,12 @@ cd build
 	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_TPS:BOOL=ON \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+%if 0%{?rhel}
+	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
+%else
+	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%endif
+	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
@@ -210,6 +218,7 @@ fi
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
 %{_libdir}/tps/
+%{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/applets/
 %{_datadir}/pki/tps/cgi-bin/
@@ -219,6 +228,7 @@ fi
 %{_datadir}/pki/tps/samples/
 %{_datadir}/pki/tps/scripts/
 %{_datadir}/pki/tps/setup/
+%{_datadir}/pki/tps/webapps/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
 # Details:

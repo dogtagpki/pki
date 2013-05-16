@@ -1,0 +1,6 @@
+[Unit]
+Description=PKI Token Processing Service
+After=syslog.target network.target
+
+[Install]
+WantedBy=multi-user.target

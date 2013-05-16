@@ -36,6 +36,7 @@ SET(CMAKE_INSTALL_RPATH "${LIB_INSTALL_DIR}/tps")
 # which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+add_subdirectory(java)
 add_subdirectory(src)
 add_subdirectory(tools)
 
@@ -212,4 +213,20 @@ install(
     DIRECTORY
     DESTINATION
         ${SYSTEMD_ETC_INSTALL_DIR}/pki-tpsd.target.wants
+)
+
+# install directories
+install(
+    DIRECTORY
+        shared/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
+    PATTERN
+        "CMakeLists.txt" EXCLUDE
+    PATTERN
+        "etc/*" EXCLUDE
+    PATTERN
+        "conf/CS.cfg.in" EXCLUDE
+    PATTERN
+        "lib/*" EXCLUDE
 )

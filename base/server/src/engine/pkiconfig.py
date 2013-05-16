@@ -39,15 +39,15 @@ PKI_DEPLOYMENT_DEFAULT_USER = "pkiuser"
 
 PKI_SUBSYSTEMS = ["CA","KRA","OCSP","RA","TKS","TPS"]
 PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS","TPS"]
-PKI_APACHE_SUBSYSTEMS = ["RA","TPS"]
-PKI_TOMCAT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS"]
+PKI_APACHE_SUBSYSTEMS = ["RA"]
+PKI_TOMCAT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS", "TPS"]
 PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
-                           "lib", "logs", "ocsp", "temp", "tks", "webapps",
+                           "lib", "logs", "ocsp", "temp", "tks", "tps", "webapps",
                            "work"]
 PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
                                     "rsyslog", "tls"]
-PKI_APACHE_REGISTRY_RESERVED_NAMES = ["ra", "tps"]
-PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks"]
+PKI_APACHE_REGISTRY_RESERVED_NAMES = ["ra"]
+PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
 
 PKI_INDENTATION_LEVEL_0 = {'indent' : ''}
 PKI_INDENTATION_LEVEL_1 = {'indent' : '... '}

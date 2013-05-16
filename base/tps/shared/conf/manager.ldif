@@ -1,0 +1,46 @@
+# acis for cert manager
+
+dn: ou=csusers,cn=config
+objectClass: top
+objectClass: organizationalUnit
+ou: csusers
+
+dn: {rootSuffix}
+changetype: modify
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager access v2"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn=ldbm database,cn=plugins,cn=config
+changetype: modify
+add: aci
+aci: (targetattr=*)(version 3.0; acl "Cert Manager access for VLV searches"; allow (read) userdn="ldap:///{dbuser}";)
+
+dn: cn=config
+changetype: modify
+add: aci
+aci: (targetattr != aci)(version 3.0; aci "cert manager read access"; allow (read, search, compare) userdn = "ldap:///{dbuser}";)
+
+dn: ou=csusers,cn=config
+changetype: modify
+add: aci
+aci: (targetattr != aci)(version 3.0; aci "cert manager manage replication users"; allow (all) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+changetype: modify
+add: aci
+aci: (targetattr=*)(version 3.0;acl "cert manager: Add Replication Agreements";allow (add) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+changetype: modify
+add: aci
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5Replica)(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement)(objectClass=nsMappingTree))")(version 3.0; acl "cert manager: Modify Replication Agreements"; allow (read, write, search) userdn = "ldap:///{dbuser}";)
+
+dn: cn="{rootSuffix}",cn=mapping tree,cn=config
+changetype: modify
+add: aci
+aci: (targetattr=*)(targetfilter="(|(objectclass=nsds5replicationagreement)(objectclass=nsDSWindowsReplicationAgreement))")(version 3.0;acl "cert manager: Remove Replication Agreements";allow (delete) userdn = "ldap:///{dbuser}";)
+
+dn: cn=tasks,cn=config
+changetype: modify
+add: aci
+aci: (targetattr=*)(version 3.0; acl "cert manager: Run tasks after replica re-initialization"; allow (add) userdn = "ldap:///{dbuser}";)

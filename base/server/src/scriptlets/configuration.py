@@ -113,14 +113,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.pki_log.info(log.PKI_CONFIG_NOT_YET_IMPLEMENTED_1,
                     master['pki_subsystem'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                return rv
-        elif master['pki_subsystem'] == "TPS":
-                config.pki_log.info(log.PKI_CONFIG_NOT_YET_IMPLEMENTED_1,
-                    master['pki_subsystem'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                return rv
+                return self.rv
         elif master['pki_instance_type'] == "Tomcat":
-            # CA, KRA, OCSP, or TKS
+            # CA, KRA, OCSP, TKS, or TPS
             data = config_client.construct_pki_configuration_data()
         
         # Configure the substem

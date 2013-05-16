@@ -152,6 +152,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             elif master['pki_subsystem'] == "TKS":
                 util.symlink.create(master['pki_tks_jar'],
                                     master['pki_tks_jar_link'])
+            elif master['pki_subsystem'] == "TPS":
+                util.symlink.create(master['pki_tps_jar'],
+                                    master['pki_tps_jar_link'])
             # set ownerships, permissions, and acls
             util.directory.set_mode(master['pki_tomcat_webapps_subsystem_path'])
         return self.rv

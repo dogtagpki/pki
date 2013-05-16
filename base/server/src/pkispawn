@@ -129,8 +129,8 @@ def main(argv):
             interactive = True
             parser.indent = 0
 
-            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS)',
-                options=['CA', 'KRA', 'OCSP', 'TKS'],
+            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS/TPS)',
+                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', caseSensitive=False).upper()
             print
         else:

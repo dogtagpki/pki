@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2007-2010 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+# pki-tpsd   Startup script for pki-tps with tomcat7
+#
+# chkconfig:    - 84 16
+# description:  Token Processing Service (Tomcat 7.0)
+# processname:  pki-tpsd
+# piddir:       /var/run/pki/tps
+#
+
+PROG_NAME=`basename $0`
+SERVICE_NAME="pki-tpsd"
+SERVICE_PROG="/sbin/service"
+PKI_PATH="/usr/share/pki/tps"
+PKI_REGISTRY="/etc/sysconfig/pki/tps"
+PKI_TYPE="pki-tps"
+PKI_TOTAL_PORTS=6
+
+# Avoid using 'systemctl' for now
+SYSTEMCTL_SKIP_REDIRECT=1
+export SYSTEMCTL_SKIP_REDIRECT
+
+# Disallow 'others' the ability to 'write' to new files
+umask 00002
+
+command="$1"
+pki_instance="$2"
+
+# Source function library.
+. /etc/init.d/functions
+
+# Source the PKI function library
+. /usr/share/pki/scripts/functions
+
+# See how we were called.
+case $command in
+    status)
+	registry_status
+	exit $?
+	;;
+    start)
+	start
+	exit $?
+	;;
+    restart)
+	restart
+	exit $?
+	;;
+    stop)
+	stop
+	exit $?
+	;;
+    condrestart|force-restart|try-restart)
+        [ ! -f ${lockfile} ] || restart
+        exit $?
+        ;;
+    reload)
+        echo "The 'reload' action is an unimplemented feature."
+        exit ${default_error}
+        ;;
+    *)
+	echo "unknown action ($command)"
+        usage
+        echo "where valid instance names include:"
+        list_instances
+        exit ${default_error}
+        ;;
+esac
