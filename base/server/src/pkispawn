@@ -91,7 +91,7 @@ def main(argv):
     config.pki_dns_domainname = None
     try:
         config.pki_dns_domainname = subprocess.check_output("dnsdomainname",
-                                                            shell=True)
+                                                            shell = True)
         config.pki_dns_domainname = config.pki_dns_domainname.rstrip('\n')
         if not len(config.pki_dns_domainname):
             print log.PKI_DNS_DOMAIN_NOT_SET
@@ -373,6 +373,7 @@ def main(argv):
             rv = instance.spawn()
         except:
             log_error_details()
+            print
             print "Installation failed."
             print
             sys.exit(1)

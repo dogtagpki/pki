@@ -478,7 +478,7 @@ class PKIConfigParser:
                     config.pki_log.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
                         config.pki_master_dict['pki_target_cs_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    sys.exit(1)
+                    raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1)
             else:
                 # Generate a one-time pin to be used prior to configuration
                 # and add this to the "sensitive" key value pairs read in from
@@ -1048,11 +1048,11 @@ class PKIConfigParser:
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         except KeyError as err:
             config.pki_log.error(log.PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1,
                                  err, extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return
 
 

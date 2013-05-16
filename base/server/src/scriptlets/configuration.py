@@ -99,7 +99,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if status == None:
             config.pki_log.error("server failed to restart",
                     extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise Exception("server failed to restart")
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
         if config.str2bool(master['pki_enable_java_debugger']):

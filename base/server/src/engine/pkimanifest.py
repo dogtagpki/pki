@@ -81,7 +81,7 @@ class file:
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_1)
-            sys.exit(1)
+            raise
 
     def read(self):
         try:
@@ -93,7 +93,7 @@ class file:
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_1)
-            sys.exit(1)
+            raise
 
 
 # PKI Deployment Global Named Tuples
