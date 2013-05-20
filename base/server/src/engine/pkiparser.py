@@ -208,22 +208,21 @@ class PKIConfigParser:
     @staticmethod
     def read_simple_configuration_file(filename):
         values = {}
-        f = open(filename)
-        for line in f:
-            # First, remove comments:
-            if PKIConfigParser.COMMENT_CHAR in line:
-                # split on comment char, keep only the part before
-                line, comment = line.split(PKIConfigParser.COMMENT_CHAR, 1)
-            # Second, find lines with an name=value:
-            if PKIConfigParser.OPTION_CHAR in line:
-                # split on name char:
-                name, value = line.split(PKIConfigParser.OPTION_CHAR, 1)
-                # strip spaces:
-                name = name.strip()
-                value = value.strip()
-                # store in dictionary:
-                values[name] = value
-        f.close()
+        with open(filename) as f:
+            for line in f:
+                # First, remove comments:
+                if PKIConfigParser.COMMENT_CHAR in line:
+                    # split on comment char, keep only the part before
+                    line, comment = line.split(PKIConfigParser.COMMENT_CHAR, 1)
+                # Second, find lines with an name=value:
+                if PKIConfigParser.OPTION_CHAR in line:
+                    # split on name char:
+                    name, value = line.split(PKIConfigParser.OPTION_CHAR, 1)
+                    # strip spaces:
+                    name = name.strip()
+                    value = value.strip()
+                    # store in dictionary:
+                    values[name] = value
         return values
 
 

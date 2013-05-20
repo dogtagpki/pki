@@ -38,13 +38,13 @@ RECORD_TYPE_SYMLINK = "symlink"
 
 # PKI Deployment Manifest Record Class
 class record(object):
-    __slots__= "name",\
-               "type",\
-               "user",\
-               "group",\
-               "uid",\
-               "gid",\
-               "permissions",\
+    __slots__ = "name", \
+               "type", \
+               "user", \
+               "group", \
+               "uid", \
+               "gid", \
+               "permissions", \
                "acls",
 
     def items(self):
@@ -73,28 +73,25 @@ class file:
 
     def write(self):
         try:
-            fd = open(self.filename, "wt")
-            c = csv.writer(fd)
-            for record in database:
-                c.writerow(tuple(record))
-            fd.close()
+            with open(self.filename, "wt") as fd:
+                c = csv.writer(fd)
+                for record in database:
+                    c.writerow(tuple(record))
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_1)
+                                 extra = config.PKI_INDENTATION_LEVEL_1)
             raise
 
     def read(self):
         try:
-            fd = open(self.filename, "rt")
-            cr = csv.reader(fd)
-            for row in cr:
-                print tuple(row)
-            fd.close()
+            with open(self.filename, "rt") as fd:
+                cr = csv.reader(fd)
+                for row in cr:
+                    print tuple(row)
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_1)
+                                 extra = config.PKI_INDENTATION_LEVEL_1)
             raise
-
 
 # PKI Deployment Global Named Tuples
 database = []

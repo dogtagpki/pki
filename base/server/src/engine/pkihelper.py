@@ -1692,17 +1692,16 @@ class file:
                 config.pki_log.info(log.PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2,
                                     old_name, new_name,
                                     extra = config.PKI_INDENTATION_LEVEL_2)
-                FILE = open(new_name, "w")
-                for line in fileinput.FileInput(old_name):
-                    for slot in slots:
-                        if slot != '__name__' and slots[slot] in line:
-                            config.pki_log.debug(
-                                log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                slots[slot], master[slot],
-                                extra = config.PKI_INDENTATION_LEVEL_3)
-                            line = line.replace(slots[slot], master[slot])
-                    FILE.write(line)
-                FILE.close()
+                with open(new_name, "w") as FILE:
+                    for line in fileinput.FileInput(old_name):
+                        for slot in slots:
+                            if slot != '__name__' and slots[slot] in line:
+                                config.pki_log.debug(
+                                    log.PKIHELPER_SLOT_SUBSTITUTION_2,
+                                    slots[slot], master[slot],
+                                    extra = config.PKI_INDENTATION_LEVEL_3)
+                                line = line.replace(slots[slot], master[slot])
+                        FILE.write(line)
                 if uid == None:
                     uid = identity.get_uid()
                 if gid == None:
@@ -1750,11 +1749,10 @@ class file:
                 config.pki_log.info(log.PKIHELPER_NOISE_FILE_2, name, bytes,
                                     extra = config.PKI_INDENTATION_LEVEL_2)
                 open(name, "w").close()
-                FILE = open(name, "w")
-                noise = ''.join(random.choice(string.ascii_letters + \
-                        string.digits) for x in range(bytes))
-                FILE.write(noise)
-                FILE.close()
+                with open(name, "w") as FILE:
+                    noise = ''.join(random.choice(string.ascii_letters +\
+                                    string.digits) for x in range(bytes))
+                    FILE.write(noise)
                 # chmod <perms> <name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
                                      extra = config.PKI_INDENTATION_LEVEL_3)

@@ -318,7 +318,8 @@ def https_request(host, port, url, secdir, password, nickname, operation, args, 
         elif kw != None:
             post = urlencode(kw)
             request_headers = {"Content-type": "application/x-www-form-urlencoded",
-                               "Accept": "text/plain"}     
+                               "Accept": "text/plain"}
+    conn = None
     try:
         conn = nsslib.NSSConnection(host, port, dbdir=secdir)
         conn.set_debuglevel(0)
@@ -338,9 +339,11 @@ def https_request(host, port, url, secdir, password, nickname, operation, args, 
         http_reason_phrase = unicode(res.reason, 'utf-8')
         http_headers = res.msg.dict
         http_body = res.read()
-        conn.close()
     except Exception, e:
         raise NetworkError(uri=uri, error=str(e))
+    finally:
+        if conn is not None:
+            conn.close()
 
     return http_status, http_reason_phrase, http_headers, http_body
 
@@ -380,9 +383,11 @@ def http_request(host, port, url, operation, args):
         http_reason_phrase = unicode(res.reason, 'utf-8')
         http_headers = res.msg.dict
         http_body = res.read()
-        conn.close()
     except NSPRError, e:
         raise NetworkError(uri=uri, error=str(e))
+    finally:
+        if conn is not None:
+            conn.close()
 
     logging.debug('request status %d',        http_status)
     logging.debug('request reason_phrase %r', http_reason_phrase)
@@ -411,9 +416,8 @@ class kra:
         self.transport_cert_nickname = kra_nickname
         self.mechanism = nss.CKM_DES3_CBC_PAD
         try:
-            f = open(self.pwd_file, "r")
-            self.password = f.readline().strip()
-            f.close()
+            with open(self.pwd_file, "r") as f:
+                self.password = f.readline().strip()
         except IOError:
             self.password = ''
             
