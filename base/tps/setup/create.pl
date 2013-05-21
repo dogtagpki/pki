@@ -678,7 +678,7 @@ sub CopyTemplate
     s/\[INSTANCE_ID\]/$instanceID/g;
     s/\[SERVER_NAME\]/$serverName/g;
     s/\[PORT\]/$port/g;
-    s/\[SECURE_PORT\]/$securePort/g;
+    s/\[PKI_SECURE_PORT\]/$securePort/g;
     s/\[NICKNAME\]/$nickName/g;
     s/\[USERID\]/$uid/g;
     s/\[GROUPID\]/$gid/g;
