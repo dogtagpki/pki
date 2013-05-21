@@ -40,8 +40,8 @@ add_subdirectory(src)
 add_subdirectory(tools)
 
 # install files
-add_subdirectory(doc)
 add_subdirectory(setup)
+add_subdirectory(shared/conf)
 
 # install systemd scripts
 install(

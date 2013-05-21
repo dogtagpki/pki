@@ -1,7 +1,7 @@
 project(ra)
 
-add_subdirectory(doc)
 add_subdirectory(setup)
+add_subdirectory(shared/conf)
 
 # install systemd scripts
 install(
