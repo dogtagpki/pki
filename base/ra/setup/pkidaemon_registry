@@ -24,8 +24,8 @@ export PKI_INSTANCE_INITSCRIPT
 PKI_HTTPD_CONF=[HTTPD_CONF]
 export PKI_HTTPD_CONF
 
-PKI_SERVER_ROOT=[SERVER_ROOT]
-export PKI_SERVER_ROOT
+PKI_INSTANCE_PATH=[PKI_INSTANCE_PATH]
+export PKI_INSTANCE_PATH
 
 PKI_SYSTEM_USER_LIBRARIES=[SYSTEM_USER_LIBRARIES]
 export PKI_SYSTEM_USER_LIBRARIES
@@ -48,10 +48,10 @@ export PKI_PID_FILE
 PKI_SELINUX_TYPE="pki_ra_t"
 export PKI_SELINUX_TYPE
 
-pki_instance_configuration_file=${PKI_SERVER_ROOT}/conf/CS.cfg
+pki_instance_configuration_file=${PKI_INSTANCE_PATH}/conf/CS.cfg
 export pki_instance_configuration_file
 
-RESTART_SERVER=${PKI_SERVER_ROOT}/conf/restart_server_after_configuration
+RESTART_SERVER=${PKI_INSTANCE_PATH}/conf/restart_server_after_configuration
 export RESTART_SERVER
 
 ########################################################################
@@ -99,7 +99,7 @@ export PKI_INITLOG_ARGS
 httpd=${PKI_HTTPD}
 export httpd
 
-pki_logs_directory=${PKI_SERVER_ROOT}/logs
+pki_logs_directory=${PKI_INSTANCE_PATH}/logs
 export pki_logs_directory
 
 # see if httpd is linked with the openldap libraries - we need to override

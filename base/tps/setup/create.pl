@@ -114,7 +114,7 @@ sub PromptUser
   print ("************************************************\n");
   print ("\n");
 
-ASK_SERVER_ROOT:
+ASK_PKI_INSTANCE_PATH:
   print ("Enter the path to the server root [$defaultServerRoot]: ");
   chomp ($serverRoot = <STDIN>);
   if ($serverRoot eq "") {
@@ -122,15 +122,15 @@ ASK_SERVER_ROOT:
   }
   if ($serverRoot =~ /\/$/) {
     print ("Error: '$serverRoot' cannot end with '/'.\n");
-    goto ASK_SERVER_ROOT;
+    goto ASK_PKI_INSTANCE_PATH;
   }
   if (!(-d $serverRoot)) {
     print ("Error: '$serverRoot' directory does not exit.\n");
-    goto ASK_SERVER_ROOT;
+    goto ASK_PKI_INSTANCE_PATH;
   }
   if (!(-f "$serverRoot/admin-serv/config/adm.conf")) {
     print ("Error: '$serverRoot' directory does not contain $serverRoot/admin-serv/config/adm.conf.\n");
-    goto ASK_SERVER_ROOT;
+    goto ASK_PKI_INSTANCE_PATH;
   }
 
   # read some good parameters from adm.conf
@@ -674,7 +674,7 @@ sub CopyTemplate
   open(IN, "<$from");
   open(OUT, ">$to");
   while (<IN>) {
-    s/\[SERVER_ROOT\]/$serverRoot/g;
+    s/\[PKI_INSTANCE_PATH\]/$serverRoot/g;
     s/\[INSTANCE_ID\]/$instanceID/g;
     s/\[SERVER_NAME\]/$serverName/g;
     s/\[PORT\]/$port/g;

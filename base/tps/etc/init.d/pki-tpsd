@@ -24,7 +24,7 @@
 # description:  Token Processing System (Apache)
 # processname:  pki-tpsd
 # piddir:       /var/run/pki/tps
-# config:       ${PKI_SERVER_ROOT}/conf/httpd.conf
+# config:       ${PKI_INSTANCE_PATH}/conf/httpd.conf
 
 PROG_NAME=`basename $0`
 SERVICE_NAME="pki-tpsd"

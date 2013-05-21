@@ -24,7 +24,7 @@ selftests._008=##
 selftests.container.logger.enable=true
 selftests.container.logger.expirationTime=0
 selftests.container.logger.file.type=RollingLogFile
-selftests.container.logger.fileName=[SERVER_ROOT]/logs/selftests.log
+selftests.container.logger.fileName=[PKI_INSTANCE_PATH]/logs/selftests.log
 selftests.container.logger.level=10
 selftests.container.logger.maxFileSize=2000
 selftests.container.logger.rolloverInterval=2592000
@@ -33,7 +33,7 @@ selftests.container.order.onDemand=TPSPresence:critical, TPSValidity:critical, T
 selftests.plugin.TPSPresence.nickname=[HSM_LABEL][NICKNAME]
 selftests.plugin.TPSValidity.nickname=[HSM_LABEL][NICKNAME]
 service.machineName=[SERVER_NAME]
-service.instanceDir=[SERVER_ROOT]
+service.instanceDir=[PKI_INSTANCE_PATH]
 service.securePort=[PKI_SECURE_PORT]
 service.non_clientauth_securePort=[NON_CLIENTAUTH_SECURE_PORT]
 service.unsecurePort=[PKI_UNSECURE_PORT]
@@ -90,15 +90,15 @@ logging._048=# logging.*.expirationTime:
 logging._049=#    - maximum age of log, older unmodified logs are deleted( in seconds, 0 to disable)
 logging._050=#########################################
 logging.debug.enable=true
-logging.debug.filename=[SERVER_ROOT]/logs/tps-debug.log
+logging.debug.filename=[PKI_INSTANCE_PATH]/logs/tps-debug.log
 logging.debug.level=10
 logging.debug.file.type=RollingLogFile
 logging.debug.maxFileSize=2000
 logging.debug.rolloverInterval=2592000
 logging.debug.expirationTime=0
 logging.audit.enable=true
-logging.audit.filename=[SERVER_ROOT]/logs/tps-audit.log
-logging.audit.signedAuditFilename=[SERVER_ROOT]/logs/signedAudit/tps_audit
+logging.audit.filename=[PKI_INSTANCE_PATH]/logs/tps-audit.log
+logging.audit.signedAuditFilename=[PKI_INSTANCE_PATH]/logs/signedAudit/tps_audit
 logging.audit.level=10
 logging.audit.logSigning=false
 logging.audit.signedAuditCertNickname=auditSigningCert cert-[PKI_INSTANCE_ID]
@@ -112,7 +112,7 @@ logging.audit.maxFileSize=2000
 logging.audit.rolloverInterval=2592000
 logging.audit.expirationTime=0
 logging.error.enable=true
-logging.error.filename=[SERVER_ROOT]/logs/tps-error.log
+logging.error.filename=[PKI_INSTANCE_PATH]/logs/tps-error.log
 logging.error.level=10
 logging.error.file.type=RollingLogFile
 logging.error.maxFileSize=2000
@@ -308,7 +308,7 @@ auth.instance.1.libraryName=[SYSTEM_USER_LIBRARIES]/tps/[LIB_PREFIX]ldapauth[OBJ
 auth.instance.1.libraryFactory=GetAuthentication
 auth.instance.1.authId=ldap2
 auth.instance.1.bindDN=cn=Directory Manager
-auth.instance.1.bindPWD=[SERVER_ROOT]/conf/password.conf
+auth.instance.1.bindPWD=[PKI_INSTANCE_PATH]/conf/password.conf
 auth.instance.1.hostport=[TOKENDB_HOST]:[TOKENDB_PORT]
 auth.instance.1.SSLOn=false
 auth.instance.1.retries=1
@@ -1490,12 +1490,12 @@ tokendb._072=#     TOKEN_FOUND =4,
 tokendb._073=#     TOKEN_TEMP_LOST_PERM_LOST =5,
 tokendb._074=#     TOKEN_TERMINATED = 6
 tokendb._075=#########################################
-tokendb.auditLog=[SERVER_ROOT]/logs/tokendb-audit.log
+tokendb.auditLog=[PKI_INSTANCE_PATH]/logs/tokendb-audit.log
 tokendb.hostport=[TOKENDB_HOST]:[TOKENDB_PORT]
 tokendb.ssl=false
 tokendb.bindDN=cn=Directory Manager
-tokendb.bindPassPath=[SERVER_ROOT]/conf/password.conf
-tokendb.templateDir=[SERVER_ROOT]/docroot/tus
+tokendb.bindPassPath=[PKI_INSTANCE_PATH]/conf/password.conf
+tokendb.templateDir=[PKI_INSTANCE_PATH]/docroot/tus
 tokendb.userBaseDN=[TOKENDB_ROOT]
 tokendb.baseDN=ou=Tokens,[TOKENDB_ROOT]
 tokendb.activityBaseDN=ou=Activities,[TOKENDB_ROOT]
