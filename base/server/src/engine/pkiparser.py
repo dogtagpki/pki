@@ -595,7 +595,7 @@ class PKIConfigParser:
                                      "transportCert.profile")
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
-            config.pki_master_dict['PKI_INSTANCE_ID_SLOT'] =\
+            config.pki_master_dict['PKI_INSTANCE_NAME_SLOT'] =\
                 config.pki_master_dict['pki_instance_name']
             config.pki_master_dict['PKI_INSTANCE_INITSCRIPT_SLOT'] =\
                 os.path.join(config.pki_master_dict['pki_instance_path'],

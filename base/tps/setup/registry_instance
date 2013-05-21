@@ -9,8 +9,8 @@ export PKI_USER
 PKI_GROUP=[PKI_GROUP]
 export PKI_GROUP
 
-PKI_INSTANCE_ID=[PKI_INSTANCE_ID]
-export PKI_INSTANCE_ID
+PKI_INSTANCE_NAME=[PKI_INSTANCE_NAME]
+export PKI_INSTANCE_NAME
 
 PKI_INSTANCE_PATH=[PKI_INSTANCE_PATH]
 export PKI_INSTANCE_PATH
@@ -36,10 +36,10 @@ export PKI_NSS_CONF
 PKI_HOSTNAME=[PKI_HOSTNAME]
 export PKI_HOSTNAME
 
-PKI_LOCK_FILE="[PKI_LOCKDIR]/${PKI_INSTANCE_ID}.pid"
+PKI_LOCK_FILE="[PKI_LOCKDIR]/${PKI_INSTANCE_NAME}.pid"
 export PKI_LOCK_FILE
 
-PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_ID}.pid"
+PKI_PID_FILE="[PKI_PIDDIR]/${PKI_INSTANCE_NAME}.pid"
 export PKI_PID_FILE
 
 PKI_SELINUX_TYPE="pki_tps_t"
@@ -54,7 +54,7 @@ export RESTART_SERVER
 ########################################################################
 #   This section contains modified content of "/etc/sysconfig/httpd"   #
 ########################################################################
-# Configuration file for the ${PKI_INSTANCE_ID} service.
+# Configuration file for the ${PKI_INSTANCE_NAME} service.
 
 #
 # The default processing model (MPM) is the process-based

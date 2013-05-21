@@ -277,8 +277,8 @@ check_pki_configuration_status()
     rv=`expr ${rv} + 0`
 
     if [ $rv -ne 0 ] ; then
-        echo "    '${PKI_INSTANCE_ID}' must still be CONFIGURED!"
-        echo "    (see /var/log/${PKI_INSTANCE_ID}-install.log)"
+        echo "    '${PKI_INSTANCE_NAME}' must still be CONFIGURED!"
+        echo "    (see /var/log/${PKI_INSTANCE_NAME}-install.log)"
         if [ "${command}" != "status" ]; then
             # 6 program is not configured
             rv=6
@@ -288,7 +288,7 @@ check_pki_configuration_status()
         fi
         TOTAL_UNCONFIGURED_PKI_ENTRIES=`expr ${TOTAL_UNCONFIGURED_PKI_ENTRIES} + 1`
     elif [ -f ${RESTART_SERVER} ] ; then
-        echo -n "    Although '${PKI_INSTANCE_ID}' has been CONFIGURED, "
+        echo -n "    Although '${PKI_INSTANCE_NAME}' has been CONFIGURED, "
         echo -n "it must still be RESTARTED!"
         echo
         if [ "${command}" != "status" ]; then
@@ -599,7 +599,7 @@ get_pki_configuration_definitions()
     fi
 
     # Compose the "PKI Instance Name" Status Line
-    pki_instance_name="PKI Instance Name:   ${PKI_INSTANCE_ID}"
+    pki_instance_name="PKI Instance Name:   ${PKI_INSTANCE_NAME}"
 
     # Compose the "PKI Subsystem Type" Status Line
     header="PKI Subsystem Type: "
@@ -693,14 +693,14 @@ display_configuration_information()
         if [ $rv -ne 0 ] ; then
 	    result=$rv
             echo
-            echo "${PKI_INSTANCE_ID} Status Definitions not found"
+            echo "${PKI_INSTANCE_NAME} Status Definitions not found"
         else
             get_pki_configuration_definitions
             rv=$?
             if [ $rv -ne 0 ] ; then
 		result=$rv
                 echo
-                echo "${PKI_INSTANCE_ID} Configuration Definitions not found"
+                echo "${PKI_INSTANCE_NAME} Configuration Definitions not found"
             fi
         fi
     fi
@@ -709,15 +709,15 @@ display_configuration_information()
 
 display_instance_status_systemd()
 {
-    echo -n "Status for ${PKI_INSTANCE_ID}: "
-    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_ID.service" > /dev/null 2>&1
+    echo -n "Status for ${PKI_INSTANCE_NAME}: "
+    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_NAME.service" > /dev/null 2>&1
     rv=$?
 
     if [ $rv -eq 0 ] ; then
-        echo "$PKI_INSTANCE_ID is running .."
+        echo "$PKI_INSTANCE_NAME is running .."
         display_configuration_information
     else
-        echo "$PKI_INSTANCE_ID is stopped"
+        echo "$PKI_INSTANCE_NAME is stopped"
     fi
 
     return $rv
@@ -910,22 +910,22 @@ verify_symlinks()
         jni_dir="/usr/lib/java"
     fi
     if   [ ${PKI_SUBSYSTEM_TYPE} == "ca" ]; then
-        pki_systemd_link="pki-cad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-cad@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-cad@.service"
     elif [ ${PKI_SUBSYSTEM_TYPE} == "kra" ]; then
-        pki_systemd_link="pki-krad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-krad@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-krad@.service"
     elif [ ${PKI_SUBSYSTEM_TYPE} == "ocsp" ]; then
-        pki_systemd_link="pki-ocspd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-ocspd@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-ocspd@.service"
     elif [ ${PKI_SUBSYSTEM_TYPE} == "ra" ]; then
-        pki_systemd_link="pki-rad@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-rad@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-rad@.service"
     elif [ ${PKI_SUBSYSTEM_TYPE} == "tks" ]; then
-        pki_systemd_link="pki-tksd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-tksd@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-tksd@.service"
     elif [ ${PKI_SUBSYSTEM_TYPE} == "tps" ]; then
-        pki_systemd_link="pki-tpsd@${PKI_INSTANCE_ID}.service"
+        pki_systemd_link="pki-tpsd@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-tpsd@.service"
     fi
 
@@ -934,22 +934,22 @@ verify_symlinks()
 
     # Dogtag 9 Symbolic Link Variables
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
-    # pki_registry_dir="/etc/sysconfig/pki/${PKI_SUBSYSTEM_TYPE}/${PKI_INSTANCE_ID}"
+    # pki_registry_dir="/etc/sysconfig/pki/${PKI_SUBSYSTEM_TYPE}/${PKI_INSTANCE_NAME}"
     pki_systemd_dir="/etc/systemd/system/pki-cad.target.wants"
     pki_webapps_jar_dir="${PKI_INSTANCE_PATH}/webapps/${PKI_SUBSYSTEM_TYPE}/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks
     apache_symlinks=(
-        [conf]=/etc/${PKI_INSTANCE_ID}
-        [logs]=/var/log/${PKI_INSTANCE_ID}
+        [conf]=/etc/${PKI_INSTANCE_NAME}
+        [logs]=/var/log/${PKI_INSTANCE_NAME}
         [run]=/var/run/pki/${PKI_SUBSYSTEM_TYPE})
 
     base_symlinks=(
-        [conf]=/etc/${PKI_INSTANCE_ID}
-        [logs]=/var/log/${PKI_INSTANCE_ID})
+        [conf]=/etc/${PKI_INSTANCE_NAME}
+        [logs]=/var/log/${PKI_INSTANCE_NAME})
 
     # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)
-    root_symlinks[${PKI_INSTANCE_ID}]=/usr/sbin/tomcat6-sysd
+    root_symlinks[${PKI_INSTANCE_NAME}]=/usr/sbin/tomcat6-sysd
 
     # '${PKI_INSTANCE_PATH}/lib' symlinks
     perl_symlinks[perl]=/usr/share/pki/${PKI_SUBSYSTEM_TYPE}/lib/perl
@@ -1169,7 +1169,7 @@ start_instance()
             # We must export the service name so that the systemd version
             # of the tomcat6 init script knows which instance specific
             # configuration file to source.
-            export SERVICE_NAME=$PKI_INSTANCE_ID
+            export SERVICE_NAME=$PKI_INSTANCE_NAME
 
             if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
                 /usr/bin/runcon -t pki_tomcat_script_t \
@@ -1268,7 +1268,7 @@ stop_instance()
 {
     rv=0
 
-    export SERVICE_NAME=$PKI_INSTANCE_ID
+    export SERVICE_NAME=$PKI_INSTANCE_NAME
     # Invoke the initscript for this instance
     $PKI_INSTANCE_INITSCRIPT stop
     rv=$?

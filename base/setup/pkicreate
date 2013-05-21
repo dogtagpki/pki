@@ -283,7 +283,7 @@ my $PKI_PIDDIR                 = "PKI_PIDDIR";
 my $PKI_LOCKDIR                = "PKI_LOCKDIR";
 
 # Template slot constants (CA, KRA, OCSP, TKS, RA, TPS)
-my $PKI_INSTANCE_ID_SLOT                = "PKI_INSTANCE_ID";
+my $PKI_INSTANCE_NAME_SLOT              = "PKI_INSTANCE_NAME";
 my $PKI_REGISTRY_FILE_SLOT              = "PKI_REGISTRY_FILE";
 my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
 my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
@@ -2249,7 +2249,7 @@ sub process_pki_templates
 
     $slot_hash{$PKI_SUBSYSTEM_DIR_SLOT}    = "";
     $slot_hash{$PKI_SUBSYSTEM_TYPE_SLOT}   = $subsystem_type;
-    $slot_hash{$PKI_INSTANCE_ID_SLOT}      = $pki_instance_name;
+    $slot_hash{$PKI_INSTANCE_NAME_SLOT}    = $pki_instance_name;
     $slot_hash{$PKI_INSTANCE_PATH_SLOT}    = $pki_instance_path;
     $slot_hash{$PKI_INSTANCE_ROOT_SLOT}    = $pki_instance_root;
     $slot_hash{$PKI_INSTANCE_INITSCRIPT}   = $pki_instance_initscript_path;

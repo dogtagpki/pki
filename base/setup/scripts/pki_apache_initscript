@@ -29,7 +29,7 @@ else
     esac
 fi
 
-prog=$PKI_INSTANCE_ID
+prog=$PKI_INSTANCE_NAME
 lockfile=$PKI_LOCK_FILE
 pidfile=$PKI_PID_FILE
 
@@ -48,7 +48,7 @@ start()
 	    read kpid < ${pidfile}
 	    if checkpid $kpid 2>&1; then
 		echo
-		echo "${PKI_INSTANCE_ID} (pid ${kpid}) is already running ..."
+		echo "${PKI_INSTANCE_NAME} (pid ${kpid}) is already running ..."
 		echo
                 return 0
 	    else

@@ -379,8 +379,8 @@ check_pki_configuration_status()
     esac
 
     if [ $rv -ne 0 ] ; then
-        echo "    '${PKI_INSTANCE_ID}' must still be CONFIGURED!"
-        echo "    (see /var/log/${PKI_INSTANCE_ID}-install.log)"
+        echo "    '${PKI_INSTANCE_NAME}' must still be CONFIGURED!"
+        echo "    (see /var/log/${PKI_INSTANCE_NAME}-install.log)"
         if [ "${command}" != "status" ]; then
             # 6 program is not configured
             rv=6
@@ -390,7 +390,7 @@ check_pki_configuration_status()
         fi
         TOTAL_UNCONFIGURED_PKI_ENTRIES=`expr ${TOTAL_UNCONFIGURED_PKI_ENTRIES} + 1`
     elif [ -f ${RESTART_SERVER} ] ; then
-        echo -n "    Although '${PKI_INSTANCE_ID}' has been CONFIGURED, "
+        echo -n "    Although '${PKI_INSTANCE_NAME}' has been CONFIGURED, "
         echo -n "it must still be RESTARTED!"
         echo
         if [ "${command}" != "status" ]; then
@@ -773,7 +773,7 @@ get_pki_configuration_definitions()
     fi
 
     # Compose the "PKI Instance Name" Status Line
-    pki_instance_name="PKI Instance Name:   ${PKI_INSTANCE_ID}"
+    pki_instance_name="PKI Instance Name:   ${PKI_INSTANCE_NAME}"
 
     # Compose the "PKI Subsystem Type" Status Line
     header="PKI Subsystem Type: "
@@ -868,7 +868,7 @@ display_configuration_information()
         if [ $rv -ne 0 ] ; then
             result=$rv
             echo
-            echo "${PKI_INSTANCE_ID} Status Definitions not found"
+            echo "${PKI_INSTANCE_NAME} Status Definitions not found"
         else
             get_subsystems
             for SUBSYSTEM in ${PKI_SUBSYSTEMS}; do
@@ -878,7 +878,7 @@ display_configuration_information()
                 if [ $rv -ne 0 ] ; then
                     result=$rv
                     echo
-                    echo "${PKI_INSTANCE_ID} Configuration Definitions not found for ${SUBSYSTEM}"
+                    echo "${PKI_INSTANCE_NAME} Configuration Definitions not found for ${SUBSYSTEM}"
                 fi
             done
         fi
@@ -888,15 +888,15 @@ display_configuration_information()
 
 display_instance_status_systemd()
 {
-    echo -n "Status for ${PKI_INSTANCE_ID}: "
-    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_ID.service" > /dev/null 2>&1
+    echo -n "Status for ${PKI_INSTANCE_NAME}: "
+    systemctl status "$PKI_SYSTEMD_TARGET@$PKI_INSTANCE_NAME.service" > /dev/null 2>&1
     rv=$?
 
     if [ $rv -eq 0 ] ; then
-        echo "$PKI_INSTANCE_ID is running .."
+        echo "$PKI_INSTANCE_NAME is running .."
         display_configuration_information
     else
-        echo "$PKI_INSTANCE_ID is stopped"
+        echo "$PKI_INSTANCE_NAME is stopped"
     fi
 
     return $rv
@@ -1097,9 +1097,9 @@ verify_symlinks()
 
     # Dogtag 10 Symbolic Link Variables
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
-    pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_ID}"
+    pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
     pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
-    pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_ID}.service"
+    pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
     pki_ca_jar_dir="${PKI_INSTANCE_PATH}/webapps/ca/WEB-INF/lib"
     pki_kra_jar_dir="${PKI_INSTANCE_PATH}/webapps/kra/WEB-INF/lib"
     pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/webapps/ocsp/WEB-INF/lib"
@@ -1107,19 +1107,19 @@ verify_symlinks()
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
-        [alias]=/etc/pki/${PKI_INSTANCE_ID}/alias
+        [alias]=/etc/pki/${PKI_INSTANCE_NAME}/alias
         [bin]=/usr/share/tomcat/bin
-        [conf]=/etc/pki/${PKI_INSTANCE_ID}
-        [logs]=/var/log/pki/${PKI_INSTANCE_ID})
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME})
 
     # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)
-    root_symlinks[${PKI_INSTANCE_ID}]=/usr/sbin/tomcat-sysd
+    root_symlinks[${PKI_INSTANCE_NAME}]=/usr/sbin/tomcat-sysd
 
     # '${PKI_INSTANCE_PATH}/ca' symlinks
     ca_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
-        [conf]=/etc/pki/${PKI_INSTANCE_ID}/ca
-        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/ca
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ca
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ca
         [registry]=${pki_registry_dir}
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
@@ -1136,8 +1136,8 @@ verify_symlinks()
     # '${PKI_INSTANCE_PATH}/kra' symlinks
     kra_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
-        [conf]=/etc/pki/${PKI_INSTANCE_ID}/kra
-        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/kra
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/kra
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/kra
         [registry]=${pki_registry_dir}
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
@@ -1154,8 +1154,8 @@ verify_symlinks()
     # '${PKI_INSTANCE_PATH}/ocsp' symlinks
     ocsp_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
-        [conf]=/etc/pki/${PKI_INSTANCE_ID}/ocsp
-        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/ocsp
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ocsp
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ocsp
         [registry]=${pki_registry_dir}
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
@@ -1172,8 +1172,8 @@ verify_symlinks()
     # '${PKI_INSTANCE_PATH}/tks' symlinks
     tks_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
-        [conf]=/etc/pki/${PKI_INSTANCE_ID}/tks
-        [logs]=/var/log/pki/${PKI_INSTANCE_ID}/tks
+        [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tks
+        [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tks
         [registry]=${pki_registry_dir}
         [webapps]=${PKI_INSTANCE_PATH}/webapps)
 
@@ -1369,13 +1369,13 @@ start_instance()
             cat /usr/share/pki/server/conf/catalina.policy \
                 /usr/share/tomcat/conf/catalina.policy \
                 /usr/share/pki/server/conf/pki.policy \
-                /var/lib/pki/$PKI_INSTANCE_ID/conf/custom.policy > \
-                /var/lib/pki/$PKI_INSTANCE_ID/conf/catalina.policy
+                /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
+                /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
 
             # We must export the service name so that the systemd version
             # of the tomcat init script knows which instance specific
             # configuration file to source.
-            export SERVICE_NAME=$PKI_INSTANCE_ID
+            export SERVICE_NAME=$PKI_INSTANCE_NAME
             $PKI_INSTANCE_INITSCRIPT start
             rv=$?
             ;;
@@ -1437,7 +1437,7 @@ stop_instance()
 {
     rv=0
 
-    export SERVICE_NAME=$PKI_INSTANCE_ID
+    export SERVICE_NAME=$PKI_INSTANCE_NAME
     # Invoke the initscript for this instance
     $PKI_INSTANCE_INITSCRIPT stop
     rv=$?
