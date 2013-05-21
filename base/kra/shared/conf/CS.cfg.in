@@ -27,13 +27,13 @@ cs.type=KRA
 admin.interface.uri=kra/admin/console/config/wizard
 agent.interface.uri=kra/agent/kra
 authType=pwd
-preop.securitydomain.admin_url=https://[PKI_MACHINE_NAME]:9445
+preop.securitydomain.admin_url=https://[PKI_HOSTNAME]:9445
 instanceRoot=[PKI_INSTANCE_PATH]
 configurationRoot=/[PKI_SUBSYSTEM_DIR]conf/
-machineName=[PKI_MACHINE_NAME]
+machineName=[PKI_HOSTNAME]
 instanceId=[PKI_INSTANCE_ID]
 pidDir=[PKI_PIDDIR]
-service.machineName=[PKI_MACHINE_NAME]
+service.machineName=[PKI_HOSTNAME]
 service.instanceDir=[PKI_INSTANCE_ROOT]
 service.securePort=[PKI_AGENT_SECURE_PORT]
 service.non_clientauth_securePort=[PKI_EE_SECURE_PORT]
@@ -90,7 +90,7 @@ preop.cert.transport.type=remote
 preop.cert.transport.userfriendlyname=Transport Certificate
 preop.cert.transport.cncomponent.override=true
 preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.sslserver.dn=CN=[PKI_MACHINE_NAME]
+preop.cert.sslserver.dn=CN=[PKI_HOSTNAME]
 preop.cert.sslserver.keysize.custom_size=2048
 preop.cert.sslserver.keysize.size=2048
 preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_ID]

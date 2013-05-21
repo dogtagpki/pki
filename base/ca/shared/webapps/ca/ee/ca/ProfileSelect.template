@@ -345,7 +345,7 @@ function setCRMFRequest()
   var uri = 'profileSubmit';
   if (typeof(authName) != "undefined") {
     if (authIsSSLClientRequired == 'true') {
-      uri = 'https://[PKI_MACHINE_NAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT_UI]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
+      uri = 'https://[PKI_HOSTNAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT_UI]/[PKI_SUBSYSTEM_TYPE]/eeca/[PKI_SUBSYSTEM_TYPE]/profileSubmitSSLClient';
     }
   }
   if (navigator.appName == "Microsoft Internet Explorer") {

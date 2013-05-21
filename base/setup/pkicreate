@@ -268,7 +268,6 @@ my $OBJ_EXT                    = "OBJ_EXT";
 my $PROCESS_ID                 = "PROCESS_ID";
 my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
-my $SERVER_NAME                = "SERVER_NAME";
 my $SYSTEM_LIBRARIES           = "SYSTEM_LIBRARIES";
 my $SYSTEM_USER_LIBRARIES      = "SYSTEM_USER_LIBRARIES";
 my $TMP_DIR                    = "TMP_DIR";
@@ -289,6 +288,7 @@ my $PKI_REGISTRY_FILE_SLOT              = "PKI_REGISTRY_FILE";
 my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
 my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
 my $PKI_INSTANCE_PATH_SLOT              = "PKI_INSTANCE_PATH";
+my $PKI_HOSTNAME_SLOT                   = "PKI_HOSTNAME";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME                        = "INSTALL_TIME";
@@ -297,7 +297,6 @@ my $PKI_CERT_DB_PASSWORD_SLOT           = "PKI_CERT_DB_PASSWORD";
 my $PKI_CFG_PATH_NAME_SLOT              = "PKI_CFG_PATH_NAME";
 my $PKI_GROUP_SLOT                      = "PKI_GROUP";
 my $PKI_INSTANCE_ROOT_SLOT              = "PKI_INSTANCE_ROOT";
-my $PKI_MACHINE_NAME_SLOT               = "PKI_MACHINE_NAME";
 my $PKI_RANDOM_NUMBER_SLOT              = "PKI_RANDOM_NUMBER";
 my $PKI_EE_SECURE_PORT_SLOT             = "PKI_EE_SECURE_PORT";
 my $PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT = "PKI_EE_SECURE_CLIENT_AUTH_PORT";
@@ -2274,7 +2273,7 @@ sub process_pki_templates
         $slot_hash{$PKI_SECURE_PORT_SLOT}  = $secure_port;
         $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
         $slot_hash{$SECURITY_LIBRARIES}    = $default_security_libraries;
-        $slot_hash{$SERVER_NAME}           = $host;
+        $slot_hash{$PKI_HOSTNAME_SLOT}     = $host;
         $slot_hash{$PKI_INSTANCE_PATH_SLOT}= $pki_instance_path;
         $slot_hash{$SYSTEM_LIBRARIES}      = $default_system_libraries;
         $slot_hash{$SYSTEM_USER_LIBRARIES} = $default_system_user_libraries;
@@ -2320,7 +2319,7 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
         $slot_hash{$INSTALL_TIME}              = localtime;
         $slot_hash{$PKI_CERT_DB_PASSWORD_SLOT} = $db_password;
         $slot_hash{$PKI_CFG_PATH_NAME_SLOT}    = $pki_cfg_instance_file_path;
-        $slot_hash{$PKI_MACHINE_NAME_SLOT}     = $host;
+        $slot_hash{$PKI_HOSTNAME_SLOT}         = $host;
         $slot_hash{$PKI_RANDOM_NUMBER_SLOT}    = $random;
         $slot_hash{$PKI_SERVER_XML_CONF}       = $server_xml_instance_file_path;
         $slot_hash{$PKI_UNSECURE_PORT_SLOT}    = $unsecure_port;

@@ -33,17 +33,17 @@ authType=pwd
 admin.interface.uri=ca/admin/console/config/wizard
 ee.interface.uri=ca/ee/ca
 agent.interface.uri=ca/agent/ca
-preop.securitydomain.admin_url=https://[PKI_MACHINE_NAME]:9445
+preop.securitydomain.admin_url=https://[PKI_HOSTNAME]:9445
 securitydomain.checkIP=false
 securitydomain.flushinterval=86400000
 securitydomain.source=ldap
 securitydomain.checkinterval=300000
 instanceRoot=[PKI_INSTANCE_PATH]
 configurationRoot=/[PKI_SUBSYSTEM_DIR]conf/
-machineName=[PKI_MACHINE_NAME]
+machineName=[PKI_HOSTNAME]
 instanceId=[PKI_INSTANCE_ID]
 pidDir=[PKI_PIDDIR]
-service.machineName=[PKI_MACHINE_NAME]
+service.machineName=[PKI_HOSTNAME]
 service.instanceDir=[PKI_INSTANCE_ROOT]
 service.securePort=[PKI_AGENT_SECURE_PORT]
 service.non_clientauth_securePort=[PKI_EE_SECURE_PORT]
@@ -101,7 +101,7 @@ preop.cert.ocsp_signing.type=local
 preop.cert.ocsp_signing.userfriendlyname=OCSP Signing Certificate
 preop.cert.ocsp_signing.cncomponent.override=true
 preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.sslserver.dn=CN=[PKI_MACHINE_NAME]
+preop.cert.sslserver.dn=CN=[PKI_HOSTNAME]
 preop.cert.sslserver.keysize.custom_size=2048
 preop.cert.sslserver.keysize.size=2048
 preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_ID]
@@ -140,7 +140,7 @@ preop.configModules.module2.imagePath=/pki/images/clearpixel.gif
 preop.configModules.count=3
 preop.module.token=Internal Key Storage Token
 preop.name.caDN=CN=Certificate Authority
-preop.name.sslDN=CN=[PKI_MACHINE_NAME]
+preop.name.sslDN=CN=[PKI_HOSTNAME]
 preop.name.ocspDN=CN=OCSP Signing Certificate
 preop.name.subsystemDN=CN=CA Subsystem Certificate
 preop.name.canickname=caSigningCert cert-[PKI_INSTANCE_ID]
@@ -287,7 +287,7 @@ ca.Policy.impl.SubjectDirectoryAttributesExt.class=com.netscape.cms.policy.exten
 ca.Policy.impl.SubjectKeyIdentifierExt.class=com.netscape.cms.policy.extensions.SubjectKeyIdentifierExt
 ca.Policy.impl.UniqueSubjectNameConstraints.class=com.netscape.cms.policy.constraints.UniqueSubjectNameConstraints
 ca.Policy.impl.ValidityConstraints.class=com.netscape.cms.policy.constraints.ValidityConstraints
-ca.Policy.rule.AuthInfoAccessExt.ad0_location=http://[PKI_MACHINE_NAME]:8080/ocsp
+ca.Policy.rule.AuthInfoAccessExt.ad0_location=http://[PKI_HOSTNAME]:8080/ocsp
 ca.Policy.rule.AuthInfoAccessExt.ad0_location_type=URL
 ca.Policy.rule.AuthInfoAccessExt.ad0_method=ocsp
 ca.Policy.rule.AuthInfoAccessExt.enable=false
@@ -753,12 +753,12 @@ cmsgateway._013=##   (4) Type:  'service [PKI_INSTANCE_ID] start'
 cmsgateway._014=##   (5) Launch a browser and re-enroll for
 cmsgateway._015=##       a new Admin Certificate by typing:
 cmsgateway._016=##
-cmsgateway._017=##           https://[PKI_MACHINE_NAME]:[PKI_ADMIN_SECURE_PORT]/ca/admin/ca/adminEnroll.html
+cmsgateway._017=##           https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ca/admin/ca/adminEnroll.html
 cmsgateway._018=##
 cmsgateway._019=##   (6) Verify that the browser contains the new
 cmsgateway._020=##       Admin Certificate by successfully navigating to:
 cmsgateway._021=##
-cmsgateway._022=##           https://[PKI_MACHINE_NAME]:[PKI_AGENT_SECURE_PORT]/ca/agent/ca/
+cmsgateway._022=##           https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/ca/agent/ca/
 cmsgateway._023=##
 cmsgateway._024=##   (7) Optionally, disable the Certificate Policies Framework
 cmsgateway._025=##       by following steps (1) - (4), but ONLY resetting

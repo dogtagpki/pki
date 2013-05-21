@@ -343,7 +343,7 @@ sub update_proxy_conf
 
     my $data = read_file $template_file;
     my $host = hostname;
-    $data =~ s/\[PKI_MACHINE_NAME\]/$host/g;
+    $data =~ s/\[PKI_HOSTNAME\]/$host/g;
     $data =~ s/\[PKI_AJP_PORT\]/$ajp_port/g;
 
     write_file($server_file, $data);

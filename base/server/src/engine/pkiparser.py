@@ -628,7 +628,7 @@ class PKIConfigParser:
                 config.pki_master_dict['REQUIRE_CFG_PL_SLOT'] = None
                 config.pki_master_dict['SECURE_PORT_SLOT'] = None
                 config.pki_master_dict['SECURITY_LIBRARIES_SLOT'] = None
-                config.pki_master_dict['SERVER_NAME_SLOT'] = None
+                config.pki_master_dict['PKI_HOSTNAME_SLOT'] = None
                 config.pki_master_dict['SERVER_ROOT_SLOT'] = None
                 config.pki_master_dict['SYSTEM_LIBRARIES_SLOT'] = None
                 config.pki_master_dict['SYSTEM_USER_LIBRARIES_SLOT'] = None
@@ -689,7 +689,7 @@ class PKIConfigParser:
                 config.pki_master_dict['PKI_LOCKDIR_SLOT'] =\
                     os.path.join("/var/lock/pki",
                                  "tomcat")
-                config.pki_master_dict['PKI_MACHINE_NAME_SLOT'] =\
+                config.pki_master_dict['PKI_HOSTNAME_SLOT'] =\
                     config.pki_master_dict['pki_hostname']
                 config.pki_master_dict\
                 ['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] =\

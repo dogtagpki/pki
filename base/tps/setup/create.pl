@@ -676,7 +676,7 @@ sub CopyTemplate
   while (<IN>) {
     s/\[PKI_INSTANCE_PATH\]/$serverRoot/g;
     s/\[INSTANCE_ID\]/$instanceID/g;
-    s/\[SERVER_NAME\]/$serverName/g;
+    s/\[PKI_HOSTNAME\]/$serverName/g;
     s/\[PORT\]/$port/g;
     s/\[PKI_SECURE_PORT\]/$securePort/g;
     s/\[NICKNAME\]/$nickName/g;

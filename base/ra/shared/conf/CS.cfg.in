@@ -96,7 +96,7 @@ request.server.approve_request.1.templateDir=/usr/share/pki/ra/conf
 request.server.approve_request.1.templateFile=mail_approve_request.vm
 request.server.reject_request.num_plugins=0
 cs.type=RA
-service.machineName=[SERVER_NAME]
+service.machineName=[PKI_HOSTNAME]
 service.instanceDir=[PKI_INSTANCE_PATH]
 service.securePort=[PKI_SECURE_PORT]
 service.non_clientauth_securePort=[NON_CLIENTAUTH_SECURE_PORT]
@@ -198,7 +198,7 @@ preop.cert.list=sslserver,subsystem
 preop.cert.sslserver.enable=true
 preop.cert.subsystem.enable=true
 preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
-preop.cert.sslserver.dn=CN=[SERVER_NAME], OU=[PKI_INSTANCE_ID]
+preop.cert.sslserver.dn=CN=[PKI_HOSTNAME], OU=[PKI_INSTANCE_ID]
 preop.cert.sslserver.keysize.customsize=2048
 preop.cert.sslserver.keysize.size=2048
 preop.cert.sslserver.keysize.select=custom
