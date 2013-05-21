@@ -329,7 +329,7 @@ get_pki_status_definitions_ra()
 {
     # establish well-known strings
     total_ports=0
-    UNSECURE_PORT=""
+    PKI_UNSECURE_PORT=""
     CLIENTAUTH_PORT=""
     NON_CLIENTAUTH_PORT=""
 
@@ -347,11 +347,11 @@ get_pki_status_definitions_ra()
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
-	UNSECURE_PORT=$port
+	PKI_UNSECURE_PORT=$port
 	if [ $total_ports -eq 0 ]; then
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${PKI_UNSECURE_PORT}"
         else
-            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${PKI_UNSECURE_PORT}"
         fi
 	total_ports=`expr ${total_ports} + 1`
 
@@ -359,7 +359,7 @@ get_pki_status_definitions_ra()
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
-	UNSECURE_PORT=$port
+	PKI_UNSECURE_PORT=$port
 	if [ $total_ports -eq 1 ]; then
 	    CLIENTAUTH_PORT=$port
 	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}"
@@ -379,7 +379,7 @@ get_pki_status_definitions_tps()
 {
     # establish well-known strings
     total_ports=0
-    UNSECURE_PORT=""
+    PKI_UNSECURE_PORT=""
     CLIENTAUTH_PORT=""
     NON_CLIENTAUTH_PORT=""
 
@@ -397,14 +397,14 @@ get_pki_status_definitions_tps()
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_HTTPD_CONF}`; do
-	UNSECURE_PORT=$port
+	PKI_UNSECURE_PORT=$port
 	if [ $total_ports -eq 0 ]; then
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${PKI_UNSECURE_PORT}/cgi-bin/so/enroll.cgi"
 	    echo "                                 (ESC Security Officer Enrollment)"
-	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}/cgi-bin/home/index.cgi"
+	    echo "    Unsecure Port              = http://${PKI_SERVER_NAME}:${PKI_UNSECURE_PORT}/cgi-bin/home/index.cgi"
 	    echo "                                 (ESC Phone Home)"
         else
-            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${UNSECURE_PORT}"
+            echo "ERROR: extra Unsecure Port = http://${PKI_SERVER_NAME}:${PKI_UNSECURE_PORT}"
         fi
 	total_ports=`expr ${total_ports} + 1`
 
@@ -412,7 +412,7 @@ get_pki_status_definitions_tps()
 
     # Iterate over Listen statements
     for port in `sed -n 's/^[ \t]*Listen[ \t][ \t]*\([^ \t][^ \t]*\)/\1/p' ${PKI_NSS_CONF}`; do
-	UNSECURE_PORT=$port
+	PKI_UNSECURE_PORT=$port
 	if [ $total_ports -eq 1 ]; then
 	    CLIENTAUTH_PORT=$port
 	    echo "    Secure Clientauth Port     = https://${PKI_SERVER_NAME}:${CLIENTAUTH_PORT}/cgi-bin/sow/welcome.cgi"

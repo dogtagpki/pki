@@ -31,10 +31,10 @@ print "Fedora Project";   # Vendor
 print "</IssuerName>\n";
 print "<Services>";
 print "<Operation>";
-print "http://[SERVER_NAME]:[PORT]/nk_service";
+print "http://[SERVER_NAME]:[PKI_UNSECURE_PORT]/nk_service";
 print "</Operation>";
 print "<UI>";
-print "http://[SERVER_NAME]:[PORT]/cgi-bin/home/enroll.cgi";
+print "http://[SERVER_NAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/enroll.cgi";
 print "</UI>";
 print "<EnrolledTokenBrowserURL>";
 print "http://www.fedora.redhat.com";   # Company URL
@@ -45,7 +45,7 @@ print "<TokenType>";
 print "userKey";
 print "</TokenType>";
 #print "<CAChainUI>";
-#print "http://[SERVER_NAME]:[PORT]/cgi-bin/home/cachain.cgi";
+#print "http://[SERVER_NAME]:[PKI_UNSECURE_PORT]/cgi-bin/home/cachain.cgi";
 #print "</CAChainUI>";
 print "</Services>";
 print "</ServiceInfo>";

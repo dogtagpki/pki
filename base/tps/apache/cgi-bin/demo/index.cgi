@@ -31,10 +31,10 @@ print "Fedora Project";   # Vendor
 print "</IssuerName>\n";
 print "<Services>";
 print "<Operation>";
-print "http://[SERVER_NAME]:[PORT]/nk_service";
+print "http://[SERVER_NAME]:[PKI_UNSECURE_PORT]/nk_service";
 print "</Operation>";
 print "<UI>";
-print "http://[SERVER_NAME]:[PORT]/cgi-bin/demo/enroll.cgi";
+print "http://[SERVER_NAME]:[PKI_UNSECURE_PORT]/cgi-bin/demo/enroll.cgi";
 print "</UI>";
 print "<EnrolledTokenBrowserURL>";
 print "</EnrolledTokenBrowserURL>";

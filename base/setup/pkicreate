@@ -265,7 +265,6 @@ my $HTTPD_CONF                 = "HTTPD_CONF";
 my $LIB_PREFIX                 = "LIB_PREFIX";
 my $NSS_CONF                   = "NSS_CONF";
 my $OBJ_EXT                    = "OBJ_EXT";
-my $PORT                       = "PORT";
 my $PROCESS_ID                 = "PROCESS_ID";
 my $NON_CLIENTAUTH_SECURE_PORT = "NON_CLIENTAUTH_SECURE_PORT";
 my $SECURITY_LIBRARIES         = "SECURITY_LIBRARIES";
@@ -289,6 +288,7 @@ my $PKI_LOCKDIR                = "PKI_LOCKDIR";
 my $PKI_INSTANCE_ID_SLOT                = "PKI_INSTANCE_ID";
 my $PKI_REGISTRY_FILE_SLOT              = "PKI_REGISTRY_FILE";
 my $PKI_SECURE_PORT_SLOT                = "PKI_SECURE_PORT";
+my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
 
 # Template slot constants (CA, KRA, OCSP, TKS)
 my $INSTALL_TIME                        = "INSTALL_TIME";
@@ -308,7 +308,6 @@ my $PKI_ADMIN_SECURE_PORT_SLOT          = "PKI_ADMIN_SECURE_PORT";
 my $PKI_SERVER_XML_CONF                 = "PKI_SERVER_XML_CONF";
 my $PKI_SUBSYSTEM_DIR_SLOT              = "PKI_SUBSYSTEM_DIR";
 my $PKI_SUBSYSTEM_TYPE_SLOT             = "PKI_SUBSYSTEM_TYPE";
-my $PKI_UNSECURE_PORT_SLOT              = "PKI_UNSECURE_PORT";
 my $PKI_USER_SLOT                       = "PKI_USER";
 my $TOMCAT_SERVER_PORT_SLOT             = "TOMCAT_SERVER_PORT";
 my $TOMCAT_PIDFILE                      = "TOMCAT_PIDFILE";
@@ -2152,9 +2151,9 @@ sub process_pki_directories
 #
 # Example, if the src template contained this line:
 #
-#     Open port [PORT] on your firewall.
+#     Open port [PKI_UNSECURE_PORT] on your firewall.
 #
-# And the substitutions hash was this {'PORT' => '1234'}
+# And the substitutions hash was this {'PKI_UNSECURE_PORT' => '1234'}
 # 
 # Then the dst file contents will look like this:
 #
@@ -2271,7 +2270,7 @@ sub process_pki_templates
         $slot_hash{$LIB_PREFIX}            = $lib_prefix;
         $slot_hash{$NSS_CONF}              = $nss_conf_instance_file_path;
         $slot_hash{$OBJ_EXT}               = $obj_ext;
-        $slot_hash{$PORT}                  = $unsecure_port;
+        $slot_hash{$PKI_UNSECURE_PORT_SLOT} = $unsecure_port;
         $slot_hash{$PROCESS_ID}            = $$;
         $slot_hash{$PKI_SECURE_PORT_SLOT}  = $secure_port;
         $slot_hash{$NON_CLIENTAUTH_SECURE_PORT} = $non_clientauth_secure_port;
