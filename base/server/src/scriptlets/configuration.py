@@ -18,7 +18,7 @@
 # Copyright (C) 2012 Red Hat, Inc.
 # All rights reserved.
 #
-
+import sys
 # PKI Deployment Imports
 import pkiconfig as config
 from pkiconfig import pki_master_dict as master
