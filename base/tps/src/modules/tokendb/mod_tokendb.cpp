@@ -335,7 +335,7 @@ void tokendb_die( void )
 void tokendbDebug( const char* msg )
 {
     RA::Debug( "mod_tokendb::mod_tokendb_handler",
-               msg);
+               "%s", msg);
 #if 0
     if( debug_fd ) {
         PR_fprintf( debug_fd, msg );
@@ -2719,6 +2719,9 @@ int  safe_injection_strcat(char ** injection, int *injection_size , char *catDat
     int result = 0;
 
     int current_len = strlen(*injection);
+    if (catData == NULL) {
+        return result;
+    }
     int cat_data_len = strlen(catData);
 
     if ( cat_data_len == 0) {
@@ -2830,6 +2833,9 @@ char *replace(const char *s, const char *oldstr, const char *newstr)
     size_t newlen = PL_strlen(newstr);
     size_t oldlen = PL_strlen(oldstr);
 
+    if (s == NULL) {
+        return ret;
+    }
     for (i = 0; s[i] != '\0'; i++) {
         if (PL_strstr(&s[i], oldstr) == &s[i]) {
             count++;
@@ -2838,6 +2844,9 @@ char *replace(const char *s, const char *oldstr, const char *newstr)
     }
 
     ret = (char *) PR_Malloc(PL_strlen(s)  + count * (newlen - oldlen) + 1);
+    if (ret == NULL) {
+        return ret;
+    }
 
     i = 0;
     while (*s) {
@@ -2878,6 +2887,30 @@ char *unescapeString(const char *s)
     do_free(ret1);
     do_free(ret2);
     do_free(ret3);
+    return ret;
+}
+
+char *escapeJavaScriptString(char* src)
+{
+    char *ret, *ret1, *ret2, *ret3, *ret4;
+    int i, j;
+
+    for (i = 0, j = 0; src != NULL && i < PL_strlen(src); i++) {
+        if (src[i] > 31) {
+            src[j++] = src[i];
+        }
+    }
+    src[j++] = '\0';
+    ret1 = replace(src,  "&",  "&#38;");
+    ret2 = replace(ret1, "\"", "&#34;");
+    ret3 = replace(ret2, "\'", "&#39;");
+    ret4 = replace(ret3, "<",  "&#60;");
+    ret  = replace(ret4, ">",  "&#62;");
+    do_free(ret1);
+    do_free(ret2);
+    do_free(ret3);
+    do_free(ret4);
+
     return ret;
 }
 
@@ -3623,7 +3656,7 @@ mod_tokendb_handler( request_rec *rq )
     } 
 
     if( rq->uri != NULL ) {
-        uri = PL_strdup( rq->uri );
+        uri = escapeJavaScriptString(rq->uri);
     }
  
     if (rq->method_number == M_POST) {
@@ -3642,14 +3675,14 @@ mod_tokendb_handler( request_rec *rq )
                "uri='%s' params='%s'",
                uri, ( query==NULL?"":query ) );
 
-    if( query == NULL ) {
+    if (uri == NULL || query == NULL) {
         char *itemplate = NULL;
         tokendbDebug( "authorization for index case\n" );
-        if (is_agent) {
+        if (uri != NULL && is_agent) {
             itemplate = indexTemplate;
-        } else if (is_operator) {
+        } else if (uri != NULL && is_operator) {
             itemplate = indexOperatorTemplate;
-        } else if (is_admin) {
+        } else if (uri != NULL && is_admin) {
             itemplate = indexAdminTemplate;
         } else {
             RA::Audit(EV_AUTHZ_FAIL, AUDIT_MSG_AUTHZ, userid, "index", "Failure", "Tokendb user authorization");
@@ -5541,6 +5574,12 @@ mod_tokendb_handler( request_rec *rq )
         key_values = (char *) store->GetOrderedList();
         //escaped = escapeSpecialChars(key_values); 
         escaped = escapeString(key_values); 
+        if (escaped == NULL) {
+            error_out("Setup Error", "Ordered List is NULL");
+            return_done =1;
+            goto edit_config_parameter_cleanup;
+        }
+
         tokendbDebug( "got ordered list");
      
         PR_snprintf( ( char * ) configname, 256, "target.%s.pattern", ptype );
@@ -5716,7 +5755,7 @@ mod_tokendb_handler( request_rec *rq )
         tokendbDebug(ptype);        
         tokendbDebug(pname);        
        
-        if (PL_strlen(escaped_pvalues) == 0) {
+        if (escaped_pvalues == NULL || PL_strlen(escaped_pvalues) == 0) {
             error_out("Empty Data not allowed. Use Delete Parameter instead", "Empty Data");
             return_done=1;
             goto confirm_config_changes_cleanup;
@@ -5739,6 +5778,12 @@ mod_tokendb_handler( request_rec *rq )
 
         // parse the pvalues string of form foo=bar&&foo2=baz&& ...
         pvalues = unescapeString(escaped_pvalues);
+        if (pvalues == NULL) {
+            error_out("Setup Error", "Empty Data");
+            return_done=1;
+            goto confirm_config_changes_cleanup;
+        }
+
         changed_str = (char*) PR_Malloc(PL_strlen(pvalues));
         added_str = (char*) PR_Malloc(PL_strlen(pvalues));
 
@@ -5791,7 +5836,8 @@ mod_tokendb_handler( request_rec *rq )
         PR_snprintf( ( char * ) configname, 256, "target.%s.displayname", ptype ); 
         disp_conf_type = (char *) RA::GetConfigStore()->GetConfigAsString( configname );
 
-        if ((PL_strlen(escaped_added_str) + PL_strlen(escaped_changed_str) + PL_strlen(escaped_deleted_str))!=0) {
+        if (escaped_added_str != NULL && escaped_changed_str != NULL && escaped_deleted_str != NULL &&
+            ((PL_strlen(escaped_added_str) + PL_strlen(escaped_changed_str) + PL_strlen(escaped_deleted_str))!=0)) {
             int large_injection_size = PL_strlen(escaped_deleted_str) + PL_strlen(escaped_pvalues) + PL_strlen(escaped_added_str) + 
                 PL_strlen(escaped_changed_str) + MAX_INJECTION_SIZE;
             char * large_injection = (char *) PR_Malloc(large_injection_size);
@@ -5947,9 +5993,9 @@ mod_tokendb_handler( request_rec *rq )
              get_config_state_timestamp(ptype, pname, &pstate, &ptimestamp);
         }
 
-        if (PL_strlen(added_str)   != 0) parse_and_apply_changes(userid, ptype, pname, "ADD", added_str);
-        if (PL_strlen(deleted_str) != 0) parse_and_apply_changes(userid, ptype, pname, "DELETE", deleted_str);
-        if (PL_strlen(changed_str) != 0) parse_and_apply_changes(userid, ptype, pname, "MODIFY", changed_str);
+        if (added_str != NULL   && PL_strlen(added_str) != 0)   parse_and_apply_changes(userid, ptype, pname, "ADD", added_str);
+        if (deleted_str != NULL && PL_strlen(deleted_str) != 0) parse_and_apply_changes(userid, ptype, pname, "DELETE", deleted_str);
+        if (changed_str != NULL && PL_strlen(changed_str) != 0) parse_and_apply_changes(userid, ptype, pname, "MODIFY", changed_str);
 
         if (PL_strcmp(new_config, "true") ==0) {
             // add to the list for that config type
