@@ -4442,7 +4442,7 @@ void audit_log(const char *func_name, const char *userid, const char *msg)
     ct = PR_GetCurrentThread();
     PR_fprintf(audit_fd, "[%s] t=%x uid=%s op=%s - ", 
 	datetime, ct, userid, func_name);
-    PR_fprintf(audit_fd, msg);
+    PR_fprintf(audit_fd, "%s", msg);
     PR_fprintf(audit_fd, "\n");
 }
 
