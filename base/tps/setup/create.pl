@@ -298,14 +298,14 @@ ASK_PKI_CA_HOSTNAME:
     goto ASK_PKI_CA_HOSTNAME;
   }
 
-ASK_CA_PORT:
+ASK_PKI_CA_PORT:
   print ("Enter the secure end entity port number of the CA [443]: ");
   chomp ($caPort = <STDIN>);
   if ($caPort eq "") {
     $caPort = "443";
   }
   if ($caPort eq "") {
-    goto ASK_CA_PORT;
+    goto ASK_PKI_CA_PORT;
   }
 
   print ("\n");
@@ -693,7 +693,7 @@ sub CopyTemplate
     s/\[TUS_ROOT\]/$tusRoot/g;
     s/\[TUS_PASS\]/$tusPass/g;
     s/\[PKI_CA_HOSTNAME\]/$caHost/g;
-    s/\[CA_PORT\]/$caPort/g;
+    s/\[PKI_CA_PORT\]/$caPort/g;
     s/\[DRM_HOST\]/$drmHost/g;
     s/\[DRM_PORT\]/$drmPort/g;
     s/\[SERVER_KEYGEN\]/$serverKeyGen/g;

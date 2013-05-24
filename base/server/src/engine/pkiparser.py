@@ -656,6 +656,8 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_https_port']
                 config.pki_master_dict['PKI_CA_HOSTNAME_SLOT'] =\
                     config.pki_master_dict['pki_ca_hostname']
+                config.pki_master_dict['PKI_CA_PORT_SLOT'] =\
+                    config.pki_master_dict['pki_ca_port']
                 config.pki_master_dict['PKI_CERT_DB_PASSWORD_SLOT'] =\
                     config.pki_master_dict['pki_pin']
                 config.pki_master_dict['PKI_CFG_PATH_NAME_SLOT'] =\
