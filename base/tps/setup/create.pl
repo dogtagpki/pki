@@ -288,14 +288,14 @@ ASK_AUTH_ROOT:
   print ("************************************************\n");
   print ("\n");
 
-ASK_CA_HOST:
+ASK_PKI_CA_HOSTNAME:
   print ("Enter the hostname of the CA [$defaultServerName]: ");
   chomp ($caHost = <STDIN>);
   if ($caHost eq "") {
     $caHost = "$defaultServerName";
   }
   if ($caHost eq "") {
-    goto ASK_CA_HOST;
+    goto ASK_PKI_CA_HOSTNAME;
   }
 
 ASK_CA_PORT:
@@ -692,7 +692,7 @@ sub CopyTemplate
     s/\[TUS_PORT\]/$tusPort/g;
     s/\[TUS_ROOT\]/$tusRoot/g;
     s/\[TUS_PASS\]/$tusPass/g;
-    s/\[CA_HOST\]/$caHost/g;
+    s/\[PKI_CA_HOSTNAME\]/$caHost/g;
     s/\[CA_PORT\]/$caPort/g;
     s/\[DRM_HOST\]/$drmHost/g;
     s/\[DRM_PORT\]/$drmPort/g;
