@@ -352,7 +352,7 @@
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  cfgPath     </param-name>
-                         <param-value> [PKI_INSTANCE_PATH]/conf/[PKI_SUBSYSTEM_DIR]CS.cfg </param-value> </init-param>
+                         <param-value> [PKI_INSTANCE_PATH]/conf/[PKI_SUBSYSTEM_TYPE]/CS.cfg </param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
                          <param-value> castart     </param-value> </init-param>
       <load-on-startup>  1  </load-on-startup>

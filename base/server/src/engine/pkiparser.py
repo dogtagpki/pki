@@ -742,8 +742,6 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_security_manager']
                 config.pki_master_dict['PKI_SERVER_XML_CONF_SLOT'] =\
                     config.pki_master_dict['pki_target_server_xml']
-                config.pki_master_dict['PKI_SUBSYSTEM_DIR_SLOT'] =\
-                    config.pki_master_dict['pki_subsystem'].lower() + "/"
                 config.pki_master_dict['PKI_SUBSYSTEM_TYPE_SLOT'] =\
                     config.pki_master_dict['pki_subsystem'].lower()
                 config.pki_master_dict['PKI_SYSTEMD_SERVICENAME_SLOT'] =\
