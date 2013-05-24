@@ -1,5 +1,5 @@
 Name:             pki-kra
-Version:          9.0.14
+Version:          9.0.15
 Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
@@ -253,6 +253,9 @@ fi
 
 
 %changelog
+* Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.15-1
+- Bugzilla Bug #903401 - TMS: RSA token enrollment failed : public key decode
+
 * Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.14-1
 - Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
   fail when anonymous access disabled.

@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          9.0.6
-Release:          2%{?dist}
+Version:          9.0.7
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -84,6 +84,11 @@ cd build
 
 
 %changelog
+* Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.7-1
+- Bugzilla Bug #912554 - [RFE] random certificate serial numbers
+- Bugzilla Bug #919556 - [RFE] Option to include nextUpdate as an offset
+                               to thisUpdate
+
 * Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.6-1
 - Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
   fail when anonymous access disabled.

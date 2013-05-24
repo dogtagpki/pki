@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.25
+Version:          9.0.26
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -750,6 +750,24 @@ fi
 
 
 %changelog
+* Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.26-1
+- Bugzilla Bug #912554 - [RFE] Random certificate serial numbers
+- Bugzilla Bug #958310 - [RFE] Randomized certificate validity
+- Bugzilla Bug #919556 - [RFE] Option to include nextUpdate as an offset
+                               to thisUpdate
+- Bugzilla Bug #839426 - [RFE] ECC CRL support for OCSP
+- Trac Ticket  #362    - [RFE] CMC ECC
+- Bugzilla Bug #810967 - [RFE] ECC support for pkisilent
+- Bugzilla Bug #861467 - [RFE] AD authentication plug-in update
+- Bugzilla Bug #891985 - Extended default CA validity
+- Bugzilla Bug #951501 - Corrected JavaScript issue with big numbers
+- Bugzilla Bug #955784 - Corrected JavaScript inability to handle big numbers
+- Bugzilla Bug #913313 - CA system certificates with random serial numbers
+- Bugzilla Bug #920816 - Cloning of CA with random serial number enabled
+- Bugzilla Bug #922264 - Allow for safe clone restart during configuration change
+- Bugzilla Bug #922121 - Cloning improvement for random certificate serial numbers
+
+
 * Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.25-1
 - Bugzilla Bug #861467 - Directory authenticated user certificate enrollments
   fail when anonymous access disabled.

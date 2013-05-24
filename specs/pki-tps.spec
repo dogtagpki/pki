@@ -1,5 +1,5 @@
 Name:             pki-tps
-Version:          9.0.10
+Version:          9.0.11
 Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
@@ -277,6 +277,11 @@ fi
 
 
 %changelog
+* Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.11-1
+- Bugzilla Bug #903401 - TMS: RSA token enrollment failed : public key decode
+- Bugzilla Bug #923039 - (CVE-2013-1885) Certificate System: pki-tps XSS flaw
+- Bugzilla Bug #924870 - (CVE-2013-1886) Certificate System: pki-tps format string injection
+
 * Wed Dec 06 2012 Jack Magne <jmagne@rehdat.com> 9.0.10-1
 - Bugzilla Bug #863272 - rhcs81 tps httpd segfault on interrupted token format operations. -
 - Bugzilla Bug #864607 - Empty certificate search in TPS results in httpd.worker segmentation fault then server error.
