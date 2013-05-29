@@ -744,6 +744,8 @@ class PKIConfigParser:
                     config.pki_master_dict['pki_target_server_xml']
                 config.pki_master_dict['PKI_SUBSYSTEM_DIR_SLOT'] =\
                     config.pki_master_dict['pki_subsystem'].lower() + "/"
+                config.pki_master_dict['PKI_SSL_SERVER_NICKNAME_SLOT'] =\
+                    config.pki_master_dict['pki_ssl_server_nickname']
                 config.pki_master_dict['PKI_SUBSYSTEM_TYPE_SLOT'] =\
                     config.pki_master_dict['pki_subsystem'].lower()
                 config.pki_master_dict['PKI_SYSTEMD_SERVICENAME_SLOT'] =\
@@ -845,7 +847,7 @@ class PKIConfigParser:
                              "secmod.db")
             config.pki_master_dict['pki_self_signed_token'] = "internal"
             config.pki_master_dict['pki_self_signed_nickname'] =\
-                "Server-Cert cert-" + config.pki_master_dict['pki_instance_name']
+                config.pki_master_dict['pki_ssl_server_nickname']
             config.pki_master_dict['pki_self_signed_subject'] =\
                 "cn=" + config.pki_master_dict['pki_hostname'] + "," +\
                 "o=" + config.pki_master_dict['pki_certificate_timestamp']
