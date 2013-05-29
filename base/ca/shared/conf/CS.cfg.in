@@ -104,7 +104,7 @@ preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.sslserver.dn=CN=[PKI_HOSTNAME]
 preop.cert.sslserver.keysize.custom_size=2048
 preop.cert.sslserver.keysize.size=2048
-preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_NAME]
+preop.cert.sslserver.nickname=[PKI_SSL_SERVER_NICKNAME]
 preop.cert.sslserver.profile=serverCert.profile
 preop.cert.sslserver.signing.required=false
 preop.cert.sslserver.subsystem=ca
@@ -146,7 +146,7 @@ preop.name.subsystemDN=CN=CA Subsystem Certificate
 preop.name.canickname=caSigningCert cert-[PKI_INSTANCE_NAME]
 preop.name.ocspnickname=ocspSigningCert cert-[PKI_INSTANCE_NAME]
 preop.name.subsystemnickname=subsystemCert cert-[PKI_INSTANCE_NAME]
-preop.name.sslnickname=Server-Cert cert-[PKI_INSTANCE_NAME]
+preop.name.sslnickname=[PKI_SSL_SERVER_NICKNAME]
 preop.subsystem.count=0
 subsystem.count=0
 passwordFile=[PKI_INSTANCE_PATH]/conf/password.conf

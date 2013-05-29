@@ -2797,8 +2797,7 @@ public class ConfigurationUtils {
     public static boolean findBootstrapServerCert() throws EBaseException, NotInitializedException, TokenException {
         IConfigStore cs = CMS.getConfigStore();
 
-        String instanceID = cs.getString("instanceId", "");
-        String nickname = "Server-Cert cert-" + instanceID;
+        String nickname = cs.getString("preop.cert.sslserver.nickname");
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate cert;
@@ -2817,8 +2816,7 @@ public class ConfigurationUtils {
     public static void deleteBootstrapServerCert() throws EBaseException, NotInitializedException,
             NoSuchTokenException, TokenException {
         IConfigStore cs = CMS.getConfigStore();
-        String instanceID = cs.getString("instanceId", "");
-        String nickname = "Server-Cert cert-" + instanceID;
+        String nickname = cs.getString("preop.cert.sslserver.nickname");
         deleteCert("Internal Key Storage Token", nickname);
     }
 

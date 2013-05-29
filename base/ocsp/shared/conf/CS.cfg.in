@@ -78,7 +78,7 @@ preop.cert.sslserver.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.sslserver.dn=CN=[PKI_HOSTNAME]
 preop.cert.sslserver.keysize.custom_size=2048
 preop.cert.sslserver.keysize.size=2048
-preop.cert.sslserver.nickname=Server-Cert cert-[PKI_INSTANCE_NAME]
+preop.cert.sslserver.nickname=[PKI_SSL_SERVER_NICKNAME]
 preop.cert.sslserver.profile=caInternalAuthServerCert
 preop.cert.sslserver.signing.required=false
 preop.cert.sslserver.subsystem=ocsp
