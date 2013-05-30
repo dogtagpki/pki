@@ -78,6 +78,11 @@
         </init-param>
     </servlet>
 
+    <servlet>
+        <servlet-name>tps</servlet-name>
+        <servlet-class>org.dogtagpki.tps.server.TPSServlet</servlet-class>
+    </servlet>
+
     <listener>
         <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
     </listener>
@@ -129,6 +134,11 @@
     <servlet-mapping>
         <servlet-name>tpsGetStatus</servlet-name>
         <url-pattern>/admin/tps/getStatus</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tps</servlet-name>
+        <url-pattern>/tps</url-pattern>
     </servlet-mapping>
 
     <!-- ==================== Default Session Configuration =============== -->
