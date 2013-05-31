@@ -22,13 +22,74 @@
 import os
 import shutil
 
+def copy(source, dest):
+    """
+    Copy a file or a folder and its contents.
+    """
+
+    # remove trailing slashes
+    if source[-1] == '/': source = source[:-1]
+    if dest[-1] == '/': dest = dest[:-1]
+
+    sourceparent = os.path.dirname(source)
+    destparent = os.path.dirname(dest)
+
+    copydirs(sourceparent, destparent)
+
+    if os.path.isfile(source):
+        copyfile(source, dest)
+
+    else:
+        for sourcepath, _, filenames in os.walk(source):
+
+            relpath = sourcepath[len(source):]
+            destpath = dest + relpath
+            if destpath == '': destpath = '/'
+
+            copydirs(sourcepath, destpath)
+
+            for filename in filenames:
+                sourcefile = os.path.join(sourcepath, filename)
+                targetfile = os.path.join(destpath, filename)
+                copyfile(sourcefile, targetfile)
 
 def copyfile(source, dest):
+    """
+    Copy a file or link while preserving its attributes.
+    """
 
-    dest_dir = os.path.dirname(dest)
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)
+    if os.path.islink(source):
+        target = os.readlink(source)
+        os.symlink(target, dest)
 
-    shutil.copy2(source, dest)
+        st = os.lstat(source)
+        os.lchown(dest, st.st_uid, st.st_gid)
+
+    else:
+        shutil.copyfile(source, dest)
+
+        st = os.stat(source)
+        os.utime(dest, (st.st_atime, st.st_mtime))
+        os.chmod(dest, st.st_mode)
+        os.chown(dest, st.st_uid, st.st_gid)
+
+def copydirs(source, dest):
+    """
+    Copy a folder and its parents while preserving their attributes.
+    """
+
+    if os.path.exists(dest):
+        return
+
+    destparent = os.path.dirname(dest)
+
+    if not os.path.exists(destparent):
+        sourceparent = os.path.dirname(source)
+        copydirs(sourceparent, destparent)
+
+    os.mkdir(dest)
+
     st = os.stat(source)
+    os.utime(dest, (st.st_atime, st.st_mtime))
+    os.chmod(dest, st.st_mode)
     os.chown(dest, st.st_uid, st.st_gid)
