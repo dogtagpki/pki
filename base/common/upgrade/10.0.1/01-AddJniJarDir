@@ -40,8 +40,11 @@ class AddJniJarDir(pki.upgrade.PKIUpgradeScriptlet):
 
         default_path = default_conf.get('JNI_JAR_DIR')
 
+        file = os.path.join(pki.CONF_DIR, 'pki.conf')
+        self.backup(file)
+
         # read pki.conf
-        conf = pki.PropertyFile(os.path.join(pki.CONF_DIR, 'pki.conf'))
+        conf = pki.PropertyFile(file)
         conf.read()
 
         # find JNI_JAR_DIR

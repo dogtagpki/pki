@@ -279,7 +279,7 @@ class PKIUpgradeScriptlet(object):
         # Callback method to upgrade the system.
         pass
 
-    def upgrade(self):
+    def init(self):
 
         backup_dir = self.get_backup_dir()
 
@@ -289,6 +289,8 @@ class PKIUpgradeScriptlet(object):
 
         # create backup dir
         os.makedirs(backup_dir)
+
+    def upgrade(self):
 
         try:
             if not self.can_upgrade():
@@ -325,46 +327,93 @@ class PKIUpgradeScriptlet(object):
         if os.path.exists(oldfiles):
 
             # restore all backed up files
-            for root, dirnames, filenames in os.walk(oldfiles):
-                path = root[len(oldfiles):]
-                for filename in filenames:
-                    source = root + '/' + filename
-                    target = path + '/' + filename
+            for sourcepath, _, filenames in os.walk(oldfiles):  #unused item _ for dirnames
 
-                    if verbose: print 'Restoring ' + target
-                    pki.util.copyfile(source, target)
+                destpath = sourcepath[len(oldfiles):]
+                if destpath == '': destpath = '/'
+
+                if not os.path.isdir(destpath):
+                    if verbose: print 'Restoring ' + destpath
+                    pki.util.copydirs(sourcepath, destpath)
+
+                for filename in filenames:
+                    sourcefile = os.path.join(sourcepath, filename)
+                    targetfile = os.path.join(destpath, filename)
+
+                    if verbose: print 'Restoring ' + targetfile
+                    pki.util.copyfile(sourcefile, targetfile)
 
         newfiles = backup_dir + '/newfiles'
         if os.path.exists(newfiles):
 
-            # remove files that did not exist before upgrade
+            # get paths that did not exist before upgrade
+            paths = []
             with open(newfiles, 'r') as f:
-                for filename in f:
-                    filename = filename.strip('\n')
+                for path in f:
+                    path = path.strip('\n')
+                    paths.append(path)
 
-                    if os.path.exists(filename):
-                        if verbose: print 'Deleting ' + filename
-                        os.remove(filename)
+            # remove paths in reverse order
+            paths.reverse()
+            for path in paths:
 
-    def backup(self, filename):
+                if not os.path.exists(path): continue
+                if verbose: print 'Deleting ' + path
+
+                if os.path.isfile(path):
+                    os.remove(path)
+                else:
+                    shutil.rmtree(path)
+
+    def backup(self, path):
 
         backup_dir = self.get_backup_dir()
-        backup_file = backup_dir + '/oldfiles' + filename
 
-        if os.path.exists(filename):
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
 
-            # if file exists, keep a copy
+        if os.path.exists(path):
 
-            if verbose: print 'Saving ' + filename
-            pki.util.copyfile(filename, backup_file)
+            # if path exists, keep a copy
+
+            oldfiles = backup_dir + '/oldfiles'
+            if not os.path.exists(oldfiles):
+                os.mkdir(oldfiles)
+
+            dest = oldfiles + path
+
+            sourceparent = os.path.dirname(path)
+            destparent = os.path.dirname(dest)
+
+            pki.util.copydirs(sourceparent, destparent)
+
+            if os.path.isfile(path):
+                if verbose: print 'Saving ' + path
+                pki.util.copyfile(path, dest)
+
+            else:
+                for sourcepath, _, filenames in os.walk(path):
+
+                    relpath = sourcepath[len(path):]
+                    destpath = dest + relpath
+
+                    if verbose: print 'Saving ' + sourcepath
+                    pki.util.copydirs(sourcepath, destpath)
+
+                    for filename in filenames:
+                        sourcefile = os.path.join(sourcepath, filename)
+                        targetfile = os.path.join(destpath, filename)
+
+                        if verbose: print 'Saving ' + sourcefile
+                        pki.util.copyfile(sourcefile, targetfile)
 
         else:
 
-            # otherwise, keep the name
+            # otherwise, record the name
 
-            if verbose: print 'Recording ' + filename
+            if verbose: print 'Recording ' + path
             with open(backup_dir + '/newfiles', 'a') as f:
-                f.write(filename + '\n')
+                f.write(path + '\n')
 
     def __eq__(self, other):
         return self.version == other.version and self.index == other.index
@@ -544,6 +593,7 @@ class PKIUpgrader(object):
                     raise pki.PKIException('Upgrade canceled.')
 
             try:
+                scriptlet.init()
                 scriptlet.upgrade()
 
             except pki.PKIException as e:
