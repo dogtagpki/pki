@@ -45,19 +45,19 @@ function serialNumberRangeCrit()
     var canonicalFrom = "", canonicalTo = "";
 
     if (document.serialNumberRangeCritForm.serialFrom.value != "") {
-	if (isHex(document.serialNumberRangeCritForm.serialFrom.value)) {
-	  canonicalFrom = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialFrom.value),16);
-	} else {
+	//if (isHex(document.serialNumberRangeCritForm.serialFrom.value)) {
+	//  canonicalFrom = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialFrom.value),16);
+	//} else {
 	  canonicalFrom = document.serialNumberRangeCritForm.serialFrom.value;
-        }
+        //}
 	crit[next++] = "keySerialNumber >= " + canonicalFrom;
     }
     if (document.serialNumberRangeCritForm.serialTo.value != "") {
-	if (isHex(document.serialNumberRangeCritForm.serialTo.value)) {
-	  canonicalTo = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialTo.value),16);
-	} else {
+	//if (isHex(document.serialNumberRangeCritForm.serialTo.value)) {
+	//  canonicalTo = parseInt(stripPrefix(document.serialNumberRangeCritForm.serialTo.value),16);
+	//} else {
 	  canonicalTo = document.serialNumberRangeCritForm.serialTo.value;
-        }
+        //}
    	crit[next++] = "keySerialNumber <= " +canonicalTo;
     }
 
