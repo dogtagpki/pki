@@ -85,10 +85,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             master['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         util.file.modify(master['pki_spawn_log'], silent=True)
-        # If instance has not been configured, print the
-        # configuration URL to the screen
-        if config.str2bool(master['pki_skip_configuration']):
-            util.configuration_file.display_configuration_url()
         return self.rv
 
     def destroy(self):

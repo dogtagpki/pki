@@ -20,23 +20,23 @@
 #
 
 # PKI Deployment Engine Messages
-PKI_DICTIONARY_DEFAULT ="\n"\
+PKI_DICTIONARY_DEFAULT = "\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI DEFAULT DICTIONARY\n"\
 "====================================================="
-PKI_DICTIONARY_MASTER="\n"\
+PKI_DICTIONARY_MASTER = "\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI MASTER DICTIONARY\n"\
 "====================================================="
-PKI_DICTIONARY_SLOTS="\n"\
+PKI_DICTIONARY_SLOTS = "\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI SLOTS DICTIONARY\n"\
 "====================================================="
-PKI_DICTIONARY_SUBSYSTEM="\n"\
+PKI_DICTIONARY_SUBSYSTEM = "\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI SUBSYSTEM DICTIONARY\n"\
 "====================================================="
-PKI_DICTIONARY_WEB_SERVER="\n"\
+PKI_DICTIONARY_WEB_SERVER = "\n"\
 "=====================================================\n"\
 "    DISPLAY CONTENTS OF PKI WEB SERVER DICTIONARY\n"\
 "====================================================="
@@ -44,7 +44,7 @@ PKI_DICTIONARY_WEB_SERVER="\n"\
 
 
 # PKI Deployment Log Messages
-PKI_VERBOSITY=\
+PKI_VERBOSITY = \
 "VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL\n"\
 "=======================================================================\n"\
 "  NONE             error|warning               error|warning|info|debug\n"\
@@ -55,9 +55,9 @@ PKI_VERBOSITY=\
 
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
-PKI_CONFIGURATION_RESTART_1 = "After configuration, the server can be "\
-                              "operated by the command:\n\n%s"
-PKI_CONFIGURATION_URL_1 = "Please start the configuration by accessing:\n\n%s"
+PKI_CONFIGURATION_RESTART_1 = "    After configuration, the server can be "\
+                              "operated by the command:\n    %s"
+PKI_CONFIGURATION_URL_1 = "    Please start the configuration by accessing:\n    %s"
 PKI_CONFIGURATION_WIZARD_RESTART_1 = "After configuration, the server can be "\
                                      "operated by the command:\n%s"
 PKI_CONFIGURATION_WIZARD_URL_1 = "Configuration Wizard listening on\n%s"
@@ -109,7 +109,7 @@ PKIDESTROY_BEGIN_MESSAGE_2 = "BEGIN destroying subsystem '%s' of "\
                              "instance '%s' . . ."
 PKIDESTROY_END_MESSAGE_2 = "END destroying subsystem '%s' of "\
                            "instance '%s'"
-PKIDESTROY_EPILOG =\
+PKIDESTROY_EPILOG = \
 "REMINDER:\n\n"\
 "    The default PKI instance path will be calculated and placed in front\n"\
 "    of the mandatory '-i <instance>' parameter, and the values that reside\n"\
@@ -118,13 +118,13 @@ PKIDESTROY_EPILOG =\
 "    utilized by 'pkidestroy' to remove this instance.\n\n"\
 "    Finally, if an optional '-p <prefix>' is defined, this value WILL be\n"\
 "    prepended to the default PKI instance path which is placed in front\n"\
-"    of the specified '-i <instance>' parameter.\n\n" +\
+"    of the specified '-i <instance>' parameter.\n\n" + \
 PKI_VERBOSITY
 PKISPAWN_BEGIN_MESSAGE_2 = "BEGIN spawning subsystem '%s' of "\
                            "instance '%s' . . ."
 PKISPAWN_END_MESSAGE_2 = "END spawning subsystem '%s' of "\
                          "instance '%s'"
-PKISPAWN_EPILOG =\
+PKISPAWN_EPILOG = \
 "REMINDER:\n\n"\
 "    If two or more Apache or Tomcat PKI 'instances' are specified via\n"\
 "    separate configuration files, remember that the following parameters\n"\
@@ -133,7 +133,7 @@ PKISPAWN_EPILOG =\
 "        Tomcat:  'pki_instance_name', 'pki_http_port', 'pki_https_port',\n"\
 "                 'pki_ajp_port', and 'pki_tomcat_server_port'\n\n"\
 "    Finally, if an optional '-p <prefix>' is defined, this value WILL NOT\n"\
-"    be prepended in front of the mandatory '-f <configuration_file>'.\n\n" +\
+"    be prepended in front of the mandatory '-f <configuration_file>'.\n\n" + \
 PKI_VERBOSITY
 
 
@@ -193,7 +193,7 @@ PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"
 PKIHELPER_IS_A_FILE_1 = "'%s' is a file"
 PKIHELPER_IS_A_SYMLINK_1 = "'%s' is a symlink"
 PKIHELPER_JAR_XF_C_2 = "jar -xf %s -C %s"
-PKIHELPER_KRACONNECTOR_UPDATE_CONTACT =\
+PKIHELPER_KRACONNECTOR_UPDATE_CONTACT = \
     "contacting the CA to update the KRA connector"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE = "Failed to update KRA connector on CA"
 PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2 = "Failed to update KRA connector for %s:%s"
@@ -238,24 +238,24 @@ PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
-PKIHELPER_SECURITY_DOMAIN_CONTACT_1 =\
+PKIHELPER_SECURITY_DOMAIN_CONTACT_1 = \
     "contacting the security domain master to update security domain '%s'"
-PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2 =\
+PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2 = \
     "Failed to get installation token from security domain '%s:%s'"
-PKIHELPER_SECURITY_DOMAIN_UNDEFINED =\
+PKIHELPER_SECURITY_DOMAIN_UNDEFINED = \
     "No security domain defined.\n"\
     "If this is an unconfigured instance, then that is OK.\n"\
     "Otherwise, manually delete the entry from the security domain master."
-PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 =\
+PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 = \
     "security domain '%s' may be offline or unreachable!"
-PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2 =\
+PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2 = \
     "this '%s' entry may not be registered with security domain '%s'!"
-PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 =\
+PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 = \
     "this '%s' entry will NOT be deleted from security domain '%s'!"
-PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 =\
+PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 = \
     "updateDomainXML FAILED to delete this '%s' entry from "\
     "security domain '%s': '%s'"
-PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2 =\
+PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2 = \
     "updateDomainXML SUCCESSFULLY deleted this '%s' entry from "\
     "security domain '%s'"
 PKIHELPER_SELINUX_DISABLED = "Selinux is disabled.  Not checking port contexts"
@@ -274,10 +274,10 @@ PKIHELPER_TOMCAT_INSTANCES_2 = "PKI Tomcat registry '%s' contains '%d' "\
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_UNDEFINED_CA_HOST_PORT = "CA Host or Port is undefined"
-PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 =\
+PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 = \
     "Either a value for '%s' MUST be defined in '%s', or "\
     "the randomly generated client pin MUST be used"
-PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 =\
+PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 = \
     "A value for '%s' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
 PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 = "Password for token '%s' not defined"
@@ -301,21 +301,23 @@ PKI_CONFIG_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
 PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
                                     "chain from file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
-PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION =\
+PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION = \
     "Exception from Java Configuration Servlet:"
 PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
 PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
-PKI_CHECK_STATUS_MESSAGE = "\tTo check the status of the subsystem: "\
-"systemctl status pki-tomcatd\@%s.service"
-PKI_ACCESS_URL = "\tThe URL for the subsystem is https://%s:%s/%s"
-PKI_INSTANCE_RESTART_MESSAGE = "\tTo restart the subsystem: systemctl restart pki-tomcatd\@%s.service"
+PKI_CHECK_STATUS_MESSAGE = "    To check the status of the subsystem: \n"\
+"        systemctl status pki-tomcatd\@%s.service"
+PKI_ACCESS_URL = "    The URL for the subsystem is https://%s:%s/%s"
+PKI_INSTANCE_RESTART_MESSAGE = "    To restart the subsystem: \n"\
+"        systemctl restart pki-tomcatd\@%s.service"
 
-PKI_SPAWN_INFORMATION_HEADER = "\n\t==========================================================================\n"\
-                               "\t                            INSTALLATION SUMMARY\n"\
-                               "\t==========================================================================\n"
 
-PKI_SPAWN_INFORMATION_FOOTER = "\n\t==========================================================================\n"
+PKI_SPAWN_INFORMATION_HEADER = "\n    ==========================================================================\n"\
+                               "                                INSTALLATION SUMMARY\n"\
+                               "    ==========================================================================\n"
+
+PKI_SPAWN_INFORMATION_FOOTER = "\n    ==========================================================================\n"
 
 
 # PKI Deployment "Scriptlet" Messages

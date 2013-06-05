@@ -53,7 +53,7 @@ error was:
 """ % sys.exc_value
     sys.exit(1)
 
-#Handle the Keyboard Interrupt
+# Handle the Keyboard Interrupt
 def interrupt_handler(signal, frame):
     print
     print '\nInstallation canceled.'
@@ -78,7 +78,7 @@ def main(argv):
 
     # Generate a timestamp
     config.pki_timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
-    config.pki_certificate_timestamp =\
+    config.pki_certificate_timestamp = \
         date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
 
     # Obtain the architecture bit-size
@@ -276,19 +276,19 @@ def main(argv):
         else:
             break
 
-    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +\
+    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT + \
                           "/" + config.pki_subsystem.lower()):
-        print "ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 %\
+        print "ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 % \
             config.pki_subsystem.lower()
         sys.exit(1)
 
     # Enable 'pkispawn' logging.
     rv = 0
-    config.pki_log_dir = config.pki_root_prefix +\
+    config.pki_log_dir = config.pki_root_prefix + \
                          config.PKI_DEPLOYMENT_LOG_ROOT
-    config.pki_log_name = "pki" + "-" +\
-                          config.pki_subsystem.lower() +\
-                          "-" + "spawn" + "." +\
+    config.pki_log_name = "pki" + "-" + \
+                          config.pki_subsystem.lower() + \
+                          "-" + "spawn" + "." + \
                           config.pki_timestamp + "." + "log"
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,
@@ -318,7 +318,7 @@ def main(argv):
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" +\
+    config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" + \
                                               config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
@@ -367,7 +367,7 @@ def main(argv):
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.deployment." +
                                pki_scriptlet,
-                               fromlist = [pki_scriptlet])
+                               fromlist=[pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
         try:
             rv = instance.spawn()
@@ -387,22 +387,27 @@ def main(argv):
 
     print_install_information()
 
-    print "Installation complete."
-    print
-
 def print_install_information():
 
+    skip_configuration = config.str2bool(config.pki_master_dict['pki_skip_configuration'])
     print log.PKI_SPAWN_INFORMATION_HEADER
-    print "\tAdmin username: %s" % config.pki_master_dict['pki_admin_uid']
-    print "\tLocation of client database: %s" % config.pki_master_dict['pki_client_database_dir']
-    print "\tClient certificate nickname: %s" % config.pki_master_dict['pki_admin_nickname']
-    print log.PKI_CHECK_STATUS_MESSAGE % config.pki_master_dict['pki_instance_name']
-    print log.PKI_INSTANCE_RESTART_MESSAGE % config.pki_master_dict['pki_instance_name']
-    print log.PKI_ACCESS_URL % (config.pki_master_dict['pki_hostname'],
-                                config.pki_master_dict['pki_https_port'],
-                                config.pki_subsystem.lower())
+    if skip_configuration:
+        print log.PKI_CONFIGURATION_URL_1 % config.pki_master_dict['pki_configuration_url']
+        print
+        print log.PKI_CONFIGURATION_RESTART_1 % \
+              config.pki_master_dict['pki_registry_initscript_command']
+    else:
+        print "    Admin username: %s" % config.pki_master_dict['pki_admin_uid']
+        if not config.str2bool(config.pki_master_dict['pki_client_database_purge']):
+            print "    Location of client database: %s" % config.pki_master_dict['pki_client_database_dir']
+        print "    Client certificate nickname: %s" % config.pki_master_dict['pki_admin_nickname']
+        print log.PKI_CHECK_STATUS_MESSAGE % config.pki_master_dict['pki_instance_name']
+        print log.PKI_INSTANCE_RESTART_MESSAGE % config.pki_master_dict['pki_instance_name']
+        print log.PKI_ACCESS_URL % (config.pki_master_dict['pki_hostname'],
+                                    config.pki_master_dict['pki_https_port'],
+                                    config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
-    
+
 def log_error_details():
         type, value, stacktrace = sys.exc_info()
         config.pki_log.debug("Error Type: " + type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
