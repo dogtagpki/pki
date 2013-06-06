@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.3
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1078,6 +1078,9 @@ fi
 
 
 %changelog
+* Thu Jun 6 2013 Ade Lee <alee@redhat.com> 10.0.3-1
+- Change release number for official release.
+
 * Wed Jun 5 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.3-0.2
 - TRAC Ticket 606 - add restart / start at boot info to pkispawn man page
 - TRAC Ticket 610 - Document limitation in using GUI install
