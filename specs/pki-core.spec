@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -515,6 +515,10 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+chmod 644 %{buildroot}%{_mandir}/man1/*
+chmod 644 %{buildroot}%{_mandir}/man5/*
+chmod 644 %{buildroot}%{_mandir}/man8/*
+
 # Fedora 18 and 17:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
 %if 0%{?fedora} <= 18
 	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
@@ -870,7 +874,7 @@ fi
 %doc base/common/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
-%{_datadir}/pki/etc/pki.conf
+%{_datadir}/pki/etc/
 %{_datadir}/pki/upgrade/
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
@@ -1073,6 +1077,11 @@ fi
 
 
 %changelog
+* Wed Jun 5 2013 Matthew Harmsen <mharmsen@redhat.com> 10.1.0-0.2
+- TRAC Ticket 606 - add restart / start at boot info to pkispawn man page
+- TRAC Ticket 610 - Document limitation in using GUI install
+- TRAC Ticket 629 - Package ownership of '/usr/share/pki/etc/' directory
+
 * Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
 - Change release number for 10.1 development
 
