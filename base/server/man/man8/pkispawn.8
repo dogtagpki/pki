@@ -49,7 +49,7 @@ The \fBpkispawn\fP run creates several different installation files that can be 
 .IP
 * For Tomcat-based instances, a Tomcat instance is created at \fT/var/lib/pki/<pki_instance_name>\fP, where pki_instance_name is defined in the configuration file.  
 .IP
-* A log file of \fBpkispawn\fP operations is written to \fI/var/log/pki/pki-spawn-<pki_instance_name>-<timestamp>.log\fP.  
+* A log file of \fBpkispawn\fP operations is written to \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP.  
 .IP
 * A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in pki_client_dir. 
 .PP
@@ -61,8 +61,24 @@ The Certificate Server instance can also be accessed using the \fBpki\fP command
 Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  See
 .BR pkidestroy(8).
 .PP
-\fBpkispawn\fP supersedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP. To use the browser-based configuration panels with \fBpkispawn\fP instead, set the configuration parameter \fBpki_skip_configuration\fP to True.
+\fBpkispawn\fP supersedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP.
  
+.PP
+Although \fBpkispawn\fP can be used to install and configure an instance in a single invocation, it can also still be directed to split this work into separate 'installation' and 'configuration' tasks (e. g. - to support an organization's policy where 'installation' and 'configuration' tasks must be fulfilled by separate roles).
+
+.PP
+To run \fBpkispawn\fP for instance installation only, leave the configuration parameter \fBpki_skip_installation\fP set to False (the default), and set the configuration parameter \fBpki_skip_configuration\fP to True. This instance must then be configured using either a \fBpkispawn\fP command line interface (CLI) configuration, or a browser-based (GUI) configuration.
+
+.PP
+To configure an instance using the CLI-based configuration, set the configuration parameter \fBpki_skip_installation\fP to True, leave the configuration parameter \fBpki_skip_configuration\fP to False (the default), and run \fBpkispawn\fP for configuration only.
+
+.PP
+To configure an instance using the GUI-based configuration, launch a browser, input the configuration URL located inside the \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP file, and fill-in the desired/required information for each panel.  The final panel will instruct the user to restart the server.
+
+.TP
+\fBNote:\fP 
+CLI-based configuration and GUI-based configuration go through different code. There is additional code in the CLI-based configuration to support instances that contain more than one subsystem; the GUI-based configuration does not contain this code.  Consequently, GUI-based configuration must not be used to configure a PKI instance which contains more than one subsystem.
+
 .SH OPTIONS
 .TP
 .B -s <subsystem>
@@ -186,7 +202,7 @@ Prior to running this command, a Directory Server instance should be created and
 
 This invocation of \fBpkispawn\fP creates a Tomcat instance containing a CA running on the local machine with secure port 8443 and unsecure port 8080.  To access this CA, simply point a browser to https://<hostname>:8443.
 .PP
-The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pkispawn-pki-tomcat-<timestamp>.log\fP.
+The instance name (defined by pki_instance_name) is pki-tomcat, and it is located at \fI/var/lib/pki/pki-tomcat\fP.  Logs for the instance are located at \fI/var/log/pki/pki-tomcat\fP, and an installation log is written to \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP.
 .PP
 A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.dogtag/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.
 .PP
@@ -354,6 +370,76 @@ pki_ca_signing_subject_dn=cn=CA Signing Certificate,ou=External,o=example.com
 Then, the \fBpkispawn\fP command is run again:
 .PP
 .B pkispawn -s CA -f myconfig.txt
+
+.SS Execution management of a PKI instance (start, stop, status, etc.)
+.BR
+.PP
+To start all 389 instances (local PKI databases):
+.IP
+.nf
+\fBsystemctl start dirsrv.target\fR
+.fi
+.PP
+To stop all 389 instances (local PKI databases):
+.IP
+.nf
+\fBsystemctl stop dirsrv.target\fR
+.fi
+.PP
+To restart all 389 instances (local PKI databases):
+.IP
+.nf
+\fBsystemctl restart dirsrv.target\fR
+.fi
+.PP
+To obtain the status of all 389 instances (local PKI databases):
+.IP
+.nf
+\fBsystemctl status dirsrv.target\fR
+.fi
+.PP
+To start a PKI instance named <pki_instance_name>:
+.IP
+.nf
+\fBsystemctl start pki-tomcatd@<pki_instance_name>.service\fR
+.fi
+.PP
+To stop a PKI instance named <pki_instance_name>:
+.IP
+.nf
+\fBsystemctl stop pki-tomcatd@<pki_instance_name>.service\fR
+.fi
+.PP
+To restart a PKI instance named <pki_instance_name>:
+.IP
+.nf
+\fBsystemctl restart pki-tomcatd@<pki_instance_name>.service\fR
+.fi
+.PP
+To obtain the status of a PKI instance named <pki_instance_name>:
+.IP
+.nf
+\fBsystemctl status pki-tomcatd@<pki_instance_name>.service\fR
+.fi
+.PP
+To obtain a detailed status of a Tomcat PKI instance named <pki_instance_name>:
+.IP
+.nf
+\fBpkidaemon status tomcat <pki_instance_name>\fR
+.fi
+.PP
+To obtain a detailed status of all Tomcat PKI instances:
+.IP
+.nf
+\fBpkidaemon status tomcat\fR
+.fi
+
+.PP
+To enable a PKI instance named <pki_instance_name> to be started automatically upon system reboot:
+.IP
+.nf
+\x'-1'\fBsystemctl enable pki-tomcatd@<pki_instance_name>.service\fR
+.fi
 
 .SH BUGS
 Report bugs to http://bugzilla.redhat.com.
