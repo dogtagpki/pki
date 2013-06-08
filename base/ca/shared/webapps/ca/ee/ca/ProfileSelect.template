@@ -509,6 +509,8 @@ Function checkRequest
 
 
     privateKey.KeySpec= "1" 
+  ' Allows key to be exported.
+    privateKey.ExportPolicy = "1"
 
   ' Pick the provider that is selected
     set options = TheForm.all.cryptprovider.options
