@@ -39,6 +39,7 @@ else (LDAP_LIBRARIES AND LDAP_INCLUDE_DIRS)
       ldap
     PATHS
       /usr/lib
+      /usr/lib64
       /usr/local/lib
       /opt/local/lib
       /sw/lib
@@ -49,6 +50,7 @@ else (LDAP_LIBRARIES AND LDAP_INCLUDE_DIRS)
       lber
     PATHS
       /usr/lib
+      /usr/lib64
       /usr/local/lib
       /opt/local/lib
       /sw/lib
