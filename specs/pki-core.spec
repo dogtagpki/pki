@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.3
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1078,6 +1078,10 @@ fi
 
 
 %changelog
+* Mon Jun 10 2013 Ade Lee <alee@redhat.com> 10.0.3-2
+- TRAC Ticket 646 - PKCS12Export fails on F19 
+- Bugzilla Bug 961522 - allows key to be exported
+
 * Thu Jun 6 2013 Ade Lee <alee@redhat.com> 10.0.3-1
 - Change release number for official release.
 
