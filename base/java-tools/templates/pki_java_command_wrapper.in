@@ -125,13 +125,8 @@ fi
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
-CP=/usr/lib/java/jss4.jar
-CP=/usr/lib/java/dirsec/jss4.jar:${CP}
-if [ "${OS}" = "Linux" ] &&
-   [ "${ARCHITECTURE}" = "x86_64" ] ; then
-    # Fedora 16+
-    CP=/usr/lib64/java/jss4.jar
-fi
+JNI_JAR_DIR=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
+CP=${JNI_JAR_DIR}/jss4.jar
 CP=/usr/share/java/commons-codec.jar:${CP}
 CP=/usr/share/java/ldapjdk.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
