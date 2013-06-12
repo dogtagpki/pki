@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.1.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -20,8 +20,8 @@ Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
-Requires:         pki-server >= 10.0.0
-Requires:         pki-server-theme >= 10.0.0
+Requires:         pki-server >= 10.1.0
+Requires:         pki-server-theme >= 10.1.0
 Requires:         perl-DBD-SQLite
 Requires:         sqlite
 Requires:         /usr/sbin/sendmail
@@ -197,6 +197,9 @@ fi
 
 
 %changelog
+* Tue Jun 11 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Fixed dependencies on pki-server and pki-server-theme.
+
 * Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
 - Change release number for 10.1 development
 

@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -17,7 +17,7 @@ BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    pcre-devel
-BuildRequires:    pki-server = %{version}-%{release}
+BuildRequires:    pki-server >= 10.1.0
 BuildRequires:    python
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
@@ -31,8 +31,8 @@ Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
-Requires:         pki-server = %{version}-%{release}
-Requires:         pki-symkey = %{version}-%{release}
+Requires:         pki-server >= 10.1.0
+Requires:         pki-symkey >= 10.1.0
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -240,6 +240,9 @@ fi
 
 
 %changelog
+* Tue Jun 11 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Fixed dependencies on pki-server and pki-symkey.
+
 * Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
 - Change release number for 10.1 development
 
