@@ -1,6 +1,6 @@
 Name:             pki-migrate
 Version:          10.1.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -14,10 +14,10 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
-BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    jpackage-utils
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -71,6 +71,9 @@ cd build
 
 
 %changelog
+* Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Updated dependencies to Java 1.7.
+
 * Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
 - Change release number for 10.1 development
 

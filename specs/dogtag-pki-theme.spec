@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          10.1.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -11,7 +11,7 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
-BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    java-devel >= 1:1.7.0
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %else
@@ -142,7 +142,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - PKI Console User Interface
 Group:            System Environment/Base
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
@@ -217,6 +217,9 @@ cd build
 
 
 %changelog
+* Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
+- Updated dependencies to Java 1.7.
+
 * Tue May 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.1
 - Change release number for 10.1 development
 

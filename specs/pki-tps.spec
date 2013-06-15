@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -13,6 +13,7 @@ BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
+BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    openldap-devel
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
@@ -240,6 +241,9 @@ fi
 
 
 %changelog
+* Fri Jun 14 2013 Kevin Wright <kwright@redhat.com> 10.1.0-0.3
+- Added missing build dependency on Java.
+
 * Tue Jun 11 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
 - Fixed dependencies on pki-server and pki-symkey.
 

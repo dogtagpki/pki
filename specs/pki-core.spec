@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -15,7 +15,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    zip
-BuildRequires:    java-devel >= 1:1.6.0
+BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-codec
@@ -149,7 +149,7 @@ least one PKI Theme package:                                           \
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} || 0%{?fedora} >= 19
@@ -188,7 +188,7 @@ Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         javassist
 Requires:         jettison
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -231,7 +231,7 @@ Obsoletes:        pki-java-tools < %{version}-%{release}
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
 
@@ -258,7 +258,7 @@ Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         java-atk-wrapper
 Requires:         net-tools
 Requires:         perl(File::Slurp)
@@ -331,7 +331,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -358,7 +358,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -391,7 +391,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -431,7 +431,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.6.0
+Requires:         java >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 Requires(post):   systemd-units
@@ -1077,6 +1077,9 @@ fi
 
 
 %changelog
+* Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.3
+- Updated dependencies to Java 1.7.
+
 * Wed Jun 5 2013 Matthew Harmsen <mharmsen@redhat.com> 10.1.0-0.2
 - TRAC Ticket 606 - add restart / start at boot info to pkispawn man page
 - TRAC Ticket 610 - Document limitation in using GUI install
