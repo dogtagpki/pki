@@ -44,6 +44,7 @@ try:
     from pki.deployment.pkiparser import PKIConfigParser
     from pki.deployment import pkilogging
     from pki.deployment import pkimessages as log
+    import pki.deployment.pkihelper as util
 except ImportError:
     print >> sys.stderr, """\
 There was a problem importing one of the required Python modules. The
@@ -161,7 +162,7 @@ def main(argv):
             parser.set_property(config.pki_subsystem, 'pki_client_database_password', admin_password)
             parser.set_property(config.pki_subsystem, 'pki_client_pkcs12_password', admin_password)
 
-            if config.pki_master_dict['pki_import_admin_cert'] == 'True':
+            if parser.pki_master_dict['pki_import_admin_cert'] == 'True':
                 import_cert = 'Y'
             else:
                 import_cert = 'N'
@@ -312,27 +313,27 @@ def main(argv):
     parser.compose_pki_slots_dictionary()
     config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_slots_dict),
+    config.pki_log.debug(pkilogging.format(parser.pki_slots_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    config.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" + \
+    parser.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" + \
                                               config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     if not interactive and\
-        not config.str2bool(config.pki_master_dict['pki_skip_configuration']):
+        not config.str2bool(parser.pki_master_dict['pki_skip_configuration']):
         try:
             parser.ds_connect()
             parser.ds_bind()
 
             if parser.ds_base_dn_exists() and\
-                not config.str2bool(config.pki_master_dict['pki_ds_remove_data']):
+                not config.str2bool(parser.pki_master_dict['pki_ds_remove_data']):
                 print 'ERROR:  Base DN already exists.'
                 sys.exit(1)
 
@@ -343,8 +344,8 @@ def main(argv):
             sys.exit(1)
 
         if config.pki_subsystem != "CA" or\
-            config.str2bool(config.pki_master_dict['pki_clone']) or\
-            config.str2bool(config.pki_master_dict['pki_subordinate']):
+            config.str2bool(parser.pki_master_dict['pki_clone']) or\
+            config.str2bool(parser.pki_master_dict['pki_subordinate']):
             try:
                 parser.sd_connect()
                 info = parser.sd_get_info()
@@ -359,10 +360,11 @@ def main(argv):
                 print('ERROR:  Unable to access security domain: ' + str(e))
                 sys.exit(1)
 
-    print "Installing " + config.pki_subsystem + " into " + config.pki_master_dict['pki_instance_path'] + "."
+    print "Installing " + config.pki_subsystem + " into " + parser.pki_master_dict['pki_instance_path'] + "."
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
-    pki_subsystem_scriptlets = config.pki_master_dict['spawn_scriplets'].split()
+    pki_subsystem_scriptlets = parser.pki_master_dict['spawn_scriplets'].split()
+    deployer = util.PKIDeployer(parser.pki_master_dict, parser.pki_slots_dict)
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.deployment." +
@@ -370,7 +372,7 @@ def main(argv):
                                fromlist=[pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
         try:
-            rv = instance.spawn()
+            rv = instance.spawn(deployer)
         except:
             log_error_details()
             print
@@ -378,33 +380,34 @@ def main(argv):
             print
             sys.exit(1)
         if rv != 0:
+            print "Nothing here!!!"
             print "Installation failed."
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    print_install_information()
+    print_install_information(parser.pki_master_dict)
 
-def print_install_information():
+def print_install_information(pki_master_dict):
 
-    skip_configuration = config.str2bool(config.pki_master_dict['pki_skip_configuration'])
+    skip_configuration = config.str2bool(pki_master_dict['pki_skip_configuration'])
     print log.PKI_SPAWN_INFORMATION_HEADER
     if skip_configuration:
-        print log.PKI_CONFIGURATION_URL_1 % config.pki_master_dict['pki_configuration_url']
+        print log.PKI_CONFIGURATION_URL_1 % pki_master_dict['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 % \
-              config.pki_master_dict['pki_registry_initscript_command']
+              pki_master_dict['pki_registry_initscript_command']
     else:
-        print "    Admin username: %s" % config.pki_master_dict['pki_admin_uid']
-        if not config.str2bool(config.pki_master_dict['pki_client_database_purge']):
-            print "    Location of client database: %s" % config.pki_master_dict['pki_client_database_dir']
-        print "    Client certificate nickname: %s" % config.pki_master_dict['pki_admin_nickname']
-        print log.PKI_CHECK_STATUS_MESSAGE % config.pki_master_dict['pki_instance_name']
-        print log.PKI_INSTANCE_RESTART_MESSAGE % config.pki_master_dict['pki_instance_name']
-        print log.PKI_ACCESS_URL % (config.pki_master_dict['pki_hostname'],
-                                    config.pki_master_dict['pki_https_port'],
+        print "    Admin username: %s" % pki_master_dict['pki_admin_uid']
+        if not config.str2bool(pki_master_dict['pki_client_database_purge']):
+            print "    Location of client database: %s" % pki_master_dict['pki_client_database_dir']
+        print "    Client certificate nickname: %s" % pki_master_dict['pki_admin_nickname']
+        print log.PKI_CHECK_STATUS_MESSAGE % pki_master_dict['pki_instance_name']
+        print log.PKI_INSTANCE_RESTART_MESSAGE % pki_master_dict['pki_instance_name']
+        print log.PKI_ACCESS_URL % (pki_master_dict['pki_hostname'],
+                                    pki_master_dict['pki_https_port'],
                                     config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
 

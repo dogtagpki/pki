@@ -48,8 +48,6 @@ if selinux.is_selinux_enabled():
 
 # PKI Deployment Imports
 import pkiconfig as config
-from pkiconfig import pki_master_dict as master
-from pkiconfig import pki_slots_dict as slots
 from pkiconfig import pki_selinux_config_ports as ports
 import pkimanifest as manifest
 import pkimessages as log
@@ -129,8 +127,12 @@ def pki_copytree(src, dst, symlinks = False, ignore = None):
     if errors:
         raise Error, errors
 
-# PKI Deployment Identity Class
-class identity:
+class Identity:
+    """PKI Deployment Identity Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def __add_gid(self, pki_group):
         pki_gid = None
         try:
@@ -263,7 +265,7 @@ class identity:
 
     def get_uid(self, critical_failure = True):
         try:
-            pki_uid = master['pki_uid']
+            pki_uid = self.master_dict['pki_uid']
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
@@ -273,7 +275,7 @@ class identity:
 
     def get_gid(self, critical_failure = True):
         try:
-            pki_gid = master['pki_gid']
+            pki_gid = self.master_dict['pki_gid']
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
@@ -287,7 +289,7 @@ class identity:
                                  extra = config.PKI_INDENTATION_LEVEL_2)
             # id -u <name>
             pki_uid = getpwnam(name)[2]
-            master['pki_uid'] = pki_uid
+            self.master_dict['pki_uid'] = pki_uid
             config.pki_log.debug(log.PKIHELPER_UID_2, name, pki_uid,
                                  extra = config.PKI_INDENTATION_LEVEL_3)
         except KeyError as exc:
@@ -303,7 +305,7 @@ class identity:
                                  extra = config.PKI_INDENTATION_LEVEL_2)
             # id -g <name>
             pki_gid = getgrnam(name)[2]
-            master['pki_gid'] = pki_gid
+            self.master_dict['pki_gid'] = pki_gid
             config.pki_log.debug(log.PKIHELPER_GID_2, name, pki_gid,
                                  extra = config.PKI_INDENTATION_LEVEL_3)
         except KeyError as exc:
@@ -313,272 +315,279 @@ class identity:
                 raise
         return pki_gid
 
+class Namespace:
+    """PKI Deployment Namespace Class"""
 
-# PKI Deployment Namespace Class
-class namespace:
     # Silently verify that the selected 'pki_instance_name' will
     # NOT produce any namespace collisions
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def collision_detection(self):
         # Run simple checks for pre-existing namespace collisions
-        if os.path.exists(master['pki_instance_path']):
-            if os.path.exists(master['pki_subsystem_path']):
+        if os.path.exists(self.master_dict['pki_instance_path']):
+            if os.path.exists(self.master_dict['pki_subsystem_path']):
                 # Top-Level PKI base path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_name'],
-                    master['pki_instance_path'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_instance_path'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                    master['pki_instance_path']))
+                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                       self.master_dict['pki_instance_path']))
         else:
-            if os.path.exists(master['pki_target_tomcat_conf_instance_id']):
+            if os.path.exists(self.master_dict['pki_target_tomcat_conf_instance_id']):
                 # Top-Level "/etc/sysconfig" path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_name'],
-                    master['pki_target_tomcat_conf_instance_id'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_target_tomcat_conf_instance_id'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                      master['pki_target_tomcat_conf_instance_id']))
-            if os.path.exists(master['pki_cgroup_systemd_service']):
+                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                       self.master_dict['pki_target_tomcat_conf_instance_id']))
+            if os.path.exists(self.master_dict['pki_cgroup_systemd_service']):
                 # Systemd cgroup path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_name'],
-                    master['pki_cgroup_systemd_service_path'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_cgroup_systemd_service_path'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                      master['pki_cgroup_systemd_service_path']))
-            if os.path.exists(master['pki_cgroup_cpu_systemd_service']):
+                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                       self.master_dict['pki_cgroup_systemd_service_path']))
+            if os.path.exists(self.master_dict['pki_cgroup_cpu_systemd_service']):
                 # Systemd cgroup CPU path collision
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
-                    master['pki_instance_name'],
-                    master['pki_cgroup_cpu_systemd_service_path'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_cgroup_cpu_systemd_service_path'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                      master['pki_cgroup_cpu_systemd_service_path']))
-        if os.path.exists(master['pki_instance_log_path']) and\
-           os.path.exists(master['pki_subsystem_log_path']):
+                raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                       self.master_dict['pki_cgroup_cpu_systemd_service_path']))
+        if os.path.exists(self.master_dict['pki_instance_log_path']) and\
+           os.path.exists(self.master_dict['pki_subsystem_log_path']):
             # Top-Level PKI log path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_name'],
-                master['pki_instance_log_path'],
+                self.master_dict['pki_instance_name'],
+                self.master_dict['pki_instance_log_path'],
                 extra = config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                  master['pki_instance_log_path']))
-        if os.path.exists(master['pki_instance_configuration_path']) and\
-           os.path.exists(master['pki_subsystem_configuration_path']):
+            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                  self.master_dict['pki_instance_log_path']))
+        if os.path.exists(self.master_dict['pki_instance_configuration_path']) and\
+           os.path.exists(self.master_dict['pki_subsystem_configuration_path']):
             # Top-Level PKI configuration path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_name'],
-                master['pki_instance_configuration_path'],
+                self.master_dict['pki_instance_name'],
+                self.master_dict['pki_instance_configuration_path'],
                 extra = config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                  master['pki_instance_configuration_path']))
-        if os.path.exists(master['pki_instance_registry_path']) and\
-           os.path.exists(master['pki_subsystem_registry_path']):
+            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                  self.master_dict['pki_instance_configuration_path']))
+        if os.path.exists(self.master_dict['pki_instance_registry_path']) and\
+           os.path.exists(self.master_dict['pki_subsystem_registry_path']):
             # Top-Level PKI registry path collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
-                master['pki_instance_name'],
-                master['pki_instance_registry_path'],
+                self.master_dict['pki_instance_name'],
+                self.master_dict['pki_instance_registry_path'],
                 extra = config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (master['pki_instance_name'],
-                                                                  master['pki_instance_registry_path']))
+            raise Exception(log.PKIHELPER_NAMESPACE_COLLISION_2 % (self.master_dict['pki_instance_name'],
+                                                                  self.master_dict['pki_instance_registry_path']))
         # Run simple checks for reserved name namespace collisions
-        if master['pki_instance_name'] in config.PKI_BASE_RESERVED_NAMES:
+        if self.master_dict['pki_instance_name'] in config.PKI_BASE_RESERVED_NAMES:
             # Top-Level PKI base path reserved name collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                master['pki_instance_name'],
-                master['pki_instance_path'],
+                self.master_dict['pki_instance_name'],
+                self.master_dict['pki_instance_path'],
                 extra = config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (master['pki_instance_name'],
-                                                                      master['pki_instance_path']))
+            raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (self.master_dict['pki_instance_name'],
+                                                                      self.master_dict['pki_instance_path']))
         # No need to check for reserved name under Top-Level PKI log path
-        if master['pki_instance_name'] in config.PKI_CONFIGURATION_RESERVED_NAMES:
+        if self.master_dict['pki_instance_name'] in config.PKI_CONFIGURATION_RESERVED_NAMES:
             # Top-Level PKI configuration path reserved name collision
             config.pki_log.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                master['pki_instance_name'],
-                master['pki_instance_configuration_path'],
+                self.master_dict['pki_instance_name'],
+                self.master_dict['pki_instance_configuration_path'],
                 extra = config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (master['pki_instance_name'],
-                                                                      master['pki_instance_configuration_path']))
-        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+            raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (self.master_dict['pki_instance_name'],
+                                                                      self.master_dict['pki_instance_configuration_path']))
+        if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
             # Top-Level Apache PKI registry path reserved name collision
-            if master['pki_instance_name'] in\
+            if self.master_dict['pki_instance_name'] in\
                config.PKI_APACHE_REGISTRY_RESERVED_NAMES:
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                    master['pki_instance_name'],
-                    master['pki_instance_registry_path'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_instance_registry_path'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (master['pki_instance_name'],
-                                                                          master['pki_instance_registry_path']))
-        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (self.master_dict['pki_instance_name'],
+                                                                          self.master_dict['pki_instance_registry_path']))
+        elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Top-Level Tomcat PKI registry path reserved name collision
-            if master['pki_instance_name'] in\
+            if self.master_dict['pki_instance_name'] in\
                config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
                 config.pki_log.error(
                     log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                    master['pki_instance_name'],
-                    master['pki_instance_registry_path'],
+                    self.master_dict['pki_instance_name'],
+                    self.master_dict['pki_instance_registry_path'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (master['pki_instance_name'],
-                                                                          master['pki_instance_registry_path']))
+                raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (self.master_dict['pki_instance_name'],
+                                                                          self.master_dict['pki_instance_registry_path']))
 
 
-# PKI Deployment Configuration File Class
-class configuration_file:
+class ConfigurationFile:
+    """PKI Deployment Configuration File Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def log_configuration_url(self):
         # NOTE:  This is the one and only parameter containing a sensitive
         #        parameter that may be stored in a log file.
         config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_URL_1,
-                            master['pki_configuration_url'],
+                            self.master_dict['pki_configuration_url'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
         config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_RESTART_1,
-                            master['pki_registry_initscript_command'],
+                            self.master_dict['pki_registry_initscript_command'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
 
     def display_configuration_url(self):
         # NOTE:  This is the one and only parameter containing a sensitive
         #        parameter that may be displayed to the screen.
-        print log.PKI_CONFIGURATION_URL_1 % master['pki_configuration_url']
+        print log.PKI_CONFIGURATION_URL_1 % self.master_dict['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 % \
-              master['pki_registry_initscript_command']
+              self.master_dict['pki_registry_initscript_command']
         print
 
     def verify_sensitive_data(self):
         # Silently verify the existence of 'sensitive' data
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Verify existence of Directory Server Password (ALWAYS)
-            if not master.has_key('pki_ds_password') or\
-               not len(master['pki_ds_password']):
+            if not self.master_dict.has_key('pki_ds_password') or\
+               not len(self.master_dict['pki_ds_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_ds_password",
-                    master['pki_user_deployment_cfg'],
+                    self.master_dict['pki_user_deployment_cfg'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_password",
-                                                                                     master['pki_user_deployment_cfg']))
+                                                                                     self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of Admin Password (except for Clones)
-            if not config.str2bool(master['pki_clone']):
-                if not master.has_key('pki_admin_password') or\
-                   not len(master['pki_admin_password']):
+            if not config.str2bool(self.master_dict['pki_clone']):
+                if not self.master_dict.has_key('pki_admin_password') or\
+                   not len(self.master_dict['pki_admin_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_admin_password",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_admin_password",
-                                                                                         master['pki_user_deployment_cfg']))
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
             # If required, verify existence of Backup Password
-            if config.str2bool(master['pki_backup_keys']):
-                if not master.has_key('pki_backup_password') or\
-                   not len(master['pki_backup_password']):
+            if config.str2bool(self.master_dict['pki_backup_keys']):
+                if not self.master_dict.has_key('pki_backup_password') or\
+                   not len(self.master_dict['pki_backup_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_backup_password",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_backup_password",
-                                                                                         master['pki_user_deployment_cfg']))
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of Client Pin for NSS client security databases
-            if not master.has_key('pki_client_database_password') or\
-               not len(master['pki_client_database_password']):
+            if not self.master_dict.has_key('pki_client_database_password') or\
+               not len(self.master_dict['pki_client_database_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2,
                     "pki_client_database_password",
-                    master['pki_user_deployment_cfg'],
+                    self.master_dict['pki_user_deployment_cfg'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 % ("pki_client_database_password",
-                                                                                     master['pki_user_deployment_cfg']))
+                                                                                     self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of Client PKCS #12 Password for Admin Cert
-            if not master.has_key('pki_client_pkcs12_password') or\
-               not len(master['pki_client_pkcs12_password']):
+            if not self.master_dict.has_key('pki_client_pkcs12_password') or\
+               not len(self.master_dict['pki_client_pkcs12_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_client_pkcs12_password",
-                    master['pki_user_deployment_cfg'],
+                    self.master_dict['pki_user_deployment_cfg'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_client_pkcs12_password",
-                                                                                     master['pki_user_deployment_cfg']))
+                                                                                     self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of PKCS #12 Password (ONLY for Clones)
-            if config.str2bool(master['pki_clone']):
-                if not master.has_key('pki_clone_pkcs12_password') or\
-                   not len(master['pki_clone_pkcs12_password']):
+            if config.str2bool(self.master_dict['pki_clone']):
+                if not self.master_dict.has_key('pki_clone_pkcs12_password') or\
+                   not len(self.master_dict['pki_clone_pkcs12_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_clone_pkcs12_password",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_pkcs12_password",
-                                                                                         master['pki_user_deployment_cfg']))
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of Security Domain Password File
             # (ONLY for Clones, KRA, OCSP, TKS, TPS, or Subordinate CA)
-            if config.str2bool(master['pki_clone']) or\
-               not master['pki_subsystem'] == "CA" or\
-               config.str2bool(master['pki_subordinate']):
-                if not master.has_key('pki_security_domain_password') or\
-                   not len(master['pki_security_domain_password']):
+            if config.str2bool(self.master_dict['pki_clone']) or\
+               not self.master_dict['pki_subsystem'] == "CA" or\
+               config.str2bool(self.master_dict['pki_subordinate']):
+                if not self.master_dict.has_key('pki_security_domain_password') or\
+                   not len(self.master_dict['pki_security_domain_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_security_domain_password",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_security_domain_password",
-                                                                                          master['pki_user_deployment_cfg']))
+                                                                                          self.master_dict['pki_user_deployment_cfg']))
             # If required, verify existence of Token Password
-            if not master['pki_token_name'] == "internal":
-                if not master.has_key('pki_token_password') or\
-                   not len(master['pki_token_password']):
+            if not self.master_dict['pki_token_name'] == "internal":
+                if not self.master_dict.has_key('pki_token_password') or\
+                   not len(self.master_dict['pki_token_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_token_password",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_token_password",
-                                                                                         master['pki_user_deployment_cfg']))
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
         return
 
     def verify_mutually_exclusive_data(self):
         # Silently verify the existence of 'mutually exclusive' data
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            if master['pki_subsystem'] == "CA":
-                if config.str2bool(master['pki_clone']) and\
-                   config.str2bool(master['pki_external']) and\
-                   config.str2bool(master['pki_subordinate']):
+        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.master_dict['pki_subsystem'] == "CA":
+                if config.str2bool(self.master_dict['pki_clone']) and\
+                   config.str2bool(self.master_dict['pki_external']) and\
+                   config.str2bool(self.master_dict['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA % master['pki_user_deployment_cfg'])
-                elif config.str2bool(master['pki_clone']) and\
-                     config.str2bool(master['pki_external']):
+                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
+                elif config.str2bool(self.master_dict['pki_clone']) and\
+                     config.str2bool(self.master_dict['pki_external']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA % master['pki_user_deployment_cfg'])
-                elif config.str2bool(master['pki_clone']) and\
-                     config.str2bool(master['pki_subordinate']):
+                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA % self.master_dict['pki_user_deployment_cfg'])
+                elif config.str2bool(self.master_dict['pki_clone']) and\
+                     config.str2bool(self.master_dict['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA % master['pki_user_deployment_cfg'])
-                elif config.str2bool(master['pki_external']) and\
-                     config.str2bool(master['pki_subordinate']):
+                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
+                elif config.str2bool(self.master_dict['pki_external']) and\
+                     config.str2bool(self.master_dict['pki_subordinate']):
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA % master['pki_user_deployment_cfg'])
+                    raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
 
     def verify_predefined_configuration_file_data(self):
         # Silently verify the existence of any required 'predefined' data
@@ -591,209 +600,209 @@ class configuration_file:
         #          etc.), and "correctness" (e. g. - file, directory, boolean
         #          'True' or 'False', etc.) of ALL required "value" parameters.
         #
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            if config.str2bool(master['pki_clone']):
+        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if config.str2bool(self.master_dict['pki_clone']):
                 # Verify existence of clone parameters
-                if not master.has_key('pki_ds_base_dn') or\
-                   not len(master['pki_ds_base_dn']):
+                if not self.master_dict.has_key('pki_ds_base_dn') or\
+                   not len(self.master_dict['pki_ds_base_dn']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_ds_base_dn",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_base_dn",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_ds_ldap_port') or\
-                   not len(master['pki_ds_ldap_port']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_ds_ldap_port') or\
+                   not len(self.master_dict['pki_ds_ldap_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_ds_ldap_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_ldap_port",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_ds_ldaps_port') or\
-                   not len(master['pki_ds_ldaps_port']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_ds_ldaps_port') or\
+                   not len(self.master_dict['pki_ds_ldaps_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_ds_ldaps_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_ldaps_port",
-                                                                                         master['pki_user_deployment_cfg']))
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
                 # NOTE:  Although this will be checked prior to getting to
                 #        this method, this clone's 'pki_instance_name' MUST
                 #        be different from the master's 'pki_instance_name'
                 #        IF AND ONLY IF the master and clone are located on
                 #        the same host!
-                if not master.has_key('pki_ajp_port') or\
-                   not len(master['pki_ajp_port']):
+                if not self.master_dict.has_key('pki_ajp_port') or\
+                   not len(self.master_dict['pki_ajp_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_ajp_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ajp_port",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_http_port') or\
-                   not len(master['pki_http_port']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_http_port') or\
+                   not len(self.master_dict['pki_http_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_http_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_http_port",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_https_port') or\
-                   not len(master['pki_https_port']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_https_port') or\
+                   not len(self.master_dict['pki_https_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_https_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_https_port",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_tomcat_server_port') or\
-                   not len(master['pki_tomcat_server_port']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_tomcat_server_port') or\
+                   not len(self.master_dict['pki_tomcat_server_port']):
                     # FUTURE:  Check for unused port value
                     #          (e. g. - must be different from master if the
                     #                   master is located on the same host)
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_tomcat_server_port",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_tomcat_server_port",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_clone_pkcs12_path') or\
-                   not len(master['pki_clone_pkcs12_path']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_clone_pkcs12_path') or\
+                   not len(self.master_dict['pki_clone_pkcs12_path']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_clone_pkcs12_path",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_pkcs12_path",
-                                                                                         master['pki_user_deployment_cfg']))
-                elif not os.path.isfile(master['pki_clone_pkcs12_path']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                elif not os.path.isfile(self.master_dict['pki_clone_pkcs12_path']):
                     config.pki_log.error(
                         log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
-                        master['pki_clone_pkcs12_path'],
+                        self.master_dict['pki_clone_pkcs12_path'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % "pki_clone_pkcs12_path")
-                if not master.has_key('pki_clone_replication_security') or\
-                   not len(master['pki_clone_replication_security']):
+                if not self.master_dict.has_key('pki_clone_replication_security') or\
+                   not len(self.master_dict['pki_clone_replication_security']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_clone_replication_security",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_replication_security",
-                                                                                         master['pki_user_deployment_cfg']))
-                if not master.has_key('pki_clone_uri') or\
-                   not len(master['pki_clone_uri']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+                if not self.master_dict.has_key('pki_clone_uri') or\
+                   not len(self.master_dict['pki_clone_uri']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_clone_uri",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_uri",
-                                                                                         master['pki_user_deployment_cfg']))
-            elif master['pki_subsystem'] == "CA" and\
-                 config.str2bool(master['pki_external']):
-                if not master.has_key('pki_external_step_two') or\
-                   not len(master['pki_external_step_two']):
+                                                                                         self.master_dict['pki_user_deployment_cfg']))
+            elif self.master_dict['pki_subsystem'] == "CA" and\
+                 config.str2bool(self.master_dict['pki_external']):
+                if not self.master_dict.has_key('pki_external_step_two') or\
+                   not len(self.master_dict['pki_external_step_two']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_external_step_two",
-                        master['pki_user_deployment_cfg'],
+                        self.master_dict['pki_user_deployment_cfg'],
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_extrenal_step_two",
-                                                                                          master['pki_user_deployment_cfg']))
-                if not config.str2bool(master['pki_external_step_two']):
+                                                                                          self.master_dict['pki_user_deployment_cfg']))
+                if not config.str2bool(self.master_dict['pki_external_step_two']):
                     # External CA (Step 1)
-                    if not master.has_key('pki_external_csr_path') or\
-                       not len(master['pki_external_csr_path']):
+                    if not self.master_dict.has_key('pki_external_csr_path') or\
+                       not len(self.master_dict['pki_external_csr_path']):
                         config.pki_log.error(
                             log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                             "pki_external_csr_path",
-                            master['pki_user_deployment_cfg'],
+                            self.master_dict['pki_user_deployment_cfg'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_extrenal_csr_path",
-                                                                                              master['pki_user_deployment_cfg']))
-                    elif os.path.exists(master['pki_external_csr_path']) and\
-                         not os.path.isfile(master['pki_external_csr_path']):
+                                                                                              self.master_dict['pki_user_deployment_cfg']))
+                    elif os.path.exists(self.master_dict['pki_external_csr_path']) and\
+                         not os.path.isfile(self.master_dict['pki_external_csr_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
-                            master['pki_external_csr_path'],
+                            self.master_dict['pki_external_csr_path'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % "pki_extrenal_csr_path")
                 else:
                     # External CA (Step 2)
-                    if not master.has_key('pki_external_ca_cert_chain_path') or\
-                       not len(master['pki_external_ca_cert_chain_path']):
+                    if not self.master_dict.has_key('pki_external_ca_cert_chain_path') or\
+                       not len(self.master_dict['pki_external_ca_cert_chain_path']):
                         config.pki_log.error(
                             log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                             "pki_external_ca_cert_chain_path",
-                            master['pki_user_deployment_cfg'],
+                            self.master_dict['pki_user_deployment_cfg'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_extrenal_ca_cert_chain_path",
-                                                                                              master['pki_user_deployment_cfg']))
+                                                                                              self.master_dict['pki_user_deployment_cfg']))
                     elif os.path.exists(
-                                 master['pki_external_ca_cert_chain_path']) and\
+                                 self.master_dict['pki_external_ca_cert_chain_path']) and\
                          not os.path.isfile(
-                                 master['pki_external_ca_cert_chain_path']):
+                                 self.master_dict['pki_external_ca_cert_chain_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
-                            master['pki_external_ca_cert_chain_path'],
+                            self.master_dict['pki_external_ca_cert_chain_path'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % "pki_extrenal_ca_cert_chain_path")
-                    if not master.has_key('pki_external_ca_cert_path') or\
-                       not len(master['pki_external_ca_cert_path']):
+                    if not self.master_dict.has_key('pki_external_ca_cert_path') or\
+                       not len(self.master_dict['pki_external_ca_cert_path']):
                         config.pki_log.error(
                             log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                             "pki_external_ca_cert_path",
-                            master['pki_user_deployment_cfg'],
+                            self.master_dict['pki_user_deployment_cfg'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_extrenal_ca_cert_path",
-                                                                                              master['pki_user_deployment_cfg']))
-                    elif os.path.exists(master['pki_external_ca_cert_path']) and\
+                                                                                              self.master_dict['pki_user_deployment_cfg']))
+                    elif os.path.exists(self.master_dict['pki_external_ca_cert_path']) and\
                          not os.path.isfile(
-                                 master['pki_external_ca_cert_path']):
+                                 self.master_dict['pki_external_ca_cert_path']):
                         config.pki_log.error(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
-                            master['pki_external_ca_cert_path'],
+                            self.master_dict['pki_external_ca_cert_path'],
                             extra = config.PKI_INDENTATION_LEVEL_2)
                         raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % "pki_extrenal_ca_cert_path")
         return
 
     def populate_non_default_ports(self):
-        if master['pki_http_port'] != \
+        if self.master_dict['pki_http_port'] != \
             str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT):
-                ports.append(master['pki_http_port'])
-        if master['pki_https_port'] != \
+                ports.append(self.master_dict['pki_http_port'])
+        if self.master_dict['pki_https_port'] != \
             str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT):
-                ports.append(master['pki_https_port'])
-        if master['pki_tomcat_server_port'] != \
+                ports.append(self.master_dict['pki_https_port'])
+        if self.master_dict['pki_tomcat_server_port'] != \
             str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT):
-                ports.append(master['pki_tomcat_server_port'])
-        if master['pki_ajp_port'] != \
+                ports.append(self.master_dict['pki_tomcat_server_port'])
+        if self.master_dict['pki_ajp_port'] != \
             str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT):
-                ports.append(master['pki_ajp_port'])
+                ports.append(self.master_dict['pki_ajp_port'])
         return
 
     def verify_selinux_ports(self):
@@ -839,19 +848,17 @@ class configuration_file:
     def verify_command_matches_configuration_file(self):
         # Silently verify that the command-line parameters match the values
         # that are present in the corresponding configuration file
-        if master['pki_deployment_executable'] == 'pkidestroy':
-            if master['pki_deployed_instance_name'] != \
-               master['pki_instance_name']:
+        if self.master_dict['pki_deployment_executable'] == 'pkidestroy':
+            if self.master_dict['pki_deployed_instance_name'] != \
+               self.master_dict['pki_instance_name']:
                 config.pki_log.error(
                     log.PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2,
-                    master['pki_deployed_instance_name'],
-                    master['pki_instance_name'],
+                    self.master_dict['pki_deployed_instance_name'],
+                    self.master_dict['pki_instance_name'],
                     extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % (master['pki_deployed_instance_name'],
-                                                                                      master['pki_instance_name']))
+                raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % (self.master_dict['pki_deployed_instance_name'],
+                                                                                      self.master_dict['pki_instance_name']))
         return
-
-
 
 # PKI Deployment XML File Class
 # class xml_file:
@@ -859,7 +866,7 @@ class configuration_file:
 #                                           web_xml_source,
 #                                           web_xml_target):
 #        config.pki_log.info(log.PKIHELPER_REMOVE_FILTER_SECTION_1,
-#            master['pki_target_subsystem_web_xml'],
+#            self.master_dict['pki_target_subsystem_web_xml'],
 #            extra=config.PKI_INDENTATION_LEVEL_2)
 #        begin_filters_section = False
 #        begin_servlet_section = False
@@ -885,20 +892,23 @@ class configuration_file:
 #                FILE.write(line)
 #        FILE.close()
 
+class Instance:
+    """PKI Deployment Instance Class"""
 
-# PKI Deployment Instance Class
-class instance:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def apache_instance_subsystems(self):
         rv = 0
         try:
             # count number of PKI subsystems present
             # within the specified Apache instance
             for subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                path = master['pki_instance_path'] + "/" + subsystem.lower()
+                path = self.master_dict['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv = rv + 1
             config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
-                                 master['pki_instance_path'],
+                                 self.master_dict['pki_instance_path'],
                                  rv, extra = config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -915,16 +925,16 @@ class instance:
             # simply count the number of PKI 'apache' instances (directories)
             # present within the PKI 'apache' registry directory
             for instance in\
-                os.listdir(master['pki_instance_type_registry_path']):
+                os.listdir(self.master_dict['pki_instance_type_registry_path']):
                 if os.path.isdir(
-                       os.path.join(master['pki_instance_type_registry_path'],
+                       os.path.join(self.master_dict['pki_instance_type_registry_path'],
                        instance)) and not\
                    os.path.islink(
-                       os.path.join(master['pki_instance_type_registry_path'],
+                       os.path.join(self.master_dict['pki_instance_type_registry_path'],
                        instance)):
                     rv = rv + 1
             config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                 master['pki_instance_type_registry_path'],
+                                 self.master_dict['pki_instance_type_registry_path'],
                                  rv,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
@@ -939,11 +949,11 @@ class instance:
             # Since ALL directories within the top-level PKI infrastructure
             # SHOULD represent PKI instances, look for all possible
             # PKI instances within the top-level PKI infrastructure
-            for instance in os.listdir(master['pki_path']):
-                if os.path.isdir(os.path.join(master['pki_path'], instance))\
+            for instance in os.listdir(self.master_dict['pki_path']):
+                if os.path.isdir(os.path.join(self.master_dict['pki_path'], instance))\
                    and not\
-                   os.path.islink(os.path.join(master['pki_path'], instance)):
-                    dir = os.path.join(master['pki_path'], instance)
+                   os.path.islink(os.path.join(self.master_dict['pki_path'], instance)):
+                    dir = os.path.join(self.master_dict['pki_path'], instance)
                     # Since ANY directory within this PKI instance COULD
                     # be a PKI subsystem, look for all possible
                     # PKI subsystems within this PKI instance
@@ -953,7 +963,7 @@ class instance:
                             if name.upper() in config.PKI_SUBSYSTEMS:
                                 rv = rv + 1
             config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
-                                 master['pki_instance_path'], rv,
+                                 self.master_dict['pki_instance_path'], rv,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -966,7 +976,7 @@ class instance:
         rv = []
         try:
             for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                path = master['pki_instance_path'] + "/" + subsystem.lower()
+                path = self.master_dict['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv.append(subsystem)
         except OSErr as e:
@@ -984,16 +994,16 @@ class instance:
             # simply count the number of PKI 'tomcat' instances (directories)
             # present within the PKI 'tomcat' registry directory
             for instance in\
-                os.listdir(master['pki_instance_type_registry_path']):
+                os.listdir(self.master_dict['pki_instance_type_registry_path']):
                 if os.path.isdir(
-                       os.path.join(master['pki_instance_type_registry_path'],
+                       os.path.join(self.master_dict['pki_instance_type_registry_path'],
                        instance)) and not\
                    os.path.islink(
-                       os.path.join(master['pki_instance_type_registry_path'],
+                       os.path.join(self.master_dict['pki_instance_type_registry_path'],
                        instance)):
                     rv = rv + 1
             config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
-                                 master['pki_instance_type_registry_path'],
+                                 self.master_dict['pki_instance_type_registry_path'],
                                  rv,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
         except OSError as exc:
@@ -1004,13 +1014,13 @@ class instance:
 
     def verify_subsystem_exists(self):
         try:
-            if not os.path.exists(master['pki_subsystem_path']):
+            if not os.path.exists(self.master_dict['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
-                                     master['pki_subsystem'],
-                                     master['pki_instance_name'],
+                                     self.master_dict['pki_subsystem'],
+                                     self.master_dict['pki_instance_name'],
                                      extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (master['pki_subsystem'],
-                                                                      master['pki_instance_name']))
+                raise Exception(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (self.master_dict['pki_subsystem'],
+                                                                      self.master_dict['pki_instance_name']))
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
@@ -1018,13 +1028,13 @@ class instance:
 
     def verify_subsystem_does_not_exist(self):
         try:
-            if os.path.exists(master['pki_subsystem_path']):
+            if os.path.exists(self.master_dict['pki_subsystem_path']):
                 config.pki_log.error(log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
-                                     master['pki_subsystem'],
-                                     master['pki_instance_name'],
+                                     self.master_dict['pki_subsystem'],
+                                     self.master_dict['pki_instance_name'],
                                      extra = config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (master['pki_subsystem'],
-                                                                      master['pki_instance_name']))
+                raise Exception(log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (self.master_dict['pki_subsystem'],
+                                                                      self.master_dict['pki_instance_name']))
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra = config.PKI_INDENTATION_LEVEL_2)
@@ -1033,9 +1043,9 @@ class instance:
     def get_instance_status(self):
         self.connection = pki.client.PKIConnection(
             protocol = 'https',
-            hostname = master['pki_hostname'],
-            port = master['pki_https_port'],
-            subsystem = master['pki_subsystem_type'],
+            hostname = self.master_dict['pki_hostname'],
+            port = self.master_dict['pki_https_port'],
+            subsystem = self.master_dict['pki_subsystem_type'],
             accept = 'application/xml')
 
         try:
@@ -1063,8 +1073,13 @@ class instance:
                 break
         return status
 
-# PKI Deployment Directory Class
-class directory:
+class Directory:
+    """PKI Deployment Directory Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.identity = deployer.identity
+
     def create(self, name, uid = None, gid = None,
                perms = config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
                acls = None, critical_failure = True):
@@ -1080,9 +1095,9 @@ class directory:
                 os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra = config.PKI_INDENTATION_LEVEL_3)
@@ -1091,8 +1106,8 @@ class directory:
                 record = manifest.record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_DIRECTORY
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = perms
@@ -1136,9 +1151,9 @@ class directory:
                 os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 if not silent:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                          uid, gid, name,
@@ -1149,8 +1164,8 @@ class directory:
                     record = manifest.record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_DIRECTORY
-                    record.user = master['pki_user']
-                    record.group = master['pki_group']
+                    record.user = self.master_dict['pki_user']
+                    record.group = self.master_dict['pki_group']
                     record.uid = uid
                     record.gid = gid
                     record.permissions = perms
@@ -1238,9 +1253,9 @@ class directory:
                     log.PKIHELPER_SET_MODE_1, name,
                     extra = config.PKI_INDENTATION_LEVEL_2)
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 if recursive_flag == True:
                     for root, dirs, files in os.walk(name):
                         for name in files:
@@ -1264,8 +1279,8 @@ class directory:
                                 record = manifest.record()
                                 record.name = name
                                 record.type = manifest.RECORD_TYPE_FILE
-                                record.user = master['pki_user']
-                                record.group = master['pki_group']
+                                record.user = self.master_dict['pki_user']
+                                record.group = self.master_dict['pki_group']
                                 record.uid = uid
                                 record.gid = gid
                                 record.permissions = file_perms
@@ -1290,8 +1305,8 @@ class directory:
                                 record = manifest.record()
                                 record.name = name
                                 record.type = manifest.RECORD_TYPE_SYMLINK
-                                record.user = master['pki_user']
-                                record.group = master['pki_group']
+                                record.user = self.master_dict['pki_user']
+                                record.group = self.master_dict['pki_group']
                                 record.uid = uid
                                 record.gid = gid
                                 record.permissions = symlink_perms
@@ -1316,8 +1331,8 @@ class directory:
                             record = manifest.record()
                             record.name = name
                             record.type = manifest.RECORD_TYPE_DIRECTORY
-                            record.user = master['pki_user']
-                            record.group = master['pki_group']
+                            record.user = self.master_dict['pki_user']
+                            record.group = self.master_dict['pki_group']
                             record.uid = uid
                             record.gid = gid
                             record.permissions = dir_perms
@@ -1342,8 +1357,8 @@ class directory:
                     record = manifest.record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_DIRECTORY
-                    record.user = master['pki_user']
-                    record.group = master['pki_group']
+                    record.user = self.master_dict['pki_user']
+                    record.group = self.master_dict['pki_group']
                     record.uid = uid
                     record.gid = gid
                     record.permissions = dir_perms
@@ -1415,9 +1430,14 @@ class directory:
                 raise
         return
 
+class File:
+    """PKI Deployment File Class (also used for executables)"""
 
-# PKI Deployment File Class (also used for executables)
-class file:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.slots = deployer.slots
+        self.identity = deployer.identity
+
     def create(self, name, uid = None, gid = None,
                perms = config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
                acls = None, critical_failure = True):
@@ -1433,9 +1453,9 @@ class file:
                 os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra = config.PKI_INDENTATION_LEVEL_3)
@@ -1444,8 +1464,8 @@ class file:
                 record = manifest.record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_FILE
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = perms
@@ -1489,9 +1509,9 @@ class file:
                 os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 if not silent:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                          uid, gid, name,
@@ -1502,8 +1522,8 @@ class file:
                     record = manifest.record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_FILE
-                    record.user = master['pki_user']
-                    record.group = master['pki_group']
+                    record.user = self.master_dict['pki_user']
+                    record.group = self.master_dict['pki_group']
                     record.uid = uid
                     record.gid = gid
                     record.permissions = perms
@@ -1574,9 +1594,9 @@ class file:
                                     extra = config.PKI_INDENTATION_LEVEL_2)
                 shutil.copy2(old_name, new_name)
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 # chmod <perms> <new_name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                      perms, new_name,
@@ -1591,8 +1611,8 @@ class file:
                 record = manifest.record()
                 record.name = new_name
                 record.type = manifest.RECORD_TYPE_FILE
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = perms
@@ -1625,18 +1645,18 @@ class file:
                                 name,
                                 extra = config.PKI_INDENTATION_LEVEL_2)
             for line in fileinput.FileInput(name, inplace = 1):
-                for slot in slots:
-                    if slot != '__name__' and slots[slot] in line:
+                for slot in self.slots:
+                    if slot != '__name__' and self.slots[slot] in line:
                         config.pki_log.debug(
                             log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                            slots[slot], master[slot],
+                            self.slots[slot], self.master_dict[slot],
                             extra = config.PKI_INDENTATION_LEVEL_3)
-                        line = line.replace(slots[slot], master[slot])
+                        line = line.replace(self.slots[slot], self.master_dict[slot])
                 sys.stdout.write(line)
             if uid == None:
-                uid = identity.get_uid()
+                uid = self.identity.get_uid()
             if gid == None:
-                gid = identity.get_gid()
+                gid = self.identity.get_gid()
             # chmod <perms> <name>
             config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                  perms, name,
@@ -1651,8 +1671,8 @@ class file:
             record = manifest.record()
             record.name = name
             record.type = manifest.RECORD_TYPE_FILE
-            record.user = master['pki_user']
-            record.group = master['pki_group']
+            record.user = self.master_dict['pki_user']
+            record.group = self.master_dict['pki_group']
             record.uid = uid
             record.gid = gid
             record.permissions = perms
@@ -1694,18 +1714,18 @@ class file:
                                     extra = config.PKI_INDENTATION_LEVEL_2)
                 with open(new_name, "w") as FILE:
                     for line in fileinput.FileInput(old_name):
-                        for slot in slots:
-                            if slot != '__name__' and slots[slot] in line:
+                        for slot in self.slots:
+                            if slot != '__name__' and self.slots[slot] in line:
                                 config.pki_log.debug(
                                     log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                    slots[slot], master[slot],
+                                    self.slots[slot], self.master_dict[slot],
                                     extra = config.PKI_INDENTATION_LEVEL_3)
-                                line = line.replace(slots[slot], master[slot])
+                                line = line.replace(self.slots[slot], self.master_dict[slot])
                         FILE.write(line)
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 # chmod <perms> <new_name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                      perms, new_name,
@@ -1720,8 +1740,8 @@ class file:
                 record = manifest.record()
                 record.name = new_name
                 record.type = manifest.RECORD_TYPE_FILE
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = perms
@@ -1759,9 +1779,9 @@ class file:
                 os.chmod(name, perms)
                 # chown <uid>:<gid> <name>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
                                      uid, gid, name,
                                      extra = config.PKI_INDENTATION_LEVEL_3)
@@ -1770,8 +1790,8 @@ class file:
                 record = manifest.record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_FILE
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = perms
@@ -1782,7 +1802,7 @@ class file:
                     log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name,
                     extra = config.PKI_INDENTATION_LEVEL_2)
                 if critical_failure == True:
-                    raise Exception(log.PKI_FILE_ALREADY_EXISTS_MOT_A_FILE_1 % name)
+                    raise Exception(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
         except OSError as exc:
             if exc.errno == errno.EEXIST:
                 pass
@@ -1793,9 +1813,13 @@ class file:
                     raise
         return
 
+class Symlink:
+    """PKI Deployment Symbolic Link Class"""
 
-# PKI Deployment Symbolic Link Class
-class symlink:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.identity = deployer.identity
+
     def create(self, name, link, uid = None, gid = None,
                acls = None, allow_dangling_symlink = False, critical_failure = True):
         try:
@@ -1815,9 +1839,9 @@ class symlink:
                 #            CANNOT be run directly against symbolic links!
                 # chown -h <uid>:<gid> <link>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
                                      uid, gid, link,
                                      extra = config.PKI_INDENTATION_LEVEL_3)
@@ -1826,8 +1850,8 @@ class symlink:
                 record = manifest.record()
                 record.name = link
                 record.type = manifest.RECORD_TYPE_SYMLINK
-                record.user = master['pki_user']
-                record.group = master['pki_group']
+                record.user = self.master_dict['pki_user']
+                record.group = self.master_dict['pki_group']
                 record.uid = uid
                 record.gid = gid
                 record.permissions = \
@@ -1869,9 +1893,9 @@ class symlink:
                 #            CANNOT be run directly against symbolic links!
                 # chown -h <uid>:<gid> <link>
                 if uid == None:
-                    uid = identity.get_uid()
+                    uid = self.identity.get_uid()
                 if gid == None:
-                    gid = identity.get_gid()
+                    gid = self.identity.get_gid()
                 if not silent:
                     config.pki_log.debug(log.PKIHELPER_CHOWN_H_3,
                                          uid, gid, link,
@@ -1882,8 +1906,8 @@ class symlink:
                     record = manifest.record()
                     record.name = link
                     record.type = manifest.RECORD_TYPE_SYMLINK
-                    record.user = master['pki_user']
-                    record.group = master['pki_group']
+                    record.user = self.master_dict['pki_user']
+                    record.group = self.master_dict['pki_group']
                     record.uid = uid
                     record.gid = gid
                     record.permissions = \
@@ -1933,8 +1957,12 @@ class symlink:
                                  extra = config.PKI_INDENTATION_LEVEL_2)
             raise
 
-# PKI Deployment War File Class
-class war:
+class War:
+    """PKI Deployment War File Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def explode(self, name, path, critical_failure = True):
         try:
             if os.path.exists(name) and os.path.isfile(name):
@@ -1980,9 +2008,12 @@ class war:
                 raise
         return
 
+class Password:
+    """PKI Deployment Password Class"""
 
-# PKI Deployment Password Class
-class password:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def create_password_conf(self, path, pin, pin_sans_token = False,
                              overwrite_flag = False, critical_failure = True):
         try:
@@ -1995,12 +2026,12 @@ class password:
                     with open(path, "wt") as fd:
                         if pin_sans_token == True:
                             fd.write(str(pin))
-                        elif master['pki_subsystem'] in\
+                        elif self.master_dict['pki_subsystem'] in\
                            config.PKI_APACHE_SUBSYSTEMS:
-                            fd.write(master['pki_self_signed_token'] + \
+                            fd.write(self.master_dict['pki_self_signed_token'] + \
                                      ":" + str(pin))
                         else:
-                            fd.write(master['pki_self_signed_token'] + \
+                            fd.write(self.master_dict['pki_self_signed_token'] + \
                                      "=" + str(pin))
                     fd.closed
             else:
@@ -2010,12 +2041,12 @@ class password:
                 with open(path, "wt") as fd:
                     if pin_sans_token == True:
                         fd.write(str(pin))
-                    elif master['pki_subsystem'] in\
+                    elif self.master_dict['pki_subsystem'] in\
                        config.PKI_APACHE_SUBSYSTEMS:
-                        fd.write(master['pki_self_signed_token'] + \
+                        fd.write(self.master_dict['pki_self_signed_token'] + \
                                  ":" + str(pin))
                     else:
-                        fd.write(master['pki_self_signed_token'] + \
+                        fd.write(self.master_dict['pki_self_signed_token'] + \
                                  "=" + str(pin))
                 fd.closed
         except OSError as exc:
@@ -2035,14 +2066,14 @@ class password:
                         extra = config.PKI_INDENTATION_LEVEL_2)
                     # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "wt") as fd:
-                        fd.write(master['pki_client_pkcs12_password'])
+                        fd.write(self.master_dict['pki_client_pkcs12_password'])
                     fd.closed
             else:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra = config.PKI_INDENTATION_LEVEL_2)
                 # create a new 'pkcs12_password.conf' file
                 with open(path, "wt") as fd:
-                    fd.write(master['pki_client_pkcs12_password'])
+                    fd.write(self.master_dict['pki_client_pkcs12_password'])
                 fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -2073,9 +2104,12 @@ class password:
                 return
         return token_pwd
 
+class Certutil:
+    """PKI Deployment NSS 'certutil' Class"""
 
-# PKI Deployment NSS 'certutil' Class
-class certutil:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def create_security_databases(self, path, pki_cert_database,
                                   pki_key_database, pki_secmod_database,
                                   password_file = None, prefix = None,
@@ -2490,8 +2524,12 @@ class certutil:
                 raise
         return
 
-# pk12util class
-class pk12util:
+class PK12util:
+    """PKI Deployment pk12util class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def create_file(self, out_file, nickname, out_pwfile,
                     db_pwfile, path = None):
         try:
@@ -2543,13 +2581,17 @@ class pk12util:
                 raise
         return
 
+class KRAConnector:
+    """PKI Deployment KRA Connector Class"""
 
-# KRA Connector Class
-class kra_connector:
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.password = deployer.password
+
     def deregister(self, critical_failure = False):
         try:
             # this is applicable to KRAs only
-            if master['pki_subsystem_type'] != "kra":
+            if self.master_dict['pki_subsystem_type'] != "kra":
                 return
 
             config.pki_log.info(
@@ -2557,7 +2599,7 @@ class kra_connector:
                 extra = config.PKI_INDENTATION_LEVEL_2)
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
-                         master['pki_target_cs_cfg'])
+                         self.master_dict['pki_target_cs_cfg'])
             krahost = cs_cfg.get('service.machineName')
             kraport = cs_cfg.get('pkicreate.secure_port')
             cahost = cs_cfg.get('cloning.ca.hostname')
@@ -2595,8 +2637,8 @@ class kra_connector:
             else:
                 token_name = "internal"
 
-            token_pwd = password.get_password(
-                            master['pki_shared_password_conf'],
+            token_pwd = self.password.get_password(
+                            self.master_dict['pki_shared_password_conf'],
                             token_name,
                             critical_failure)
 
@@ -2633,7 +2675,7 @@ class kra_connector:
         command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -c '{}' "\
                   "kraconnector-del {} {}".format(
                       caport, cahost, subsystemnick,
-                      master['pki_database_path'],
+                      self.master_dict['pki_database_path'],
                       token_pwd, krahost, kraport)
 
         output = subprocess.check_output(command,
@@ -2663,7 +2705,7 @@ class kra_connector:
         command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
                   "-v -r '{}' {}:{} 2>&1".format(
                       subsystemnick, token_pwd,
-                      master['pki_database_path'],
+                      self.master_dict['pki_database_path'],
                       params, updateURL,
                       cahost, caport)
 
@@ -2675,12 +2717,17 @@ class kra_connector:
                                          stderr = subprocess.STDOUT,
                                          shell = True)
 
-# PKI Deployment Security Domain Class
-class security_domain:
+class SecurityDomain:
+    """PKI Deployment Security Domain Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.password = deployer.password
+
     def deregister(self, install_token, critical_failure = False):
         # process this PKI subsystem instance's 'CS.cfg'
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            master['pki_target_cs_cfg'])
+            self.master_dict['pki_target_cs_cfg'])
 
         # assign key name/value pairs
         machinename = cs_cfg.get('service.machineName')
@@ -2725,7 +2772,7 @@ class security_domain:
         urladminheader = "https://{}:{}".format(sechost, secadminport)
         updateURL = "/ca/agent/ca/updateDomainXML"
 
-        params = "name=" + "\"" + master['pki_instance_path'] + "\"" + \
+        params = "name=" + "\"" + self.master_dict['pki_instance_path'] + "\"" + \
                  "&type=" + str(typeval) + \
                  "&list=" + str(listval) + \
                  "&host=" + str(machinename) + \
@@ -2742,7 +2789,7 @@ class security_domain:
                 adminUpdateURL = "/ca/admin/ca/updateDomainXML"
                 command = "/usr/bin/sslget -p 123456 -d '{}' -e '{}' "\
                           "-v -r '{}' {}:{} 2>&1".format(
-                             master['pki_database_path'],
+                             self.master_dict['pki_database_path'],
                              params, adminUpdateURL,
                              sechost, secadminport)
                 output = subprocess.check_output(command,
@@ -2809,7 +2856,7 @@ class security_domain:
         updateURL, sechost, secagentport, critical_failure = False):
         token_pwd = None
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            master['pki_target_cs_cfg'])
+            self.master_dict['pki_target_cs_cfg'])
         # retrieve subsystem nickname
         subsystemnick_param = typeval.lower() + ".cert.subsystem.nickname"
         subsystemnick = cs_cfg.get(subsystemnick_param)
@@ -2833,8 +2880,8 @@ class security_domain:
         else:
             token_name = "internal"
 
-        token_pwd = password.get_password(
-                        master['pki_shared_password_conf'],
+        token_pwd = self.password.get_password(
+                        self.master_dict['pki_shared_password_conf'],
                         token_name,
                         critical_failure)
 
@@ -2854,7 +2901,7 @@ class security_domain:
         command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
                   "-v -r '{}' {}:{} 2>&1".format(
                       subsystemnick, token_pwd,
-                      master['pki_database_path'],
+                      self.master_dict['pki_database_path'],
                       params, updateURL,
                       sechost, secagentport)
         try:
@@ -2888,7 +2935,7 @@ class security_domain:
 
         # process this PKI subsystem instance's 'CS.cfg'
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            master['pki_target_cs_cfg'])
+            self.master_dict['pki_target_cs_cfg'])
 
         # assign key name/value pairs
         machinename = cs_cfg.get('service.machineName')
@@ -2901,7 +2948,7 @@ class security_domain:
                   "securitydomain-get-install-token --hostname {} "\
                   "--subsystem {}".format(
                       secadminport, sechost, secuser, secpass,
-                      master['pki_database_path'],
+                      self.master_dict['pki_database_path'],
                       machinename, cstype)
         try:
             output = subprocess.check_output(command,
@@ -2936,21 +2983,25 @@ class security_domain:
                 raise
         return None
 
-# PKI Deployment 'systemd' Execution Management Class
-class systemd:
+class Systemd:
+    """PKI Deployment 'systemd' Execution Management Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+
     def start(self, critical_failure = True):
         try:
             # Compose this "systemd" execution management command
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+            if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "start" + " " + \
                           "pki-apached" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                          self.master_dict['pki_instance_name'] + "." + "service"
+            elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "start" + " " + \
                           "pki-tomcatd" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
+                          self.master_dict['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
@@ -2967,16 +3018,16 @@ class systemd:
     def stop(self, critical_failure = True):
         try:
             # Compose this "systemd" execution management command
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+            if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "stop" + " " + \
                           "pki-apached" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                          self.master_dict['pki_instance_name'] + "." + "service"
+            elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "stop" + " " + \
                           "pki-tomcatd" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
+                          self.master_dict['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
@@ -2993,16 +3044,16 @@ class systemd:
     def restart(self, critical_failure = True):
         try:
             # Compose this "systemd" execution management command
-            if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
+            if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "restart" + " " + \
                           "pki-apached" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
-            elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+                          self.master_dict['pki_instance_name'] + "." + "service"
+            elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 command = "systemctl" + " " + \
                           "restart" + " " + \
                           "pki-tomcatd" + "@" + \
-                          master['pki_instance_name'] + "." + "service"
+                          self.master_dict['pki_instance_name'] + "." + "service"
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, command,
@@ -3017,7 +3068,12 @@ class systemd:
         return
 
 
-class config_client:
+class ConfigClient:
+    """PKI Deployment Configuration Client"""
+
+    def __init__(self, deployer):
+        self.deployer = deployer
+        self.master_dict = deployer.master_dict
 
     def configure_pki_data(self, data):
         config.pki_log.info(log.PKI_CONFIG_CONFIGURING_PKI_DATA,
@@ -3025,9 +3081,9 @@ class config_client:
 
         self.connection = pki.client.PKIConnection(
             protocol = 'https',
-            hostname = master['pki_hostname'],
-            port = master['pki_https_port'],
-            subsystem = master['pki_subsystem_type'])
+            hostname = self.master_dict['pki_hostname'],
+            port = self.master_dict['pki_https_port'],
+            subsystem = self.master_dict['pki_subsystem_type'])
 
         try:
             client = pki.system.SystemConfigClient(self.connection)
@@ -3047,9 +3103,9 @@ class config_client:
             if not isinstance(certs, types.ListType):
                 certs = [certs]
             for cdata in certs:
-                if master['pki_subsystem'] == "CA" and\
-                   config.str2bool(master['pki_external']) and\
-                   not config.str2bool(master['pki_external_step_two']):
+                if self.master_dict['pki_subsystem'] == "CA" and\
+                   config.str2bool(self.master_dict['pki_external']) and\
+                   not config.str2bool(self.master_dict['pki_external_step_two']):
                     # External CA Step 1
                     if cdata['tag'].lower() == "signing":
                         config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + \
@@ -3058,11 +3114,11 @@ class config_client:
 
                         # Save 'External CA Signing Certificate' CSR (Step 1)
                         config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE + \
-                            " '" + master['pki_external_csr_path'] + "'",
+                            " '" + self.master_dict['pki_external_csr_path'] + "'",
                             extra = config.PKI_INDENTATION_LEVEL_2)
-                        directory.create(
-                            os.path.dirname(master['pki_external_csr_path']))
-                        with open(master['pki_external_csr_path'], "w") as f:
+                        self.deployer.directory.create(
+                            os.path.dirname(self.master_dict['pki_external_csr_path']))
+                        with open(self.master_dict['pki_external_csr_path'], "w") as f:
                             f.write(cdata['request'])
                         return
                 else:
@@ -3077,8 +3133,8 @@ class config_client:
                                          extra = config.PKI_INDENTATION_LEVEL_2)
 
             # Cloned PKI subsystems do not return an Admin Certificate
-            if not config.str2bool(master['pki_clone']) and \
-               not config.str2bool(master['pki_import_admin_cert']):
+            if not config.str2bool(self.master_dict['pki_clone']) and \
+               not config.str2bool(self.master_dict['pki_import_admin_cert']):
                 admin_cert = response['adminCert']['cert']
                 self.process_admin_cert(admin_cert)
 
@@ -3103,7 +3159,7 @@ class config_client:
                              extra = config.PKI_INDENTATION_LEVEL_2)
 
         # Store the Administration Certificate in a file
-        admin_cert_file = master['pki_client_admin_cert']
+        admin_cert_file = self.master_dict['pki_client_admin_cert']
         admin_cert_bin_file = admin_cert_file + ".der"
         config.pki_log.debug(log.PKI_CONFIG_ADMIN_CERT_SAVE + \
                                " '" + admin_cert_file + "'",
@@ -3125,29 +3181,29 @@ class config_client:
 
         # Import the Administration Certificate
         # into the client NSS security database
-        certutil.import_cert(
-            re.sub("&#39;", "'", master['pki_admin_nickname']),
+        self.deployer.certutil.import_cert(
+            re.sub("&#39;", "'", self.master_dict['pki_admin_nickname']),
             "u,u,u",
             admin_cert_bin_file,
-            master['pki_client_password_conf'],
-            master['pki_client_database_dir'],
+            self.master_dict['pki_client_password_conf'],
+            self.master_dict['pki_client_database_dir'],
             None,
             True)
 
         # create directory for p12 file if it does not exist
-        directory.create(os.path.dirname(
-            master['pki_client_admin_cert_p12']))
+        self.deployer.directory.create(os.path.dirname(
+            self.master_dict['pki_client_admin_cert_p12']))
 
         # Export the Administration Certificate from the
         # client NSS security database into a PKCS #12 file
-        pk12util.create_file(
-            master['pki_client_admin_cert_p12'],
-            re.sub("&#39;", "'", master['pki_admin_nickname']),
-            master['pki_client_pkcs12_password_conf'],
-            master['pki_client_password_conf'],
-            master['pki_client_database_dir'])
+        self.deployer.pk12util.create_file(
+            self.master_dict['pki_client_admin_cert_p12'],
+            re.sub("&#39;", "'", self.master_dict['pki_admin_nickname']),
+            self.master_dict['pki_client_pkcs12_password_conf'],
+            self.master_dict['pki_client_password_conf'],
+            self.master_dict['pki_client_database_dir'])
 
-        os.chmod(master['pki_client_admin_cert_p12'],
+        os.chmod(self.master_dict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
 
@@ -3158,12 +3214,12 @@ class config_client:
         data = pki.system.ConfigurationRequest()
 
         # Miscellaneous Configuration Information
-        data.pin = master['pki_one_time_pin']
-        data.subsystemName = master['pki_subsystem_name']
+        data.pin = self.master_dict['pki_one_time_pin']
+        data.subsystemName = self.master_dict['pki_subsystem_name']
 
         # Cloning parameters
-        if master['pki_instance_type'] == "Tomcat":
-            if config.str2bool(master['pki_clone']):
+        if self.master_dict['pki_instance_type'] == "Tomcat":
+            if config.str2bool(self.master_dict['pki_clone']):
                 self.set_cloning_parameters(data)
             else:
                 data.isClone = "false"
@@ -3172,9 +3228,9 @@ class config_client:
         self.set_hierarchy_parameters(data)
 
         # Security Domain
-        if master['pki_subsystem'] != "CA" or\
-           config.str2bool(master['pki_clone']) or\
-           config.str2bool(master['pki_subordinate']):
+        if self.master_dict['pki_subsystem'] != "CA" or\
+           config.str2bool(self.master_dict['pki_clone']) or\
+           config.str2bool(self.master_dict['pki_subordinate']):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
             # Subordinate CA
@@ -3184,15 +3240,15 @@ class config_client:
             self.set_new_security_domain(data)
 
         # database
-        if master['pki_subsystem'] != "RA":
+        if self.master_dict['pki_subsystem'] != "RA":
             self.set_database_parameters(data)
 
         # backup
-        if master['pki_instance_type'] == "Tomcat":
+        if self.master_dict['pki_instance_type'] == "Tomcat":
             self.set_backup_parameters(data)
 
         # admin user
-        if not config.str2bool(master['pki_clone']):
+        if not config.str2bool(self.master_dict['pki_clone']):
             self.set_admin_parameters(data)
 
         # Issuing CA Information
@@ -3207,39 +3263,39 @@ class config_client:
         systemCerts = []
 
         # Create 'CA Signing Certificate'
-        if master['pki_subsystem'] == "CA":
-            if not config.str2bool(master['pki_clone']):
+        if self.master_dict['pki_subsystem'] == "CA":
+            if not config.str2bool(self.master_dict['pki_clone']):
                 cert1 = self.create_system_cert("ca_signing")
                 cert1.signingAlgorithm = \
-                    master['pki_ca_signing_signing_algorithm']
-                if config.str2bool(master['pki_external_step_two']):
+                    self.master_dict['pki_ca_signing_signing_algorithm']
+                if config.str2bool(self.master_dict['pki_external_step_two']):
                     # Load the 'External CA Signing Certificate' (Step 2)
                     print(
                         log.PKI_CONFIG_EXTERNAL_CA_LOAD + " " + \
-                        "'" + master['pki_external_ca_cert_path'] + "'")
-                    with open(master['pki_external_ca_cert_path']) as f:
+                        "'" + self.master_dict['pki_external_ca_cert_path'] + "'")
+                    with open(self.master_dict['pki_external_ca_cert_path']) as f:
                         external_cert = f.read()
                     cert1.cert = external_cert
 
                     # Load the 'External CA Signing Certificate Chain' (Step 2)
                     print(
                         log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD + " " + \
-                        "'" + master['pki_external_ca_cert_chain_path'] + \
+                        "'" + self.master_dict['pki_external_ca_cert_chain_path'] + \
                         "'")
-                    with open(master['pki_external_ca_cert_chain_path']) as f:
+                    with open(self.master_dict['pki_external_ca_cert_chain_path']) as f:
                         external_cert_chain = f.read()
 
                     cert1.certChain = external_cert_chain
                 systemCerts.append(cert1)
 
         # Create 'OCSP Signing Certificate'
-        if not config.str2bool(master['pki_clone']):
-            if master['pki_subsystem'] == "CA" or\
-               master['pki_subsystem'] == "OCSP":
+        if not config.str2bool(self.master_dict['pki_clone']):
+            if self.master_dict['pki_subsystem'] == "CA" or\
+               self.master_dict['pki_subsystem'] == "OCSP":
                 # External CA, Subordinate CA, PKI CA, or PKI OCSP
                 cert2 = self.create_system_cert("ocsp_signing")
                 cert2.signingAlgorithm = \
-                    master['pki_ocsp_signing_signing_algorithm']
+                    self.master_dict['pki_ocsp_signing_signing_algorithm']
                 systemCerts.append(cert2)
 
         # Create 'SSL Server Certificate'
@@ -3247,13 +3303,13 @@ class config_client:
 
         # create new sslserver cert only if this is a new instance
         cert3 = None
-        system_list = instance.tomcat_instance_subsystems()
+        system_list = self.deployer.instance.tomcat_instance_subsystems()
         if len(system_list) >= 2:
             data.generateServerCert = "false"
             for subsystem in system_list:
-                dst = master['pki_instance_path'] + '/conf/' + \
+                dst = self.master_dict['pki_instance_path'] + '/conf/' + \
                     subsystem.lower() + '/CS.cfg'
-                if subsystem != master['pki_subsystem'] and \
+                if subsystem != self.master_dict['pki_subsystem'] and \
                    os.path.exists(dst):
                     cert3 = self.retrieve_existing_server_cert(dst)
                     break
@@ -3262,21 +3318,21 @@ class config_client:
         systemCerts.append(cert3)
 
         # Create 'Subsystem Certificate'
-        if not config.str2bool(master['pki_clone']):
+        if not config.str2bool(self.master_dict['pki_clone']):
             cert4 = self.create_system_cert("subsystem")
             systemCerts.append(cert4)
 
         # Create 'Audit Signing Certificate'
-        if not config.str2bool(master['pki_clone']):
-            if master['pki_subsystem'] != "RA":
+        if not config.str2bool(self.master_dict['pki_clone']):
+            if self.master_dict['pki_subsystem'] != "RA":
                 cert5 = self.create_system_cert("audit_signing")
                 cert5.signingAlgorithm = \
-                    master['pki_audit_signing_signing_algorithm']
+                    self.master_dict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
 
         # Create DRM Transport and storage Certificates
-        if not config.str2bool(master['pki_clone']):
-            if master['pki_subsystem'] == "KRA":
+        if not config.str2bool(self.master_dict['pki_clone']):
+            if self.master_dict['pki_subsystem'] == "KRA":
                 cert6 = self.create_system_cert("transport")
                 systemCerts.append(cert6)
 
@@ -3287,28 +3343,28 @@ class config_client:
 
     def set_cloning_parameters(self, data):
         data.isClone = "true"
-        data.cloneUri = master['pki_clone_uri']
-        data.p12File = master['pki_clone_pkcs12_path']
-        data.p12Password = master['pki_clone_pkcs12_password']
-        data.replicateSchema = master['pki_clone_replicate_schema']
+        data.cloneUri = self.master_dict['pki_clone_uri']
+        data.p12File = self.master_dict['pki_clone_pkcs12_path']
+        data.p12Password = self.master_dict['pki_clone_pkcs12_password']
+        data.replicateSchema = self.master_dict['pki_clone_replicate_schema']
         data.replicationSecurity = \
-            master['pki_clone_replication_security']
-        if master['pki_clone_replication_master_port']:
+            self.master_dict['pki_clone_replication_security']
+        if self.master_dict['pki_clone_replication_master_port']:
             data.masterReplicationPort = \
-                master['pki_clone_replication_master_port']
-        if master['pki_clone_replication_clone_port']:
+                self.master_dict['pki_clone_replication_master_port']
+        if self.master_dict['pki_clone_replication_clone_port']:
             data.cloneReplicationPort = \
-                master['pki_clone_replication_clone_port']
+                self.master_dict['pki_clone_replication_clone_port']
 
     def set_hierarchy_parameters(self, data):
-        if master['pki_subsystem'] == "CA":
-            if config.str2bool(master['pki_clone']):
+        if self.master_dict['pki_subsystem'] == "CA":
+            if config.str2bool(self.master_dict['pki_clone']):
                 # Cloned CA
                 data.hierarchy = "root"
-            elif config.str2bool(master['pki_external']):
+            elif config.str2bool(self.master_dict['pki_external']):
                 # External CA
                 data.hierarchy = "join"
-            elif config.str2bool(master['pki_subordinate']):
+            elif config.str2bool(self.master_dict['pki_subordinate']):
                 # Subordinate CA
                 data.hierarchy = "join"
             else:
@@ -3317,73 +3373,73 @@ class config_client:
 
     def set_existing_security_domain(self, data):
         data.securityDomainType = "existingdomain"
-        data.securityDomainUri = master['pki_security_domain_uri']
-        data.securityDomainUser = master['pki_security_domain_user']
-        data.securityDomainPassword = master['pki_security_domain_password']
+        data.securityDomainUri = self.master_dict['pki_security_domain_uri']
+        data.securityDomainUser = self.master_dict['pki_security_domain_user']
+        data.securityDomainPassword = self.master_dict['pki_security_domain_password']
 
     def set_new_security_domain(self, data):
         data.securityDomainType = "newdomain"
-        data.securityDomainName = master['pki_security_domain_name']
+        data.securityDomainName = self.master_dict['pki_security_domain_name']
 
     def set_database_parameters(self, data):
-        data.dsHost = master['pki_ds_hostname']
-        data.dsPort = master['pki_ds_ldap_port']
-        data.baseDN = master['pki_ds_base_dn']
-        data.bindDN = master['pki_ds_bind_dn']
-        data.database = master['pki_ds_database']
-        data.bindpwd = master['pki_ds_password']
-        if config.str2bool(master['pki_ds_remove_data']):
+        data.dsHost = self.master_dict['pki_ds_hostname']
+        data.dsPort = self.master_dict['pki_ds_ldap_port']
+        data.baseDN = self.master_dict['pki_ds_base_dn']
+        data.bindDN = self.master_dict['pki_ds_bind_dn']
+        data.database = self.master_dict['pki_ds_database']
+        data.bindpwd = self.master_dict['pki_ds_password']
+        if config.str2bool(self.master_dict['pki_ds_remove_data']):
             data.removeData = "true"
         else:
             data.removeData = "false"
-        if config.str2bool(master['pki_ds_secure_connection']):
+        if config.str2bool(self.master_dict['pki_ds_secure_connection']):
             data.secureConn = "true"
         else:
             data.secureConn = "false"
 
     def set_backup_parameters(self, data):
-        if config.str2bool(master['pki_backup_keys']):
+        if config.str2bool(self.master_dict['pki_backup_keys']):
             data.backupKeys = "true"
-            data.backupFile = master['pki_backup_keys_p12']
-            data.backupPassword = master['pki_backup_password']
+            data.backupFile = self.master_dict['pki_backup_keys_p12']
+            data.backupPassword = self.master_dict['pki_backup_password']
         else:
             data.backupKeys = "false"
 
     def set_admin_parameters(self, data):
-        data.adminEmail = master['pki_admin_email']
-        data.adminName = master['pki_admin_name']
-        data.adminPassword = master['pki_admin_password']
-        data.adminProfileID = master['pki_admin_profile_id']
-        data.adminUID = master['pki_admin_uid']
-        data.adminSubjectDN = master['pki_admin_subject_dn']
-        if config.str2bool(master['pki_import_admin_cert']):
+        data.adminEmail = self.master_dict['pki_admin_email']
+        data.adminName = self.master_dict['pki_admin_name']
+        data.adminPassword = self.master_dict['pki_admin_password']
+        data.adminProfileID = self.master_dict['pki_admin_profile_id']
+        data.adminUID = self.master_dict['pki_admin_uid']
+        data.adminSubjectDN = self.master_dict['pki_admin_subject_dn']
+        if config.str2bool(self.master_dict['pki_import_admin_cert']):
             data.importAdminCert = "true"
             # read config from file
-            with open(master['pki_admin_cert_file']) as f:
+            with open(self.master_dict['pki_admin_cert_file']) as f:
                 b64 = f.read().replace('\n', '')
             data.adminCert = b64
         else:
             data.importAdminCert = "false"
-            data.adminSubjectDN = master['pki_admin_subject_dn']
-            if master['pki_admin_cert_request_type'] == "pkcs10":
+            data.adminSubjectDN = self.master_dict['pki_admin_subject_dn']
+            if self.master_dict['pki_admin_cert_request_type'] == "pkcs10":
                 data.adminCertRequestType = "pkcs10"
 
                 noise_file = os.path.join(
-                    master['pki_client_database_dir'], "noise")
+                    self.master_dict['pki_client_database_dir'], "noise")
 
                 output_file = os.path.join(
-                    master['pki_client_database_dir'], "admin_pkcs10.bin")
+                    self.master_dict['pki_client_database_dir'], "admin_pkcs10.bin")
 
-                file.generate_noise_file(
-                    noise_file, int(master['pki_admin_keysize']))
+                self.deployer.file.generate_noise_file(
+                    noise_file, int(self.master_dict['pki_admin_keysize']))
 
-                certutil.generate_certificate_request(
-                                     master['pki_admin_subject_dn'],
-                                     master['pki_admin_keysize'],
-                                     master['pki_client_password_conf'],
+                self.deployer.certutil.generate_certificate_request(
+                                     self.master_dict['pki_admin_subject_dn'],
+                                     self.master_dict['pki_admin_keysize'],
+                                     self.master_dict['pki_client_password_conf'],
                                      noise_file,
                                      output_file,
-                                     master['pki_client_database_dir'],
+                                     self.master_dict['pki_client_database_dir'],
                                      None, None, True)
 
                 # convert output to ascii
@@ -3401,58 +3457,68 @@ class config_client:
                 raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
     def set_issuing_ca_parameters(self, data):
-        if master['pki_subsystem'] != "CA" or\
-           config.str2bool(master['pki_clone']) or\
-           config.str2bool(master['pki_subordinate']) or\
-           config.str2bool(master['pki_external']):
+        if self.master_dict['pki_subsystem'] != "CA" or\
+           config.str2bool(self.master_dict['pki_clone']) or\
+           config.str2bool(self.master_dict['pki_subordinate']) or\
+           config.str2bool(self.master_dict['pki_external']):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
             # Subordinate CA, or External CA
-            data.issuingCA = master['pki_issuing_ca']
-            if master['pki_subsystem'] == "CA"  and\
-               config.str2bool(master['pki_external_step_two']):
+            data.issuingCA = self.master_dict['pki_issuing_ca']
+            if self.master_dict['pki_subsystem'] == "CA"  and\
+               config.str2bool(self.master_dict['pki_external_step_two']):
                 # External CA Step 2
                 data.stepTwo = "true";
 
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
-        cert.tag = master["pki_%s_tag" % tag]
-        cert.keyAlgorithm = master["pki_%s_key_algorithm" % tag]
-        cert.keySize = master["pki_%s_key_size" % tag]
-        cert.keyType = master["pki_%s_key_type" % tag]
-        cert.nickname = master["pki_%s_nickname" % tag]
-        cert.subjectDN = master["pki_%s_subject_dn" % tag]
-        cert.token = master["pki_%s_token" % tag]
+        cert.tag = self.master_dict["pki_%s_tag" % tag]
+        cert.keyAlgorithm = self.master_dict["pki_%s_key_algorithm" % tag]
+        cert.keySize = self.master_dict["pki_%s_key_size" % tag]
+        cert.keyType = self.master_dict["pki_%s_key_type" % tag]
+        cert.nickname = self.master_dict["pki_%s_nickname" % tag]
+        cert.subjectDN = self.master_dict["pki_%s_subject_dn" % tag]
+        cert.token = self.master_dict["pki_%s_token" % tag]
         return cert
 
     def retrieve_existing_server_cert(self, cfg_file):
         cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)
         cstype = cs_cfg.get('cs.type').lower()
         cert = pki.system.SystemCertData()
-        cert.tag = master["pki_ssl_server_tag"]
-        cert.keyAlgorithm = master["pki_ssl_server_key_algorithm"]
-        cert.keySize = master["pki_ssl_server_key_size"]
-        cert.keyType = master["pki_ssl_server_key_type"]
+        cert.tag = self.master_dict["pki_ssl_server_tag"]
+        cert.keyAlgorithm = self.master_dict["pki_ssl_server_key_algorithm"]
+        cert.keySize = self.master_dict["pki_ssl_server_key_size"]
+        cert.keyType = self.master_dict["pki_ssl_server_key_type"]
         cert.nickname = cs_cfg.get(cstype + ".sslserver.nickname")
         cert.cert = cs_cfg.get(cstype + ".sslserver.cert")
         cert.request = cs_cfg.get(cstype + ".sslserver.certreq")
-        cert.subjectDN = master["pki_ssl_server_subject_dn"]
+        cert.subjectDN = self.master_dict["pki_ssl_server_subject_dn"]
         cert.token = cs_cfg.get(cstype + ".sslserver.tokenname")
         return cert
 
-# PKI Deployment Helper Class Instances
-identity = identity()
-namespace = namespace()
-configuration_file = configuration_file()
-# xml_file = xml_file()
-instance = instance()
-directory = directory()
-file = file()
-symlink = symlink()
-war = war()
-password = password()
-certutil = certutil()
-pk12util = pk12util()
-security_domain = security_domain()
-kra_connector = kra_connector()
-systemd = systemd()
+class PKIDeployer:
+    """Holds the global dictionaries and the utility objects"""
+
+    def __init__(self, pki_master_dict, pki_slots_dict = None):
+        # Global dictionary variables
+        self.master_dict = pki_master_dict
+        self.slots = pki_slots_dict
+
+        # Utility objects
+        self.identity = Identity(self)
+        self.namespace = Namespace(self)
+        self.configuration_file = ConfigurationFile(self)
+        self.instance = Instance(self)
+        self.directory = Directory(self)
+        self.file = File(self)
+        self.symlink = Symlink(self)
+        self.war = War(self)
+        self.password = Password(self)
+        self.certutil = Certutil(self)
+        self.pk12util = PK12util(self)
+        self.kra_connector = KRAConnector(self)
+        self.security_domain = SecurityDomain(self)
+        self.systemd = Systemd(self)
+        self.config_client = ConfigClient(self)
+
+

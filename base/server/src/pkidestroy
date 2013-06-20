@@ -40,6 +40,7 @@ try:
     from pki.deployment.pkiparser import PKIConfigParser
     from pki.deployment import pkilogging
     from pki.deployment import pkimessages as log
+    import pki.deployment.pkihelper as util
 except ImportError:
     print >> sys.stderr, """\
 There was a problem importing one of the required Python modules. The
@@ -229,29 +230,30 @@ def main(argv):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
-    config.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
+    parser.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
                                                 config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print "Uninstalling " + config.pki_subsystem + " from " + deployed_pki_instance_path + "."
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
-    pki_subsystem_scriptlets = config.pki_master_dict['destroy_scriplets'].split()
+    pki_subsystem_scriptlets = parser.pki_master_dict['destroy_scriplets'].split()
+    deployer = util.PKIDeployer(parser.pki_master_dict)
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.deployment." +
                                pki_scriptlet,
                                fromlist = [pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
-        rv = instance.destroy()
+        rv = instance.destroy(deployer)
         if rv != 0:
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(config.pki_master_dict),
+    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print

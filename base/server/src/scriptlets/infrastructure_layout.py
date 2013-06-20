@@ -21,8 +21,6 @@
 
 # PKI Deployment Imports
 import pkiconfig as config
-from pkiconfig import pki_master_dict as master
-import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
 
@@ -31,8 +29,9 @@ import pkiscriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
-    def spawn(self):
-        if config.str2bool(master['pki_skip_installation']):
+    def spawn(self, deployer):
+
+        if config.str2bool(deployer.master_dict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_ADMIN_DOMAIN_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
@@ -52,32 +51,32 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # registry directories for storage of a copy of the original
         # deployment configuration file used to spawn this instance,
         # and save a copy of this file
-        util.directory.create(master['pki_registry_path'])
-        util.directory.create(master['pki_instance_type_registry_path'])
-        util.directory.create(master['pki_instance_registry_path'])
-        util.directory.create(master['pki_subsystem_registry_path'])
-        util.file.copy(master['pki_default_deployment_cfg'],
-                       master['pki_default_deployment_cfg_replica'])
+        deployer.directory.create(deployer.master_dict['pki_registry_path'])
+        deployer.directory.create(deployer.master_dict['pki_instance_type_registry_path'])
+        deployer.directory.create(deployer.master_dict['pki_instance_registry_path'])
+        deployer.directory.create(deployer.master_dict['pki_subsystem_registry_path'])
+        deployer.file.copy(deployer.master_dict['pki_default_deployment_cfg'],
+                       deployer.master_dict['pki_default_deployment_cfg_replica'])
 
-        print "Storing deployment configuration into " + config.pki_master_dict['pki_user_deployment_cfg_replica'] + "."
+        print "Storing deployment configuration into " + deployer.master_dict['pki_user_deployment_cfg_replica'] + "."
 
         #Archive the user deployment configuration excluding the sensitive parameters
-        sensitive_parameters = config.pki_master_dict['sensitive_parameters'].split()
+        sensitive_parameters = deployer.master_dict['sensitive_parameters'].split()
         sections = config.user_config.sections()
         for s in sections:
             for k in sensitive_parameters:
                 config.user_config.set(s, k, 'XXXXXXXX')
-        with open(master['pki_user_deployment_cfg_replica'], 'w') as f:
+        with open(deployer.master_dict['pki_user_deployment_cfg_replica'], 'w') as f:
             config.user_config.write(f)
 
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that
         # the "pkidestroy" executable relies upon
-        util.directory.create(master['pki_path'])
-        util.directory.create(master['pki_instance_path'])
-        util.directory.create(master['pki_subsystem_path'])
-        util.symlink.create(master['pki_instance_registry_path'],
-                            master['pki_subsystem_registry_link'])
+        deployer.directory.create(deployer.master_dict['pki_path'])
+        deployer.directory.create(deployer.master_dict['pki_instance_path'])
+        deployer.directory.create(deployer.master_dict['pki_subsystem_path'])
+        deployer.symlink.create(deployer.master_dict['pki_instance_registry_path'],
+                            deployer.master_dict['pki_subsystem_registry_link'])
         #
         # NOTE:  If "infrastructure_layout" scriptlet execution has been
         #        successfully executed to this point, the "pkidestroy" command
@@ -86,29 +85,30 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # no need to establish top-level infrastructure logs
         # since it now stores 'pkispawn'/'pkidestroy' logs
         # and will already exist
-        # util.directory.create(master['pki_log_path'])
+        # deployer.directory.create(deployer.master_dict['pki_log_path'])
         # establish top-level infrastructure configuration
-        if master['pki_configuration_path'] !=\
+        if deployer.master_dict['pki_configuration_path'] !=\
            config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-            util.directory.create(master['pki_configuration_path'])
+            deployer.directory.create(deployer.master_dict['pki_configuration_path'])
         return self.rv
 
-    def destroy(self):
+    def destroy(self, deployer):
+
         config.pki_log.info(log.ADMIN_DOMAIN_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # remove top-level infrastructure base
-        if master['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
-           util.instance.pki_instance_subsystems() == 0:
+        if deployer.master_dict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
+           deployer.instance.pki_instance_subsystems() == 0:
             # remove top-level infrastructure base
-            util.directory.delete(master['pki_path'])
+            deployer.directory.delete(deployer.master_dict['pki_path'])
             # do NOT remove top-level infrastructure logs
             # since it now stores 'pkispawn'/'pkidestroy' logs
-            # util.directory.delete(master['pki_log_path'])
+            # deployer.directory.delete(deployer.master_dict['pki_log_path'])
             # remove top-level infrastructure configuration
-            if util.directory.is_empty(master['pki_configuration_path'])\
-               and master['pki_configuration_path'] !=\
+            if deployer.directory.is_empty(deployer.master_dict['pki_configuration_path'])\
+               and deployer.master_dict['pki_configuration_path'] !=\
                config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-                util.directory.delete(master['pki_configuration_path'])
+                deployer.directory.delete(deployer.master_dict['pki_configuration_path'])
             # remove top-level infrastructure registry
-            util.directory.delete(master['pki_registry_path'])
+            deployer.directory.delete(deployer.master_dict['pki_registry_path'])
         return self.rv

@@ -21,9 +21,6 @@
 
 # PKI Deployment Imports
 import pkiconfig as config
-from pkiconfig import pki_master_dict as master
-from pkiconfig import pki_slots_dict as slots
-import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
 
@@ -32,65 +29,66 @@ import pkiscriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
-    def spawn(self):
-        if config.str2bool(master['pki_skip_installation']):
+    def spawn(self, deployer):
+
+        if config.str2bool(deployer.master_dict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SLOT_ASSIGNMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        util.file.copy_with_slot_substitution(master['pki_source_cs_cfg'],
-                                              master['pki_target_cs_cfg'])
-        util.file.copy_with_slot_substitution(master['pki_source_registry'],
-                                              master['pki_target_registry'],
-                                              uid=0, gid=0, overwrite_flag=True)
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            util.file.copy_with_slot_substitution(
-                master['pki_source_catalina_properties'],
-                master['pki_target_catalina_properties'],
+        deployer.file.copy_with_slot_substitution(deployer.master_dict['pki_source_cs_cfg'],
+                                                        deployer.master_dict['pki_target_cs_cfg'])
+        deployer.file.copy_with_slot_substitution(deployer.master_dict['pki_source_registry'],
+                                                        deployer.master_dict['pki_target_registry'],
+                                                        uid=0, gid=0, overwrite_flag=True)
+        if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_catalina_properties'],
+                deployer.master_dict['pki_target_catalina_properties'],
                 overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_servercertnick_conf'],
-                master['pki_target_servercertnick_conf'],
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_servercertnick_conf'],
+                deployer.master_dict['pki_target_servercertnick_conf'],
                 overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_server_xml'],
-                master['pki_target_server_xml'],
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_server_xml'],
+                deployer.master_dict['pki_target_server_xml'],
                 overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_context_xml'],
-                master['pki_target_context_xml'],
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_context_xml'],
+                deployer.master_dict['pki_target_context_xml'],
                 overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_tomcat_conf'],
-                master['pki_target_tomcat_conf_instance_id'],
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_tomcat_conf'],
+                deployer.master_dict['pki_target_tomcat_conf_instance_id'],
                 uid=0, gid=0, overwrite_flag=True)
-            util.file.copy_with_slot_substitution(
-                master['pki_source_tomcat_conf'],
-                master['pki_target_tomcat_conf'],
+            deployer.file.copy_with_slot_substitution(
+                deployer.master_dict['pki_source_tomcat_conf'],
+                deployer.master_dict['pki_target_tomcat_conf'],
                 overwrite_flag=True)
-            util.file.apply_slot_substitution(
-                master['pki_target_velocity_properties'])
-            util.file.apply_slot_substitution(
-                master['pki_target_subsystem_web_xml'])
+            deployer.file.apply_slot_substitution(
+                deployer.master_dict['pki_target_velocity_properties'])
+            deployer.file.apply_slot_substitution(
+                deployer.master_dict['pki_target_subsystem_web_xml'])
             # Strip "<filter>" section from subsystem "web.xml"
             # This is ONLY necessary because XML comments cannot be "nested"!
-            #util.file.copy(master['pki_target_subsystem_web_xml'],
-            #               master['pki_target_subsystem_web_xml_orig'])
-            #util.file.delete(master['pki_target_subsystem_web_xml'])
+            #deployer.file.copy(deployer.master_dict['pki_target_subsystem_web_xml'],
+            #               deployer.master_dict['pki_target_subsystem_web_xml_orig'])
+            #deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml'])
             #util.xml_file.remove_filter_section_from_web_xml(
-            #    master['pki_target_subsystem_web_xml_orig'],
-            #    master['pki_target_subsystem_web_xml'])
-            #util.file.delete(master['pki_target_subsystem_web_xml_orig'])
-            if master['pki_subsystem'] == "CA":
-                util.file.copy_with_slot_substitution(
-                    master['pki_source_proxy_conf'],
-                    master['pki_target_proxy_conf'])
-                util.file.apply_slot_substitution(
-                    master['pki_target_profileselect_template'])
+            #    deployer.master_dict['pki_target_subsystem_web_xml_orig'],
+            #    deployer.master_dict['pki_target_subsystem_web_xml'])
+            #deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml_orig'])
+            if deployer.master_dict['pki_subsystem'] == "CA":
+                deployer.file.copy_with_slot_substitution(
+                    deployer.master_dict['pki_source_proxy_conf'],
+                    deployer.master_dict['pki_target_proxy_conf'])
+                deployer.file.apply_slot_substitution(
+                    deployer.master_dict['pki_target_profileselect_template'])
         return self.rv
 
-    def destroy(self):
+    def destroy(self, deployer):
         config.pki_log.info(log.SLOT_ASSIGNMENT_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info("NOTHING NEEDS TO BE IMPLEMENTED",

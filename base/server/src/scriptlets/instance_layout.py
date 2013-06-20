@@ -25,161 +25,160 @@ import os
 
 # PKI Deployment Imports
 import pkiconfig as config
-from pkiconfig import pki_master_dict as master
-import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
-import os
 
 
 # PKI Deployment Instance Layout Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
-    def spawn(self):
-        if config.str2bool(master['pki_skip_installation']):
+    def spawn(self, deployer):
+
+        if config.str2bool(deployer.master_dict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INSTANCE_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
         config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance logs
-        util.directory.create(master['pki_instance_log_path'])
+        deployer.directory.create(deployer.master_dict['pki_instance_log_path'])
         # establish instance configuration
-        util.directory.create(master['pki_instance_configuration_path'])
+        deployer.directory.create(deployer.master_dict['pki_instance_configuration_path'])
         # establish Apache/Tomcat specific instance
-        if master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish Tomcat instance configuration
-            util.directory.copy(master['pki_source_server_path'],
-                                master['pki_instance_configuration_path'],
+            deployer.directory.copy(deployer.master_dict['pki_source_server_path'],
+                                deployer.master_dict['pki_instance_configuration_path'],
                                 overwrite_flag=True)
             # establish Tomcat instance base
-            util.directory.create(master['pki_tomcat_common_path'])
-            util.directory.create(master['pki_tomcat_common_lib_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_common_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_common_lib_path'])
             # establish Tomcat instance library
-            util.directory.create(master['pki_instance_lib'])
-            for name in os.listdir(master['pki_tomcat_lib_path']):
-                util.symlink.create(
+            deployer.directory.create(deployer.master_dict['pki_instance_lib'])
+            for name in os.listdir(deployer.master_dict['pki_tomcat_lib_path']):
+                deployer.symlink.create(
                     os.path.join(
-                        master['pki_tomcat_lib_path'],
+                        deployer.master_dict['pki_tomcat_lib_path'],
                         name),
                     os.path.join(
-                        master['pki_instance_lib'],
+                        deployer.master_dict['pki_instance_lib'],
                         name))
-            util.symlink.create(master['pki_instance_conf_log4j_properties'],
-                                master['pki_instance_lib_log4j_properties'])
-            util.directory.create(master['pki_tomcat_tmpdir_path'])
-            util.directory.create(master['pki_tomcat_webapps_path'])
-            util.directory.create(master['pki_tomcat_work_path'])
-            util.directory.create(master['pki_tomcat_work_catalina_path'])
-            util.directory.create(master['pki_tomcat_work_catalina_host_path'])
-            util.directory.create(
-                master['pki_tomcat_work_catalina_host_run_path'])
-            util.directory.create(
-                master['pki_tomcat_work_catalina_host_subsystem_path'])
+            deployer.symlink.create(deployer.master_dict['pki_instance_conf_log4j_properties'],
+                                deployer.master_dict['pki_instance_lib_log4j_properties'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_tmpdir_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_webapps_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_work_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_work_catalina_path'])
+            deployer.directory.create(deployer.master_dict['pki_tomcat_work_catalina_host_path'])
+            deployer.directory.create(
+                deployer.master_dict['pki_tomcat_work_catalina_host_run_path'])
+            deployer.directory.create(
+                deployer.master_dict['pki_tomcat_work_catalina_host_subsystem_path'])
             # establish Tomcat instance logs
             # establish Tomcat instance registry
             # establish Tomcat instance convenience symbolic links
-            util.symlink.create(master['pki_tomcat_bin_path'],
-                                master['pki_tomcat_bin_link'])
-            util.symlink.create(master['pki_tomcat_systemd'],
-                                master['pki_instance_systemd_link'],
+            deployer.symlink.create(deployer.master_dict['pki_tomcat_bin_path'],
+                                deployer.master_dict['pki_tomcat_bin_link'])
+            deployer.symlink.create(deployer.master_dict['pki_tomcat_systemd'],
+                                deployer.master_dict['pki_instance_systemd_link'],
                                 uid=0, gid=0)
             # establish Tomcat instance common lib jar symbolic links
-            util.symlink.create(master['pki_apache_commons_collections_jar'],
-                master['pki_apache_commons_collections_jar_link'])
-            util.symlink.create(master['pki_apache_commons_lang_jar'],
-                master['pki_apache_commons_lang_jar_link'])
-            util.symlink.create(master['pki_apache_commons_logging_jar'],
-                master['pki_apache_commons_logging_jar_link'])
-            util.symlink.create(master['pki_commons_codec_jar'],
-                master['pki_commons_codec_jar_link'])
-            util.symlink.create(master['pki_httpclient_jar'],
-                master['pki_httpclient_jar_link'])
-            util.symlink.create(master['pki_httpcore_jar'],
-                master['pki_httpcore_jar_link'])
-            util.symlink.create(master['pki_javassist_jar'],
-                master['pki_javassist_jar_link'])
-            util.symlink.create(master['pki_resteasy_jaxrs_api_jar'],
-                master['pki_resteasy_jaxrs_api_jar_link'])
-            util.symlink.create(master['pki_jettison_jar'],
-                master['pki_jettison_jar_link'])
-            util.symlink.create(master['pki_jss_jar'],
-                master['pki_jss_jar_link'])
-            util.symlink.create(master['pki_ldapjdk_jar'],
-                master['pki_ldapjdk_jar_link'])
-            util.symlink.create(master['pki_tomcat_jar'],
-                master['pki_tomcat_jar_link'])
-            util.symlink.create(master['pki_resteasy_atom_provider_jar'],
-                master['pki_resteasy_atom_provider_jar_link'])
-            util.symlink.create(master['pki_resteasy_jaxb_provider_jar'],
-                master['pki_resteasy_jaxb_provider_jar_link'])
-            util.symlink.create(master['pki_resteasy_jaxrs_jar'],
-                master['pki_resteasy_jaxrs_jar_link'])
-            util.symlink.create(master['pki_resteasy_jettison_provider_jar'],
-                master['pki_resteasy_jettison_provider_jar_link'])
-            util.symlink.create(master['pki_scannotation_jar'],
-                master['pki_scannotation_jar_link'])
-            if master['pki_subsystem'] == 'TKS':
-                util.symlink.create(master['pki_symkey_jar'],
-                    master['pki_symkey_jar_link'])
-            util.symlink.create(master['pki_tomcatjss_jar'],
-                master['pki_tomcatjss_jar_link'])
-            util.symlink.create(master['pki_velocity_jar'],
-                master['pki_velocity_jar_link'])
-            util.symlink.create(master['pki_xerces_j2_jar'],
-                master['pki_xerces_j2_jar_link'])
-            util.symlink.create(master['pki_xml_commons_apis_jar'],
-                master['pki_xml_commons_apis_jar_link'])
-            util.symlink.create(master['pki_xml_commons_resolver_jar'],
-                master['pki_xml_commons_resolver_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_apache_commons_collections_jar'],
+                deployer.master_dict['pki_apache_commons_collections_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_apache_commons_lang_jar'],
+                deployer.master_dict['pki_apache_commons_lang_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_apache_commons_logging_jar'],
+                deployer.master_dict['pki_apache_commons_logging_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_commons_codec_jar'],
+                deployer.master_dict['pki_commons_codec_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_httpclient_jar'],
+                deployer.master_dict['pki_httpclient_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_httpcore_jar'],
+                deployer.master_dict['pki_httpcore_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_javassist_jar'],
+                deployer.master_dict['pki_javassist_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_api_jar'],
+                deployer.master_dict['pki_resteasy_jaxrs_api_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_jettison_jar'],
+                deployer.master_dict['pki_jettison_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_jss_jar'],
+                deployer.master_dict['pki_jss_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_ldapjdk_jar'],
+                deployer.master_dict['pki_ldapjdk_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_tomcat_jar'],
+                deployer.master_dict['pki_tomcat_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_atom_provider_jar'],
+                deployer.master_dict['pki_resteasy_atom_provider_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxb_provider_jar'],
+                deployer.master_dict['pki_resteasy_jaxb_provider_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_jar'],
+                deployer.master_dict['pki_resteasy_jaxrs_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jettison_provider_jar'],
+                deployer.master_dict['pki_resteasy_jettison_provider_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_scannotation_jar'],
+                deployer.master_dict['pki_scannotation_jar_link'])
+            if deployer.master_dict['pki_subsystem'] == 'TKS':
+                deployer.symlink.create(deployer.master_dict['pki_symkey_jar'],
+                    deployer.master_dict['pki_symkey_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_tomcatjss_jar'],
+                deployer.master_dict['pki_tomcatjss_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_velocity_jar'],
+                deployer.master_dict['pki_velocity_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_xerces_j2_jar'],
+                deployer.master_dict['pki_xerces_j2_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_xml_commons_apis_jar'],
+                deployer.master_dict['pki_xml_commons_apis_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_xml_commons_resolver_jar'],
+                deployer.master_dict['pki_xml_commons_resolver_jar_link'])
         # establish shared NSS security databases for this instance
-        util.directory.create(master['pki_database_path'])
+        deployer.directory.create(deployer.master_dict['pki_database_path'])
         # establish instance convenience symbolic links
-        util.symlink.create(master['pki_database_path'],
-                            master['pki_instance_database_link'])
-        util.symlink.create(master['pki_instance_configuration_path'],
-                            master['pki_instance_conf_link'])
-        util.symlink.create(master['pki_instance_log_path'],
-                            master['pki_instance_logs_link'])
+        deployer.symlink.create(deployer.master_dict['pki_database_path'],
+                            deployer.master_dict['pki_instance_database_link'])
+        deployer.symlink.create(deployer.master_dict['pki_instance_configuration_path'],
+                            deployer.master_dict['pki_instance_conf_link'])
+        deployer.symlink.create(deployer.master_dict['pki_instance_log_path'],
+                            deployer.master_dict['pki_instance_logs_link'])
         return self.rv
 
-    def destroy(self):
+    def destroy(self, deployer):
+
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if master['pki_subsystem'] == 'TKS':
-            util.symlink.delete(master['pki_symkey_jar_link'])
-        if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-           util.instance.apache_instance_subsystems() == 0:
+        if deployer.master_dict['pki_subsystem'] == 'TKS':
+            deployer.symlink.delete(deployer.master_dict['pki_symkey_jar_link'])
+        if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+           deployer.instance.apache_instance_subsystems() == 0:
             # remove Apache instance base
-            util.directory.delete(master['pki_instance_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_path'])
             # remove Apache instance logs
             # remove shared NSS security database path for this instance
-            util.directory.delete(master['pki_database_path'])
+            deployer.directory.delete(deployer.master_dict['pki_database_path'])
             # remove Apache instance configuration
-            util.directory.delete(master['pki_instance_configuration_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_configuration_path'])
             # remove Apache instance registry
-            util.directory.delete(master['pki_instance_registry_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_registry_path'])
             # remove Apache PKI registry (if empty)
-            if util.instance.apache_instances() == 0:
-                util.directory.delete(
-                    master['pki_instance_type_registry_path'])
-        elif master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-             len(util.instance.tomcat_instance_subsystems()) == 0:
+            if deployer.instance.apache_instances() == 0:
+                deployer.directory.delete(
+                    deployer.master_dict['pki_instance_type_registry_path'])
+        elif deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+             len(deployer.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base
-            util.directory.delete(master['pki_instance_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_path'])
             # remove Tomcat instance logs
-            util.directory.delete(master['pki_instance_log_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_log_path'])
             # remove shared NSS security database path for this instance
-            util.directory.delete(master['pki_database_path'])
+            deployer.directory.delete(deployer.master_dict['pki_database_path'])
             # remove Tomcat instance configuration
-            util.directory.delete(master['pki_instance_configuration_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_configuration_path'])
             # remove PKI 'tomcat.conf' instance file
-            util.file.delete(master['pki_target_tomcat_conf_instance_id'])
+            deployer.file.delete(deployer.master_dict['pki_target_tomcat_conf_instance_id'])
             # remove Tomcat instance registry
-            util.directory.delete(master['pki_instance_registry_path'])
+            deployer.directory.delete(deployer.master_dict['pki_instance_registry_path'])
             # remove Tomcat PKI registry (if empty)
-            if util.instance.tomcat_instances() == 0:
-                util.directory.delete(
-                    master['pki_instance_type_registry_path'])
+            if deployer.instance.tomcat_instances() == 0:
+                deployer.directory.delete(
+                    deployer.master_dict['pki_instance_type_registry_path'])
         return self.rv

@@ -21,9 +21,7 @@
 
 # PKI Deployment Imports
 import pkiconfig as config
-from pkiconfig import pki_master_dict as master
 from pkiconfig import pki_selinux_config_ports as ports
-import pkihelper as util
 import pkimessages as log
 import pkiscriptlet
 import selinux
@@ -37,14 +35,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
     suffix = "(/.*)?"
 
-    def restore_context(self):
-        selinux.restorecon(master['pki_instance_path'], True)
+    def restore_context(self, master_dict):
+        selinux.restorecon(master_dict['pki_instance_path'], True)
         selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(master['pki_instance_log_path'], True)
-        selinux.restorecon(master['pki_instance_configuration_path'], True)
+        selinux.restorecon(master_dict['pki_instance_log_path'], True)
+        selinux.restorecon(master_dict['pki_instance_configuration_path'], True)
 
-    def spawn(self):
-        if config.str2bool(master['pki_skip_installation']):
+    def spawn(self, deployer):
+
+        if config.str2bool(deployer.master_dict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SELINUX_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
@@ -62,46 +61,46 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         while True:
             try:
                 # check first if any transactions are required
-                if len(ports) == 0 and master['pki_instance_name'] == \
+                if len(ports) == 0 and deployer.master_dict['pki_instance_name'] == \
                     config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                    self.restore_context()
+                    self.restore_context(master)
                     return self.rv
 
                 # add SELinux contexts when adding the first subsystem
-                if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-                    util.instance.apache_instance_subsystems() == 1 or\
-                    master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                    len(util.instance.tomcat_instance_subsystems()) == 1:
+                if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+                    deployer.instance.apache_instance_subsystems() == 1 or\
+                    deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                    len(deployer.instance.tomcat_instance_subsystems()) == 1:
 
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
-                    if master['pki_instance_name'] != \
+                    if deployer.master_dict['pki_instance_name'] != \
                         config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
                         fcon = seobject.fcontextRecords()
 
                         config.pki_log.info("adding selinux fcontext \"%s\"",
-                        master['pki_instance_path'] + self.suffix,
+                        deployer.master_dict['pki_instance_path'] + self.suffix,
                         extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(master['pki_instance_path'] + self.suffix,
+                        fcon.add(deployer.master_dict['pki_instance_path'] + self.suffix,
                                  config.PKI_INSTANCE_SELINUX_CONTEXT, "", "s0", "")
 
                         config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            master['pki_instance_log_path'] + self.suffix,
+                                            deployer.master_dict['pki_instance_log_path'] + self.suffix,
                                             extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(master['pki_instance_log_path'] + self.suffix,
+                        fcon.add(deployer.master_dict['pki_instance_log_path'] + self.suffix,
                                  config.PKI_LOG_SELINUX_CONTEXT, "", "s0", "")
 
                         config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            master['pki_instance_configuration_path'] + self.suffix,
+                                            deployer.master_dict['pki_instance_configuration_path'] + self.suffix,
                                             extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(master['pki_instance_configuration_path'] + self.suffix,
+                        fcon.add(deployer.master_dict['pki_instance_configuration_path'] + self.suffix,
                                  config.PKI_CFG_SELINUX_CONTEXT, "", "s0", "")
 
                         config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            master['pki_database_path'] + self.suffix,
+                                            deployer.master_dict['pki_database_path'] + self.suffix,
                                             extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(master['pki_database_path'] + self.suffix,
+                        fcon.add(deployer.master_dict['pki_database_path'] + self.suffix,
                                  config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
 
                         portRecords = seobject.portRecords()
@@ -112,7 +111,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                     trans.finish()
 
-                    self.restore_context()
+                    self.restore_context(deployer.master_dict)
                 break
             except ValueError as e:
                 error_message = str(e)
@@ -128,7 +127,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         return self.rv
 
-    def destroy(self):
+    def destroy(self, deployer):
+
         if not bool(selinux.is_selinux_enabled()):
             config.pki_log.info(log.SELINUX_DISABLED_DESTROY_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -137,7 +137,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # check first if any transactions are required
-        if len(ports) == 0 and master['pki_instance_name'] == \
+        if len(ports) == 0 and deployer.master_dict['pki_instance_name'] == \
            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
                return self.rv
         # A maximum of 10 tries to delete the SELinux contexts
@@ -146,39 +146,39 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         while True:
             try:
                 # remove SELinux contexts when removing the last subsystem
-                if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-                    util.instance.apache_instance_subsystems() == 0 or\
-                    master['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                    len(util.instance.tomcat_instance_subsystems()) == 0:
+                if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+                    deployer.instance.apache_instance_subsystems() == 0 or\
+                    deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+                    len(deployer.instance.tomcat_instance_subsystems()) == 0:
 
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
 
-                    if master['pki_instance_name'] != \
+                    if deployer.master_dict['pki_instance_name'] != \
                         config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
                         fcon = seobject.fcontextRecords()
 
                         config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                     master['pki_instance_path'] + self.suffix,
+                                     deployer.master_dict['pki_instance_path'] + self.suffix,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(master['pki_instance_path'] + self.suffix , "")
+                        fcon.delete(deployer.master_dict['pki_instance_path'] + self.suffix , "")
 
                         config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                 master['pki_instance_log_path'] + self.suffix,
+                                 deployer.master_dict['pki_instance_log_path'] + self.suffix,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(master['pki_instance_log_path'] + self.suffix, "")
+                        fcon.delete(deployer.master_dict['pki_instance_log_path'] + self.suffix, "")
 
                         config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                  master['pki_instance_configuration_path'] + self.suffix,
+                                  deployer.master_dict['pki_instance_configuration_path'] + self.suffix,
                                   extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(master['pki_instance_configuration_path'] + \
+                        fcon.delete(deployer.master_dict['pki_instance_configuration_path'] + \
                                     self.suffix, "")
 
                         config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                     master['pki_database_path'] + self.suffix,
+                                     deployer.master_dict['pki_database_path'] + self.suffix,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(master['pki_database_path'] + self.suffix , "")
+                        fcon.delete(deployer.master_dict['pki_database_path'] + self.suffix , "")
 
                         portRecords = seobject.portRecords()
                         for port in ports:

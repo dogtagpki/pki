@@ -167,11 +167,6 @@ pki_log_name = None
 pki_log_level = None
 pki_console_log_level = None
 
-
-# PKI Deployment Global Dictionaries
-pki_master_dict = {}
-pki_slots_dict = None
-
 # PKI Selinux Constants and parameters
 PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
 PKI_LOG_SELINUX_CONTEXT      = "pki_tomcat_log_t"
