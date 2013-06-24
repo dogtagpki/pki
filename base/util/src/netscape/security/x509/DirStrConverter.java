@@ -72,6 +72,7 @@ public class DirStrConverter implements AVAValueConverter {
      */
     private static byte[] DefEncodingOrder =
             new byte[] {
+                    DerValue.tag_UTF8String,
                     DerValue.tag_PrintableString,
                     DerValue.tag_T61String,
                     DerValue.tag_UniversalString
