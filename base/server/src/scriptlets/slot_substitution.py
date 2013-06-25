@@ -73,13 +73,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.master_dict['pki_target_subsystem_web_xml'])
             # Strip "<filter>" section from subsystem "web.xml"
             # This is ONLY necessary because XML comments cannot be "nested"!
-            #deployer.file.copy(deployer.master_dict['pki_target_subsystem_web_xml'],
+            # deployer.file.copy(deployer.master_dict['pki_target_subsystem_web_xml'],
             #               deployer.master_dict['pki_target_subsystem_web_xml_orig'])
-            #deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml'])
-            #util.xml_file.remove_filter_section_from_web_xml(
+            # deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml'])
+            # util.xml_file.remove_filter_section_from_web_xml(
             #    deployer.master_dict['pki_target_subsystem_web_xml_orig'],
             #    deployer.master_dict['pki_target_subsystem_web_xml'])
-            #deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml_orig'])
+            # deployer.file.delete(deployer.master_dict['pki_target_subsystem_web_xml_orig'])
             if deployer.master_dict['pki_subsystem'] == "CA":
                 deployer.file.copy_with_slot_substitution(
                     deployer.master_dict['pki_source_proxy_conf'],

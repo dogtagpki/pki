@@ -79,7 +79,7 @@ class file:
                     c.writerow(tuple(record))
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra = config.PKI_INDENTATION_LEVEL_1)
+                                 extra=config.PKI_INDENTATION_LEVEL_1)
             raise
 
     def read(self):
@@ -90,7 +90,7 @@ class file:
                     print tuple(row)
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra = config.PKI_INDENTATION_LEVEL_1)
+                                 extra=config.PKI_INDENTATION_LEVEL_1)
             raise
 
 # PKI Deployment Global Named Tuples

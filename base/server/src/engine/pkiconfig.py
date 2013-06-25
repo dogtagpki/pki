@@ -37,10 +37,10 @@ PKI_DEPLOYMENT_DEFAULT_SHELL = "/sbin/nologin"
 PKI_DEPLOYMENT_DEFAULT_UID = 17
 PKI_DEPLOYMENT_DEFAULT_USER = "pkiuser"
 
-PKI_SUBSYSTEMS = ["CA","KRA","OCSP","RA","TKS","TPS"]
-PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS","TPS"]
+PKI_SUBSYSTEMS = ["CA", "KRA", "OCSP", "RA", "TKS", "TPS"]
+PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
 PKI_APACHE_SUBSYSTEMS = ["RA"]
-PKI_TOMCAT_SUBSYSTEMS = ["CA","KRA","OCSP","TKS", "TPS"]
+PKI_TOMCAT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
 PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
                            "lib", "logs", "ocsp", "temp", "tks", "tps", "webapps",
                            "work"]
@@ -78,9 +78,9 @@ PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 DEFAULT_DEPLOYMENT_CONFIGURATION = "default.cfg"
 USER_DEPLOYMENT_CONFIGURATION = "deployment.cfg"
 
-PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE =\
+PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = \
     PKI_DEPLOYMENT_CONFIGURATION_ROOT + "/" + DEFAULT_DEPLOYMENT_CONFIGURATION
-PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE =\
+PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE = \
     PKI_DEPLOYMENT_SOURCE_ROOT + "/deployment/config/pkislots.cfg"
 
 # subtypes of PKI subsystems
@@ -169,8 +169,8 @@ pki_console_log_level = None
 
 # PKI Selinux Constants and parameters
 PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
-PKI_LOG_SELINUX_CONTEXT      = "pki_tomcat_log_t"
-PKI_CFG_SELINUX_CONTEXT      = "pki_tomcat_etc_rw_t"
-PKI_CERTDB_SELINUX_CONTEXT   = "pki_tomcat_cert_t"
-PKI_PORT_SELINUX_CONTEXT     = "http_port_t"
+PKI_LOG_SELINUX_CONTEXT = "pki_tomcat_log_t"
+PKI_CFG_SELINUX_CONTEXT = "pki_tomcat_etc_rw_t"
+PKI_CERTDB_SELINUX_CONTEXT = "pki_tomcat_cert_t"
+PKI_PORT_SELINUX_CONTEXT = "http_port_t"
 pki_selinux_config_ports = []

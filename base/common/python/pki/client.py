@@ -35,7 +35,7 @@ class PKIConnection:
         self.port = port
         self.subsystem = subsystem
 
-        self.serverURI = self.protocol + '://' +\
+        self.serverURI = self.protocol + '://' + \
             self.hostname + ':' + self.port + '/' + \
             self.subsystem
 

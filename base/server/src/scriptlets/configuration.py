@@ -74,7 +74,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Start/Restart this Apache/Tomcat PKI Process
         if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-            apache_instance_subsystems =\
+            apache_instance_subsystems = \
                 deployer.instance.apache_instance_subsystems()
             if apache_instance_subsystems == 1:
                 deployer.systemd.start()
@@ -86,7 +86,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if config.str2bool(deployer.master_dict['pki_enable_java_debugger']):
                 config.prepare_for_an_external_java_debugger(
                     deployer.master_dict['pki_target_tomcat_conf_instance_id'])
-            tomcat_instance_subsystems =\
+            tomcat_instance_subsystems = \
                 len(deployer.instance.tomcat_instance_subsystems())
             if tomcat_instance_subsystems == 1:
                 deployer.systemd.start()
@@ -115,7 +115,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         elif deployer.master_dict['pki_instance_type'] == "Tomcat":
             # CA, KRA, OCSP, TKS, or TPS
             data = deployer.config_client.construct_pki_configuration_data()
-        
+
         # Configure the substem
         deployer.config_client.configure_pki_data(
             json.dumps(data, cls=pki.encoder.CustomTypeEncoder))

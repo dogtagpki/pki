@@ -29,12 +29,12 @@ import pki
 import pki.util
 
 
-DEFAULT_VERSION    = '10.0.0'
+DEFAULT_VERSION = '10.0.0'
 
-UPGRADE_DIR        = pki.SHARE_DIR + '/upgrade'
-BACKUP_DIR         = pki.LOG_DIR + '/upgrade'
-SYSTEM_TRACKER     = pki.CONF_DIR + '/pki.version'
-verbose            = False
+UPGRADE_DIR = pki.SHARE_DIR + '/upgrade'
+BACKUP_DIR = pki.LOG_DIR + '/upgrade'
+SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
+verbose = False
 
 
 @functools.total_ordering
@@ -172,14 +172,14 @@ class PKIUpgradeTracker(object):
             i = self.properties.index(self.version_key)
             if i >= 0:
                 # if version exists, add index after version
-                self.properties.set(self.index_key, str(index), index=i+1)
+                self.properties.set(self.index_key, str(index), index=i + 1)
 
             else:
                 # otherwise, add index at the end separated by a blank line
 
                 # if last line is not empty, append empty line
                 length = len(self.properties.lines)
-                if length > 0 and self.properties.lines[length-1] != '':
+                if length > 0 and self.properties.lines[length - 1] != '':
                     self.properties.insert_line(length, '')
                     length = length + 1
 
@@ -219,7 +219,7 @@ class PKIUpgradeTracker(object):
 
             # if last line is not empty, append empty line
             length = len(self.properties.lines)
-            if length > 0 and self.properties.lines[length-1] != '':
+            if length > 0 and self.properties.lines[length - 1] != '':
                 self.properties.insert_line(length, '')
                 length = length + 1
 
@@ -460,7 +460,7 @@ class PKIUpgrader(object):
                 raise pki.PKIException('Invalid scriptlet name: ' + filename, e)
 
             index = int(filename[0:i])
-            classname = filename[i+1:]
+            classname = filename[i + 1:]
 
             if self.index and index != self.index:
                 continue

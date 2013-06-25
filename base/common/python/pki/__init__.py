@@ -23,12 +23,12 @@ import os
 import re
 
 
-CONF_DIR          = '/etc/pki'
-SHARE_DIR         = '/usr/share/pki'
-BASE_DIR          = '/var/lib'
-LOG_DIR           = '/var/log/pki'
+CONF_DIR = '/etc/pki'
+SHARE_DIR = '/usr/share/pki'
+BASE_DIR = '/var/lib'
+LOG_DIR = '/var/log/pki'
 
-PACKAGE_VERSION   = SHARE_DIR + '/VERSION'
+PACKAGE_VERSION = SHARE_DIR + '/VERSION'
 
 
 def read_text(message,

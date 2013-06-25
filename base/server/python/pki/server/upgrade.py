@@ -28,10 +28,10 @@ import pki.server
 
 from pki.upgrade import verbose
 
-UPGRADE_DIR       = pki.SHARE_DIR + '/server/upgrade'
-BACKUP_DIR        = pki.LOG_DIR + '/server/upgrade'
+UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
+BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
 
-INSTANCE_TRACKER  = '%s/tomcat.conf'
+INSTANCE_TRACKER = '%s/tomcat.conf'
 SUBSYSTEM_TRACKER = '%s/CS.cfg'
 
 
@@ -168,8 +168,8 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         list = []
 
-        if not self.instanceType or self.instanceType >=10:
-            if os.path.exists(os.path.join(pki.server.REGISTRY_DIR,'tomcat')):
+        if not self.instanceType or self.instanceType >= 10:
+            if os.path.exists(os.path.join(pki.server.REGISTRY_DIR, 'tomcat')):
                 for instanceName in os.listdir(pki.server.INSTANCE_BASE_DIR):
                     if not self.instanceName or \
                         self.instanceName == instanceName:

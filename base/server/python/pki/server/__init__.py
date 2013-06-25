@@ -25,8 +25,8 @@ import os
 import pki
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
-REGISTRY_DIR      = '/etc/sysconfig/pki'
-SUBSYSTEM_TYPES   = ['ca', 'kra', 'ocsp', 'tks']
+REGISTRY_DIR = '/etc/sysconfig/pki'
+SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks']
 
 
 class PKISubsystem(object):
@@ -84,7 +84,7 @@ class PKIInstance(object):
 
 class PKIServerException(pki.PKIException):
 
-    def __init__(self, message, exception=None,\
+    def __init__(self, message, exception=None, \
                  instance=None, subsystem=None):
 
         pki.PKIException.__init__(self, message, exception)

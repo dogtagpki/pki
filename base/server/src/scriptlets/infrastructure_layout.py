@@ -60,7 +60,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         print "Storing deployment configuration into " + deployer.master_dict['pki_user_deployment_cfg_replica'] + "."
 
-        #Archive the user deployment configuration excluding the sensitive parameters
+        # Archive the user deployment configuration excluding the sensitive parameters
         sensitive_parameters = deployer.master_dict['sensitive_parameters'].split()
         sections = config.user_config.sections()
         for s in sections:
@@ -87,7 +87,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # and will already exist
         # deployer.directory.create(deployer.master_dict['pki_log_path'])
         # establish top-level infrastructure configuration
-        if deployer.master_dict['pki_configuration_path'] !=\
+        if deployer.master_dict['pki_configuration_path'] != \
            config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
             deployer.directory.create(deployer.master_dict['pki_configuration_path'])
         return self.rv
@@ -106,7 +106,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # deployer.directory.delete(deployer.master_dict['pki_log_path'])
             # remove top-level infrastructure configuration
             if deployer.directory.is_empty(deployer.master_dict['pki_configuration_path'])\
-               and deployer.master_dict['pki_configuration_path'] !=\
+               and deployer.master_dict['pki_configuration_path'] != \
                config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
                 deployer.directory.delete(deployer.master_dict['pki_configuration_path'])
             # remove top-level infrastructure registry

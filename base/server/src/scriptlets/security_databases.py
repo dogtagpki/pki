@@ -62,7 +62,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
-            # only create a self signed cert for a new instance  
+            # only create a self signed cert for a new instance
             rv = deployer.certutil.verify_certificate_exists(
                  deployer.master_dict['pki_database_path'],
                  deployer.master_dict['pki_cert_database'],

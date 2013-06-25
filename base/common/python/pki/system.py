@@ -87,7 +87,7 @@ class SystemStatusClient:
         self.connection = connection
 
     def getStatus(self):
-        r = self.connection.get('/admin/' +\
+        r = self.connection.get('/admin/' + \
                 self.connection.subsystem + '/getStatus')
         return r.text
 
