@@ -1048,7 +1048,7 @@ public class ConfigureTPS
 
 		parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
 							x_client_certdb_dir); 
-        parser.addOption ("-client_token_name %s #client token name",
+        parser.addOption ("-client_token_name %s #client token name (optional, default is internal)",
                             x_client_token_name);
 		parser.addOption ("-client_certdb_pwd %s #client certdb password",
 							x_client_certdb_pwd); 

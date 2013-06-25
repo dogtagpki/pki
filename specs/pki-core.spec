@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.26
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -750,6 +750,8 @@ fi
 
 
 %changelog
+* Tue Jun 25 2013 Jack Magne <jmagne@redhat.com> 9.0.26-2
+- Bugzilla Bug #976788 - pki-ca 9.0.26 add new required option, -client_token_name
 * Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.26-1
 - Bugzilla Bug #912554 - [RFE] Random certificate serial numbers
 - Bugzilla Bug #958310 - [RFE] Randomized certificate validity

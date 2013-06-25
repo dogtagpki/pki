@@ -1117,7 +1117,7 @@ public class ConfigureSubCA
 
         parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
                             x_client_certdb_dir); 
-        parser.addOption("-client_token_name %s #client token name",
+        parser.addOption("-client_token_name %s #client token name (optional, default is internal)",
                             x_client_token_name); 
         parser.addOption ("-client_certdb_pwd %s #client certdb password",
                             x_client_certdb_pwd); 
@@ -1196,9 +1196,9 @@ public class ConfigureSubCA
         parser.addOption ("-agent_cert_subject %s #Agent Cert Subject",
                             x_agent_cert_subject); 
 
-        parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false]",
+        parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false] (optional, default is false)",
                 x_save_p12);
-        parser.addOption ("-backup_pwd %s #PKCS12 backup password",
+        parser.addOption ("-backup_pwd %s #PKCS12 backup password (optional)",
                             x_backup_pwd); 
 
         parser.addOption ("-subsystem_name %s #Subsystem name",
@@ -1247,7 +1247,7 @@ public class ConfigureSubCA
         ca_ssl_port = x_ca_ssl_port.value;
 
         client_certdb_dir = x_client_certdb_dir.value;
-        client_token_name = x_client_token_name.value;
+        client_token_name = set_default(x_client_token_name.value, "internal");
         client_certdb_pwd = x_client_certdb_pwd.value;
         pin = x_preop_pin.value;
         domain_name = x_domain_name.value;
@@ -1304,7 +1304,7 @@ public class ConfigureSubCA
         agent_key_type = x_agent_key_type.value;
         agent_cert_subject = x_agent_cert_subject.value;
 
-        save_p12 = x_save_p12.value;
+        save_p12 = set_default(x_save_p12.value, "false");
         backup_pwd = x_backup_pwd.value;
         subsystem_name = x_subsystem_name.value;
         

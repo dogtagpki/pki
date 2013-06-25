@@ -1457,7 +1457,7 @@ public class ConfigureCA {
         parser.addOption("-cs_port %s #CS SSL Admin port", x_cs_port); 
         parser.addOption("-client_certdb_dir %s #Client CertDB dir",
                 x_client_certdb_dir); 
-        parser.addOption("-client_token_name %s #client token name",
+        parser.addOption("-client_token_name %s #client token name (optional, default is internal)",
                 x_client_token_name); 
         parser.addOption("-client_certdb_pwd %s #client certdb password",
                 x_client_certdb_pwd); 
@@ -1523,9 +1523,9 @@ public class ConfigureCA {
         parser.addOption("-token_pwd %s #HSM/Software Token password (optional - only required for HSM)",
                 x_token_pwd); 
 
-        parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false]",
+        parser.addOption("-save_p12 %s #Enable/Disable p12 Export[true,false] (optional, default is false)",
                 x_save_p12); 
-        parser.addOption("-backup_pwd %s #Backup Password for p12 (optional, only required if -save_p12 = true)", x_backup_pwd); 
+        parser.addOption("-backup_pwd %s #Backup Password for p12 (optional)", x_backup_pwd); 
         parser.addOption("-backup_fname %s #Backup File for p12, (optional, default is /root/tmp-ca.p12)", x_backup_fname);
 
         parser.addOption("-ca_sign_cert_subject_name %s #CA cert subject name",
@@ -1586,7 +1586,7 @@ public class ConfigureCA {
         cs_hostname = x_cs_hostname.value;
         cs_port = x_cs_port.value;
         client_certdb_dir = x_client_certdb_dir.value;
-        client_token_name = x_client_token_name.value;
+        client_token_name = set_default(x_client_token_name.value, "internal");
         client_certdb_pwd = x_client_certdb_pwd.value;
         pin = x_preop_pin.value;
         domain_name = x_domain_name.value;
@@ -1638,7 +1638,7 @@ public class ConfigureCA {
          
         token_name = x_token_name.value;
         token_pwd = x_token_pwd.value;
-        save_p12 = x_save_p12.value;
+        save_p12 = set_default(x_save_p12.value, "false");
         backup_pwd = x_backup_pwd.value;
         backup_fname = set_default(x_backup_fname.value, "/root/tmp-ca.p12");
 
