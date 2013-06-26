@@ -2994,7 +2994,13 @@ class config_client:
             config.pki_log.debug(log.PKI_CONFIG_RESPONSE_STATUS +\
                                    " " + str(response['status']),
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            certs = response['systemCerts']
+            try:
+                certs = response['systemCerts']
+            except KeyError:
+                # no system certs created
+                config.pki_log.debug("No new system certificates generated.",
+                                      extra=config.PKI_INDENTATION_LEVEL_2)
+                certs = []
             if not isinstance(certs, types.ListType):
                 certs = [certs]
             for cdata in certs:
