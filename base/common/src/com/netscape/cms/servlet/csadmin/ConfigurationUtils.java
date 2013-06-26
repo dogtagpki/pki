@@ -71,6 +71,7 @@ import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
@@ -970,12 +971,12 @@ public class ConfigurationUtils {
             Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
             PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
             String nickname = (String) pkeyinfo_v.elementAt(1);
-            if (! masterList.contains(nickname)) {
-                // TODO - fix this to only import the keys that we need.
-                CMS.debug("Ignoring " + nickname);
-                // only import the master's system keys
-            //    continue;
+
+            if (! importRequired(masterList,nickname)) {
+                CMS.debug("Ignoring key " + nickname);
+                continue;
             }
+
             byte[] x509cert = getX509Cert(nickname, cert_collection);
             X509Certificate cert = cm.importCACertPackage(x509cert);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1051,6 +1052,27 @@ public class ConfigurationUtils {
                 cm.importCACertPackage(cert);
             }
         }
+    }
+
+    private static boolean importRequired(ArrayList<String> masterList, String nickname) {
+        if (masterList.contains(nickname))
+            return true;
+        try {
+            X500Name xname = new X500Name(nickname);
+            for (String key: masterList) {
+                try {
+                    X500Name xkey = new X500Name(key);
+                    if (xkey.equals(xname)) return true;
+                } catch (IOException e) {
+                    // xkey not an X500Name
+                }
+            }
+
+        } catch (IOException e) {
+            // nickname is not a x500Name
+            return false;
+        }
+        return false;
     }
 
     public static X509Certificate getX509CertFromToken(byte[] cert)
