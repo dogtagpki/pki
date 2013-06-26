@@ -1,6 +1,6 @@
 Name:             pki-core
-Version:          9.0.26
-Release:          2%{?dist}
+Version:          9.0.27
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -750,8 +750,15 @@ fi
 
 
 %changelog
+* Wed Jun 26 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.27-1
+- Bugzilla Bug #976788 - pki-ca 9.0.26 add new required option, -client_token_name
+                         update
+- Bugzilla Bug #961522 - Added directory and pin enrollment profile
+- Bugzilla Bug #883122 - Added UTF8 to default encoding order
+
 * Tue Jun 25 2013 Jack Magne <jmagne@redhat.com> 9.0.26-2
 - Bugzilla Bug #976788 - pki-ca 9.0.26 add new required option, -client_token_name
+
 * Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.26-1
 - Bugzilla Bug #912554 - [RFE] Random certificate serial numbers
 - Bugzilla Bug #958310 - [RFE] Randomized certificate validity
@@ -768,7 +775,6 @@ fi
 - Bugzilla Bug #920816 - Cloning of CA with random serial number enabled
 - Bugzilla Bug #922264 - Allow for safe clone restart during configuration change
 - Bugzilla Bug #922121 - Cloning improvement for random certificate serial numbers
-
 
 * Tue Dec 11 2012 Andrew Wnuk<awnuk@redhat.com> 9.0.25-1
 - Bugzilla Bug #861467 - Directory authenticated user certificate enrollments

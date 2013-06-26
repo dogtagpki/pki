@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.14
+Version:          9.0.15
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -350,6 +350,11 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Wed Jun 26 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.15-1
+- Bugzilla Bug #951501 - corrected JavaScript issue with big numbers - update
+- Bugzilla Bug #961522 - [RFE] enrollment on Windows/IE does not set an option
+                               to allow private key export
+
 * Fri May 24 2013 Andrew Wnuk <awnuk@redhat.com> 9.0.14-1
 - Bugzilla Bug #912554 - [RFE] random certificate serial numbers
 - Bugzilla Bug #919556 - [RFE] Option to include nextUpdate as an offset
