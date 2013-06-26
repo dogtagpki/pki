@@ -122,12 +122,12 @@ pki_bind_password=
 tks_token_name=
 tks_token_password=
 
-##  PKI Instance-Specific Backup Variables
+##  PKI Instance-Specific Backup Variables (Optional)
 ##  (e. g. - Backup Key and Certificates Panel)
 ##  Note: in an ECC setup, you will most likely hook up the CS subsystems
 ##  with an HSM, so the keys cannot be backed up in this software fashion
 ##  so it's irrelevant
-tks_backup_password=redhat
+tks_backup_password=""
 
 ##  PKI Email Variables
 ##

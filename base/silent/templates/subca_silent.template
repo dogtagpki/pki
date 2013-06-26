@@ -105,9 +105,9 @@ pki_bind_password=
 subca_token_name=internal
 subca_token_password=
 
-##  PKI Instance-Specific Backup Variables
+##  PKI Instance-Specific Backup Variables (Optional)
 ##  (e. g. - Backup Key and Certificates Panel)
-subca_backup_password=redhat
+subca_backup_password=""
 
 ##  PKI Email Variables
 ##
@@ -335,10 +335,6 @@ if [ "${pki_bind_password}" = "" ] ; then
 fi
 if [ "${subca_token_password}" = "" ] ; then
 	printf "${usage_error_preamble} 'subca_token_password'!\n"
-	usage_errors=`expr ${usage_errors} + 1`
-fi
-if [ "${subca_backup_password}" = "" ] ; then
-	printf "${usage_error_preamble} 'subca_backup_password'!\n"
 	usage_errors=`expr ${usage_errors} + 1`
 fi
 if [ "${pki_email_name}" = "" ] ; then

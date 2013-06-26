@@ -117,13 +117,12 @@ ra_token_password=
 tps_token_name=internal
 tps_token_password=
 
-##  PKI Instance-Specific Backup Variables
+##  PKI Instance-Specific Backup Variables (Optional)
 ##  (e. g. - Backup Key and Certificates Panel)
-ca_backup_password=redhat
-kra_backup_password=redhat
-ocsp_backup_password=redhat
-tks_backup_password=redhat
-tps_backup_password=redhat
+ca_backup_password=""
+kra_backup_password=""
+ocsp_backup_password=""
+tks_backup_password=""
 
 ##  PKI Email Variables
 ##
@@ -788,7 +787,6 @@ tps_db_name="${pki_host}-${tps_instance_name}"
 tps_key_size=2048
 tps_key_type=rsa
 tps_ss_keygen=true
-tps_save_p12=false
 tps_server_cert_subject_name="cn=${pki_host},ou=${tps_instance_name},o=${pki_security_domain_name}"
 tps_server_cert_nickname="Server-Cert\ cert-${tps_instance_name}"
 tps_subsystem_cert_subject_name="cn=TPS\ Subsystem\ Certificate,ou=${tps_instance_name},o=${pki_security_domain_name}"
@@ -852,22 +850,6 @@ if [ "${ra_token_password}" = "" ] ; then
 fi
 if [ "${tps_token_password}" = "" ] ; then
 	printf "${usage_error_preamble} 'tps_token_password'!\n"
-	usage_errors=`expr ${usage_errors} + 1`
-fi
-if [ "${ca_backup_password}" = "" ] ; then
-	printf "${usage_error_preamble} 'ca_backup_password'!\n"
-	usage_errors=`expr ${usage_errors} + 1`
-fi
-if [ "${kra_backup_password}" = "" ] ; then
-	printf "${usage_error_preamble} 'kra_backup_password'!\n"
-	usage_errors=`expr ${usage_errors} + 1`
-fi
-if [ "${ocsp_backup_password}" = "" ] ; then
-	printf "${usage_error_preamble} 'ocsp_backup_password'!\n"
-	usage_errors=`expr ${usage_errors} + 1`
-fi
-if [ "${tks_backup_password}" = "" ] ; then
-	printf "${usage_error_preamble} 'tks_backup_password'!\n"
 	usage_errors=`expr ${usage_errors} + 1`
 fi
 if [ "${pki_email_name}" = "" ] ; then
@@ -1735,8 +1717,6 @@ pkisilent ConfigureTPS \
 	-agent_key_size ${tps_agent_key_size} \
 	-agent_key_type ${tps_agent_key_type} \
 	-agent_cert_subject "${tps_agent_cert_subject}" \
-	-save_p12 ${tps_save_p12} \
-	-backup_pwd ${tps_backup_password} \
 	-subsystem_name ${tps_subsystem_name} \
 	-ldap_auth_host ${tps_ldap_auth_host} \
 	-ldap_auth_port ${tps_ldap_auth_port} \
