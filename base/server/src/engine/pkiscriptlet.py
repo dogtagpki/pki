@@ -28,13 +28,13 @@ class AbstractBasePkiScriptlet(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def spawn(self):
+    def spawn(self, deployer):
         """Retrieve data from the specified PKI dictionary and
            use it to install a new PKI instance."""
         return
 
     @abc.abstractmethod
-    def destroy(self):
+    def destroy(self, deployer):
         """Retrieve data from the specified PKI dictionary and
            use it to destroy an existing PKI instance."""
         return

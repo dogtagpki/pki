@@ -25,11 +25,11 @@ import errno
 import sys
 import os
 import fileinput
-import pickle
 import random
 import re
 import requests
 import shutil
+from shutil import Error, WindowsError
 import string
 import subprocess
 import time
@@ -82,7 +82,7 @@ def pki_copytree(src, dst, symlinks=False, ignore=None):
     list of names relative to the `src` directory that should
     not be copied.
 
-    XXX Consider this example code rather than the ultimate tool.
+    *** Consider this example code rather than the ultimate tool.
 
     """
     names = os.listdir(src)
@@ -791,18 +791,18 @@ class ConfigurationFile:
         return
 
     def populate_non_default_ports(self):
-        if self.master_dict['pki_http_port'] != \
-            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT):
-                ports.append(self.master_dict['pki_http_port'])
-        if self.master_dict['pki_https_port'] != \
-            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT):
-                ports.append(self.master_dict['pki_https_port'])
-        if self.master_dict['pki_tomcat_server_port'] != \
-            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT):
-                ports.append(self.master_dict['pki_tomcat_server_port'])
-        if self.master_dict['pki_ajp_port'] != \
-            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT):
-                ports.append(self.master_dict['pki_ajp_port'])
+        if (self.master_dict['pki_http_port'] !=
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT)):
+            ports.append(self.master_dict['pki_http_port'])
+        if (self.master_dict['pki_https_port'] !=
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT)):
+            ports.append(self.master_dict['pki_https_port'])
+        if (self.master_dict['pki_tomcat_server_port'] !=
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT)):
+            ports.append(self.master_dict['pki_tomcat_server_port'])
+        if (self.master_dict['pki_ajp_port'] !=
+            str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT)):
+            ports.append(self.master_dict['pki_ajp_port'])
         return
 
     def verify_selinux_ports(self):
@@ -822,10 +822,10 @@ class ConfigurationFile:
         for port in portlist:
             context = ""
             for i in portrecs:
-                if portrecs[i][0] == "unreserved_port_t" or \
-                   portrecs[i][0] == "reserved_port_t" or \
-                   i[2] != "tcp":
-                       continue
+                if (portrecs[i][0] == "unreserved_port_t" or
+                    portrecs[i][0] == "reserved_port_t" or
+                    i[2] != "tcp"):
+                    continue
                 if i[0] <= int(port) and int(port) <= i[1]:
                     context = portrecs[i][0]
                     break
@@ -953,13 +953,13 @@ class Instance:
                 if os.path.isdir(os.path.join(self.master_dict['pki_path'], instance))\
                    and not\
                    os.path.islink(os.path.join(self.master_dict['pki_path'], instance)):
-                    dir = os.path.join(self.master_dict['pki_path'], instance)
+                    instance_dir = os.path.join(self.master_dict['pki_path'], instance)
                     # Since ANY directory within this PKI instance COULD
                     # be a PKI subsystem, look for all possible
                     # PKI subsystems within this PKI instance
-                    for name in os.listdir(dir):
-                        if os.path.isdir(os.path.join(dir, name)) and\
-                           not os.path.islink(os.path.join(dir, name)):
+                    for name in os.listdir(instance_dir):
+                        if os.path.isdir(os.path.join(instance_dir, name)) and\
+                           not os.path.islink(os.path.join(instance_dir, name)):
                             if name.upper() in config.PKI_SUBSYSTEMS:
                                 rv = rv + 1
             config.pki_log.debug(log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
@@ -979,8 +979,8 @@ class Instance:
                 path = self.master_dict['pki_instance_path'] + "/" + subsystem.lower()
                 if os.path.exists(path) and os.path.isdir(path):
                     rv.append(subsystem)
-        except OSErr as e:
-            config.pki_log.error(log.PKI_OSERROR_1, str(e),
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             raise
         return rv
@@ -1067,7 +1067,7 @@ class Instance:
         status = None
         while status != "running":
             status = self.get_instance_status()
-            time.sleep(1);
+            time.sleep(1)
             stop_time = datetime.today()
             if (stop_time - start_time).total_seconds() >= timeout:
                 break
@@ -1261,20 +1261,20 @@ class Directory:
                         for name in files:
                             entity = os.path.join(root, name)
                             if not os.path.islink(entity):
-                                file = entity
+                                temp_file = entity
                                 config.pki_log.debug(
-                                    log.PKIHELPER_IS_A_FILE_1, file,
+                                    log.PKIHELPER_IS_A_FILE_1, temp_file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
                                 # chmod <file_perms> <name>
                                 config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                    file_perms, file,
+                                    file_perms, temp_file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                                os.chmod(file, file_perms)
+                                os.chmod(temp_file, file_perms)
                                 # chown <uid>:<gid> <name>
                                 config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                    uid, gid, file,
+                                    uid, gid, temp_file,
                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                                os.chown(file, uid, gid)
+                                os.chown(temp_file, uid, gid)
                                 # Store record in installation manifest
                                 record = manifest.record()
                                 record.name = name
@@ -1313,20 +1313,20 @@ class Directory:
                                 record.acls = symlink_acls
                                 manifest.database.append(record)
                         for name in dirs:
-                            dir = os.path.join(root, name)
+                            temp_dir = os.path.join(root, name)
                             config.pki_log.debug(
-                                log.PKIHELPER_IS_A_DIRECTORY_1, dir,
+                                log.PKIHELPER_IS_A_DIRECTORY_1, temp_dir,
                                 extra=config.PKI_INDENTATION_LEVEL_3)
                             # chmod <dir_perms> <name>
                             config.pki_log.debug(log.PKIHELPER_CHMOD_2,
-                                dir_perms, dir,
+                                dir_perms, temp_dir,
                                 extra=config.PKI_INDENTATION_LEVEL_3)
-                            os.chmod(dir, dir_perms)
+                            os.chmod(temp_dir, dir_perms)
                             # chown <uid>:<gid> <name>
                             config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                uid, gid, dir,
+                                uid, gid, temp_dir,
                                 extra=config.PKI_INDENTATION_LEVEL_3)
-                            os.chown(dir, uid, gid)
+                            os.chown(temp_dir, uid, gid)
                             # Store record in installation manifest
                             record = manifest.record()
                             record.name = name
@@ -1759,19 +1759,19 @@ class File:
                 raise
         return
 
-    def generate_noise_file(self, name, bytes, uid=None, gid=None,
+    def generate_noise_file(self, name, random_bytes, uid=None, gid=None,
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
             acls=None, critical_failure=True):
         try:
             if not os.path.exists(name):
                 # generating noise file called <name> and
-                # filling it with <bytes> random bytes
-                config.pki_log.info(log.PKIHELPER_NOISE_FILE_2, name, bytes,
+                # filling it with <random_bytes> random bytes
+                config.pki_log.info(log.PKIHELPER_NOISE_FILE_2, name, random_bytes,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 open(name, "w").close()
                 with open(name, "w") as FILE:
                     noise = ''.join(random.choice(string.ascii_letters + \
-                                    string.digits) for x in range(bytes))
+                                    string.digits) for x in range(random_bytes))
                     FILE.write(noise)
                 # chmod <perms> <name>
                 config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
@@ -2033,7 +2033,6 @@ class Password:
                         else:
                             fd.write(self.master_dict['pki_self_signed_token'] + \
                                      "=" + str(pin))
-                    fd.closed
             else:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2048,7 +2047,6 @@ class Password:
                     else:
                         fd.write(self.master_dict['pki_self_signed_token'] + \
                                  "=" + str(pin))
-                fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2067,14 +2065,12 @@ class Password:
                     # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "wt") as fd:
                         fd.write(self.master_dict['pki_client_pkcs12_password'])
-                    fd.closed
             else:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # create a new 'pkcs12_password.conf' file
                 with open(path, "wt") as fd:
                     fd.write(self.master_dict['pki_client_pkcs12_password'])
-                fd.closed
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2091,7 +2087,7 @@ class Password:
                 token_name = hardware_token
                 token_pwd = tokens[hardware_token]
             elif tokens.has_key(token_name):
-                   token_pwd = tokens[token_name]
+                token_pwd = tokens[token_name]
 
         if token_pwd is None or token_pwd == '':
             # TODO prompt for this password
@@ -2176,7 +2172,6 @@ class Certutil:
                                   pki_key_database, pki_secmod_database,
                                   token, nickname, password_file=None,
                                   silent=True, critical_failure=True):
-        rv = 0
         try:
             # Compose this "certutil" command
             command = "certutil" + " " + "-L"
@@ -2696,7 +2691,7 @@ class KRAConnector:
 
     def execute_using_sslget(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport):
-        urlheader = "https://{}:{}".format(cahost, caport)
+        #urlheader = "https://{}:{}".format(cahost, caport) - unused variable
         updateURL = "/ca/rest/admin/kraconnector/remove"
 
         params = "host=" + str(krahost) + \
@@ -2713,9 +2708,8 @@ class KRAConnector:
         # Execute this "sslget" command
         # Note that sslget will return non-zero value for HTTP code != 200
         # and this will raise an exception
-        output = subprocess.check_output(command,
-                                         stderr=subprocess.STDOUT,
-                                         shell=True)
+        subprocess.check_output(command,stderr=subprocess.STDOUT,
+                                shell=True)
 
 class SecurityDomain:
     """PKI Deployment Security Domain Class"""
@@ -2734,12 +2728,12 @@ class SecurityDomain:
         sport = cs_cfg.get('service.securityDomainPort')
         ncsport = cs_cfg.get('service.non_clientauth_securePort', '')
         sechost = cs_cfg.get('securitydomain.host')
-        httpport = cs_cfg.get('securitydomain.httpport')
+        #httpport = cs_cfg.get('securitydomain.httpport') - Security domain http port
         seceeport = cs_cfg.get('securitydomain.httpseeport')
         secagentport = cs_cfg.get('securitydomain.httpsagentport')
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
         secname = cs_cfg.get('securitydomain.name', 'unknown')
-        secselect = cs_cfg.get('securitydomain.select')
+        #secselect = cs_cfg.get('securitydomain.select') - Selected security domain
         adminsport = cs_cfg.get('pkicreate.admin_secure_port', '')
         typeval = cs_cfg.get('cs.type', '')
         agentsport = cs_cfg.get('pkicreate.agent_secure_port', '')
@@ -2767,9 +2761,9 @@ class SecurityDomain:
                             secname,
                             extra=config.PKI_INDENTATION_LEVEL_2)
         listval = typeval.lower() + "List"
-        urlheader = "https://{}:{}".format(sechost, seceeport)
-        urlagentheader = "https://{}:{}".format(sechost, secagentport)
-        urladminheader = "https://{}:{}".format(sechost, secadminport)
+        #urlheader = "https://{}:{}".format(sechost, seceeport) - Security domain EE URL
+        #urlagentheader = "https://{}:{}".format(sechost, secagentport) - Agent URL
+        #urladminheader = "https://{}:{}".format(sechost, secadminport) - Admin URL
         updateURL = "/ca/agent/ca/updateDomainXML"
 
         params = "name=" + "\"" + self.master_dict['pki_instance_path'] + "\"" + \
@@ -2795,7 +2789,7 @@ class SecurityDomain:
                 output = subprocess.check_output(command,
                                              stderr=subprocess.STDOUT,
                                              shell=True)
-            except subprocess.CalledProcessError as exc:
+            except subprocess.CalledProcessError:
                 config.pki_log.warning(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
                     secname,
@@ -2818,7 +2812,7 @@ class SecurityDomain:
                              output,
                              extra=config.PKI_INDENTATION_LEVEL_2)
         # Search the output for Status
-        status = re.findall("\<Status\>(.*?)\<\/Status\>", output)
+        status = re.findall('<Status>(.*?)</Status>', output)
         if not status:
             config.pki_log.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
@@ -2827,7 +2821,7 @@ class SecurityDomain:
             if critical_failure == True:
                 raise Exception(log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 % secname)
         elif status[0] != "0":
-            error = re.findall("\<Error\>(.*?)\<\/Error\>", output)
+            error = re.findall('<Error>(.*?)</Error>', output)
             if not error:
                 error = ""
             config.pki_log.warning(
@@ -2942,7 +2936,7 @@ class SecurityDomain:
         cstype = cs_cfg.get('cs.type', '')
         sechost = cs_cfg.get('securitydomain.host')
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
-        secselect = cs_cfg.get('securitydomain.select')
+        #secselect = cs_cfg.get('securitydomain.select') - Selected security domain
 
         command = "/bin/pki -p '{}' -h '{}' -P https -u '{}' -w '{}' -d '{}' "\
                   "securitydomain-get-install-token --hostname {} "\
@@ -3468,7 +3462,7 @@ class ConfigClient:
             if self.master_dict['pki_subsystem'] == "CA"  and\
                config.str2bool(self.master_dict['pki_external_step_two']):
                 # External CA Step 2
-                data.stepTwo = "true";
+                data.stepTwo = "true"
 
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
