@@ -63,7 +63,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # check first if any transactions are required
                 if len(ports) == 0 and deployer.master_dict['pki_instance_name'] == \
                     config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                    self.restore_context(master)
+                    self.restore_context(deployer.master_dict)
                     return self.rv
 
                 # add SELinux contexts when adding the first subsystem
