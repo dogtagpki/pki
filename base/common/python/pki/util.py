@@ -25,9 +25,9 @@ import shutil
 
 def copyfile(source, dest):
 
-    dir = os.path.dirname(dest)
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+    dest_dir = os.path.dirname(dest)
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
 
     shutil.copy2(source, dest)
     st = os.stat(source)

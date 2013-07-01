@@ -16,7 +16,7 @@ class CustomTypeEncoder(json.JSONEncoder):
     def default(self, obj):
         for k, v in TYPES.items():
             if isinstance(obj, v):
-                return { k: obj.__dict__ }
+                return {k: obj.__dict__}
         for k, v in NOTYPES.items():
             if isinstance(obj, v):
                 return obj.__dict__

@@ -53,7 +53,7 @@ class PKIConfigParser:
     def __init__(self, description, epilog):
         self.pki_config = None
 
-        "Read and process command-line options"
+        #Read and process command-line options
         self.arg_parser = argparse.ArgumentParser(
                      description=description,
                      add_help=False,
@@ -92,7 +92,7 @@ class PKIConfigParser:
         self.pki_slots_dict = dict()
 
     # PKI Deployment Helper Functions
-    def process_command_line_arguments(self, argv):
+    def process_command_line_arguments(self):
 
         # Parse command-line options
         args = self.arg_parser.parse_args()
@@ -133,7 +133,7 @@ class PKIConfigParser:
                       config.pki_root_prefix
                 print
                 self.arg_parser.print_help()
-                self.arg_parser.exit(-1);
+                self.arg_parser.exit(-1)
 
         # always default that configuration file exists
         if not os.path.exists(config.default_deployment_cfg) or\
@@ -143,7 +143,7 @@ class PKIConfigParser:
                   config.default_deployment_cfg
             print
             self.arg_parser.print_help()
-            self.arg_parser.exit(-1);
+            self.arg_parser.exit(-1)
 
         if config.user_deployment_cfg:
             # verify user configuration file exists
@@ -153,8 +153,8 @@ class PKIConfigParser:
                       log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % \
                       config.user_deployment_cfg
                 print
-                parser.arg_parser.print_help()
-                parser.arg_parser.exit(-1);
+                self.arg_parser.print_help()
+                self.arg_parser.exit(-1)
 
 
     def init_config(self):
@@ -201,7 +201,7 @@ class PKIConfigParser:
         config.user_config.optionxform = str
 
         with open(config.default_deployment_cfg) as f:
-                self.pki_config.readfp(f)
+            self.pki_config.readfp(f)
 
         self.flatten_master_dict()
 
@@ -216,7 +216,7 @@ class PKIConfigParser:
                 # First, remove comments:
                 if PKIConfigParser.COMMENT_CHAR in line:
                     # split on comment char, keep only the part before
-                    line, comment = line.split(PKIConfigParser.COMMENT_CHAR, 1)
+                    line, _ = line.split(PKIConfigParser.COMMENT_CHAR, 1)
                 # Second, find lines with an name=value:
                 if PKIConfigParser.OPTION_CHAR in line:
                     # split on name char:
@@ -384,7 +384,7 @@ class PKIConfigParser:
 
             return True
 
-        except ldap.NO_SUCH_OBJECT as e:
+        except ldap.NO_SUCH_OBJECT:
             return False
 
     def ds_close(self):

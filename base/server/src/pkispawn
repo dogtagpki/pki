@@ -112,7 +112,7 @@ def main(argv):
         help='configuration filename '
             '(MUST specify complete path)')
 
-    args = parser.process_command_line_arguments(argv)
+    args = parser.process_command_line_arguments()
 
     config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 

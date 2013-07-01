@@ -121,7 +121,7 @@ def main(argv):
         help='security domain password file path')
                                  
 
-    args = parser.process_command_line_arguments(argv)
+    args = parser.process_command_line_arguments()
 
     interactive = False
 

@@ -137,19 +137,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # check first if any transactions are required
-        if len(ports) == 0 and deployer.master_dict['pki_instance_name'] == \
-           config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-               return self.rv
+        if (len(ports) == 0 and deployer.master_dict['pki_instance_name'] ==
+            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
+            return self.rv
         # A maximum of 10 tries to delete the SELinux contexts
         counter = 1
         max_tries = 10
         while True:
             try:
                 # remove SELinux contexts when removing the last subsystem
-                if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-                    deployer.instance.apache_instance_subsystems() == 0 or\
-                    deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                    len(deployer.instance.tomcat_instance_subsystems()) == 0:
+                if (deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and
+                    deployer.instance.apache_instance_subsystems() == 0 or
+                    deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and
+                    len(deployer.instance.tomcat_instance_subsystems()) == 0):
 
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
@@ -172,7 +172,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         config.pki_log.info("deleting selinux fcontext \"%s\"",
                                   deployer.master_dict['pki_instance_configuration_path'] + self.suffix,
                                   extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(deployer.master_dict['pki_instance_configuration_path'] + \
+                        fcon.delete(deployer.master_dict['pki_instance_configuration_path'] +
                                     self.suffix, "")
 
                         config.pki_log.info("deleting selinux fcontext \"%s\"",

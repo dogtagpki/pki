@@ -48,7 +48,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # verify that this type of "subsystem" currently EXISTS
                 # for this "instance" (External CA Step 2)
                 deployer.instance.verify_subsystem_exists()
-                deployer.master_dict['pki_skip_installation'] = "True";
+                deployer.master_dict['pki_skip_installation'] = "True"
             else:
                 # verify that this type of "subsystem" does NOT yet
                 # exist for this "instance"
