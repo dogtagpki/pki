@@ -53,8 +53,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_2)
         # for record in manifest.database:
         #     print tuple(record)
-        manifest.file.register(deployer.master_dict['pki_manifest'])
-        manifest.file.write()
+        manifest_file = manifest.File(deployer.manifest_db)
+        manifest_file.register(deployer.master_dict['pki_manifest'])
+        manifest_file.write()
         deployer.file.modify(deployer.master_dict['pki_manifest'], silent=True)
 
         # Also, for debugging/auditing purposes, save a timestamped copy of

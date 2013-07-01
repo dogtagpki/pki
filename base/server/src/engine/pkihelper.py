@@ -1079,6 +1079,7 @@ class Directory:
     def __init__(self, deployer):
         self.master_dict = deployer.master_dict
         self.identity = deployer.identity
+        self.manifest_db = deployer.manifest_db
 
     def create(self, name, uid=None, gid=None,
                perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
@@ -1103,7 +1104,7 @@ class Directory:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.chown(name, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_DIRECTORY
                 record.user = self.master_dict['pki_user']
@@ -1112,7 +1113,7 @@ class Directory:
                 record.gid = gid
                 record.permissions = perms
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
             elif not os.path.isdir(name):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name,
@@ -1161,7 +1162,7 @@ class Directory:
                 os.chown(name, uid, gid)
                 # Store record in installation manifest
                 if not silent:
-                    record = manifest.record()
+                    record = manifest.Record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_DIRECTORY
                     record.user = self.master_dict['pki_user']
@@ -1170,7 +1171,7 @@ class Directory:
                     record.gid = gid
                     record.permissions = perms
                     record.acls = acls
-                    manifest.database.append(record)
+                    self.manifest_db.append(record)
             else:
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
@@ -1276,7 +1277,7 @@ class Directory:
                                     extra=config.PKI_INDENTATION_LEVEL_3)
                                 os.chown(temp_file, uid, gid)
                                 # Store record in installation manifest
-                                record = manifest.record()
+                                record = manifest.Record()
                                 record.name = name
                                 record.type = manifest.RECORD_TYPE_FILE
                                 record.user = self.master_dict['pki_user']
@@ -1285,7 +1286,7 @@ class Directory:
                                 record.gid = gid
                                 record.permissions = file_perms
                                 record.acls = file_acls
-                                manifest.database.append(record)
+                                self.manifest_db.append(record)
                             else:
                                 symlink = entity
                                 config.pki_log.debug(
@@ -1302,7 +1303,7 @@ class Directory:
                                     extra=config.PKI_INDENTATION_LEVEL_3)
                                 os.lchown(symlink, uid, gid)
                                 # Store record in installation manifest
-                                record = manifest.record()
+                                record = manifest.Record()
                                 record.name = name
                                 record.type = manifest.RECORD_TYPE_SYMLINK
                                 record.user = self.master_dict['pki_user']
@@ -1311,7 +1312,7 @@ class Directory:
                                 record.gid = gid
                                 record.permissions = symlink_perms
                                 record.acls = symlink_acls
-                                manifest.database.append(record)
+                                self.manifest_db.append(record)
                         for name in dirs:
                             temp_dir = os.path.join(root, name)
                             config.pki_log.debug(
@@ -1328,7 +1329,7 @@ class Directory:
                                 extra=config.PKI_INDENTATION_LEVEL_3)
                             os.chown(temp_dir, uid, gid)
                             # Store record in installation manifest
-                            record = manifest.record()
+                            record = manifest.Record()
                             record.name = name
                             record.type = manifest.RECORD_TYPE_DIRECTORY
                             record.user = self.master_dict['pki_user']
@@ -1337,7 +1338,7 @@ class Directory:
                             record.gid = gid
                             record.permissions = dir_perms
                             record.acls = dir_acls
-                            manifest.database.append(record)
+                            self.manifest_db.append(record)
                 else:
                     config.pki_log.debug(
                         log.PKIHELPER_IS_A_DIRECTORY_1, name,
@@ -1354,7 +1355,7 @@ class Directory:
                                          extra=config.PKI_INDENTATION_LEVEL_3)
                     os.chown(name, uid, gid)
                     # Store record in installation manifest
-                    record = manifest.record()
+                    record = manifest.Record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_DIRECTORY
                     record.user = self.master_dict['pki_user']
@@ -1363,7 +1364,7 @@ class Directory:
                     record.gid = gid
                     record.permissions = dir_perms
                     record.acls = dir_acls
-                    manifest.database.append(record)
+                    self.manifest_db.append(record)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1437,6 +1438,7 @@ class File:
         self.master_dict = deployer.master_dict
         self.slots = deployer.slots
         self.identity = deployer.identity
+        self.manifest_db = deployer.manifest_db
 
     def create(self, name, uid=None, gid=None,
                perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
@@ -1461,7 +1463,7 @@ class File:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.chown(name, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_FILE
                 record.user = self.master_dict['pki_user']
@@ -1470,7 +1472,7 @@ class File:
                 record.gid = gid
                 record.permissions = perms
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
             elif not os.path.isfile(name):
                 config.pki_log.error(
                     log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name,
@@ -1519,7 +1521,7 @@ class File:
                 os.chown(name, uid, gid)
                 # Store record in installation manifest
                 if not silent:
-                    record = manifest.record()
+                    record = manifest.Record()
                     record.name = name
                     record.type = manifest.RECORD_TYPE_FILE
                     record.user = self.master_dict['pki_user']
@@ -1528,7 +1530,7 @@ class File:
                     record.gid = gid
                     record.permissions = perms
                     record.acls = acls
-                    manifest.database.append(record)
+                    self.manifest_db.append(record)
             else:
                 config.pki_log.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
@@ -1608,7 +1610,7 @@ class File:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.chown(new_name, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = new_name
                 record.type = manifest.RECORD_TYPE_FILE
                 record.user = self.master_dict['pki_user']
@@ -1617,7 +1619,7 @@ class File:
                 record.gid = gid
                 record.permissions = perms
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1668,7 +1670,7 @@ class File:
                                  extra=config.PKI_INDENTATION_LEVEL_3)
             os.chown(name, uid, gid)
             # Store record in installation manifest
-            record = manifest.record()
+            record = manifest.Record()
             record.name = name
             record.type = manifest.RECORD_TYPE_FILE
             record.user = self.master_dict['pki_user']
@@ -1677,7 +1679,7 @@ class File:
             record.gid = gid
             record.permissions = perms
             record.acls = acls
-            manifest.database.append(record)
+            self.manifest_db.append(record)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1737,7 +1739,7 @@ class File:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.chown(new_name, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = new_name
                 record.type = manifest.RECORD_TYPE_FILE
                 record.user = self.master_dict['pki_user']
@@ -1746,7 +1748,7 @@ class File:
                 record.gid = gid
                 record.permissions = perms
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -1787,7 +1789,7 @@ class File:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.chown(name, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = name
                 record.type = manifest.RECORD_TYPE_FILE
                 record.user = self.master_dict['pki_user']
@@ -1796,7 +1798,7 @@ class File:
                 record.gid = gid
                 record.permissions = perms
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
             elif not os.path.isfile(name):
                 config.pki_log.error(
                     log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name,
@@ -1819,6 +1821,7 @@ class Symlink:
     def __init__(self, deployer):
         self.master_dict = deployer.master_dict
         self.identity = deployer.identity
+        self.manifest_db = deployer.manifest_db
 
     def create(self, name, link, uid=None, gid=None,
                acls=None, allow_dangling_symlink=False, critical_failure=True):
@@ -1847,7 +1850,7 @@ class Symlink:
                                      extra=config.PKI_INDENTATION_LEVEL_3)
                 os.lchown(link, uid, gid)
                 # Store record in installation manifest
-                record = manifest.record()
+                record = manifest.Record()
                 record.name = link
                 record.type = manifest.RECORD_TYPE_SYMLINK
                 record.user = self.master_dict['pki_user']
@@ -1857,7 +1860,7 @@ class Symlink:
                 record.permissions = \
                     config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS
                 record.acls = acls
-                manifest.database.append(record)
+                self.manifest_db.append(record)
             elif not os.path.islink(link):
                 config.pki_log.error(
                     log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1, link,
@@ -1903,7 +1906,7 @@ class Symlink:
                 os.lchown(link, uid, gid)
                 # Store record in installation manifest
                 if not silent:
-                    record = manifest.record()
+                    record = manifest.Record()
                     record.name = link
                     record.type = manifest.RECORD_TYPE_SYMLINK
                     record.user = self.master_dict['pki_user']
@@ -1913,7 +1916,7 @@ class Symlink:
                     record.permissions = \
                         config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS
                     record.acls = acls
-                    manifest.database.append(record)
+                    self.manifest_db.append(record)
             else:
                 config.pki_log.error(
                     log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link,
@@ -2691,7 +2694,6 @@ class KRAConnector:
 
     def execute_using_sslget(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport):
-        #urlheader = "https://{}:{}".format(cahost, caport) - unused variable
         updateURL = "/ca/rest/admin/kraconnector/remove"
 
         params = "host=" + str(krahost) + \
@@ -2728,12 +2730,10 @@ class SecurityDomain:
         sport = cs_cfg.get('service.securityDomainPort')
         ncsport = cs_cfg.get('service.non_clientauth_securePort', '')
         sechost = cs_cfg.get('securitydomain.host')
-        #httpport = cs_cfg.get('securitydomain.httpport') - Security domain http port
         seceeport = cs_cfg.get('securitydomain.httpseeport')
         secagentport = cs_cfg.get('securitydomain.httpsagentport')
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
         secname = cs_cfg.get('securitydomain.name', 'unknown')
-        #secselect = cs_cfg.get('securitydomain.select') - Selected security domain
         adminsport = cs_cfg.get('pkicreate.admin_secure_port', '')
         typeval = cs_cfg.get('cs.type', '')
         agentsport = cs_cfg.get('pkicreate.agent_secure_port', '')
@@ -2761,9 +2761,6 @@ class SecurityDomain:
                             secname,
                             extra=config.PKI_INDENTATION_LEVEL_2)
         listval = typeval.lower() + "List"
-        #urlheader = "https://{}:{}".format(sechost, seceeport) - Security domain EE URL
-        #urlagentheader = "https://{}:{}".format(sechost, secagentport) - Agent URL
-        #urladminheader = "https://{}:{}".format(sechost, secadminport) - Admin URL
         updateURL = "/ca/agent/ca/updateDomainXML"
 
         params = "name=" + "\"" + self.master_dict['pki_instance_path'] + "\"" + \
@@ -3497,6 +3494,7 @@ class PKIDeployer:
         # Global dictionary variables
         self.master_dict = pki_master_dict
         self.slots = pki_slots_dict
+        self.manifest_db = []
 
         # Utility objects
         self.identity = Identity(self)

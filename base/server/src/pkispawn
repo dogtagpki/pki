@@ -28,16 +28,13 @@ if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print "Please upgrade to at least Python 2.7.0."
     sys.exit(1)
 try:
-    import argparse
     import ldap
-    import logging
     import os
     import requests
     import socket
     import struct
     import subprocess
     import time
-    import urllib2
     import traceback
     from time import strftime as date
     from pki.deployment import pkiconfig as config
@@ -373,7 +370,7 @@ def main(argv):
         instance = scriptlet.PkiScriptlet()
         try:
             rv = instance.spawn(deployer)
-        except:
+        except Exception:
             log_error_details()
             print
             print "Installation failed."
@@ -412,15 +409,16 @@ def print_install_information(pki_master_dict):
     print log.PKI_SPAWN_INFORMATION_FOOTER
 
 def log_error_details():
-        type, value, stacktrace = sys.exc_info()
-        config.pki_log.debug("Error Type: " + type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
-        config.pki_log.debug("Error Message: " + str(value), extra=config.PKI_INDENTATION_LEVEL_2)
-        stacktrace_list = traceback.format_list(traceback.extract_tb(stacktrace))
-        stacktrace = ""
-        for l in stacktrace_list:
-            stacktrace += l
-        config.pki_log.debug(stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
-        sys.exc_clear()
+
+    type, value, stacktrace = sys.exc_info()
+    config.pki_log.debug("Error Type: " + type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.debug("Error Message: " + str(value), extra=config.PKI_INDENTATION_LEVEL_2)
+    stacktrace_list = traceback.format_list(traceback.extract_tb(stacktrace))
+    stacktrace = ""
+    for l in stacktrace_list:
+        stacktrace += l
+    config.pki_log.debug(stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
+    sys.exc_clear()
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":

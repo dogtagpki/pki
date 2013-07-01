@@ -45,7 +45,7 @@ class Version(object):
         if isinstance(obj, str):
 
             # parse <version>-<release>
-            pos = parts = obj.find('-')
+            pos = obj.find('-')
 
             if pos > 0:
                 self.version = obj[0:pos]
@@ -77,30 +77,27 @@ class Version(object):
     # release is ignored in comparisons
 
     def __eq__(self, other):
-        return self.major == other.major and \
-            self.minor == other.minor and \
-            self.patch == other.patch
-
+        return (self.major == other.major and
+            self.minor == other.minor and
+            self.patch == other.patch)
 
     def __lt__(self, other):
         if self.major < other.major:
             return True
 
-        if self.major == other.major and \
-            self.minor < other.minor:
+        if (self.major == other.major and
+            self.minor < other.minor):
             return True
 
-        if self.major == other.major and \
-            self.minor == other.minor and \
-            self.patch < other.patch:
+        if (self.major == other.major and
+            self.minor == other.minor and
+            self.patch < other.patch):
             return True
 
         return False
 
-
     def __repr__(self):
         return self.version
-
 
 class PKIUpgradeTracker(object):
 
@@ -121,14 +118,16 @@ class PKIUpgradeTracker(object):
 
     def remove(self):
 
-        if verbose: print 'Removing ' + self.name + ' tracker.'
+        if verbose:
+            print 'Removing ' + self.name + ' tracker.'
 
         self.remove_version()
         self.remove_index()
 
     def set(self, version):
 
-        if verbose: print 'Setting ' + self.name + ' tracker to version ' + str(version) + '.'
+        if verbose:
+            print 'Setting ' + self.name + ' tracker to version ' + str(version) + '.'
 
         self.set_version(version)
         self.remove_index()
@@ -325,7 +324,7 @@ class PKIUpgradeScriptlet(object):
         if os.path.exists(oldfiles):
 
             # restore all backed up files
-            for root, dirnames, filenames in os.walk(oldfiles):
+            for root, _, filenames in os.walk(oldfiles):  #unused item _ for dirnames
                 path = root[len(oldfiles):]
                 for filename in filenames:
                     source = root + '/' + filename
@@ -466,11 +465,11 @@ class PKIUpgrader(object):
                 continue
 
             # load scriptlet class
-            vars = {}
-            execfile(os.path.join(version_dir, filename), vars)
+            variables = {}
+            execfile(os.path.join(version_dir, filename), variables)
 
             # create scriptlet object
-            scriptlet = vars[classname]()
+            scriptlet = variables[classname]()
 
             scriptlet.upgrader = self
             scriptlet.version = version

@@ -20,10 +20,7 @@
 #
 
 # System Imports
-from collections import namedtuple
 import csv
-import sys
-
 
 # PKI Deployment Imports
 import pkiconfig as config
@@ -37,7 +34,7 @@ RECORD_TYPE_SYMLINK = "symlink"
 
 
 # PKI Deployment Manifest Record Class
-class record(object):
+class Record(object):
     __slots__ = "name", \
                "type", \
                "user", \
@@ -46,6 +43,9 @@ class record(object):
                "gid", \
                "permissions", \
                "acls",
+
+    def __init__(self):
+        pass
 
     def items(self):
         "dict style items"
@@ -64,9 +64,11 @@ class record(object):
 
 
 # PKI Deployment Manifest File Class
-class file:
-    global database
-    filename = None
+class File:
+
+    def __init__(self, database):
+        self.filename = None
+        self.database = database
 
     def register(self, name):
         self.filename = name
@@ -75,7 +77,7 @@ class file:
         try:
             with open(self.filename, "wt") as fd:
                 c = csv.writer(fd)
-                for record in database:
+                for record in self.database:
                     c.writerow(tuple(record))
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
@@ -93,6 +95,3 @@ class file:
                                  extra=config.PKI_INDENTATION_LEVEL_1)
             raise
 
-# PKI Deployment Global Named Tuples
-database = []
-file = file()

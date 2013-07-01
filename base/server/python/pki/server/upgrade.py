@@ -166,14 +166,14 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if self.instanceName and self.instanceType:
             return [pki.server.PKIInstance(self.instanceName, self.instanceType)]
 
-        list = []
+        instance_list = []
 
         if not self.instanceType or self.instanceType >= 10:
             if os.path.exists(os.path.join(pki.server.REGISTRY_DIR, 'tomcat')):
                 for instanceName in os.listdir(pki.server.INSTANCE_BASE_DIR):
                     if not self.instanceName or \
                         self.instanceName == instanceName:
-                        list.append(pki.server.PKIInstance(instanceName))
+                        instance_list.append(pki.server.PKIInstance(instanceName))
 
         if not self.instanceType or self.instanceType == 9:
             for s in pki.server.SUBSYSTEM_TYPES:
@@ -182,11 +182,11 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                         os.listdir(os.path.join(pki.server.REGISTRY_DIR, s)):
                         if not self.instanceName or \
                             self.instanceName == instanceName:
-                            list.append(pki.server.PKIInstance(instanceName, 9))
+                            instance_list.append(pki.server.PKIInstance(instanceName, 9))
 
-        list.sort()
+        instance_list.sort()
 
-        return list
+        return instance_list
 
 
     def subsystems(self, instance):
@@ -194,14 +194,14 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if self.subsystemName:
             return [pki.server.PKISubsystem(instance, self.subsystemName)]
 
-        list = []
+        subsystem_list = []
 
         if instance.type >= 10:
             registry_dir = os.path.join(pki.server.REGISTRY_DIR, 'tomcat',
                 instance.name)
             for subsystemName in os.listdir(registry_dir):
                 if subsystemName in pki.server.SUBSYSTEM_TYPES:
-                    list.append(pki.server.PKISubsystem(instance, subsystemName))
+                    subsystem_list.append(pki.server.PKISubsystem(instance, subsystemName))
         else:
             for subsystemName in pki.server.SUBSYSTEM_TYPES:
                 registry_dir = os.path.join(
@@ -209,11 +209,11 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                     subsystemName,
                     instance.name)
                 if os.path.exists(registry_dir):
-                    list.append(pki.server.PKISubsystem(instance, subsystemName))
+                    subsystem_list.append(pki.server.PKISubsystem(instance, subsystemName))
 
-        list.sort()
+        subsystem_list.sort()
 
-        return list
+        return subsystem_list
 
     def get_tracker(self, instance, subsystem=None):
 
