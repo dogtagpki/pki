@@ -59,10 +59,10 @@ class PKISubsystem(object):
 
 class PKIInstance(object):
 
-    def __init__(self, name, type=10):
+    def __init__(self, name, vtype=10):
         self.name = name
-        self.type = type
-        if self.type >= 10:
+        self.vtype = vtype
+        if self.vtype >= 10:
             self.conf_dir = os.path.join(INSTANCE_BASE_DIR, name, 'conf')
             self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
         else:
@@ -77,7 +77,7 @@ class PKIInstance(object):
                 'Invalid instance: ' + self.__repr__(), None)
 
     def __repr__(self):
-        if self.type == 9:
+        if self.vtype == 9:
             return "Dogtag 9 " + self.name
         return self.name
 

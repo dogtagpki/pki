@@ -18,7 +18,6 @@
 # Copyright (C) 2012 Red Hat, Inc.
 # All rights reserved.
 #
-import re
 
 # PKI Deployment Constants
 PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS = 00755
@@ -99,6 +98,8 @@ pki_install_time = None
 pki_timestamp = None
 pki_architecture = None
 pki_hostname = None
+pki_dns_domainname = None
+pki_certificate_timestamp = None
 
 
 # PKI Deployment Command-Line Variables

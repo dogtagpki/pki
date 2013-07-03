@@ -86,7 +86,6 @@ def main(argv):
     config.pki_hostname = socket.getfqdn()
 
     # Retrieve DNS domainname
-    config.pki_dns_domainname = None
     try:
         config.pki_dns_domainname = subprocess.check_output("dnsdomainname",
                                                             shell = True)
@@ -310,7 +309,7 @@ def main(argv):
     parser.compose_pki_slots_dictionary()
     config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(parser.pki_slots_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.pki_slots_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
@@ -320,7 +319,7 @@ def main(argv):
                                               config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     if not interactive and\
@@ -370,6 +369,7 @@ def main(argv):
         instance = scriptlet.PkiScriptlet()
         try:
             rv = instance.spawn(deployer)
+        # pylint: disable-msg=W0703
         except Exception:
             log_error_details()
             print
@@ -382,7 +382,7 @@ def main(argv):
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print_install_information(parser.pki_master_dict)
@@ -410,14 +410,14 @@ def print_install_information(pki_master_dict):
 
 def log_error_details():
 
-    type, value, stacktrace = sys.exc_info()
-    config.pki_log.debug("Error Type: " + type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
-    config.pki_log.debug("Error Message: " + str(value), extra=config.PKI_INDENTATION_LEVEL_2)
-    stacktrace_list = traceback.format_list(traceback.extract_tb(stacktrace))
-    stacktrace = ""
+    e_type, e_value, e_stacktrace = sys.exc_info()
+    config.pki_log.debug("Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.debug("Error Message: " + str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
+    stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
+    e_stacktrace = ""
     for l in stacktrace_list:
-        stacktrace += l
-    config.pki_log.debug(stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
+        e_stacktrace += l
+    config.pki_log.debug(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
     sys.exc_clear()
 
 # PKI Deployment Entry Point

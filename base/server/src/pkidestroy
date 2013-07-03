@@ -28,8 +28,6 @@ if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print "Please upgrade to at least Python 2.7.0."
     sys.exit(1)
 try:
-    import argparse
-    import logging
     import os
     import socket
     import struct
@@ -180,7 +178,7 @@ def main(argv):
         print "ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %\
               deployed_pki_instance_path
         print
-        parser.arg_parser.exit(-1);
+        parser.arg_parser.exit(-1)
 
     # verify that previously deployed subsystem for this instance exists
     deployed_pki_subsystem_path = deployed_pki_instance_path + "/" +\
@@ -189,7 +187,7 @@ def main(argv):
         print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
               (config.pki_subsystem, deployed_pki_instance_path)
         print
-        parser.arg_parser.exit(-1);
+        parser.arg_parser.exit(-1)
 
     config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
@@ -234,7 +232,7 @@ def main(argv):
                                                 config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print "Uninstalling " + config.pki_subsystem + " from " + deployed_pki_instance_path + "."
@@ -253,7 +251,7 @@ def main(argv):
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print

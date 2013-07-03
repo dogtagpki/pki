@@ -20,7 +20,6 @@
 #
 
 import getopt
-import os
 import signal
 import sys
 

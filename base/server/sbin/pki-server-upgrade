@@ -68,7 +68,7 @@ def main(argv):
     signal.signal(signal.SIGINT, interrupt_handler)
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'hi:s:t:vX', [
+        opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'instance=', 'subsystem=', 'instance-type=',
             'scriptlet-version=', 'scriptlet-index=',
             'silent', 'status', 'revert',

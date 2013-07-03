@@ -29,15 +29,15 @@ sensitive_parameters = []
 # Initialize 'pretty print' for objects
 pp = pprint.PrettyPrinter(indent=4)
 
-def format(dict):
+def log_format(given_dict):
     new_dict = {}
 
     # mask sensitive data
-    for key in dict:
+    for key in given_dict:
         if key in sensitive_parameters:
             value = 'XXXXXXXX'
         else:
-            value = dict[key]
+            value = given_dict[key]
         new_dict[key] = value
 
     return pp.pformat(new_dict)
@@ -64,13 +64,13 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     logger.addHandler(console)
 
     # Configure file handler
-    file = logging.FileHandler(log_dir + "/" + log_name, 'w')
-    file.setLevel(log_level)
+    log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
+    log_file.setLevel(log_level)
     file_format = logging.Formatter('%(asctime)s %(name)-12s: ' + \
                                     '%(levelname)-8s ' + \
                                     '%(indent)s%(message)s',
                                     '%Y-%m-%d %H:%M:%S')
-    file.setFormatter(file_format)
-    logger.addHandler(file)
+    log_file.setFormatter(file_format)
+    logger.addHandler(log_file)
 
     return logger

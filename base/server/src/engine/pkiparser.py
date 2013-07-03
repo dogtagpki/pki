@@ -30,9 +30,6 @@ import random
 import requests
 import string
 import subprocess
-import sys
-import time
-
 
 # PKI Imports
 import pki
@@ -229,26 +226,26 @@ class PKIConfigParser:
         return values
 
 
-    def set_property(self, section, property, value):
+    def set_property(self, section, key, value):
         if section != "DEFAULT" and not self.pki_config.has_section(section):
             self.pki_config.add_section(section)
-        self.pki_config.set(section, property, value)
+        self.pki_config.set(section, key, value)
         self.flatten_master_dict()
 
         if section != "DEFAULT" and not config.user_config.has_section(section):
             config.user_config.add_section(section)
-        config.user_config.set(section, property, value)
+        config.user_config.set(section, key, value)
 
 
     def print_text(self, message):
         print ' ' * self.indent + message
 
     def read_text(self, message,
-        section=None, property=None, default=None,
+        section=None, key=None, default=None,
         options=None, sign=':', allowEmpty=True, caseSensitive=True):
 
-        if default is None and property is not None:
-            default = self.pki_master_dict[property]
+        if default is None and key is not None:
+            default = self.pki_master_dict[key]
         if default:
             message = message + ' [' + default + ']'
         message = ' ' * self.indent + message + sign + ' '
@@ -281,12 +278,12 @@ class PKIConfigParser:
 
         value = value.replace("%", "%%")
         if section:
-            self.set_property(section, property, value)
+            self.set_property(section, key, value)
 
         return value
 
 
-    def read_password(self, message, section=None, property=None,
+    def read_password(self, message, section=None, key=None,
         verifyMessage=None):
         message = ' ' * self.indent + message + ': '
         if verifyMessage is not None:
@@ -310,7 +307,7 @@ class PKIConfigParser:
 
         password = password.replace("%", "%%")
         if section:
-            self.set_property(section, property, password)
+            self.set_property(section, key, password)
 
         return password
 

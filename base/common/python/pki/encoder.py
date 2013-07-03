@@ -1,5 +1,4 @@
 import json
-import pki.system
 
 TYPES = {}
 NOTYPES = {}
