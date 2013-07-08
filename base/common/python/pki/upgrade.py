@@ -55,7 +55,7 @@ class Version(object):
                 raise Exception('Invalid version number: ' + obj)
 
             # parse <major>.<minor>.<patch>
-            match = re.match('^(\d+)\.(\d+)\.(\d+)$', self.version)
+            match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', self.version)
 
             if match is None:
                 raise Exception('Invalid version number: ' + self.version)

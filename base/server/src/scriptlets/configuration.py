@@ -19,11 +19,12 @@
 # All rights reserved.
 #
 
-# PKI Deployment Imports
-import pkiconfig as config
-import pkimessages as log
-import pkiscriptlet
 import json
+
+# PKI Deployment Imports
+from . import pkiconfig as config
+from . import pkimessages as log
+from . import pkiscriptlet
 import pki.system
 import pki.encoder
 

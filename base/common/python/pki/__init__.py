@@ -75,7 +75,7 @@ def implementation_version():
             line = line.strip('\n')
 
             # parse <key>: <value>
-            match = re.match('^\s*(\S*)\s*:\s*(.*)\s*$', line)
+            match = re.match(r'^\s*(\S*)\s*:\s*(.*)\s*$', line)
 
             if not match:
                 continue
@@ -147,7 +147,7 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -166,7 +166,7 @@ class PropertyFile(object):
         for line in self.lines:
 
             # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -184,7 +184,7 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue
@@ -206,7 +206,7 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match('^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
+            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter, line)
 
             if not match:
                 continue

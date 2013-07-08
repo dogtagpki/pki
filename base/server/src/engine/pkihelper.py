@@ -47,11 +47,11 @@ if selinux.is_selinux_enabled():
 
 
 # PKI Deployment Imports
-import pkiconfig as config
-from pkiconfig import pki_selinux_config_ports as ports
-import pkimanifest as manifest
-import pkimessages as log
-from pkiparser import PKIConfigParser
+from . import pkiconfig as config
+from .pkiconfig import pki_selinux_config_ports as ports
+from . import pkimanifest as manifest
+from . import pkimessages as log
+from .pkiparser import PKIConfigParser
 import pki.account
 import pki.client
 import pki.system

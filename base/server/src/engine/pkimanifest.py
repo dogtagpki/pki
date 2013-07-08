@@ -23,8 +23,8 @@
 import csv
 
 # PKI Deployment Imports
-import pkiconfig as config
-import pkimessages as log
+from . import pkiconfig as config
+from . import pkimessages as log
 
 
 # PKI Deployment Manifest Constants

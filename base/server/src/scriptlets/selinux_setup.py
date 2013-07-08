@@ -19,15 +19,16 @@
 # All rights reserved.
 #
 
-# PKI Deployment Imports
-import pkiconfig as config
-from pkiconfig import pki_selinux_config_ports as ports
-import pkimessages as log
-import pkiscriptlet
 import selinux
 import time
 if selinux.is_selinux_enabled():
     import seobject
+
+# PKI Deployment Imports
+from . import pkiconfig as config
+from .pkiconfig import pki_selinux_config_ports as ports
+from . import pkimessages as log
+from . import pkiscriptlet
 
 
 # PKI Deployment Selinux Setup Scriptlet

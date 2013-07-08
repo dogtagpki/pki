@@ -34,13 +34,13 @@ import subprocess
 # PKI Imports
 import pki
 import pki.upgrade
-import pkilogging
-import pkiconfig as config
-import pkimessages as log
-
 import pki.account
 import pki.client
 import pki.system
+from . import pkiconfig as config
+from . import pkimessages as log
+from . import pkilogging
+
 
 class PKIConfigParser:
 

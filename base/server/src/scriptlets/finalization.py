@@ -20,10 +20,10 @@
 #
 
 # PKI Deployment Imports
-import pkiconfig as config
-import pkimanifest as manifest
-import pkimessages as log
-import pkiscriptlet
+from . import pkiconfig as config
+from . import pkimanifest as manifest
+from . import pkimessages as log
+from . import pkiscriptlet
 
 
 # PKI Deployment Finalization Scriptlet

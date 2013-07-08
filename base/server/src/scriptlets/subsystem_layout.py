@@ -20,9 +20,9 @@
 #
 
 # PKI Deployment Imports
-import pkiconfig as config
-import pkimessages as log
-import pkiscriptlet
+from . import pkiconfig as config
+from . import pkimessages as log
+from . import pkiscriptlet
 
 
 # PKI Deployment Subsystem Layout Scriptlet
