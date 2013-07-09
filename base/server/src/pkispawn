@@ -52,7 +52,8 @@ error was:
     sys.exit(1)
 
 # Handle the Keyboard Interrupt
-def interrupt_handler(signal, frame):
+# pylint: disable-msg=W0613
+def interrupt_handler(event, frame):
     print
     print '\nInstallation canceled.'
     sys.exit(1)

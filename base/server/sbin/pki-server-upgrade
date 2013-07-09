@@ -27,8 +27,8 @@ import pki
 import pki.upgrade
 import pki.server.upgrade
 
-
-def interrupt_handler(signal, frame):
+# pylint: disable-msg=W0613
+def interrupt_handler(event, frame):
     print
     print
     print 'Upgrade canceled.'

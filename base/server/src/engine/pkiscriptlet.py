@@ -27,12 +27,13 @@ import abc
 class AbstractBasePkiScriptlet(object):
     __metaclass__ = abc.ABCMeta
 
+    # pylint: disable-msg=W0613
     @abc.abstractmethod
     def spawn(self, deployer):
         """Retrieve data from the specified PKI dictionary and
            use it to install a new PKI instance."""
         return
-
+    # pylint: disable-msg=W0613
     @abc.abstractmethod
     def destroy(self, deployer):
         """Retrieve data from the specified PKI dictionary and

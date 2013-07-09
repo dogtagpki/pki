@@ -26,8 +26,8 @@ import sys
 import pki
 import pki.upgrade
 
-
-def interrupt_handler(signal, frame):
+# pylint: disable-msg=W0613
+def interrupt_handler(event, frame):
     print
     print
     print 'Upgrade canceled.'
@@ -62,7 +62,7 @@ def main(argv):
     signal.signal(signal.SIGINT, interrupt_handler)
 
     try:
-        opts, args = getopt.getopt(argv[1:], 'hi:s:t:vX', [
+        opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'scriptlet-version=', 'scriptlet-index=',
             'silent', 'status', 'revert',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
