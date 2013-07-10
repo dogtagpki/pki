@@ -1070,9 +1070,9 @@ class PKIConfigParser:
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
             if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                self.pki_slots_dict = dict(parser._sections['Apache'])
+                self.pki_slots_dict = dict(parser.items('Apache'))
             elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                self.pki_slots_dict = dict(parser._sections['Tomcat'])
+                self.pki_slots_dict = dict(parser.items('Tomcat'))
         except ConfigParser.ParsingError, err:
             rv = err
         return rv
