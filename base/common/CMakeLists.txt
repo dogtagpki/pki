@@ -33,32 +33,6 @@ install(
         ${PYTHON_SITE_PACKAGES}
 )
 
-# install systemd scripts
-install(
-    FILES
-        shared/lib/systemd/system/pki-tomcatd.target
-        shared/lib/systemd/system/pki-tomcatd@.service
-    DESTINATION
-        ${SYSTEMD_LIB_INSTALL_DIR}
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
-    FILES
-        setup/CertServer.directory
-        setup/menu.xml
-        setup/pkidaemon_registry
-    DESTINATION
-        ${DATA_INSTALL_DIR}/setup/
-    PERMISSIONS
-        OWNER_WRITE OWNER_READ
-        GROUP_READ
-        WORLD_READ
-)
-
 # install executables
 install(
     FILES
@@ -70,18 +44,6 @@ install(
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
 )
-
-# install server files
-# TODO: move into base/server
-install(
-    DIRECTORY
-        shared/
-    DESTINATION
-        ${DATA_INSTALL_DIR}/server/
-    PATTERN
-        "lib/*" EXCLUDE
-)
-
 
 install(
     DIRECTORY
