@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -18,7 +18,9 @@ BuildRequires:    zip
 BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
+BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
+BuildRequires:    apache-commons-io
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
@@ -29,7 +31,11 @@ BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
 %if  0%{?rhel}
-BuildRequires:    resteasy-base
+BuildRequires:    resteasy-base-atom-provider
+BuildRequires:    resteasy-base-jaxb-provider
+BuildRequires:    resteasy-base-jaxrs
+BuildRequires:    resteasy-base-jaxrs-api
+BuildRequires:    resteasy-base-jettison-provider
 %else
 BuildRequires:    resteasy >= 2.3.2-1
 %endif
@@ -184,6 +190,7 @@ Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
+Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
@@ -202,7 +209,11 @@ Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
 %if  0%{?rhel}
-Requires:         resteasy-base
+Requires:    resteasy-base-atom-provider
+Requires:    resteasy-base-jaxb-provider
+Requires:    resteasy-base-jaxrs
+Requires:    resteasy-base-jaxrs-api
+Requires:    resteasy-base-jettison-provider
 %else
 Requires:         resteasy >= 2.3.2-1
 %endif
@@ -1077,6 +1088,10 @@ fi
 
 
 %changelog
+* Tue Jul 9 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
+- Bugzilla Bug 973224 -  resteasy-base must be split into subpackages
+  to simplify dependencies
+
 * Fri Jun 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.3
 - Updated dependencies to Java 1.7.
 
