@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.1.0
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -14,6 +14,7 @@ BuildRequires:    cmake  >= 2.8.9-1
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    python
+BuildRequires:    systemd
 
 Requires:         mod_nss >= 1.0.8
 Requires:         mod_perl >= 1.99_16
@@ -197,6 +198,9 @@ fi
 
 
 %changelog
+* Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.1.0-0.3
+- Add systemd build requirement to fix build failures in f19
+
 * Tue Jun 11 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.2
 - Fixed dependencies on pki-server and pki-server-theme.
 

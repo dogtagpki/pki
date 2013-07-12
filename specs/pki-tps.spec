@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -20,6 +20,7 @@ BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    pcre-devel
 BuildRequires:    pki-server >= 10.1.0
 BuildRequires:    python
+BuildRequires:    systemd
 BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
@@ -241,6 +242,9 @@ fi
 
 
 %changelog
+* Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
+- Add systemd build requirement to fix build failures in f19
+
 * Fri Jun 14 2013 Kevin Wright <kwright@redhat.com> 10.1.0-0.3
 - Added missing build dependency on Java.
 
