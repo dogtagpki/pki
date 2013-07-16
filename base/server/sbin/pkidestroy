@@ -34,11 +34,11 @@ try:
     import subprocess
     import time
     from time import strftime as date
-    from pki.deployment import pkiconfig as config
-    from pki.deployment.pkiparser import PKIConfigParser
-    from pki.deployment import pkilogging
-    from pki.deployment import pkimessages as log
-    import pki.deployment.pkihelper as util
+    from pki.server.deployment import pkiconfig as config
+    from pki.server.deployment.pkiparser import PKIConfigParser
+    from pki.server.deployment import pkilogging
+    from pki.server.deployment import pkimessages as log
+    import pki.server.deployment.pkihelper as util
 except ImportError:
     print >> sys.stderr, """\
 There was a problem importing one of the required Python modules. The
@@ -243,7 +243,7 @@ def main(argv):
     deployer = util.PKIDeployer(parser.pki_master_dict)
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
-        scriptlet = __import__("pki.deployment." +
+        scriptlet = __import__("pki.server.deployment.scriptlets." +
                                pki_scriptlet,
                                fromlist = [pki_scriptlet])
         instance = scriptlet.PkiScriptlet()

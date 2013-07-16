@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -944,7 +944,6 @@ fi
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server-upgrade
 #%{_bindir}/pki-setup-proxy
-%{python_sitelib}/pki/deployment/
 %{python_sitelib}/pki/server/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
@@ -1088,6 +1087,9 @@ fi
 
 
 %changelog
+* Tue Jul 16 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.5
+- Reorganized deployment tools.
+
 * Tue Jul 9 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
 - Bugzilla Bug 973224 -  resteasy-base must be split into subpackages
   to simplify dependencies

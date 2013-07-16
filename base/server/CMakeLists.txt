@@ -79,23 +79,11 @@ install(
 
 # install executables
 install(
-    FILES
-        src/pkispawn
-        src/pkidestroy
+    DIRECTORY
+        sbin/
     DESTINATION
         ${SBIN_INSTALL_DIR}
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
-    FILES
-        sbin/pki-server-upgrade
-    DESTINATION
-        ${SBIN_INSTALL_DIR}
-    PERMISSIONS
+    FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
@@ -158,40 +146,6 @@ install(
         etc/
     DESTINATION
         ${SYSCONF_INSTALL_DIR}/pki
-)
-
-install(
-    FILES
-        src/engine/pkiconfig.py
-        src/engine/pkihelper.py
-        src/engine/pkilogging.py
-        src/engine/pkimanifest.py
-        src/engine/pkimessages.py
-        src/engine/pkiparser.py
-        src/engine/pkiscriptlet.py
-        src/scriptlets/configuration.py
-        src/scriptlets/finalization.py
-        src/scriptlets/infrastructure_layout.py
-        src/scriptlets/initialization.py
-        src/scriptlets/instance_layout.py
-        src/scriptlets/security_databases.py
-        src/scriptlets/selinux_setup.py
-        src/scriptlets/slot_substitution.py
-        src/scriptlets/subsystem_layout.py
-        src/scriptlets/webapp_deployment.py
-    DESTINATION
-        ${PYTHON_SITE_PACKAGES}/pki/deployment
-    PERMISSIONS
-        OWNER_WRITE OWNER_READ
-        GROUP_READ
-        WORLD_READ
-)
-install(
-    CODE
-        "execute_process(
-            COMMAND
-                ${CMAKE_COMMAND} -E touch
-                \"\$ENV{DESTDIR}${PYTHON_SITE_PACKAGES}/pki/deployment/__init__.py\")"
 )
 
 # install empty directories

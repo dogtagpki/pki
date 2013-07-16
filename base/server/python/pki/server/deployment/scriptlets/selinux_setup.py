@@ -25,10 +25,10 @@ if selinux.is_selinux_enabled():
     import seobject
 
 # PKI Deployment Imports
-from . import pkiconfig as config
-from .pkiconfig import pki_selinux_config_ports as ports
-from . import pkimessages as log
-from . import pkiscriptlet
+from .. import pkiconfig as config
+from ..pkiconfig import pki_selinux_config_ports as ports
+from .. import pkimessages as log
+from .. import pkiscriptlet
 
 
 # PKI Deployment Selinux Setup Scriptlet
