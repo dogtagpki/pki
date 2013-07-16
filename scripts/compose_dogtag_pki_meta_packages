@@ -9,6 +9,7 @@
 ##
 
 COMPOSE_PWD=`dirname $0`
+source ${COMPOSE_PWD}/compose_functions
 
 
 ## Always switch into the base directory three levels
@@ -28,7 +29,11 @@ PKI_PWD=`pwd`
 ## Establish packages directory for 'dogtag-pki' META packages
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
 
 
 ##

@@ -46,7 +46,12 @@ PKI_COMPONENT_LIST="common-ui ca-ui"
 ## Establish the TARGET files/directories of the 'ipa-pki' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 IPA_PKI_THEME_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 IPA_PKI_THEME_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 IPA_PKI_THEME_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"

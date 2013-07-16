@@ -46,7 +46,12 @@ PKI_COMPONENT_LIST="tps"
 ## Establish the TARGET files/directories of the 'pki-tps' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_TPS_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_TPS_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_TPS_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"

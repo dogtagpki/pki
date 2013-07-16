@@ -46,7 +46,12 @@ PKI_COMPONENT_LIST="test console"
 ## Establish the TARGET files/directories of the 'pki-console' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_CONSOLE_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_CONSOLE_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_CONSOLE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"

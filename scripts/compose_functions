@@ -241,7 +241,7 @@ Fetch_Source_Tarball()
 ## Check for command line argument validity
 ##
 
-GETOPT=`getopt -o '' -l without-javadoc -n "$0" -- "$@"`
+GETOPT=`getopt -o '' -l without-javadoc,work-dir: -n "$0" -- "$@"`
 
 if [ $? != 0 ] ; then
     Usage
@@ -253,6 +253,7 @@ eval set -- "$GETOPT"
 while true ; do
     case "$1" in
         --without-javadoc) JAVADOC="--without javadoc" ; shift ;;
+        --work-dir) WORK_DIR="$2" ; shift 2 ;;
         --) shift ; break ;;
         *) echo "$0: unrecognized option '$1'" 1>&2 ; exit 255 ;;
     esac

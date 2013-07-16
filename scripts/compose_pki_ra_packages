@@ -46,7 +46,12 @@ PKI_COMPONENT_LIST="ra"
 ## Establish the TARGET files/directories of the 'pki-ra' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_RA_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_RA_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_RA_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
