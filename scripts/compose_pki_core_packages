@@ -49,7 +49,12 @@ fi
 ## Establish the TARGET files/directories of the 'pki-core' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_CORE_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_CORE_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_CORE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"

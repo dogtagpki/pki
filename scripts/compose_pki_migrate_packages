@@ -46,7 +46,12 @@ PKI_COMPONENT_LIST="test migrate"
 ## Establish the TARGET files/directories of the 'pki-migrate' source/spec files
 ##
 
-PKI_PACKAGES="${PKI_PWD}/packages"
+if [ $WORK_DIR ]; then
+    PKI_PACKAGES="$WORK_DIR"
+else
+    PKI_PACKAGES="${PKI_PWD}/packages"
+fi
+
 PKI_MIGRATE_BUILD_DIR="${PKI_PACKAGES}/BUILD"
 PKI_MIGRATE_RPMS_DIR="${PKI_PACKAGES}/RPMS"
 PKI_MIGRATE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
