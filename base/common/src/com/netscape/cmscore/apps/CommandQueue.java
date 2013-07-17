@@ -23,7 +23,7 @@ import java.util.Hashtable;
 import javax.servlet.Servlet;
 
 import com.netscape.certsrv.apps.ICommandQueue;
-import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.certsrv.common.ICMSRequest;
 
 /*---------------------------------------------------------------
  ** CommandQueue - Class
@@ -34,7 +34,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
  */
 public class CommandQueue implements Runnable, ICommandQueue {
 
-    public static Hashtable<CMSRequest, Servlet> mCommandQueue = new Hashtable<CMSRequest, Servlet>();
+    public static Hashtable<ICMSRequest, Servlet> mCommandQueue = new Hashtable<ICMSRequest, Servlet>();
     public static boolean mShuttingDown = false;
 
     /*-----------------------------------------------------------
@@ -72,7 +72,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
         }
     } // run
 
-    public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet) {
+    public boolean registerProcess(ICMSRequest currentRequest, Servlet currentServlet) {
         if (mShuttingDown == false) {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
                 mCommandQueue.put(currentRequest, currentServlet);
@@ -83,7 +83,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
     }
 
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
-        Enumeration<CMSRequest> e = mCommandQueue.keys();
+        Enumeration<ICMSRequest> e = mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

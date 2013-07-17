@@ -49,10 +49,10 @@ import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
@@ -64,7 +64,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 public class CRMFProcessor extends PKIProcessor {
 
     @SuppressWarnings("unused")
-    private CMSRequest mRequest;
+    private ICMSRequest mRequest;
 
     private boolean enforcePop = false;
 
@@ -75,14 +75,14 @@ public class CRMFProcessor extends PKIProcessor {
         super();
     }
 
-    public CRMFProcessor(CMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
+    public CRMFProcessor(ICMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
         super(cmsReq, servlet);
 
         enforcePop = doEnforcePop;
         mRequest = cmsReq;
     }
 
-    public void process(CMSRequest cmsReq)
+    public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
 

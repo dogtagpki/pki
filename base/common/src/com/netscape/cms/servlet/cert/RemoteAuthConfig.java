@@ -44,6 +44,7 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -123,7 +124,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
         mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
     /**
@@ -256,7 +257,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(CMSRequest.SUCCESS);
+            cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));

@@ -45,6 +45,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -99,7 +100,7 @@ public class ListCerts extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to render own template.
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
 
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
@@ -214,7 +215,7 @@ public class ListCerts extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -297,7 +298,7 @@ public class ListCerts extends CMSServlet {
             String queryCertFilter = buildFilter(req);
 
             if (queryCertFilter == null) {
-                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -335,12 +336,12 @@ public class ListCerts extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    cmsReq.setStatus(ICMSRequest.SUCCESS);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                 }
             } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

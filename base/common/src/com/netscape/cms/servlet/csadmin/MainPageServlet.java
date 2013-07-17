@@ -30,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -49,8 +50,8 @@ public class MainPageServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mTemplates.remove(CMSRequest.SUCCESS);
-        mTemplates.remove(CMSRequest.ERROR);
+        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.ERROR);
     }
 
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -85,7 +86,7 @@ public class MainPageServlet extends CMSServlet {
         try {
             ServletOutputStream out = response.getOutputStream();
 
-            cmsReq.setStatus(CMSRequest.SUCCESS);
+            cmsReq.setStatus(ICMSRequest.SUCCESS);
             response.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {

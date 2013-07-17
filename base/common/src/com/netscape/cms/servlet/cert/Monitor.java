@@ -38,6 +38,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ILogger;
@@ -88,7 +89,7 @@ public class Monitor extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to render own template.
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
 
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
@@ -134,7 +135,7 @@ public class Monitor extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -183,10 +184,10 @@ public class Monitor extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    cmsReq.setStatus(ICMSRequest.SUCCESS);
                 }
             } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

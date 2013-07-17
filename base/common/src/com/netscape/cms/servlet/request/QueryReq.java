@@ -34,6 +34,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -126,8 +127,8 @@ public class QueryReq extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(CMSRequest.SUCCESS);
-        mTemplates.remove(CMSRequest.ERROR);
+        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.ERROR);
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -227,7 +228,7 @@ public class QueryReq extends CMSServlet {
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -328,7 +329,7 @@ public class QueryReq extends CMSServlet {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
         return;
     }
 

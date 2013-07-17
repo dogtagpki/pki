@@ -63,10 +63,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
@@ -83,14 +83,14 @@ public class CMCProcessor extends PKIProcessor {
         super();
     }
 
-    public CMCProcessor(CMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
+    public CMCProcessor(ICMSRequest cmsReq, CMSServlet servlet, boolean doEnforcePop) {
 
         super(cmsReq, servlet);
         enforcePop = doEnforcePop;
 
     }
 
-    public void process(CMSRequest cmsReq)
+    public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
 

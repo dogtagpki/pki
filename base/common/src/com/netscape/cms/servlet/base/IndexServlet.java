@@ -25,6 +25,7 @@ import javax.servlet.ServletException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -63,7 +64,7 @@ public class IndexServlet extends CMSServlet {
          PROP_SUCCESS_TEMPLATE, PROP_SUCCESS_TEMPLATE_FILLER,
          mTemplateName, new IndexTemplateFiller()));
          */
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
     public CMSRequest newCMSRequest() {
@@ -105,6 +106,6 @@ public class IndexServlet extends CMSServlet {
                         CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"));
             }
         }
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
     }
 }

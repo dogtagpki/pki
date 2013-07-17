@@ -36,6 +36,7 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
@@ -85,7 +86,7 @@ public class GetApprovalStatus extends CMSServlet {
         // mFormPath = "/"+authority.getId()+"/"+TPL_FILE;
         mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
 
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
     /**
@@ -120,14 +121,14 @@ public class GetApprovalStatus extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
@@ -230,6 +231,6 @@ public class GetApprovalStatus extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
     }
 }

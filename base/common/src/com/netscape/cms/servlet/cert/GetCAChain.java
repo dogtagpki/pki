@@ -39,6 +39,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICertPrettyPrint;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -73,7 +74,7 @@ public class GetCAChain extends CMSServlet {
         super.init(sc);
 
         // override success to display own output.
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
         // coming from ee
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
     }
@@ -107,7 +108,7 @@ public class GetCAChain extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED"));
         }
 
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
 
         AuthzToken authzToken = null;
 
@@ -124,7 +125,7 @@ public class GetCAChain extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -142,7 +143,7 @@ public class GetCAChain extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 return;
             }
 
@@ -183,7 +184,7 @@ public class GetCAChain extends CMSServlet {
             try {
                 bytes = caCerts[0].getEncoded();
             } catch (CertificateEncodingException e) {
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_GETTING_CACERT_ENCODED", e.toString()));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_GETTING_CA_CERT_ERROR"));
@@ -204,7 +205,7 @@ public class GetCAChain extends CMSServlet {
                 certChain.encode(encoded, false);
                 bytes = encoded.toByteArray();
             } catch (IOException e) {
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
@@ -240,7 +241,7 @@ public class GetCAChain extends CMSServlet {
             httpResp.setContentLength(bytes.length);
             httpResp.getOutputStream().flush();
         } catch (IOException e) {
-            cmsReq.setStatus(CMSRequest.ERROR);
+            cmsReq.setStatus(ICMSRequest.ERROR);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CACHAIN_1", e.toString()));
             throw new ECMSGWException(
@@ -259,7 +260,7 @@ public class GetCAChain extends CMSServlet {
                 ((ICertAuthority) mAuthority).getCACertChain();
 
         if (certChain == null) {
-            cmsReq.setStatus(CMSRequest.ERROR);
+            cmsReq.setStatus(ICMSRequest.ERROR);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
@@ -277,7 +278,7 @@ public class GetCAChain extends CMSServlet {
                     CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(CMSRequest.ERROR);
+            cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
 
@@ -366,13 +367,13 @@ public class GetCAChain extends CMSServlet {
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
-            cmsReq.setStatus(CMSRequest.SUCCESS);
+            cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
-            cmsReq.setStatus(CMSRequest.ERROR);
+            cmsReq.setStatus(ICMSRequest.ERROR);
         }
 
     }

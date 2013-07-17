@@ -85,6 +85,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
@@ -120,7 +121,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.csadmin.LDAPSecurityDomainSessionTable;
 import com.netscape.cms.servlet.csadmin.SecurityDomainSessionTable;
 import com.netscape.cms.servlet.csadmin.SessionTimer;
@@ -1554,7 +1554,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void terminateRequests() {
-        Enumeration<CMSRequest> e = CommandQueue.mCommandQueue.keys();
+        Enumeration<ICMSRequest> e = CommandQueue.mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

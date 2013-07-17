@@ -12,22 +12,25 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2007 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.processors;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.common.ICMSRequest;
+package com.netscape.certsrv.common;
 
 /**
- * This represents the request parser.
+ * This represents a user request.
  *
  * @version $Revision$, $Date$
  */
-public interface IPKIProcessor {
+public interface ICMSRequest {
 
-    public void process(ICMSRequest cmsReq)
-            throws EBaseException;
+    // statuses. the first two are out of band.
+    public static final Integer UNAUTHORIZED = Integer.valueOf(1);
+    public static final Integer SUCCESS = Integer.valueOf(2);
+    public static final Integer PENDING = Integer.valueOf(3);
+    public static final Integer SVC_PENDING = Integer.valueOf(4);
+    public static final Integer REJECTED = Integer.valueOf(5);
+    public static final Integer ERROR = Integer.valueOf(6);
+    public static final Integer EXCEPTION = Integer.valueOf(7); // unexpected error.
 
 }

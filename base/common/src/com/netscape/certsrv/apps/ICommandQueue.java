@@ -19,7 +19,7 @@ package com.netscape.certsrv.apps;
 
 import javax.servlet.Servlet;
 
-import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.certsrv.common.ICMSRequest;
 
 /**
  * This interface represents a command queue for registeration
@@ -35,7 +35,7 @@ public interface ICommandQueue {
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
-    public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet);
+    public boolean registerProcess(ICMSRequest currentRequest, Servlet currentServlet);
 
     /**
      * UnRegisters a thread from the command queue.

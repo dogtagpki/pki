@@ -48,6 +48,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -113,7 +114,7 @@ public class DoRevokeTPS extends CMSServlet {
         }
         mQueue = mAuthority.getRequestQueue();
 
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
         mRenderResult = false;
@@ -221,7 +222,7 @@ public class DoRevokeTPS extends CMSServlet {
             }
 
             if (authzToken == null) {
-                cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 return;
             }
 

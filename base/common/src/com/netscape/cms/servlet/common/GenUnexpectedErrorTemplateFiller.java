@@ -23,6 +23,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 
 /**
  * default unexpected error template filler
@@ -51,7 +52,7 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
         // will leave the requestStatus value set to something other
         // than CMSRequest.EXCEPTION, so force the requestStatus to
         // EXCEPTION since it must be that if we're here.
-        Integer sts = CMSRequest.EXCEPTION;
+        Integer sts = ICMSRequest.EXCEPTION;
         if (cmsReq != null)
             cmsReq.setStatus(sts);
         fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());

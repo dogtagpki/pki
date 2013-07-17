@@ -34,6 +34,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -84,7 +85,7 @@ public class GrantRecovery extends CMSServlet {
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mService = (IKeyService) mAuthority;
 
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -129,7 +130,7 @@ public class GrantRecovery extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -174,7 +175,7 @@ public class GrantRecovery extends CMSServlet {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
-        cmsReq.setStatus(CMSRequest.SUCCESS);
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
     }
 
     /**

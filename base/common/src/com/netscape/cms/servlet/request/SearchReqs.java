@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
@@ -87,7 +88,7 @@ public class SearchReqs extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // override success to render own template.
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
 
         if (mAuthority instanceof ISubsystem) {
             ISubsystem sub = mAuthority;
@@ -135,8 +136,8 @@ public class SearchReqs extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(CMSRequest.SUCCESS);
-        mTemplates.remove(CMSRequest.ERROR);
+        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.ERROR);
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
@@ -169,7 +170,7 @@ public class SearchReqs extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -220,12 +221,12 @@ public class SearchReqs extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    cmsReq.setStatus(ICMSRequest.SUCCESS);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                 }
             } else {
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {

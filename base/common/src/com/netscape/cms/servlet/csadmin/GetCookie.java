@@ -33,6 +33,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -69,7 +70,7 @@ public class GetCookie extends CMSServlet {
         super.init(sc);
 
         CMS.debug("GetCookie init");
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
         mErrorFormPath = sc.getInitParameter("errorTemplatePath");
         if (mOutputTemplatePath != null) {
             mFormPath = mOutputTemplatePath;
@@ -155,7 +156,7 @@ public class GetCookie extends CMSServlet {
             try {
                 ServletOutputStream out = httpResp.getOutputStream();
 
-                cmsReq.setStatus(CMSRequest.SUCCESS);
+                cmsReq.setStatus(ICMSRequest.SUCCESS);
                 httpResp.setContentType("text/html");
                 form.renderOutput(out, argSet);
             } catch (IOException ee) {
@@ -201,7 +202,7 @@ public class GetCookie extends CMSServlet {
                     try {
                         ServletOutputStream out = httpResp.getOutputStream();
 
-                        cmsReq.setStatus(CMSRequest.SUCCESS);
+                        cmsReq.setStatus(ICMSRequest.SUCCESS);
                         httpResp.setContentType("text/html");
                         form.renderOutput(out, argSet);
 

@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -110,8 +111,8 @@ public class ProcessReq extends CMSServlet {
 
         // override success and error templates to null -
         // handle templates locally.
-        mTemplates.remove(CMSRequest.SUCCESS);
-        mTemplates.remove(CMSRequest.ERROR);
+        mTemplates.remove(ICMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.ERROR);
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -183,7 +184,7 @@ public class ProcessReq extends CMSServlet {
                 }
 
                 if (authzToken == null) {
-                    cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+                    cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                     return;
                 }
 
@@ -211,11 +212,11 @@ public class ProcessReq extends CMSServlet {
                 } else {
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
-                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    cmsReq.setStatus(ICMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setError(error);
-                cmsReq.setStatus(CMSRequest.ERROR);
+                cmsReq.setStatus(ICMSRequest.ERROR);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,

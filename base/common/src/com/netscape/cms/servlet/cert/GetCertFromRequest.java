@@ -39,6 +39,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -87,7 +88,7 @@ public class GetCertFromRequest extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
         mQueue = mAuthority.getRequestQueue();
         try {
             String tmp = sc.getInitParameter(
@@ -158,7 +159,7 @@ public class GetCertFromRequest extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -258,7 +259,7 @@ public class GetCertFromRequest extends CMSServlet {
             // for importsCert to get the crmf_reqid.
             cmsReq.setIRequest(r);
 
-            cmsReq.setStatus(CMSRequest.SUCCESS);
+            cmsReq.setStatus(ICMSRequest.SUCCESS);
 
             if (mImportCert &&
                     checkImportCertToNav(cmsReq.getHttpResp(), httpParams, certs[0])) {

@@ -40,9 +40,9 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
@@ -63,12 +63,12 @@ public class PKCS10Processor extends PKIProcessor {
         super();
     }
 
-    public PKCS10Processor(CMSRequest cmsReq, CMSServlet servlet) {
+    public PKCS10Processor(ICMSRequest cmsReq, CMSServlet servlet) {
         super(cmsReq, servlet);
 
     }
 
-    public void process(CMSRequest cmsReq)
+    public void process(ICMSRequest cmsReq)
             throws EBaseException {
     }
 

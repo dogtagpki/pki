@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.logging.ILogger;
@@ -91,7 +92,7 @@ public class DisplayCRL extends CMSServlet {
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
 
-        mTemplates.remove(CMSRequest.SUCCESS);
+        mTemplates.remove(ICMSRequest.SUCCESS);
     }
 
     /**
@@ -121,7 +122,7 @@ public class DisplayCRL extends CMSServlet {
         }
 
         if (authzToken == null) {
-            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
 
@@ -157,7 +158,7 @@ public class DisplayCRL extends CMSServlet {
             } else {
                 resp.setContentType("text/html");
                 form.renderOutput(out, argSet);
-                cmsReq.setStatus(CMSRequest.SUCCESS);
+                cmsReq.setStatus(ICMSRequest.SUCCESS);
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
