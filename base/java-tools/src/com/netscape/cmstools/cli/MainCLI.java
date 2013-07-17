@@ -29,7 +29,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.util.IncorrectPasswordException;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
@@ -232,6 +236,41 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
+        if (config.getCertDatabase() == null) {
+            // Create a default certificate database
+            certDatabase = new File(
+                    System.getProperty("user.home") + File.separator +
+                    ".dogtag" + File.separator + "nssdb");
+
+            certDatabase.mkdirs();
+
+        } else {
+            // Use existing certificate database
+            certDatabase = new File(config.getCertDatabase());
+        }
+
+        if (verbose) System.out.println("Certificate database: "+certDatabase.getAbsolutePath());
+
+        // Main program should initialize certificate database
+        CryptoManager.initialize(certDatabase.getAbsolutePath());
+
+        // If password is specified, use password to access client database
+        if (config.getCertPassword() != null) {
+            CryptoManager manager = CryptoManager.getInstance();
+            CryptoToken token = manager.getInternalKeyStorageToken();
+            Password password = new Password(config.getCertPassword().toCharArray());
+
+            try {
+                token.login(password);
+
+            } catch (IncorrectPasswordException e) {
+                System.out.println("Error: "+e.getClass().getSimpleName()+": "+e.getMessage());
+                // The original exception doesn't contain a message.
+                throw new IncorrectPasswordException("Incorrect certificate database password.");
+            }
+
+        }
+
         client = new PKIClient(config);
         client.setVerbose(verbose);
 
@@ -246,11 +285,6 @@ public class MainCLI extends CLI {
         }
 
         accountClient = new AccountClient(client);
-
-        // initialize certificate database if specified
-        if (config.getCertDatabase() != null) {
-            client.initCertDatabase();
-        }
     }
 
     public void execute(String[] args) throws Exception {
