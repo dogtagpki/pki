@@ -1,14 +1,14 @@
 project(java-tools NONE)
 
 install(
-    FILES
-        man/man1/pki.1
+    DIRECTORY
+        man/
     DESTINATION
-        ${MAN_INSTALL_DIR}/man1
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
+        ${MAN_INSTALL_DIR}
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE
+        GROUP_READ
+        WORLD_READ
 )
 
 install(
