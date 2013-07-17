@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 class SecurityDomainInfo:
 
     def __init__(self):
-        pass
+        self.name = None
 
 class SecurityDomainClient:
 

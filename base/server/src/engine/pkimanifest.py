@@ -45,7 +45,14 @@ class Record(object):
                "acls",
 
     def __init__(self):
-        pass
+        self.name = None
+        self.type = None
+        self.user = None
+        self.group = None
+        self.uid = None
+        self.gid = None
+        self.permissions = None
+        self.acls = None
 
     def items(self):
         "dict style items"

@@ -83,6 +83,8 @@ class PKIConfigParser:
                           help='directory prefix to specify local directory '
                                '[TEST ONLY]')
         self.indent = 0
+        self.ds_connection = None
+        self.sd_connection = None
 
         # Master and Slot dictionaries
         self.pki_master_dict = dict()

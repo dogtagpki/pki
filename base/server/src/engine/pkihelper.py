@@ -1041,7 +1041,7 @@ class Instance:
             raise
 
     def get_instance_status(self):
-        self.connection = pki.client.PKIConnection(
+        connection = pki.client.PKIConnection(
             protocol='https',
             hostname=self.master_dict['pki_hostname'],
             port=self.master_dict['pki_https_port'],
@@ -1049,7 +1049,7 @@ class Instance:
             accept='application/xml')
 
         try:
-            client = pki.system.SystemStatusClient(self.connection)
+            client = pki.system.SystemStatusClient(connection)
             response = client.getStatus()
             config.pki_log.debug(response,
                 extra=config.PKI_INDENTATION_LEVEL_3)
@@ -3070,14 +3070,14 @@ class ConfigClient:
         config.pki_log.info(log.PKI_CONFIG_CONFIGURING_PKI_DATA,
                              extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.connection = pki.client.PKIConnection(
+        connection = pki.client.PKIConnection(
             protocol='https',
             hostname=self.master_dict['pki_hostname'],
             port=self.master_dict['pki_https_port'],
             subsystem=self.master_dict['pki_subsystem_type'])
 
         try:
-            client = pki.system.SystemConfigClient(self.connection)
+            client = pki.system.SystemConfigClient(connection)
             response = client.configure(data)
 
             config.pki_log.debug(log.PKI_CONFIG_RESPONSE_STATUS + \
