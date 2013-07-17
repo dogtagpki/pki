@@ -22,26 +22,14 @@ set(APACHE_SUBSYSTEMS
 )
 
 install(
-    FILES
-        man/man5/pki_default.cfg.5
+    DIRECTORY
+        man/
     DESTINATION
-        ${MAN_INSTALL_DIR}/man5
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
-)
-
-install(
-    FILES
-        man/man8/pkispawn.8
-        man/man8/pkidestroy.8
-    DESTINATION
-        ${MAN_INSTALL_DIR}/man8
-    PERMISSIONS
-        OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ
-        WORLD_EXECUTE WORLD_READ
+        ${MAN_INSTALL_DIR}
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE
+        GROUP_READ
+        WORLD_READ
 )
 
 # install Python libraries

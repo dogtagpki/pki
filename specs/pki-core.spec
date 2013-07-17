@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.4
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -526,10 +526,6 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-chmod 644 %{buildroot}%{_mandir}/man1/*
-chmod 644 %{buildroot}%{_mandir}/man5/*
-chmod 644 %{buildroot}%{_mandir}/man8/*
-
 # Fedora 18 and 17:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
 %if ! 0%{?rhel} && 0%{?fedora} <= 18
 	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
@@ -899,6 +895,7 @@ fi
 %{python_sitelib}/pki/*.pyo
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
+%{_mandir}/man8/pki-upgrade.8.gz
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -932,7 +929,7 @@ fi
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
-%{_mandir}/man1/*
+%{_mandir}/man1/pki.1.gz
 
 
 %files -n pki-server
@@ -973,8 +970,10 @@ fi
 %{_bindir}/pkisilent
 %{_datadir}/pki/silent/
 %{_bindir}/pkicontrol
-%{_mandir}/man5/*
-%{_mandir}/man8/*
+%{_mandir}/man5/pki_default.cfg.5.gz
+%{_mandir}/man8/pki-server-upgrade.8.gz
+%{_mandir}/man8/pkidestroy.8.gz
+%{_mandir}/man8/pkispawn.8.gz
 
 # Details:
 #
@@ -1088,6 +1087,10 @@ fi
 
 
 %changelog
+* Wed Jul 17 2013 Endi S. Dewata <edewata@redhat.com> 10.0.4-0.3
+- Added man pages for upgrade tools.
+- Cleaned up the code to install man pages.
+
 * Tue Jul 9 2013 Ade Lee <alee@redhat.com> 10.0.4-0.2
 - Bugzilla Bug 973224 -  resteasy-base must be split into subpackages
   to simplify dependencies
