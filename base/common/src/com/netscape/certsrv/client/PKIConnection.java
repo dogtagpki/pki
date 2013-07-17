@@ -39,8 +39,8 @@ import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.conn.scheme.LayeredSchemeSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeLayeredSocketFactory;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.ClientParamsStack;
@@ -61,7 +61,8 @@ import org.jboss.resteasy.client.core.BaseClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -431,7 +432,7 @@ public class PKIConnection {
         }
     }
 
-    private class JSSProtocolSocketFactory implements SchemeSocketFactory, LayeredSchemeSocketFactory {
+    private class JSSProtocolSocketFactory implements SchemeSocketFactory, SchemeLayeredSocketFactory {
 
         @Override
         public Socket createSocket(HttpParams params) throws IOException {
@@ -447,17 +448,13 @@ public class PKIConnection {
                 UnknownHostException,
                 ConnectTimeoutException {
 
-            // Make sure certificate database is initialized
-            // before using SSLSocket, otherwise it will throw
-            // UnsatisfiedLinkError.
+            // Make sure certificate database is already initialized,
+            // otherwise SSLSocket will throw UnsatisfiedLinkError.
             try {
-                client.initCertDatabase();
+                CryptoManager.getInstance();
 
-            } catch (AlreadyInitializedException e) {
-                // ignore
-
-            } catch (Exception e) {
-                throw new Error(e);
+            } catch (NotInitializedException e) {
+                throw new IOException(e);
             }
 
             String hostName = null;
@@ -504,7 +501,7 @@ public class PKIConnection {
         }
 
         @Override
-        public Socket createLayeredSocket(Socket socket, String target, int port, boolean autoClose)
+        public Socket createLayeredSocket(Socket socket, String target, int port, HttpParams params)
                 throws IOException, UnknownHostException {
             // This method implementation is required to get SSL working.
             return null;
