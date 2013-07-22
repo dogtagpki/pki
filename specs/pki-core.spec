@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.6%{?dist}
+Release:          0.7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -895,6 +895,7 @@ fi
 %{python_sitelib}/pki/*.pyo
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
+%{_mandir}/man8/pki-upgrade.8.gz
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -928,7 +929,7 @@ fi
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
-%{_mandir}/man1/*
+%{_mandir}/man1/pki.1.gz
 
 
 %files -n pki-server
@@ -968,8 +969,10 @@ fi
 %{_bindir}/pkisilent
 %{_datadir}/pki/silent/
 %{_bindir}/pkicontrol
-%{_mandir}/man5/*
-%{_mandir}/man8/*
+%{_mandir}/man5/pki_default.cfg.5.gz
+%{_mandir}/man8/pki-server-upgrade.8.gz
+%{_mandir}/man8/pkidestroy.8.gz
+%{_mandir}/man8/pkispawn.8.gz
 
 # Details:
 #
@@ -1083,6 +1086,9 @@ fi
 
 
 %changelog
+* Mon Jul 22 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.7
+- Added man pages for upgrade tools.
+
 * Wed Jul 17 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.6
 - Cleaned up the code to install man pages.
 

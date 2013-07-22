@@ -1,0 +1,165 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-upgrade 8 "Jul 22, 2013" "version 1.0" "PKI Upgrade Tool" Endi S. Dewata
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-upgrade \- Tool for upgrading system-wide configuration for
+Certificate System.
+
+.SH SYNOPSIS
+\fBpki-upgrade\fR [OPTIONS]
+
+.SH DESCRIPTION
+There are two parts to upgrading Certificate System: upgrading the system configuration
+files used by both the client and the server processes and upgrading the server
+configuration files.
+
+When upgrading Certificate System, the existing system configuration files (e.g.
+\fB/etc/pki/pki.conf\fR) may need to be upgraded because the content may have changed
+from one version to another. The configuration upgrade is executed automatically
+during RPM upgrade. However, in case there is a problem, the process can also be
+run manually using \fBpki-upgrade\fP.
+
+The system upgrade process is done incrementally using upgrade scriptlets. The upgrade process
+and scriptlet execution is monitored in upgrade trackers. A counter shows the latest index
+number for the most recently executed scriptlet; when all scriptlets have run, the component
+tracker shows the updated version number.
+
+The scriptlets are stored in the upgrade directory:
+.RS
+/usr/share/pki/upgrade/<version>/<index>-<name>
+.RE
+The \fBversion\fP is the system version to be upgraded. The \fBindex\fP
+is the script execution order. The \fBname\fP is the scriptlet name.
+
+During upgrade, the scriptlets will back up all changes to the filesystem into the
+following folder:
+.RS
+/var/log/pki/upgrade/<version>/<index>
+.RE
+The \fBversion\fP and \fBindex\fP values indicate the scriptlet being executed. A copy of the
+files and folders that are being modified or removed will be stored in \fBoldfiles\fP. The names
+of the newly-added files and folders will be stored in \fBnewfiles\fP.
+
+The system upgrade process is tracked using this file:
+.RS
+/etc/pki/pki.version
+.RE
+The file stores the current configuration version and the last successful
+scriptlet index.
+
+.SH OPTIONS
+
+.SS General options
+
+.TP
+.B --silent
+Upgrade in silent mode.
+.TP
+.B --status
+Show upgrade status only \fBwithout\fP performing the upgrade.
+.TP
+.B --revert
+Revert the last version.
+.TP
+.B -X
+Show advanced options.
+.TP
+.B -v, --verbose
+Run in verbose mode.
+.TP
+.B -h, --help
+Show this help message.
+
+.SS Advanced options
+The advanced options circumvent the normal component tracking process by changing the
+scriptlet order or changing the tracker information.
+
+\fBWARNING:\fP These options may render the system unusable.
+
+.TP
+.B --scriptlet-version <version>
+Run scriptlets for a specific version only.
+.TP
+.B --scriptlet-index <index>
+Run a specific scriptlet only.
+.TP
+.B --remove-tracker
+Remove the tracker.
+.TP
+.B --reset-tracker
+Reset the tracker to match the package version.
+.TP
+.B --set-tracker <version>
+Set the tracker to a specific version.
+
+.SH OPERATIONS
+
+.SS Interactive mode
+
+By default, \fBpki-upgrade\fP will run interactively. It will ask for a confirmation
+before executing each scriptlet.
+
+.B % pki-upgrade
+
+If there is an error, it will stop and show the error.
+
+.SS Silent mode
+
+The upgrade process can also be done silently without user interaction:
+
+.B % pki-upgrade --silent
+
+If there is an error, it will stop and show the error.
+
+.SS Checking upgrade status
+
+It is possible to check the status of a running upgrade process.
+
+.B % pki-upgrade --status
+
+.SS Troubleshooting
+
+If there is an error, rerun the upgrade in verbose mode:
+
+.B % pki-upgrade --verbose
+
+Check the scriptlet to see which operations are being executed. Once the
+error is identified and corrected, the upgrade can be resumed by re-running
+\fBpki-upgrade\fP.
+
+It is possible to rerun a failed script by itself, specifying the
+instance and subsystem, version, and scriptlet index:
+
+.B % pki-upgrade --scriptlet-version 10.0.1 --scriptlet-index 1
+
+.SS Reverting an upgrade
+
+If necessary, the upgrade can be reverted:
+
+.B % pki-upgrade --revert
+
+Files and folders that were created by the scriptlet will be removed. Files
+and folders that were modified or removed by the scriptlet will be restored.
+
+.SH FILES
+.I /usr/sbin/pki-upgrade
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Ella Deon Lackey <dlackey@redhat.com>, and Endi Dewata <edewata@redhat.com>.
+\fBpki-upgrade\fP was written by the Dogtag project.
+
+.SH COPYRIGHT
+Copyright (c) 2013 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

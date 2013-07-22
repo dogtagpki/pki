@@ -37,24 +37,25 @@ def interrupt_handler(event, frame):
 def usage():
     print 'Usage: pki-upgrade [OPTIONS]'
     print
-    print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
-    print '  --scriptlet-index <index>      Run a specific scriptlet only.'
-    print
-    print '  --silent                       Upgrade in silent mode. Ignore any failures.'
+    print '  --silent                       Upgrade in silent mode.'
     print '  --status                       Show upgrade status only. Do not perform upgrade.'
-    print '  --revert                       Revert the last version'
+    print '  --revert                       Revert the last version.'
     print
-    print '  -X                             Show advanced usage.'
+    print '  -X                             Show advanced options.'
     print '  -v, --verbose                  Run in verbose mode.'
     print '  -h, --help                     Show this help message.'
 
 
-def advancedUsage():
+def advancedOptions():
+    print
     print 'WARNING: These options may render the system unusable.'
-    print 'Usage: pki-upgrade [OPTIONS]'
-    print '  --remove-tracker               Remove tracker'
-    print '  --reset-tracker                Reset tracker to match package version'
-    print '  --set-tracker <version>        Set tracker to a specific version'
+    print
+    print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
+    print '  --scriptlet-index <index>      Run a specific scriptlet only.'
+    print
+    print '  --remove-tracker               Remove tracker.'
+    print '  --reset-tracker                Reset tracker to match package version.'
+    print '  --set-tracker <version>        Set tracker to a specific version.'
 
 
 def main(argv):
@@ -118,7 +119,8 @@ def main(argv):
             sys.exit()
 
         elif o == '-X':
-            advancedUsage()
+            usage()
+            advancedOptions()
             sys.exit()
 
         else:

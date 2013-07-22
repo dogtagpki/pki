@@ -76,5 +76,16 @@ install(
         ${SYSTEMD_ETC_INSTALL_DIR}/pki-tomcatd.target.wants
 )
 
+install(
+    DIRECTORY
+        man/
+    DESTINATION
+        ${MAN_INSTALL_DIR}
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE
+        GROUP_READ
+        WORLD_READ
+)
+
 add_subdirectory(src)
 add_subdirectory(test)

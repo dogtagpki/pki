@@ -1,0 +1,184 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-upgrade 8 "Jul 22, 2013" "version 1.0" "PKI Server Upgrade Tool" Endi S. Dewata
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-upgrade \- Tool for upgrading Certificate System server configuration.
+
+.SH SYNOPSIS
+\fBpki-server-upgrade\fR [OPTIONS]
+
+.SH DESCRIPTION
+There are two parts to upgrading Certificate System: upgrading the system configuration
+files used by both the client and the server processes and upgrading the server
+configuration files.
+
+When upgrading Certificate System, the existing server configuration files (e.g.
+\fBserver.xml\fP, \fBweb.xml\fP) may need to be upgraded because the content may have
+changed from one version to another. The configuration upgrade is executed automatically
+during RPM upgrade. However, in case there is a problem, the process can also be
+run manually using \fBpki-server-upgrade\fP.
+
+The server upgrade process is done incrementally using upgrade scriptlets. A server consists
+of the server instance itself and the subsystems running in that instance. The upgrade process
+executes one scriptlet at a time, running through each component (server instance and subsystem) in
+parallel and completing before executing the next scriptlet. If one component encounters an error,
+that component is skipped in the subsequent upgrade scriptlets. The upgrade process and scriptlet
+execution for each component is monitored in upgrade trackers. A counter shows the latest index
+number for the most recently executed scriptlet; when all scriptlets have run, the component tracker
+shows the updated version number.
+
+The scriptlets are stored in the upgrade directory:
+.RS
+/usr/share/pki/server/upgrade/<version>/<index>-<name>
+.RE
+The \fBversion\fP is the server version to be upgraded. The \fBindex\fP
+is the script execution order. The \fBname\fP is the scriptlet name.
+
+During upgrade, the scriptlets will back up all changes to the file system into the
+following folder:
+.RS
+/var/log/pki/server/upgrade/<version>/<index>
+.RE
+The \fBversion\fP and \fBindex\fP values indicate the scriptlet being executed. A copy of the
+files and folders that are being modified or removed will be stored in \fBoldfiles\fP. The names
+of the newly-added files and folders will be stored in \fBnewfiles\fP.
+
+The instance upgrade process is tracked using this file:
+.RS
+/var/lib/pki/<instance>/conf/tomcat.conf
+.RE
+The subsystem upgrade process is tracked using this file:
+.RS
+/var/lib/pki/<instance>/<subsystem>/conf/CS.cfg
+.RE
+The file stores the current configuration version and the last successful
+scriptlet index.
+
+.SH OPTIONS
+
+.SS General options
+
+.TP
+.B --silent
+Upgrade in silent mode.
+.TP
+.B --status
+Show upgrade status only \fBwithout\fP performing the upgrade.
+.TP
+.B --revert
+Revert the last version.
+.TP
+.B -i, --instance <instance>
+Upgrade a specific instance only.
+.TP
+.B -s, --subsystem <subsystem>
+Upgrade a specific subsystem in an instance only.
+.TP
+.B -t, --instance-type <type>
+Upgrade a specific instance type, by the major version number of the Dogtag instance. For example, use 9 for Dogtag 9 instances and 10 for Dogtag 10.
+.TP
+.B -X
+Show advanced options.
+.TP
+.B -v, --verbose
+Run in verbose mode.
+.TP
+.B -h, --help
+Show this help message.
+
+.SS Advanced options
+The advanced options circumvent the normal component tracking process by changing the
+scriptlet order or changing the tracker information.
+
+\fBWARNING:\fP These options may render the system unusable.
+
+.TP
+.B --scriptlet-version <version>
+Run scriptlets for a specific version only.
+.TP
+.B --scriptlet-index <index>
+Run a specific scriptlet only.
+.TP
+.B --remove-tracker
+Remove the tracker.
+.TP
+.B --reset-tracker
+Reset the tracker to match the package version.
+.TP
+.B --set-tracker <version>
+Set the tracker to a specific version.
+
+.SH OPERATIONS
+
+.SS Interactive mode
+
+By default, \fBpki-server-upgrade\fP will run interactively to upgrade all
+server instances and subsystems on the machine. It will ask for a confirmation
+before
+executing each scriptlet.
+
+.B % pki-server-upgrade
+
+If there is an error, it will stop and show the error.
+
+.SS Silent mode
+
+The upgrade process can also be done silently without user interaction:
+
+.B % pki-server-upgrade --silent
+
+If there is an error, the upgrade process will stop for that particular
+instance/subsystem. Other instances/subsystems will continue to be upgraded.
+
+.SS Checking upgrade status
+
+It is possible to check the status of a running upgrade process.
+
+.B % pki-server-upgrade --status
+
+.SS Troubleshooting
+
+Check the scriptlet to see which operations are being executed. Once the
+error is identified and corrected, the upgrade can be resumed by re-running
+\fBpki-server-upgrade\fP.
+
+If necessary, the upgrade can be run in verbose mode:
+
+.B % pki-server-upgrade --verbose
+
+It is possible to rerun a failed script by itself, specifying the
+instance and subsystem, version, and scriptlet index:
+
+.B % pki-server-upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1 --scriptlet-index 1
+
+.SS Reverting an upgrade
+
+If necessary, the upgrade can be reverted:
+
+.B % pki-server-upgrade --revert
+
+Files and folders that were created by the scriptlet will be removed. Files
+and folders that were modified or removed by the scriptlet will be restored.
+
+.SH FILES
+.I /usr/sbin/pki-server-upgrade
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Ella Deon Lackey <dlackey@redhat.com>, and Endi Dewata <edewata@redhat.com>.
+\fBpki-server-upgrade\fP was written by the Dogtag project.
+
+.SH COPYRIGHT
+Copyright (c) 2013 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
