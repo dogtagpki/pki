@@ -307,11 +307,11 @@ PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
 PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 PKI_CHECK_STATUS_MESSAGE = "      To check the status of the subsystem: \n"\
-                           "            systemctl status pki-tomcatd\@%s.service"
+                           "            systemctl status pki-tomcatd@%s.service"
 PKI_ACCESS_URL = "      The URL for the subsystem is: \n"\
                  "            https://%s:%s/%s"
 PKI_INSTANCE_RESTART_MESSAGE = "      To restart the subsystem: \n"\
-                               "            systemctl restart pki-tomcatd\@%s.service"
+                               "            systemctl restart pki-tomcatd@%s.service"
 
 
 PKI_SPAWN_INFORMATION_HEADER = "\n    ==========================================================================\n"\

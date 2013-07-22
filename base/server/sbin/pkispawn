@@ -20,7 +20,6 @@
 #
 
 # System Imports
-import os
 import sys
 import signal
 
