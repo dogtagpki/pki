@@ -140,8 +140,13 @@ public class SSLAuthenticatorWithFallback extends AuthenticatorBase {
     @Override
     protected void initInternal() throws LifecycleException {
         log("Initializing authenticators");
+
         super.initInternal();
+
+        sslAuthenticator.setAlwaysUseSession(alwaysUseSession);
         sslAuthenticator.init();
+
+        fallbackAuthenticator.setAlwaysUseSession(alwaysUseSession);
         fallbackAuthenticator.init();
     }
 
