@@ -20,6 +20,7 @@
 #
 
 # System Imports
+import os
 import sys
 import signal
 
@@ -398,10 +399,14 @@ def print_install_information(pki_master_dict):
         print log.PKI_CONFIGURATION_RESTART_1 % \
               pki_master_dict['pki_registry_initscript_command']
     else:
-        print "    Admin username: %s" % pki_master_dict['pki_admin_uid']
+        print "      Administrator's username:             %s" % pki_master_dict['pki_admin_uid']
+        if os.path.isfile(pki_master_dict['pki_client_admin_cert_p12']):
+            print "      Administrator's PKCS #12 file:\n            %s" % (pki_master_dict['pki_client_dir'] + '/ca_admin_cert.p12')
         if not config.str2bool(pki_master_dict['pki_client_database_purge']):
-            print "    Location of client database: %s" % pki_master_dict['pki_client_database_dir']
-        print "    Client certificate nickname: %s" % pki_master_dict['pki_admin_nickname']
+            print
+            print "      Administrator's certificate nickname: %s" % pki_master_dict['pki_admin_nickname']
+            print "      Administrator's certificate database:\n            %s" % pki_master_dict['pki_client_database_dir']
+        print
         print log.PKI_CHECK_STATUS_MESSAGE % pki_master_dict['pki_instance_name']
         print log.PKI_INSTANCE_RESTART_MESSAGE % pki_master_dict['pki_instance_name']
         print log.PKI_ACCESS_URL % (pki_master_dict['pki_hostname'],
