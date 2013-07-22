@@ -37,6 +37,8 @@ public class CLI {
     public static CommandLineParser parser = new PosixParser();
     public static HelpFormatter formatter = new HelpFormatter();
 
+    public CLI parent;
+
     public String name;
     public String description;
 
@@ -44,8 +46,13 @@ public class CLI {
     public Map<String, CLI> modules = new LinkedHashMap<String, CLI>();
 
     public CLI(String name, String description) {
+        this(name, description, null);
+    }
+
+    public CLI(String name, String description, CLI parent) {
         this.name = name;
         this.description = description;
+        this.parent = parent;
     }
 
     public String getName() {
@@ -54,6 +61,14 @@ public class CLI {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFullName() {
+        if (parent == null) {
+            return name;
+        } else {
+            return parent.getName() + "-" + name;
+        }
     }
 
     public String getDescription() {

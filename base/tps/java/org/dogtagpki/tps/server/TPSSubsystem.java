@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.server;
 
+import org.dogtagpki.tps.token.TokenDatabase;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -29,7 +31,9 @@ import com.netscape.certsrv.request.IRequestQueue;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
-public class TPSAuthority implements IAuthority, ISubsystem {
+public class TPSSubsystem implements IAuthority, ISubsystem {
+
+    public final static TPSSubsystem INSTANCE = new TPSSubsystem();
 
     public ILogger logger = CMS.getLogger();
 
@@ -37,6 +41,12 @@ public class TPSAuthority implements IAuthority, ISubsystem {
     public String nickname;
     public ISubsystem owner;
     public IConfigStore config;
+
+    public TokenDatabase tokenDatabase = new TokenDatabase();
+
+    public static TPSSubsystem getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public String getId() {
@@ -99,4 +109,7 @@ public class TPSAuthority implements IAuthority, ISubsystem {
         return "tps";
     }
 
+    public TokenDatabase getTokenDatabase() {
+        return tokenDatabase;
+    }
 }

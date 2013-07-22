@@ -22,6 +22,8 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.tps.token.TokenService;
+
 import com.netscape.certsrv.acls.ACLInterceptor;
 import com.netscape.certsrv.authentication.AuthMethodInterceptor;
 import com.netscape.certsrv.base.PKIException;
@@ -59,6 +61,9 @@ public class TPSApplication extends Application {
 
         // system certs
         classes.add(SystemCertService.class);
+
+        // tokens
+        classes.add(TokenService.class);
 
         // exception mapper
         classes.add(PKIException.Mapper.class);

@@ -70,6 +70,13 @@ find_file(PKI_NSUTIL_JAR
         /usr/share/java/pki
 )
 
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
@@ -93,7 +100,7 @@ javac(pki-tps-classes
     CLASSPATH
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
+        ${LDAPJDK_JAR} ${JAXRS_API_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${SERVLET_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes

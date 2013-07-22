@@ -76,6 +76,7 @@ public class MainCLI extends CLI {
         addModule(new KRAConnectorCLI(this));
         addModule(new ProfileCLI(this));
         addModule(new SecurityDomainCLI(this));
+        addModule(new TPSCLI(this));
         addModule(new UserCLI(this));
     }
 
@@ -343,9 +344,10 @@ public class MainCLI extends CLI {
             }
 
             // get command module
+            if (verbose) System.out.println("Module: " + moduleName);
             module = getModule(moduleName);
             if (module == null)
-                throw new Error("Invalid command \"" + command + "\".");
+                throw new Error("Invalid module \"" + moduleName + "\".");
 
             // prepare module arguments
             if (moduleCommand != null) {
