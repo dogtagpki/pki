@@ -49,7 +49,7 @@ export PKI_BASE_DIR
 PKI_DOGTAG_DIR="${PKI_DIR}/dogtag"
 export PKI_DOGTAG_DIR
 
-PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
+PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake pylint-build-scan.sh dogtag.pylintrc"
 export PKI_FILE_LIST
 
 PKI_CMAKE_DIR="cmake"

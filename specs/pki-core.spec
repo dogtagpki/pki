@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.7%{?dist}
+Release:          0.8%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -40,6 +40,7 @@ BuildRequires:    resteasy-base-jettison-provider
 BuildRequires:    resteasy >= 2.3.2-1
 %endif
 
+BuildRequires:    pylint
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} || 0%{?fedora} >= 19
@@ -526,6 +527,12 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+# Scanning the python code with pylint. A return value of 0 represents there are no
+# errors or warnings reported by pylint.
+sh ../pylint-build-scan.sh %{buildroot} `pwd`
+if [ $? -eq 1 ]; then
+    exit 1
+fi
 # Fedora 18 and 17:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
 %if ! 0%{?rhel} && 0%{?fedora} <= 18
 	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
@@ -1086,6 +1093,9 @@ fi
 
 
 %changelog
+* Fri Aug 09 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.8
+- Added pylint scan to the build process.
+ 
 * Mon Jul 22 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.7
 - Added man pages for upgrade tools.
 
