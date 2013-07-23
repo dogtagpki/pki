@@ -942,8 +942,7 @@ class PKIConfigParser:
             elif config.str2bool(config.pki_master_dict['pki_external']):
                 # External CA
                 config.pki_master_dict['pki_security_domain_type'] = "new"
-                if not len(config.pki_master_dict['pki_issuing_ca']):
-                    config.pki_master_dict['pki_issuing_ca'] = "External CA"
+                config.pki_master_dict['pki_issuing_ca'] = "External CA"
             else:
                 # PKI CA
                 config.pki_master_dict['pki_security_domain_type'] = "new"
