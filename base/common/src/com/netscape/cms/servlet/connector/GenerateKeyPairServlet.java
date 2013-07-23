@@ -151,15 +151,16 @@ public class GenerateKeyPairServlet extends CMSServlet {
             missingParam = true;
         }
 
+        // if not specified, default to RSA
+        if ((rKeytype == null) || (rKeytype.equals(""))) {
+            rKeytype = "RSA";
+        }
+
         // keysize is for non-EC (EC uses keycurve)
         if (!rKeytype.equals("EC") && ((rKeysize == null) || (rKeysize.equals("")))) {
             rKeysize = "1024"; // default to 1024
         }
 
-        // if not specified, default to RSA
-        if ((rKeytype == null) || (rKeytype.equals(""))) {
-            rKeytype = "RSA";
-        }
         if (rKeytype.equals("EC")) {
             if ((rKeycurve == null) || (rKeycurve.equals(""))) {
                 rKeycurve = "nistp256";
