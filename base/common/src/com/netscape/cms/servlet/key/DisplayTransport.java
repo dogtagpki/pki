@@ -108,7 +108,7 @@ public class DisplayTransport extends CMSServlet {
             content += "<HTML><PRE>";
             String mime64 =
                     "-----BEGIN CERTIFICATE-----\n" +
-                            CMS.BtoA(transportCert.getEncoded()) +
+                            CMS.BtoA(transportCert.getEncoded()) + "\n" +
                             "-----END CERTIFICATE-----\n";
 
             content += mime64;
