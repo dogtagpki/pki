@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.0.4
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -231,6 +231,9 @@ fi
 
 
 %changelog
+* Thu Jul 25 2013 Ade Lee <alee@redhat.com> 10.0.4-1
+- Change release number for official release
+
 * Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.0.4-0.2
 - Add systemd build requirement to fix build failures in f19
 

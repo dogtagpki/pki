@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.0.4
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -198,6 +198,9 @@ fi
 
 
 %changelog
+* Thu Jul 25 2013 Ade Lee <alee@redhat.com> 10.0.4-1
+- Change release number for official release
+
 * Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.0.4-0.2
 - Add systemd build requirement to fix build failures in f19
 

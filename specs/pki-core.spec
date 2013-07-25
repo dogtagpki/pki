@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.4
-Release:          0.4%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1134,6 +1134,9 @@ fi
 
 
 %changelog
+* Thu Jul 25 2013 Ade Lee <alee@redhat.com> 10.0.4-1
+- Change release number for official release
+
 * Wed Jul 24 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.4-0.4
 - Bugzilla Bug #986506 - Need to determine RPM packages to be excluded
   from compose . . . (exclude pki-kra, pki-ocsp, and pki-tks from rhel 7)
