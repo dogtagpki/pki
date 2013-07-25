@@ -16,6 +16,9 @@ string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_P
 
 option(WITH_JAVADOC "Build with Javadoc" ON)
 option(BUILD_PKI_SELINUX "Build pki-selinux" OFF)
+option(BUILD_PKI_KRA "Build pki-kra" ON)
+option(BUILD_PKI_OCSP "Build pki-ocsp" ON)
+option(BUILD_PKI_TKS "Build pki-tks" ON)
 
 if (BUILD_IPA_PKI_THEME)
     set(APPLICATION_FLAVOR_IPA_PKI_THEME TRUE)

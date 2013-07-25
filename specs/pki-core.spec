@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.4
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -99,17 +99,17 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-selinux (f17 only)                                             \
   * pki-server                                                         \
   * pki-ca                                                             \
-  * pki-kra                                                            \
-  * pki-ocsp                                                           \
-  * pki-tks                                                            \
+  * pki-kra  (fedora only)                                             \
+  * pki-ocsp (fedora only)                                             \
+  * pki-tks  (fedora only)                                             \
   * pki-javadoc                                                        \
                                                                        \
 which comprise the following corresponding PKI subsystems:             \
                                                                        \
   * Certificate Authority (CA)                                         \
-  * Data Recovery Manager (DRM)                                        \
-  * Online Certificate Status Protocol (OCSP) Manager                  \
-  * Token Key Service (TKS)                                            \
+  * Data Recovery Manager (DRM) (fedora only)                          \
+  * Online Certificate Status Protocol (OCSP) Manager (fedora only)    \
+  * Token Key Service (TKS) (fedora only)                              \
                                                                        \
 For deployment purposes, PKI Core contains fundamental packages        \
 required by BOTH native-based Apache AND java-based Tomcat             \
@@ -278,6 +278,7 @@ Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
+Requires:         pki-symkey = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
@@ -363,6 +364,7 @@ provided by the PKI Core used by the Certificate System.
 %{overview}
 
 
+%if ! 0%{?rhel}
 %package -n       pki-kra
 Summary:          Certificate System - Data Recovery Manager
 Group:            System Environment/Daemons
@@ -394,8 +396,10 @@ This package is one of the top-level java-based Tomcat PKI subsystems
 provided by the PKI Core used by the Certificate System.
 
 %{overview}
+%endif
 
 
+%if ! 0%{?rhel}
 %package -n       pki-ocsp
 Summary:          Certificate System - Online Certificate Status Protocol Manager
 Group:            System Environment/Daemons
@@ -434,8 +438,10 @@ This package is one of the top-level java-based Tomcat PKI subsystems
 provided by the PKI Core used by the Certificate System.
 
 %{overview}
+%endif
 
 
+%if ! 0%{?rhel}
 %package -n       pki-tks
 Summary:          Certificate System - Token Key Service
 Group:            System Environment/Daemons
@@ -444,7 +450,6 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         pki-server = %{version}-%{release}
-Requires:         pki-symkey = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -469,6 +474,7 @@ This package is one of the top-level java-based Tomcat PKI subsystems
 provided by the PKI Core used by the Certificate System.
 
 %{overview}
+%endif
 
 
 %package -n       pki-javadoc
@@ -516,6 +522,11 @@ cd build
 %if ! 0%{?rhel} && 0%{?fedora} <= 17
         -DBUILD_PKI_SELINUX:BOOL=ON \
 %endif
+%if 0%{?rhel}
+        -DBUILD_PKI_KRA:BOOL=OFF \
+        -DBUILD_PKI_OCSP:BOOL=OFF \
+        -DBUILD_PKI_TKS:BOOL=OFF \
+%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 # %{__make} VERBOSE=1 %{?_smp_mflags} test
@@ -544,31 +555,43 @@ echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfile
 echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+%if ! 0%{?rhel}
 # generate 'pki-kra.conf' under the 'tmpfiles.d' directory
 echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
 echo "D /var/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
 echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
 echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+%endif
+%if ! 0%{?rhel}
 # generate 'pki-ocsp.conf' under the 'tmpfiles.d' directory
 echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+%endif
 # generate 'pki-tomcat.conf' under the 'tmpfiles.d' directory
 echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 echo "D /var/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 echo "D /var/run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+%if ! 0%{?rhel}
 # generate 'pki-tks.conf' under the 'tmpfiles.d' directory
 echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+%endif
 
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
+%if ! 0%{?rhel}
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
+%endif
+%if ! 0%{?rhel}
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
+%endif
+%if ! 0%{?rhel}
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
+%endif
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
@@ -699,6 +722,7 @@ fi
 %fix_tomcat_log ca
 
 
+%if ! 0%{?rhel}
 %post -n pki-kra
 # Attempt to update ALL old "KRA" instances to "systemd"
 if [ -d /etc/sysconfig/pki/kra ]; then
@@ -728,8 +752,10 @@ if [ -d /etc/sysconfig/pki/kra ]; then
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %fix_tomcat_log kra
+%endif
 
 
+%if ! 0%{?rhel}
 %post -n pki-ocsp
 # Attempt to update ALL old "OCSP" instances to "systemd"
 if [ -d /etc/sysconfig/pki/ocsp ]; then
@@ -759,8 +785,10 @@ if [ -d /etc/sysconfig/pki/ocsp ]; then
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %fix_tomcat_log ocsp
+%endif
 
 
+%if ! 0%{?rhel}
 %post -n pki-tks
 # Attempt to update ALL old "TKS" instances to "systemd"
 if [ -d /etc/sysconfig/pki/tks ]; then
@@ -790,6 +818,7 @@ if [ -d /etc/sysconfig/pki/tks ]; then
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 %fix_tomcat_log tks
+%endif
 
 
 %post -n pki-server
@@ -809,25 +838,31 @@ if [ $1 = 0 ] ; then
 fi
 
 
+%if ! 0%{?rhel}
 %preun -n pki-kra
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-krad.target > /dev/null 2>&1 || :
     /bin/systemctl stop pki-krad.target > /dev/null 2>&1 || :
 fi
+%endif
 
 
+%if ! 0%{?rhel}
 %preun -n pki-ocsp
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-ocspd.target > /dev/null 2>&1 || :
     /bin/systemctl stop pki-ocspd.target > /dev/null 2>&1 || :
 fi
+%endif
 
 
+%if ! 0%{?rhel}
 %preun -n pki-tks
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-tksd.target > /dev/null 2>&1 || :
     /bin/systemctl stop pki-tksd.target > /dev/null 2>&1 || :
 fi
+%endif
 
 
 ## %preun -n pki-server
@@ -843,25 +878,31 @@ if [ "$1" -ge "1" ] ; then
 fi
 
 
+%if ! 0%{?rhel}
 %postun -n pki-kra
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-krad.target >/dev/null 2>&1 || :
 fi
+%endif
 
 
+%if ! 0%{?rhel}
 %postun -n pki-ocsp
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-ocspd.target >/dev/null 2>&1 || :
 fi
+%endif
 
 
+%if ! 0%{?rhel}
 %postun -n pki-tks
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
 fi
+%endif
 
 
 ## %postun -n pki-server
@@ -1016,6 +1057,7 @@ fi
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ca.conf
 
 
+%if ! 0%{?rhel}
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
@@ -1035,8 +1077,10 @@ fi
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-kra.conf
+%endif
 
 
+%if ! 0%{?rhel}
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
@@ -1056,8 +1100,10 @@ fi
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+%endif
 
 
+%if ! 0%{?rhel}
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
@@ -1077,6 +1123,7 @@ fi
 #     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
 #
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
+%endif
 
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
@@ -1087,6 +1134,10 @@ fi
 
 
 %changelog
+* Wed Jul 24 2013 Matthew Harmsen <mharmsen@redhat.com> 10.0.4-0.4
+- Bugzilla Bug #986506 - Need to determine RPM packages to be excluded
+  from compose . . . (exclude pki-kra, pki-ocsp, and pki-tks from rhel 7)
+
 * Wed Jul 17 2013 Endi S. Dewata <edewata@redhat.com> 10.0.4-0.3
 - Added man pages for upgrade tools.
 - Cleaned up the code to install man pages.
