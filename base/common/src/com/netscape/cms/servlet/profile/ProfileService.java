@@ -275,13 +275,14 @@ public class ProfileService extends PKIService implements ProfileResource {
         ret = new ProfileDataInfo();
 
         ret.setProfileId(profileId);
+        ret.setProfileName(profile.getName(getLocale()));
+        ret.setProfileDescription(profile.getDescription(getLocale()));
 
         UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
+        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
+                build(profileId);
 
-        // TODO - fix this once we figure out the auth problem
-        //URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
-        //        build(profileId);
-
+        /*
         URI uri = null;
         if (visibleOnly) {
             uri = profileBuilder.path(ProfileResource.class).path("profiles").path("{id}")
@@ -289,7 +290,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         } else {
             uri = profileBuilder.path(ProfileResource.class).path("agent").path("profiles")
                     .path("{id}").build(profileId);
-        }
+        }*/
 
         ret.setProfileURL(uri.toString());
 

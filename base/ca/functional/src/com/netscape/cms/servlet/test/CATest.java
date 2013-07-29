@@ -415,6 +415,8 @@ public class CATest {
         log(" \n Profile Information: \n");
         log("ProfileURL: " + info.getProfileURL());
         log("ProfileID: " + info.getProfileId());
+        log("ProfileName: " + info.getProfileName());
+        log("ProfileDescription: " + info.getProfileDescription());
     }
 
     private static void printProfileData(ProfileData info) {

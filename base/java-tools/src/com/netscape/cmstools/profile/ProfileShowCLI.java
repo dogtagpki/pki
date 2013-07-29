@@ -48,24 +48,23 @@ public class ProfileShowCLI extends CLI {
         String filename = null;
         if (cmd.hasOption("output")) {
             filename = cmd.getOptionValue("output");
-        } else {
-            System.err.println("Error: Missing output file name.");
-            printHelp();
-            System.exit(-1);
-        }
 
-        if (filename == null || filename.trim().length() == 0) {
-            System.err.println("Error: Missing output file name.");
-            printHelp();
-            System.exit(-1);
+            if (filename == null || filename.trim().length() == 0) {
+                System.err.println("Error: Missing output file name.");
+                printHelp();
+                System.exit(-1);
+            }
         }
 
         ProfileData profileData = parent.client.retrieveProfile(profileId);
 
         MainCLI.printMessage("Profile \"" + profileId + "\"");
 
-        ProfileCLI.printProfile(profileData);
-        ProfileCLI.saveProfileToFile(filename, profileData);
+        if (filename != null) {
+            ProfileCLI.saveProfileToFile(filename, profileData);
+        } else {
+            ProfileCLI.printProfile(profileData, parent.parent.config.getServerURI());
+        }
     }
 
 }

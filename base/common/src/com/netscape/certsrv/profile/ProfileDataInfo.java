@@ -36,6 +36,12 @@ public class ProfileDataInfo {
     @XmlElement
     protected String profileId;
 
+    @XmlElement
+    protected String profileName;
+
+    @XmlElement
+    protected String profileDescription;
+
     public ProfileDataInfo() {
         // required for JAXB (defaults)
     }
@@ -65,4 +71,19 @@ public class ProfileDataInfo {
         return profileId;
     }
 
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
+
+    public String getProfileDescription() {
+        return profileDescription;
+    }
+
+    public void setProfileDescription(String profileDescription) {
+        this.profileDescription = profileDescription;
+    }
 }

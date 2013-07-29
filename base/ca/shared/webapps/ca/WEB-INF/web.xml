@@ -2461,6 +2461,16 @@
         </user-data-constraint>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Profile Services</web-resource-name>
+            <url-pattern>/rest/profiles/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
     <login-config>
         <realm-name>Certificate Authority</realm-name>
     </login-config>
