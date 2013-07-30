@@ -34,8 +34,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriBuilder;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -282,16 +285,6 @@ public class ProfileService extends PKIService implements ProfileResource {
         URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
                 build(profileId);
 
-        /*
-        URI uri = null;
-        if (visibleOnly) {
-            uri = profileBuilder.path(ProfileResource.class).path("profiles").path("{id}")
-                    .build(profileId);
-        } else {
-            uri = profileBuilder.path(ProfileResource.class).path("agent").path("profiles")
-                    .path("{id}").build(profileId);
-        }*/
-
         ret.setProfileURL(uri.toString());
 
         return ret;
@@ -299,7 +292,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     public void modifyProfileState(String profileId, String action) {
         if (ps == null) {
-            // throw internal error exception;
+            CMS.debug("modifyProfileState: ps is null");
+            throw new PKIException("Error modifying profile state.  Profile Service not available");
         }
 
         Principal principal = servletRequest.getUserPrincipal();
@@ -307,18 +301,19 @@ public class ProfileService extends PKIService implements ProfileResource {
         switch (action) {
         case "enable":
             if (ps.isProfileEnable(profileId)) {
-                // throw new ProfileAlreadyEnabled exception
+                throw new BadRequestException("Profile already enabled");
             }
             try {
                 ps.enableProfile(profileId, principal.getName());
             } catch (EProfileException e) {
-                // TODO Auto-generated catch block
+                CMS.debug("modifyProfileState: error enabling profile. " + e);
                 e.printStackTrace();
+                throw new PKIException("Error enabling profile");
             }
             break;
         case "disable":
             if (!ps.isProfileEnable(profileId)) {
-                // throw new ProfileAlreadyDisabled exception
+                throw new BadRequestException("Profile already disabled");
             }
             String userid = principal.getName();
             try {
@@ -327,24 +322,27 @@ public class ProfileService extends PKIService implements ProfileResource {
                         ps.disableProfile(profileId);
                     } else {
                         // audit log messages
-                        // throw Unauthorized exception
+                        throw new UnauthorizedException(
+                                "Profile can only be disabled by the agent that enabled it");
                     }
                 } else {
                     ps.disableProfile(profileId);
                 }
             } catch (EProfileException e) {
+                CMS.debug("modifyProfileState: Error disabling profile: " + e);
                 e.printStackTrace();
-                // throw internal error exception
+                throw new PKIException("Error disabling profile");
             }
             break;
         default:
-            // throw Bad Request exception
+            throw new BadRequestException("Invalid operation");
         }
     }
 
     public void createProfile(ProfileData data){
         if (ps == null) {
-            // throw internal error exception;
+            CMS.debug("createProfile: ps is null");
+            throw new PKIException("Error creating profile.  Profile Service not available");
         }
 
         IProfile profile = null;
@@ -352,7 +350,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         try {
             profile = ps.getProfile(profileId);
             if (profile != null) {
-                // throw Profile Already Exists Exception
+                throw new BadRequestException("Profile already exists");
             }
             String config = CMS.getConfigStore().getString("instanceRoot") + "/ca/profiles/ca/" +
                     profileId + ".cfg";
@@ -373,8 +371,9 @@ public class ProfileService extends PKIService implements ProfileResource {
                 ((IProfileEx) profile).populate();
             }
         } catch (EBaseException | IOException e) {
+            CMS.debug("createProfile: error in creating profile: " + e);
             e.printStackTrace();
-            // throw internal error exception
+            throw new PKIException("Error in creating profile");
         }
 
         changeProfileData(data, profile);
@@ -382,18 +381,21 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     public void modifyProfile(String profileId, ProfileData data){
         if (ps == null) {
-            // throw internal error exception;
+            CMS.debug("modifyProfile: ps is null");
+            throw new PKIException("Error modifying profile.  Profile Service not available");
         }
 
         IProfile profile = null;
         try {
             profile = ps.getProfile(profileId);
             if (profile == null) {
-                // throw ProfileNotExist Exception
+                throw new ProfileNotFoundException("Cannot modify profile `" + profileId +
+                        "`.  Profile not found");
             }
         } catch (EBaseException e) {
+            CMS.debug("modifyProfile: error obtaining profile `" + profileId + "`: " + e);
             e.printStackTrace();
-            // throw internal error exception
+            throw new PKIException("Error modifying profile.  Cannot obtain profile.");
         }
 
         changeProfileData(data, profile);
@@ -402,10 +404,11 @@ public class ProfileService extends PKIService implements ProfileResource {
     private void changeProfileData(ProfileData data, IProfile profile) {
         String profileId = data.getId();
         if (profile == null) {
-            // throw internal error exception
+            CMS.debug("changeProfileData - profile is null");
+            throw new PKIException("Error changing profile data. Profile not available.");
         }
         if (ps.isProfileEnable(profileId)) {
-            // throw bad request - profile must be disabled
+            throw new BadRequestException("Cannot change profile data.  Profile must be disabled");
         }
 
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
@@ -468,12 +471,10 @@ public class ProfileService extends PKIService implements ProfileResource {
             // add audit log for profile policies
 
             profile.getConfigStore().commit(false);
-        } catch (EPropertyException e) {
-            e.printStackTrace();
-            // throw bad request exception
         } catch (EBaseException e) {
+            CMS.debug("changeProfileData: Error changing profile inputs/outputs/policies: " + e);
             e.printStackTrace();
-            // throw internal error exception
+            throw new PKIException("Error changing profile data");
         }
     }
 
@@ -564,27 +565,30 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     public void deleteProfile(@PathParam("id") String profileId) {
         if (ps == null) {
-            // throw internal error exception;
+            CMS.debug("deleteProfile: ps is null");
+            throw new PKIException("Error deleting profile.  Profile Service not available");
         }
 
         try {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                // log already deleted
+                CMS.debug("Trying to delete profile: " + profileId + ".  Profile already deleted.");
                 return;
             }
 
             if (ps.isProfileEnable(profileId)) {
-                // log attempt to delete profile when enabled
-                // throw unauthorized exception
+                CMS.debug("Delete profile not permitted.  Profile must be disabled first.");
+                throw new BadRequestException("Cannot delete profile `" + profileId +
+                        "`.  Profile must be disabled first.");
             }
 
             String configFile = CMS.getConfigStore().getString("profile." + profileId + ".config");
 
             ps.deleteProfile(profileId, configFile);
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
+            CMS.debug("deleteProfile: error in deleting profile `" + profileId + "`: " + e);
             e.printStackTrace();
+            throw new PKIException("Error deleting profile.");
         }
 
 
