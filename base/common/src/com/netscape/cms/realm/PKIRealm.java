@@ -1,4 +1,4 @@
-package com.netscape.cmscore.realm;
+package com.netscape.cms.realm;
 
 import java.security.Principal;
 import java.security.cert.X509Certificate;
@@ -21,6 +21,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cmscore.authentication.CertUserDBAuthentication;
 import com.netscape.cmscore.authentication.PasswdUserDBAuthentication;
+import com.netscape.cmscore.realm.PKIPrincipal;
 
 /**
  *  PKI Realm

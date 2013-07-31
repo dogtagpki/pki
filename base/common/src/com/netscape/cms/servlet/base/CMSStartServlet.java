@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
-import com.netscape.cmscore.realm.PKIRealm;
 import com.netscape.cmsutil.util.Utils;
 
 /**
