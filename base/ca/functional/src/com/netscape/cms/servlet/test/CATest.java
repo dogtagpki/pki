@@ -18,7 +18,7 @@
 package com.netscape.cms.servlet.test;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -434,10 +434,10 @@ public class CATest {
 
         log("Profile Input Information: \n");
 
-        Map<String, ProfileInput> inputs = info.getInputs();
-        for (Map.Entry<String, ProfileInput> entry : inputs.entrySet()) {
-            log("Input Id: " + entry.getKey());
-            for (ProfileAttribute attr: entry.getValue().getAttrs()) {
+        List<ProfileInput> inputs = info.getInputs();
+        for (ProfileInput input : inputs) {
+            log("Input Id: " + input.getId());
+            for (ProfileAttribute attr: input.getAttrs()) {
                 log("Input Attribute Name: " + attr.getName() + "\n");
                 log("Input Attribute Value: " + attr.getValue() + "\n");
             }

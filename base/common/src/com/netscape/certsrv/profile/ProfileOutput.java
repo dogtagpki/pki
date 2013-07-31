@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -33,11 +34,22 @@ import com.netscape.certsrv.property.Descriptor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileOutput {
 
+    @XmlAttribute
+    private String  id;
+
     @XmlElement
     private String name;
 
     @XmlElement
     private String text;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @XmlElement
     private String classId;
@@ -50,8 +62,9 @@ public class ProfileOutput {
         // required for jaxb
     }
 
-    public ProfileOutput(IProfileOutput output, String classId, Locale locale) {
+    public ProfileOutput(IProfileOutput output, String id, String classId, Locale locale) {
         this.name = output.getName(locale);
+        this.id = id;
         this.classId = classId;
         Enumeration<String> names = output.getValueNames();
         while (names.hasMoreElements()) {

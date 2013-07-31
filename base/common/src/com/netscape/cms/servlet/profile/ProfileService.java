@@ -27,11 +27,12 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriBuilder;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -113,7 +114,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     public ProfileData retrieveProfile(String profileId) throws ProfileNotFoundException {
         ProfileData data = null;
-        boolean visibleOnly = false;
+        boolean visibleOnly = true;
 
         if (ps == null) {
             return null;
@@ -123,7 +124,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         if ((principal != null) &&
             (principal.hasRole("Certificate Manager Agents") ||
              principal.hasRole("Certificate Manager Administrators"))) {
-            visibleOnly = true;
+            visibleOnly = false;
         }
 
         Enumeration<String> profileIds = ps.getProfileIds();
@@ -160,6 +161,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             e.printStackTrace();
             throw new ProfileNotFoundException(profileId);
         }
+
+        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
+        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
+                build(profileId);
+        data.setLink(new Link("self", uri));
 
         return data;
     }
@@ -202,8 +208,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
                 String classId = inputStore.getString(inputId + ".class_id");
 
-                ProfileInput input = new ProfileInput(profileInput, classId, getLocale());
-                data.addProfileInput(inputId, input);
+                ProfileInput input = new ProfileInput(profileInput, inputId, classId, getLocale());
+                data.addProfileInput(input);
             }
         }
 
@@ -221,8 +227,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
                 String classId = outputStore.getString(outputId + ".class_id");
 
-                ProfileOutput output = new ProfileOutput(profileOutput, classId, getLocale());
-                data.addProfileOutput(outputId, output);
+                ProfileOutput output = new ProfileOutput(profileOutput, outputId, classId, getLocale());
+                data.addProfileOutput(output);
             }
         }
 
@@ -253,6 +259,11 @@ public class ProfileService extends PKIService implements ProfileResource {
                 }
             }
         }
+
+        UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
+        URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
+                build(profileId);
+        data.setLink(new Link("self", uri));
 
         return data;
     }
@@ -537,10 +548,10 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     private void populateProfileOutputs(ProfileData data, IProfile profile) throws EProfileException {
         profile.deleteAllProfileOutputs();
-        Map<String, ProfileOutput> outputs = data.getOutputs();
-        for (Entry<String, ProfileOutput> entry: outputs.entrySet()) {
-            String id = entry.getKey();
-            String classId = entry.getValue().getClassId();
+        List<ProfileOutput> outputs = data.getOutputs();
+        for (ProfileOutput output: outputs) {
+            String id = output.getId();
+            String classId = output.getClassId();
 
             NameValuePairs nvp = new NameValuePairs();
             // TODO - add a field for params in ProfileOuput
@@ -551,10 +562,10 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     private void populateProfileInputs(ProfileData data, IProfile profile) throws EProfileException {
         profile.deleteAllProfileInputs();
-       Map<String, ProfileInput> inputs = data.getInputs();
-        for (Entry<String, ProfileInput> entry: inputs.entrySet()) {
-            String id = entry.getKey();
-            String classId = entry.getValue().getClassId();
+       List<ProfileInput> inputs = data.getInputs();
+        for (ProfileInput input: inputs) {
+            String id = input.getId();
+            String classId = input.getClassId();
 
             NameValuePairs nvp = new NameValuePairs();
             // TODO - add a field for params in ProfileInput.

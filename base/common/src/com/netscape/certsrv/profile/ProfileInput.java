@@ -22,12 +22,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.netscape.certsrv.property.Descriptor;
 
 public class ProfileInput {
-
+    private String id;
     private String classId;
     private String name;
     private String text;
@@ -38,8 +39,9 @@ public class ProfileInput {
         // required for jaxb
     }
 
-    public ProfileInput(IProfileInput input, String classId, Locale locale) {
+    public ProfileInput(IProfileInput input, String id, String classId, Locale locale) {
         this.name = input.getName(locale);
+        this.id = id;
         this.classId = classId;
         Enumeration<String> names = input.getValueNames();
         while (names.hasMoreElements()) {
@@ -66,6 +68,15 @@ public class ProfileInput {
 
     public void setClassId(String classId) {
         this.classId = classId;
+    }
+
+    @XmlAttribute
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setName(String name) {

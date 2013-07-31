@@ -29,21 +29,24 @@ import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 /**
  * @author jmagne
  *
  */
 
-@XmlRootElement(name = "ProfileData")
+@XmlRootElement(name = "Profile")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileData {
 
-    @XmlElement
+    @XmlAttribute
     protected String id;
 
     @XmlElement
@@ -76,18 +79,25 @@ public class ProfileData {
     @XmlElement
     protected boolean xmlOutput;
 
-    @XmlElement(name = "Inputs")
-    @XmlJavaTypeAdapter(InputAdapter.class)
-    protected Map<String, ProfileInput> inputs = new LinkedHashMap<String, ProfileInput>();
+    @XmlElement(name = "Input")
+    protected List<ProfileInput> inputs = new ArrayList<ProfileInput>();
 
-    @XmlElement(name = "Outputs")
-    @XmlJavaTypeAdapter(OutputAdapter.class)
-    protected Map<String, ProfileOutput> outputs = new LinkedHashMap<String, ProfileOutput>();
+    @XmlElement(name = "Output")
+    protected List<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
 
     @XmlElement(name = "PolicySets")
     @XmlJavaTypeAdapter(PolicySetAdapter.class)
     protected Map<String, List<ProfilePolicy>> policySets = new LinkedHashMap<String, List<ProfilePolicy>>();
 
+    protected Link link;
+
+    public Link getLink() {
+        return link;
+    }
+
+    public void setLink(Link link) {
+        this.link = link;
+    }
 
     public String getAuthenticatorId() {
         return authenticatorId;
@@ -177,27 +187,30 @@ public class ProfileData {
         this.classId = classId;
     }
 
-    public void addProfileInput(String id, ProfileInput input) {
-        inputs.put(id, input);
+    public void addProfileInput(ProfileInput input) {
+        inputs.add(input);
     }
 
     public ProfileInput getProfileInput(String id) {
-        return inputs.get(id);
+        for (ProfileInput input: inputs) {
+            if (input.getId().equals(id)) return input;
+        }
+        return null;
     }
 
-    public Map<String, ProfileInput> getInputs() {
+    public List<ProfileInput> getInputs() {
         return inputs;
     }
 
-    public void setInputs(Map<String, ProfileInput> inputs) {
+    public void setInputs(List<ProfileInput> inputs) {
         this.inputs = inputs;
     }
 
-    public Map<String, ProfileOutput> getOutputs() {
+    public List<ProfileOutput> getOutputs() {
         return outputs;
     }
 
-    public void setOutputs(Map<String, ProfileOutput> outputs) {
+    public void setOutputs(List<ProfileOutput> outputs) {
         this.outputs = outputs;
     }
 
@@ -213,84 +226,15 @@ public class ProfileData {
         this.policySets.put(id, policySet);
     }
 
-    public void addProfileOutput(String id, ProfileOutput output) {
-        outputs.put(id, output);
+    public void addProfileOutput(ProfileOutput output) {
+        outputs.add(output);
     }
 
     public ProfileOutput getProfileOutput(String id) {
-        return outputs.get(id);
-    }
-
-    public static class InputAdapter extends XmlAdapter<InputList, Map<String, ProfileInput>> {
-
-        public InputList marshal(Map<String,ProfileInput> map) {
-            InputList list = new InputList();
-            for (Map.Entry<String, ProfileInput> entry : map.entrySet()) {
-                Input input = new Input();
-                input.name = entry.getKey();
-                input.value = entry.getValue();
-                list.inputs.add(input);
-            }
-            return list;
+        for (ProfileOutput output: outputs) {
+            if (output.getId().equals(id)) return output;
         }
-
-        public Map<String, ProfileInput> unmarshal(InputList list) {
-            Map<String, ProfileInput> map = new LinkedHashMap<String, ProfileInput>();
-            for (Input input : list.inputs) {
-                map.put(input.name, input.value);
-            }
-            return map;
-        }
-    }
-
-    public static class InputList {
-        @XmlElement(name="input")
-        public List<Input> inputs = new ArrayList<Input>();
-    }
-
-    public static class Input {
-
-        @XmlElement(name="id")
-        public String name;
-
-        @XmlElement
-        public ProfileInput value;
-    }
-
-    public static class OutputAdapter extends XmlAdapter<OutputList, Map<String, ProfileOutput>> {
-
-        public OutputList marshal(Map<String,ProfileOutput> map) {
-            OutputList list = new OutputList();
-            for (Map.Entry<String, ProfileOutput> entry : map.entrySet()) {
-                Output output = new Output();
-                output.name = entry.getKey();
-                output.value = entry.getValue();
-                list.outputs.add(output);
-            }
-            return list;
-        }
-
-        public Map<String, ProfileOutput> unmarshal(OutputList list) {
-            Map<String, ProfileOutput> map = new LinkedHashMap<String, ProfileOutput>();
-            for (Output output : list.outputs) {
-                map.put(output.name, output.value);
-            }
-            return map;
-        }
-    }
-
-    public static class OutputList {
-        @XmlElement(name="output")
-        public List<Output> outputs = new ArrayList<Output>();
-    }
-
-    public static class Output {
-
-        @XmlElement(name="id")
-        public String name;
-
-        @XmlElement
-        public ProfileOutput value;
+        return null;
     }
 
     public static class PolicySetAdapter extends XmlAdapter<PolicySetList, Map<String, Vector<ProfilePolicy>>> {
@@ -330,7 +274,7 @@ public class ProfileData {
     }
 
     public static void main(String args[]) throws Exception {
-        Map<String, ProfileInput> inputs = new LinkedHashMap<String, ProfileInput>();
+        List<ProfileInput> inputs = new ArrayList<ProfileInput>();
         //ProfileInput input = new ProfileInput();
         //input.setClassId(classId);
         //input.setInputId(inputId);
