@@ -30,6 +30,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -52,16 +53,10 @@ import com.netscape.cmscore.util.Debug;
  * @author lhsiao, cfu
  * @version $Revision$, $Date$
  */
-public class PasswdUserDBAuthentication implements IAuthManager {
+public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAuthentication {
 
     /* required credentials. uid, pwd are strings */
-    public static final String CRED_UID = "uid";
-    public static final String CRED_PWD = "pwd";
     protected static String[] mRequiredCred = { CRED_UID, CRED_PWD };
-
-    /* attribute in returned token */
-    public static final String TOKEN_USERDN = "userdn";
-    public static final String TOKEN_USERID = "userid";
 
     /* configuration params to pass to console (none) */
     protected static String[] mConfigParams = null;

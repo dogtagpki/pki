@@ -14,13 +14,13 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
+import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.common.AuthCredentials;
-import com.netscape.cmscore.authentication.CertUserDBAuthentication;
-import com.netscape.cmscore.authentication.PasswdUserDBAuthentication;
 import com.netscape.cmscore.realm.PKIPrincipal;
 
 /**
@@ -47,8 +47,8 @@ public class PKIRealm extends RealmBase {
             IAuthManager authMgr = authSub.getAuthManager(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
-            creds.set(PasswdUserDBAuthentication.CRED_UID, username);
-            creds.set(PasswdUserDBAuthentication.CRED_PWD, password);
+            creds.set(IPasswdUserDBAuthentication.CRED_UID, username);
+            creds.set(IPasswdUserDBAuthentication.CRED_PWD, password);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
 
@@ -79,11 +79,11 @@ public class PKIRealm extends RealmBase {
             IAuthManager authMgr = authSub.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
-            creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
+            creds.set(ICertUserDBAuthentication.CRED_CERT, certImpls);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
 
-            String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
+            String username = authToken.getInString(ICertUserDBAuthentication.TOKEN_USERID);
             logDebug("User ID: "+username);
 
             return getPrincipal(username, authToken);

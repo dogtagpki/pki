@@ -28,6 +28,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
@@ -47,16 +48,9 @@ import com.netscape.cmscore.usrgrp.User;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertUserDBAuthentication implements IAuthManager {
-
-    /* result auth token attributes */
-    public static final String TOKEN_USERDN = "user";
-    public static final String TOKEN_USER_DN = "userdn";
-    public static final String TOKEN_USERID = "userid";
-    public static final String TOKEN_UID = "uid";
+public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthentication {
 
     /* required credentials */
-    public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
     protected String[] mRequiredCreds = { CRED_CERT };
 
     /* config parameters to pass to console (none) */
