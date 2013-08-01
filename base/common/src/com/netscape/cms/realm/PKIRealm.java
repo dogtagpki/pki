@@ -21,7 +21,6 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.common.AuthCredentials;
-import com.netscape.cmscore.realm.PKIPrincipal;
 
 /**
  *  PKI Realm

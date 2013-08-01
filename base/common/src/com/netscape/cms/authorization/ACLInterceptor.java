@@ -41,7 +41,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.cmscore.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipal;
 
 /**
  * @author Endi S. Dewata

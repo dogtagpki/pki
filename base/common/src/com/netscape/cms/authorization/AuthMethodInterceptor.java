@@ -40,7 +40,7 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.cmscore.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipal;
 
 /**
  * @author Endi S. Dewata

@@ -1,4 +1,4 @@
-package com.netscape.cmscore.realm;
+package com.netscape.cms.realm;
 
 import java.util.List;
 

@@ -73,8 +73,8 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.realm.PKIPrincipal;
 
 /**
  * @author alee

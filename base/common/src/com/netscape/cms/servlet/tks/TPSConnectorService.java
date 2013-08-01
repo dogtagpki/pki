@@ -37,7 +37,7 @@ import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cmscore.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
