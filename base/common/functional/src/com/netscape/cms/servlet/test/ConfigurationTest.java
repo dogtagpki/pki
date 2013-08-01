@@ -57,6 +57,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
@@ -189,7 +190,7 @@ public class ConfigurationTest {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/" + cstype);
 
-            client = new SystemConfigClient(config);
+            client = new SystemConfigClient(new PKIClient(config));
         } catch (URISyntaxException e1) {
             e1.printStackTrace();
             System.exit(1);

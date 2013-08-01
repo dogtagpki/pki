@@ -69,6 +69,15 @@ public class ClientConfig {
         this.serverURI = serverUri;
     }
 
+    public String getSubsystem() {
+        // path could be an empty string, "/", or "/<subsystem>"
+        String path = serverURI.getPath();
+        if (path.length() <= 1) return null;
+
+        // return subsystem name
+        return path.substring(1);
+    }
+
     @XmlElement(name="CertDatabase")
     public String getCertDatabase() {
         return certDatabase;

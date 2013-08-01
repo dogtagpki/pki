@@ -21,30 +21,29 @@ import java.net.URISyntaxException;
 
 import org.jboss.resteasy.client.ClientResponse;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupClient {
+public class GroupClient extends Client {
 
-    public PKIClient client;
     public GroupResource groupClient;
     public GroupMemberResource groupMemberClient;
 
-    public GroupClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public GroupClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public GroupClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public GroupClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "group");
         init();
     }
 
     public void init() throws URISyntaxException {
-        groupClient = client.createProxy(GroupResource.class);
-        groupMemberClient = client.createProxy(GroupMemberResource.class);
+        groupClient = createProxy(GroupResource.class);
+        groupMemberClient = createProxy(GroupMemberResource.class);
     }
 
     public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) {

@@ -42,6 +42,7 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileData;
@@ -155,7 +156,7 @@ public class CATest {
             config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
             config.setCertNickname(clientCertNickname);
 
-            client = new CAClient(config);
+            client = new CAClient(new PKIClient(config));
         } catch (Exception e) {
             e.printStackTrace();
             return;

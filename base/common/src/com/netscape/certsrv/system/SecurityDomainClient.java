@@ -19,29 +19,28 @@ package com.netscape.certsrv.system;
 
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 
 /**
  * @author alee
  */
-public class SecurityDomainClient {
+public class SecurityDomainClient extends Client {
 
-    private PKIClient client;
     private SecurityDomainResource securityDomainClient;
 
-    public SecurityDomainClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public SecurityDomainClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public SecurityDomainClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public SecurityDomainClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "securitydomain");
         init();
     }
 
     public void init() throws URISyntaxException {
-        securityDomainClient = client.createProxy(SecurityDomainResource.class);
+        securityDomainClient = createProxy(SecurityDomainResource.class);
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) {

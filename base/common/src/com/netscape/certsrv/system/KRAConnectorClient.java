@@ -19,28 +19,27 @@
 package com.netscape.certsrv.system;
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Ade Lee
  */
-public class KRAConnectorClient {
+public class KRAConnectorClient extends Client {
 
-    public PKIClient client;
     public KRAConnectorResource kraConnectorClient;
 
-    public KRAConnectorClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public KRAConnectorClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public KRAConnectorClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public KRAConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "kraconnector");
         init();
     }
 
     public void init() throws URISyntaxException {
-        kraConnectorClient = client.createProxy(KRAConnectorResource.class);
+        kraConnectorClient = createProxy(KRAConnectorResource.class);
     }
 
     public void addConnector(KRAConnectorInfo info) {

@@ -7,8 +7,8 @@ import java.util.Iterator;
 import org.jboss.resteasy.client.ClientResponse;
 
 import com.netscape.certsrv.cert.CertData;
-import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
@@ -23,26 +23,21 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cmsutil.util.Utils;
 
-public class DRMClient {
+public class KRAClient extends SubsystemClient {
 
-    private PKIClient client;
     private KeyResource keyClient;
     private KeyRequestResource keyRequestClient;
     private SystemCertResource systemCertClient;
 
-    public DRMClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
-    }
-
-    public DRMClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public KRAClient(PKIClient client) throws URISyntaxException {
+        super(client, "kra");
         init();
     }
 
     public void init() throws URISyntaxException {
-        systemCertClient = client.createProxy(SystemCertResource.class);
-        keyRequestClient = client.createProxy(KeyRequestResource.class);
-        keyClient = client.createProxy(KeyResource.class);
+        systemCertClient = createProxy(SystemCertResource.class);
+        keyRequestClient = createProxy(KeyRequestResource.class);
+        keyClient = createProxy(KeyResource.class);
     }
 
     public String getTransportCert() {

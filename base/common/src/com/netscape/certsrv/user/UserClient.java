@@ -21,32 +21,31 @@ import java.net.URISyntaxException;
 
 import org.jboss.resteasy.client.ClientResponse;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserClient {
+public class UserClient extends Client {
 
-    public PKIClient client;
     public UserResource userClient;
     public UserCertResource userCertClient;
     public UserMembershipResource userMembershipClient;
 
-    public UserClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public UserClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public UserClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public UserClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "user");
         init();
     }
 
     public void init() throws URISyntaxException {
-        userClient = client.createProxy(UserResource.class);
-        userCertClient = client.createProxy(UserCertResource.class);
-        userMembershipClient = client.createProxy(UserMembershipResource.class);
+        userClient = createProxy(UserResource.class);
+        userCertClient = createProxy(UserCertResource.class);
+        userMembershipClient = createProxy(UserMembershipResource.class);
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) {

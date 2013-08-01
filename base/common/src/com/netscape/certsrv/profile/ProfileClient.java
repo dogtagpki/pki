@@ -19,27 +19,27 @@ package com.netscape.certsrv.profile;
 
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Ade Lee
  */
-public class ProfileClient {
-    public PKIClient client;
+public class ProfileClient extends Client {
+
     public ProfileResource profileClient;
 
-    public ProfileClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public ProfileClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public ProfileClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public ProfileClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "profile");
         init();
     }
 
     public void init() throws URISyntaxException {
-        profileClient = client.createProxy(ProfileResource.class);
+        profileClient = createProxy(ProfileResource.class);
     }
 
     public ProfileData retrieveProfile(String id) {

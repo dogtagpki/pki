@@ -19,31 +19,30 @@ package com.netscape.certsrv.key;
 
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
 
 /**
  * @author Endi S. Dewata
  */
-public class KeyClient {
+public class KeyClient extends Client {
 
-    public PKIClient client;
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
 
-    public KeyClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public KeyClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public KeyClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public KeyClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "key");
         init();
     }
 
     public void init() throws URISyntaxException {
-        keyClient = client.createProxy(KeyResource.class);
-        keyRequestClient = client.createProxy(KeyRequestResource.class);
+        keyClient = createProxy(KeyResource.class);
+        keyRequestClient = createProxy(KeyRequestResource.class);
     }
 
     public KeyDataInfos findKeys(String clientID, String status, Integer maxSize, Integer maxTime) {

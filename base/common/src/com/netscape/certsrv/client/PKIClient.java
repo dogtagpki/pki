@@ -2,6 +2,7 @@ package com.netscape.certsrv.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
@@ -27,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmsutil.util.Utils;
 
 
@@ -35,7 +37,7 @@ public class PKIClient {
     public ClientConfig config;
     public PKIConnection connection;
 
-    File certDatabase;
+    public File certDatabase;
 
     public boolean verbose;
 
@@ -45,8 +47,32 @@ public class PKIClient {
         connection = new PKIConnection(this);
     }
 
-    public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
-        return connection.createProxy(clazz);
+    public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
+
+        if (subsystem == null) {
+            // by default use the subsystem specified in server URI
+            subsystem = getSubsystem();
+        }
+
+        if (subsystem == null) {
+            throw new PKIException("Missing subsystem name.");
+        }
+
+        URI serverURI = config.getServerURI();
+        URI resourceURI = new URI(
+            serverURI.getScheme(),
+            serverURI.getUserInfo(),
+            serverURI.getHost(),
+            serverURI.getPort(),
+            "/" + subsystem + "/rest",
+            serverURI.getQuery(),
+            serverURI.getFragment());
+
+        return connection.createProxy(resourceURI, clazz);
+    }
+
+    public String getSubsystem() {
+        return config.getSubsystem();
     }
 
     public <T> T getEntity(ClientResponse<T> response) {

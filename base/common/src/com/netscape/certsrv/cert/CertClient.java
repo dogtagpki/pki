@@ -19,7 +19,7 @@ package com.netscape.certsrv.cert;
 
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
@@ -27,24 +27,23 @@ import com.netscape.certsrv.request.RequestId;
 /**
  * @author Endi S. Dewata
  */
-public class CertClient {
+public class CertClient extends Client {
 
-    public PKIClient client;
     public CertResource certClient;
     public CertRequestResource certRequestResource;
 
-    public CertClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public CertClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public CertClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+    public CertClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "cert");
         init();
     }
 
     public void init() throws URISyntaxException {
-        certClient = client.createProxy(CertResource.class);
-        certRequestResource = client.createProxy(CertRequestResource.class);
+        certClient = createProxy(CertResource.class);
+        certRequestResource = createProxy(CertRequestResource.class);
     }
 
     public CertData getCert(CertId id) {

@@ -19,35 +19,39 @@ package com.netscape.certsrv.account;
 
 import java.net.URISyntaxException;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class AccountClient {
+public class AccountClient extends Client {
 
-    public PKIClient client;
     public AccountResource resource;
-
-    public AccountClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
-    }
+    public boolean loggedIn;
 
     public AccountClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
+        this(client, client.getSubsystem());
+    }
+
+    public AccountClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "account");
         init();
     }
 
     public void init() throws URISyntaxException {
-        resource = client.createProxy(AccountResource.class);
+        resource = createProxy(AccountResource.class);
     }
 
     public void login() {
         resource.login();
+        loggedIn = true;
     }
 
     public void logout() {
-        resource.logout();
+        if (loggedIn) {
+            resource.logout();
+            loggedIn = false;
+        }
     }
 }

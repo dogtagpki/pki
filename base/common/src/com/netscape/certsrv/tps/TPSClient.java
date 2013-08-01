@@ -17,26 +17,23 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps;
 
-import com.netscape.certsrv.client.ClientConfig;
+import java.net.URISyntaxException;
+
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.token.TokenClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class TPSClient {
-
-    public TokenClient tokenClient;
-
-    public TPSClient(ClientConfig config) throws Exception {
-        this(new PKIClient(config));
-    }
+public class TPSClient extends SubsystemClient {
 
     public TPSClient(PKIClient client) throws Exception {
-        tokenClient = new TokenClient(client);
+        super(client, "tps");
+        init();
     }
 
-    public TokenClient getTokenClient() {
-        return tokenClient;
+    public void init() throws URISyntaxException {
+        addClient(new TokenClient(client, name));
     }
 }

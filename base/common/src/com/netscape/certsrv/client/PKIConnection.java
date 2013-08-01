@@ -509,8 +509,7 @@ public class PKIConnection {
 
     }
 
-    public <T> T createProxy(Class<T> clazz) throws URISyntaxException {
-        URI uri = new URI(config.getServerURI()+"/rest");
+    public <T> T createProxy(URI uri, Class<T> clazz) throws URISyntaxException {
         return ProxyFactory.create(clazz, uri, executor, providerFactory);
     }
 

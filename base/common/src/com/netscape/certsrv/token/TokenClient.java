@@ -21,24 +21,27 @@ import java.net.URISyntaxException;
 
 import org.jboss.resteasy.client.ClientResponse;
 
-import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class TokenClient {
+public class TokenClient extends Client {
 
-    public PKIClient client;
     public TokenResource resource;
 
-    public TokenClient(ClientConfig config) throws URISyntaxException {
-        this(new PKIClient(config));
+    public TokenClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
     }
 
-    public TokenClient(PKIClient client) throws URISyntaxException {
-        this.client = client;
-        resource = client.createProxy(TokenResource.class);
+    public TokenClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "token");
+        init();
+    }
+
+    public void init() throws URISyntaxException {
+        resource = createProxy(TokenResource.class);
     }
 
     public TokenCollection findTokens(Integer start, Integer size) {

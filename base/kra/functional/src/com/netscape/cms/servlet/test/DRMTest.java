@@ -38,12 +38,13 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyDataInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestResource;
-import com.netscape.certsrv.kra.DRMClient;
+import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
@@ -195,13 +196,13 @@ public class DRMTest {
         // Set base URI and get client
 
 
-        DRMClient client;
+        KRAClient client;
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/kra");
             config.setCertNickname(clientCertNickname);
 
-            client = new DRMClient(config);
+            client = new KRAClient(new PKIClient(config));
 
         } catch (Exception e) {
             e.printStackTrace();
