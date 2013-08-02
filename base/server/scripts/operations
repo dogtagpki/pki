@@ -944,6 +944,12 @@ make_symlink()
                  "since target '${target}' is NOT fully resolvable!"
             rv=1
         else
+            # Attempt to remove any existing symbolic link.
+            # This is likely pointing to a non-existent target
+            if [ `readlink ${symlink}` ]; then
+                rm ${symlink}
+            fi
+
             # Attempt to create a symbolic link and 'chown' it.
             ln -s ${target} ${symlink}
             rv=$?
