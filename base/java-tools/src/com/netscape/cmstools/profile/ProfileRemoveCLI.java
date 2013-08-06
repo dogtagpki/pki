@@ -5,15 +5,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileRemoveCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileRemoveCLI(ProfileCLI parent) {
-        super("del", "Remove profiles");
-        this.parent = parent;
+    public ProfileRemoveCLI(ProfileCLI profileCLI) {
+        super("del", "Remove profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <profile_id>", options);
+        formatter.printHelp(getFullName() + " <Profile ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -25,7 +25,7 @@ public class ProfileRemoveCLI extends CLI {
 
         String profileId = args[0];
 
-        parent.client.deleteProfile(profileId);
+        profileCLI.profileClient.deleteProfile(profileId);
 
         MainCLI.printMessage("Deleted profile \"" + profileId + "\"");
     }

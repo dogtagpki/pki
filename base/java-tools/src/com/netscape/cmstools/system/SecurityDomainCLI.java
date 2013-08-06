@@ -20,8 +20,6 @@ package com.netscape.cmstools.system;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -34,41 +32,28 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class SecurityDomainCLI extends CLI {
 
-    public MainCLI parent;
-    public SecurityDomainClient client;
+    public SecurityDomainClient securityDomainClient;
 
-    public SecurityDomainCLI(MainCLI parent) {
-        super("securitydomain", "Security domain commands");
-        this.parent = parent;
+    public SecurityDomainCLI(CLI parent) {
+        super("securitydomain", "Security domain commands", parent);
 
         addModule(new SecurityDomainGetInstallTokenCLI(this));
         addModule(new SecurityDomainShowCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name + "-" + module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
 
-        client = new SecurityDomainClient(parent.client);
+        client = parent.getClient();
+        securityDomainClient = new SecurityDomainClient(client);
 
         if (args.length == 0) {
             printHelp();

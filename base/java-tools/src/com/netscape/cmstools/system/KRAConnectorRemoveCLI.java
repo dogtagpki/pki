@@ -24,15 +24,16 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Ade Lee
  */
 public class KRAConnectorRemoveCLI extends CLI {
-    public KRAConnectorCLI parent;
 
-    public KRAConnectorRemoveCLI(KRAConnectorCLI parent) {
-        super("del", "Remove KRA connector from CA");
-        this.parent = parent;
+    public KRAConnectorCLI kraConnectorCLI;
+
+    public KRAConnectorRemoveCLI(KRAConnectorCLI kraConnectorCLI) {
+        super("del", "Remove KRA connector from CA", kraConnectorCLI);
+        this.kraConnectorCLI = kraConnectorCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <KRA Host> <KRA Port>", options);
+        formatter.printHelp(getFullName() + " <KRA Host> <KRA Port>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -45,7 +46,7 @@ public class KRAConnectorRemoveCLI extends CLI {
         String kraHost = args[0];
         String kraPort = args[1];
 
-        parent.client.removeConnector(kraHost, kraPort);
+        kraConnectorCLI.kraConnectorClient.removeConnector(kraHost, kraPort);
 
         MainCLI.printMessage("Removed KRA connector \""+kraHost + ":" + kraPort +"\"");
     }

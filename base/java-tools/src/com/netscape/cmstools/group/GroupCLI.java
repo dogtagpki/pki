@@ -34,12 +34,10 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class GroupCLI extends CLI {
 
-    public MainCLI parent;
-    public GroupClient client;
+    public GroupClient groupClient;
 
-    public GroupCLI(MainCLI parent) {
-        super("group", "Group management commands");
-        this.parent = parent;
+    public GroupCLI(CLI parent) {
+        super("group", "Group management commands", parent);
 
         addModule(new GroupFindCLI(this));
         addModule(new GroupShowCLI(this));
@@ -53,29 +51,19 @@ public class GroupCLI extends CLI {
         addModule(new GroupRemoveMemberCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name+"-"+module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1) padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
 
-        client = new GroupClient(parent.client);
+        client = parent.getClient();
+        groupClient = new GroupClient(client);
 
         if (args.length == 0) {
             printHelp();

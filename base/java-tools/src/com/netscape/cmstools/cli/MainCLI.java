@@ -60,8 +60,6 @@ public class MainCLI extends CLI {
 
     public File certDatabase;
 
-    public PKIClient client;
-    public PKIConnection connection;
     public AccountClient accountClient;
 
     String output;
@@ -275,7 +273,7 @@ public class MainCLI extends CLI {
         client = new PKIClient(config);
         client.setVerbose(verbose);
 
-        connection = client.getConnection();
+        PKIConnection connection = client.getConnection();
         connection.setRejectedCertStatuses(rejectedCertStatuses);
         connection.setIgnoredCertStatuses(ignoredCertStatuses);
 
@@ -285,7 +283,12 @@ public class MainCLI extends CLI {
             connection.setOutput(file);
         }
 
-        accountClient = new AccountClient(client);
+        String subsystem = config.getSubsystem();
+        if (subsystem != null) {
+            // if server URI includes subsystem, perform authentication
+            // against that subsystem
+            accountClient = new AccountClient(client, subsystem);
+        }
     }
 
     public void execute(String[] args) throws Exception {
@@ -374,14 +377,13 @@ public class MainCLI extends CLI {
         if (verbose) System.out.println("Server URI: "+config.getServerURI());
 
         // execute command
-        boolean loggedIn = false;
         try {
             init();
 
-            // login if username or nickname is specified
-            if (config.getUsername() != null || config.getCertNickname() != null) {
+            // login if subsystem and username/nickname is specified
+            if (config.getSubsystem() != null &&
+                    (config.getUsername() != null || config.getCertNickname() != null)) {
                 accountClient.login();
-                loggedIn = true;
             }
 
             // execute module command
@@ -396,7 +398,8 @@ public class MainCLI extends CLI {
             System.exit(1);
 
         } finally {
-            if (loggedIn) accountClient.logout();
+            // logout if subsystem is specified
+            if (config.getSubsystem() != null) accountClient.logout();
         }
     }
 

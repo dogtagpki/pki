@@ -27,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserAddMembershipCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserAddMembershipCLI(UserCLI parent) {
-        super("add-membership", "Add user membership");
-        this.parent = parent;
+    public UserAddMembershipCLI(UserCLI userCLI) {
+        super("add-membership", "Add user membership", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -48,7 +48,7 @@ public class UserAddMembershipCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
-        UserMembershipData userMembershipData = parent.client.addUserMembership(userID, groupID);
+        UserMembershipData userMembershipData = userCLI.userClient.addUserMembership(userID, groupID);
 
         MainCLI.printMessage("Added membership in \""+groupID+"\"");
 

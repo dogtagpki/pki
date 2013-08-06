@@ -18,46 +18,47 @@
 
 package com.netscape.cmstools.cli;
 
-import com.netscape.certsrv.client.Client;
-import com.netscape.certsrv.tps.TPSClient;
-import com.netscape.cmstools.token.TokenCLI;
+import com.netscape.certsrv.client.ClientConfig;
+
 
 /**
  * @author Endi S. Dewata
  */
-public class TPSCLI extends SubsystemCLI {
+public class SubsystemCLI extends CLI {
 
-    public TPSClient tpsClient;
-
-    public TPSCLI(MainCLI mainCLI) {
-        super("tps", "TPS management commands", mainCLI);
-
-        addModule(new TokenCLI(this));
+    public SubsystemCLI(String name, String description, CLI parent) {
+        super(name, description, parent);
     }
 
     public String getFullName() {
-        if (parent instanceof MainCLI) {
-            // do not include MainCLI's name
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
-        }
+        // do not include parent's name
+        return name;
     }
 
     public void init() throws Exception {
-        client = parent.getClient();
-        tpsClient = new TPSClient(client);
     }
 
-    public void login() {
-        tpsClient.login();
+    public void login() throws Exception {
     }
 
-    public void logout() {
-        tpsClient.logout();
+    public void logout() throws Exception {
     }
 
-    public Client getClient(String name) {
-        return tpsClient.getClient(name);
+    public void execute(String[] args) throws Exception {
+
+        init();
+
+        try {
+            // login if username or nickname is specified
+            ClientConfig config = getClient().getConfig();
+            if (config.getUsername() != null || config.getCertNickname() != null) {
+                login();
+            }
+
+            super.execute(args);
+
+        } finally {
+            logout();
+        }
     }
 }

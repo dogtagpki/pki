@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserFindCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserFindCLI(UserCLI parent) {
-        super("find", "Find users");
-        this.parent = parent;
+    public UserFindCLI(UserCLI userCLI) {
+        super("find", "Find users", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [FILTER] [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -74,7 +74,7 @@ public class UserFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserCollection response = parent.client.findUsers(filter, start, size);
+        UserCollection response = userCLI.userClient.findUsers(filter, start, size);
 
         Collection<UserData> entries = response.getUsers();
 

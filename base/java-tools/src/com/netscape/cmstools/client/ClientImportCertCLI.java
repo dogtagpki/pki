@@ -34,18 +34,20 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class ClientImportCertCLI extends CLI {
 
-    public ClientCLI parent;
+    public ClientCLI clientCLI;
 
-    public ClientImportCertCLI(ClientCLI parent) {
-        super("import-cert", "Import certificate into client security database");
-        this.parent = parent;
+    public ClientImportCertCLI(ClientCLI clientCLI) {
+        super("import-cert", "Import certificate into client security database", clientCLI);
+        this.clientCLI = clientCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS]", options);
     }
 
     public void execute(String[] args) throws Exception {
+
+        client = clientCLI.getClient();
 
         Option option = new Option(null, "cert", true, "Import certificate file");
         option.setArgName("path");
@@ -90,11 +92,11 @@ public class ClientImportCertCLI extends CLI {
             isCACert = true;
 
         } else if (importFromCAServer) {
-            ClientConfig config = parent.parent.config;
+            ClientConfig config = client.getConfig();
             String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
 
             if (verbose) System.out.println("Downloading CA certificate from " + caServerURI + ".");
-            bytes = parent.parent.client.downloadCACertChain(caServerURI);
+            bytes = client.downloadCACertChain(caServerURI);
 
             isCACert = true;
 
@@ -107,11 +109,11 @@ public class ClientImportCertCLI extends CLI {
         // import the certificate
         if (isCACert) {
             if (verbose) System.out.println("Importing CA certificate.");
-            cert = parent.parent.client.importCACertPackage(bytes);
+            cert = client.importCACertPackage(bytes);
 
         } else {
             if (verbose) System.out.println("Importing certificate.");
-            cert = parent.parent.client.importCertPackage(bytes, parent.parent.client.config.getCertNickname());
+            cert = client.importCertPackage(bytes, client.config.getCertNickname());
         }
 
         MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");

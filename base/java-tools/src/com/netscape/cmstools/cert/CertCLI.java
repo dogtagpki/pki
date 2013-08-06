@@ -21,7 +21,6 @@ package com.netscape.cmstools.cert;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.cert.CertClient;
@@ -39,12 +38,10 @@ public class CertCLI extends CLI {
 
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public MainCLI parent;
-    public CertClient client;
+    public CertClient certClient;
 
-    public CertCLI(MainCLI parent) {
-        super("cert", "Certificate management commands");
-        this.parent = parent;
+    public CertCLI(CLI parent) {
+        super("cert", "Certificate management commands", parent);
 
         addModule(new CertFindCLI(this));
         addModule(new CertShowCLI(this));
@@ -58,30 +55,18 @@ public class CertCLI extends CLI {
         addModule(new CertRequestReviewCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name + "-" + module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
 
-        client = new CertClient(parent.client);
+        certClient = new CertClient(parent.getClient());
 
         if (args.length == 0) {
             printHelp();

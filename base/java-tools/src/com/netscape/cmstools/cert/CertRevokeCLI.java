@@ -39,15 +39,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertRevokeCLI extends CLI {
 
-    public CertCLI parent;
+    public CertCLI certCLI;
 
-    public CertRevokeCLI(CertCLI parent) {
-        super("revoke", "Revoke certificate");
-        this.parent = parent;
+    public CertRevokeCLI(CertCLI certCLI) {
+        super("revoke", "Revoke certificate", certCLI);
+        this.certCLI = certCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -105,7 +105,7 @@ public class CertRevokeCLI extends CLI {
             return;
         }
 
-        CertData certData = parent.client.reviewCert(certID);
+        CertData certData = certCLI.certClient.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {
 
@@ -138,9 +138,9 @@ public class CertRevokeCLI extends CLI {
         CertRequestInfo certRequestInfo;
 
         if (cmd.hasOption("ca")) {
-            certRequestInfo = parent.client.revokeCACert(certID, request);
+            certRequestInfo = certCLI.certClient.revokeCACert(certID, request);
         } else {
-            certRequestInfo = parent.client.revokeCert(certID, request);
+            certRequestInfo = certCLI.certClient.revokeCert(certID, request);
         }
 
         if (verbose) {
@@ -163,7 +163,7 @@ public class CertRevokeCLI extends CLI {
                     MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
                 }
 
-                certData = parent.client.getCert(certID);
+                certData = certCLI.certClient.getCert(certID);
                 CertCLI.printCertData(certData, false, false);
             }
         } else {

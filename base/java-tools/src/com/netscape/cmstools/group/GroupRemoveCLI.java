@@ -27,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class GroupRemoveCLI extends CLI {
 
-    public GroupCLI parent;
+    public GroupCLI groupCLI;
 
-    public GroupRemoveCLI(GroupCLI parent) {
-        super("del", "Remove group");
-        this.parent = parent;
+    public GroupRemoveCLI(GroupCLI groupCLI) {
+        super("del", "Remove group", groupCLI);
+        this.groupCLI = groupCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID>", options);
+        formatter.printHelp(getFullName() + " <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class GroupRemoveCLI extends CLI {
 
         String groupID = args[0];
 
-        parent.client.removeGroup(groupID);
+        groupCLI.groupClient.removeGroup(groupID);
 
         MainCLI.printMessage("Deleted group \""+groupID+"\"");
     }

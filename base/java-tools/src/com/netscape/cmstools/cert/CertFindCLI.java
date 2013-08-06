@@ -41,15 +41,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertFindCLI extends CLI {
 
-    public CertCLI parent;
+    public CertCLI certCLI;
 
-    public CertFindCLI(CertCLI parent) {
-        super("find", "Find certificates");
-        this.parent = parent;
+    public CertFindCLI(CertCLI certCLI) {
+        super("find", "Find certificates", certCLI);
+        this.certCLI = certCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -120,7 +120,7 @@ public class CertFindCLI extends CLI {
 
         CertDataInfos certs = null;
         try {
-            certs = parent.client.findCerts(searchData, start, size);
+            certs = certCLI.certClient.findCerts(searchData, start, size);
         } catch (PKIException e) {
             System.err.println("Error: Cannot list certificates. " + e.getMessage());
             System.exit(1);

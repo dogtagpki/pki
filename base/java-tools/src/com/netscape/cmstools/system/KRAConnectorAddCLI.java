@@ -33,15 +33,16 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Ade Lee
  */
 public class KRAConnectorAddCLI extends CLI {
-    public KRAConnectorCLI parent;
 
-    public KRAConnectorAddCLI(KRAConnectorCLI parent) {
-        super("add", "Add KRA Connector");
-        this.parent = parent;
+    public KRAConnectorCLI kraConnectorCLI;
+
+    public KRAConnectorAddCLI(KRAConnectorCLI kraConnectorCLI) {
+        super("add", "Add KRA Connector", kraConnectorCLI);
+        this.kraConnectorCLI = kraConnectorCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <File Name>", options);
+        formatter.printHelp(getFullName() + " <File Name>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -70,7 +71,7 @@ public class KRAConnectorAddCLI extends CLI {
         Unmarshaller unmarshaller = context.createUnmarshaller();
         KRAConnectorInfo info = (KRAConnectorInfo) unmarshaller.unmarshal(fis);
 
-        parent.client.addConnector(info);
+        kraConnectorCLI.kraConnectorClient.addConnector(info);
 
         MainCLI.printMessage("Added KRA Connector");
     }

@@ -34,15 +34,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class KeyFindCLI extends CLI {
 
-    public KeyCLI parent;
+    public KeyCLI keyCLI;
 
-    public KeyFindCLI(KeyCLI parent) {
-        super("find", "Find keys");
-        this.parent = parent;
+    public KeyFindCLI(KeyCLI keyCLI) {
+        super("find", "Find keys", keyCLI);
+        this.keyCLI = keyCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) {
@@ -83,7 +83,7 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        KeyDataInfos keys = parent.keyClient.findKeys(clientID, status, maxResults, maxTime);
+        KeyDataInfos keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime);
 
         Collection<KeyDataInfo> entries = keys.getKeyInfos();
 

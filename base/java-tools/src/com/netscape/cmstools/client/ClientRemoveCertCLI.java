@@ -28,15 +28,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class ClientRemoveCertCLI extends CLI {
 
-    public ClientCLI parent;
+    public ClientCLI clientCLI;
 
-    public ClientRemoveCertCLI(ClientCLI parent) {
-        super("remove-cert", "Remove certificate from client security database");
-        this.parent = parent;
+    public ClientRemoveCertCLI(ClientCLI clientCLI) {
+        super("remove-cert", "Remove certificate from client security database", clientCLI);
+        this.clientCLI = clientCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <nickname>", options);
+        formatter.printHelp(getFullName() + " <nickname>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -58,8 +58,10 @@ public class ClientRemoveCertCLI extends CLI {
             System.exit(1);
         }
 
+        client = clientCLI.getClient();
+
         String nickname = cmdArgs[0];
-        parent.parent.client.removeCert(nickname);
+        client.removeCert(nickname);
 
         MainCLI.printMessage("Removed certificate \"" + nickname + "\"");
    }

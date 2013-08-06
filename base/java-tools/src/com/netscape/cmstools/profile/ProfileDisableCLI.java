@@ -5,15 +5,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileDisableCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileDisableCLI(ProfileCLI parent) {
-        super("disable", "Disable profiles");
-        this.parent = parent;
+    public ProfileDisableCLI(ProfileCLI profileCLI) {
+        super("disable", "Disable profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <profile_id>", options);
+        formatter.printHelp(getFullName() + " <Profile ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -25,7 +25,7 @@ public class ProfileDisableCLI extends CLI {
 
         String profileId = args[0];
 
-        parent.client.disableProfile(profileId);
+        profileCLI.profileClient.disableProfile(profileId);
 
         MainCLI.printMessage("Disabled profile \"" + profileId + "\"");
     }

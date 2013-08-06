@@ -33,15 +33,16 @@ import com.netscape.cmstools.cli.MainCLI;
  * @author Ade Lee
  */
 public class CertRequestFindCLI extends CLI {
-    public CertCLI parent;
 
-    public CertRequestFindCLI(CertCLI parent) {
-        super("request-find", "Find certificate requests");
-        this.parent = parent;
+    public CertCLI certCLI;
+
+    public CertRequestFindCLI(CertCLI certCLI) {
+        super("request-find", "Find certificate requests", certCLI);
+        this.certCLI = certCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -82,7 +83,7 @@ public class CertRequestFindCLI extends CLI {
         if (requestType != null && requestType.equals("all")) requestType = null;
 
         try {
-            certRequests = parent.client.certRequestResource.listRequests(requestState, requestType, start, size, maxResults, maxTime);
+            certRequests = certCLI.certClient.certRequestResource.listRequests(requestState, requestType, start, size, maxResults, maxTime);
         } catch (PKIException e) {
             System.err.println("Error: Cannot list certificate requests. " + e.getMessage());
             System.exit(-1);

@@ -27,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserShowCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserShowCLI(UserCLI parent) {
-        super("show", "Show user");
-        this.parent = parent;
+    public UserShowCLI(UserCLI userCLI) {
+        super("show", "Show user", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID>", options);
+        formatter.printHelp(getFullName() + " <User ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class UserShowCLI extends CLI {
 
         String userId = args[0];
 
-        UserData userData = parent.client.getUser(userId);
+        UserData userData = userCLI.userClient.getUser(userId);
 
         MainCLI.printMessage("User \"" + userId + "\"");
 

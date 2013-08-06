@@ -10,15 +10,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileShowCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileShowCLI(ProfileCLI parent) {
-        super("show", "Show profiles");
-        this.parent = parent;
+    public ProfileShowCLI(ProfileCLI profileCLI) {
+        super("show", "Show profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <profile_id>", options);
+        formatter.printHelp(getFullName() + " <Profile ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -56,14 +56,14 @@ public class ProfileShowCLI extends CLI {
             }
         }
 
-        ProfileData profileData = parent.client.retrieveProfile(profileId);
+        ProfileData profileData = profileCLI.profileClient.retrieveProfile(profileId);
 
         MainCLI.printMessage("Profile \"" + profileId + "\"");
 
         if (filename != null) {
             ProfileCLI.saveProfileToFile(filename, profileData);
         } else {
-            ProfileCLI.printProfile(profileData, parent.parent.config.getServerURI());
+            ProfileCLI.printProfile(profileData, profileCLI.getClient().getConfig().getServerURI());
         }
     }
 

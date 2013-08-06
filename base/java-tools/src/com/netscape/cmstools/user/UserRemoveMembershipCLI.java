@@ -26,15 +26,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserRemoveMembershipCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserRemoveMembershipCLI(UserCLI parent) {
-        super("remove-membership", "Remove user membership");
-        this.parent = parent;
+    public UserRemoveMembershipCLI(UserCLI userCLI) {
+        super("remove-membership", "Remove user membership", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class UserRemoveMembershipCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
-        parent.client.removeUserMembership(userID, groupID);
+        userCLI.userClient.removeUserMembership(userID, groupID);
 
         MainCLI.printMessage("Deleted membership in group \""+groupID+"\"");
     }

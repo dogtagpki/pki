@@ -30,15 +30,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserModifyCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserModifyCLI(UserCLI parent) {
-        super("mod", "Modify user");
-        this.parent = parent;
+    public UserModifyCLI(UserCLI userCLI) {
+        super("mod", "Modify user", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -98,7 +98,7 @@ public class UserModifyCLI extends CLI {
         // userData.setType(cmd.getOptionValue("type"));
         userData.setState(cmd.getOptionValue("state"));
 
-        userData = parent.client.modifyUser(userId, userData);
+        userData = userCLI.userClient.modifyUser(userId, userData);
 
         MainCLI.printMessage("Modified user \"" + userId + "\"");
 

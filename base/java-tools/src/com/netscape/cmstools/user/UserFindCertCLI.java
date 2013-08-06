@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserFindCertCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserFindCertCLI(UserCLI parent) {
-        super("find-cert", "Find user certs");
-        this.parent = parent;
+    public UserFindCertCLI(UserCLI userCLI) {
+        super("find-cert", "Find user certs", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -80,7 +80,7 @@ public class UserFindCertCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserCertCollection response = parent.client.findUserCerts(userID, start, size);
+        UserCertCollection response = userCLI.userClient.findUserCerts(userID, start, size);
 
         Collection<UserCertData> entries = response.getCerts();
 

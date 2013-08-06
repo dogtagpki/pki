@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserAddCertCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserAddCertCLI(UserCLI parent) {
-        super("add-cert", "Add user cert");
-        this.parent = parent;
+    public UserAddCertCLI(UserCLI userCLI) {
+        super("add-cert", "Add user cert", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -88,7 +88,7 @@ public class UserAddCertCLI extends CLI {
             System.out.println(userCertData);
         }
 
-        userCertData = parent.client.addUserCert(userId, userCertData);
+        userCertData = userCLI.userClient.addUserCert(userId, userCertData);
 
         MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");
 

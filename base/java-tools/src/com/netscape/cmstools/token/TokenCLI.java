@@ -18,25 +18,24 @@
 
 package com.netscape.cmstools.token;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Arrays;
+
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.token.TokenClient;
 import com.netscape.certsrv.token.TokenData;
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.TPSCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class TokenCLI extends CLI {
 
-    public TPSCLI tpsCLI;
     public TokenClient tokenClient;
 
-    public TokenCLI(TPSCLI tpsCLI) {
-        super("token", "Token management commands", tpsCLI);
-        this.tpsCLI = tpsCLI;
+    public TokenCLI(SubsystemCLI subsystemCLI) {
+        super("token", "Token management commands", subsystemCLI);
 
         addModule(new TokenAddCLI(this));
         addModule(new TokenFindCLI(this));
@@ -45,34 +44,10 @@ public class TokenCLI extends CLI {
         addModule(new TokenShowCLI(this));
     }
 
-    public String getFullName() {
-        return parent.getName() + "-" + name;
-    }
-
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = getFullName() + "-" + module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
-        }
-    }
-
     public void execute(String[] args) throws Exception {
 
-        tokenClient = new TokenClient(tpsCLI.mainCLI.client);
+        client = parent.getClient();
+        tokenClient = (TokenClient)parent.getClient("token");
 
         if (args.length == 0) {
             printHelp();
@@ -80,42 +55,22 @@ public class TokenCLI extends CLI {
         }
 
         String command = args[0];
-        String moduleName;
-        String moduleCommand;
+        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
 
-        // If a command contains a '-' sign it will be
-        // split into module name and module command.
-        // Otherwise it's a single command.
-        int i = command.indexOf('-');
-        if (i >= 0) { // <module name>-<module command>
-            moduleName = command.substring(0, i);
-            moduleCommand = command.substring(i+1);
-
-        } else { // <command>
-            moduleName = command;
-            moduleCommand = null;
+        if (command == null) {
+            printHelp();
+            System.exit(1);
         }
 
-        // get command module
-        if (verbose) System.out.println("Module: " + moduleName);
-        CLI module = getModule(moduleName);
-        if (module == null) {
-            throw new Error("Invalid module \"" + moduleName + "\".");
-        }
-
-        // prepare module arguments
-        String[] moduleArgs;
-        if (moduleCommand != null) {
-            moduleArgs = new String[args.length];
-            moduleArgs[0] = moduleCommand;
-            System.arraycopy(args, 1, moduleArgs, 1, args.length-1);
+        CLI module = getModule(command);
+        if (module != null) {
+            module.execute(commandArgs);
 
         } else {
-            moduleArgs = new String[args.length-1];
-            System.arraycopy(args, 1, moduleArgs, 0, args.length-1);
+            System.err.println("Error: Invalid command \"" + command + "\"");
+            printHelp();
+            System.exit(1);
         }
-
-        module.execute(moduleArgs);
     }
 
     public static void printToken(TokenData token) {

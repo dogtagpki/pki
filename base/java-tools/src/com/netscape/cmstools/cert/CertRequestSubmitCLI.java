@@ -19,11 +19,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class CertRequestSubmitCLI extends CLI {
 
-    CertCLI parent;
+    CertCLI certCLI;
 
-    public CertRequestSubmitCLI(CertCLI parent) {
-        super("request-submit", "Submit certificate request");
-        this.parent = parent;
+    public CertRequestSubmitCLI(CertCLI certCLI) {
+        super("request-submit", "Submit certificate request", certCLI);
+        this.certCLI = certCLI;
+    }
+
+    public void printHelp() {
+        formatter.printHelp(getFullName() + " <filename>", options);
     }
 
     @Override
@@ -50,7 +54,7 @@ public class CertRequestSubmitCLI extends CLI {
 
         try {
             erd = getEnrollmentRequest(cLineArgs[0]);
-            CertRequestInfos cri = parent.client.enrollRequest(erd);
+            CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
             MainCLI.printMessage("Submitted certificate request");
             printRequestInformation(cri);
         } catch (FileNotFoundException e) {
@@ -77,9 +81,5 @@ public class CertRequestSubmitCLI extends CLI {
             CertCLI.printCertRequestInfo(x);
         }
         System.out.println();
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <filename>", options);
     }
 }

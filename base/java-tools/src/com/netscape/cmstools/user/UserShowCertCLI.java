@@ -34,15 +34,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserShowCertCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserShowCertCLI(UserCLI parent) {
-        super("show-cert", "Show user cert");
-        this.parent = parent;
+    public UserShowCertCLI(UserCLI userCLI) {
+        super("show-cert", "Show user cert", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> <Cert ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -79,7 +79,7 @@ public class UserShowCertCLI extends CLI {
         String certID = cmdArgs[1];
         String file = cmd.getOptionValue("output");
 
-        UserCertData userCertData = parent.client.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        UserCertData userCertData = userCLI.userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         String encoded = userCertData.getEncoded();
         if (encoded != null && file != null) {

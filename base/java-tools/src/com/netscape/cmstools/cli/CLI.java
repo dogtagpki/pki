@@ -25,6 +25,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.StringUtils;
+
+import com.netscape.certsrv.client.PKIClient;
 
 
 /**
@@ -37,13 +40,14 @@ public class CLI {
     public static CommandLineParser parser = new PosixParser();
     public static HelpFormatter formatter = new HelpFormatter();
 
-    public CLI parent;
-
     public String name;
     public String description;
+    public CLI parent;
 
     public Options options = new Options();
     public Map<String, CLI> modules = new LinkedHashMap<String, CLI>();
+
+    public PKIClient client;
 
     public CLI(String name, String description) {
         this(name, description, null);
@@ -87,10 +91,79 @@ public class CLI {
         return modules.get(name);
     }
 
-    public void execute(String[] args) throws Exception {
+    public PKIClient getClient() {
+        return client;
+    }
+
+    public Object getClient(String name) {
+        return null;
     }
 
     public void printHelp() {
+
+        System.out.println("Commands:");
+
+        int leftPadding = 1;
+        int rightPadding = 25;
+
+        for (CLI module : modules.values()) {
+            String label = getFullName() + "-" + module.getName();
+
+            int padding = rightPadding - leftPadding - label.length();
+            if (padding < 1)
+                padding = 1;
+
+            System.out.print(StringUtils.repeat(" ", leftPadding));
+            System.out.print(label);
+            System.out.print(StringUtils.repeat(" ", padding));
+            System.out.println(module.getDescription());
+        }
+    }
+
+    public void execute(String[] args) throws Exception {
+
+        if (args.length == 0) {
+            printHelp();
+            System.exit(1);
+        }
+
+        String command = args[0];
+        String moduleName;
+        String moduleCommand;
+
+        // If a command contains a '-' sign it will be
+        // split into module name and module command.
+        // Otherwise it's a single command.
+        int i = command.indexOf('-');
+        if (i >= 0) { // <module name>-<module command>
+            moduleName = command.substring(0, i);
+            moduleCommand = command.substring(i+1);
+
+        } else { // <command>
+            moduleName = command;
+            moduleCommand = null;
+        }
+
+        // get command module
+        if (verbose) System.out.println("Module: " + moduleName);
+        CLI module = getModule(moduleName);
+        if (module == null) {
+            throw new Error("Invalid module \"" + moduleName + "\".");
+        }
+
+        // prepare module arguments
+        String[] moduleArgs;
+        if (moduleCommand != null) {
+            moduleArgs = new String[args.length];
+            moduleArgs[0] = moduleCommand;
+            System.arraycopy(args, 1, moduleArgs, 1, args.length-1);
+
+        } else {
+            moduleArgs = new String[args.length-1];
+            System.arraycopy(args, 1, moduleArgs, 0, args.length-1);
+        }
+
+        module.execute(moduleArgs);
     }
 
     public static boolean isVerbose() {

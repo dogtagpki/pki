@@ -20,8 +20,6 @@ package com.netscape.cmstools.key;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyDataInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
@@ -33,41 +31,28 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class KeyCLI extends CLI {
 
-    public MainCLI parent;
     public KeyClient keyClient;
 
-    public KeyCLI(MainCLI parent) {
-        super("key", "Key management commands");
-        this.parent = parent;
+    public KeyCLI(CLI parent) {
+        super("key", "Key management commands", parent);
 
         addModule(new KeyFindCLI(this));
         addModule(new KeyRequestFindCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name + "-" + module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
 
-        keyClient = new KeyClient(parent.client);
+        client = parent.getClient();
+        keyClient = new KeyClient(client);
 
         if (args.length == 0) {
             printHelp();

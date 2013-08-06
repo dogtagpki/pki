@@ -5,15 +5,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileEnableCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileEnableCLI(ProfileCLI parent) {
-        super("enable", "Enable profiles");
-        this.parent = parent;
+    public ProfileEnableCLI(ProfileCLI profileCLI) {
+        super("enable", "Enable profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <profile_id>", options);
+        formatter.printHelp(getFullName() + " <Profile ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -25,7 +25,7 @@ public class ProfileEnableCLI extends CLI {
 
         String profileId = args[0];
 
-        parent.client.enableProfile(profileId);
+        profileCLI.profileClient.enableProfile(profileId);
 
         MainCLI.printMessage("Enabled profile \"" + profileId + "\"");
     }

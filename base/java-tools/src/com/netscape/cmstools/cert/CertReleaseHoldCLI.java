@@ -36,15 +36,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertReleaseHoldCLI extends CLI {
 
-    public CertCLI parent;
+    public CertCLI certCLI;
 
-    public CertReleaseHoldCLI(CertCLI parent) {
-        super("release-hold", "Place certificate off-hold");
-        this.parent = parent;
+    public CertReleaseHoldCLI(CertCLI certCLI) {
+        super("release-hold", "Place certificate off-hold", certCLI);
+        this.certCLI = certCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -73,7 +73,7 @@ public class CertReleaseHoldCLI extends CLI {
 
         if (!cmd.hasOption("force")) {
 
-            CertData certData = parent.client.getCert(certID);
+            CertData certData = certCLI.certClient.getCert(certID);
 
             System.out.println("Placing certificate off-hold:");
 
@@ -91,7 +91,7 @@ public class CertReleaseHoldCLI extends CLI {
 
         CertUnrevokeRequest request = new CertUnrevokeRequest();
 
-        CertRequestInfo certRequestInfo = parent.client.unrevokeCert(certID, request);
+        CertRequestInfo certRequestInfo = certCLI.certClient.unrevokeCert(certID, request);
 
         if (verbose) {
             CertCLI.printCertRequestInfo(certRequestInfo);
@@ -106,7 +106,7 @@ public class CertReleaseHoldCLI extends CLI {
                 MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" off-hold");
             } else {
                 MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
-                CertData certData = parent.client.getCert(certID);
+                CertData certData = certCLI.certClient.getCert(certID);
                 CertCLI.printCertData(certData, false, false);
             }
         } else {

@@ -13,15 +13,15 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileModifyCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileModifyCLI(ProfileCLI parent) {
-        super("mod", "Modify profiles");
-        this.parent = parent;
+    public ProfileModifyCLI(ProfileCLI profileCLI) {
+        super("mod", "Modify profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <file>", options);
+        formatter.printHelp(getFullName() + " <file>", options);
     }
 
     public void execute(String[] args) {
@@ -51,7 +51,7 @@ public class ProfileModifyCLI extends CLI {
 
         try {
             ProfileData data = ProfileCLI.readProfileFromFile(filename);
-            parent.client.modifyProfile(data);
+            profileCLI.profileClient.modifyProfile(data);
             MainCLI.printMessage("Modified profile " + data.getId());
         } catch (FileNotFoundException | JAXBException  e) {
             System.err.println("Error: " + e.getMessage());

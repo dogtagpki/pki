@@ -29,15 +29,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserRemoveCertCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserRemoveCertCLI(UserCLI parent) {
-        super("remove-cert", "Remove user cert");
-        this.parent = parent;
+    public UserRemoveCertCLI(UserCLI userCLI) {
+        super("remove-cert", "Remove user cert", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Cert ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -54,7 +54,7 @@ public class UserRemoveCertCLI extends CLI {
             System.out.println("Removing cert "+certID+" from user "+userID+".");
         }
 
-        parent.client.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        userCLI.userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         MainCLI.printMessage("Deleted certificate \"" + certID + "\"");
     }

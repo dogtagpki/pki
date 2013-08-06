@@ -32,15 +32,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class SecurityDomainGetInstallTokenCLI extends CLI {
 
-    public SecurityDomainCLI parent;
+    public SecurityDomainCLI securityDomainCLI;
 
-    public SecurityDomainGetInstallTokenCLI(SecurityDomainCLI parent) {
-        super("get-install-token", "Get install token");
-        this.parent = parent;
+    public SecurityDomainGetInstallTokenCLI(SecurityDomainCLI securityDomainCLI) {
+        super("get-install-token", "Get install token", securityDomainCLI);
+        this.securityDomainCLI = securityDomainCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -79,7 +79,7 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
 
         String subsystem = cmd.getOptionValue("subsystem");
 
-        InstallToken token = parent.client.getInstallToken(hostname, subsystem);
+        InstallToken token = securityDomainCLI.securityDomainClient.getInstallToken(hostname, subsystem);
 
         MainCLI.printMessage("Install token: \"" + token.getToken() + "\"");
     }

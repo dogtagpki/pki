@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserFindMembershipCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserFindMembershipCLI(UserCLI parent) {
-        super("find-membership", "Find user memberships");
-        this.parent = parent;
+    public UserFindMembershipCLI(UserCLI userCLI) {
+        super("find-membership", "Find user memberships", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -80,7 +80,7 @@ public class UserFindMembershipCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserMembershipCollection response = parent.client.findUserMemberships(userID, start, size);
+        UserMembershipCollection response = userCLI.userClient.findUserMemberships(userID, start, size);
 
         Collection<UserMembershipData> entries = response.getMemberships();
 

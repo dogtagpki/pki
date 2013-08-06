@@ -8,20 +8,20 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileFindCLI extends CLI {
 
-    public ProfileCLI parent;
+    public ProfileCLI profileCLI;
 
-    public ProfileFindCLI(ProfileCLI parent) {
-        super("find", "Find profiles");
-        this.parent = parent;
+    public ProfileFindCLI(ProfileCLI profileCLI) {
+        super("find", "Find profiles", profileCLI);
+        this.profileCLI = profileCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [FILTER] [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
 
-        Collection<ProfileDataInfo> infos = parent.client.listProfiles().getProfileInfos();
+        Collection<ProfileDataInfo> infos = profileCLI.profileClient.listProfiles().getProfileInfos();
         boolean first = true;
 
         for (ProfileDataInfo info: infos) {

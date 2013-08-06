@@ -35,15 +35,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class KeyRequestFindCLI extends CLI {
 
-    public KeyCLI parent;
+    public KeyCLI keyCLI;
 
-    public KeyRequestFindCLI(KeyCLI parent) {
-        super("request-find", "Find key requests");
-        this.parent = parent;
+    public KeyRequestFindCLI(KeyCLI keyCLI) {
+        super("request-find", "Find key requests", keyCLI);
+        this.keyCLI = keyCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) {
@@ -95,7 +95,7 @@ public class KeyRequestFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        KeyRequestInfos keys = parent.keyClient.findKeyRequests(
+        KeyRequestInfos keys = keyCLI.keyClient.findKeyRequests(
                 status, type, clientID, start, pageSize, maxResults, maxTime);
 
         Collection<KeyRequestInfo> entries = keys.getRequests();

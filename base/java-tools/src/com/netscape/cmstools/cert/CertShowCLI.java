@@ -34,15 +34,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertShowCLI extends CLI {
 
-    public CertCLI parent;
+    public CertCLI certCLI;
 
-    public CertShowCLI(CertCLI parent) {
-        super("show", "Show certificate");
-        this.parent = parent;
+    public CertShowCLI(CertCLI certCLI) {
+        super("show", "Show certificate", certCLI);
+        this.certCLI = certCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -78,7 +78,7 @@ public class CertShowCLI extends CLI {
         CertId certID = new CertId(cmdArgs[0]);
         String file = cmd.getOptionValue("output");
 
-        CertData certData = parent.client.getCert(certID);
+        CertData certData = certCLI.certClient.getCert(certID);
 
         String encoded = certData.getEncoded();
         if (encoded != null && file != null) {

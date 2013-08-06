@@ -10,16 +10,16 @@ import com.netscape.cmstools.cli.MainCLI;
 
 public class CertRequestShowCLI extends CLI {
 
-    CertCLI parent;
+    CertCLI certCLI;
 
-    public CertRequestShowCLI(CertCLI parent) {
-        super("request-show", "Show certificate request");
-        this.parent = parent;
+    public CertRequestShowCLI(CertCLI certCLI) {
+        super("request-show", "Show certificate request", certCLI);
+        this.certCLI = certCLI;
     }
 
     @Override
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Request ID>", options);
+        formatter.printHelp(getFullName() + " <Request ID>", options);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CertRequestShowCLI extends CLI {
             System.exit(-1);
         }
 
-        CertRequestInfo certRequest = parent.client.getRequest(requestId);
+        CertRequestInfo certRequest = certCLI.certClient.getRequest(requestId);
 
         MainCLI.printMessage("Certificate request \"" + requestId + "\"");
         CertCLI.printCertRequestInfo(certRequest);

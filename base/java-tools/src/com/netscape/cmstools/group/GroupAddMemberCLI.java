@@ -27,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class GroupAddMemberCLI extends CLI {
 
-    public GroupCLI parent;
+    public GroupCLI groupCLI;
 
-    public GroupAddMemberCLI(GroupCLI parent) {
-        super("add-member", "Add group member");
-        this.parent = parent;
+    public GroupAddMemberCLI(GroupCLI groupCLI) {
+        super("add-member", "Add group member", groupCLI);
+        this.groupCLI = groupCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID>", options);
+        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -48,7 +48,7 @@ public class GroupAddMemberCLI extends CLI {
         String groupID = args[0];
         String memberID = args[1];
 
-        GroupMemberData groupMemberData = parent.client.addGroupMember(groupID, memberID);
+        GroupMemberData groupMemberData = groupCLI.groupClient.addGroupMember(groupID, memberID);
 
         MainCLI.printMessage("Added group member \""+memberID+"\"");
 

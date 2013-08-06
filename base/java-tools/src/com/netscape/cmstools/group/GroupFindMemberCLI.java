@@ -33,15 +33,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class GroupFindMemberCLI extends CLI {
 
-    public GroupCLI parent;
+    public GroupCLI groupCLI;
 
-    public GroupFindMemberCLI(GroupCLI parent) {
-        super("find-member", "Find group members");
-        this.parent = parent;
+    public GroupFindMemberCLI(GroupCLI groupCLI) {
+        super("find-member", "Find group members", groupCLI);
+        this.groupCLI = groupCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -80,7 +80,7 @@ public class GroupFindMemberCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        GroupMemberCollection response = parent.client.findGroupMembers(groupID, start, size);
+        GroupMemberCollection response = groupCLI.groupClient.findGroupMembers(groupID, start, size);
 
         Collection<GroupMemberData> entries = response.getMembers();
 

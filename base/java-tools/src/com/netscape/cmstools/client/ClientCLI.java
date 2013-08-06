@@ -20,7 +20,6 @@ package com.netscape.cmstools.client;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -32,39 +31,26 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class ClientCLI extends CLI {
 
-    public MainCLI parent;
-
-    public ClientCLI(MainCLI parent) {
-        super("client", "Client management commands");
-        this.parent = parent;
+    public ClientCLI(CLI parent) {
+        super("client", "Client management commands", parent);
 
         addModule(new ClientFindCertCLI(this));
         addModule(new ClientImportCertCLI(this));
         addModule(new ClientRemoveCertCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name + "-" + module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
+
+        client = parent.getClient();
 
         if (args.length == 0) {
             printHelp();

@@ -19,8 +19,6 @@ package com.netscape.cmstools.system;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -30,39 +28,28 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class KRAConnectorCLI extends CLI {
 
-    public MainCLI parent;
-    public KRAConnectorClient client;
+    public KRAConnectorClient kraConnectorClient;
 
-    public KRAConnectorCLI(MainCLI parent) {
-        super("kraconnector", "KRA Connector management commands");
-        this.parent = parent;
+    public KRAConnectorCLI(CLI parent) {
+        super("kraconnector", "KRA Connector management commands", parent);
+
         addModule(new KRAConnectorAddCLI(this));
         addModule(new KRAConnectorRemoveCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name+"-"+module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1) padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
+    public String getFullName() {
+        if (parent instanceof MainCLI) {
+            // do not include MainCLI's name
+            return name;
+        } else {
+            return parent.getFullName() + "-" + name;
         }
     }
 
     public void execute(String[] args) throws Exception {
 
-        client = new KRAConnectorClient(parent.client);
+        client = parent.getClient();
+        kraConnectorClient = new KRAConnectorClient(client);
 
         if (args.length == 0) {
             printHelp();

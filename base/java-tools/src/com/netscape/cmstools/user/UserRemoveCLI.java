@@ -26,15 +26,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class UserRemoveCLI extends CLI {
 
-    public UserCLI parent;
+    public UserCLI userCLI;
 
-    public UserRemoveCLI(UserCLI parent) {
-        super("del", "Remove user");
-        this.parent = parent;
+    public UserRemoveCLI(UserCLI userCLI) {
+        super("del", "Remove user", userCLI);
+        this.userCLI = userCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID>", options);
+        formatter.printHelp(getFullName() + " <User ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -46,7 +46,7 @@ public class UserRemoveCLI extends CLI {
 
         String userID = args[0];
 
-        parent.client.removeUser(userID);
+        userCLI.userClient.removeUser(userID);
 
         MainCLI.printMessage("Deleted user \"" + userID + "\"");
     }

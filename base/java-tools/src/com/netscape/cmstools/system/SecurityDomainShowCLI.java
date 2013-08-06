@@ -28,15 +28,15 @@ import com.netscape.cmstools.cli.CLI;
  */
 public class SecurityDomainShowCLI extends CLI {
 
-    public SecurityDomainCLI parent;
+    public SecurityDomainCLI securityDomainCLI;
 
-    public SecurityDomainShowCLI(SecurityDomainCLI parent) {
-        super("show", "Show domain info");
-        this.parent = parent;
+    public SecurityDomainShowCLI(SecurityDomainCLI securityDomainCLI) {
+        super("show", "Show domain info", securityDomainCLI);
+        this.securityDomainCLI = securityDomainCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name, options);
+        formatter.printHelp(getFullName(), options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -59,7 +59,7 @@ public class SecurityDomainShowCLI extends CLI {
             System.exit(1);
         }
 
-        DomainInfo domain = parent.client.getDomainInfo();
+        DomainInfo domain = securityDomainCLI.securityDomainClient.getDomainInfo();
 
         SecurityDomainCLI.printSecurityDomain(domain);
     }

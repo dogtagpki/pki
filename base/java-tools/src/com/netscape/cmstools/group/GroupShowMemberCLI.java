@@ -27,15 +27,15 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class GroupShowMemberCLI extends CLI {
 
-    public GroupCLI parent;
+    public GroupCLI groupCLI;
 
-    public GroupShowMemberCLI(GroupCLI parent) {
-        super("show-member", "Show group member");
-        this.parent = parent;
+    public GroupShowMemberCLI(GroupCLI groupCLI) {
+        super("show-member", "Show group member", groupCLI);
+        this.groupCLI = groupCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID>", options);
+        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -48,7 +48,7 @@ public class GroupShowMemberCLI extends CLI {
         String groupID = args[0];
         String memberID = args[1];
 
-        GroupMemberData groupMemberData = parent.client.getGroupMember(groupID, memberID);
+        GroupMemberData groupMemberData = groupCLI.groupClient.getGroupMember(groupID, memberID);
 
         MainCLI.printMessage("Group member \""+memberID+"\"");
 
