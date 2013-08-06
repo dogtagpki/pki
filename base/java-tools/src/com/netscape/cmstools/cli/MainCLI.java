@@ -67,13 +67,17 @@ public class MainCLI extends CLI {
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
+        addModule(new CACLI(this));
         addModule(new CertCLI(this));
         addModule(new ClientCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KeyCLI(this));
+        addModule(new KRACLI(this));
         addModule(new KRAConnectorCLI(this));
+        addModule(new OCSPCLI(this));
         addModule(new ProfileCLI(this));
         addModule(new SecurityDomainCLI(this));
+        addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
         addModule(new UserCLI(this));
     }

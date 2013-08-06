@@ -69,7 +69,12 @@ public class UserCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        userClient = new UserClient(client);
+        userClient = (UserClient)parent.getClient("user");
+
+        if (userClient == null) {
+            // if parent doesn't have user client then create a new one
+            userClient = new UserClient(client);
+        }
 
         if (args.length == 0) {
             printHelp();

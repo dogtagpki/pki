@@ -36,6 +36,7 @@ import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.user.UserClient;
 
 public class CAClient extends SubsystemClient {
 
@@ -49,6 +50,9 @@ public class CAClient extends SubsystemClient {
     }
 
     public void init() throws URISyntaxException {
+
+        addClient(new UserClient(client, name));
+
         certRequestClient = createProxy(CertRequestResource.class);
         certClient = createProxy(CertResource.class);
         profileClient = createProxy(ProfileResource.class);

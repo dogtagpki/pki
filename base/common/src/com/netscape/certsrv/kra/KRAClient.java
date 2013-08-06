@@ -21,6 +21,7 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.SystemCertResource;
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.util.Utils;
 
 public class KRAClient extends SubsystemClient {
@@ -35,6 +36,9 @@ public class KRAClient extends SubsystemClient {
     }
 
     public void init() throws URISyntaxException {
+
+        addClient(new UserClient(client, name));
+
         systemCertClient = createProxy(SystemCertResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
         keyClient = createProxy(KeyResource.class);
