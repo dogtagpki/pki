@@ -18,10 +18,9 @@
 
 package org.dogtagpki.tps.token;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import com.netscape.cmscore.dbs.Database;
 
 /**
  * This class implements in-memory token database. In the future this
@@ -29,48 +28,22 @@ import java.util.Map;
  *
  * @author Endi S. Dewata
  */
-public class TokenDatabase {
+public class TokenDatabase extends Database<TokenRecord> {
 
-    public final static int DEFAULT_SIZE = 20;
-
-    Map<String, TokenRecord> tokens = new LinkedHashMap<String, TokenRecord>();
-
-    public Collection<TokenRecord> getTokens() throws Exception {
-        return tokens.values();
+    public TokenDatabase() {
+        super("Token");
     }
 
-    public TokenRecord getToken(String tokenID) throws Exception {
-        if (!tokens.containsKey(tokenID)) {
-            throw new Exception("Token "+ tokenID + " does not exist.");
-        }
-        return tokens.get(tokenID);
-    }
-
-    public void addToken(TokenRecord tokenRecord) throws Exception {
-        if (tokens.containsKey(tokenRecord.getID())) {
-            throw new Exception("Token "+ tokenRecord.getID() + " already exists.");
-        }
-
+    public void addRecord(TokenRecord tokenRecord) throws Exception {
         tokenRecord.setStatus("ENABLED");
         tokenRecord.setCreateTimestamp(new Date());
 
-        tokens.put(tokenRecord.getID(), tokenRecord);
+        addRecord(tokenRecord.getID(), tokenRecord);
     }
 
-    public void updateToken(String tokenID, TokenRecord tokenRecord) throws Exception {
-        if (!tokens.containsKey(tokenRecord.getID())) {
-            throw new Exception("Token "+ tokenRecord.getID() + " does not exist.");
-        }
-
+    public void updateRecord(TokenRecord tokenRecord) throws Exception {
         tokenRecord.setModifyTimestamp(new Date());
 
-        tokens.put(tokenRecord.getID(), tokenRecord);
-    }
-
-    public void removeToken(String tokenID) throws Exception {
-        if (!tokens.containsKey(tokenID)) {
-            throw new Exception("Token "+ tokenID + " does not exist.");
-        }
-        tokens.remove(tokenID);
+        updateRecord(tokenRecord.getID(), tokenRecord);
     }
 }

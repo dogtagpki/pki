@@ -18,48 +18,21 @@
 
 package com.netscape.certsrv.token;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
-
+import com.netscape.certsrv.base.DataCollection;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Tokens")
-public class TokenCollection {
-
-    Collection<TokenData> tokens = new ArrayList<TokenData>();
-    Collection<Link> links = new ArrayList<Link>();
+public class TokenCollection extends DataCollection<TokenData> {
 
     @XmlElementRef
-    public Collection<TokenData> getTokens() {
-        return tokens;
-    }
-
-    public void setTokens(Collection<TokenData> tokens) {
-        this.tokens = tokens;
-    }
-
-    public void addToken(TokenData tokenData) {
-        tokens.add(tokenData);
-    }
-
-    @XmlElement(name="Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLink(Collection<Link> links) {
-        this.links = links;
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
+    public Collection<TokenData> getEntries() {
+        return super.getEntries();
     }
 }

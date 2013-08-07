@@ -72,7 +72,7 @@ public class TokenFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         TokenCollection result = tokenCLI.tokenClient.findTokens(start, size);
-        Collection<TokenData> tokens = result.getTokens();
+        Collection<TokenData> tokens = result.getEntries();
 
         MainCLI.printMessage(tokens.size() + " token(s) matched");
 

@@ -100,7 +100,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            Iterator<TokenRecord> tokens = database.getTokens().iterator();
+            Iterator<TokenRecord> tokens = database.getRecords().iterator();
 
             TokenCollection response = new TokenCollection();
 
@@ -111,7 +111,7 @@ public class TokenService extends PKIService implements TokenResource {
 
             // return entries up to the page size
             for ( ; i<start+size && tokens.hasNext(); i++) {
-                response.addToken(createTokenData(tokens.next()));
+                response.addEntry(createTokenData(tokens.next()));
             }
 
             // count the total entries
@@ -144,7 +144,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            return createTokenData(database.getToken(tokenID));
+            return createTokenData(database.getRecord(tokenID));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,8 +161,8 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            database.addToken(createTokenRecord(tokenData));
-            tokenData = createTokenData(database.getToken(tokenData.getID()));
+            database.addRecord(createTokenRecord(tokenData));
+            tokenData = createTokenData(database.getRecord(tokenData.getID()));
 
             return Response
                     .created(tokenData.getLink().getHref())
@@ -185,11 +185,11 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            TokenRecord tokenRecord = database.getToken(tokenID);
+            TokenRecord tokenRecord = database.getRecord(tokenID);
             tokenRecord.setUserID(tokenData.getUserID());
-            database.updateToken(tokenData.getID(), tokenRecord);
+            database.updateRecord(tokenData.getID(), tokenRecord);
 
-            tokenData = createTokenData(database.getToken(tokenID));
+            tokenData = createTokenData(database.getRecord(tokenID));
 
             return Response
                     .ok(tokenData)
@@ -211,7 +211,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            TokenRecord tokenRecord = database.getToken(tokenID);
+            TokenRecord tokenRecord = database.getRecord(tokenID);
             // TODO: perform modification
 
             TokenData tokenData = createTokenData(tokenRecord);
@@ -235,7 +235,7 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
             TokenDatabase database = subsystem.getTokenDatabase();
-            database.removeToken(tokenID);
+            database.removeRecord(tokenID);
 
         } catch (Exception e) {
             e.printStackTrace();
