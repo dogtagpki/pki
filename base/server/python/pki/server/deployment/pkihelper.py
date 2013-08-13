@@ -3248,6 +3248,10 @@ class ConfigClient:
         # Create system certs
         self.set_system_certs(data)
 
+        # TPS parameters
+        if self.master_dict['pki_subsystem'] == "TPS":
+            self.set_tps_parameters(data)
+
         return data
 
     def set_system_certs(self, data):
@@ -3460,6 +3464,17 @@ class ConfigClient:
                config.str2bool(self.master_dict['pki_external_step_two']):
                 # External CA Step 2
                 data.stepTwo = "true"
+
+    def set_tps_parameters(self, data):
+        data.caUri = self.master_dict['pki_ca_uri']
+        data.tksUri = self.master_dict['pki_tks_uri']
+        data.enableServerSideKeyGen = self.master_dict['pki_enable_server_side_keygen']
+        if config.str2bool(self.master_dict['pki_enable_server_side_keygen']):
+            data.kraUri = self.master_dict['pki_kra_uri']
+        data.authdbHost = self.master_dict['pki_authdb_hostname']
+        data.authdbPort = self.master_dict['pki_authdb_port']
+        data.authdbBaseDN = self.master_dict['pki_authdb_basedn']
+        data.authdbSecureConn = self.master_dict['pki_authdb_secure_conn']
 
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()

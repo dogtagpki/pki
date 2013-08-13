@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.ConnectException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.security.DigestException;
@@ -3095,7 +3096,7 @@ public class ConfigurationUtils {
             EBaseException {
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         IConfigStore config = CMS.getConfigStore();
-        String groupName = config.getString("preop.admin.group", "Certificate Manager Agents");
+        String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
 
         IUser user = null;
 
@@ -3119,16 +3120,13 @@ public class ConfigurationUtils {
         }
 
         IGroup group = null;
-
-        group = system.getGroupFromName(groupName);
-        if (!group.isMember(uid)) {
-            group.addMemberName(uid);
-            system.modifyGroup(group);
-        }
-        group = system.getGroupFromName("Administrators");
-        if (!group.isMember(uid)) {
-            group.addMemberName(uid);
-            system.modifyGroup(group);
+        for (String groupName : groupNames.split(",")) {
+            groupName = groupName.trim();
+            group = system.getGroupFromName(groupName);
+            if (!group.isMember(uid)) {
+                group.addMemberName(uid);
+                system.modifyGroup(group);
+            }
         }
 
         String select = config.getString("securitydomain.select", "");
@@ -3536,6 +3534,39 @@ public class ConfigurationUtils {
         return null;
     }
 
+    public static String getTransportCert(URI secdomainURI, URI kraUri)
+            throws IOException, SAXException, ParserConfigurationException {
+        CMS.debug("getTransportCert() start");
+        String sessionId = CMS.getConfigSDSessionId();
+
+        String content = "&xmlOutput=true" +
+                "&sessionID=" + sessionId +
+                "&auth_hostname=" + secdomainURI.getHost() +
+                "&auth_port=" + secdomainURI.getPort();
+
+        String c = getHttpResponse(
+                kraUri.getHost(),
+                kraUri.getPort(),
+                true,
+                "/kra/admin/kra/getTransportCert",
+                content, null, null);
+
+        if (c != null) {
+            ByteArrayInputStream bis =
+                    new ByteArrayInputStream(c.getBytes());
+            XMLObject parser = new XMLObject(bis);
+            String status = parser.getValue("Status");
+            if (status.equals(SUCCESS)) {
+                String s = parser.getValue("TransportCert");
+                return s;
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
+
     public static void importCACertToOCSP() throws IOException, EBaseException, CertificateEncodingException {
         IConfigStore config = CMS.getConfigStore();
 
@@ -3646,6 +3677,95 @@ public class ConfigurationUtils {
         // remove old db users
         CMS.debug("Removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
+    }
+
+    public static void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
+        IConfigStore cs = CMS.getConfigStore();
+        String csType = cs.getString("cs.type");
+        String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
+                + "-" + cs.getString("service.securePort", "");
+        String sessionId = CMS.getConfigSDSessionId();
+        String subsystemName = cs.getString("preop.subsystem.name");
+
+        String content = "uid=" + uid +
+                "&xmlOutput=true" +
+                "&sessionID=" + sessionId +
+                "&auth_hostname=" + secdomainURI.getHost() +
+                "&auth_port=" + secdomainURI.getPort() +
+                "&certificate=" + URLEncoder.encode(getSubsystemCert(), "UTF-8") +
+                "&name=" + subsystemName;
+
+        String targetURL = "/" + targetType + "/admin/" + targetType + "/registerUser";
+
+        String response = getHttpResponse(
+                targetURI.getHost(),
+                targetURI.getPort(),
+                true,
+                targetURL,
+                content, null, null);
+
+        if (response == null || response.equals("")) {
+            CMS.debug("registerUser: response is empty or null.");
+            throw new IOException("The server " + targetURI + "is not available");
+        } else {
+            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+            XMLObject parser = new XMLObject(bis);
+
+            String status = parser.getValue("Status");
+            CMS.debug("registerUser: status=" + status);
+
+            if (status.equals(SUCCESS)) {
+                CMS.debug("registerUser: Successfully added user " + uid + "to " + targetURI);
+            } else if (status.equals(AUTH_FAILURE)) {
+                throw new EAuthException(AUTH_FAILURE);
+            } else {
+                String error = parser.getValue("Error");
+                throw new IOException(error);
+            }
+        }
+    }
+
+    public static void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
+        IConfigStore cs = CMS.getConfigStore();
+        String name = "transportCert-" + cs.getString("machineName", "")
+                + "-" + cs.getString("service.securePort", "");
+        String sessionId = CMS.getConfigSDSessionId();
+
+        String content = "name=" + name +
+                "&xmlOutput=true" +
+                "&sessionID=" + sessionId +
+                "&auth_hostname=" + secdomainURI.getHost() +
+                "&auth_port=" + secdomainURI.getPort() +
+                "&certificate=" + URLEncoder.encode(transportCert, "UTF-8");
+
+        String targetURL = "/tks/admin/tks/importTransportCert";
+
+        String response = getHttpResponse(
+                targetURI.getHost(),
+                targetURI.getPort(),
+                true,
+                targetURL,
+                content, null, null);
+
+        if (response == null || response.equals("")) {
+            CMS.debug("exportTransportCert: response is empty or null.");
+            throw new IOException("The server " + targetURI + "is not available");
+        } else {
+            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+            XMLObject parser = new XMLObject(bis);
+
+            String status = parser.getValue("Status");
+            CMS.debug("exportTransportCert: status=" + status);
+
+            if (status.equals(SUCCESS)) {
+                CMS.debug("exportTransportCert: Successfully added transport cert to " + targetURI);
+            } else if (status.equals(AUTH_FAILURE)) {
+                throw new EAuthException(AUTH_FAILURE);
+            } else {
+                String error = parser.getValue("Error");
+                throw new IOException(error);
+            }
+        }
     }
 
     public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {

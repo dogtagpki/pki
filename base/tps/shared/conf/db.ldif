@@ -3,64 +3,52 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-dn: ou=people,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: people
+dn: ou=Tokens,{rootSuffix}
+objectclass: top
+objectclass: organizationalunit
+ou: Tokens
+
+dn: ou=Activities,{rootSuffix}
+objectclass: top
+objectclass: organizationalunit
+ou: Activities
+
+dn: ou=Certificates,{rootSuffix}
+objectclass: top
+objectclass: organizationalunit
+ou: Certificates
+
+dn: ou=People,{rootSuffix}
+objectclass: top
+objectclass: organizationalunit
+ou: People
 aci: (targetattr!="userPassword")(version 3.0; acl "Enable anonymous access"; allow (read, search, compare)userdn="ldap:///anyone";)
 
-dn: ou=groups,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: groups
+dn: ou=Groups,{rootSuffix}
+objectclass: top
+objectclass: organizationalunit
+ou: Groups
 
-dn: cn=Token Processing Service Manager Agents,ou=groups,{rootSuffix}
+dn: cn=TUS Agents,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: Token Processing Service Manager Agents
-description: Agents for Token Processing Service Manager
+cn: TUS Agents
+description: Agents for TUS
 
-dn: cn=Subsystem Group, ou=groups, {rootSuffix}
+dn: cn=TUS Officers,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: Subsystem Group
-description: Subsystem Group
+cn: TUS Officers
+description: Security Officers for TUS
 
-dn: cn=Trusted Managers,ou=groups,{rootSuffix}
+dn: cn=TUS Administrators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: Trusted Managers
-description: Managers trusted by this PKI instance
+cn: TUS Administrators
+description: Administrators for TUS
 
-dn: cn=Administrators,ou=groups,{rootSuffix}
+dn: cn=TUS Operators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: Administrators
-description: People who manage the Certificate System
-
-dn: cn=Auditors,ou=groups,{rootSuffix}
-objectClass: top
-objectClass: groupOfUniqueNames
-cn: Auditors
-description: People who can read the signed audits
-
-dn: cn=ClonedSubsystems,ou=groups,{rootSuffix}
-objectClass: top
-objectClass: groupOfUniqueNames
-cn: ClonedSubsystems
-description: People who can clone the master subsystem
-
-dn: ou=requests,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: requests
-
-dn: cn=crossCerts,{rootSuffix}
-cn: crossCerts
-sn: crossCerts
-objectClass: top
-objectClass: person
-objectClass: pkiCA
-cACertificate;binary:
-authorityRevocationList;binary:
-certificateRevocationList;binary:
+cn: TUS Operators
+description: Operators for TUS

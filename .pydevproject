@@ -3,11 +3,8 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/pki/base/server/src</path>
-<path>/pki/base/server/src/engine</path>
-<path>/pki/base/server/src/scriptlets</path>
-<path>/pki/base/server/python/pki/server</path>
 <path>/pki/base/common/python/pki</path>
+<path>/pki/base/server/python/pki/server</path>
 <path>/pki/base/kra/functional</path>
 </pydev_pathproperty>
 </pydev_project>

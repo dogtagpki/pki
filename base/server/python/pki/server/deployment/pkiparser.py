@@ -634,7 +634,6 @@ class PKIConfigParser:
                 self.pki_master_dict['SYSTEM_LIBRARIES_SLOT'] = None
                 self.pki_master_dict['SYSTEM_USER_LIBRARIES_SLOT'] = None
                 self.pki_master_dict['TMP_DIR_SLOT'] = None
-                self.pki_master_dict['TPS_DIR_SLOT'] = None
             elif self.pki_master_dict['pki_subsystem'] in\
                  config.PKI_TOMCAT_SUBSYSTEMS:
                 self.pki_master_dict['INSTALL_TIME_SLOT'] = \
@@ -826,6 +825,24 @@ class PKIConfigParser:
                     "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+
+                # tps parameters
+                self.pki_master_dict['TOKENDB_HOST_SLOT'] = \
+                    self.pki_master_dict['pki_ds_hostname']
+
+                if config.str2bool(self.pki_master_dict['pki_ds_secure_connection']):
+                    self.pki_master_dict['TOKENDB_PORT_SLOT'] = \
+                        self.pki_master_dict['pki_ds_ldaps_port']
+                else:
+                    self.pki_master_dict['TOKENDB_PORT_SLOT'] = \
+                        self.pki_master_dict['pki_ds_ldap_port']
+
+                self.pki_master_dict['TOKENDB_ROOT_SLOT'] = \
+                    self.pki_master_dict['pki_ds_base_dn']
+
+                self.pki_master_dict['TPS_DIR_SLOT'] = \
+                    self.pki_master_dict['pki_source_subsystem_path']
+
                 if self.pki_master_dict['pki_subsystem'] == "CA":
                     self.pki_master_dict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                         self.pki_master_dict\

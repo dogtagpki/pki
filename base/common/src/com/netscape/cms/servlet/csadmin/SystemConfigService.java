@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -121,90 +123,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (token == null) {
             token = ConfigurationRequest.TOKEN_DEFAULT;
         }
-        cs.putString("preop.module.token", token);
-
-        if (! token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
-            try {
-                CryptoManager cryptoManager = CryptoManager.getInstance();
-                CryptoToken ctoken = cryptoManager.getTokenByName(token);
-                String tokenpwd = data.getTokenPassword();
-                ConfigurationUtils.loginToken(ctoken, tokenpwd);
-            } catch (NotInitializedException e) {
-                throw new PKIException("Token is not initialized");
-            } catch (NoSuchTokenException e) {
-                throw new BadRequestException("Invalid Token provided. No such token.");
-            } catch (TokenException e) {
-                e.printStackTrace();
-                throw new PKIException("Token Exception" + e);
-            } catch (IncorrectPasswordException e) {
-                throw new BadRequestException("Incorrect Password provided for token.");
-            }
-        }
+        tokenPanel(data, token);
 
         //configure security domain
         String securityDomainType = data.getSecurityDomainType();
-        String securityDomainName = data.getSecurityDomainName();
-        String securityDomainURL = data.getSecurityDomainUri();
-        String domainXML = null;
-        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            cs.putString("preop.securitydomain.select", "new");
-            cs.putString("securitydomain.select", "new");
-            cs.putString("preop.securitydomain.name", securityDomainName);
-            cs.putString("securitydomain.name", securityDomainName);
-            cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-            cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-            cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-            cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-            cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-            cs.putString("preop.cert.subsystem.type", "local");
-            cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
-        } else {
-            cs.putString("preop.securitydomain.select", "existing");
-            cs.putString("securitydomain.select", "existing");
-            cs.putString("preop.cert.subsystem.type", "remote");
-            cs.putString("preop.cert.subsystem.profile", "caInternalAuthSubsystemCert");
+        String domainXML = securityDomainPanel(data, securityDomainType);
 
-            // contact and log onto security domain
-            URL secdomainURL;
-            String host;
-            int port;
-            try {
-                secdomainURL = new URL(securityDomainURL);
-                host = secdomainURL.getHost();
-                port = secdomainURL.getPort();
-                cs.putString("securitydomain.host", host);
-                cs.putInteger("securitydomain.httpsadminport",port);
-                ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to import certificate chain from security domain master: " + e);
-            }
-
-            // log onto security domain and get token
-            String user = data.getSecurityDomainUser();
-            String pass = data.getSecurityDomainPassword();
-            String installToken;
-            try {
-                installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to obtain installation token from security domain: " + e);
-            }
-
-            if (installToken == null) {
-                throw new PKIException("Failed to obtain installation token from security domain");
-            }
-            CMS.setConfigSDSessionId(installToken);
-
-            try {
-                domainXML = ConfigurationUtils.getDomainXML(host, port, true);
-                ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
-            }
-        }
-
+        //subsystem panel
         cs.putString("preop.subsystem.name", data.getSubsystemName());
 
         // is this a clone of another subsystem?
@@ -214,186 +139,45 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } else {
             cs.putString("preop.subsystem.select", "clone");
             cs.putString("subsystem.select", "Clone");
-
-            StringTokenizer t = new StringTokenizer(certList, ",");
-            while (t.hasMoreTokens()) {
-                String tag = t.nextToken();
-                if (tag.equals("sslserver")) {
-                    cs.putBoolean("preop.cert." + tag + ".enable", true);
-                } else {
-                    cs.putBoolean("preop.cert." + tag + ".enable", false);
-                }
-            }
-
-            String cloneUri = data.getCloneUri();
-            URL url = null;
-            try {
-                url = new URL(cloneUri);
-            } catch (MalformedURLException e) {
-                // should not reach here as this check is done in validate()
-            }
-            String masterHost = url.getHost();
-            int masterPort = url.getPort();
-
-            // check and store cloneURI information
-            boolean validCloneUri;
-            try {
-                validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Error in determining whether clone URI is valid");
-            }
-
-            if (!validCloneUri) {
-                throw new BadRequestException(
-                        "Invalid clone URI provided.  Does not match the available subsystems in the security domain");
-            }
-
-            if (csType.equals("CA")) {
-                try {
-                    int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
-                            masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-                    ConfigurationUtils.importCertChain(masterHost, masterAdminPort, "/ca/admin/ca/getCertChain",
-                            "clone");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new PKIException("Failed to import certificate chain from master" + e);
-                }
-            }
-
-            try {
-                ConfigurationUtils.getConfigEntriesFromMaster();
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to obtain configuration entries from the master for cloning " + e);
-            }
-
-            // restore certs from P12 file
-            if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
-                String p12File = data.getP12File();
-                String p12Pass = data.getP12Password();
-                try {
-                    ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new PKIException("Failed to restore certificates from p12 file" + e);
-                }
-            }
-
-            boolean cloneReady = ConfigurationUtils.isCertdbCloned();
-            if (!cloneReady) {
-                CMS.debug("clone does not have all the certificates.");
-                throw new PKIException("Clone does not have all the required certificates");
-            }
+            getCloningData(data, certList, token, domainXML);
         }
 
         // Hierarchy Panel
-        if (csType.equals("CA") && data.getIsClone().equals("false")) {
-            if (data.getHierarchy().equals("root")) {
-                cs.putString("preop.hierarchy.select", "root");
-                cs.putString("hierarchy.select", "Root");
-                cs.putString("preop.ca.type", "sdca");
-            } else if (data.getHierarchy().equals("join")) {
-                cs.putString("preop.cert.signing.type", "remote");
-                cs.putString("preop.hierarchy.select", "join");
-                cs.putString("hierarchy.select", "Subordinate");
-            } else {
-                throw new BadRequestException("Invalid hierarchy provided");
+        hierarchyPanel(data);
+
+        // TPS Panels
+        if (csType.equals("TPS")) {
+
+            // get subsystem certificate nickname
+            String subsystemNick = null;
+            for (SystemCertData cdata: data.getSystemCerts()) {
+                if (cdata.getTag().equals("subsystem")) {
+                    subsystemNick = cdata.getNickname();
+                    break;
+                }
             }
+            if ((subsystemNick == null) || subsystemNick.isEmpty()) {
+                throw new BadRequestException("No nickname provided for subsystem certificate");
+            }
+
+            // CA Info Panel
+            caInfoPanel(data, subsystemNick);
+
+            // retrieve and import CA cert
+
+            // TKS Info Panel
+            tksInfoPanel(data, subsystemNick);
+
+            //DRM Info Panel
+            kraInfoPanel(data, subsystemNick);
+
+            //AuthDBPanel
+            authdbPanel(data);
+
         }
 
         // Database Panel
-        cs.putString("internaldb.ldapconn.host", data.getDsHost());
-        cs.putString("internaldb.ldapconn.port", data.getDsPort());
-        cs.putString("internaldb.database", data.getDatabase());
-        cs.putString("internaldb.basedn", data.getBaseDN());
-        cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putString("internaldb.ldapconn.secureConn", (data.getSecureConn().equals("on") ? "true" : "false"));
-        cs.putString("preop.database.removeData", data.getRemoveData());
-
-        try {
-            cs.commit(false);
-        } catch (EBaseException e2) {
-            e2.printStackTrace();
-            throw new PKIException("Unable to commit config parameters to file");
-        }
-
-        if (data.getIsClone().equals("true")) {
-            String masterhost = "";
-            String masterport = "";
-            String masterbasedn = "";
-            String realhostname = "";
-            try {
-                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
-                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
-                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
-                realhostname = cs.getString("machineName", "");
-            } catch (Exception e) {
-            }
-
-            if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
-                throw new BadRequestException("Master and clone must not share the same internal database");
-            }
-
-            if (!masterbasedn.equals(data.getBaseDN())) {
-                throw new BadRequestException("Master and clone should have the same base DN");
-            }
-
-            String masterReplicationPort = data.getMasterReplicationPort();
-            if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPort);
-            } else {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterport);
-            }
-
-            String cloneReplicationPort = data.getCloneReplicationPort();
-            if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
-                cloneReplicationPort = data.getDsPort();
-            }
-            cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
-
-            String replicationSecurity = data.getReplicationSecurity();
-            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("on"))) {
-                replicationSecurity = "SSL";
-            } else if (replicationSecurity == null) {
-                replicationSecurity = "None";
-            }
-            cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
-
-            cs.putString("preop.internaldb.replicateSchema", data.getReplicateSchema());
-        }
-
-        try {
-            /* BZ 430745 create password for replication manager */
-            String replicationpwd = Integer.toString(new Random().nextInt());
-
-            IConfigStore psStore = null;
-            String passwordFile = null;
-            passwordFile = cs.getString("passwordFile");
-            psStore = CMS.createFileConfigStore(passwordFile);
-            psStore.putString("internaldb", data.getBindpwd());
-            psStore.putString("replicationdb", replicationpwd);
-            psStore.commit(false);
-
-            if (data.getStepTwo() == null) {
-                ConfigurationUtils.populateDB();
-
-                cs.putString("preop.internaldb.replicationpwd", replicationpwd);
-                cs.putString("preop.database.removeData", "false");
-                cs.commit(false);
-
-                if (data.getIsClone().equals("true")) {
-                    CMS.debug("Start setting up replication.");
-                    ConfigurationUtils.setupReplication();
-                }
-
-                ConfigurationUtils.reInitSubsystem(csType);
-                ConfigurationUtils.populateDBManager();
-                ConfigurationUtils.populateVLVIndexes();
-            }
-        } catch (Exception e) {
-            throw new PKIException("Error in populating database" + e);
-        }
+        databasePanel(data);
 
         // SizePanel, NamePanel, CertRequestPanel
         //handle the CA URL
@@ -595,56 +379,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // AdminPanel
-        if (!data.getIsClone().equals("true")) {
-            try {
-                X509CertImpl admincerts[] = new X509CertImpl[1];
-                ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
-                        data.getAdminName(), data.getAdminPassword());
-                if (data.getImportAdminCert().equalsIgnoreCase("true")) {
-                    String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
-                    byte[] b = CryptoUtil.base64Decode(b64);
-                    admincerts[0] = new X509CertImpl(b);
-                } else {
-                    if (csType.equals("CA")) {
-                        ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                                data.getAdminCertRequestType(), data.getAdminSubjectDN());
-
-                        String serialno = cs.getString("preop.admincert.serialno.0");
-                        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-                        ICertificateRepository repo = ca.getCertificateRepository();
-                        admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
-                    } else {
-                        String type = cs.getString("preop.ca.type", "");
-                        String ca_hostname = "";
-                        int ca_port = -1;
-                        if (type.equals("sdca")) {
-                            ca_hostname = cs.getString("preop.ca.hostname");
-                            ca_port = cs.getInteger("preop.ca.httpsport");
-                        } else {
-                            ca_hostname = cs.getString("securitydomain.host", "");
-                            ca_port = cs.getInteger("securitydomain.httpseeport");
-                        }
-                        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                                data.getAdminProfileID(), data.getAdminCertRequestType(),
-                                data.getAdminCertRequest(), data.getAdminSubjectDN());
-                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                        byte[] b = CryptoUtil.base64Decode(b64);
-                        admincerts[0] = new X509CertImpl(b);
-                    }
-                }
-                CMS.reinit(IUGSubsystem.ID);
-
-                IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
-                IUser user = ug.getUser(data.getAdminUID());
-                user.setX509Certificates(admincerts);
-                ug.addUserCert(user);
-                response.setAdminCert(admincerts[0]);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Error in creating admin user: " + e);
-            }
-        }
+        adminPanel(data, response);
 
         // Done Panel
         // Create or update security domain
@@ -730,6 +465,32 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Errors in creating or updating dbuser: " + e);
         }
 
+        if (csType.equals("TPS")) {
+            try {
+                URI secdomainURI = new URI(data.getSecurityDomainUri());
+
+                // register tps with ca
+                URI caURI = new URI(data.getCaUri());
+                ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
+
+                // register tps with tks
+                URI tksURI = new URI(data.getTksUri());
+                ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
+
+                if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+                    URI kraURI = new URI(data.getKraUri());
+                    ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
+                    String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+                    ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+                }
+            } catch (URISyntaxException e) {
+                throw new BadRequestException("Invalid URI for CA, TKS or KRA");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Errors in registering TPS to CA, TKS or KRA" + e);
+            }
+        }
+
         cs.putInteger("cs.state", 1);
 
         // update serial numbers for clones
@@ -751,6 +512,403 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         response.setStatus(SUCCESS);
         return response;
+    }
+
+    private void authdbPanel(ConfigurationRequest data) {
+        cs.putString("auths.instance.ldap1.ldap.basedn", data.getAuthdbBaseDN());
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.host", data.getAuthdbHost());
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.port", data.getAuthdbPort());
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", data.getAuthdbSecureConn());
+    }
+
+    private void caInfoPanel(ConfigurationRequest data, String subsystemNick) {
+        URI caUri = null;
+        try {
+            caUri = new URI(data.getCaUri());
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid caURI " + caUri);
+        }
+        cs.putString("preop.cainfo.select", data.getCaUri());
+        cs.putString("conn.ca1.clientNickname", subsystemNick);
+        cs.putString("conn.ca1.hostport", caUri.getHost() + ":" + caUri.getPort());
+        cs.putString("conn.ca1.hostagentport", caUri.getHost() + ":" + caUri.getPort());
+        cs.putString("conn.ca1.hostadminport", caUri.getHost() + ":" + caUri.getPort());
+    }
+
+    private void tksInfoPanel(ConfigurationRequest data, String subsystemNick) {
+        URI tksUri = null;
+        try {
+            tksUri = new URI(data.getTksUri());
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid tksURI " + tksUri);
+        }
+        cs.putString("preop.tksinfo.select", data.getTksUri());
+        cs.putString("conn.tks1.clientNickname", subsystemNick);
+        cs.putString("conn.tks1.hostport", tksUri.getHost() + ":" + tksUri.getPort());
+    }
+
+    private void kraInfoPanel(ConfigurationRequest data, String subsystemNick) {
+        if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+            URI kraUri = null;
+            try {
+                kraUri = new URI(data.getCaUri());
+            } catch (URISyntaxException e) {
+                throw new BadRequestException("Invalid kraURI " + kraUri);
+            }
+            cs.putString("preop.krainfo.select", data.getKraUri());
+            cs.putString("conn.drm1.clientNickname", subsystemNick);
+            cs.putString("conn.drm1.hostport", kraUri.getHost() + ":" + kraUri.getPort());
+            cs.putString("conn.tks1.serverKeygen", "true");
+            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
+            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
+            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "true");
+            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
+        } else {
+            // no keygen
+            cs.putString("conn.tks1.serverKeygen", "false");
+            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "false");
+            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
+            cs.putString("op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
+            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
+            cs.putString("conn.drm1.clientNickname", "");
+            cs.putString("conn.drm1.hostport", "");
+            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "false");
+            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
+            cs.putString("op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
+            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
+        }
+    }
+
+    private void adminPanel(ConfigurationRequest data, ConfigurationResponse response) {
+        if (!data.getIsClone().equals("true")) {
+            try {
+                X509CertImpl admincerts[] = new X509CertImpl[1];
+                ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
+                        data.getAdminName(), data.getAdminPassword());
+                if (data.getImportAdminCert().equalsIgnoreCase("true")) {
+                    String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
+                    byte[] b = CryptoUtil.base64Decode(b64);
+                    admincerts[0] = new X509CertImpl(b);
+                } else {
+                    if (csType.equals("CA")) {
+                        ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
+                                data.getAdminCertRequestType(), data.getAdminSubjectDN());
+
+                        String serialno = cs.getString("preop.admincert.serialno.0");
+                        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+                        ICertificateRepository repo = ca.getCertificateRepository();
+                        admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
+                    } else {
+                        String type = cs.getString("preop.ca.type", "");
+                        String ca_hostname = "";
+                        int ca_port = -1;
+                        if (type.equals("sdca")) {
+                            ca_hostname = cs.getString("preop.ca.hostname");
+                            ca_port = cs.getInteger("preop.ca.httpsport");
+                        } else {
+                            ca_hostname = cs.getString("securitydomain.host", "");
+                            ca_port = cs.getInteger("securitydomain.httpseeport");
+                        }
+                        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
+                                data.getAdminProfileID(), data.getAdminCertRequestType(),
+                                data.getAdminCertRequest(), data.getAdminSubjectDN());
+                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                        byte[] b = CryptoUtil.base64Decode(b64);
+                        admincerts[0] = new X509CertImpl(b);
+                    }
+                }
+                CMS.reinit(IUGSubsystem.ID);
+
+                IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+                IUser user = ug.getUser(data.getAdminUID());
+                user.setX509Certificates(admincerts);
+                ug.addUserCert(user);
+                response.setAdminCert(admincerts[0]);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Error in creating admin user: " + e);
+            }
+        }
+    }
+
+    private void databasePanel(ConfigurationRequest data) {
+        cs.putString("internaldb.ldapconn.host", data.getDsHost());
+        cs.putString("internaldb.ldapconn.port", data.getDsPort());
+        cs.putString("internaldb.database", data.getDatabase());
+        cs.putString("internaldb.basedn", data.getBaseDN());
+        cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
+        cs.putString("internaldb.ldapconn.secureConn", (data.getSecureConn().equals("on") ? "true" : "false"));
+        cs.putString("preop.database.removeData", data.getRemoveData());
+
+        if (csType.equals("TPS")) {
+            cs.putString("tokendb.activityBaseDN", "ou=Activities," + data.getBaseDN());
+            cs.putString("tokendb.baseDN", "ou=Tokens," + data.getBaseDN());
+            cs.putString("tokendb.certBaseDN", "ou=Certificates," + data.getBaseDN());
+            cs.putString("tokendb.userBaseDN", data.getBaseDN());
+            cs.putString("tokendb.hostport", data.getDsHost() + ":" + data.getDsPort());
+        }
+
+        try {
+            cs.commit(false);
+        } catch (EBaseException e2) {
+            e2.printStackTrace();
+            throw new PKIException("Unable to commit config parameters to file");
+        }
+
+        if (data.getIsClone().equals("true")) {
+            String masterhost = "";
+            String masterport = "";
+            String masterbasedn = "";
+            String realhostname = "";
+            try {
+                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
+                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
+                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
+                realhostname = cs.getString("machineName", "");
+            } catch (Exception e) {
+            }
+
+            if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
+                throw new BadRequestException("Master and clone must not share the same internal database");
+            }
+
+            if (!masterbasedn.equals(data.getBaseDN())) {
+                throw new BadRequestException("Master and clone should have the same base DN");
+            }
+
+            String masterReplicationPort = data.getMasterReplicationPort();
+            if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
+                cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPort);
+            } else {
+                cs.putString("internaldb.ldapconn.masterReplicationPort", masterport);
+            }
+
+            String cloneReplicationPort = data.getCloneReplicationPort();
+            if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
+                cloneReplicationPort = data.getDsPort();
+            }
+            cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
+
+            String replicationSecurity = data.getReplicationSecurity();
+            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("on"))) {
+                replicationSecurity = "SSL";
+            } else if (replicationSecurity == null) {
+                replicationSecurity = "None";
+            }
+            cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
+
+            cs.putString("preop.internaldb.replicateSchema", data.getReplicateSchema());
+        }
+
+        try {
+            /* BZ 430745 create password for replication manager */
+            String replicationpwd = Integer.toString(new Random().nextInt());
+
+            IConfigStore psStore = null;
+            String passwordFile = null;
+            passwordFile = cs.getString("passwordFile");
+            psStore = CMS.createFileConfigStore(passwordFile);
+            psStore.putString("internaldb", data.getBindpwd());
+            psStore.putString("replicationdb", replicationpwd);
+            psStore.commit(false);
+
+            if (data.getStepTwo() == null) {
+                ConfigurationUtils.populateDB();
+
+                cs.putString("preop.internaldb.replicationpwd", replicationpwd);
+                cs.putString("preop.database.removeData", "false");
+                cs.commit(false);
+
+                if (data.getIsClone().equals("true")) {
+                    CMS.debug("Start setting up replication.");
+                    ConfigurationUtils.setupReplication();
+                }
+
+                ConfigurationUtils.reInitSubsystem(csType);
+                ConfigurationUtils.populateDBManager();
+                ConfigurationUtils.populateVLVIndexes();
+            }
+        } catch (Exception e) {
+            throw new PKIException("Error in populating database" + e);
+        }
+    }
+
+    private void hierarchyPanel(ConfigurationRequest data) {
+        if (csType.equals("CA") && data.getIsClone().equals("false")) {
+            if (data.getHierarchy().equals("root")) {
+                cs.putString("preop.hierarchy.select", "root");
+                cs.putString("hierarchy.select", "Root");
+                cs.putString("preop.ca.type", "sdca");
+            } else if (data.getHierarchy().equals("join")) {
+                cs.putString("preop.cert.signing.type", "remote");
+                cs.putString("preop.hierarchy.select", "join");
+                cs.putString("hierarchy.select", "Subordinate");
+            } else {
+                throw new BadRequestException("Invalid hierarchy provided");
+            }
+        }
+    }
+
+    private void getCloningData(ConfigurationRequest data, String certList, String token, String domainXML) {
+        StringTokenizer t = new StringTokenizer(certList, ",");
+        while (t.hasMoreTokens()) {
+            String tag = t.nextToken();
+            if (tag.equals("sslserver")) {
+                cs.putBoolean("preop.cert." + tag + ".enable", true);
+            } else {
+                cs.putBoolean("preop.cert." + tag + ".enable", false);
+            }
+        }
+
+        String cloneUri = data.getCloneUri();
+        URL url = null;
+        try {
+            url = new URL(cloneUri);
+        } catch (MalformedURLException e) {
+            // should not reach here as this check is done in validate()
+        }
+        String masterHost = url.getHost();
+        int masterPort = url.getPort();
+
+        // check and store cloneURI information
+        boolean validCloneUri;
+        try {
+            validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Error in determining whether clone URI is valid");
+        }
+
+        if (!validCloneUri) {
+            throw new BadRequestException(
+                    "Invalid clone URI provided.  Does not match the available subsystems in the security domain");
+        }
+
+        if (csType.equals("CA")) {
+            try {
+                int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                        masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
+                ConfigurationUtils.importCertChain(masterHost, masterAdminPort, "/ca/admin/ca/getCertChain",
+                        "clone");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Failed to import certificate chain from master" + e);
+            }
+        }
+
+        try {
+            ConfigurationUtils.getConfigEntriesFromMaster();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to obtain configuration entries from the master for cloning " + e);
+        }
+
+        // restore certs from P12 file
+        if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+            String p12File = data.getP12File();
+            String p12Pass = data.getP12Password();
+            try {
+                ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Failed to restore certificates from p12 file" + e);
+            }
+        }
+
+        boolean cloneReady = ConfigurationUtils.isCertdbCloned();
+        if (!cloneReady) {
+            CMS.debug("clone does not have all the certificates.");
+            throw new PKIException("Clone does not have all the required certificates");
+        }
+    }
+
+    private String securityDomainPanel(ConfigurationRequest data, String securityDomainType) {
+        String domainXML = null;
+        String securityDomainName = data.getSecurityDomainName();
+        String securityDomainURL = data.getSecurityDomainUri();
+
+        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
+            cs.putString("preop.securitydomain.select", "new");
+            cs.putString("securitydomain.select", "new");
+            cs.putString("preop.securitydomain.name", securityDomainName);
+            cs.putString("securitydomain.name", securityDomainName);
+            cs.putString("securitydomain.host", CMS.getEENonSSLHost());
+            cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+            cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+            cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+            cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+            cs.putString("preop.cert.subsystem.type", "local");
+            cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
+        } else {
+            cs.putString("preop.securitydomain.select", "existing");
+            cs.putString("securitydomain.select", "existing");
+            cs.putString("preop.cert.subsystem.type", "remote");
+            cs.putString("preop.cert.subsystem.profile", "caInternalAuthSubsystemCert");
+
+            // contact and log onto security domain
+            URL secdomainURL;
+            String host;
+            int port;
+            try {
+                secdomainURL = new URL(securityDomainURL);
+                host = secdomainURL.getHost();
+                port = secdomainURL.getPort();
+                cs.putString("securitydomain.host", host);
+                cs.putInteger("securitydomain.httpsadminport",port);
+                ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Failed to import certificate chain from security domain master: " + e);
+            }
+
+            // log onto security domain and get token
+            String user = data.getSecurityDomainUser();
+            String pass = data.getSecurityDomainPassword();
+            String installToken;
+            try {
+                installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Failed to obtain installation token from security domain: " + e);
+            }
+
+            if (installToken == null) {
+                throw new PKIException("Failed to obtain installation token from security domain");
+            }
+            CMS.setConfigSDSessionId(installToken);
+
+            try {
+                domainXML = ConfigurationUtils.getDomainXML(host, port, true);
+                ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
+            }
+        }
+        return domainXML;
+    }
+
+    private void tokenPanel(ConfigurationRequest data, String token) {
+        cs.putString("preop.module.token", token);
+
+        if (! token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+            try {
+                CryptoManager cryptoManager = CryptoManager.getInstance();
+                CryptoToken ctoken = cryptoManager.getTokenByName(token);
+                String tokenpwd = data.getTokenPassword();
+                ConfigurationUtils.loginToken(ctoken, tokenpwd);
+            } catch (NotInitializedException e) {
+                throw new PKIException("Token is not initialized");
+            } catch (NoSuchTokenException e) {
+                throw new BadRequestException("Invalid Token provided. No such token.");
+            } catch (TokenException e) {
+                e.printStackTrace();
+                throw new PKIException("Token Exception" + e);
+            } catch (IncorrectPasswordException e) {
+                throw new BadRequestException("Incorrect Password provided for token.");
+            }
+        }
     }
 
     private void validateData(ConfigurationRequest data) {
@@ -945,6 +1103,61 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getGenerateServerCert() == null) {
             data.setGenerateServerCert("true");
+        }
+
+        if (csType.equals("TPS")) {
+            if ((data.getCaUri() == null) || data.getCaUri().isEmpty()) {
+                throw new BadRequestException("CA URI not provided");
+            }
+            try {
+                @SuppressWarnings("unused")
+                URI ca_uri = new URI(data.getCaUri());
+            } catch (URISyntaxException e) {
+                throw new BadRequestException("Invalid CA URI");
+            }
+
+            if ((data.getTksUri() == null) || data.getTksUri().isEmpty()) {
+                throw new BadRequestException("TKS URI not provided");
+            }
+            try {
+                @SuppressWarnings("unused")
+                URI tks_uri = new URI(data.getTksUri());
+            } catch (URISyntaxException e) {
+                throw new BadRequestException("Invalid TKS URI");
+            }
+
+            if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+                if ((data.getKraUri() == null) || data.getKraUri().isEmpty()) {
+                    throw new BadRequestException("KRA URI required if server-side key generation requested");
+                }
+                try {
+                    @SuppressWarnings("unused")
+                    URI kra_uri = new URI(data.getKraUri());
+                } catch (URISyntaxException e) {
+                    throw new BadRequestException("Invalid KRA URI");
+                }
+            }
+
+            if ((data.getAuthdbBaseDN()==null) || data.getAuthdbBaseDN().isEmpty()) {
+                throw new BadRequestException("Authentication Database baseDN not provided");
+            }
+            if ((data.getAuthdbHost()==null) || data.getAuthdbHost().isEmpty()) {
+                throw new BadRequestException("Authentication Database hostname not provided");
+            }
+            if ((data.getAuthdbPort()==null) || data.getAuthdbPort().isEmpty()) {
+                throw new BadRequestException("Authentication Database port not provided");
+            }
+            if ((data.getAuthdbSecureConn()==null) || data.getAuthdbSecureConn().isEmpty()) {
+                throw new BadRequestException("Authentication Database secure conn not provided");
+            }
+
+            try {
+                Integer.parseInt(data.getAuthdbPort()); // check for errors
+            } catch (NumberFormatException e) {
+                throw new BadRequestException("Authdb port is invalid");
+            }
+
+            // TODO check connection with authdb
         }
     }
 }

@@ -74,6 +74,17 @@ public class ConfigurationRequest {
     private static final String STEP_TWO = "stepTwo";
     private static final String GENERATE_SERVER_CERT = "generateServerCert";
 
+    // TPS specific parameters
+    private static final String AUTHDB_BASEDN = "authdbBaseDN";
+    private static final String AUTHDB_HOST = "authdbHost";
+    private static final String AUTHDB_PORT = "authdbPort";
+    private static final String AUTHDB_SECURE_CONN = "authdbSecureConn";
+    private static final String CA_URI = "caUri";
+    private static final String TKS_URI = "tksUri";
+    private static final String KRA_URI = "kraUri";
+    private static final String ENABLE_SERVER_SIDE_KEYGEN = "enableServerSideKeygen";
+
+
     //defaults
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
     public static final String NEW_DOMAIN = "newdomain";
@@ -208,6 +219,30 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue = "true")
     protected String generateServerCert;
 
+    @XmlElement
+    protected String authdbBaseDN;
+
+    @XmlElement
+    protected String authdbHost;
+
+    @XmlElement
+    protected String authdbPort;
+
+    @XmlElement(defaultValue="false")
+    protected String authdbSecureConn;
+
+    @XmlElement
+    protected String caUri;
+
+    @XmlElement
+    protected String tksUri;
+
+    @XmlElement
+    protected String kraUri;
+
+    @XmlElement(defaultValue="false")
+    protected String enableServerSideKeyGen;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -255,8 +290,15 @@ public class ConfigurationRequest {
         importAdminCert = form.getFirst(IMPORT_ADMIN_CERT);
         stepTwo = form.getFirst(STEP_TWO);
         generateServerCert = form.getFirst(GENERATE_SERVER_CERT);
+        authdbBaseDN = form.getFirst(AUTHDB_BASEDN);
+        authdbHost = form.getFirst(AUTHDB_HOST);
+        authdbPort = form.getFirst(AUTHDB_PORT);
+        authdbSecureConn = form.getFirst(AUTHDB_SECURE_CONN);
+        caUri = form.getFirst(CA_URI);
+        tksUri = form.getFirst(TKS_URI);
+        kraUri = form.getFirst(KRA_URI);
+        enableServerSideKeyGen = form.getFirst(ENABLE_SERVER_SIDE_KEYGEN);
     }
-
 
     public String getSubsystemName() {
         return subsystemName;
@@ -772,6 +814,70 @@ public class ConfigurationRequest {
         this.generateServerCert = generateServerCert;
     }
 
+    public String getAuthdbBaseDN() {
+        return authdbBaseDN;
+    }
+
+    public void setAuthdbBaseDN(String authdbBaseDN) {
+        this.authdbBaseDN = authdbBaseDN;
+    }
+
+    public String getAuthdbHost() {
+        return authdbHost;
+    }
+
+    public void setAuthdbHost(String authdbHost) {
+        this.authdbHost = authdbHost;
+    }
+
+    public String getAuthdbPort() {
+        return authdbPort;
+    }
+
+    public void setAuthdbPort(String authdbPort) {
+        this.authdbPort = authdbPort;
+    }
+
+    public String getAuthdbSecureConn() {
+        return authdbSecureConn;
+    }
+
+    public void setAuthdbSecureConn(String authdbSecureConn) {
+        this.authdbSecureConn = authdbSecureConn;
+    }
+
+    public String getCaUri() {
+        return caUri;
+    }
+
+    public void setCaUri(String caUri) {
+        this.caUri = caUri;
+    }
+
+    public String getTksUri() {
+        return tksUri;
+    }
+
+    public void setTksUri(String tksUri) {
+        this.tksUri = tksUri;
+    }
+
+    public String getKraUri() {
+        return kraUri;
+    }
+
+    public void setKraUri(String kraUri) {
+        this.kraUri = kraUri;
+    }
+
+    public String getEnableServerSideKeyGen() {
+        return enableServerSideKeyGen;
+    }
+
+    public void setEnableServerSideKeyGen(String enableServerSideKeyGen) {
+        this.enableServerSideKeyGen = enableServerSideKeyGen;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -815,6 +921,15 @@ public class ConfigurationRequest {
                ", adminCert=" + adminCert +
                ", importAdminCert=" + importAdminCert +
                ", generateServerCert=" + generateServerCert +
-               ", stepTwo=" + stepTwo + "]";
+               ", stepTwo=" + stepTwo +
+               ", authdbBaseDN=" + authdbBaseDN +
+               ", authdbHost=" + authdbHost +
+               ", authdbPort=" + authdbPort +
+               ", authdbSecureConn=" + authdbSecureConn +
+               ", caUri=" + caUri +
+               ", kraUri=" + kraUri +
+               ", tksUri=" + tksUri +
+               ", enableServerSideKeyGen=" + enableServerSideKeyGen +
+               "]";
     }
 }
