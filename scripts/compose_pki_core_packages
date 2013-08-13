@@ -39,9 +39,9 @@ PKI_CORE_VERSION="10.1.0"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
-PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools server selinux ca kra ocsp tks silent"
+PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools server selinux ca kra ocsp tks tps-tomcat silent"
 
-if [ "$JAVADOC" = "" ]; then
+if [ "$WITHOUT_JAVADOC" = "" ]; then
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
 fi
 
@@ -50,7 +50,7 @@ fi
 ##
 
 if [ $WORK_DIR ]; then
-    PKI_PACKAGES="$WORK_DIR"
+    PKI_PACKAGES="`cd $WORK_DIR ; pwd`"
 else
     PKI_PACKAGES="${PKI_PWD}/packages"
 fi
@@ -154,12 +154,25 @@ else
 	cd ${PKI_BASE_DIR}
 	cp -p ${PKI_BASE_MANIFEST} ${PKI_CORE_BASE_DIR}
 	cp -p VERSION ${PKI_CORE_BASE_DIR}
-	for component in "${PKI_COMPONENT_LIST}" ;
+	for component in ${PKI_COMPONENT_LIST} ;
 	do
-		find ${component}             \
+		if [ "${component}" = "tps-tomcat" ] ; then
+			# rename tps-tomcat to tps
+			dest="tps"
+		else
+			dest="${component}"
+		fi
+
+		# copying ${PKI_BASE_DIR}/${component} to ${PKI_CORE_BASE_DIR}/${dest}
+		cd ${component}
+		mkdir ${PKI_CORE_BASE_DIR}/${dest}
+
+		find                          \
 		-name .svn -prune -o          \
 		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CORE_BASE_DIR} > /dev/null 2>&1
+		-print | cpio -pdum ${PKI_CORE_BASE_DIR}/${dest} > /dev/null 2>&1
+
+		cd ..
 	done
 	cd - > /dev/null 2>&1
 

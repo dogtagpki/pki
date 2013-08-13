@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -25,6 +25,7 @@ BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+Conflicts:        pki-tps-tomcat
 Requires:         java >= 1:1.7.0
 Requires:         mod_nss
 Requires:         mod_perl
@@ -220,7 +221,6 @@ fi
 %{_bindir}/tpsclient
 %{_libdir}/httpd/modules/*
 %{_libdir}/tps/
-%{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/applets/
 %{_datadir}/pki/tps/cgi-bin/
@@ -230,7 +230,6 @@ fi
 %{_datadir}/pki/tps/samples/
 %{_datadir}/pki/tps/scripts/
 %{_datadir}/pki/tps/setup/
-%{_datadir}/pki/tps/webapps/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
 # Details:
@@ -242,6 +241,9 @@ fi
 
 
 %changelog
+* Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.5
+- Moved Tomcat-based TPS into pki-core.
+
 * Thu Jul 11 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
 - Add systemd build requirement to fix build failures in f19
 

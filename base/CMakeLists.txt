@@ -17,6 +17,7 @@ if (APPLICATION_FLAVOR_PKI_CORE)
     add_subdirectory(kra)
     add_subdirectory(ocsp)
     add_subdirectory(tks)
+    add_subdirectory(tps)
     add_subdirectory(silent)
 
     if(WITH_JAVADOC)

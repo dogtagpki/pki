@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.9%{?dist}
+Release:          0.10%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -107,6 +107,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
   * pki-tks                                                            \
+  * pki-tps-tomcat                                                     \
   * pki-javadoc                                                        \
                                                                        \
 which comprise the following corresponding PKI subsystems:             \
@@ -115,6 +116,7 @@ which comprise the following corresponding PKI subsystems:             \
   * Data Recovery Manager (DRM)                                        \
   * Online Certificate Status Protocol (OCSP) Manager                  \
   * Token Key Service (TKS)                                            \
+  * Token Processing Service (TPS)                                     \
                                                                        \
 For deployment purposes, PKI Core contains fundamental packages        \
 required by BOTH native-based Apache AND java-based Tomcat             \
@@ -313,8 +315,9 @@ The PKI Server Framework is required by the following four PKI subsystems:
 
     the Certificate Authority (CA),
     the Data Recovery Manager (DRM),
-    the Online Certificate Status Protocol (OCSP) Manager, and
-    the Token Key Service (TKS).
+    the Online Certificate Status Protocol (OCSP) Manager,
+    the Token Key Service (TKS), and
+    the Token Processing Service (TPS).
 
 This package is a part of the PKI Core used by the Certificate System.
 The package contains scripts to create and remove PKI subsystems.
@@ -476,6 +479,39 @@ provided by the PKI Core used by the Certificate System.
 %{overview}
 
 
+%package -n       pki-tps-tomcat
+Summary:          Certificate System - Token Processing Service
+Group:            System Environment/Daemons
+
+BuildArch:        noarch
+
+Provides:         pki-tps
+Conflicts:        pki-tps
+Requires:         java >= 1:1.7.0
+Requires:         pki-server = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+
+%description -n   pki-tps-tomcat
+The Token Processing System (TPS) is an optional PKI subsystem that acts
+as a Registration Authority (RA) for authenticating and processing
+enrollment requests, PIN reset requests, and formatting requests from
+the Enterprise Security Client (ESC).
+
+TPS is designed to communicate with tokens that conform to
+Global Platform's Open Platform Specification.
+
+TPS communicates over SSL with various PKI backend subsystems (including
+the Certificate Authority (CA), the Data Recovery Manager (DRM), and the
+Token Key Service (TKS)) to fulfill the user's requests.
+
+TPS also interacts with the token database, an LDAP server that stores
+information about individual tokens.
+
+%{overview}
+
+
 %package -n       pki-javadoc
 Summary:          Certificate System - PKI Framework Javadocs
 Group:            Documentation
@@ -575,11 +611,17 @@ echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfil
 echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+# generate 'pki-tps.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
+%{__rm} %{buildroot}%{_initrddir}/pki-tpsd
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
@@ -1089,6 +1131,27 @@ fi
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
 
 
+%files -n pki-tps-tomcat
+%defattr(-,root,root,-)
+%doc base/tps/LICENSE
+%dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
+%{_unitdir}/pki-tpsd@.service
+%{_unitdir}/pki-tpsd.target
+%{_javadir}/pki/pki-tps.jar
+%dir %{_datadir}/pki/tps
+%{_datadir}/pki/tps/conf/
+%{_datadir}/pki/tps/setup/
+%{_datadir}/pki/tps/webapps/
+%dir %{_localstatedir}/lock/pki/tps
+%dir %{_localstatedir}/run/pki/tps
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tps.conf
+
+
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-javadoc
 %defattr(-,root,root,-)
@@ -1097,6 +1160,9 @@ fi
 
 
 %changelog
+* Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.10
+- Moved Tomcat-based TPS into pki-core.
+
 * Fri Aug 14 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.9
 - Listed new packages required during build, due to issues reported
   by pylint.

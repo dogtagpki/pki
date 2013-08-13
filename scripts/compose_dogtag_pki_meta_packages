@@ -30,7 +30,7 @@ PKI_PWD=`pwd`
 ##
 
 if [ $WORK_DIR ]; then
-    PKI_PACKAGES="$WORK_DIR"
+    PKI_PACKAGES="`cd $WORK_DIR ; pwd`"
 else
     PKI_PACKAGES="${PKI_PWD}/packages"
 fi

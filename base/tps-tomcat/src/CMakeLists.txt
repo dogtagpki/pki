@@ -104,6 +104,8 @@ javac(pki-tps-classes
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${SERVLET_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmscore-jar
 )
 
 configure_file(
