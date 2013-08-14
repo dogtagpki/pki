@@ -15,7 +15,7 @@
 // (C) 2010 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.csadmin;
+package com.netscape.cmscore.session;
 
 import java.util.Date;
 import java.util.Enumeration;
