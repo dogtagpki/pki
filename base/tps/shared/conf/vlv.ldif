@@ -1,0 +1,51 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation;
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA  02110-1301  USA 
+# 
+# Copyright (C) 2007 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+dn: cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: tus-listtokens-vlv
+objectClass: top
+objectClass: vlvsearch
+vlvBase: ou=Tokens,{rootSuffix}
+vlvFilter: (&(cn=*)(tokenUserID=*))
+vlvScope: 2
+
+dn: cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: tus-listActivities-vlv
+objectClass: top
+objectClass: vlvsearch
+vlvBase: ou=Activities,{rootSuffix}
+vlvFilter: (&(tokenID=*)(tokenUserID=*))
+vlvScope: 2
+
+dn: cn=listTokensIndex,cn=tus-listTokens-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: listTokensIndex
+objectClass: top
+objectClass: vlvindex
+vlvSort: -dateOfModify
+vlvEnabled: 1
+vlvUses: 0
+
+dn: cn=listActivitiesIndex,cn=tus-listActivities-vlv,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+cn: listActivitiesIndex
+objectClass: top
+objectClass: vlvindex
+vlvSort: -dateOfCreate
+vlvEnabled: 1
+vlvUses: 0
