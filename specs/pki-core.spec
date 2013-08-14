@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.8%{?dist}
+Release:          0.9%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -41,6 +41,10 @@ BuildRequires:    resteasy >= 2.3.2-1
 %endif
 
 BuildRequires:    pylint
+BuildRequires:    python-requests
+BuildRequires:    libselinux-python
+BuildRequires:    policycoreutils-python
+BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} || 0%{?fedora} >= 19
@@ -1093,6 +1097,12 @@ fi
 
 
 %changelog
+* Fri Aug 14 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.9
+- Listed new packages required during build, due to issues reported
+  by pylint.
+- Packages added: python-requests, python-ldap, libselinux-python,
+                  policycoreutils-python
+
 * Fri Aug 09 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.8
 - Added pylint scan to the build process.
  
