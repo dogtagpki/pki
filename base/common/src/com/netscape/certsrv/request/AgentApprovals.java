@@ -44,17 +44,18 @@ public class AgentApprovals
      *
      * @param userName user name of the approving agent
      */
-    public void addApproval(String userName) {
+    public AgentApproval addApproval(String userName) {
         AgentApproval a = findApproval(userName);
 
         // update existing approval
         if (a != null) {
             a.mDate = new Date(); /* CMS.getCurrentDate(); */
-            return;
+            return a;
         }
 
         a = new AgentApproval(userName);
         mVector.addElement(a);
+        return a;
     }
 
     /**
@@ -153,6 +154,14 @@ public class AgentApprovals
             }
         }
         return approvals;
+    }
+
+    public int size() {
+        return mVector.size();
+    }
+
+    public AgentApproval get(int i) {
+        return mVector.get(i);
     }
 
     protected Vector<AgentApproval> mVector = new Vector<AgentApproval>();

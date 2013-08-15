@@ -18,12 +18,12 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
 

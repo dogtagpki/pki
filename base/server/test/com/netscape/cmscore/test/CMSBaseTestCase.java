@@ -5,16 +5,16 @@ import java.security.cert.CertificateException;
 import junit.framework.TestCase;
 import netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LoggerDefaultStub;
+import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
+import com.netscape.cmscore.logging.LoggerDefaultStub;
 
 /**
  * The base class for all CMS unit tests. This sets up some basic stubs

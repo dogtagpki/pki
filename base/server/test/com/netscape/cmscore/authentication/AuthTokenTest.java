@@ -1,4 +1,4 @@
-package com.netscape.certsrv.authentication;
+package com.netscape.cmscore.authentication;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -14,9 +14,10 @@ import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.app.CMSEngineDefaultStub;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class AuthTokenTest extends CMSBaseTestCase {
@@ -45,7 +46,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
     public void testGetSetString() {
         authToken.set("key", "value");
-        assertEquals("value", authToken.mAttrs.get("key"));
+        assertEquals("value", authToken.get("key"));
         assertEquals("value", authToken.getInString("key"));
 
         assertFalse(authToken.set("key", (String) null));
@@ -67,7 +68,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
     public void testGetSetInteger() {
         authToken.set("key", Integer.valueOf(432));
-        assertEquals("432", authToken.mAttrs.get("key"));
+        assertEquals("432", authToken.get("key"));
         assertEquals(Integer.valueOf(432), authToken.getInInteger("key"));
 
         assertNull(authToken.getInInteger("notfound"));
@@ -86,7 +87,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         };
         authToken.set("key", data);
         assertEquals("111111111,222222222,333333333",
-                authToken.mAttrs.get("key"));
+                authToken.get("key"));
         BigInteger[] retval = authToken.getInBigIntegerArray("key");
         assertEquals(3, retval.length);
         assertEquals(data[0], retval[0]);
@@ -113,7 +114,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         Date value = new Date();
         authToken.set("key", value);
         assertEquals(String.valueOf(value.getTime()),
-                authToken.mAttrs.get("key"));
+                authToken.get("key"));
         assertEquals(value, authToken.getInDate("key"));
 
         authToken.set("key2", "234567");
@@ -185,7 +186,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         BasicConstraintsExtension ext = new BasicConstraintsExtension(false, 1);
 
         assertTrue(authToken.set("key", certExts));
-        assertTrue(authToken.mAttrs.containsKey("key"));
+        assertNotNull(authToken.get("key"));
         CertificateExtensions retval = authToken.getInCertExts("key");
         assertNotNull(retval);
         assertEquals(0, retval.size());
@@ -194,7 +195,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertTrue(authToken.set("key2", certExts));
 
         retval = authToken.getInCertExts("key2");
-        assertTrue(authToken.mAttrs.containsKey("key2"));
+        assertNotNull(authToken.get("key2"));
         assertNotNull(retval);
         assertEquals(1, retval.size());
 

@@ -1,6 +1,11 @@
-package com.netscape.certsrv.logging;
+package com.netscape.cmscore.logging;
 
 import java.util.Properties;
+
+import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.ILogEventFactory;
+import com.netscape.certsrv.logging.ILogQueue;
+import com.netscape.certsrv.logging.ILogger;
 
 /**
  * Default logging stub for testing.

@@ -1,4 +1,4 @@
-package com.netscape.certsrv.app;
+package com.netscape.cmscore.app;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
