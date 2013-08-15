@@ -159,14 +159,18 @@ class PKIConfigParser:
     def init_config(self):
 
         # RESTEasy
-        resteasy_lib = subprocess.check_output(\
+        resteasy_lib = subprocess.check_output(
             'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
-            shell=True).strip()
+            shell=True)
+        # workaround for pylint error E1103
+        resteasy_lib = str(resteasy_lib).strip()
 
         # JNI jar location
-        jni_jar_dir = subprocess.check_output(\
+        jni_jar_dir = subprocess.check_output(
             'source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR',
-            shell=True).strip()
+            shell=True)
+        # workaround for pylint error E1103
+        jni_jar_dir = str(jni_jar_dir).strip()
 
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             default_instance_name = 'pki-tomcat'

@@ -88,9 +88,10 @@ def main(argv):
 
     # Retrieve DNS domainname
     try:
-        config.pki_dns_domainname = subprocess.check_output("dnsdomainname",
+        dnsdomainname = subprocess.check_output("dnsdomainname",
                                                             shell = True)
-        config.pki_dns_domainname = config.pki_dns_domainname.rstrip('\n')
+        # workaround for pylint error E1103
+        config.pki_dns_domainname = str(dnsdomainname).rstrip('\n')
         if not len(config.pki_dns_domainname):
             print log.PKI_DNS_DOMAIN_NOT_SET
             sys.exit(1)
