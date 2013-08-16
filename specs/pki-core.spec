@@ -486,7 +486,6 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Provides:         pki-tps
-Conflicts:        pki-tps
 Requires:         java >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units

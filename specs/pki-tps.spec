@@ -25,7 +25,6 @@ BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
-Conflicts:        pki-tps-tomcat
 Requires:         java >= 1:1.7.0
 Requires:         mod_nss
 Requires:         mod_perl
