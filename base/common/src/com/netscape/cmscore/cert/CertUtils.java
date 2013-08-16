@@ -1081,18 +1081,21 @@ public class CertUtils {
     }
 
     public static String toLowerCaseSubsystemType(String s) {
-        String x = null;
-        if (s.equalsIgnoreCase("CA")) {
-            x = "ca";
-        } else if (s.equalsIgnoreCase("KRA")) {
-            x = "kra";
-        } else if (s.equalsIgnoreCase("OCSP")) {
-            x = "ocsp";
-        } else if (s.equalsIgnoreCase("TKS")) {
-            x = "tks";
+        if (s == null) {
+            return null;
         }
-
-        return x;
+        if (s.equalsIgnoreCase("CA")) {
+            return "ca";
+        } else if (s.equalsIgnoreCase("KRA")) {
+            return "kra";
+        } else if (s.equalsIgnoreCase("OCSP")) {
+            return "ocsp";
+        } else if (s.equalsIgnoreCase("TKS")) {
+            return "tks";
+        } else if (s.equalsIgnoreCase("TPS")) {
+            return "tps";
+        }
+        return null;
     }
 
     /**

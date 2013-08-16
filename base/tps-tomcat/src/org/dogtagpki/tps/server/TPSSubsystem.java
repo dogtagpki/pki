@@ -18,6 +18,10 @@
 package org.dogtagpki.tps.server;
 
 import org.dogtagpki.tps.token.TokenDatabase;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
@@ -111,5 +115,17 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public TokenDatabase getTokenDatabase() {
         return tokenDatabase;
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,
+            ObjectNotFoundException, TokenException {
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = cs.getString("tps.subsystem.nickname", "");
+        String tokenname = cs.getString("tps.subsystem.tokenname", "");
+        if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+            nickname = tokenname + ":" + nickname;
+
+        CryptoManager cm = CryptoManager.getInstance();
+        return cm.findCertByNickname(nickname);
     }
 }
