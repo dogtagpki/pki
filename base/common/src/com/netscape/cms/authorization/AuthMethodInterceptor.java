@@ -15,7 +15,7 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.authentication;
+package com.netscape.cms.authorization;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -38,6 +38,9 @@ import org.jboss.resteasy.spi.Failure;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cmscore.realm.PKIPrincipal;
 

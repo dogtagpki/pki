@@ -15,7 +15,7 @@
 //(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.acls;
+package com.netscape.cms.authorization;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -36,6 +36,7 @@ import org.jboss.resteasy.spi.Failure;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
+import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;

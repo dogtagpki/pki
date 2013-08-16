@@ -5,12 +5,12 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.netscape.certsrv.acls.ACLInterceptor;
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.AuthMethodInterceptor;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cms.authorization.ACLInterceptor;
+import com.netscape.cms.authorization.AuthMethodInterceptor;
 import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
