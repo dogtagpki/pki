@@ -1162,7 +1162,7 @@ fi
 * Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.10
 - Moved Tomcat-based TPS into pki-core.
 
-* Fri Aug 14 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.9
+* Wed Aug 14 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.9
 - Listed new packages required during build, due to issues reported
   by pylint.
 - Packages added: python-requests, python-ldap, libselinux-python,
