@@ -22,6 +22,7 @@ import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.tps.TPSClient;
 import com.netscape.cmstools.logging.ActivityCLI;
 import com.netscape.cmstools.token.TokenCLI;
+import com.netscape.cmstools.user.UserCLI;
 
 /**
  * @author Endi S. Dewata
@@ -35,6 +36,7 @@ public class TPSCLI extends SubsystemCLI {
 
         addModule(new ActivityCLI(this));
         addModule(new TokenCLI(this));
+        addModule(new UserCLI(this));
     }
 
     public String getFullName() {

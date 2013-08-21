@@ -20,3 +20,6 @@ resourceACLS: certServer.registry.configuration:read,modify:allow (read) group="
 resourceACLS: certServer.admin.certificate:import:allow (import) user="anybody":Any user may import a certificate
 resourceACLS: certServer.admin.request.enrollment:submit,read,execute:allow (submit) user="anybody":Anybody may submit an enrollment request
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
+resourceACLS: certServer.tps.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
+resourceACLS: certServer.tps.groups:execute:allow (execute) group="TUS Administrators":Admins may execute group operations
+resourceACLS: certServer.tps.users:execute:allow (execute) group="TUS Administrators":Admins may execute user operations

@@ -89,18 +89,23 @@ public class ACLInterceptor implements PreProcessInterceptor {
         }
 
         // If still not available, it's unprotected, allow request.
-        if (aclMapping == null) return null;
+        if (aclMapping == null) {
+            CMS.debug("ACLInterceptor: No ACL mapping.");
+            return null;
+        }
 
         Principal principal = securityContext.getUserPrincipal();
 
         // If unauthenticated, reject request.
         if (principal == null) {
+            CMS.debug("ACLInterceptor: No user principal provided.");
             throw new ForbiddenException("No user principal provided.");
         }
 
         // If unrecognized principal, reject request.
         if (!(principal instanceof PKIPrincipal)) {
-            throw new ForbiddenException("Invalid user principal");
+            CMS.debug("ACLInterceptor: Invalid user principal.");
+            throw new ForbiddenException("Invalid user principal.");
         }
 
         PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
@@ -108,6 +113,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
         // If missing auth token, reject request.
         if (authToken == null) {
+            CMS.debug("ACLInterceptor: No authorization token present.");
             throw new ForbiddenException("No authorization token present.");
         }
 
@@ -118,12 +124,16 @@ public class ACLInterceptor implements PreProcessInterceptor {
             String value = authProperties.getProperty(name);
 
             // If no property defined, allow request.
-            if (value == null) return null;
+            if (value == null) {
+                CMS.debug("ACLInterceptor: No ACL configuration.");
+                return null;
+            }
 
             String values[] = value.split(",");
 
             // If invalid mapping, reject request.
             if (values.length != 2) {
+                CMS.debug("ACLInterceptor: Invalid ACL mapping.");
                 throw new ForbiddenException("Invalid ACL mapping.");
             }
 
@@ -137,10 +147,12 @@ public class ACLInterceptor implements PreProcessInterceptor {
 
             // If not authorized, reject request.
             if (authzToken == null) {
+                CMS.debug("ACLInterceptor: No authorization token present.");
                 throw new ForbiddenException("No authorization token present.");
             }
 
         } catch (EAuthzAccessDenied e) {
+            CMS.debug("ACLInterceptor: " + e.getMessage());
             throw new ForbiddenException(e.toString());
 
         } catch (IOException|EBaseException e) {

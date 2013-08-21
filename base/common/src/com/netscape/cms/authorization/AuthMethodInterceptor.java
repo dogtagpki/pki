@@ -38,6 +38,7 @@ import org.jboss.resteasy.spi.Failure;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -89,7 +90,7 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
 
         Class<?> clazz = resourceMethod.getResourceClass();
         Method method = resourceMethod.getMethod();
-        System.out.println("AuthInterceptor: "+clazz.getSimpleName()+"."+method.getName()+"()");
+        CMS.debug("AuthMethodInterceptor: "+clazz.getSimpleName()+"."+method.getName()+"()");
 
         // Get authentication mapping for the method.
         AuthMethodMapping authMapping = method.getAnnotation(AuthMethodMapping.class);
@@ -108,7 +109,7 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
             name = authMapping.value();
         }
 
-        System.out.println("AuthInterceptor: mapping name: "+name);
+        CMS.debug("AuthMethodInterceptor: mapping name: "+name);
 
         try {
             loadAuthProperties();
@@ -121,23 +122,23 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
                 }
             }
 
-            System.out.println("AuthInterceptor: required auth methods: "+authMethods);
+            CMS.debug("AuthMethodInterceptor: required auth methods: "+authMethods);
 
             Principal principal = securityContext.getUserPrincipal();
 
             // If unauthenticated, reject request.
             if (principal == null) {
                 if (authMethods.isEmpty() || authMethods.contains("anonymous") || authMethods.contains("*")) {
-                    System.out.println("AuthInterceptor: anonymous access allowed");
+                    CMS.debug("AuthMethodInterceptor: anonymous access allowed");
                     return null;
                 }
-                System.out.println("AuthInterceptor: anonymous access not allowed");
+                CMS.debug("AuthMethodInterceptor: anonymous access not allowed");
                 throw new ForbiddenException("Anonymous access not allowed.");
             }
 
             // If unrecognized principal, reject request.
             if (!(principal instanceof PKIPrincipal)) {
-                System.out.println("AuthInterceptor: unknown principal");
+                CMS.debug("AuthMethodInterceptor: unknown principal");
                 throw new ForbiddenException("Unknown user principal");
             }
 
@@ -146,20 +147,20 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
 
             // If missing auth token, reject request.
             if (authToken == null) {
-                System.out.println("AuthInterceptor: missing authentication token");
+                CMS.debug("AuthMethodInterceptor: missing authentication token");
                 throw new ForbiddenException("Missing authentication token.");
             }
 
             String authManager = (String)authToken.get(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-            System.out.println("AuthInterceptor: authentication manager: "+authManager);
+            CMS.debug("AuthMethodInterceptor: authentication manager: "+authManager);
 
             if (authManager == null) {
-                System.out.println("AuthInterceptor: missing authentication manager");
+                CMS.debug("AuthMethodInterceptor: missing authentication manager");
                 throw new ForbiddenException("Missing authentication manager.");
             }
 
             if (authMethods.isEmpty() || authMethods.contains(authManager) || authMethods.contains("*")) {
-                System.out.println("AuthInterceptor: "+authManager+" allowed");
+                CMS.debug("AuthMethodInterceptor: "+authManager+" allowed");
                 return null;
             }
 
