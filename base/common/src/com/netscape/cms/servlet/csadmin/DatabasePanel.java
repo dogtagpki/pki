@@ -428,6 +428,14 @@ public class DatabasePanel extends WizardPanelBase {
         cs.putString("internaldb.ldapauth.bindDN", binddn);
         cs.putString("internaldb.ldapconn.secureConn", (secure.equals("on") ? "true" : "false"));
 
+        if (csType.equals("TPS")) {
+            cs.putString("tokendb.activityBaseDN", "ou=Activities," + basedn2);
+            cs.putString("tokendb.baseDN", "ou=Tokens," + basedn2);
+            cs.putString("tokendb.certBaseDN", "ou=Certificates," + basedn2);
+            cs.putString("tokendb.userBaseDN", basedn2);
+            cs.putString("tokendb.hostport", hostname2 + ":" + portStr2);
+        }
+
         if ((masterReplicationPortStr == null) || (masterReplicationPortStr.length() == 0)) {
             masterReplicationPortStr = masterPortStr;
         }

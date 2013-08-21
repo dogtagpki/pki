@@ -1,0 +1,67 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<SCRIPT LANGUAGE="JavaScript">
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+</SCRIPT>
+    Please provide information about the LDAP server that will be used to authenticate the identity of end users. <a href="javascript: toggle_details();">[Details]</a>
+<script>
+function toggle_details() {
+  d = document.getElementById('details');   if (d.style.display == "block") {
+    d.style.display="none";   } else {
+    d.style.display="block";
+  } } </script>
+<div id=details style="display: none;"> <p>
+    In order for ESC to submit certificate requests to TPS, the end user's identity must first be verified.  To accomplish this, an end user first sends a uid and password to TPS.  TPS must then contact an LDAP server (e.g. - a corporate LDAP directory server) to verify this end user's identity.
+<p>
+If the end user's identity is successfully verified, TPS will establish an authenticated connection with this ESC, and begin accepting certificate requests and issuing certificates to this end user.
+<p>
+If, however, the end user's identity fails to be verified, TPS will not establish a connection with this ESC. TPS never issues certificates to unauthenticated end users.
+</div>
+<p>
+#if ($errorString != "")
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<p>                                                                            
+
+    <table class="details">
+      <tr>
+        <th>Host:</th>
+        <td><input type="text" length="128" size="40" name="host" value="$hostname" /></td>
+      </tr>
+
+      <tr>
+        <th>Port:</th>
+
+        <td><input type="text" length="64" size="40" name="port" value="$portStr" />
+          <input type="CHECKBOX" NAME="secureConn" value="true">SSL </td>
+      </tr>
+            
+      <tr>
+        <th>Base DN:</th>
+        <td><input type="text" length="128" size="40" name="basedn" value="$basedn" /></td>
+      </tr>
+    </table>
+ 
+    <div align="right">
+      <hr />
+      &nbsp;
+    </div>

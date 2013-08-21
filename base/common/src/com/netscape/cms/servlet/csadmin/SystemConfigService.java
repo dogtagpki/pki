@@ -172,7 +172,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             kraInfoPanel(data, subsystemNick);
 
             //AuthDBPanel
-            authdbPanel(data);
+            ConfigurationUtils.updateAuthdbInfo(data.getAuthdbBaseDN(),
+                    data.getAuthdbHost(), data.getAuthdbPort(),
+                    data.getAuthdbSecureConn());
 
         }
 
@@ -516,13 +518,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         return response;
     }
 
-    private void authdbPanel(ConfigurationRequest data) {
-        cs.putString("auths.instance.ldap1.ldap.basedn", data.getAuthdbBaseDN());
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.host", data.getAuthdbHost());
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.port", data.getAuthdbPort());
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", data.getAuthdbSecureConn());
-    }
-
     private void caInfoPanel(ConfigurationRequest data, String subsystemNick) {
         URI caUri = null;
         try {
@@ -530,11 +525,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (URISyntaxException e) {
             throw new BadRequestException("Invalid caURI " + caUri);
         }
-        cs.putString("preop.cainfo.select", data.getCaUri());
-        cs.putString("conn.ca1.clientNickname", subsystemNick);
-        cs.putString("conn.ca1.hostport", caUri.getHost() + ":" + caUri.getPort());
-        cs.putString("conn.ca1.hostagentport", caUri.getHost() + ":" + caUri.getPort());
-        cs.putString("conn.ca1.hostadminport", caUri.getHost() + ":" + caUri.getPort());
+        ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
     }
 
     private void tksInfoPanel(ConfigurationRequest data, String subsystemNick) {
@@ -544,41 +535,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (URISyntaxException e) {
             throw new BadRequestException("Invalid tksURI " + tksUri);
         }
-        cs.putString("preop.tksinfo.select", data.getTksUri());
-        cs.putString("conn.tks1.clientNickname", subsystemNick);
-        cs.putString("conn.tks1.hostport", tksUri.getHost() + ":" + tksUri.getPort());
+
+        ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
     }
 
     private void kraInfoPanel(ConfigurationRequest data, String subsystemNick) {
-        if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-            URI kraUri = null;
-            try {
-                kraUri = new URI(data.getCaUri());
-            } catch (URISyntaxException e) {
-                throw new BadRequestException("Invalid kraURI " + kraUri);
-            }
-            cs.putString("preop.krainfo.select", data.getKraUri());
-            cs.putString("conn.drm1.clientNickname", subsystemNick);
-            cs.putString("conn.drm1.hostport", kraUri.getHost() + ":" + kraUri.getPort());
-            cs.putString("conn.tks1.serverKeygen", "true");
-            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
-        } else {
-            // no keygen
-            cs.putString("conn.tks1.serverKeygen", "false");
-            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
-            cs.putString("conn.drm1.clientNickname", "");
-            cs.putString("conn.drm1.hostport", "");
-            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
+        URI kraUri = null;
+        try {
+            kraUri = new URI(data.getCaUri());
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid kraURI " + kraUri);
         }
+        boolean keyGen = data.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
     }
 
     private void adminPanel(ConfigurationRequest data, ConfigurationResponse response) {

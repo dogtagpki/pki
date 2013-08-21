@@ -1,0 +1,53 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<SCRIPT LANGUAGE="JavaScript">
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+
+</SCRIPT>
+A Data Recovery Manager (DRM) is responsible for server-side key generation, archival, and recovery. If server-side key generation is not needed, this step can be skipped.
+<p>
+#if ($errorString != "")
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+<p>
+#end
+<b><input checked type=radio name=choice value="keygen">&nbsp;Connect this instance to the HTTPS Agent URL of a DRM to support server-side key generation.</b>
+<p>
+<p>
+    <table class="details">
+      <tr>
+        <th>URL:</th>
+        <td><select name="urls">
+           #if ($urls_size != 0)
+           #foreach ($p in $urls)
+               <option value="$p">$p</option>
+           #end
+           #end
+            </select>
+        </td>
+      </tr>
+    </table>
+    <div align="right">
+      <hr />
+    </div>
+<p>
+<b><input type=radio name=choice value="nokeygen">&nbsp;Configure this instance to NOT support server-side key generation.</b>
+<p>

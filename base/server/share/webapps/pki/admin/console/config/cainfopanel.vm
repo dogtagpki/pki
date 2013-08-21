@@ -1,0 +1,52 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2007 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<SCRIPT LANGUAGE="JavaScript">
+function myOnLoad() {
+}
+
+function performPanel() {
+    with (document.forms[0]) {
+        submit();
+    }
+}
+
+</SCRIPT>
+A Certificate Authority (CA) is responsible for issuing different kinds of certificates. Each Enterprise Security Client (ESC) interfaces with a TPS subsystem to request end user certificates. Consequently, to obtain these certificates, an HTTPS EE URL to a CA that has been registered in the security domain must also be selected.
+<p>
+#if ($errorString != "")
+<img src="/pki/images/icon_crit_update.gif">&nbsp;<font color="red">$errorString</font>
+#end
+<p>
+    <table class="details">
+      <tr>
+        <th>URL:</th>
+        <td><select name="urls">
+           #if ($urls_size != 0)
+           #foreach ($p in $urls)
+               <option value="$p">$p</option>
+           #end
+           #end
+            </select>
+        </td>
+      </tr>
+    </table>
+
+
+     <div align="right">
+      <hr />
+    </div>

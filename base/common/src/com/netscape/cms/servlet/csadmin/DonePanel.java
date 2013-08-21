@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -228,6 +230,39 @@ public class DonePanel extends WizardPanelBase {
         } catch (Exception e) {
             e.printStackTrace();
             CMS.debug("DonePanel - update(): Unable to create or update dbuser" + e);
+        }
+
+        if (type.equals("TPS")) {
+            try {
+                String adminUID = cs.getString("preop.admin.uid", "tpsadmin");
+                ConfigurationUtils.addProfilesToTPSUser(adminUID);
+
+                String sd_admin_port = cs.getString("securitydomain.httpsadminport");
+                String sd_host = cs.getString("securitydomain.host");
+                URI secdomainURI = new URI("https://" + sd_host + ":" + sd_admin_port);
+
+                // register TPS with CA
+                URI caURI = new URI(cs.getString("preop.cainfo.select"));
+                ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
+
+                // register TPS with TKS
+                URI tksURI = new URI(cs.getString("preop.tksinfo.select"));
+                ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
+
+                String keyGen = cs.getString("conn.tks1.serverKeygen", "false");
+                if (keyGen.equalsIgnoreCase("true")) {
+                    URI kraURI = new URI(cs.getString("preop.krainfo.select"));
+                    ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
+                    String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+                    ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+                }
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                CMS.debug("Invalid URI for CA, TKS or KRA: " + e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                CMS.debug("Errors in registering TPS to CA, TKS or KRA" + e);
+            }
         }
 
         cs.putInteger("cs.state", 1);

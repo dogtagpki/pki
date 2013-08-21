@@ -251,6 +251,7 @@ public class CertRequestPanel extends WizardPanelBase {
             IConfigStore config = CMS.getConfigStore();
 
             String certTags = config.getString("preop.cert.list");
+            String csType = config.getString("cs.type");
             StringTokenizer st = new StringTokenizer(certTags, ",");
 
             while (st.hasMoreTokens()) {
@@ -273,6 +274,17 @@ public class CertRequestPanel extends WizardPanelBase {
 
                     c.setSubsystem(subsystem);
                     mCerts.addElement(c);
+
+                    if (csType.equals("TPS") && certTag.equals("subsystem")) {
+                        // update nicknames in case they have changed
+                        if (!tokenname.isEmpty() && !tokenname.equals("internal")
+                                && !tokenname.equals("Internal Key Storage Token"))
+                            nickname = tokenname + ":" + nickname;
+
+                        config.putString("conn.ca1.clientNickname", nickname);
+                        config.putString("conn.drm1.clientNickname", nickname);
+                        config.putString("conn.tks1.clientNickname", nickname);
+                    }
                 } catch (Exception e) {
                     CMS.debug("CertRequestPanel:display() Exception caught: " + e.toString() +
                             " for certTag " + certTag);
