@@ -18,13 +18,16 @@
 package com.netscape.cmscore.usrgrp;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
+import com.netscape.cms.servlet.admin.UserService;
 
 /**
  * A class represents a user.
@@ -51,6 +54,7 @@ public class User implements IUser {
     private String mCertDN = null;
     private String mUserType = null;
     private X509Certificate mx509Certs[] = null;
+    private List<String> tpsProfiles = null;
 
     private static final Vector<String> mNames = new Vector<String>();
     static {
@@ -60,9 +64,31 @@ public class User implements IUser {
         mNames.addElement(ATTR_PASSWORD);
         mNames.addElement(ATTR_STATE);
         mNames.addElement(ATTR_EMAIL);
-        //		mNames.addElement(ATTR_PHONENUMBER);
+        // mNames.addElement(ATTR_PHONENUMBER);
         mNames.addElement(ATTR_X509_CERTIFICATES);
         mNames.addElement(ATTR_USERTYPE);
+        mNames.addElement(ATTR_TPS_PROFILES);
+    }
+
+    public List<String> getTpsProfiles() {
+        return tpsProfiles;
+    }
+
+    public void setTpsProfiles(List<String> tpsProfiles) {
+        boolean setAll = false;
+        for (String profile: tpsProfiles) {
+            if (profile.equals(UserService.ALL_PROFILES)) {
+                setAll = true;
+                break;
+            }
+        }
+        if (!setAll) {
+            this.tpsProfiles = tpsProfiles;
+        } else {
+            List<String> list = new ArrayList<String>();
+            list.add(UserService.ALL_PROFILES);
+            this.tpsProfiles = list;
+        }
     }
 
     /**
@@ -169,6 +195,7 @@ public class User implements IUser {
         mCertDN = dn;
     }
 
+    @SuppressWarnings("unchecked")
     public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
@@ -184,6 +211,8 @@ public class User implements IUser {
             setX509Certificates((X509Certificate[]) object);
         } else if (name.equals(ATTR_USERTYPE)) {
             setUserType((String) object);
+        } else if (name.equals(ATTR_TPS_PROFILES)) {
+            setTpsProfiles((List<String>) object);
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -204,6 +233,8 @@ public class User implements IUser {
             return getX509Certificates();
         } else if (name.equals(ATTR_USERTYPE)) {
             return getUserType();
+        } else if (name.equals(ATTR_TPS_PROFILES)) {
+            return getTpsProfiles();
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }

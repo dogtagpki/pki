@@ -42,6 +42,9 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 @AuthMethodMapping("admin")
 public interface UserResource {
 
+    public static final String ATTR_TPS_PROFILES = "tpsProfiles";
+    public static final String ALL_PROFILES = "All Profiles";
+
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public UserCollection findUsers(

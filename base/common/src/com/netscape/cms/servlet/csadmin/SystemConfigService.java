@@ -467,13 +467,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (csType.equals("TPS")) {
             try {
+                ConfigurationUtils.addProfilesToTPSUser(data.getAdminUID());
+
                 URI secdomainURI = new URI(data.getSecurityDomainUri());
 
-                // register tps with ca
+                // register TPS with CA
                 URI caURI = new URI(data.getCaUri());
                 ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
 
-                // register tps with tks
+                // register TPS with TKS
                 URI tksURI = new URI(data.getTksUri());
                 ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
 

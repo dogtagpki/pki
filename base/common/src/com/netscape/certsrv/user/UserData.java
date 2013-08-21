@@ -20,6 +20,10 @@ package com.netscape.certsrv.user;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.xml.bind.JAXBContext;
@@ -28,6 +32,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -61,6 +68,18 @@ public class UserData {
     String state;
 
     Link link;
+
+    @XmlElement(name="Attributes")
+    @XmlJavaTypeAdapter(MapAdapter.class)
+    Map<String, String> attributes = new LinkedHashMap<String, String>();
+
+    public String getAttribute(String name) {
+        return attributes.get(name);
+    }
+
+    public void setAttribute(String name, String value) {
+        attributes.put(name, value);
+    }
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -144,6 +163,7 @@ public class UserData {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((fullName == null) ? 0 : fullName.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -163,6 +183,11 @@ public class UserData {
         if (getClass() != obj.getClass())
             return false;
         UserData other = (UserData) obj;
+        if (attributes == null) {
+            if (other.attributes != null)
+                return false;
+        } else if (!attributes.equals(other.attributes))
+            return false;
         if (email == null) {
             if (other.email != null)
                 return false;
@@ -219,6 +244,43 @@ public class UserData {
             return null;
         }
     }
+
+    public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
+
+        public AttributeList marshal(Map<String, String> map) {
+            AttributeList list = new AttributeList();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                Attribute attribute = new Attribute();
+                attribute.name = entry.getKey();
+                attribute.value = entry.getValue();
+                list.attributes.add(attribute);
+            }
+            return list;
+        }
+
+        public Map<String, String> unmarshal(AttributeList list) {
+            Map<String, String> map = new LinkedHashMap<String, String>();
+            for (Attribute attribute : list.attributes) {
+                map.put(attribute.name, attribute.value);
+            }
+            return map;
+        }
+    }
+
+    public static class AttributeList {
+        @XmlElement(name="Attribute")
+        public List<Attribute> attributes = new ArrayList<Attribute>();
+    }
+
+    public static class Attribute {
+
+        @XmlAttribute
+        public String name;
+
+        @XmlValue
+        public String value;
+    }
+
 
     public static void main(String args[]) throws Exception {
 

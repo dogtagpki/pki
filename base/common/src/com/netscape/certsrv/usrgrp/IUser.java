@@ -18,6 +18,7 @@
 package com.netscape.certsrv.usrgrp;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import com.netscape.certsrv.base.IAttrSet;
 
@@ -168,4 +169,16 @@ public interface IUser extends IAttrSet, IUserConstants {
      * @return user type.
      */
     public String getUserType();
+
+    /**
+     * Get TPS profiles
+     * @return
+     */
+    public List<String> getTpsProfiles();
+
+    /**
+     * Set TPS profiles
+     * @param tpsProfiles
+     */
+    public void setTpsProfiles(List<String> tpsProfiles);
 }

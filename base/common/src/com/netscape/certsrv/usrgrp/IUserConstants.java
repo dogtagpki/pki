@@ -63,4 +63,9 @@ public interface IUserConstants {
      * Constant for usertype
      */
     public static final String ATTR_USERTYPE = "usertype";
+
+    /**
+     * Constant for usertype
+     */
+    public static final String ATTR_TPS_PROFILES = "tpsProfiles";
 }

@@ -27,6 +27,7 @@ import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserMembershipData;
+import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -133,6 +134,14 @@ public class UserCLI extends CLI {
         Link link = userData.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
+        }
+
+        String tpsProfiles = userData.getAttribute(UserResource.ATTR_TPS_PROFILES);
+        if (tpsProfiles != null) {
+            System.out.println("  TPS Profiles:");
+            for (String profile: tpsProfiles.split(",")) {
+                System.out.println("    " + profile);
+            }
         }
     }
 

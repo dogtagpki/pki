@@ -48,6 +48,7 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -155,6 +156,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
@@ -3677,6 +3679,18 @@ public class ConfigurationUtils {
         // remove old db users
         CMS.debug("Removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
+    }
+
+    public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException {
+        CMS.debug("Adding all profiles to TPS admin user");
+        IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        IUser user = system.getUser(adminID);
+
+        List<String> profiles = new ArrayList<String>();
+        profiles.add(UserService.ALL_PROFILES);
+
+        user.setTpsProfiles(profiles);
+        system.modifyUser(user);
     }
 
     public static void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {

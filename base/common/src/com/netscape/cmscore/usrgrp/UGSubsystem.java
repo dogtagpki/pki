@@ -19,7 +19,10 @@ package com.netscape.cmscore.usrgrp;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
@@ -75,6 +78,7 @@ public final class UGSubsystem implements IUGSubsystem {
     protected static final String LDAP_ATTR_USER_CERT_STRING = "description";
     protected static final String LDAP_ATTR_CERTDN = "seeAlso";
     protected static final String LDAP_ATTR_USER_CERT = "userCertificate";
+    protected static final String LDAP_ATTR_PROFILE_ID = "profileID";
 
     protected static final String PROP_BASEDN = "basedn";
 
@@ -624,6 +628,13 @@ public final class UGSubsystem implements IUGSubsystem {
             }
         }
 
+        LDAPAttribute profileAttr = entry.getAttribute(LDAP_ATTR_PROFILE_ID);
+        if (profileAttr != null) {
+            @SuppressWarnings("unchecked")
+            Enumeration<String> profiles = profileAttr.getStringValues();
+            id.setTpsProfiles(Collections.list(profiles));
+        }
+
         return id;
     }
 
@@ -647,10 +658,21 @@ public final class UGSubsystem implements IUGSubsystem {
         }
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
-        String oc[] = { "top", "person", "organizationalPerson",
-                "inetOrgPerson", "cmsuser" };
+        List<String> oclist = new ArrayList<String>();
+        oclist.add("top");
+        oclist.add("person");
+        oclist.add("organizationalPerson");
+        oclist.add("inetOrgPerson");
+        oclist.add("cmsuser");
 
-        attrs.add(new LDAPAttribute("objectclass", oc));
+        if (id.getTpsProfiles() != null) {
+            oclist.add("tpsProfileID");
+        }
+
+        String oc[] = new String[oclist.size()];
+        oc = oclist.toArray(oc);
+
+        attrs.add(new LDAPAttribute(OBJECTCLASS_ATTR, oc));
         attrs.add(new LDAPAttribute("uid", id.getUserID()));
         attrs.add(new LDAPAttribute("sn", id.getFullName()));
         attrs.add(new LDAPAttribute("cn", id.getFullName()));
@@ -682,6 +704,14 @@ public final class UGSubsystem implements IUGSubsystem {
             // DS syntax checking requires a value for Directory String syntax
             if (!id.getState().equals("")) {
                 attrs.add(new LDAPAttribute("userstate", id.getState()));
+            }
+        }
+
+        // TODO add audit logging for profile
+        if (id.getTpsProfiles() != null) {
+            List<String> profiles = id.getTpsProfiles();
+            for (String profile: profiles) {
+                attrs.add(new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
             }
         }
 
@@ -1074,6 +1104,7 @@ public final class UGSubsystem implements IUGSubsystem {
         }
     }
 
+
     /**
      * modifies user attributes. Certs are handled separately
      */
@@ -1142,6 +1173,55 @@ public final class UGSubsystem implements IUGSubsystem {
                         if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
                             CMS.debug("modifyUser: Error in deleting userstate");
                             throw e;
+                        }
+                    }
+                }
+            }
+
+            if (user.getTpsProfiles() != null) {
+                // TODO add audit logging for profile
+
+                // replace the objectclass in case tpsProfile is not present
+                String oc[] = { "top", "person", "organizationalPerson",
+                        "inetOrgPerson", "cmsuser", "tpsProfileID" };
+                attrs.add(LDAPModification.REPLACE,
+                        new LDAPAttribute(OBJECTCLASS_ATTR, oc));
+
+                User ldapUser = (User) getUser(user.getUserID());
+                List<String> oldProfiles = ldapUser.getTpsProfiles();
+                List<String> profiles = user.getTpsProfiles();
+
+                if (oldProfiles == null) {
+                    for (String profile : profiles) {
+                        attrs.add(LDAPModification.ADD,
+                                new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
+                    }
+                } else {
+                    for (String profile : profiles) {
+                        boolean found = false;
+                        for (String oldProfile : oldProfiles) {
+                            if (profile.equals(oldProfile)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            attrs.add(LDAPModification.ADD,
+                                    new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
+                        }
+                    }
+
+                    for (String oldProfile : oldProfiles) {
+                        boolean found = false;
+                        for (String profile : profiles) {
+                            if (profile.equals(oldProfile)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            attrs.add(LDAPModification.DELETE,
+                                    new LDAPAttribute(LDAP_ATTR_PROFILE_ID, oldProfile));
                         }
                     }
                 }

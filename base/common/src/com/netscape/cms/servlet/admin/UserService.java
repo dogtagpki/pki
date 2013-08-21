@@ -20,7 +20,9 @@ package com.netscape.cms.servlet.admin;
 
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
@@ -36,6 +38,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UserNotFoundException;
 import com.netscape.certsrv.common.OpDef;
@@ -178,6 +181,19 @@ public class UserService extends PKIService implements UserResource {
             String type = user.getUserType();
             if (!StringUtils.isEmpty(type)) userData.setType(type);
 
+            List<String> profiles = user.getTpsProfiles();
+            if (profiles != null) {
+                StringBuilder sb = new StringBuilder();
+                String prefix = "";
+                for (String profile: profiles) {
+                    sb.append(prefix);
+                    prefix = ",";
+                    sb.append(profile);
+                }
+
+                userData.setAttribute(ATTR_TPS_PROFILES, sb.toString());
+            }
+
             return userData;
 
         } catch (PKIException e) {
@@ -205,6 +221,7 @@ public class UserService extends PKIService implements UserResource {
     @Override
     public Response addUser(UserData userData) {
 
+        IConfigStore cs = CMS.getConfigStore();
         String userID = userData.getID();
 
         // ensure that any low-level exceptions are reported
@@ -279,6 +296,16 @@ public class UserService extends PKIService implements UserResource {
                 user.setState(state);
             }
 
+            String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+            String csType = cs.getString("cs.type");
+            if (tpsProfiles != null) {
+                if (!csType.equals("TPS")) {
+                    throw new BadRequestDataException("Cannot set tpsProfiles on a non-TPS subsystem");
+                }
+                String[] profiles = tpsProfiles.split(",");
+                user.setTpsProfiles(Arrays.asList(profiles));
+            }
+
             try {
                 userGroupManager.addUser(user);
 
@@ -339,6 +366,7 @@ public class UserService extends PKIService implements UserResource {
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
+        IConfigStore cs = CMS.getConfigStore();
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -376,6 +404,16 @@ public class UserService extends PKIService implements UserResource {
             String state = userData.getState();
             if (state != null) {
                 user.setState(state);
+            }
+
+            String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+            String csType = cs.getString("cs.type");
+            if (tpsProfiles != null) {
+                if (!csType.equals("TPS")) {
+                    throw new BadRequestDataException("Cannot set tpsProfiles on a non-TPS subsystem");
+                }
+                String[] profiles = tpsProfiles.split(",");
+                user.setTpsProfiles(Arrays.asList(profiles));
             }
 
             try {
