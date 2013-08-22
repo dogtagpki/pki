@@ -20,6 +20,7 @@ package com.netscape.cmstools.cli;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.kra.KRAClient;
+import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
@@ -32,6 +33,7 @@ public class KRACLI extends SubsystemCLI {
     public KRACLI(CLI parent) {
         super("kra", "KRA management commands", parent);
 
+        addModule(new GroupCLI(this));
         addModule(new UserCLI(this));
     }
 

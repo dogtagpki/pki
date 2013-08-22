@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.token.TokenClient;
 import com.netscape.certsrv.user.UserClient;
@@ -37,6 +38,7 @@ public class TPSClient extends SubsystemClient {
 
     public void init() throws URISyntaxException {
         addClient(new ActivityClient(client, name));
+        addClient(new GroupClient(client, name));
         addClient(new TokenClient(client, name));
         addClient(new UserClient(client, name));
     }

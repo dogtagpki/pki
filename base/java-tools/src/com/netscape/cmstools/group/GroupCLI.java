@@ -63,7 +63,12 @@ public class GroupCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        groupClient = new GroupClient(client);
+        groupClient = (GroupClient)parent.getClient("group");
+
+        if (groupClient == null) {
+            // if parent doesn't have group client then create a new one
+            groupClient = new GroupClient(client);
+        }
 
         if (args.length == 0) {
             printHelp();

@@ -25,7 +25,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.token.TokenClient;
 import com.netscape.certsrv.token.TokenData;
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -34,8 +33,8 @@ public class TokenCLI extends CLI {
 
     public TokenClient tokenClient;
 
-    public TokenCLI(SubsystemCLI subsystemCLI) {
-        super("token", "Token management commands", subsystemCLI);
+    public TokenCLI(CLI parent) {
+        super("token", "Token management commands", parent);
 
         addModule(new TokenAddCLI(this));
         addModule(new TokenFindCLI(this));
