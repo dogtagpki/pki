@@ -15,27 +15,38 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tps;
+package com.netscape.certsrv.logging;
 
 import java.net.URISyntaxException;
 
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.logging.ActivityClient;
-import com.netscape.certsrv.token.TokenClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class TPSClient extends SubsystemClient {
+public class ActivityClient extends Client {
 
-    public TPSClient(PKIClient client) throws Exception {
-        super(client, "tps");
+    public ActivityResource resource;
+
+    public ActivityClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
+    }
+
+    public ActivityClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "activity");
         init();
     }
 
     public void init() throws URISyntaxException {
-        addClient(new ActivityClient(client, name));
-        addClient(new TokenClient(client, name));
+        resource = createProxy(ActivityResource.class);
+    }
+
+    public ActivityCollection findActivities(Integer start, Integer size) {
+        return resource.findActivities(start, size);
+    }
+
+    public ActivityData getActivity(String tokenID) {
+        return resource.getActivity(tokenID);
     }
 }

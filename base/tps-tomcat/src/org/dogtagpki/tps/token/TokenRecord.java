@@ -20,8 +20,6 @@ package org.dogtagpki.tps.token;
 
 import java.util.Date;
 
-import com.netscape.certsrv.token.TokenData;
-
 /**
  * @author Endi S. Dewata
  */
@@ -165,24 +163,5 @@ public class TokenRecord {
         } else if (!userID.equals(other.userID))
             return false;
         return true;
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        TokenData before = new TokenData();
-        before.setID("token1");
-        before.setUserID("user1");
-        before.setStatus("revoked");
-        before.setReason("lost");
-        before.setAppletID("APPLET1234");
-        before.setKeyInfo("key info");
-        before.setCreateTimestamp(new Date());
-        before.setModifyTimestamp(new Date());
-
-        String string = before.toString();
-        System.out.println(string);
-
-        TokenData after = TokenData.valueOf(string);
-        System.out.println(before.equals(after));
     }
 }

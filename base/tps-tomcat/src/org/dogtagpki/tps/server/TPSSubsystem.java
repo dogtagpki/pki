@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.server;
 
+import org.dogtagpki.tps.logging.ActivityDatabase;
 import org.dogtagpki.tps.token.TokenDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -46,6 +47,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ISubsystem owner;
     public IConfigStore config;
 
+    public ActivityDatabase activityDatabase = new ActivityDatabase();
     public TokenDatabase tokenDatabase = new TokenDatabase();
 
     public static TPSSubsystem getInstance() {
@@ -111,6 +113,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     @Override
     public String getOfficialName() {
         return "tps";
+    }
+
+    public ActivityDatabase getActivityDatabase() {
+        return activityDatabase;
     }
 
     public TokenDatabase getTokenDatabase() {
