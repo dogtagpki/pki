@@ -15,33 +15,38 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tps;
+package com.netscape.certsrv.tps.cert;
 
 import java.net.URISyntaxException;
 
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.group.GroupClient;
-import com.netscape.certsrv.logging.ActivityClient;
-import com.netscape.certsrv.token.TokenClient;
-import com.netscape.certsrv.tps.cert.TPSCertClient;
-import com.netscape.certsrv.user.UserClient;
 
 /**
  * @author Endi S. Dewata
  */
-public class TPSClient extends SubsystemClient {
+public class TPSCertClient extends Client {
 
-    public TPSClient(PKIClient client) throws Exception {
-        super(client, "tps");
+    public TPSCertResource resource;
+
+    public TPSCertClient(PKIClient client) throws URISyntaxException {
+        this(client, client.getSubsystem());
+    }
+
+    public TPSCertClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "cert");
         init();
     }
 
     public void init() throws URISyntaxException {
-        addClient(new ActivityClient(client, name));
-        addClient(new GroupClient(client, name));
-        addClient(new TokenClient(client, name));
-        addClient(new TPSCertClient(client, name));
-        addClient(new UserClient(client, name));
+        resource = createProxy(TPSCertResource.class);
+    }
+
+    public TPSCertCollection findCerts(Integer start, Integer size) {
+        return resource.findCerts(start, size);
+    }
+
+    public TPSCertData getCert(String tokenID) {
+        return resource.getCert(tokenID);
     }
 }

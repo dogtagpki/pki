@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.tps.cert.TPSCertService;
 import org.dogtagpki.tps.logging.ActivityService;
 import org.dogtagpki.tps.token.TokenService;
 
@@ -65,6 +66,9 @@ public class TPSApplication extends Application {
 
         // activities
         classes.add(ActivityService.class);
+
+        // certificates
+        classes.add(TPSCertService.class);
 
         // tokens
         classes.add(TokenService.class);

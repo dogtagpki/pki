@@ -23,6 +23,7 @@ import com.netscape.certsrv.tps.TPSClient;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.ActivityCLI;
 import com.netscape.cmstools.token.TokenCLI;
+import com.netscape.cmstools.tps.cert.TPSCertCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
@@ -38,6 +39,7 @@ public class TPSCLI extends SubsystemCLI {
         addModule(new ActivityCLI(this));
         addModule(new GroupCLI(this));
         addModule(new TokenCLI(this));
+        addModule(new TPSCertCLI(this));
         addModule(new UserCLI(this));
     }
 
