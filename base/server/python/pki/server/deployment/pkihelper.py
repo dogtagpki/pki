@@ -153,9 +153,7 @@ class Identity:
                                     group, config.PKI_DEPLOYMENT_DEFAULT_GID,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # Attempt to create 'pki_group' using a random GID.
-                command = "/usr/sbin/groupadd" + " " + \
-                          pki_group + " " + \
-                          "> /dev/null 2>&1"
+                command = ["/usr/sbin/groupadd", pki_group]
             except KeyError as exc:
                 # No, the default well-known GID does not exist!
                 config.pki_log.debug(log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1,
@@ -164,23 +162,24 @@ class Identity:
                 if pki_group == config.PKI_DEPLOYMENT_DEFAULT_GROUP:
                     # Yes, attempt to create the default well-known group
                     # using the default well-known GID.
-                    command = "/usr/sbin/groupadd" + " " + \
-                              "-g" + " " + \
-                              str(config.PKI_DEPLOYMENT_DEFAULT_GID) + " " + \
-                              "-r" + " " + \
-                              pki_group + " " + \
-                              "> /dev/null 2>&1"
+                    command = ["/usr/sbin/groupadd",
+                               "-g", str(config.PKI_DEPLOYMENT_DEFAULT_GID),
+                               "-r", pki_group]
                 else:
                     # No, attempt to create 'pki_group' using a random GID.
-                    command = "/usr/sbin/groupadd" + " " + \
-                              pki_group + " " + \
-                              "> /dev/null 2>&1"
-            # Execute this "groupadd" command.
-            subprocess.call(command, shell=True)
-        except subprocess.CalledProcessError as exc:
-            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise
+                    command = ["/usr/sbin/groupadd", pki_group]
+            try:
+                # Execute this "groupadd" command.
+                with open(os.devnull, "w") as fnull:
+                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
+            except subprocess.CalledProcessError as exc:
+                config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                raise
+            except OSError as exc:
+                config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                raise
         return
 
     def __add_uid(self, pki_user, pki_group):
@@ -204,17 +203,12 @@ class Identity:
                                     user, config.PKI_DEPLOYMENT_DEFAULT_UID,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # Attempt to create 'pki_user' using a random UID.
-                command = "/usr/sbin/useradd" + " " + \
-                          "-g" + " " + \
-                          pki_group + " " + \
-                          "-d" + " " + \
-                          config.PKI_DEPLOYMENT_SOURCE_ROOT + " " + \
-                          "-s" + " " + \
-                          config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " + \
-                          "-c" + " " + \
-                          config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " + \
-                          pki_user + " " + \
-                          "> /dev/null 2>&1"
+                command = ["/usr/sbin/useradd",
+                           "-g", pki_group,
+                           "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                           "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
+                           "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
+                           pki_user]
             except KeyError as exc:
                 # No, the default well-known UID does not exist!
                 config.pki_log.debug(log.PKIHELPER_USER_ADD_UID_KEYERROR_1,
@@ -223,39 +217,33 @@ class Identity:
                 if pki_user == config.PKI_DEPLOYMENT_DEFAULT_USER:
                     # Yes, attempt to create the default well-known user
                     # using the default well-known UID.
-                    command = "/usr/sbin/useradd" + " " + \
-                              "-g" + " " + \
-                              pki_group + " " + \
-                              "-d" + " " + \
-                              config.PKI_DEPLOYMENT_SOURCE_ROOT + " " + \
-                              "-s" + " " + \
-                              config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " + \
-                              "-c" + " " + \
-                              config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " + \
-                              "-u" + " " + \
-                              str(config.PKI_DEPLOYMENT_DEFAULT_UID) + " " + \
-                              "-r" + " " + \
-                              pki_user + " " + \
-                              "> /dev/null 2>&1"
+                    command = ["/usr/sbin/useradd",
+                               "-g", pki_group,
+                               "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                               "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
+                               "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
+                               "-u", str(config.PKI_DEPLOYMENT_DEFAULT_UID),
+                               "-r", pki_user]
                 else:
                     # No, attempt to create 'pki_user' using a random UID.
-                    command = "/usr/sbin/useradd" + " " + \
-                              "-g" + " " + \
-                              pki_group + " " + \
-                              "-d" + " " + \
-                              config.PKI_DEPLOYMENT_SOURCE_ROOT + " " + \
-                              "-s" + " " + \
-                              config.PKI_DEPLOYMENT_DEFAULT_SHELL + " " + \
-                              "-c" + " " + \
-                              config.PKI_DEPLOYMENT_DEFAULT_COMMENT + " " + \
-                              pki_user + " " + \
-                              "> /dev/null 2>&1"
-            # Execute this "useradd" command.
-            subprocess.call(command, shell=True)
-        except subprocess.CalledProcessError as exc:
-            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise
+                    command = ["/usr/sbin/useradd",
+                               "-g", pki_group,
+                               "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                               "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
+                               "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
+                               pki_user]
+            try:
+                # Execute this "useradd" command.
+                with open(os.devnull, "w") as fnull:
+                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
+            except subprocess.CalledProcessError as exc:
+                config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                raise
+            except OSError as exc:
+                config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                raise
         return
 
     def add_uid_and_gid(self, pki_user, pki_group):
@@ -2115,19 +2103,19 @@ class Certutil:
                                   critical_failure=True):
         try:
             # Compose this "certutil" command
-            command = "certutil" + " " + "-N"
+            command = ["certutil", "-N"]
             #   Provide a path to the NSS security databases
             if path:
-                command = command + " " + "-d" + " " + path
+                command.extend(["-d", path])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_PATH,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
             if password_file != None:
-                command = command + " " + "-f" + " " + password_file
+                command.extend(["-f", password_file])
             if prefix != None:
-                command = command + " " + "-P" + " " + prefix
+                command.extend(["-P", prefix])
             if not os.path.exists(path):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
@@ -2155,10 +2143,10 @@ class Certutil:
                 # Display this "certutil" command
                 config.pki_log.info(
                     log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
-                    command,
+                    ' '.join(command),
                     extra=config.PKI_INDENTATION_LEVEL_2)
-                # Execute this "certutil" command
-                subprocess.call(command, shell=True)
+            # Execute this "certutil" command
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2177,10 +2165,10 @@ class Certutil:
                                   silent=True, critical_failure=True):
         try:
             # Compose this "certutil" command
-            command = "certutil" + " " + "-L"
+            command = ["certutil", "-L"]
             #   Provide a path to the NSS security databases
             if path:
-                command = command + " " + "-d" + " " + path
+                command.extend(["-d", path])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_PATH,
@@ -2188,7 +2176,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
             #   Specify the 'token'
             if token:
-                command = command + " " + "-h" + " " + "'" + token + "'"
+                command.extend(["-h", token])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_TOKEN,
@@ -2196,7 +2184,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TOKEN)
             #   Specify the nickname of this self-signed certificate
             if nickname:
-                command = command + " " + "-n" + " " + "'" + nickname + "'"
+                command.extend(["-n", nickname])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
@@ -2204,10 +2192,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
             #   OPTIONALLY specify a password file
             if password_file != None:
-                command = command + " " + "-f" + " " + password_file
-            #   By default, execute this command silently
-            if silent != False:
-                command = command + " > /dev/null 2>&1"
+                command.extend(["-f", password_file])
             if not os.path.exists(path):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
@@ -2233,8 +2218,17 @@ class Certutil:
                         password_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
+            # Display this "certutil" command
+            config.pki_log.info(
+                log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1,
+                ' '.join(command), extra=config.PKI_INDENTATION_LEVEL_2)
             # Execute this "certutil" command
-            subprocess.check_call(command, shell=True)
+            if silent != False:
+                # By default, execute this command silently
+                with open(os.devnull, "w") as fnull:
+                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
+            else:
+                subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             return False
         except OSError as exc:
@@ -2254,10 +2248,10 @@ class Certutil:
                                          critical_failure=True):
         try:
             # Compose this "certutil" command
-            command = "certutil" + " " + "-S"
+            command = ["certutil", "-S"]
             #   Provide a path to the NSS security databases
             if path:
-                command = command + " " + "-d" + " " + path
+                command.extend(["-d", path])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_PATH,
@@ -2265,7 +2259,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
             #   Specify the 'token'
             if token:
-                command = command + " " + "-h" + " " + "'" + token + "'"
+                command.extend(["-h", token])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_TOKEN,
@@ -2273,7 +2267,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TOKEN)
             #   Specify the nickname of this self-signed certificate
             if nickname:
-                command = command + " " + "-n" + " " + "'" + nickname + "'"
+                command.extend(["-n", nickname])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
@@ -2281,7 +2275,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
             #   Specify the subject name (RFC1485)
             if subject:
-                command = command + " " + "-s" + " " + "'" + subject + "'"
+                command.extend(["-s", subject])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_SUBJECT,
@@ -2289,7 +2283,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
             #   Specify the serial number
             if serial_number != None:
-                command = command + " " + "-m" + " " + str(serial_number)
+                command.extend(["-m", str(serial_number)])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER,
@@ -2297,7 +2291,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER)
             #   Specify the months valid
             if validity_period != None:
-                command = command + " " + "-v" + " " + str(validity_period)
+                command.extend(["-v", str(validity_period)])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD,
@@ -2305,8 +2299,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD)
             #   Specify the nickname of the issuer certificate
             if issuer_name:
-                command = command + " " + "-c" + " " + \
-                      "'" + issuer_name + "'"
+                command.extend(["-c", issuer_name])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME,
@@ -2314,7 +2307,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME)
             #   Specify the certificate trust attributes
             if trustargs:
-                command = command + " " + "-t" + " " + "'" + trustargs + "'"
+                command.extend(["-t", trustargs])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS,
@@ -2322,7 +2315,7 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
             #   Specify a noise file to be used for key generation
             if noise_file:
-                command = command + " " + "-z" + " " + noise_file
+                command.extend(["-z", noise_file])
             else:
                 config.pki_log.error(
                     log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE,
@@ -2330,15 +2323,13 @@ class Certutil:
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
             #   OPTIONALLY specify a password file
             if password_file != None:
-                command = command + " " + "-f" + " " + password_file
+                command.extend(["-f", password_file])
             #   ALWAYS self-sign this certificate
-            command = command + " " + "-x"
-            #   ALWAYS mask the command-line output of this command
-            command = command + " " + "> /dev/null 2>&1"
+            command.append("-x")
             # Display this "certutil" command
             config.pki_log.info(
-                log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1, command,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1,
+                ' '.join(command), extra=config.PKI_INDENTATION_LEVEL_2)
             if not os.path.exists(path):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
@@ -2371,7 +2362,11 @@ class Certutil:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Execute this "certutil" command
-            subprocess.call(command, shell=True)
+            #
+            #     NOTE:  ALWAYS mask the command-line output of this command
+            #
+            with open(os.devnull, "w") as fnull:
+                subprocess.check_call(command, stdout=fnull, stderr=fnull)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2426,9 +2421,9 @@ class Certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
 
-            config.pki_log.info(command,
+            config.pki_log.info(' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            subprocess.call(command)
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2492,7 +2487,7 @@ class Certutil:
 
             # Display this "certutil" command
             config.pki_log.info(
-                log.PKIHELPER_CERTUTIL_GENERATE_CSR_1, command,
+                log.PKIHELPER_CERTUTIL_GENERATE_CSR_1, ' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             if not os.path.exists(noise_file):
                 config.pki_log.error(
@@ -2509,7 +2504,7 @@ class Certutil:
                 raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Execute this "certutil" command
             with open(os.devnull, "w") as fnull:
-                subprocess.call(command, stdout=fnull, stderr=fnull)
+                subprocess.check_call(command, stdout=fnull, stderr=fnull)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2563,10 +2558,10 @@ class PK12util:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
 
-            config.pki_log.info(command,
+            config.pki_log.info(' '.join(command),
                     extra=config.PKI_INDENTATION_LEVEL_2)
             with open(os.devnull, "w") as fnull:
-                subprocess.call(command, stdout=fnull, stderr=fnull)
+                subprocess.check_call(command, stdout=fnull, stderr=fnull)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -2670,11 +2665,14 @@ class KRAConnector:
 
     def execute_using_pki(self, caport, cahost, subsystemnick,
       token_pwd, krahost, kraport, critical_failure=False):
-        command = "/bin/pki -p '{}' -h '{}' -n '{}' -P https -d '{}' -c '{}' "\
-                  "kraconnector-del {} {}".format(
-                      caport, cahost, subsystemnick,
-                      self.master_dict['pki_database_path'],
-                      token_pwd, krahost, kraport)
+        command = ["/bin/pki",
+                   "-p", str(caport),
+                   "-h", cahost,
+                   "-n", subsystemnick,
+                   "-P", "https",
+                   "-d", self.master_dict['pki_database_path'],
+                   "-c", token_pwd,
+                   "kraconnector-del", krahost, str(kraport)]
 
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,
@@ -2699,19 +2697,19 @@ class KRAConnector:
         params = "host=" + str(krahost) + \
                  "&port=" + str(kraport)
 
-        command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
-                  "-v -r '{}' {}:{} 2>&1".format(
-                      subsystemnick, token_pwd,
-                      self.master_dict['pki_database_path'],
-                      params, updateURL,
-                      cahost, caport)
+        command = ["/usr/bin/sslget",
+                   "-n", subsystemnick,
+                   "-p", token_pwd,
+                   "-d", self.master_dict['pki_database_path'],
+                   "-e", params,
+                   "-v",
+                   "-r", updateURL, cahost + ":" + str(caport)]
 
         # update KRA connector
         # Execute this "sslget" command
         # Note that sslget will return non-zero value for HTTP code != 200
         # and this will raise an exception
-        subprocess.check_output(command,stderr=subprocess.STDOUT,
-                                shell=True)
+        subprocess.check_output(command,stderr=subprocess.STDOUT)
 
 class SecurityDomain:
     """PKI Deployment Security Domain Class"""
@@ -2778,14 +2776,15 @@ class SecurityDomain:
                 # first try install token-based servlet
                 params += "&sessionID=" + str(install_token)
                 adminUpdateURL = "/ca/admin/ca/updateDomainXML"
-                command = "/usr/bin/sslget -p 123456 -d '{}' -e '{}' "\
-                          "-v -r '{}' {}:{} 2>&1".format(
-                             self.master_dict['pki_database_path'],
-                             params, adminUpdateURL,
-                             sechost, secadminport)
+                command = ["/usr/bin/sslget",
+                           "-p", str(123456),
+                           "-d", self.master_dict['pki_database_path'],
+                           "-e", params,
+                           "-v",
+                           "-r", adminUpdateURL,
+                           sechost + ":" + str(secadminport)]
                 output = subprocess.check_output(command,
-                                             stderr=subprocess.STDOUT,
-                                             shell=True)
+                                             stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 config.pki_log.warning(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
@@ -2889,16 +2888,16 @@ class SecurityDomain:
             else:
                 return
 
-        command = "/usr/bin/sslget -n '{}' -p '{}' -d '{}' -e '{}' "\
-                  "-v -r '{}' {}:{} 2>&1".format(
-                      subsystemnick, token_pwd,
-                      self.master_dict['pki_database_path'],
-                      params, updateURL,
-                      sechost, secagentport)
+        command = ["/usr/bin/sslget",
+                   "-n", subsystemnick,
+                   "-p", token_pwd,
+                   "-d", self.master_dict['pki_database_path'],
+                   "-e", params,
+                   "-v",
+                   "-r", updateURL, sechost + ":" + str(secagentport)]
         try:
             output = subprocess.check_output(command,
-                                             stderr=subprocess.STDOUT,
-                                             shell=True)
+                                             stderr=subprocess.STDOUT)
             return output
         except subprocess.CalledProcessError as exc:
             config.pki_log.warning(
@@ -2935,12 +2934,16 @@ class SecurityDomain:
         secadminport = cs_cfg.get('securitydomain.httpsadminport')
         #secselect = cs_cfg.get('securitydomain.select') - Selected security domain
 
-        command = "/bin/pki -p '{}' -h '{}' -P https -u '{}' -w '{}' -d '{}' "\
-                  "securitydomain-get-install-token --hostname {} "\
-                  "--subsystem {}".format(
-                      secadminport, sechost, secuser, secpass,
-                      self.master_dict['pki_database_path'],
-                      machinename, cstype)
+        command = ["/bin/pki",
+                   "-p", str(secadminport),
+                   "-h", sechost,
+                   "-P", "https",
+                   "-u", secuser,
+                   "-w", secpass,
+                   "-d", self.master_dict['pki_database_path'],
+                   "securitydomain-get-install-token",
+                   "--hostname", machinename,
+                   "--subsystem", cstype]
         try:
             output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,
@@ -2982,23 +2985,23 @@ class Systemd:
 
     def start(self, critical_failure=True):
         try:
+            service = None
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "start" + " " + \
-                          "pki-apached" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-apached" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
             elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "start" + " " + \
-                          "pki-tomcatd" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-tomcatd" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
+            command = ["systemctl", "start", service]
             # Display this "systemd" execution managment command
             config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             # Execute this "systemd" execution management command
-            subprocess.call(command, shell=True)
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3008,23 +3011,23 @@ class Systemd:
 
     def stop(self, critical_failure=True):
         try:
+            service = None
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "stop" + " " + \
-                          "pki-apached" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-apached" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
             elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "stop" + " " + \
-                          "pki-tomcatd" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-tomcatd" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
+            command = ["systemctl", "stop", service]
             # Display this "systemd" execution managment command
             config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             # Execute this "systemd" execution management command
-            subprocess.call(command, shell=True)
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3034,23 +3037,23 @@ class Systemd:
 
     def restart(self, critical_failure=True):
         try:
+            service = None
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "restart" + " " + \
-                          "pki-apached" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-apached" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
             elif self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                command = "systemctl" + " " + \
-                          "restart" + " " + \
-                          "pki-tomcatd" + "@" + \
-                          self.master_dict['pki_instance_name'] + "." + "service"
+                service = "pki-tomcatd" + "@" +\
+                          self.master_dict['pki_instance_name'] + "." +\
+                          "service"
+            command = ["systemctl", "restart", service]
             # Display this "systemd" execution managment command
             config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             # Execute this "systemd" execution management command
-            subprocess.call(command, shell=True)
+            subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3160,9 +3163,14 @@ class ConfigClient:
 
         # convert the cert file to binary
         command = ["AtoB", admin_cert_file, admin_cert_bin_file]
-        config.pki_log.info(command,
+        config.pki_log.info(' '.join(command),
             extra=config.PKI_INDENTATION_LEVEL_2)
-        subprocess.call(command)
+        try:
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            raise
 
         os.chmod(admin_cert_file,
                  config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
@@ -3439,9 +3447,14 @@ class ConfigClient:
 
                 # convert output to ascii
                 command = ["BtoA", output_file, output_file + ".asc"]
-                config.pki_log.info(command,
+                config.pki_log.info(' '.join(command),
                                      extra=config.PKI_INDENTATION_LEVEL_2)
-                subprocess.call(command)
+                try:
+                    subprocess.check_call(command)
+                except subprocess.CalledProcessError as exc:
+                    config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                         extra=config.PKI_INDENTATION_LEVEL_2)
+                    raise
 
                 with open(output_file + ".asc") as f:
                     b64 = f.read().replace('\n', '')
