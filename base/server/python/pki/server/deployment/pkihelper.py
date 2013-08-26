@@ -2145,8 +2145,8 @@ class Certutil:
                     log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
                     ' '.join(command),
                     extra=config.PKI_INDENTATION_LEVEL_2)
-            # Execute this "certutil" command
-            subprocess.check_call(command)
+                # Execute this "certutil" command
+                subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
