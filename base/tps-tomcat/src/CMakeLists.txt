@@ -96,7 +96,7 @@ find_file(SYMKEY_JAR
 # build pki-tps
 javac(pki-tps-classes
     SOURCES
-        org/dogtagpki/tps/*.java
+        org/dogtagpki/server/tps/*.java
     CLASSPATH
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
@@ -123,7 +123,7 @@ jar(pki-tps-jar
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
-        org/dogtagpki/tps/*.class
+        org/dogtagpki/server/tps/*.class
     DEPENDS
         pki-tps-classes
 )

@@ -23,8 +23,8 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.logging.ActivityClient;
-import com.netscape.certsrv.token.TokenClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
+import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.user.UserClient;
 
 /**
