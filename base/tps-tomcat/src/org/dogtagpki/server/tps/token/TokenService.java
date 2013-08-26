@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -44,7 +45,7 @@ public class TokenService extends PKIService implements TokenResource {
     public final static int DEFAULT_SIZE = 20;
 
     public TokenService() {
-        System.out.println("TokenService.<init>()");
+        CMS.debug("TokenService.<init>()");
     }
 
     public TokenData createTokenData(TokenRecord tokenRecord) {
@@ -91,7 +92,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public TokenCollection findTokens(Integer start, Integer size) {
 
-        System.out.println("TokenService.findTokens()");
+        CMS.debug("TokenService.findTokens()");
 
         try {
             start = start == null ? 0 : start;
@@ -138,7 +139,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public TokenData getToken(String tokenID) {
 
-        System.out.println("TokenService.getToken(\"" + tokenID + "\")");
+        CMS.debug("TokenService.getToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
@@ -155,7 +156,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public Response addToken(TokenData tokenData) {
 
-        System.out.println("TokenService.addToken(\"" + tokenData.getID() + "\")");
+        CMS.debug("TokenService.addToken(\"" + tokenData.getID() + "\")");
 
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
@@ -179,7 +180,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public Response updateToken(String tokenID, TokenData tokenData) {
 
-        System.out.println("TokenService.updateToken(\"" + tokenID + "\")");
+        CMS.debug("TokenService.updateToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
@@ -205,7 +206,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public Response modifyToken(String tokenID, TokenModifyRequest request) {
 
-        System.out.println("TokenService.modifyToken(\"" + tokenID + "\", request");
+        CMS.debug("TokenService.modifyToken(\"" + tokenID + "\", request");
 
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();
@@ -230,7 +231,7 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public void removeToken(String tokenID) {
 
-        System.out.println("TokenService.removeToken(\"" + tokenID + "\")");
+        CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = TPSSubsystem.getInstance();

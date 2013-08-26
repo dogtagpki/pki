@@ -12,11 +12,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.tps.connection;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -24,35 +24,31 @@ import java.io.PrintWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertData;
-import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.tps.connection.ConnectionData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class CertShowCLI extends CLI {
+public class ConnectionShowCLI extends CLI {
 
-    public CertCLI certCLI;
+    public ConnectionCLI connectionCLI;
 
-    public CertShowCLI(CertCLI certCLI) {
-        super("show", "Show certificate", certCLI);
-        this.certCLI = certCLI;
+    public ConnectionShowCLI(ConnectionCLI connectionCLI) {
+        super("show", "Show connection", connectionCLI);
+        this.connectionCLI = connectionCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Connection ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "output", true, "Output file");
+        Option option = new Option(null, "contents", true, "Output file to store connection attributes.");
         option.setArgName("file");
         options.addOption(option);
-
-        options.addOption(null, "pretty", false, "Pretty print");
-        options.addOption(null, "encoded", false, "Base-64 encoded");
 
         CommandLine cmd = null;
 
@@ -65,9 +61,6 @@ public class CertShowCLI extends CLI {
             System.exit(1);
         }
 
-        boolean showPrettyPrint = cmd.hasOption("pretty");
-        boolean showEncoded = cmd.hasOption("encoded");
-
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
@@ -75,21 +68,20 @@ public class CertShowCLI extends CLI {
             System.exit(1);
         }
 
-        CertId certID = new CertId(cmdArgs[0]);
-        String file = cmd.getOptionValue("output");
+        String connectionID = args[0];
+        String file = cmd.getOptionValue("contents");
 
-        CertData certData = certCLI.certClient.getCert(certID);
+        ConnectionData connectionData = connectionCLI.connectionClient.getConnection(connectionID);
 
-        String encoded = certData.getEncoded();
-        if (encoded != null && file != null) {
-            // store cert to file
-            try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
-                out.print(encoded);
-            }
+        MainCLI.printMessage("Connection \"" + connectionID + "\"");
+        ConnectionCLI.printConnectionData(connectionData);
+
+        if (file != null) {
+            // store contents to file
+            PrintWriter out = new PrintWriter(new FileWriter(file));
+            String contents = connectionData.getContents();
+            if (contents != null) out.print(contents);
+            out.close();
         }
-
-        MainCLI.printMessage("Certificate \"" + certID.toHexString() + "\"");
-
-        CertCLI.printCertData(certData, showPrettyPrint, showEncoded);
     }
 }

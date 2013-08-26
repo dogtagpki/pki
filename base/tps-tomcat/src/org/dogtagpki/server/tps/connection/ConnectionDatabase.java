@@ -16,35 +16,33 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.tps.token;
-
-import java.util.Date;
+package org.dogtagpki.server.tps.connection;
 
 import com.netscape.cmscore.dbs.Database;
 
 /**
- * This class implements in-memory token database. In the future this
+ * This class implements in-memory connection database. In the future this
  * will be replaced with LDAP database.
  *
  * @author Endi S. Dewata
  */
-public class TokenDatabase extends Database<TokenRecord> {
+public class ConnectionDatabase extends Database<ConnectionRecord> {
 
-    public TokenDatabase() {
-        super("Token");
+    public ConnectionDatabase() {
+        super("Connection");
 
         // add sample records
         try {
-            TokenRecord record1 = new TokenRecord();
-            record1.setID("token1");
-            record1.setUserID("user1");
+            ConnectionRecord record1 = new ConnectionRecord();
+            record1.setID("connection1");
             record1.setStatus("ENABLED");
+            record1.setContents("name=connection1\nparam=value");
             addRecord(record1);
 
-            TokenRecord record2 = new TokenRecord();
-            record2.setID("token2");
-            record2.setUserID("user2");
+            ConnectionRecord record2 = new ConnectionRecord();
+            record2.setID("connection2");
             record2.setStatus("DISABLED");
+            record2.setContents("name=connection2\nparam=value");
             addRecord(record2);
 
         } catch (Exception e) {
@@ -52,16 +50,11 @@ public class TokenDatabase extends Database<TokenRecord> {
         }
     }
 
-    public void addRecord(TokenRecord tokenRecord) throws Exception {
-        tokenRecord.setStatus("ENABLED");
-        tokenRecord.setCreateTimestamp(new Date());
-
-        addRecord(tokenRecord.getID(), tokenRecord);
+    public void addRecord(ConnectionRecord connectionRecord) throws Exception {
+        addRecord(connectionRecord.getID(), connectionRecord);
     }
 
-    public void updateRecord(TokenRecord tokenRecord) throws Exception {
-        tokenRecord.setModifyTimestamp(new Date());
-
-        updateRecord(tokenRecord.getID(), tokenRecord);
+    public void updateRecord(ConnectionRecord connectionRecord) throws Exception {
+        updateRecord(connectionRecord.getID(), connectionRecord);
     }
 }
