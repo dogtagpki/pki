@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import org.dogtagpki.server.tps.authenticator.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.cert.TPSCertDatabase;
 import org.dogtagpki.server.tps.connection.ConnectionDatabase;
 import org.dogtagpki.server.tps.logging.ActivityDatabase;
@@ -50,6 +51,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public IConfigStore config;
 
     public ActivityDatabase activityDatabase = new ActivityDatabase();
+    public AuthenticatorDatabase authenticatorDatabase = new AuthenticatorDatabase();
     public ConnectionDatabase connectionDatabase = new ConnectionDatabase();
     public TPSCertDatabase certDatabase = new TPSCertDatabase();
     public TokenDatabase tokenDatabase = new TokenDatabase();
@@ -121,6 +123,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public ActivityDatabase getActivityDatabase() {
         return activityDatabase;
+    }
+
+    public AuthenticatorDatabase getAuthenticatorDatabase() {
+        return authenticatorDatabase;
     }
 
     public ConnectionDatabase getConnectionDatabase() {
