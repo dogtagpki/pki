@@ -73,6 +73,7 @@ public class CRMFPopClient
         {
             System.out.println("Usage: CRMFPopClient -d <location of certdb> -p <token password> -h <tokenname> -o <output file which saves the base64 CRMF request> -n <subjectDN> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -m <hostname:port> -f <profile name; rsa default caEncUserCert; ec default caEncECUserCert> -u <user name> -r <requestor name> -q <POP_NONE, POP_SUCCESS, or POP_FAIL; default POP_SUCCESS> \n");
         System.out.println("    Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator:\n");
+        System.out.println("    -k <true for enabling encoding of attribute values; false for default encoding of attribute values; default is false>\n");
         System.out.println("    -t <true for temporary(session); false for permanent(token); default is true>\n");
         System.out.println("    -s <1 for sensitive; 0 for non-sensitive; -1 temporaryPairMode dependent; default is -1>\n");
         System.out.println("    -e <1 for extractable; 0 for non-extractable; -1 token dependent; default is -1>\n");
@@ -144,6 +145,7 @@ public class CRMFPopClient
         int RSA_keylen = 2048;
         /* default ECC key curve name */
         String ECC_curve = "nistp256";
+        boolean enable_encoding = false; /* enable encoding attribute values if true */
         boolean ec_temporary = true; /* session if true; token if false */
         int ec_sensitive = -1; /* -1, 0, or 1 */
         int ec_extractable = -1; /* -1, 0, or 1 */
@@ -192,6 +194,12 @@ public class CRMFPopClient
                     ec_temporary = true;
                 else
                     ec_temporary = false;
+            } else if (name.equals("-k")) {
+                String temp = args[i+1];
+                if (temp.equals("true"))
+                    enable_encoding = true;
+                else
+                    enable_encoding = false;
             } else if (name.equals("-s")) {
                 String ec_sensitive_s = args[i+1];
                 ec_sensitive = Integer.parseInt(ec_sensitive_s);
@@ -394,7 +402,7 @@ public class CRMFPopClient
                 CertTemplate certTemplate = new CertTemplate();
                 certTemplate.setVersion(new INTEGER(2));
 
-                Name n1 = getJssName(SUBJ_DN);
+                Name n1 = getJssName(enable_encoding, SUBJ_DN);
 
                 Name n = new Name(); 
 
@@ -595,7 +603,44 @@ public class CRMFPopClient
             }
         }
 
-        static Name getJssName(String dn) 
+        static boolean isEncoded (String elementValue) {
+            boolean encoded = false;
+
+            if (elementValue != null && ((elementValue.startsWith("UTF8String:")) ||
+                                         (elementValue.startsWith("PrintableString:")) ||
+                                         (elementValue.startsWith("BMPString:")) ||
+                                         (elementValue.startsWith("TeletexString:")) ||
+                                         (elementValue.startsWith("UniversalString:")))) {
+                encoded = true;
+            }
+            return encoded;
+        }
+
+        static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
+            try {
+                String encodingType = (n > 0)? elementValue.substring(0, n): null;
+                String nameValue = (n > 0)? elementValue.substring(n+1): null;
+                if (encodingType != null && encodingType.length() > 0 &&
+                    nameValue != null && nameValue.length() > 0) {
+                    if (encodingType.equals("UTF8String")) {
+                        name.addElement( new AVA(oid, new UTF8String(nameValue)));
+                    } else if (encodingType.equals("PrintableString")) {
+                        name.addElement( new AVA(oid, new PrintableString(nameValue)));
+                    } else if (encodingType.equals("BMPString")) {
+                        name.addElement( new AVA(oid, new BMPString(nameValue)));
+                    } else if (encodingType.equals("TeletexString")) {
+                        name.addElement( new AVA(oid, new TeletexString(nameValue)));
+                    } else if (encodingType.equals("UniversalString")) {
+                        name.addElement( new AVA(oid, new UniversalString(nameValue)));
+                    }
+                }
+            }  catch (Exception e)  {
+                System.out.println("CRMFPopClient: Error adding name element: " + elementValue + " Error: "  + e.toString());
+            }
+            return name;
+        }
+
+        static Name getJssName(boolean enable_encoding, String dn) 
         {
 
            X500Name x5Name = null;
@@ -633,13 +678,19 @@ public class CRMFPopClient
 
                 if(split.length != 2)
                     continue;
+                int n = split[1].indexOf(':');
 
                 try {
 
                 if(split[0].equals("UID"))
                 {
-
-                     ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString(split[1]))); 
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement(ret, new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
+                                             n, split[1]);
+                    } else {
+                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
+                                               new PrintableString(split[1])));
+                    }
                      //                    System.out.println("UID found : " + split[1]);
 
                 }
@@ -654,35 +705,55 @@ public class CRMFPopClient
 
                 if(split[0].equals("CN"))
                 {
-                     ret.addCommonName(split[1]);
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.commonName, n, split[1]);
+                    } else {
+                        ret.addCommonName(split[1]);
+                    }
                      //                  System.out.println("CN found : " + split[1]);
                      continue;
                 }
 
                 if(split[0].equals("L"))
                 {
-                     ret.addLocalityName(split[1]);
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.localityName, n, split[1]);
+                    } else {
+                        ret.addLocalityName(split[1]);
+                    }
                      //                 System.out.println("L found : " + split[1]);
                      continue;
                 }
 
                 if(split[0].equals("O"))
                 {
-                     ret.addOrganizationName(split[1]);
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.organizationName, n, split[1]);
+                    } else {
+                        ret.addOrganizationName(split[1]);
+                    }
                      //                System.out.println("O found : " + split[1]);
                      continue;
                 }
 
                 if(split[0].equals("ST"))
                 {
-                     ret.addStateOrProvinceName(split[1]);
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.stateOrProvinceName, n, split[1]);
+                    } else {
+                        ret.addStateOrProvinceName(split[1]);
+                    }
                      //               System.out.println("ST found : " + split[1]);
                      continue;
                 }
 
                 if(split[0].equals("OU"))
                 {
-                     ret.addOrganizationalUnitName(split[1]);
+                    if (enable_encoding && isEncoded(split[1])) {
+                        ret = addNameElement (ret, Name.organizationalUnitName, n, split[1]);
+                    } else {
+                        ret.addOrganizationalUnitName(split[1]);
+                    }
        //              System.out.println("OU found : " + split[1]);
                      continue;
                 }
