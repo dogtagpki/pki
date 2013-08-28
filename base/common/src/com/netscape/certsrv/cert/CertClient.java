@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
 
 /**
@@ -113,6 +114,14 @@ public class CertClient extends Client {
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) {
         return certRequestResource.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+    }
+
+    public CertEnrollmentRequest getEnrollmentTemplate(String id) {
+        return certRequestResource.getEnrollmentTemplate(id);
+    }
+
+    public ProfileDataInfos listEnrollmentTemplates() {
+        return certRequestResource.listEnrollmentTemplates();
     }
 
 }

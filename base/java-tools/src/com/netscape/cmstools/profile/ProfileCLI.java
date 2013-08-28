@@ -12,6 +12,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
@@ -143,5 +144,53 @@ public class ProfileCLI extends CLI {
         FileInputStream fis = new FileInputStream(filename);
         data = (ProfileData) unmarshaller.unmarshal(fis);
         return data;
+    }
+
+    public static void saveEnrollmentTemplateToFile(String filename, CertEnrollmentRequest request)
+            throws JAXBException, FileNotFoundException {
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        FileOutputStream stream = new FileOutputStream(filename);
+        marshaller.marshal(request, stream);
+
+        MainCLI.printMessage("Saved enrollment template for " + request.getProfileId() + " to " + filename);
+    }
+
+    public static void printEnrollmentTemplate(CertEnrollmentRequest request) {
+        System.out.println("  Profile ID: " +  request.getProfileId());
+        System.out.println("  Renewal: " + request.getIsRenewal());
+
+        for (ProfileInput input: request.getInputs()) {
+            System.out.println();
+            System.out.println("  Input ID: " + input.getId());
+            System.out.println("  Name: " + input.getName());
+            System.out.println("  Class: " + input.getClassId());
+            for (ProfileAttribute attr: input.getAttrs()) {
+                System.out.println();
+                System.out.println("    Attribute Name: " + attr.getName());
+                System.out.println("    Attribute Description: " +
+                    attr.getDescriptor().getDescription(Locale.getDefault()));
+                System.out.println("    Attribute Syntax: " +
+                    attr.getDescriptor().getSyntax());
+            }
+        }
+
+        for (ProfileOutput output: request.getOutputs()) {
+            System.out.println();
+            System.out.println("  Output ID: " + output.getId());
+            System.out.println("  Name: " + output.getName());
+            System.out.println("  Class: " + output.getClassId());
+            for (ProfileAttribute attr: output.getAttrs()) {
+                System.out.println();
+                System.out.println("    Attribute Name: " + attr.getName());
+                System.out.println("    Attribute Description: " +
+                    attr.getDescriptor().getDescription(Locale.getDefault()));
+                System.out.println("    Attribute Syntax: " +
+                    attr.getDescriptor().getSyntax());
+            }
+        }
+
     }
 }

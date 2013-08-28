@@ -18,6 +18,10 @@
 
 package com.netscape.cms.servlet.request;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -37,11 +41,18 @@ import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileDataInfo;
+import com.netscape.certsrv.profile.ProfileDataInfos;
+import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
+import com.netscape.cms.servlet.profile.ProfileService;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -244,6 +255,97 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
 
         return filter;
+    }
+
+    @Override
+    public CertEnrollmentRequest getEnrollmentTemplate(String profileId) {
+        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        if (ps == null) {
+            CMS.debug("getEnrollmentTemplate: ps is null");
+            throw new PKIException("Error modifying profile state.  Profile Service not available");
+        }
+
+        if (profileId == null) {
+            CMS.debug("getEnrollmenTemplate: invalid request. profileId is null");
+            throw new BadRequestException("Invalid ProfileId");
+        }
+
+        IProfile profile = null;
+        try {
+            profile = ps.getProfile(profileId);
+            if (profile == null) {
+                throw new BadRequestException("Cannot provide enrollment template for profile `" + profileId +
+                        "`.  Profile not found");
+            }
+        } catch (EBaseException e) {
+            CMS.debug("getEnrollmentTemplate(): error obtaining profile `" + profileId + "`: " + e);
+            e.printStackTrace();
+            throw new PKIException("Error generating enrollment template.  Cannot obtain profile.");
+        }
+
+        if (! profile.isVisible()) {
+            CMS.debug("getEnrollmentTemplate(): attempt to get enrollment template for non-visible profile");
+            throw new BadRequestException("Cannot provide enrollment template for profile `" + profileId +
+                        "`.  Profile not marked as visible");
+        }
+
+        CertEnrollmentRequest request = new CertEnrollmentRequest();
+        request.setProfileId(profileId);
+        request.setRenewal(Boolean.parseBoolean(profile.isRenewal()));
+        request.setRemoteAddr("");
+        request.setRemoteHost("");
+        request.setSerialNum("");
+
+        // populate inputs
+        Enumeration<String> inputIds = profile.getProfileInputIds();
+        while (inputIds.hasMoreElements()) {
+            String id = inputIds.nextElement();
+            try {
+                ProfileInput input = ProfileService.createProfileInput(profile, id, getLocale());
+                for (ProfileAttribute attr: input.getAttrs()) {
+                    attr.setValue("");
+                }
+                request.addInput(input);
+            } catch (EBaseException e) {
+                CMS.debug("getEnrollmentTemplate(): Failed to add input " + id + " to request template: " + e);
+                e.printStackTrace();
+                throw new PKIException("Failed to add input" + id + "to request template");
+            }
+        }
+
+        return request;
+    }
+
+    @Override
+    public ProfileDataInfos listEnrollmentTemplates() {
+        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
+        ProfileDataInfos infos = new ProfileDataInfos();
+        boolean visibleOnly = true;
+
+        if (ps == null) {
+            return null;
+        }
+
+        Enumeration<String> profileIds = ps.getProfileIds();
+        if (profileIds != null) {
+            while (profileIds.hasMoreElements()) {
+                String id = profileIds.nextElement();
+                ProfileDataInfo info = null;
+                try {
+                    info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale());
+                } catch (EBaseException e) {
+                    continue;
+                }
+
+                if (info != null) {
+                    list.add(info);
+                }
+            }
+        }
+
+        infos.setProfileInfos(list);
+        return infos;
     }
 
 }

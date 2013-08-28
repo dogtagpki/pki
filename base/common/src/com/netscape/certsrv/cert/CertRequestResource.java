@@ -29,6 +29,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("")
@@ -76,6 +77,16 @@ public interface CertRequestResource {
     @ACLMapping("agent.certrequests")
     @AuthMethodMapping("agent")
     public CertReviewResponse reviewRequest(@PathParam("id") RequestId id);
+
+    @GET
+    @Path("certrequests/profiles")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public ProfileDataInfos listEnrollmentTemplates();
+
+    @GET
+    @Path("certrequests/profiles/{id}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public CertEnrollmentRequest getEnrollmentTemplate(@PathParam("id") String id);
 
     @POST
     @Path("agent/certrequests/{id}/approve")
@@ -125,4 +136,5 @@ public interface CertRequestResource {
     @ACLMapping("agent.certrequests")
     @AuthMethodMapping("agent")
     public void assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
+
 }

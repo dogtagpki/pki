@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -106,7 +108,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                 String id = profileIds.nextElement();
                 ProfileDataInfo info = null;
                 try {
-                    info = createProfileDataInfo(id, visibleOnly);
+                    info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale());
                 } catch (EBaseException e) {
                     continue;
                 }
@@ -207,7 +209,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Enumeration<String> inputIds = profile.getProfileInputIds();
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                ProfileInput input = createProfileInput(profile, inputIds.nextElement());
+                ProfileInput input = createProfileInput(profile, inputIds.nextElement(), getLocale());
                 if (input == null)
                     continue;
                 data.addProfileInput(input);
@@ -218,7 +220,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Enumeration<String> outputIds = profile.getProfileOutputIds();
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
-                ProfileOutput output = createProfileOutput(profile, outputIds.nextElement());
+                ProfileOutput output = createProfileOutput(profile, outputIds.nextElement(), getLocale());
                 if (output == null)
                     continue;
                 data.addProfileOutput(output);
@@ -265,7 +267,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         return p;
     }
 
-    public ProfileInput createProfileInput(IProfile profile, String inputId) throws EBaseException {
+    public static ProfileInput createProfileInput(IProfile profile, String inputId, Locale locale) throws EBaseException {
         IProfileInput profileInput = profile.getProfileInput(inputId);
         if (profileInput == null)
             return null;
@@ -273,10 +275,10 @@ public class ProfileService extends PKIService implements ProfileResource {
         IConfigStore inputStore = profile.getConfigStore().getSubStore("input");
         String classId = inputStore.getString(inputId + ".class_id");
 
-        return new ProfileInput(profileInput, inputId, classId, getLocale());
+        return new ProfileInput(profileInput, inputId, classId, locale);
     }
 
-    public ProfileOutput createProfileOutput(IProfile profile, String outputId) throws EBaseException {
+    public static ProfileOutput createProfileOutput(IProfile profile, String outputId, Locale locale) throws EBaseException {
         IProfileOutput profileOutput = profile.getProfileOutput(outputId);
         if (profileOutput == null)
             return null;
@@ -284,11 +286,13 @@ public class ProfileService extends PKIService implements ProfileResource {
         IConfigStore outputStore = profile.getConfigStore().getSubStore("output");
         String classId = outputStore.getString(outputId + ".class_id");
 
-        return new ProfileOutput(profileOutput, outputId, classId, getLocale());
+        return new ProfileOutput(profileOutput, outputId, classId, locale);
     }
 
-    public ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly) throws EBaseException {
+    public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
+            Locale locale) throws EBaseException {
 
+        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");
         }
@@ -308,8 +312,8 @@ public class ProfileService extends PKIService implements ProfileResource {
         ret = new ProfileDataInfo();
 
         ret.setProfileId(profileId);
-        ret.setProfileName(profile.getName(getLocale()));
-        ret.setProfileDescription(profile.getDescription(getLocale()));
+        ret.setProfileName(profile.getName(locale));
+        ret.setProfileDescription(profile.getDescription(locale));
 
         UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
         URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
@@ -686,7 +690,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Map<String, ProfileOutput> existingOutputs = new LinkedHashMap<String, ProfileOutput>();
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
-            ProfileOutput output = createProfileOutput(profile, id);
+            ProfileOutput output = createProfileOutput(profile, id, getLocale());
             if (output == null)
                 continue;
             existingOutputs.put(id, output);
@@ -777,7 +781,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
-            ProfileInput input = createProfileInput(profile, id);
+            ProfileInput input = createProfileInput(profile, id, getLocale());
             if (input == null)
                 continue;
             existingInputs.put(id, input);
@@ -928,4 +932,5 @@ public class ProfileService extends PKIService implements ProfileResource {
                 auditor.getParamString(scope, type, id, params));
         auditor.log(msg);
     }
+
 }

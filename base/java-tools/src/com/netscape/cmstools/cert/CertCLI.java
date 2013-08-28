@@ -53,6 +53,9 @@ public class CertCLI extends CLI {
         addModule(new CertRequestShowCLI(this));
         addModule(new CertRequestSubmitCLI(this));
         addModule(new CertRequestReviewCLI(this));
+
+        addModule(new CertRequestProfileFindCLI(this));
+        addModule(new CertRequestProfileShowCLI(this));
     }
 
     public String getFullName() {
