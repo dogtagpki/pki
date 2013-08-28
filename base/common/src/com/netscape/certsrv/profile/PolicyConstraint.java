@@ -81,4 +81,46 @@ public class PolicyConstraint {
         this.constraints = constraints;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((classId == null) ? 0 : classId.hashCode());
+        result = prime * result + ((constraints == null) ? 0 : constraints.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((text == null) ? 0 : text.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PolicyConstraint other = (PolicyConstraint) obj;
+        if (classId == null) {
+            if (other.classId != null)
+                return false;
+        } else if (!classId.equals(other.classId))
+            return false;
+        if (constraints == null) {
+            if (other.constraints != null)
+                return false;
+        } else if (!constraints.equals(other.constraints))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (text == null) {
+            if (other.text != null)
+                return false;
+        } else if (!text.equals(other.text))
+            return false;
+        return true;
+    }
 }

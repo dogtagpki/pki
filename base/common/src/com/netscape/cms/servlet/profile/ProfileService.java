@@ -32,6 +32,7 @@ import java.util.Vector;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -41,6 +42,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileEx;
@@ -76,6 +80,11 @@ public class ProfileService extends PKIService implements ProfileResource {
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     private IConfigStore cs = CMS.getConfigStore().getSubStore("profile");
 
+    private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
+            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
+
     public ProfileDataInfos listProfiles() {
         List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
         ProfileDataInfos infos = new ProfileDataInfos();
@@ -85,10 +94,10 @@ public class ProfileService extends PKIService implements ProfileResource {
             return null;
         }
 
-        PKIPrincipal principal = (PKIPrincipal)servletRequest.getUserPrincipal();
+        PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
         if ((principal != null) &&
-            (principal.hasRole("Certificate Manager Agents") ||
-             principal.hasRole("Certificate Manager Administrators"))) {
+                (principal.hasRole("Certificate Manager Agents") ||
+                principal.hasRole("Certificate Manager Administrators"))) {
             visibleOnly = false;
         }
         Enumeration<String> profileIds = ps.getProfileIds();
@@ -120,10 +129,10 @@ public class ProfileService extends PKIService implements ProfileResource {
             return null;
         }
 
-        PKIPrincipal principal = (PKIPrincipal)servletRequest.getUserPrincipal();
+        PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
         if ((principal != null) &&
-            (principal.hasRole("Certificate Manager Agents") ||
-             principal.hasRole("Certificate Manager Administrators"))) {
+                (principal.hasRole("Certificate Manager Agents") ||
+                principal.hasRole("Certificate Manager Administrators"))) {
             visibleOnly = false;
         }
 
@@ -197,18 +206,10 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         Enumeration<String> inputIds = profile.getProfileInputIds();
         if (inputIds != null) {
-            IConfigStore inputStore = profile.getConfigStore().getSubStore("input");
             while (inputIds.hasMoreElements()) {
-                String inputId = inputIds.nextElement();
-                IProfileInput profileInput = profile.getProfileInput(inputId);
-
-                if (profileInput == null) {
+                ProfileInput input = createProfileInput(profile, inputIds.nextElement());
+                if (input == null)
                     continue;
-                }
-
-                String classId = inputStore.getString(inputId + ".class_id");
-
-                ProfileInput input = new ProfileInput(profileInput, inputId, classId, getLocale());
                 data.addProfileInput(input);
             }
         }
@@ -216,18 +217,10 @@ public class ProfileService extends PKIService implements ProfileResource {
         // profile outputs
         Enumeration<String> outputIds = profile.getProfileOutputIds();
         if (outputIds != null) {
-            IConfigStore outputStore = profile.getConfigStore().getSubStore("output");
             while (outputIds.hasMoreElements()) {
-                String outputId = outputIds.nextElement();
-                IProfileOutput profileOutput = profile.getProfileOutput(outputId);
-
-                if (profileOutput == null) {
+                ProfileOutput output = createProfileOutput(profile, outputIds.nextElement());
+                if (output == null)
                     continue;
-                }
-
-                String classId = outputStore.getString(outputId + ".class_id");
-
-                ProfileOutput output = new ProfileOutput(profileOutput, outputId, classId, getLocale());
                 data.addProfileOutput(output);
             }
         }
@@ -238,22 +231,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             while (policySetIds.hasMoreElements()) {
                 Vector<ProfilePolicy> pset = new Vector<ProfilePolicy>();
                 String policySetId = policySetIds.nextElement();
-                Enumeration<com.netscape.cms.profile.common.ProfilePolicy> policies =
-                        profile.getProfilePolicies(policySetId);
-                if (policies != null) {
-                    while (policies.hasMoreElements()) {
-                        com.netscape.cms.profile.common.ProfilePolicy policy = policies.nextElement();
-                        IConfigStore policyStore = profile.getConfigStore().getSubStore(
-                                "policyset." + policySetId + "." + policy.getId());
-                        ProfilePolicy p = new ProfilePolicy();
-                        String constraintClassId = policyStore.getString("constraint.class_id");
-                        p.setConstraint(PolicyConstraintFactory.create(getLocale(), policy.getConstraint(), constraintClassId));
-                        String defaultClassId = policyStore.getString("default.class_id");
-                        p.setDef(PolicyDefaultFactory.create(getLocale(), policy.getDefault(), defaultClassId));
-                        p.setId(policy.getId());
-                        pset.add(p);
-                    }
+                Enumeration<String> policyIds = profile.getProfilePolicyIds(policySetId);
+                while (policyIds.hasMoreElements()) {
+                    String policyId = policyIds.nextElement();
+                    pset.add(createProfilePolicy(profile, policySetId, policyId));
                 }
+
                 if (!pset.isEmpty()) {
                     data.addProfilePolicySet(policySetId, pset);
                 }
@@ -266,6 +249,42 @@ public class ProfileService extends PKIService implements ProfileResource {
         data.setLink(new Link("self", uri));
 
         return data;
+    }
+
+    public ProfilePolicy createProfilePolicy(IProfile profile, String setId, String policyId) throws EBaseException {
+        IProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
+        IConfigStore policyStore = profile.getConfigStore().getSubStore(
+                "policyset." + setId + "." + policy.getId());
+
+        ProfilePolicy p = new ProfilePolicy();
+        String constraintClassId = policyStore.getString("constraint.class_id");
+        p.setConstraint(PolicyConstraintFactory.create(getLocale(), policy.getConstraint(), constraintClassId));
+        String defaultClassId = policyStore.getString("default.class_id");
+        p.setDef(PolicyDefaultFactory.create(getLocale(), policy.getDefault(), defaultClassId));
+        p.setId(policy.getId());
+        return p;
+    }
+
+    public ProfileInput createProfileInput(IProfile profile, String inputId) throws EBaseException {
+        IProfileInput profileInput = profile.getProfileInput(inputId);
+        if (profileInput == null)
+            return null;
+
+        IConfigStore inputStore = profile.getConfigStore().getSubStore("input");
+        String classId = inputStore.getString(inputId + ".class_id");
+
+        return new ProfileInput(profileInput, inputId, classId, getLocale());
+    }
+
+    public ProfileOutput createProfileOutput(IProfile profile, String outputId) throws EBaseException {
+        IProfileOutput profileOutput = profile.getProfileOutput(outputId);
+        if (profileOutput == null)
+            return null;
+
+        IConfigStore outputStore = profile.getConfigStore().getSubStore("output");
+        String classId = outputStore.getString(outputId + ".class_id");
+
+        return new ProfileOutput(profileOutput, outputId, classId, getLocale());
     }
 
     public ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly) throws EBaseException {
@@ -307,6 +326,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new PKIException("Error modifying profile state.  Profile Service not available");
         }
 
+        if (profileId == null) {
+            CMS.debug("modifyProfileState: invalid request. profileId is null");
+            throw new BadRequestException("Invalid ProfileId");
+        }
+
         Principal principal = servletRequest.getUserPrincipal();
 
         switch (action) {
@@ -316,9 +340,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             }
             try {
                 ps.enableProfile(profileId, principal.getName());
+                auditProfileChangeState(profileId, "approve", ILogger.SUCCESS);
             } catch (EProfileException e) {
                 CMS.debug("modifyProfileState: error enabling profile. " + e);
                 e.printStackTrace();
+                auditProfileChangeState(profileId, "approve", ILogger.FAILURE);
                 throw new PKIException("Error enabling profile");
             }
             break;
@@ -331,26 +357,30 @@ public class ProfileService extends PKIService implements ProfileResource {
                 if (ps.checkOwner()) {
                     if (ps.getProfileEnableBy(profileId).equals(userid)) {
                         ps.disableProfile(profileId);
+                        auditProfileChangeState(profileId, "disapprove", ILogger.SUCCESS);
                     } else {
-                        // audit log messages
+                        auditProfileChangeState(profileId, "disapprove", ILogger.FAILURE);
                         throw new UnauthorizedException(
                                 "Profile can only be disabled by the agent that enabled it");
                     }
                 } else {
                     ps.disableProfile(profileId);
+                    auditProfileChangeState(profileId, "disapprove", ILogger.SUCCESS);
                 }
             } catch (EProfileException e) {
                 CMS.debug("modifyProfileState: Error disabling profile: " + e);
                 e.printStackTrace();
+                auditProfileChangeState(profileId, "disapprove", ILogger.FAILURE);
                 throw new PKIException("Error disabling profile");
             }
             break;
         default:
+            auditProfileChangeState(profileId, "invalid", ILogger.FAILURE);
             throw new BadRequestException("Invalid operation");
         }
     }
 
-    public void createProfile(ProfileData data){
+    public void createProfile(ProfileData data) {
         if (ps == null) {
             CMS.debug("createProfile: ps is null");
             throw new PKIException("Error creating profile.  Profile Service not available");
@@ -358,11 +388,18 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         IProfile profile = null;
         String profileId = data.getId();
+        Map<String, String> auditParams = new LinkedHashMap<String, String>();
         try {
             profile = ps.getProfile(profileId);
             if (profile != null) {
                 throw new BadRequestException("Profile already exists");
             }
+
+            auditParams.put("class_id", data.getClassId());
+            auditParams.put("name", data.getName());
+            auditParams.put("description", data.getDescription());
+            auditParams.put("visible", Boolean.toString(data.isVisible()));
+
             String config = CMS.getConfigStore().getString("instanceRoot") + "/ca/profiles/ca/" +
                     profileId + ".cfg";
             File configFile = new File(config);
@@ -370,7 +407,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             IPluginInfo info = registry.getPluginInfo("profile", data.getClassId());
 
             profile = ps.createProfile(profileId, data.getClassId(), info.getClassName(), config);
-            profile.setName(getLocale(),data.getName());
+            profile.setName(getLocale(), data.getName());
             profile.setDescription(getLocale(), data.getDescription());
             profile.setVisible(data.isVisible());
             profile.getConfigStore().commit(false);
@@ -381,16 +418,31 @@ public class ProfileService extends PKIService implements ProfileResource {
                 // policies, inputs and outputs with defaults
                 ((IProfileEx) profile).populate();
             }
+
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_RULES,
+                    OpDef.OP_ADD,
+                    profileId,
+                    ILogger.SUCCESS,
+                    auditParams);
         } catch (EBaseException | IOException e) {
             CMS.debug("createProfile: error in creating profile: " + e);
             e.printStackTrace();
+
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_RULES,
+                    OpDef.OP_ADD,
+                    profileId,
+                    ILogger.FAILURE,
+                    auditParams);
+
             throw new PKIException("Error in creating profile");
         }
 
         changeProfileData(data, profile);
     }
 
-    public void modifyProfile(String profileId, ProfileData data){
+    public void modifyProfile(String profileId, ProfileData data) {
         if (ps == null) {
             CMS.debug("modifyProfile: ps is null");
             throw new PKIException("Error modifying profile.  Profile Service not available");
@@ -429,7 +481,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("authenticatorId", data.getAuthenticatorId());
         }
 
-        if (differs(profile.getAuthzAcl(),data.getAuthzAcl())) {
+        if (differs(profile.getAuthzAcl(), data.getAuthzAcl())) {
             profile.setAuthzAcl(data.getAuthzAcl());
             auditParams.put("authzAcl", data.getAuthzAcl());
         }
@@ -439,48 +491,46 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("description", data.getDescription());
         }
 
-        if (differs(profile.getId(),data.getId())) {
+        if (differs(profile.getId(), data.getId())) {
             profile.setId(data.getId());
             auditParams.put("id", data.getId());
         }
 
-        if (differs(profile.getName(getLocale()),data.getName())) {
-            profile.setName(getLocale(),data.getName());
+        if (differs(profile.getName(getLocale()), data.getName())) {
+            profile.setName(getLocale(), data.getName());
             auditParams.put("name", data.getName());
         }
 
         // TODO renewal is a string in Profile, should be changed
-        if (differs(profile.isRenewal(),Boolean.toString(data.isRenewal()))) {
+        if (differs(profile.isRenewal(), Boolean.toString(data.isRenewal()))) {
             profile.setRenewal(data.isRenewal());
             auditParams.put("renewal", Boolean.toString(data.isRenewal()));
         }
 
-        if (! profile.isVisible() == data.isVisible()) {
+        if (!profile.isVisible() == data.isVisible()) {
             profile.setVisible(data.isVisible());
             auditParams.put("visible", Boolean.toString(data.isVisible()));
         }
 
         // TODO xmloutput is a string in Profile, should be changed
-        if (differs(profile.isXmlOutput(),Boolean.toString(data.isXMLOutput()))) {
+        if (differs(profile.isXmlOutput(), Boolean.toString(data.isXMLOutput()))) {
             profile.setXMLOutput(data.isXMLOutput());
             auditParams.put("xmloutput", Boolean.toString(data.isXMLOutput()));
         }
 
-        // add audit log for auditParams
+        if (!auditParams.isEmpty()) {
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_RULES,
+                    OpDef.OP_MODIFY,
+                    profileId,
+                    ILogger.SUCCESS,
+                    auditParams);
+        }
 
         try {
             populateProfileInputs(data, profile);
-
-            // add audit log for profile inputs
-
             populateProfileOutputs(data, profile);
-
-            // add audit log for profile outputs
-
             populateProfilePolicies(data, profile);
-
-            // add audit log for profile policies
-
             profile.getConfigStore().commit(false);
         } catch (EBaseException e) {
             CMS.debug("changeProfileData: Error changing profile inputs/outputs/policies: " + e);
@@ -502,75 +552,310 @@ public class ProfileService extends PKIService implements ProfileResource {
         return false;
     }
 
-    private void populateProfilePolicies(ProfileData data, IProfile profile) throws EProfileException, EPropertyException {
-        profile.deleteAllProfilePolicies();
-        for (Map.Entry<String,List<ProfilePolicy>> policySet:
-            data.getPolicySets().entrySet()) {
+    private void populateProfilePolicies(ProfileData data, IProfile profile) throws EBaseException {
+        // get list of changes for auditing
+        List<String> auditAdd = new ArrayList<String>();
+        List<String> auditModify = new ArrayList<String>();
+
+        Enumeration<String> existingSetIds = profile.getProfilePolicySetIds();
+        Map<String, ProfilePolicy> existingPolicies = new LinkedHashMap<String, ProfilePolicy>();
+        while (existingSetIds.hasMoreElements()) {
+            String setId = existingSetIds.nextElement();
+            Enumeration<String> policyIds = profile.getProfilePolicyIds(setId);
+            while (policyIds.hasMoreElements()) {
+                String policyId = policyIds.nextElement();
+                existingPolicies.put(
+                        setId + ":" + policyId,
+                        createProfilePolicy(profile, setId, policyId));
+            }
+        }
+
+        for (Map.Entry<String, List<ProfilePolicy>> policySet : data.getPolicySets().entrySet()) {
             String setId = policySet.getKey();
-            for (ProfilePolicy policy: policySet.getValue()) {
-                PolicyDefault def = policy.getDef();
-                PolicyConstraint con = policy.getConstraint();
-
-                // create policy using defaults for PolicyDefault and PolicyConstraint
-                IProfilePolicy p = profile.createProfilePolicy(setId, policy.getId(),
-                        def.getClassId(), con.getClassId());
-
-                // change specific elements to match incoming data for PolicyDefault
-                IConfigStore pstore = profile.getConfigStore().getSubStore(
-                        "policyset." + setId + "." + policy.getId());
-                if (!def.getName().isEmpty()) {
-                    pstore.putString("default.name", def.getName());
-                }
-                /*if (!def.getText().isEmpty()) {
-                    pstore.putString("default.description", def.getText());
-                }*/
-                for (ProfileParameter param: def.getParams()) {
-                    if (!param.getValue().isEmpty()) {
-                        p.getDefault().setConfig(param.getName(), param.getValue());
+            for (ProfilePolicy policy : policySet.getValue()) {
+                String id = setId + ":" + policy.getId();
+                if (!existingPolicies.containsKey(id)) {
+                    auditAdd.add(id);
+                } else {
+                    if (!policy.equals(existingPolicies.get(id))) {
+                        auditModify.add(id);
                     }
                 }
+                existingPolicies.remove(id);
+            }
+        }
 
-                // change specific elements to match incoming data for PolicyConstraint
-                if (!con.getName().isEmpty()) {
-                    pstore.putString("constraint.name", con.getName());
-                }
-                /*if (!con.getText().isEmpty()) {
-                    pstore.putString("constraint.description", con.getText());
-                }*/
-                for (PolicyConstraintValue pcv : con.getConstraints()) {
-                    if (!pcv.getValue().isEmpty()) {
-                        p.getConstraint().setConfig(pcv.getName(), pcv.getValue());
+        List<String> auditDelete = new ArrayList<String>(existingPolicies.keySet());
+
+        //perform actions
+        try {
+            profile.deleteAllProfilePolicies();
+            for (Map.Entry<String, List<ProfilePolicy>> policySet : data.getPolicySets().entrySet()) {
+                String setId = policySet.getKey();
+                for (ProfilePolicy policy : policySet.getValue()) {
+                    PolicyDefault def = policy.getDef();
+                    PolicyConstraint con = policy.getConstraint();
+
+                    // create policy using defaults for PolicyDefault and PolicyConstraint
+                    IProfilePolicy p = profile.createProfilePolicy(setId, policy.getId(),
+                            def.getClassId(), con.getClassId());
+
+                    // change specific elements to match incoming data for PolicyDefault
+                    IConfigStore pstore = profile.getConfigStore().getSubStore(
+                            "policyset." + setId + "." + policy.getId());
+                    if (!def.getName().isEmpty()) {
+                        pstore.putString("default.name", def.getName());
+                    }
+                    /*if (!def.getText().isEmpty()) {
+                        pstore.putString("default.description", def.getText());
+                    }*/
+                    for (ProfileParameter param : def.getParams()) {
+                        if (!param.getValue().isEmpty()) {
+                            p.getDefault().setConfig(param.getName(), param.getValue());
+                        }
+                    }
+
+                    // change specific elements to match incoming data for PolicyConstraint
+                    if (!con.getName().isEmpty()) {
+                        pstore.putString("constraint.name", con.getName());
+                    }
+                    /*if (!con.getText().isEmpty()) {
+                        pstore.putString("constraint.description", con.getText());
+                    }*/
+                    for (PolicyConstraintValue pcv : con.getConstraints()) {
+                        if (!pcv.getValue().isEmpty()) {
+                            p.getConstraint().setConfig(pcv.getName(), pcv.getValue());
+                        }
                     }
                 }
             }
+
+            if (!auditDelete.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditDelete, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_POLICIES,
+                        OpDef.OP_DELETE,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditAdd.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditAdd, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_POLICIES,
+                        OpDef.OP_ADD,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditModify.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditModify, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_POLICIES,
+                        OpDef.OP_MODIFY,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+        } catch (EProfileException | EPropertyException e) {
+            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+            auditParams.put("added", StringUtils.join(auditAdd, ","));
+            auditParams.put("deleted", StringUtils.join(auditDelete, ","));
+            auditParams.put("modified", StringUtils.join(auditModify, ","));
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_POLICIES,
+                    OpDef.OP_MODIFY,
+                    profile.getId(),
+                    ILogger.FAILURE,
+                    auditParams);
+            throw e;
         }
     }
 
-    private void populateProfileOutputs(ProfileData data, IProfile profile) throws EProfileException {
-        profile.deleteAllProfileOutputs();
+    private void populateProfileOutputs(ProfileData data, IProfile profile) throws EBaseException {
+        // get list of changes for auditing
+        List<String> auditAdd = new ArrayList<String>();
+        List<String> auditModify = new ArrayList<String>();
+
+        Enumeration<String> existingIds = profile.getProfileOutputIds();
+        Map<String, ProfileOutput> existingOutputs = new LinkedHashMap<String, ProfileOutput>();
+        while (existingIds.hasMoreElements()) {
+            String id = existingIds.nextElement();
+            ProfileOutput output = createProfileOutput(profile, id);
+            if (output == null)
+                continue;
+            existingOutputs.put(id, output);
+        }
+
         List<ProfileOutput> outputs = data.getOutputs();
-        for (ProfileOutput output: outputs) {
+        for (ProfileOutput output : outputs) {
             String id = output.getId();
-            String classId = output.getClassId();
+            if (!existingOutputs.containsKey(id)) {
+                auditAdd.add(id);
+            } else {
+                if (!output.equals(existingOutputs.get(id))) {
+                    auditModify.add(id);
+                }
+                existingOutputs.remove(id);
+            }
+        }
+        List<String> auditDelete = new ArrayList<String>(existingOutputs.keySet());
 
-            NameValuePairs nvp = new NameValuePairs();
-            // TODO - add a field for params in ProfileOuput
-            // No current examples
-            profile.createProfileOutput(id, classId, nvp);
+        // perform operations
+
+        try {
+            profile.deleteAllProfileOutputs();
+            for (ProfileOutput output : outputs) {
+                String id = output.getId();
+                String classId = output.getClassId();
+
+                NameValuePairs nvp = new NameValuePairs();
+                // TODO - add a field for params in ProfileOuput
+                // No current examples
+                profile.createProfileOutput(id, classId, nvp);
+            }
+
+            if (!auditDelete.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("outputs", StringUtils.join(auditDelete, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_OUTPUT,
+                        OpDef.OP_DELETE,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditAdd.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("outputs", StringUtils.join(auditAdd, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_OUTPUT,
+                        OpDef.OP_ADD,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditModify.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("outputs", StringUtils.join(auditModify, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_OUTPUT,
+                        OpDef.OP_MODIFY,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+        } catch (EProfileException e) {
+            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+
+            auditParams.put("added", StringUtils.join(auditAdd, ","));
+            auditParams.put("deleted", StringUtils.join(auditDelete, ","));
+            auditParams.put("modified", StringUtils.join(auditModify, ","));
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_OUTPUT,
+                    OpDef.OP_MODIFY,
+                    profile.getId(),
+                    ILogger.FAILURE,
+                    auditParams);
+            throw e;
         }
     }
 
-    private void populateProfileInputs(ProfileData data, IProfile profile) throws EProfileException {
-        profile.deleteAllProfileInputs();
-       List<ProfileInput> inputs = data.getInputs();
-        for (ProfileInput input: inputs) {
-            String id = input.getId();
-            String classId = input.getClassId();
+    private void populateProfileInputs(ProfileData data, IProfile profile) throws EBaseException {
+        // get list of changes for auditing
+        List<String> auditAdd = new ArrayList<String>();
+        List<String> auditModify = new ArrayList<String>();
+        Enumeration<String> existingIds = profile.getProfileInputIds();
+        Map<String, ProfileInput> existingInputs = new LinkedHashMap<String, ProfileInput>();
 
-            NameValuePairs nvp = new NameValuePairs();
-            // TODO - add a field for params in ProfileInput.
-            // an example of this is DomainController.cfg
-            profile.createProfileInput(id, classId, nvp);
+        while (existingIds.hasMoreElements()) {
+            String id = existingIds.nextElement();
+            ProfileInput input = createProfileInput(profile, id);
+            if (input == null)
+                continue;
+            existingInputs.put(id, input);
+        }
+
+        List<ProfileInput> inputs = data.getInputs();
+        for (ProfileInput input : inputs) {
+            String id = input.getId();
+            if (!existingInputs.containsKey(id)) {
+                auditAdd.add(id);
+            } else {
+                if (!input.equals(existingInputs.get(id))) {
+                    auditModify.add(id);
+                }
+                existingInputs.remove(id);
+            }
+        }
+        List<String> auditDelete = new ArrayList<String>(existingInputs.keySet());
+
+        try {
+            // perform the operations
+            profile.deleteAllProfileInputs();
+
+            for (ProfileInput input : inputs) {
+                String id = input.getId();
+                String classId = input.getClassId();
+
+                NameValuePairs nvp = new NameValuePairs();
+                // TODO - add a field for params in ProfileInput.
+                // an example of this is DomainController.cfg
+                profile.createProfileInput(id, classId, nvp);
+            }
+
+            if (!auditDelete.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditDelete, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_INPUT,
+                        OpDef.OP_DELETE,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditAdd.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditAdd, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_INPUT,
+                        OpDef.OP_ADD,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+
+            if (!auditModify.isEmpty()) {
+                Map<String, String> auditParams = new LinkedHashMap<String, String>();
+                auditParams.put("inputs", StringUtils.join(auditModify, ","));
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_INPUT,
+                        OpDef.OP_MODIFY,
+                        profile.getId(),
+                        ILogger.SUCCESS,
+                        auditParams);
+            }
+        } catch (EProfileException e) {
+            Map<String, String> auditParams = new LinkedHashMap<String, String>();
+
+            auditParams.put("added", StringUtils.join(auditAdd, ","));
+            auditParams.put("deleted", StringUtils.join(auditDelete, ","));
+            auditParams.put("modified", StringUtils.join(auditModify, ","));
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_INPUT,
+                    OpDef.OP_MODIFY,
+                    profile.getId(),
+                    ILogger.FAILURE,
+                    auditParams);
+            throw e;
         }
     }
 
@@ -589,6 +874,13 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             if (ps.isProfileEnable(profileId)) {
                 CMS.debug("Delete profile not permitted.  Profile must be disabled first.");
+                auditProfileChange(
+                        ScopeDef.SC_PROFILE_RULES,
+                        OpDef.OP_DELETE,
+                        profileId,
+                        ILogger.FAILURE,
+                        null);
+
                 throw new BadRequestException("Cannot delete profile `" + profileId +
                         "`.  Profile must be disabled first.");
             }
@@ -596,12 +888,44 @@ public class ProfileService extends PKIService implements ProfileResource {
             String configFile = CMS.getConfigStore().getString("profile." + profileId + ".config");
 
             ps.deleteProfile(profileId, configFile);
+
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_RULES,
+                    OpDef.OP_DELETE,
+                    profileId,
+                    ILogger.FAILURE,
+                    null);
         } catch (EBaseException e) {
             CMS.debug("deleteProfile: error in deleting profile `" + profileId + "`: " + e);
             e.printStackTrace();
+
+            auditProfileChange(
+                    ScopeDef.SC_PROFILE_RULES,
+                    OpDef.OP_DELETE,
+                    profileId,
+                    ILogger.FAILURE,
+                    null);
+
             throw new PKIException("Error deleting profile.");
         }
+    }
 
+    public void auditProfileChangeState(String profileId, String op, String status) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                auditor.getSubjectID(),
+                status,
+                profileId,
+                op);
+        auditor.log(msg);
+    }
 
+    public void auditProfileChange(String scope, String type, String id, String status, Map<String, String> params) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                auditor.getSubjectID(),
+                status,
+                auditor.getParamString(scope, type, id, params));
+        auditor.log(msg);
     }
 }

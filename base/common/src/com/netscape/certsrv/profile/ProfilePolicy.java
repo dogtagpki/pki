@@ -79,4 +79,41 @@ public class ProfilePolicy {
         return null;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((constraint == null) ? 0 : constraint.hashCode());
+        result = prime * result + ((def == null) ? 0 : def.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ProfilePolicy other = (ProfilePolicy) obj;
+        if (constraint == null) {
+            if (other.constraint != null)
+                return false;
+        } else if (!constraint.equals(other.constraint))
+            return false;
+        if (def == null) {
+            if (other.def != null)
+                return false;
+        } else if (!def.equals(other.def))
+            return false;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
 }
