@@ -50,8 +50,6 @@ case $command in
         exit $?
         ;;
     stop)
-        echo "An exit status of '143' refers to the 'systemd' method of using"\
-             "'SIGTERM' to shutdown a Java process and can safely be ignored."
         stop
         exit $?
         ;;
