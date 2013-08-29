@@ -109,7 +109,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             Iterator<ConnectionRecord> connections = database.getRecords().iterator();
@@ -153,7 +153,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.getConnection(\"" + connectionID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             return createConnectionData(database.getRecord(connectionID));
@@ -170,7 +170,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.addConnection(\"" + connectionData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             database.addRecord(createConnectionRecord(connectionData));
@@ -194,7 +194,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.updateConnection(\"" + connectionID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             database.updateRecord(createConnectionRecord(connectionData));
@@ -217,7 +217,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.modifyConnection(\"" + connectionID + "\", request");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             ConnectionRecord connectionRecord = database.getRecord(connectionID);
@@ -252,7 +252,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.removeConnection(\"" + connectionID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
             database.removeRecord(connectionID);
 

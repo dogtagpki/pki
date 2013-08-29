@@ -41,7 +41,7 @@ import com.netscape.certsrv.request.IRequestQueue;
  */
 public class TPSSubsystem implements IAuthority, ISubsystem {
 
-    public final static TPSSubsystem INSTANCE = new TPSSubsystem();
+    public final static String ID = "tps";
 
     public ILogger logger = CMS.getLogger();
 
@@ -55,10 +55,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ConnectionDatabase connectionDatabase = new ConnectionDatabase();
     public TPSCertDatabase certDatabase = new TPSCertDatabase();
     public TokenDatabase tokenDatabase = new TokenDatabase();
-
-    public static TPSSubsystem getInstance() {
-        return INSTANCE;
-    }
 
     @Override
     public String getId() {

@@ -98,7 +98,7 @@ public class TokenService extends PKIService implements TokenResource {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             Iterator<TokenRecord> tokens = database.getRecords().iterator();
@@ -142,7 +142,7 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.getToken(\"" + tokenID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             return createTokenData(database.getRecord(tokenID));
@@ -159,7 +159,7 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.addToken(\"" + tokenData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             database.addRecord(createTokenRecord(tokenData));
@@ -183,7 +183,7 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.updateToken(\"" + tokenID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             TokenRecord tokenRecord = database.getRecord(tokenID);
@@ -209,7 +209,7 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.modifyToken(\"" + tokenID + "\", request");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             TokenRecord tokenRecord = database.getRecord(tokenID);
@@ -234,7 +234,7 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
             database.removeRecord(tokenID);
 

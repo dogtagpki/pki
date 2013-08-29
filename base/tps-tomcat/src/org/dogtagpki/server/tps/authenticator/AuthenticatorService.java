@@ -109,7 +109,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             Iterator<AuthenticatorRecord> authenticators = database.getRecords().iterator();
@@ -153,7 +153,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             return createAuthenticatorData(database.getRecord(authenticatorID));
@@ -170,7 +170,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             database.addRecord(createAuthenticatorRecord(authenticatorData));
@@ -194,7 +194,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             database.updateRecord(createAuthenticatorRecord(authenticatorData));
@@ -217,7 +217,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.modifyAuthenticator(\"" + authenticatorID + "\", request");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord authenticatorRecord = database.getRecord(authenticatorID);
@@ -252,7 +252,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
             database.removeRecord(authenticatorID);
 

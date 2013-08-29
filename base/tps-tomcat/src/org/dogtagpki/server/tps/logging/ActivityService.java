@@ -86,7 +86,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
             Iterator<ActivityRecord> activities = database.getRecords().iterator();
@@ -130,7 +130,7 @@ public class ActivityService extends PKIService implements ActivityResource {
         CMS.debug("ActivityService.getActivity(\"" + activityID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
             return createActivityData(database.getRecord(activityID));

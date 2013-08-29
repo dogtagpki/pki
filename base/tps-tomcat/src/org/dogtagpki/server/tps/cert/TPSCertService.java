@@ -26,6 +26,7 @@ import java.util.Iterator;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
@@ -95,7 +96,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             Iterator<TPSCertRecord> activities = database.getRecords().iterator();
@@ -139,7 +140,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         System.out.println("TPSCertService.getCert(\"" + certID + "\")");
 
         try {
-            TPSSubsystem subsystem = TPSSubsystem.getInstance();
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             return createCertData(database.getRecord(certID));
