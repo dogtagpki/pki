@@ -1637,6 +1637,10 @@ public final class CMS {
         return _engine.getSecurityDomainSessionTable();
     }
 
+    public static String getServerStatus() {
+        return _engine.getServerStatus();
+    }
+
     /**
      * Main driver to start CMS.
      */

@@ -551,87 +551,73 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     @Override
     public String getEEClientAuthSSLPort() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean verifySystemCerts() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean verifySystemCertByTag(String tag) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean verifySystemCertByNickname(String nickname,
             String certificateUsage) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public CertificateUsage getCertificateUsage(String certusage) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void getGeneralNameConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void getGeneralNamesConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void getGeneralNameConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void getSubjAltNameConfigDefaultParams(String name,
             Vector<String> params) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void getSubjAltNameConfigExtendedPluginInfo(String name,
             Vector<String> params) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public IArgBlock createArgBlock(String realm,
             Hashtable<String, String> httpReq) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
-        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getServerStatus() {
         return null;
     }
 }

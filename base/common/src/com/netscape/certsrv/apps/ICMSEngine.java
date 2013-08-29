@@ -1133,4 +1133,6 @@ public interface ICMSEngine extends ISubsystem {
     public void setConfigSDSessionId(String id);
 
     public String getConfigSDSessionId();
+
+    public String getServerStatus();
 }
