@@ -177,8 +177,9 @@ public class FilterBuilder {
         }
         String queryCertFilter = null;
         StringTokenizer st = new StringTokenizer(reasons, ",");
+        int count = st.countTokens();
         if (st.hasMoreTokens()) {
-            filter.append("(|");
+            if (count >=2) filter.append("(|");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
                 if (queryCertFilter == null) {
@@ -188,7 +189,7 @@ public class FilterBuilder {
                 filter.append(LDAPUtil.escapeFilter(token));
                 filter.append(")");
             }
-            filter.append(")");
+            if (count >= 2) filter.append(")");
         }
     }
 

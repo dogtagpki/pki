@@ -317,7 +317,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             name = CertDBSchema.LDAP_ATTR_EXTENSION;
         } else if (suffix.equalsIgnoreCase(ICertRecord.ATTR_REVO_INFO)) {
             name = CertDBSchema.LDAP_ATTR_REVO_INFO;
-            value = "*;CRLReasonExtension=" + value + "*";
+            value = "*;CRLReasonExtension=" + value;
         } else if (suffix.equalsIgnoreCase("nsExtension.SSLClient")) {
             // special case for NS cert type extension
             name = CertDBSchema.LDAP_ATTR_EXTENSION;
