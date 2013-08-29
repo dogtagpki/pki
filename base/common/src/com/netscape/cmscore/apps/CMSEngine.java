@@ -203,6 +203,7 @@ public class CMSEngine implements ICMSEngine {
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
+    private String serverStatus = null;
 
     // static subsystems - must be singletons
     private static SubsystemInfo[] mStaticSubsystems = {
@@ -343,8 +344,7 @@ public class CMSEngine implements ICMSEngine {
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
 
-        mConfig.putString("cs.status", "starting");
-        mConfig.commit(false);
+        serverStatus = "starting";
 
         // my default is 1 day
         String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
@@ -419,8 +419,7 @@ public class CMSEngine implements ICMSEngine {
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
         }
 
-        mConfig.putString("cs.status", "running");
-        mConfig.commit(false);
+        serverStatus = "running";
     }
 
     /**
@@ -1928,6 +1927,11 @@ public class CMSEngine implements ICMSEngine {
     private void log(int level, String msg) {
         Logger.getLogger().log(ILogger.EV_SYSTEM, null,
                 ILogger.S_AUTHENTICATION, level, msg);
+    }
+
+    @Override
+    public String getServerStatus() {
+        return serverStatus;
     }
 }
 
