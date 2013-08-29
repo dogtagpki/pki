@@ -793,6 +793,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/profile/constraint/BasicConstraintsExtConstraint.java
     com/netscape/cms/profile/constraint/NoConstraint.java
     com/netscape/cms/profile/constraint/SubjectNameConstraint.java
+    com/netscape/cms/profile/constraint/UserSubjectNameConstraint.java
     com/netscape/cms/profile/constraint/ExtendedKeyUsageExtConstraint.java
     com/netscape/cms/profile/constraint/UniqueSubjectNameConstraint.java
     com/netscape/cms/profile/constraint/CAEnrollConstraint.java
