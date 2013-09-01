@@ -324,7 +324,7 @@ public class CRMFPopClient {
             CryptoToken token = null;
             if (TOKEN_NAME == null) {
                 token = manager.getInternalKeyStorageToken();
-                TOKEN_NAME = "NSS Certificate DB";
+                TOKEN_NAME = token.getName();
             } else {
                 token = manager.getTokenByName(TOKEN_NAME);
             }

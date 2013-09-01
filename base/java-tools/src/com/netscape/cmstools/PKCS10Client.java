@@ -200,11 +200,13 @@ public class PKCS10Client {
             CryptoManager cm = CryptoManager.getInstance();
             if ((tokenName == null) || (tokenName.equals(""))) {
                 token = cm.getInternalKeyStorageToken();
-                tokenName = "NSS Certificate DB";
+                tokenName = token.getName();
             } else {
                 token = cm.getTokenByName(tokenName);
             }
+            System.out.println("PKCS10Client: Debug: got token.");
             cm.setThreadToken(token);
+            System.out.println("PKCS10Client: Debug: thread token set.");
 
             Password pass = new Password(password.toCharArray());
 
