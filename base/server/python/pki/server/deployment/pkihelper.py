@@ -27,7 +27,6 @@ import os
 import fileinput
 import random
 import re
-import requests
 import shutil
 from shutil import Error, WindowsError
 import string
@@ -125,7 +124,7 @@ def pki_copytree(src, dst, symlinks=False, ignore=None):
         else:
             errors.extend((src, dst, str(why)))
     if errors:
-        raise Error, errors
+        raise Error(errors)
 
 class Identity:
     """PKI Deployment Identity Class"""
@@ -1036,6 +1035,10 @@ class Instance:
             subsystem=self.master_dict['pki_subsystem_type'],
             accept='application/xml')
 
+        # catching all exceptions because we do not want to break if underlying
+        # requests or urllib3 use a different exception.  
+        # If the connection fails, we will time out in any case
+        # pylint: disable-msg=W0703
         try:
             client = pki.system.SystemStatusClient(connection)
             response = client.getStatus()
@@ -1045,8 +1048,11 @@ class Instance:
             root = ET.fromstring(response)
             status = root.findtext("Status")
             return status
-        except requests.exceptions.ConnectionError:
-            config.pki_log.debug("No connection",
+        except Exception as exc:
+            config.pki_log.debug("No connection - server may still be down",
+                extra=config.PKI_INDENTATION_LEVEL_3)
+            config.pki_log.debug("No connection - exception thrown: " +\
+                str(exc),
                 extra=config.PKI_INDENTATION_LEVEL_3)
             return None
 
@@ -2014,7 +2020,7 @@ class Password:
                         log.PKIHELPER_PASSWORD_CONF_1, path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     # overwrite the existing 'password.conf' file
-                    with open(path, "wt") as fd:
+                    with open(path, "w") as fd:
                         if pin_sans_token == True:
                             fd.write(str(pin))
                         elif self.master_dict['pki_subsystem'] in\
@@ -2028,7 +2034,7 @@ class Password:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # create a new 'password.conf' file
-                with open(path, "wt") as fd:
+                with open(path, "w") as fd:
                     if pin_sans_token == True:
                         fd.write(str(pin))
                     elif self.master_dict['pki_subsystem'] in\
@@ -2054,13 +2060,13 @@ class Password:
                         log.PKIHELPER_PASSWORD_CONF_1, path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     # overwrite the existing 'pkcs12_password.conf' file
-                    with open(path, "wt") as fd:
+                    with open(path, "w") as fd:
                         fd.write(self.master_dict['pki_client_pkcs12_password'])
             else:
                 config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
                 # create a new 'pkcs12_password.conf' file
-                with open(path, "wt") as fd:
+                with open(path, "w") as fd:
                     fd.write(self.master_dict['pki_client_pkcs12_password'])
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
