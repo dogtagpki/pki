@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          10.0.4
+Version:          10.0.5
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -115,6 +115,9 @@ cd build
 
 
 %changelog
+* Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
+- Roll release to next version
+
 * Thu Jul 25 2013 Ade Lee <alee@redhat.com> 10.0.4-1
 - Change release number for official release
 

@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.4
-Release:          2%{?dist}
+Version:          10.0.5
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1134,6 +1134,9 @@ fi
 
 
 %changelog
+* Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
+- Roll release to next version
+
 * Fri Aug 2 2013 Ade Lee <alee@redhat.com> 10.0.4-2
 - Trac Ticket 699 - on upgrade to F19, CA fails to start.
 
