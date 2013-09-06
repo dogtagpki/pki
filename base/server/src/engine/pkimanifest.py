@@ -73,7 +73,7 @@ class file:
 
     def write(self):
         try:
-            fd = open(self.filename, "wt")
+            fd = open(self.filename, "w")
             c = csv.writer(fd)
             for record in database:
                 c.writerow(tuple(record))
@@ -85,7 +85,7 @@ class file:
 
     def read(self):
         try:
-            fd = open(self.filename, "rt")
+            fd = open(self.filename, "r")
             cr = csv.reader(fd)
             for row in cr:
                 print tuple(row)
