@@ -452,15 +452,17 @@ class ConfigurationFile:
     def verify_sensitive_data(self):
         # Silently verify the existence of 'sensitive' data
         if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            # Verify existence of Directory Server Password (ALWAYS)
-            if not self.master_dict.has_key('pki_ds_password') or\
-               not len(self.master_dict['pki_ds_password']):
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
-                    "pki_ds_password",
-                    self.master_dict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_password",
+            # Verify existence of Directory Server Password
+            # (unless configuration will not be automatically executed)
+            if not config.str2bool(self.master_dict['pki_skip_configuration']):
+                if not self.master_dict.has_key('pki_ds_password') or\
+                   not len(self.master_dict['pki_ds_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_ds_password",
+                        self.master_dict['pki_user_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_ds_password",
                                                                                      self.master_dict['pki_user_deployment_cfg']))
             # Verify existence of Admin Password (except for Clones)
             if not config.str2bool(self.master_dict['pki_clone']):
@@ -515,19 +517,21 @@ class ConfigurationFile:
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_clone_pkcs12_password",
                                                                                          self.master_dict['pki_user_deployment_cfg']))
-            # Verify existence of Security Domain Password File
-            # (ONLY for Clones, KRA, OCSP, TKS, TPS, or Subordinate CA)
+            # Verify existence of Security Domain Password
+            # (ONLY for Clones, KRA, OCSP, TKS, TPS, or Subordinate CA
+            #  that will be automatically configured)
             if config.str2bool(self.master_dict['pki_clone']) or\
                not self.master_dict['pki_subsystem'] == "CA" or\
                config.str2bool(self.master_dict['pki_subordinate']):
-                if not self.master_dict.has_key('pki_security_domain_password') or\
-                   not len(self.master_dict['pki_security_domain_password']):
-                    config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
-                        "pki_security_domain_password",
-                        self.master_dict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_security_domain_password",
+                if not config.str2bool(self.master_dict['pki_skip_configuration']):
+                    if not self.master_dict.has_key('pki_security_domain_password') or\
+                       not len(self.master_dict['pki_security_domain_password']):
+                        config.pki_log.error(
+                            log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                            "pki_security_domain_password",
+                            self.master_dict['pki_user_deployment_cfg'],
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        raise Exception(log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % ("pki_security_domain_password",
                                                                                           self.master_dict['pki_user_deployment_cfg']))
             # If required, verify existence of Token Password
             if not self.master_dict['pki_token_name'] == "internal":

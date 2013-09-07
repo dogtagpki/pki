@@ -327,6 +327,16 @@ def main(argv):
     if not interactive and\
         not config.str2bool(parser.pki_master_dict['pki_skip_configuration']):
         try:
+            # Verify existence of Directory Server Password
+            if not parser.pki_master_dict.has_key('pki_ds_password') or\
+               not len(parser.pki_master_dict['pki_ds_password']):
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                    "pki_ds_password",
+                    parser.pki_master_dict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
+                sys.exit(1)
+
             parser.ds_connect()
             parser.ds_bind()
 
@@ -345,6 +355,16 @@ def main(argv):
             config.str2bool(parser.pki_master_dict['pki_clone']) or\
             config.str2bool(parser.pki_master_dict['pki_subordinate']):
             try:
+                # Verify existence of Security Domain Password
+                if not parser.pki_master_dict.has_key('pki_security_domain_password') or\
+                   not len(parser.pki_master_dict['pki_security_domain_password']):
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
+                        "pki_security_domain_password",
+                        parser.pki_master_dict['pki_user_deployment_cfg'],
+                        extra=config.PKI_INDENTATION_LEVEL_0)
+                    sys.exit(1)
+
                 parser.sd_connect()
                 info = parser.sd_get_info()
                 parser.set_property(config.pki_subsystem, 'pki_security_domain_name', info.name)
