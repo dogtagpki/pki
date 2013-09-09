@@ -26,17 +26,14 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
-import org.jboss.resteasy.annotations.interception.Precedence;
-import org.jboss.resteasy.annotations.interception.ServerInterceptor;
-import org.jboss.resteasy.core.ResourceMethod;
-import org.jboss.resteasy.core.ServerResponse;
+import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -50,9 +47,7 @@ import com.netscape.cmscore.realm.PKIPrincipal;
  * @author Endi S. Dewata
  */
 @Provider
-@ServerInterceptor
-@Precedence("SECURITY")
-public class AuthMethodInterceptor implements PreProcessInterceptor {
+public class AuthMethodInterceptor implements ContainerRequestFilter {
 
     Properties authProperties;
 
@@ -83,13 +78,11 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
     }
 
     @Override
-    public ServerResponse preProcess(
-            HttpRequest request,
-            ResourceMethod resourceMethod
-        ) throws Failure, ForbiddenException {
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext.getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
+        Method method = methodInvoker.getMethod();
+        Class<?> clazz = methodInvoker.getResourceClass();
 
-        Class<?> clazz = resourceMethod.getResourceClass();
-        Method method = resourceMethod.getMethod();
         CMS.debug("AuthMethodInterceptor: "+clazz.getSimpleName()+"."+method.getName()+"()");
 
         // Get authentication mapping for the method.
@@ -130,7 +123,7 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
             if (principal == null) {
                 if (authMethods.isEmpty() || authMethods.contains("anonymous") || authMethods.contains("*")) {
                     CMS.debug("AuthMethodInterceptor: anonymous access allowed");
-                    return null;
+                    return;
                 }
                 CMS.debug("AuthMethodInterceptor: anonymous access not allowed");
                 throw new ForbiddenException("Anonymous access not allowed.");
@@ -161,7 +154,7 @@ public class AuthMethodInterceptor implements PreProcessInterceptor {
 
             if (authMethods.isEmpty() || authMethods.contains(authManager) || authMethods.contains("*")) {
                 CMS.debug("AuthMethodInterceptor: "+authManager+" allowed");
-                return null;
+                return;
             }
 
             throw new ForbiddenException("Authentication method not allowed.");

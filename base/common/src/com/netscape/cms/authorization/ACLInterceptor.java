@@ -24,17 +24,14 @@ import java.security.Principal;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
-import org.jboss.resteasy.annotations.interception.Precedence;
-import org.jboss.resteasy.annotations.interception.ServerInterceptor;
-import org.jboss.resteasy.core.ResourceMethod;
-import org.jboss.resteasy.core.ServerResponse;
+import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.apps.CMS;
@@ -51,9 +48,7 @@ import com.netscape.cmscore.realm.PKIPrincipal;
  * @author Endi S. Dewata
  */
 @Provider
-@ServerInterceptor
-@Precedence("SECURITY")
-public class ACLInterceptor implements PreProcessInterceptor {
+public class ACLInterceptor implements ContainerRequestFilter {
 
     Properties authProperties;
 
@@ -73,13 +68,10 @@ public class ACLInterceptor implements PreProcessInterceptor {
     }
 
     @Override
-    public ServerResponse preProcess(
-            HttpRequest request,
-            ResourceMethod resourceMethod
-        ) throws Failure, ForbiddenException {
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext.getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
+        Method method = methodInvoker.getMethod();
 
-        // Get ACL mapping for the method.
-        Method method = resourceMethod.getMethod();
         ACLMapping aclMapping = method.getAnnotation(ACLMapping.class);
 
         // If not available, get ACL mapping for the class.
@@ -91,7 +83,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
         // If still not available, it's unprotected, allow request.
         if (aclMapping == null) {
             CMS.debug("ACLInterceptor: No ACL mapping.");
-            return null;
+            return;
         }
 
         Principal principal = securityContext.getUserPrincipal();
@@ -126,7 +118,7 @@ public class ACLInterceptor implements PreProcessInterceptor {
             // If no property defined, allow request.
             if (value == null) {
                 CMS.debug("ACLInterceptor: No ACL configuration.");
-                return null;
+                return;
             }
 
             String values[] = value.split(",");
@@ -161,6 +153,6 @@ public class ACLInterceptor implements PreProcessInterceptor {
         }
 
         // Allow request.
-        return null;
+        return;
     }
 }
