@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
 import java.util.Locale;
+import java.util.Vector;
 
 import netscape.security.provider.DSAPublicKey;
 import netscape.security.provider.RSAPublicKey;
@@ -38,6 +39,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This class implements an enrollment default policy
@@ -144,6 +146,12 @@ public class UserKeyDefault extends EnrollDefault {
             try {
                 if (k.getAlgorithm().equals("RSA")) {
                     return Integer.toString(getRSAKeyLen(k));
+                } else if (k.getAlgorithm().equals("EC")) {
+                    Vector vect = CryptoUtil.getECKeyCurve(k);
+                    if (vect != null)
+                        return vect.toString();
+                    else
+                        return null;
                 } else {
                     return Integer.toString(getDSAKeyLen(k));
                 }
