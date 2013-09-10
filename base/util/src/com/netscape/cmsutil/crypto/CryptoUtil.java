@@ -117,7 +117,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
-
+@SuppressWarnings("serial")
 public class CryptoUtil {
 
     public static final String CERTREQ_BEGIN_HEADING = "-----BEGIN CERTIFICATE REQUEST-----";
@@ -1643,12 +1643,12 @@ public class CryptoUtil {
         return ecCurves;
     }
 
-    public static Vector getECKeyCurve(X509Key key) throws Exception {
+    public static Vector<String> getECKeyCurve(X509Key key) throws Exception {
         AlgorithmId algid = key.getAlgorithmId();
         //System.out.println("CryptoUtil: getECKeyCurve: algid ="+ algid);
 
         /*
-         * Get raw string representation of alg parameters, will give 
+         * Get raw string representation of alg parameters, will give
          * us the curve OID.
          */
         String params =  null;
@@ -1661,7 +1661,7 @@ public class CryptoUtil {
         }
 
         //System.out.println("CryptoUtil: getECKeyCurve: EC key OID ="+ params);
-        Vector vect = ecOIDs.get(params);
+        Vector<String> vect = ecOIDs.get(params);
 
         return vect;
     }

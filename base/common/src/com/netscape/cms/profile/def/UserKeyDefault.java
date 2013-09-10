@@ -147,7 +147,7 @@ public class UserKeyDefault extends EnrollDefault {
                 if (k.getAlgorithm().equals("RSA")) {
                     return Integer.toString(getRSAKeyLen(k));
                 } else if (k.getAlgorithm().equals("EC")) {
-                    Vector vect = CryptoUtil.getECKeyCurve(k);
+                    Vector<String> vect = CryptoUtil.getECKeyCurve(k);
                     if (vect != null)
                         return vect.toString();
                     else

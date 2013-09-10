@@ -49,7 +49,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-@SuppressWarnings("serial")
+
 public class KeyConstraint extends EnrollConstraint {
 
     public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
@@ -148,7 +148,7 @@ public class KeyConstraint extends EnrollConstraint {
                                     value));
                 }
 
-                Vector vect = CryptoUtil.getECKeyCurve(key);
+                Vector<?> vect = CryptoUtil.getECKeyCurve(key);
 
                 boolean curveFound = false;
 
