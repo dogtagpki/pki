@@ -15,12 +15,16 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tps;
+package org.dogtagpki.server.tps;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
+import org.dogtagpki.server.tps.msg.TPSMessage;
+
+import com.netscape.certsrv.apps.CMS;
 
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
@@ -42,6 +46,7 @@ public class TPSConnection {
     }
 
     public TPSMessage read() throws IOException {
+        CMS.debug("TPSMessage read()");
 
         StringBuilder sb = new StringBuilder();
         int b;
@@ -72,12 +77,17 @@ public class TPSConnection {
             sb.append(c);
         }
 
+        CMS.debug("TPSMessage.read: Reading:  " + sb.toString());
+
         // parse the entire message
-        return new TPSMessage(sb.toString());
+        return  TPSMessage.createMessage(sb.toString());
     }
 
     public void write(TPSMessage message) throws IOException {
         String s = message.encode();
+
+        CMS.debug("TPSMessage.write: Writing: " + s);
+
 
         if (chunked) {
             // send message length + EOL

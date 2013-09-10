@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.tps.TPSConnection;
-import com.netscape.certsrv.tps.TPSMessage;
+import com.netscape.certsrv.apps.CMS;
 
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
@@ -35,27 +34,27 @@ public class TPSServlet extends HttpServlet {
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        CMS.debug("Hello from tps.service " + request);
         response.setHeader("Transfer-Encoding", "chunked");
 
         TPSConnection con = new TPSConnection(
                 request.getInputStream(), response.getOutputStream(), true);
 
-        TPSMessage message = con.read();
-        System.out.println("Receive: " + message);
+        CMS.debug("TPSConnection created: " + con);
 
-        message = new TPSMessage();
-        message.put("msg_type", 9);
-        message.put("pdu_size", 12);
-        message.put("pdu_data", new byte[] {
-                (byte)0x00, (byte)0xA4, (byte)0x04, (byte)0x00,
-                (byte)0x07, (byte)0xA0, (byte)0x00, (byte)0x00,
-                (byte)0x00, (byte)0x03, (byte)0x00, (byte)0x00
-        });
+        TPSSession session = new TPSSession(con);
 
-        System.out.println("Send: " + message);
-        con.write(message);
+        CMS.debug("TPSSession created: " + session);
 
-        message = con.read();
-        System.out.println("Receive: " + message);
+        if (session != null) {
+            try {
+                session.process();
+            } catch (Exception e) {
+                CMS.debug("TPSServlet.service: Can't process incoming message exception occured: " + e);
+            }
+        }
+
+        CMS.debug("After session.process() exiting ...");
+
     }
 }
