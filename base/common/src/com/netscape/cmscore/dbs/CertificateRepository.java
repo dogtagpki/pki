@@ -58,6 +58,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
+import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
@@ -1400,38 +1401,6 @@ public class CertificateRepository extends Repository
         } finally {
             if (s != null)
                 s.close();
-        }
-    }
-
-    /**
-     * temp solution...
-     */
-    public static class RenewableCertificateCollection {
-        Vector<Object> mToRenew = null;
-        Vector<Object> mToNotify = null;
-
-        public RenewableCertificateCollection() {
-        }
-
-        public Vector<Object> getRenewable() {
-            return mToRenew;
-        }
-
-        public Vector<Object> getNotifiable() {
-            return mToNotify;
-        }
-
-        public void addCertificate(String renewalFlag, Object o) {
-            if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_ENABLED)) {
-                if (mToRenew == null)
-                    mToRenew = new Vector<Object>();
-                mToRenew.addElement(o);
-            }
-            if (renewalFlag.equals(CertRecord.AUTO_RENEWAL_DISABLED)) {
-                if (mToNotify == null)
-                    mToNotify = new Vector<Object>();
-                mToNotify.addElement(o);
-            }
         }
     }
 

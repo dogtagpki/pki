@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
-import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollection;
 
 /**
  * An interface represents a CMS certificate repository.
