@@ -55,7 +55,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 
@@ -413,11 +412,11 @@ public class RequestProcessor extends CertProcessor {
 
         String profileSetId = req.getExtDataInString("profileSetId");
 
-        Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
+        Enumeration<IProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
         int count = 0;
 
         while (policies.hasMoreElements()) {
-            ProfilePolicy policy = policies.nextElement();
+            IProfilePolicy policy = policies.nextElement();
 
             setValue(locale, count, policy, req, policyData);
             count++;
@@ -426,7 +425,7 @@ public class RequestProcessor extends CertProcessor {
         policies = profile.getProfilePolicies(profileSetId);
         count = 0;
         while (policies.hasMoreElements()) {
-            ProfilePolicy policy = policies.nextElement();
+            IProfilePolicy policy = policies.nextElement();
 
             validate(count, policy, req);
             count++;

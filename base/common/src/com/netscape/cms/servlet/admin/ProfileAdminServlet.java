@@ -49,7 +49,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.cms.profile.common.ProfilePolicy;
 
 /**
  * This class is an administration servlet for policy management.
@@ -2039,7 +2038,7 @@ public class ProfileAdminServlet extends AdminServlet {
         }
         while (setIds.hasMoreElements()) {
             String setId = setIds.nextElement();
-            Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(setId);
+            Enumeration<IProfilePolicy> policies = profile.getProfilePolicies(setId);
 
             while (policies.hasMoreElements()) {
                 IProfilePolicy policy = policies.nextElement();

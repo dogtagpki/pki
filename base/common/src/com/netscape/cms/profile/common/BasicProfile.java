@@ -94,7 +94,7 @@ public abstract class BasicProfile implements IProfile {
     protected String mId = null;
     protected String mAuthzAcl = "";
 
-    protected Hashtable<String, Vector<ProfilePolicy>> mPolicySet = new Hashtable<String, Vector<ProfilePolicy>>();
+    protected Hashtable<String, Vector<IProfilePolicy>> mPolicySet = new Hashtable<String, Vector<IProfilePolicy>>();
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
@@ -406,7 +406,7 @@ public abstract class BasicProfile implements IProfile {
 
     public void deleteProfilePolicy(String setId, String policyId)
             throws EProfileException {
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null) {
             return;
@@ -440,7 +440,7 @@ public abstract class BasicProfile implements IProfile {
             int size = policies.size();
 
             for (int i = 0; i < size; i++) {
-                ProfilePolicy policy = policies.elementAt(i);
+                IProfilePolicy policy = policies.elementAt(i);
                 String id = policy.getId();
 
                 if (id.equals(policyId)) {
@@ -474,10 +474,10 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public void deleteAllProfilePolicies() throws EProfileException {
-        for (Map.Entry<String, Vector<ProfilePolicy>> entry : mPolicySet.entrySet()) {
+        for (Map.Entry<String, Vector<IProfilePolicy>> entry : mPolicySet.entrySet()) {
             String setId = entry.getKey();
-            Vector<ProfilePolicy> pList = new Vector<ProfilePolicy>(entry.getValue());
-            for (ProfilePolicy policy: pList) {
+            Vector<IProfilePolicy> pList = new Vector<IProfilePolicy>(entry.getValue());
+            for (IProfilePolicy policy: pList) {
                 deleteProfilePolicy(setId, policy.getId());
             }
         }
@@ -789,11 +789,11 @@ public abstract class BasicProfile implements IProfile {
         // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
         // boolean createConfig : true : being called from the console. false: being called from server startup code
 
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
         if (policies == null) {
-            policies = new Vector<ProfilePolicy>();
+            policies = new Vector<IProfilePolicy>();
             mPolicySet.put(setId, policies);
             if (createConfig) {
                 // re-create policyset.list
@@ -1002,13 +1002,13 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfilePolicy getProfilePolicy(String setId, String id) {
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = policies.elementAt(i);
+            IProfilePolicy policy = policies.elementAt(i);
 
             if (policy.getId().equals(id)) {
                 return policy;
@@ -1079,8 +1079,8 @@ public abstract class BasicProfile implements IProfile {
         }
     }
 
-    public Vector<ProfilePolicy> getPolicies(String setId) {
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+    public Vector<IProfilePolicy> getPolicies(String setId) {
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         return policies;
     }
@@ -1092,11 +1092,11 @@ public abstract class BasicProfile implements IProfile {
     public void populate(IRequest request)
             throws EProfileException {
         String setId = getPolicySetId(request);
-        Vector<ProfilePolicy> policies = getPolicies(setId);
+        Vector<IProfilePolicy> policies = getPolicies(setId);
         CMS.debug("BasicProfile: populate() policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = policies.elementAt(i);
+            IProfilePolicy policy = policies.elementAt(i);
 
             policy.getDefault().populate(request);
         }
@@ -1110,10 +1110,10 @@ public abstract class BasicProfile implements IProfile {
             throws ERejectException {
         String setId = getPolicySetId(request);
         CMS.debug("BasicProfile: validate start on setId=" + setId);
-        Vector<ProfilePolicy> policies = getPolicies(setId);
+        Vector<IProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = policies.elementAt(i);
+            IProfilePolicy policy = policies.elementAt(i);
 
             policy.getConstraint().validate(request);
         }
@@ -1122,8 +1122,8 @@ public abstract class BasicProfile implements IProfile {
         CMS.debug("BasicProfile: validate end");
     }
 
-    public Enumeration<ProfilePolicy> getProfilePolicies(String setId) {
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+    public Enumeration<IProfilePolicy> getProfilePolicies(String setId) {
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1131,7 +1131,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public Enumeration<String> getProfilePolicyIds(String setId) {
-        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
+        Vector<IProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1139,7 +1139,7 @@ public abstract class BasicProfile implements IProfile {
         Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = policies.elementAt(i);
+            IProfilePolicy policy = policies.elementAt(i);
 
             v.addElement(policy.getId());
         }

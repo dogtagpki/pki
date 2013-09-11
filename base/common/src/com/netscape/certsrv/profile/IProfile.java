@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.cms.profile.common.ProfilePolicy;
 
 /**
  * This interface represents a profile. A profile contains
@@ -361,7 +360,7 @@ public interface IProfile {
      * @param setId set id
      * @return a list of policies
      */
-    public Enumeration<ProfilePolicy> getProfilePolicies(String setId);
+    public Enumeration<IProfilePolicy> getProfilePolicies(String setId);
 
     /**
      * Creates one or more requests. Normally, only one request will
