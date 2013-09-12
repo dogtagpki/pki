@@ -47,7 +47,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     public TPSCertData createCertData(TPSCertRecord certRecord) {
 
         TPSCertData certData = new TPSCertData();
-        certData.setID(certRecord.getID());
+        certData.setID(certRecord.getId());
         certData.setSerialNumber(certRecord.getSerialNumber());
         certData.setSubject(certRecord.getSubject());
         certData.setTokenID(certRecord.getTokenID());
@@ -57,7 +57,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         certData.setCreateTime(certRecord.getCreateTime());
         certData.setModifyTime(certRecord.getModifyTime());
 
-        String certID = certRecord.getID();
+        String certID = certRecord.getId();
         try {
             certID = URLEncoder.encode(certID, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -74,7 +74,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     public TPSCertRecord createCertRecord(TPSCertData certData) {
 
         TPSCertRecord certRecord = new TPSCertRecord();
-        certRecord.setID(certData.getID());
+        certRecord.setId(certData.getID());
         certRecord.setSerialNumber(certData.getSerialNumber());
         certRecord.setSubject(certData.getSubject());
         certRecord.setTokenID(certData.getTokenID());

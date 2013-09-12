@@ -20,10 +20,17 @@ package org.dogtagpki.server.tps.cert;
 
 import java.util.Date;
 
+import com.netscape.cmscore.dbs.DBAttribute;
+import com.netscape.cmscore.dbs.DBObjectClasses;
+import com.netscape.cmscore.dbs.DBRecord;
+
 /**
  * @author Endi S. Dewata
  */
-public class TPSCertRecord {
+@DBObjectClasses({ "top", "tokenCert" })
+public class TPSCertRecord extends DBRecord {
+
+    private static final long serialVersionUID = 1L;
 
     String id;
     String serialNumber;
@@ -42,14 +49,16 @@ public class TPSCertRecord {
     Date createTime;
     Date modifyTime;
 
-    public String getID() {
+    @DBAttribute("cn")
+    public String getId() {
         return id;
     }
 
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
+    @DBAttribute("tokenSerial")
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -58,6 +67,7 @@ public class TPSCertRecord {
         this.serialNumber = serialNumber;
     }
 
+    @DBAttribute("tokenSubject")
     public String getSubject() {
         return subject;
     }
@@ -66,6 +76,7 @@ public class TPSCertRecord {
         this.subject = subject;
     }
 
+    @DBAttribute("tokenID")
     public String getTokenID() {
         return tokenID;
     }
@@ -74,6 +85,7 @@ public class TPSCertRecord {
         this.tokenID = tokenID;
     }
 
+    @DBAttribute("tokenKeyType")
     public String getKeyType() {
         return keyType;
     }
@@ -82,6 +94,7 @@ public class TPSCertRecord {
         this.keyType = keyType;
     }
 
+    @DBAttribute("tokenStatus")
     public String getStatus() {
         return status;
     }
@@ -90,6 +103,7 @@ public class TPSCertRecord {
         this.status = status;
     }
 
+    @DBAttribute("tokenUserID")
     public String getUserID() {
         return userID;
     }
@@ -98,7 +112,7 @@ public class TPSCertRecord {
         this.userID = userID;
     }
 
-
+    @DBAttribute("userCertificate")
     public String getCertificate() {
         return certificate;
     }
@@ -107,6 +121,7 @@ public class TPSCertRecord {
         this.certificate = certificate;
     }
 
+    @DBAttribute("tokenIssuer")
     public String getIssuedBy() {
         return issuedBy;
     }
@@ -115,6 +130,7 @@ public class TPSCertRecord {
         this.issuedBy = issuedBy;
     }
 
+    @DBAttribute("tokenOrigin")
     public String getOrigin() {
         return origin;
     }
@@ -123,6 +139,7 @@ public class TPSCertRecord {
         this.origin = origin;
     }
 
+    @DBAttribute("tokenType")
     public String getType() {
         return type;
     }
@@ -131,6 +148,7 @@ public class TPSCertRecord {
         this.type = type;
     }
 
+    @DBAttribute("tokenNotBefore")
     public Date getValidNotBefore() {
         return validNotBefore;
     }
@@ -139,6 +157,7 @@ public class TPSCertRecord {
         this.validNotBefore = validNotBefore;
     }
 
+    @DBAttribute("tokenNotAfter")
     public Date getValidNotAfter() {
         return validNotAfter;
     }
@@ -147,6 +166,7 @@ public class TPSCertRecord {
         this.validNotAfter = validNotAfter;
     }
 
+    @DBAttribute("extensions")
     public String getExtensions() {
         return extensions;
     }
@@ -155,6 +175,7 @@ public class TPSCertRecord {
         this.extensions = extensions;
     }
 
+    @DBAttribute("dateOfCreate")
     public Date getCreateTime() {
         return createTime;
     }
@@ -163,6 +184,7 @@ public class TPSCertRecord {
         this.createTime = createTime;
     }
 
+    @DBAttribute("dateOfModify")
     public Date getModifyTime() {
         return modifyTime;
     }
