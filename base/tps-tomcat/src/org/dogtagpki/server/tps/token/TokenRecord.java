@@ -20,10 +20,17 @@ package org.dogtagpki.server.tps.token;
 
 import java.util.Date;
 
+import com.netscape.cmscore.dbs.DBAttribute;
+import com.netscape.cmscore.dbs.DBObjectClasses;
+import com.netscape.cmscore.dbs.DBRecord;
+
 /**
  * @author Endi S. Dewata
  */
-public class TokenRecord {
+@DBObjectClasses({ "top", "tokenRecord" })
+public class TokenRecord extends DBRecord {
+
+    private static final long serialVersionUID = 1L;
 
     String id;
     String userID;
@@ -34,14 +41,16 @@ public class TokenRecord {
     Date createTimestamp;
     Date modifyTimestamp;
 
-    public String getID() {
+    @DBAttribute("cn")
+    public String getId() {
         return id;
     }
 
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
+    @DBAttribute("tokenUserID")
     public String getUserID() {
         return userID;
     }
@@ -50,6 +59,7 @@ public class TokenRecord {
         this.userID = userID;
     }
 
+    @DBAttribute("tokenStatus")
     public String getStatus() {
         return status;
     }
@@ -58,6 +68,7 @@ public class TokenRecord {
         this.status = status;
     }
 
+    @DBAttribute("tokenReason")
     public String getReason() {
         return reason;
     }
@@ -66,6 +77,7 @@ public class TokenRecord {
         this.reason = reason;
     }
 
+    @DBAttribute("tokenAppletID")
     public String getAppletID() {
         return appletID;
     }
@@ -74,6 +86,7 @@ public class TokenRecord {
         this.appletID = appletID;
     }
 
+    @DBAttribute("keyInfo")
     public String getKeyInfo() {
         return keyInfo;
     }
@@ -82,6 +95,7 @@ public class TokenRecord {
         this.keyInfo = keyInfo;
     }
 
+    @DBAttribute("dateOfCreate")
     public Date getCreateTimestamp() {
         return createTimestamp;
     }
@@ -90,6 +104,7 @@ public class TokenRecord {
         this.createTimestamp = createTimestamp;
     }
 
+    @DBAttribute("dateOfModify")
     public Date getModifyTimestamp() {
         return modifyTimestamp;
     }

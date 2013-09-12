@@ -32,9 +32,11 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
@@ -54,7 +56,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public AuthenticatorDatabase authenticatorDatabase = new AuthenticatorDatabase();
     public ConnectionDatabase connectionDatabase = new ConnectionDatabase();
     public TPSCertDatabase certDatabase = new TPSCertDatabase();
-    public TokenDatabase tokenDatabase = new TokenDatabase();
+    public TokenDatabase tokenDatabase;
 
     @Override
     public String getId() {
@@ -70,6 +72,12 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
         this.owner = owner;
         this.config = config;
+
+        IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
+        IConfigStore cs = CMS.getConfigStore();
+
+        String tokenDatabaseDN = cs.getString("tokendb.baseDN");
+        tokenDatabase = new TokenDatabase(dbSubsystem, tokenDatabaseDN);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class TokenService extends PKIService implements TokenResource {
     public TokenData createTokenData(TokenRecord tokenRecord) {
 
         TokenData tokenData = new TokenData();
-        tokenData.setID(tokenRecord.getID());
+        tokenData.setID(tokenRecord.getId());
         tokenData.setUserID(tokenRecord.getUserID());
         tokenData.setStatus(tokenRecord.getStatus());
         tokenData.setReason(tokenRecord.getReason());
@@ -60,7 +60,7 @@ public class TokenService extends PKIService implements TokenResource {
         tokenData.setCreateTimestamp(tokenRecord.getCreateTimestamp());
         tokenData.setModifyTimestamp(tokenRecord.getModifyTimestamp());
 
-        String tokenID = tokenRecord.getID();
+        String tokenID = tokenRecord.getId();
         try {
             tokenID = URLEncoder.encode(tokenID, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -77,7 +77,7 @@ public class TokenService extends PKIService implements TokenResource {
     public TokenRecord createTokenRecord(TokenData tokenData) {
 
         TokenRecord tokenRecord = new TokenRecord();
-        tokenRecord.setID(tokenData.getID());
+        tokenRecord.setId(tokenData.getID());
         tokenRecord.setUserID(tokenData.getUserID());
         tokenRecord.setStatus(tokenData.getStatus());
         tokenRecord.setReason(tokenData.getReason());
@@ -162,7 +162,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            database.addRecord(createTokenRecord(tokenData));
+            database.addRecord(tokenData.getID(), createTokenRecord(tokenData));
             tokenData = createTokenData(database.getRecord(tokenData.getID()));
 
             return Response
@@ -188,7 +188,7 @@ public class TokenService extends PKIService implements TokenResource {
 
             TokenRecord tokenRecord = database.getRecord(tokenID);
             tokenRecord.setUserID(tokenData.getUserID());
-            database.updateRecord(tokenData.getID(), tokenRecord);
+            database.updateRecord(tokenID, tokenRecord);
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
