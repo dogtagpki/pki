@@ -52,7 +52,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ISubsystem owner;
     public IConfigStore config;
 
-    public ActivityDatabase activityDatabase = new ActivityDatabase();
+    public ActivityDatabase activityDatabase;
     public AuthenticatorDatabase authenticatorDatabase = new AuthenticatorDatabase();
     public ConnectionDatabase connectionDatabase = new ConnectionDatabase();
     public TPSCertDatabase certDatabase = new TPSCertDatabase();
@@ -75,6 +75,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
         IConfigStore cs = CMS.getConfigStore();
+
+        String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
+        activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);
 
         String tokenDatabaseDN = cs.getString("tokendb.baseDN");
         tokenDatabase = new TokenDatabase(dbSubsystem, tokenDatabaseDN);

@@ -47,12 +47,12 @@ public class ActivityService extends PKIService implements ActivityResource {
     public ActivityData createActivityData(ActivityRecord activityRecord) {
 
         ActivityData activityData = new ActivityData();
-        activityData.setID(activityRecord.getID());
+        activityData.setID(activityRecord.getId());
         activityData.setTokenID(activityRecord.getTokenID());
         activityData.setUserID(activityRecord.getUserID());
         activityData.setDate(activityRecord.getDate());
 
-        String activityID = activityRecord.getID();
+        String activityID = activityRecord.getId();
         try {
             activityID = URLEncoder.encode(activityID, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -69,7 +69,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     public ActivityRecord createActivityRecord(ActivityData activityData) {
 
         ActivityRecord activityRecord = new ActivityRecord();
-        activityRecord.setID(activityData.getID());
+        activityRecord.setId(activityData.getID());
         activityRecord.setTokenID(activityData.getTokenID());
         activityRecord.setUserID(activityData.getUserID());
         activityRecord.setDate(activityData.getDate());

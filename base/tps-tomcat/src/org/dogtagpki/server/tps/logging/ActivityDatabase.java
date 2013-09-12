@@ -20,7 +20,9 @@ package org.dogtagpki.server.tps.logging;
 
 import java.util.Date;
 
-import com.netscape.cmscore.dbs.Database;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.cmscore.dbs.LDAPDatabase;
 
 /**
  * This class implements in-memory activity database. In the future this
@@ -28,43 +30,26 @@ import com.netscape.cmscore.dbs.Database;
  *
  * @author Endi S. Dewata
  */
-public class ActivityDatabase extends Database<ActivityRecord> {
+public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
 
-    public ActivityDatabase() {
-        super("Activity");
-
-        // add sample records
-        try {
-            ActivityRecord record1 = new ActivityRecord();
-            record1.setID("activity1");
-            record1.setTokenID("token1");
-            record1.setUserID("user1");
-            record1.setIp("192.168.1.1");
-            record1.setOperation("enroll");
-            record1.setResult("success");
-            addRecord(record1);
-
-            ActivityRecord record2 = new ActivityRecord();
-            record2.setID("activity2");
-            record2.setTokenID("token2");
-            record2.setUserID("user2");
-            record2.setIp("192.168.1.2");
-            record2.setOperation("enroll");
-            record2.setResult("failed");
-            addRecord(record2);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public ActivityDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
+        super("Activity", dbSubsystem, baseDN, ActivityRecord.class);
     }
 
-    public void addRecord(ActivityRecord activityRecord) throws Exception {
+    @Override
+    public void addRecord(String id, ActivityRecord activityRecord) throws Exception {
         activityRecord.setDate(new Date());
 
-        addRecord(activityRecord.getID(), activityRecord);
+        super.addRecord(id, activityRecord);
     }
 
-    public void updateRecord(ActivityRecord activityRecord) throws Exception {
-        updateRecord(activityRecord.getID(), activityRecord);
+    @Override
+    public String createDN(String id) {
+        return "cn=" + id + "," + baseDN;
+    }
+
+    @Override
+    public String createFilter(String filter) {
+        return "(id=*)";
     }
 }

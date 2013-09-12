@@ -20,10 +20,17 @@ package org.dogtagpki.server.tps.logging;
 
 import java.util.Date;
 
+import com.netscape.cmscore.dbs.DBAttribute;
+import com.netscape.cmscore.dbs.DBObjectClasses;
+import com.netscape.cmscore.dbs.DBRecord;
+
 /**
  * @author Endi S. Dewata
  */
-public class ActivityRecord {
+@DBObjectClasses({ "top", "tokenActivity" })
+public class ActivityRecord extends DBRecord {
+
+    private static final long serialVersionUID = 1L;
 
     String id;
     String tokenID;
@@ -36,14 +43,16 @@ public class ActivityRecord {
     String type;
     Date date;
 
-    public String getID() {
+    @DBAttribute("cn")
+    public String getId() {
         return id;
     }
 
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
+    @DBAttribute("tokenID")
     public String getTokenID() {
         return tokenID;
     }
@@ -52,6 +61,7 @@ public class ActivityRecord {
         this.tokenID = tokenID;
     }
 
+    @DBAttribute("tokenUserID")
     public String getUserID() {
         return userID;
     }
@@ -60,6 +70,7 @@ public class ActivityRecord {
         this.userID = userID;
     }
 
+    @DBAttribute("tokenIP")
     public String getIp() {
         return ip;
     }
@@ -68,6 +79,7 @@ public class ActivityRecord {
         this.ip = ip;
     }
 
+    @DBAttribute("tokenOp")
     public String getOperation() {
         return operation;
     }
@@ -76,6 +88,7 @@ public class ActivityRecord {
         this.operation = operation;
     }
 
+    @DBAttribute("tokenResult")
     public String getResult() {
         return result;
     }
@@ -84,6 +97,7 @@ public class ActivityRecord {
         this.result = result;
     }
 
+    @DBAttribute("tokenMsg")
     public String getMessage() {
         return message;
     }
@@ -92,6 +106,7 @@ public class ActivityRecord {
         this.message = message;
     }
 
+    @DBAttribute("extensions")
     public String getExtensions() {
         return extensions;
     }
@@ -100,6 +115,7 @@ public class ActivityRecord {
         this.extensions = extensions;
     }
 
+    @DBAttribute("tokenType")
     public String getType() {
         return type;
     }
@@ -108,6 +124,7 @@ public class ActivityRecord {
         this.type = type;
     }
 
+    @DBAttribute("dateOfCreate")
     public Date getDate() {
         return date;
     }
