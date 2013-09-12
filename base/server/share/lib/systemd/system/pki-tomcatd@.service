@@ -1,14 +1,19 @@
 [Unit]
 Description=PKI Tomcat Server %i
-After=pki-tomcatd.target
+After=pki-tomcatd.target syslog.target network.target
 PartOf=pki-tomcatd.target
 
 [Service]
-Type=forking
-ExecStart=/usr/bin/pkidaemon start tomcat %i
-ExecStop=/usr/bin/pkidaemon stop tomcat %i
+Type=simple
+EnvironmentFile=/etc/tomcat/tomcat.conf
+Environment="NAME=%i"
+EnvironmentFile=-/etc/sysconfig/%i
+ExecStartPre=/usr/bin/pkidaemon start tomcat %i
+ExecStart=/usr/libexec/tomcat/server start
+ExecStop=/usr/libexec/tomcat/server stop
 SuccessExitStatus=143
+User=pkiuser
+Group=pkiuser
 
 [Install]
 WantedBy=multi-user.target
-

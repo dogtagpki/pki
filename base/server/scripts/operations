@@ -40,12 +40,9 @@ lockfile="/var/lock/subsys/${SERVICE_NAME}"
 default_error=0
 
 case $command in
-    start|stop|restart|condrestart|force-restart|try-restart)
+    start)
         # 1 generic or unspecified error (current practice)
         default_error=1
-        ;;
-    reload)
-        default_error=3
         ;;
     status)
         # 4 program or service status is unknown
@@ -106,19 +103,6 @@ elif [ '${PKI_TYPE}' == "tomcat" ] ; then
     fi
 fi
 
-# This script must be run as root!
-RV=0
-if [ `id -u` -ne 0 ] ; then
-    echo "Must be 'root' to execute '$PROG_NAME'!"
-    if [ "${command}" != "status" ]; then
-    # 4 user had insufficient privilege
-    exit 4
-    else
-    # 4 program or service status is unknown
-    exit 4
-    fi
-fi
-
 PKI_INSTANCE_TYPES="apache tomcat"
 PKI_REGISTRY_ENTRIES=""
 PKI_SUBSYSTEMS=""
@@ -150,30 +134,8 @@ fi
 
 usage()
 {
-    echo -n "Usage: ${SERVICE_PROG} ${SERVICE_NAME}"
-    echo -n "{start"
-    echo -n "|stop"
-    echo -n "|restart"
-    echo -n "|condrestart"
-    echo -n "|force-restart"
-    echo -n "|try-restart"
-    echo -n "|reload"
-    echo -n "|status} "
-    echo -n "[instance-name]"
-    echo
-    echo
-}
-
-usage_systemd()
-{
     echo -n "Usage: /usr/bin/pkidaemon "
     echo -n "{start"
-    echo -n "|stop"
-    echo -n "|restart"
-    echo -n "|condrestart"
-    echo -n "|force-restart"
-    echo -n "|try-restart"
-    echo -n "|reload"
     echo -n "|status} "
     echo -n "instance-type "
     echo -n "[instance-name]"
@@ -181,7 +143,7 @@ usage_systemd()
     echo
 }
 
-list_systemd_instance_types()
+list_instance_types()
 {
     echo
     for PKI_INSTANCE_TYPE in $PKI_INSTANCE_TYPES; do
@@ -191,16 +153,6 @@ list_systemd_instance_types()
 }
 
 list_instances()
-{
-    echo
-    for PKI_REGISTRY_ENTRY in $PKI_REGISTRY_ENTRIES; do
-        instance_name=`basename $PKI_REGISTRY_ENTRY`
-        echo "    $instance_name"
-    done
-    echo
-}
-
-list_systemd_instances()
 {
     echo
     for INSTANCE in /etc/sysconfig/pki/apache/*; do
@@ -253,74 +205,40 @@ get_subsystems()
 }
 
 # Check arguments
-if [ $SYSTEMD ]; then
-    if [ $# -lt 2 ] ; then
-        #     [insufficient arguments]
-        echo "$PROG_NAME:  Insufficient arguments!"
-        echo
-        usage_systemd
-        echo "where valid instance types include:"
-        list_systemd_instance_types
-        echo "and where valid instance names include:"
-        list_systemd_instances
-        exit 3
-    elif [ ${default_error} -eq 2 ] ; then
-        # 2 invalid argument
-        echo "$PROG_NAME:  Invalid arguments!"
-        echo
-        usage_systemd
-        echo "where valid instance types include:"
-        list_systemd_instance_types
-        echo "and where valid instance names include:"
-        list_systemd_instances
+if [ $# -lt 2 ] ; then
+    #     [insufficient arguments]
+    echo "$PROG_NAME:  Insufficient arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    exit 3
+elif [ ${default_error} -eq 2 ] ; then
+    # 2 invalid argument
+    echo "$PROG_NAME:  Invalid arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    exit 2
+elif [ $# -gt 3 ] ; then
+    echo "$PROG_NAME:  Excess arguments!"
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    if [ "${command}" != "status" ]; then
+        # 2 excess arguments
         exit 2
-    elif [ $# -gt 3 ] ; then
-        echo "$PROG_NAME:  Excess arguments!"
-        echo
-        usage_systemd
-        echo "where valid instance types include:"
-        list_systemd_instance_types
-        echo "and where valid instance names include:"
-        list_systemd_instances
-        if [ "${command}" != "status" ]; then
-            # 2 excess arguments
-            exit 2
-        else
-            # 4 program or service status is unknown
-            exit 4
-        fi
-    fi
-else
-    if [ $# -lt 1 ] ; then
-        # 3 unimplemented feature (for example, "reload")
-        #     [insufficient arguments]
-        echo "$PROG_NAME:  Insufficient arguments!"
-        echo
-        usage
-        echo "where valid instance names include:"
-        list_instances
-        exit 3
-    elif [ ${default_error} -eq 2 ] ; then
-        # 2 invalid argument
-        echo "$PROG_NAME:  Invalid arguments!"
-        echo
-        usage
-        echo "where valid instance names include:"
-        list_instances
-        exit 2
-    elif [ $# -gt 2 ] ; then
-        echo "$PROG_NAME:  Excess arguments!"
-        echo
-        usage
-        echo "where valid instance names include:"
-        list_instances
-        if [ "${command}" != "status" ]; then
-            # 2 excess arguments
-            exit 2
-        else
-            # 4 program or service status is unknown
-            exit 4
-        fi
+    else
+        # 4 program or service status is unknown
+        exit 4
     fi
 fi
 
@@ -340,9 +258,6 @@ if [ -n "${pki_instance_id}" ]; then
             echo -n "unknown instance type (${pki_instance_type})"
         else
             echo -n "${pki_instance_id} is an invalid '${PKI_TYPE}' instance"
-        fi
-        if [ ! $SYSTEMD ]; then
-            echo_failure
         fi
         echo
 
@@ -1093,7 +1008,6 @@ verify_symlinks()
 {
     # declare associative arrays
     declare -A base_symlinks
-    declare -A root_symlinks
     declare -A ca_symlinks
     declare -A kra_symlinks
     declare -A ocsp_symlinks
@@ -1132,9 +1046,6 @@ verify_symlinks()
         [bin]=/usr/share/tomcat/bin
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME})
-
-    # '${PKI_INSTANCE_PATH}' symlinks (root:root ownership)
-    root_symlinks[${PKI_INSTANCE_NAME}]=/usr/sbin/tomcat-sysd
 
     # '${PKI_INSTANCE_PATH}/ca' symlinks
     ca_symlinks=(
@@ -1278,15 +1189,6 @@ verify_symlinks()
             return $rv
         fi
 
-        # Detect and correct 'root_symlinks'
-        root_symlinks_string=$(declare -p root_symlinks)
-        eval "declare -A symlinks=${root_symlinks_string#*=}"
-        check_symlinks ${PKI_INSTANCE_PATH} "root" "root"
-        rv=$?
-        if [ $rv -ne 0 ]; then
-            return $rv
-        fi
-
         if [ -e ${PKI_INSTANCE_PATH}/ca ]; then
             # Detect and correct 'ca_symlinks'
             ca_symlinks_string=$(declare -p ca_symlinks)
@@ -1400,98 +1302,33 @@ start_instance()
         return $rv
     fi
 
-    # Invoke the initscript for this instance
-    case $PKI_WEB_SERVER_TYPE in
-        tomcat)
+    # Generate catalina.policy dynamically.
+    cat /usr/share/pki/server/conf/catalina.policy \
+        /usr/share/tomcat/conf/catalina.policy \
+        /usr/share/pki/server/conf/pki.policy \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
 
-            # Generate catalina.policy dynamically.
-            cat /usr/share/pki/server/conf/catalina.policy \
-                /usr/share/tomcat/conf/catalina.policy \
-                /usr/share/pki/server/conf/pki.policy \
-                /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
-                /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+    # We no longer start tomcat instances here.
+    # instead we rely on the tomcat unit scripts
 
-            # We must export the service name so that the systemd version
-            # of the tomcat init script knows which instance specific
-            # configuration file to source.
-            export SERVICE_NAME=$PKI_INSTANCE_NAME
-            $PKI_INSTANCE_INITSCRIPT start
-            rv=$?
-            ;;
-        apache)
-            $PKI_INSTANCE_INITSCRIPT start
-            rv=$?
-            ;;
-    esac
-
-    if [ $rv -ne 0 ] ; then
-        return $rv
-    fi
-
-    # On Tomcat subsystems, make certain that the service has started
-    case $PKI_WEB_SERVER_TYPE in
-        tomcat)
-            count=0
-            tries=30
-            port=${PKI_UNSECURE_PORT}
-            while [ $count -lt $tries ]
-            do
-                netstat -antl | grep ${port} > /dev/null
-                netrv=$?
-                if [ $netrv -eq 0 ] ; then
-                    break;
-                fi
-                sleep 1
-                let count=$count+1;
-            done
-            if [ $netrv -ne 0 ] ; then
-                return 1
-            fi
-            ;;
-    esac
-
-    if [ $rv -eq 0 ] ; then
-        # From the PKI point of view a returned error code of 6 implies
-        # that the program is not "configured". An error code of 1 implies
-        # that the program was "configured" but must still be restarted.
-        #
-        # If the return code is 6 return this value unchanged to the
-        # calling routine so that the total number of configuration errors
-        # may be counted. Other return codes are ignored.
-        #
-        check_pki_configuration_status
-        rv=$?
-        if [ $rv -eq 6 ]; then
-            # 6 program is not configured
-            return 6
-        else
-            # 0 success
-            return 0
-        fi
-    fi
-    return $rv
-}
-
-stop_instance()
-{
-    rv=0
-
-    export SERVICE_NAME=$PKI_INSTANCE_NAME
-    # Invoke the initscript for this instance
-    $PKI_INSTANCE_INITSCRIPT stop
+    # From the PKI point of view a returned error code of 6 implies
+    # that the program is not "configured". An error code of 1 implies
+    # that the program was "configured" but must still be restarted.
+    #
+    # If the return code is 6 return this value unchanged to the
+    # calling routine so that the total number of configuration errors
+    # may be counted. Other return codes are ignored.
+    #
+    check_pki_configuration_status
     rv=$?
-
-    # On Tomcat subsystems, always remove the "pki subsystem identity" symlinks
-    # that were previously associated with the Tomcat 'pid' and 'lock' files.
-    case $PKI_WEB_SERVER_TYPE in
-        tomcat)
-            if [ -f ${PKI_PIDFILE} ]; then
-                rm -f ${PKI_PIDFILE}
-            fi
-            ;;
-    esac
-
-    return $rv
+    if [ $rv -eq 6 ]; then
+        # 6 program is not configured
+        return 6
+    else
+        # 0 success
+        return 0
+    fi
 }
 
 start()
@@ -1585,80 +1422,6 @@ start()
     return $rv
 }
 
-stop()
-{
-    error_rv=0
-    rv=0
-    errors=0
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
-        echo
-        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
-        # 5 program is not installed
-        return 5
-    fi
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        echo "BEGIN SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S):"
-    fi
-
-    # Shutdown every PKI instance of this type that is running
-    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
-        # Source values associated with this particular PKI instance
-        [ -f ${PKI_REGISTRY_ENTRY} ] &&
-        . ${PKI_REGISTRY_ENTRY}
-
-        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
-
-        stop_instance
-        rv=$?
-        if [ $rv != 0 ] ; then
-            errors=`expr $errors + 1`
-            error_rv=$rv
-        fi
-    done
-
-    if [ ${errors} -eq 0 ] ; then
-        rm -f ${lockfile}
-    fi
-
-    # ONLY print a "WARNING" message if multiple
-    # instances are being examined
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        if [ ${errors} -eq 1 ]; then
-            # Since only ONE error exists, return that "bad" error code.
-            rv=${error_rv}
-        elif [ ${errors} -gt 1 ]; then
-            # Since MORE than ONE error exists, return an OVERALL status
-            # of "1 generic or unspecified error (current practice)"
-            rv=1
-        fi
-
-        if [ ${errors} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances were "
-            echo -n "unsuccessfully stopped!"
-            echo
-        fi
-
-        echo
-        echo "FINISHED SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S)."
-    fi
-
-    return $rv
-}
-
-restart()
-{
-    stop
-    sleep 2
-    start
-
-    return $?
-}
-
 registry_status()
 {
     error_rv=0
@@ -1686,11 +1449,7 @@ registry_status()
 
         case $PKI_WEB_SERVER_TYPE in
             tomcat)
-                if [ $SYSTEMD ]; then
-                    display_instance_status_systemd
-                else
-                    display_instance_status
-                fi
+                display_instance_status_systemd
                 rv=$?
                 ;;
             apache)

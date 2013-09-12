@@ -41,7 +41,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                                         deployer.master_dict['pki_target_cs_cfg'])
         deployer.file.copy_with_slot_substitution(deployer.master_dict['pki_source_registry'],
                                                         deployer.master_dict['pki_target_registry'],
-                                                        uid=0, gid=0, overwrite_flag=True)
+                                                        overwrite_flag=True)
         if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             deployer.file.copy_with_slot_substitution(
                 deployer.master_dict['pki_source_catalina_properties'],
