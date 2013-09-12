@@ -31,7 +31,7 @@ import com.netscape.certsrv.base.ISubsystem;
  *
  * @version $Revision$, $Date$
  */
-public interface IDBSSession {
+public interface IDBSSession extends AutoCloseable {
 
     /**
      * Returns database subsystem.

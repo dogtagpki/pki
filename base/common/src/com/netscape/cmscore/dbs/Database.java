@@ -22,9 +22,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.netscape.certsrv.apps.CMS;
+
 /**
- * This class implements in-memory token database. In the future this
- * will be replaced with LDAP database.
+ * This class implements in-memory database.
  *
  * @author Endi S. Dewata
  */
@@ -32,11 +33,14 @@ public class Database<E> {
 
     public final static int DEFAULT_SIZE = 20;
 
-    public String name ;
+    public String name;
+
     public Map<String, E> records = new LinkedHashMap<String, E>();
 
     public Database(String name) {
         this.name = name;
+
+        CMS.debug("Initializing " + name + " database");
     }
 
     public Collection<E> getRecords() throws Exception {
