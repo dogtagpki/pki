@@ -34,6 +34,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
+
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
@@ -80,6 +86,18 @@ import com.netscape.cmsutil.util.Utils;
  *
  */
 public class CertService extends PKIService implements CertResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     ICertificateAuthority authority;
     ICertificateRepository repo;
@@ -152,7 +170,7 @@ public class CertService extends PKIService implements CertResource {
 
         RevocationProcessor processor;
         try {
-            processor = new RevocationProcessor("caDoRevoke-agent", getLocale());
+            processor = new RevocationProcessor("caDoRevoke-agent", getLocale(headers));
             processor.setStartTime(CMS.getCurrentDate().getTime());
 
             // TODO: set initiative based on auth info
@@ -268,7 +286,7 @@ public class CertService extends PKIService implements CertResource {
     public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
         RevocationProcessor processor;
         try {
-            processor = new RevocationProcessor("caDoUnrevoke", getLocale());
+            processor = new RevocationProcessor("caDoUnrevoke", getLocale(headers));
 
             // TODO: set initiative based on auth info
             processor.setInitiative(AuditFormat.FROMAGENT);
@@ -464,7 +482,7 @@ public class CertService extends PKIService implements CertResource {
         certData.setEncoded(base64);
 
         ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
-        certData.setPrettyPrint(print.toString(getLocale()));
+        certData.setPrettyPrint(print.toString(getLocale(headers)));
 
         String p7Str = getCertChainData(cert);
         certData.setPkcs7CertChain(p7Str);

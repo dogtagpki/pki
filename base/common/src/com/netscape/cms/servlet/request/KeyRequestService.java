@@ -18,7 +18,12 @@
 
 package com.netscape.cms.servlet.request;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -40,6 +45,18 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class KeyRequestService extends PKIService implements KeyRequestResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;

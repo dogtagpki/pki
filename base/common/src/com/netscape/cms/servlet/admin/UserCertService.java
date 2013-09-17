@@ -27,8 +27,13 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import netscape.ldap.LDAPException;
 import netscape.security.pkcs.PKCS7;
@@ -62,6 +67,18 @@ import com.netscape.cmsutil.util.Utils;
  * @author Endi S. Dewata
  */
 public class UserCertService extends PKIService implements UserCertResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -99,7 +116,7 @@ public class UserCertService extends PKIService implements UserCertResource {
 
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = null;
@@ -107,7 +124,7 @@ public class UserCertService extends PKIService implements UserCertResource {
             try {
                 user = userGroupManager.getUser(userID);
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST", headers));
             }
 
             if (user == null) {
@@ -151,7 +168,7 @@ public class UserCertService extends PKIService implements UserCertResource {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = null;
@@ -159,7 +176,7 @@ public class UserCertService extends PKIService implements UserCertResource {
             try {
                 user = userGroupManager.getUser(userID);
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST", headers));
             }
 
             if (user == null) {
@@ -186,7 +203,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                 if (!userCertData.getID().equals(certID)) continue;
 
                 ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
-                userCertData.setPrettyPrint(print.toString(getLocale()));
+                userCertData.setPrettyPrint(print.toString(getLocale(headers)));
 
                 // add base64 encoding
                 String base64 = CMS.getEncodedCert(cert);
@@ -226,7 +243,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -269,7 +286,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                     X509Certificate p7certs[] = pkcs7.getCertificates();
 
                     if (p7certs.length == 0) {
-                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
+                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
                     }
 
                     // fix for 370099 - cert ordering can not be assumed
@@ -295,7 +312,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                     } else {
                         // not a chain, or in random order
                         CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
-                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
+                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
                     }
 
                     CMS.debug("UserCertResourceService: "
@@ -349,7 +366,7 @@ public class UserCertService extends PKIService implements UserCertResource {
                     throw e;
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
-                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR"));
+                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
                 }
             }
 
@@ -381,18 +398,18 @@ public class UserCertService extends PKIService implements UserCertResource {
             } catch (CertificateExpiredException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(cert.getSubjectDN())));
-                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_EXPIRED"));
+                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_EXPIRED", headers));
 
             } catch (CertificateNotYetValidException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
-                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID"));
+                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID", headers));
 
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
-                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_CERT_EXISTS"));
+                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_CERT_EXISTS", headers));
                 } else {
-                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
+                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
                 }
             }
 
@@ -403,7 +420,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
         }
     }
 
@@ -444,7 +461,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -469,7 +486,7 @@ public class UserCertService extends PKIService implements UserCertResource {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditDeleteUserCert(userID, userCertData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
         }
     }
 

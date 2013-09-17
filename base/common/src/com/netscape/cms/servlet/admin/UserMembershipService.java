@@ -23,8 +23,13 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Enumeration;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -46,6 +51,18 @@ import com.netscape.cms.servlet.base.PKIService;
  * @author Endi S. Dewata
  */
 public class UserMembershipService extends PKIService implements UserMembershipResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -76,7 +93,7 @@ public class UserMembershipService extends PKIService implements UserMembershipR
 
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = userGroupManager.getUser(userID);
@@ -131,7 +148,7 @@ public class UserMembershipService extends PKIService implements UserMembershipR
             groupMemberData.setID(userID);
             groupMemberData.setGroupID(groupID);
 
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             processor.addGroupMember(groupMemberData);
 
@@ -154,7 +171,7 @@ public class UserMembershipService extends PKIService implements UserMembershipR
     @Override
     public void removeUserMembership(String userID, String groupID) {
         try {
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, userID);
 

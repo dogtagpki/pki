@@ -22,8 +22,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -60,6 +65,18 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class CertRequestService extends PKIService implements CertRequestResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;
@@ -104,7 +121,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         CertRequestDAO dao = new CertRequestDAO();
 
         try {
-            infos = dao.submitRequest(data, servletRequest, uriInfo, getLocale());
+            infos = dao.submitRequest(data, servletRequest, uriInfo, getLocale(headers));
         } catch (EAuthException e) {
             CMS.debug("enrollCert: authentication failed: " + e);
             throw new UnauthorizedException(e.toString());
@@ -155,30 +172,30 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
         CertRequestDAO dao = new CertRequestDAO();
         try {
-            dao.changeRequestState(id, servletRequest, data, getLocale(), op);
+            dao.changeRequestState(id, servletRequest, data, getLocale(headers), op);
         } catch (ERejectException e) {
             CMS.debug("changeRequestState: execution rejected " + e);
-            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_PROFILE_REJECTED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_REJECTED", e.toString()));
         } catch (EDeferException e) {
             CMS.debug("changeRequestState: execution defered " + e);
             // TODO do we throw an exception here?
-            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_PROFILE_DEFERRED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_DEFERRED", e.toString()));
         } catch (BadRequestDataException e) {
             CMS.debug("changeRequestState: bad request data: " + e);
             throw new BadRequestException(e.toString());
         } catch (EPropertyException e) {
             CMS.debug("changeRequestState: execution error " + e);
-            throw new PKIException(CMS.getUserMessage(getLocale(),
+            throw new PKIException(CMS.getUserMessage(getLocale(headers),
                     "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
         } catch (EProfileException e) {
             CMS.debug("ProfileProcessServlet: execution error " + e);
-            throw new PKIException(CMS.getUserMessage(getLocale(), "CMS_INTERNAL_ERROR"));
+            throw new PKIException(CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR"));
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e);
         } catch (RequestNotFoundException e) {
             CMS.debug(e);
-            throw new BadRequestException(CMS.getUserMessage(getLocale(), "CMS_REQUEST_NOT_FOUND", id.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_REQUEST_NOT_FOUND", id.toString()));
         }
     }
 
@@ -188,7 +205,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
         CertRequestDAO dao = new CertRequestDAO();
         try {
-            info = dao.reviewRequest(servletRequest, id, uriInfo, getLocale());
+            info = dao.reviewRequest(servletRequest, id, uriInfo, getLocale(headers));
         } catch (EBaseException e) {
             // log error
             e.printStackTrace();
@@ -301,7 +318,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         while (inputIds.hasMoreElements()) {
             String id = inputIds.nextElement();
             try {
-                ProfileInput input = ProfileService.createProfileInput(profile, id, getLocale());
+                ProfileInput input = ProfileService.createProfileInput(profile, id, getLocale(headers));
                 for (ProfileAttribute attr: input.getAttrs()) {
                     attr.setValue("");
                 }
@@ -333,7 +350,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 String id = profileIds.nextElement();
                 ProfileDataInfo info = null;
                 try {
-                    info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale());
+                    info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
                 } catch (EBaseException e) {
                     continue;
                 }

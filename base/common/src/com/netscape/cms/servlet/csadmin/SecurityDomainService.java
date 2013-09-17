@@ -17,6 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.DomainInfo;
@@ -29,13 +35,25 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class SecurityDomainService extends PKIService implements SecurityDomainResource {
 
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
     @Override
     public InstallToken getInstallToken(String hostname, String subsystem) {
         try {
             // Get uid from realm authentication.
             String user = servletRequest.getUserPrincipal().getName();
 
-            SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale());
+            SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
             return processor.getInstallToken(user, hostname, subsystem);
 
         } catch (EBaseException e) {
@@ -46,7 +64,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     @Override
     public DomainInfo getDomainInfo() throws PKIException {
         try {
-            SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale());
+            SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
             return processor.getDomainInfo();
 
         } catch (EBaseException e) {

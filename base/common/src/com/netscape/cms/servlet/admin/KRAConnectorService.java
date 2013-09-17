@@ -17,7 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -30,10 +35,22 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class KRAConnectorService extends PKIService implements KRAConnectorResource {
 
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
     @Override
     public void addConnector(KRAConnectorInfo info) {
         try {
-            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale());
+            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.addConnector(info);
         } catch (EBaseException e) {
             e.printStackTrace();
@@ -44,7 +61,7 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     @Override
     public void removeConnector(String host, String port) {
         try {
-            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale());
+            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.removeConnector(host, port);
         } catch (EBaseException e) {
             e.printStackTrace();

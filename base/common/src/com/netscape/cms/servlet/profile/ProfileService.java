@@ -30,7 +30,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -78,6 +82,18 @@ import com.netscape.cmscore.realm.PKIPrincipal;
  */
 public class ProfileService extends PKIService implements ProfileResource {
 
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     private IConfigStore cs = CMS.getConfigStore().getSubStore("profile");
@@ -108,7 +124,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                 String id = profileIds.nextElement();
                 ProfileDataInfo info = null;
                 try {
-                    info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale());
+                    info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
                 } catch (EBaseException e) {
                     continue;
                 }
@@ -197,11 +213,11 @@ public class ProfileService extends PKIService implements ProfileResource {
         data.setAuthenticatorId(profile.getAuthenticatorId());
         data.setAuthzAcl(profile.getAuthzAcl());
         data.setClassId(cs.getString(profileId + ".class_id"));
-        data.setDescription(profile.getDescription(getLocale()));
+        data.setDescription(profile.getDescription(getLocale(headers)));
         data.setEnabled(ps.isProfileEnable(profileId));
         data.setEnabledBy(ps.getProfileEnableBy(profileId));
         data.setId(profileId);
-        data.setName(profile.getName(getLocale()));
+        data.setName(profile.getName(getLocale(headers)));
         data.setRenewal(Boolean.getBoolean(profile.isRenewal()));
         data.setVisible(profile.isVisible());
         data.setXMLOutput(Boolean.getBoolean(profile.isXmlOutput()));
@@ -209,7 +225,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Enumeration<String> inputIds = profile.getProfileInputIds();
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                ProfileInput input = createProfileInput(profile, inputIds.nextElement(), getLocale());
+                ProfileInput input = createProfileInput(profile, inputIds.nextElement(), getLocale(headers));
                 if (input == null)
                     continue;
                 data.addProfileInput(input);
@@ -220,7 +236,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Enumeration<String> outputIds = profile.getProfileOutputIds();
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
-                ProfileOutput output = createProfileOutput(profile, outputIds.nextElement(), getLocale());
+                ProfileOutput output = createProfileOutput(profile, outputIds.nextElement(), getLocale(headers));
                 if (output == null)
                     continue;
                 data.addProfileOutput(output);
@@ -260,9 +276,9 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         ProfilePolicy p = new ProfilePolicy();
         String constraintClassId = policyStore.getString("constraint.class_id");
-        p.setConstraint(PolicyConstraintFactory.create(getLocale(), policy.getConstraint(), constraintClassId));
+        p.setConstraint(PolicyConstraintFactory.create(getLocale(headers), policy.getConstraint(), constraintClassId));
         String defaultClassId = policyStore.getString("default.class_id");
-        p.setDef(PolicyDefaultFactory.create(getLocale(), policy.getDefault(), defaultClassId));
+        p.setDef(PolicyDefaultFactory.create(getLocale(headers), policy.getDefault(), defaultClassId));
         p.setId(policy.getId());
         return p;
     }
@@ -411,8 +427,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             IPluginInfo info = registry.getPluginInfo("profile", data.getClassId());
 
             profile = ps.createProfile(profileId, data.getClassId(), info.getClassName(), config);
-            profile.setName(getLocale(), data.getName());
-            profile.setDescription(getLocale(), data.getDescription());
+            profile.setName(getLocale(headers), data.getName());
+            profile.setDescription(getLocale(headers), data.getDescription());
             profile.setVisible(data.isVisible());
             profile.getConfigStore().commit(false);
             ps.createProfileConfig(profileId, data.getClassId(), config);
@@ -490,8 +506,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("authzAcl", data.getAuthzAcl());
         }
 
-        if (differs(profile.getDescription(getLocale()), data.getDescription())) {
-            profile.setDescription(getLocale(), data.getDescription());
+        if (differs(profile.getDescription(getLocale(headers)), data.getDescription())) {
+            profile.setDescription(getLocale(headers), data.getDescription());
             auditParams.put("description", data.getDescription());
         }
 
@@ -500,8 +516,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("id", data.getId());
         }
 
-        if (differs(profile.getName(getLocale()), data.getName())) {
-            profile.setName(getLocale(), data.getName());
+        if (differs(profile.getName(getLocale(headers)), data.getName())) {
+            profile.setName(getLocale(headers), data.getName());
             auditParams.put("name", data.getName());
         }
 
@@ -690,7 +706,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         Map<String, ProfileOutput> existingOutputs = new LinkedHashMap<String, ProfileOutput>();
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
-            ProfileOutput output = createProfileOutput(profile, id, getLocale());
+            ProfileOutput output = createProfileOutput(profile, id, getLocale(headers));
             if (output == null)
                 continue;
             existingOutputs.put(id, output);
@@ -781,7 +797,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         while (existingIds.hasMoreElements()) {
             String id = existingIds.nextElement();
-            ProfileInput input = createProfileInput(profile, id, getLocale());
+            ProfileInput input = createProfileInput(profile, id, getLocale(headers));
             if (input == null)
                 continue;
             existingInputs.put(id, input);

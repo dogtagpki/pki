@@ -20,7 +20,12 @@ package com.netscape.cms.servlet.admin;
 
 import java.security.cert.CertificateEncodingException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
@@ -38,6 +43,22 @@ import com.netscape.cms.servlet.base.PKIService;
  *
  */
 public class SystemCertService extends PKIService implements SystemCertResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
+    public SystemCertService() {
+        CMS.debug("SystemCertService.<init>()");
+    }
 
     /**
      * Used to retrieve the transport certificate
@@ -71,7 +92,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
             e.printStackTrace();
             throw new PKIException("Unable to encode transport cert");
         }
-        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert);
+        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert, request);
     }
 
 }

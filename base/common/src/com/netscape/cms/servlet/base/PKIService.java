@@ -24,16 +24,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.cert.CertData;
@@ -54,18 +51,6 @@ public class PKIService {
     // caching parameters
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
-    @Context
-    protected UriInfo uriInfo;
-
-    @Context
-    protected HttpHeaders headers;
-
-    @Context
-    protected Request request;
-
-    @Context
-    protected HttpServletRequest servletRequest;
-
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();
 
@@ -73,7 +58,7 @@ public class PKIService {
         return Response.ok(object).build();
     }
 
-    public Response sendConditionalGetResponse(int ctime, Object object) {
+    public Response sendConditionalGetResponse(int ctime, Object object, Request request) {
         CacheControl cc = new CacheControl();
         cc.setMaxAge(ctime);
         EntityTag tag = new EntityTag(Integer.toString(object.hashCode()));
@@ -98,7 +83,7 @@ public class PKIService {
         return data;
     }
 
-    public Locale getLocale() {
+    public Locale getLocale(HttpHeaders headers) {
 
         if (headers == null) return Locale.getDefault();
 
@@ -108,8 +93,8 @@ public class PKIService {
         return locales.get(0);
     }
 
-    public String getUserMessage(String messageId, String... params) {
-        return CMS.getUserMessage(getLocale(), messageId, params);
+    public String getUserMessage(String messageId, HttpHeaders headers, String... params) {
+        return CMS.getUserMessage(getLocale(headers), messageId, params);
     }
 
     public void log(int source, int level, String message) {

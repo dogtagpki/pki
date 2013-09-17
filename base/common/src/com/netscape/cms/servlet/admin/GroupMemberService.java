@@ -18,7 +18,12 @@
 
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.group.GroupMemberCollection;
@@ -31,10 +36,22 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class GroupMemberService extends PKIService implements GroupMemberResource {
 
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
     @Override
     public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
         try {
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             return processor.findGroupMembers(groupID, start, size);
 
@@ -49,7 +66,7 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
     @Override
     public GroupMemberData getGroupMember(String groupID, String memberID) {
         try {
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             return processor.getGroupMember(groupID, memberID);
 
@@ -71,7 +88,7 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
 
     public Response addGroupMember(GroupMemberData groupMemberData) {
         try {
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             return processor.addGroupMember(groupMemberData);
 
@@ -86,7 +103,7 @@ public class GroupMemberService extends PKIService implements GroupMemberResourc
     @Override
     public void removeGroupMember(String groupID, String memberID) {
         try {
-            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale());
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, memberID);
 

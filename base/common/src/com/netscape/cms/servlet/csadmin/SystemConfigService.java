@@ -30,7 +30,12 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -65,6 +70,18 @@ import com.netscape.cmsutil.util.Utils;
  *
  */
 public class SystemConfigService extends PKIService implements SystemConfigResource {
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
     IConfigStore cs;
     String csType;
     String csState;

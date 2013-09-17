@@ -23,8 +23,13 @@ import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -50,6 +55,18 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author Endi S. Dewata
  */
 public class GroupService extends PKIService implements GroupResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -117,7 +134,7 @@ public class GroupService extends PKIService implements GroupResource {
             return response;
 
         } catch (Exception e) {
-            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
+            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
         }
     }
 
@@ -133,7 +150,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
@@ -148,7 +165,7 @@ public class GroupService extends PKIService implements GroupResource {
             throw e;
 
         } catch (Exception e) {
-            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
+            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
         }
     }
 
@@ -175,7 +192,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IGroup group = userGroupManager.createGroup(groupID);
@@ -203,7 +220,7 @@ public class GroupService extends PKIService implements GroupResource {
                         .build();
 
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_ADD_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_ADD_FAILED", headers));
             }
 
         } catch (PKIException e) {
@@ -239,7 +256,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
@@ -263,7 +280,7 @@ public class GroupService extends PKIService implements GroupResource {
 
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED", headers));
             }
 
         } catch (PKIException e) {
@@ -297,7 +314,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             // if fails, let the exception fall through

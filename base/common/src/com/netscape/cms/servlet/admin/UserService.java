@@ -25,8 +25,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import netscape.ldap.LDAPException;
 
@@ -61,6 +66,18 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author Endi S. Dewata
  */
 public class UserService extends PKIService implements UserResource {
+
+    @Context
+    private UriInfo uriInfo;
+
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -131,7 +148,7 @@ public class UserService extends PKIService implements UserResource {
             return response;
 
         } catch (Exception e) {
-            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
+            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
         }
     }
 
@@ -150,7 +167,7 @@ public class UserService extends PKIService implements UserResource {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user;
@@ -158,7 +175,7 @@ public class UserService extends PKIService implements UserResource {
             try {
                 user = userGroupManager.getUser(userID);
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
+                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
             }
 
             if (user == null) {
@@ -229,26 +246,26 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             if (userID.indexOf(BACK_SLASH) != -1) {
                 // backslashes (BS) are not allowed
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS"));
+                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS", headers));
             }
 
             if (userID.equals(SYSTEM_USER)) {
                 // backslashes (BS) are not allowed
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", userID));
-                throw new ForbiddenException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", userID));
+                throw new ForbiddenException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", headers, userID));
             }
 
             IUser user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
             if (fname == null || fname.length() == 0) {
-                String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "full name");
+                String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
 
                 log(ILogger.LL_FAILURE, msg);
                 throw new BadRequestDataException(msg);
@@ -324,7 +341,7 @@ public class UserService extends PKIService implements UserResource {
                 log(ILogger.LL_FAILURE, e.toString());
 
                 if (user.getUserID() == null) {
-                    throw new BadRequestDataException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", "uid"));
+                    throw new BadRequestDataException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "uid"));
                 } else {
                     throw new PKIException(e.getMessage(), e);
                 }
@@ -370,7 +387,7 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -431,7 +448,7 @@ public class UserService extends PKIService implements UserResource {
 
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
             }
 
         } catch (PKIException e) {
@@ -468,7 +485,7 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             // get list of groups, and see if uid belongs to any
@@ -478,7 +495,7 @@ public class UserService extends PKIService implements UserResource {
                 groups = userGroupManager.findGroups("*");
 
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
+                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
             }
 
             try {
@@ -495,7 +512,7 @@ public class UserService extends PKIService implements UserResource {
                 auditDeleteUser(userID, ILogger.SUCCESS);
 
             } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_FAIL_USER_RMV"));
+                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_FAIL_USER_RMV", headers));
             }
 
         } catch (PKIException e) {
