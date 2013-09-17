@@ -1141,6 +1141,7 @@ verify_symlinks()
     common_jar_symlinks=(
         [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
         [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
+        [apache-commons-io.jar]=${java_dir}/apache-commons-io.jar
         [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
         [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
         [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar

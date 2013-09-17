@@ -42,7 +42,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cmscore.realm.PKIPrincipal;
 
-
 /**
  * @author Endi S. Dewata
  */
@@ -59,7 +58,8 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
 
     public synchronized void loadAuthProperties() throws IOException {
 
-        if (authProperties != null) return;
+        if (authProperties != null)
+            return;
 
         authProperties = new Properties();
 
@@ -79,11 +79,12 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext.getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
+        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext
+                .getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
 
-        CMS.debug("AuthMethodInterceptor: "+clazz.getSimpleName()+"."+method.getName()+"()");
+        CMS.debug("AuthMethodInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         // Get authentication mapping for the method.
         AuthMethodMapping authMapping = method.getAnnotation(AuthMethodMapping.class);
@@ -102,7 +103,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             name = authMapping.value();
         }
 
-        CMS.debug("AuthMethodInterceptor: mapping name: "+name);
+        CMS.debug("AuthMethodInterceptor: mapping name: " + name);
 
         try {
             loadAuthProperties();
@@ -115,7 +116,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 }
             }
 
-            CMS.debug("AuthMethodInterceptor: required auth methods: "+authMethods);
+            CMS.debug("AuthMethodInterceptor: required auth methods: " + authMethods);
 
             Principal principal = securityContext.getUserPrincipal();
 
@@ -135,7 +136,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Unknown user principal");
             }
 
-            PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
+            PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
             IAuthToken authToken = pkiPrincipal.getAuthToken();
 
             // If missing auth token, reject request.
@@ -144,8 +145,8 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Missing authentication token.");
             }
 
-            String authManager = (String)authToken.get(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-            CMS.debug("AuthMethodInterceptor: authentication manager: "+authManager);
+            String authManager = (String) authToken.get(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+            CMS.debug("AuthMethodInterceptor: authentication manager: " + authManager);
 
             if (authManager == null) {
                 CMS.debug("AuthMethodInterceptor: missing authentication manager");
@@ -153,7 +154,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             }
 
             if (authMethods.isEmpty() || authMethods.contains(authManager) || authMethods.contains("*")) {
-                CMS.debug("AuthMethodInterceptor: "+authManager+" allowed");
+                CMS.debug("AuthMethodInterceptor: " + authManager + " allowed");
                 return;
             }
 

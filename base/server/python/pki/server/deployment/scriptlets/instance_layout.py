@@ -86,6 +86,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # establish Tomcat instance common lib jar symbolic links
             deployer.symlink.create(deployer.master_dict['pki_apache_commons_collections_jar'],
                 deployer.master_dict['pki_apache_commons_collections_jar_link'])
+            deployer.symlink.create(deployer.master_dict['pki_apache_commons_io_jar'],
+                deployer.master_dict['pki_apache_commons_io_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_apache_commons_lang_jar'],
                 deployer.master_dict['pki_apache_commons_lang_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_apache_commons_logging_jar'],

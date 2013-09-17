@@ -34,7 +34,7 @@ public class PKIErrorInterceptor implements ClientErrorInterceptor {
         if (code < 400)
             return;
 
-        MultivaluedMap<String, String> headers = response.getStringHeaders();
+        MultivaluedMap<String, String> headers = response.getResponseHeaders();
         String contentType = headers.getFirst("Content-Type");
 
         // handle XML content only

@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cmscore.realm.PKIPrincipal;
 
-
 /**
  * @author Endi S. Dewata
  */
@@ -60,7 +59,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
     public synchronized void loadAuthProperties() throws IOException {
 
-        if (authProperties != null) return;
+        if (authProperties != null)
+            return;
 
         URL url = servletContext.getResource("/WEB-INF/auth.properties");
         authProperties = new Properties();
@@ -69,7 +69,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext.getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
+        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext
+                .getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
         Method method = methodInvoker.getMethod();
 
         ACLMapping aclMapping = method.getAnnotation(ACLMapping.class);
@@ -100,7 +101,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             throw new ForbiddenException("Invalid user principal.");
         }
 
-        PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
+        PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
         IAuthToken authToken = pkiPrincipal.getAuthToken();
 
         // If missing auth token, reject request.
@@ -147,7 +148,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: " + e.getMessage());
             throw new ForbiddenException(e.toString());
 
-        } catch (IOException|EBaseException e) {
+        } catch (IOException | EBaseException e) {
             e.printStackTrace();
             throw new Failure(e);
         }
