@@ -26,6 +26,8 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.mozilla.jss.util.Base64OutputStream;
@@ -138,7 +140,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @return property value
      */
-    private Object nakedGet(String name) {
+    private String nakedGet(String name) {
         return mSource.get(name);
     }
 
@@ -172,42 +174,39 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @see java.util.Enumeration
      */
     public Enumeration<String> keys() {
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
-
+        Hashtable<String, String> h = new Hashtable<String, String>();
         enumerate(h);
         return h.keys();
     }
 
     /**
-     * Retrieves the hashtable where all the properties are kept.
+     * Retrieves lexicographically sorted properties as a map.
      *
-     * @return hashtable
+     * @return map
      */
-    public Hashtable<String, Object> hashtable() {
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
-
-        enumerate(h);
-        return h;
+    public Map<String, String> getProperties() {
+        Map<String, String> map = new TreeMap<String, String>();
+        enumerate(map);
+        return map;
     }
 
     /**
      * Return the number of items in this substore
      */
     public int size() {
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
-
+        Hashtable<String, String> h = new Hashtable<String, String>();
         enumerate(h);
         return h.size();
     }
 
     /**
-     * Fills the given hash table with all key/value pairs in the current
+     * Fills the given map with all key/value pairs in the current
      * config store, removing the config store name prefix
      * <P>
      *
-     * @param h the hashtable
+     * @param map the map
      */
-    private synchronized void enumerate(Hashtable<String, Object> h) {
+    private synchronized void enumerate(Map<String, String> map) {
         Enumeration<String> e = mSource.keys();
         // We only want the keys which match the current substore name
         // without the current substore prefix.  This code works even
@@ -219,7 +218,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             String key = e.nextElement();
 
             if (key.startsWith(fullName)) {
-                h.put(key.substring(kIndex), nakedGet(key));
+                map.put(key.substring(kIndex), nakedGet(key));
             }
         }
     }
@@ -648,24 +647,17 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public Enumeration<String> getPropertyNames() {
         // XXX - this operation is expensive!!!
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
+        Map<String, String> map = getProperties();
 
-        enumerate(h);
-        Enumeration<String> e = h.keys();
         Vector<String> v = new Vector<String>();
+        for (String name : map.keySet()) {
+            int i = name.indexOf('.'); // substores have "."
+            if (i >= 0) continue;
+            if (v.contains(name)) continue;
 
-        while (e.hasMoreElements()) {
-            String pname = e.nextElement();
-            int i = pname.indexOf('.'); // substores have "."
-
-            if (i == -1) {
-                String n = pname;
-
-                if (!v.contains(n)) {
-                    v.addElement(n);
-                }
-            }
+            v.addElement(name);
         }
+
         return v.elements();
     }
 
@@ -677,24 +669,19 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public Enumeration<String> getSubStoreNames() {
         // XXX - this operation is expensive!!!
-        Hashtable<String, Object> h = new Hashtable<String, Object>();
+        Map<String, String> map = getProperties();
 
-        enumerate(h);
-        Enumeration<String> e = h.keys();
         Vector<String> v = new Vector<String>();
+        for (String name : map.keySet()) {
+            int i = name.indexOf('.'); // substores have "."
+            if (i < 0) continue;
 
-        while (e.hasMoreElements()) {
-            String pname = e.nextElement();
-            int i = pname.indexOf('.'); // substores have "."
+            name = name.substring(0, i);
+            if (v.contains(name)) continue;
 
-            if (i != -1) {
-                String n = pname.substring(0, i);
-
-                if (!v.contains(n)) {
-                    v.addElement(n);
-                }
-            }
+            v.addElement(name);
         }
+
         return v.elements();
     }
 

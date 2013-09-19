@@ -19,6 +19,7 @@ package com.netscape.certsrv.base;
 
 import java.math.BigInteger;
 import java.util.Enumeration;
+import java.util.Map;
 
 /**
  * An interface represents a configuration store.
@@ -294,4 +295,9 @@ public interface IConfigStore extends ISourceConfigStore {
      * Return the number of items in this substore
      */
     public int size();
+
+    /**
+     * Get properties as a map.
+     */
+    public Map<String, String> getProperties() throws EBaseException;
 }

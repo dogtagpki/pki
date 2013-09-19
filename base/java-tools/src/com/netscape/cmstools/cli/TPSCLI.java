@@ -24,6 +24,7 @@ import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.ActivityCLI;
 import com.netscape.cmstools.tps.authenticator.AuthenticatorCLI;
 import com.netscape.cmstools.tps.cert.TPSCertCLI;
+import com.netscape.cmstools.tps.config.ConfigCLI;
 import com.netscape.cmstools.tps.connection.ConnectionCLI;
 import com.netscape.cmstools.tps.token.TokenCLI;
 import com.netscape.cmstools.user.UserCLI;
@@ -40,6 +41,7 @@ public class TPSCLI extends SubsystemCLI {
 
         addModule(new ActivityCLI(this));
         addModule(new AuthenticatorCLI(this));
+        addModule(new ConfigCLI(this));
         addModule(new ConnectionCLI(this));
         addModule(new GroupCLI(this));
         addModule(new TokenCLI(this));

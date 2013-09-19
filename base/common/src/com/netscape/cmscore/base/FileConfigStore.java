@@ -24,8 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -157,66 +156,20 @@ public class FileConfigStore extends PropConfigStore implements
      */
     public void save(String fileName) throws EBaseException {
         try {
+            Map<String, String> map = getProperties();
+
             FileOutputStream fo = new FileOutputStream(fileName);
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(fo));
 
-            printSubStore(writer, this, "");
+            for (String name : map.keySet()) {
+                String value = map.get(name);
+                writer.println(name + "=" + value);
+            }
+
             writer.close();
             fo.close();
         } catch (IOException e) {
             throw new EBaseException("output stream error " + fileName, e);
-        }
-    }
-
-    private void printSubStore(PrintWriter writer, IConfigStore store,
-            String name) throws EBaseException,
-            IOException {
-        // print keys
-        Enumeration<String> e0 = store.getPropertyNames();
-        Vector<String> v = new Vector<String>();
-
-        while (e0.hasMoreElements()) {
-            v.addElement(e0.nextElement());
-        }
-
-        // sorting them lexicographically
-        while (v.size() > 0) {
-            String pname = v.firstElement();
-            int j = 0;
-
-            for (int i = 1; i < v.size(); i++) {
-                String s = v.elementAt(i);
-
-                if (pname.compareTo(s) > 0) {
-                    j = i;
-                    pname = v.elementAt(i);
-                }
-            }
-            v.removeElementAt(j);
-            writer.println(name + pname + "=" + store.getString(pname));
-        }
-
-        // print substores
-        Enumeration<String> e1 = store.getSubStoreNames();
-
-        while (e1.hasMoreElements()) {
-            v.addElement(e1.nextElement());
-        }
-        while (v.size() > 0) {
-            String pname = v.firstElement();
-            int j = 0;
-
-            for (int i = 1; i < v.size(); i++) {
-                String s = v.elementAt(i);
-
-                if (pname.compareTo(s) > 0) {
-                    j = i;
-                    pname = v.elementAt(i);
-                }
-            }
-            v.removeElementAt(j);
-            printSubStore(writer, store.getSubStore(pname), name +
-                    pname + ".");
         }
     }
 }

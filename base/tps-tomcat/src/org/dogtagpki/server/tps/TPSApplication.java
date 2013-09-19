@@ -24,6 +24,7 @@ import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.tps.authenticator.AuthenticatorService;
 import org.dogtagpki.server.tps.cert.TPSCertService;
+import org.dogtagpki.server.tps.config.ConfigService;
 import org.dogtagpki.server.tps.connection.ConnectionService;
 import org.dogtagpki.server.tps.logging.ActivityService;
 import org.dogtagpki.server.tps.token.TokenService;
@@ -71,6 +72,9 @@ public class TPSApplication extends Application {
 
         // authenticators
         classes.add(AuthenticatorService.class);
+
+        // config
+        classes.add(ConfigService.class);
 
         // connections
         classes.add(ConnectionService.class);
