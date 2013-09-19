@@ -30,6 +30,8 @@ import random
 import requests
 import string
 import subprocess
+import xml.etree.ElementTree as ET
+from urlparse import urlparse
 
 # PKI Imports
 import pki
@@ -85,6 +87,7 @@ class PKIConfigParser:
         self.indent = 0
         self.ds_connection = None
         self.sd_connection = None
+        self.authdb_connection = None
 
         # Master and Slot dictionaries
         self.pki_master_dict = dict()
@@ -430,6 +433,45 @@ class PKIConfigParser:
                      extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 raise
+
+    def authdb_connect(self):
+
+        hostname = self.pki_master_dict['pki_authdb_hostname']
+        port = self.pki_master_dict['pki_authdb_port']
+
+        if config.str2bool(self.pki_master_dict['pki_authdb_secure_conn']):
+            protocol = 'ldaps'
+        else:
+            protocol = 'ldap'
+
+        self.authdb_connection = ldap.initialize(protocol + '://' + hostname + ':' + port)
+        self.authdb_connection.search_s('', ldap.SCOPE_BASE)
+
+    def authdb_base_dn_exists(self):
+        try:
+            results = self.authdb_connection.search_s(
+                self.pki_master_dict['pki_authdb_basedn'],
+                ldap.SCOPE_BASE)
+
+            if results is None or len(results) == 0:
+                return False
+
+            return True
+
+        except ldap.NO_SUCH_OBJECT:
+            return False
+
+    def get_server_status(self, system_type, system_uri):
+        parse = urlparse(self.pki_master_dict[system_uri])
+        conn = pki.client.PKIConnection(
+                   protocol=parse.scheme,
+                   hostname=parse.hostname,
+                   port=str(parse.port),
+                   subsystem=system_type)
+        client = pki.system.SystemStatusClient(conn)
+        response = client.getStatus()
+        root = ET.fromstring(response)
+        return root.findtext("Status")
 
     def compose_pki_master_dictionary(self):
         "Create a single master PKI dictionary from the sectional dictionaries"

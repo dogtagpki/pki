@@ -257,6 +257,71 @@ def main(argv):
 
             print
 
+            if  config.pki_subsystem == "TPS":
+                print "External Servers:"
+
+                while True:
+                    parser.read_text('CA URL', config.pki_subsystem, 'pki_ca_uri')
+                    try:
+                        status = parser.get_server_status('ca', 'pki_ca_uri')
+                        if status == 'running':
+                            break
+                        parser.print_text('ERROR: CA is not running')
+                    except requests.exceptions.ConnectionError as e:
+                        parser.print_text('ERROR: ' + str(e))
+
+                while True:
+                    parser.read_text('TKS URL', config.pki_subsystem, 'pki_tks_uri')
+                    try:
+                        status = parser.get_server_status('tks', 'pki_tks_uri')
+                        if status == 'running':
+                            break
+                        parser.print_text('ERROR: TKS is not running')
+                    except requests.exceptions.ConnectionError as e:
+                        parser.print_text('ERROR: ' + str(e))
+
+                while True:
+                    keygen = parser.read_text('Enable server side key generation (Yes/No)',
+                        options=['Yes', 'Y', 'No', 'N'], default='N',
+                        sign='?', caseSensitive=False).lower()
+
+                    if keygen == 'y' or keygen == 'yes':
+                        parser.set_property(config.pki_subsystem, 'pki_enable_server_side_keygen', 'True')
+ 
+                        parser.read_text('KRA URL', config.pki_subsystem, 'pki_kra_uri')
+                        try:
+                            status = parser.get_server_status('kra', 'pki_kra_uri')
+                            if status == 'running':
+                                break
+                            parser.print_text('ERROR: KRA is not running')
+                        except requests.exceptions.ConnectionError as e:
+                            parser.print_text('ERROR: ' + str(e))
+                    else:
+                        parser.set_property(config.pki_subsystem, 'pki_enable_server_side_keygen', 'False')
+                        break
+
+                print
+
+                print "Authentication Database:"
+
+                while True:
+                    parser.read_text('Hostname', config.pki_subsystem, 'pki_authdb_hostname')
+                    parser.read_text('Port', config.pki_subsystem, 'pki_authdb_port')
+                    basedn = parser.read_text('Base DN', allowEmpty=False)
+                    parser.set_property(config.pki_subsystem, 'pki_authdb_basedn', basedn)
+
+                    try:
+                        parser.authdb_connect()
+                        if parser.authdb_base_dn_exists():
+                            break
+                        else:
+                            parser.print_text('ERROR: base DN does not exist')
+
+                    except ldap.LDAPError as e:
+                        parser.print_text('ERROR: ' + e.message['desc'])
+
+                print
+
         if interactive:
             parser.indent = 0
 

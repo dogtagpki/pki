@@ -508,7 +508,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Invalid URI for CA, TKS or KRA");
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new PKIException("Errors in registering TPS to CA, TKS or KRA" + e);
+                throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
             }
         }
 

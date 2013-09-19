@@ -261,7 +261,7 @@ public class DonePanel extends WizardPanelBase {
                 CMS.debug("Invalid URI for CA, TKS or KRA: " + e);
             } catch (Exception e) {
                 e.printStackTrace();
-                CMS.debug("Errors in registering TPS to CA, TKS or KRA" + e);
+                CMS.debug("Errors in registering TPS to CA, TKS or KRA: " + e);
             }
         }
 

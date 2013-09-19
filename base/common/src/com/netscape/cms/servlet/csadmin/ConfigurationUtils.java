@@ -3729,7 +3729,8 @@ public class ConfigurationUtils {
             CMS.debug("registerUser: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                CMS.debug("registerUser: Successfully added user " + uid + "to " + targetURI);
+                CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI + 
+                          " using " + targetURL);
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
             } else {
