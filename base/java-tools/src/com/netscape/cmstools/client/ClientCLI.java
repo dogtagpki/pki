@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.client;
 
-import java.util.Arrays;
-
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -52,28 +50,7 @@ public class ClientCLI extends CLI {
 
         client = parent.getClient();
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printCertInfo(X509Certificate cert) {

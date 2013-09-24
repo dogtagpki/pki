@@ -18,7 +18,6 @@
 package com.netscape.certsrv.client;
 
 import java.net.URISyntaxException;
-import java.util.LinkedHashMap;
 
 import com.netscape.certsrv.account.AccountClient;
 
@@ -30,21 +29,12 @@ public class SubsystemClient extends Client {
 
     public AccountClient accountClient;
 
-    public LinkedHashMap<String, Client> clients = new LinkedHashMap<String, Client>();
-
     public SubsystemClient(PKIClient client, String name) throws URISyntaxException {
         // subsystem name should match the client name
         super(client, name, name);
 
         accountClient = new AccountClient(client, name);
-    }
-
-    public void addClient(Client client) {
-        clients.put(client.getName(), client);
-    }
-
-    public Client getClient(String name) {
-        return clients.get(name);
+        addClient(accountClient);
     }
 
     /**

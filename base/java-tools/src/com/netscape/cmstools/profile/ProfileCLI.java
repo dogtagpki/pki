@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
@@ -52,28 +51,7 @@ public class ProfileCLI extends CLI {
         client = parent.getClient();
         profileClient = new ProfileClient(client);
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printProfileDataInfo(ProfileDataInfo info) {

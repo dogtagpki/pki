@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.user;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -76,28 +74,7 @@ public class UserCLI extends CLI {
             userClient = new UserClient(client);
         }
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printUser(UserData userData) {

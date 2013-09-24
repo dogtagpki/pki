@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -55,28 +53,7 @@ public class SecurityDomainCLI extends CLI {
         client = parent.getClient();
         securityDomainClient = new SecurityDomainClient(client);
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printSecurityDomain(DomainInfo domain) {

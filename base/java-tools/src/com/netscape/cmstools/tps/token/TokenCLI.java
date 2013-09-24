@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.tps.token;
 
-import java.util.Arrays;
-
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.tps.token.TokenClient;
@@ -48,28 +46,7 @@ public class TokenCLI extends CLI {
         client = parent.getClient();
         tokenClient = (TokenClient)parent.getClient("token");
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printToken(TokenData token) {

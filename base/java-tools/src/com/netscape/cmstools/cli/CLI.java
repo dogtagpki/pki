@@ -71,8 +71,12 @@ public class CLI {
         if (parent == null) {
             return name;
         } else {
-            return parent.getName() + "-" + name;
+            return parent.getFullName() + "-" + name;
         }
+    }
+
+    public String getFullModuleName(String moduleName) {
+        return getFullName() + "-" + moduleName;
     }
 
     public String getDescription() {
@@ -96,6 +100,7 @@ public class CLI {
     }
 
     public Object getClient(String name) {
+        if (parent != null) return parent.getClient(name);
         return null;
     }
 
@@ -107,7 +112,7 @@ public class CLI {
         int rightPadding = 25;
 
         for (CLI module : modules.values()) {
-            String label = getFullName() + "-" + module.getName();
+            String label = module.getFullName();
 
             int padding = rightPadding - leftPadding - label.length();
             if (padding < 1)
@@ -127,38 +132,64 @@ public class CLI {
             System.exit(1);
         }
 
+        // A command consists of parts joined by dashes: <part 1>-<part 2>-...-<part N>.
+        // For example: cert-request-find
         String command = args[0];
-        String moduleName;
-        String moduleCommand;
 
-        // If a command contains a '-' sign it will be
-        // split into module name and module command.
-        // Otherwise it's a single command.
-        int i = command.indexOf('-');
-        if (i >= 0) { // <module name>-<module command>
-            moduleName = command.substring(0, i);
-            moduleCommand = command.substring(i+1);
+        // The command will be split into module name and module command, for example:
+        //  - module name: cert
+        //  - module command: request-find
+        String moduleName = null;
+        String moduleCommand = null;
 
-        } else { // <command>
-            moduleName = command;
-            moduleCommand = null;
+        // Search the module by incrementally adding parts into module name.
+        // Repeat until it finds the module or until there is no more parts to add.
+        CLI module = null;
+        int position = 0;
+
+        while (true) {
+
+            // Find the next dash.
+            int i = command.indexOf('-', position);
+            if (i >= 0) {
+                // If dash found, split command.
+                moduleName = command.substring(0, i);
+                moduleCommand = command.substring(i+1);
+
+            } else {
+                // If dash not found, use the whole command.
+                moduleName = command;
+                moduleCommand = null;
+            }
+
+            // Find module with that name.
+            module = getModule(moduleName);
+
+            // If module found, stop.
+            if (module != null) break;
+
+            // If there's no more dashes, stop.
+            if (i < 0) break;
+
+            position = i + 1;
         }
 
-        // get command module
-        if (verbose) System.out.println("Module: " + moduleName);
-        CLI module = getModule(moduleName);
         if (module == null) {
-            throw new Error("Invalid module \"" + moduleName + "\".");
+            throw new Error("Invalid module \"" + getFullModuleName(moduleName) + "\".");
         }
 
-        // prepare module arguments
+        if (verbose) System.out.println("Module: " + moduleName);
+
+        // Prepare module arguments.
         String[] moduleArgs;
         if (moduleCommand != null) {
+            // If module command exists, include it as arguments: <module command> <args>...
             moduleArgs = new String[args.length];
             moduleArgs[0] = moduleCommand;
             System.arraycopy(args, 1, moduleArgs, 1, args.length-1);
 
         } else {
+            // Otherwise, pass the original arguments: <args>...
             moduleArgs = new String[args.length-1];
             System.arraycopy(args, 1, moduleArgs, 0, args.length-1);
         }

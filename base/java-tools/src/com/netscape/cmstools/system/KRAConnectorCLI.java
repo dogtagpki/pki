@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
-import java.util.Arrays;
-
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -51,29 +49,6 @@ public class KRAConnectorCLI extends CLI {
         client = parent.getClient();
         kraConnectorClient = new KRAConnectorClient(client);
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \""+command+"\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
-
-
 }

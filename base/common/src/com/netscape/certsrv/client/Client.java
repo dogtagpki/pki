@@ -18,6 +18,7 @@
 package com.netscape.certsrv.client;
 
 import java.net.URISyntaxException;
+import java.util.LinkedHashMap;
 
 /**
  * @author Endi S. Dewata
@@ -32,6 +33,8 @@ public class Client {
 
     // client name
     public String name;
+
+    public LinkedHashMap<String, Client> clients = new LinkedHashMap<String, Client>();
 
     public Client(PKIClient client, String name) {
         // by default use the subsystem specified in server URI
@@ -50,6 +53,18 @@ public class Client {
 
     public String getName() {
         return name;
+    }
+
+    public void addClient(Client client) {
+        clients.put(client.getName(), client);
+    }
+
+    public Client getClient(String name) {
+        return clients.get(name);
+    }
+
+    public void removeClient(String name) {
+        clients.remove(name);
     }
 
     public <T> T createProxy(Class<T> clazz) throws URISyntaxException {

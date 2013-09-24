@@ -43,11 +43,11 @@ public class TPSClient extends SubsystemClient {
     public void init() throws URISyntaxException {
         addClient(new ActivityClient(client, name));
         addClient(new AuthenticatorClient(client, name));
+        addClient(new TPSCertClient(client, name));
         addClient(new ConfigClient(client, name));
         addClient(new ConnectionClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new TokenClient(client, name));
-        addClient(new TPSCertClient(client, name));
         addClient(new UserClient(client, name));
     }
 }

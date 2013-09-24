@@ -41,11 +41,11 @@ public class TPSCLI extends SubsystemCLI {
 
         addModule(new ActivityCLI(this));
         addModule(new AuthenticatorCLI(this));
+        addModule(new TPSCertCLI(this));
         addModule(new ConfigCLI(this));
         addModule(new ConnectionCLI(this));
         addModule(new GroupCLI(this));
         addModule(new TokenCLI(this));
-        addModule(new TPSCertCLI(this));
         addModule(new UserCLI(this));
     }
 

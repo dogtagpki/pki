@@ -82,6 +82,10 @@ public class MainCLI extends CLI {
         addModule(new UserCLI(this));
     }
 
+    public String getFullModuleName(String moduleName) {
+        return moduleName;
+    }
+
     public void printVersion() {
         Package pkg = MainCLI.class.getPackage();
         System.out.println("PKI Command-Line Interface "+pkg.getImplementationVersion());
@@ -90,29 +94,9 @@ public class MainCLI extends CLI {
     public void printHelp() {
 
         formatter.printHelp(name+" [OPTIONS..] <command> [ARGS..]", options);
-
         System.out.println();
-        System.out.println("Commands:");
 
-        int leftPadding = 1;
-        int rightPadding = 18;
-
-        for (CLI plugin : modules.values()) {
-            String label = plugin.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1) padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(plugin.getDescription());
-        }
-    }
-
-    public void printHelpCommand(String pluginName) {
-        CLI plugin = getModule(pluginName);
-        plugin.printHelp();
+        super.printHelp();
     }
 
     public void createOptions(Options options) throws UnknownHostException {

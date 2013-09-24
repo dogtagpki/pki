@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.key;
 
-import java.util.Arrays;
-
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyDataInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
@@ -54,28 +52,7 @@ public class KeyCLI extends CLI {
         client = parent.getClient();
         keyClient = new KeyClient(client);
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
     public static void printKeyInfo(KeyDataInfo info) {
