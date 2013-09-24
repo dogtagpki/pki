@@ -73,14 +73,14 @@ public class TPSApplication extends Application {
         // authenticators
         classes.add(AuthenticatorService.class);
 
+        // certificates
+        classes.add(TPSCertService.class);
+
         // config
         classes.add(ConfigService.class);
 
         // connections
         classes.add(ConnectionService.class);
-
-        // certificates
-        classes.add(TPSCertService.class);
 
         // tokens
         classes.add(TokenService.class);

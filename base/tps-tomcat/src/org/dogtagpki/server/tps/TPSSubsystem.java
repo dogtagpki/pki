@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps;
 
 import org.dogtagpki.server.tps.authenticator.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.cert.TPSCertDatabase;
+import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.connection.ConnectionDatabase;
 import org.dogtagpki.server.tps.logging.ActivityDatabase;
 import org.dogtagpki.server.tps.token.TokenDatabase;
@@ -53,9 +54,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public IConfigStore config;
 
     public ActivityDatabase activityDatabase;
-    public AuthenticatorDatabase authenticatorDatabase = new AuthenticatorDatabase();
+    public AuthenticatorDatabase authenticatorDatabase;
     public TPSCertDatabase certDatabase;
-    public ConnectionDatabase connectionDatabase = new ConnectionDatabase();
+    public ConfigDatabase configDatabase;
+    public ConnectionDatabase connectionDatabase;
     public TokenDatabase tokenDatabase;
 
     @Override
@@ -84,7 +86,11 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         String tokenDatabaseDN = cs.getString("tokendb.baseDN");
         tokenDatabase = new TokenDatabase(dbSubsystem, tokenDatabaseDN);
-    }
+
+        configDatabase = new ConfigDatabase();
+        authenticatorDatabase = new AuthenticatorDatabase();
+        connectionDatabase = new ConnectionDatabase();
+}
 
     @Override
     public void startup() throws EBaseException {
@@ -139,12 +145,16 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         return authenticatorDatabase;
     }
 
-    public ConnectionDatabase getConnectionDatabase() {
-        return connectionDatabase;
-    }
-
     public TPSCertDatabase getCertDatabase() {
         return certDatabase;
+    }
+
+    public ConfigDatabase getConfigDatabase() {
+        return configDatabase;
+    }
+
+    public ConnectionDatabase getConnectionDatabase() {
+        return connectionDatabase;
     }
 
     public TokenDatabase getTokenDatabase() {

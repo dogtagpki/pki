@@ -21,7 +21,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -32,22 +31,16 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 /**
  * @author Endi S. Dewata
  */
-@Path("configs")
+@Path("config")
 public interface ConfigResource {
 
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConfigCollection findConfigs();
-
-    @GET
-    @Path("{configID}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConfigData getConfig(@PathParam("configID") String configID);
+    public ConfigData getConfig();
 
     @PUT
-    @Path("{configID}")
     @ClientResponseType(entityType=ConfigData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response updateConfig(@PathParam("configID") String configID, ConfigData configData);
+    public Response updateConfig(ConfigData configData);
 }

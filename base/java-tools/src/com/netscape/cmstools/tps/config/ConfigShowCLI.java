@@ -36,17 +36,17 @@ public class ConfigShowCLI extends CLI {
     public ConfigCLI configCLI;
 
     public ConfigShowCLI(ConfigCLI configCLI) {
-        super("show", "Show configuration", configCLI);
+        super("show", "Show general properties", configCLI);
         this.configCLI = configCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Config ID>", options);
+        formatter.printHelp(getFullName(), options);
     }
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "output", true, "Output file to store config attributes.");
+        Option option = new Option(null, "output", true, "Output file to store general properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -63,19 +63,18 @@ public class ConfigShowCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
+        if (cmdArgs.length != 0) {
             printHelp();
             System.exit(1);
         }
 
-        String configID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
-        ConfigData configData = configCLI.configClient.getConfig(configID);
+        ConfigData configData = configCLI.configClient.getConfig();
 
         if (output == null) {
             MainCLI.printMessage("Configuration");
-            ConfigCLI.printConfigData(configData, true);
+            ConfigCLI.printConfigData(configData);
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {

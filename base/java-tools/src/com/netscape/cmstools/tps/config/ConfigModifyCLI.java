@@ -39,22 +39,22 @@ public class ConfigModifyCLI extends CLI {
     public ConfigCLI configCLI;
 
     public ConfigModifyCLI(ConfigCLI configCLI) {
-        super("mod", "Modify configuration", configCLI);
+        super("mod", "Modify general properties", configCLI);
         this.configCLI = configCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Config ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "input", true, "Input configuration file.");
+        Option option = new Option(null, "input", true, "Input file containing general properties.");
         option.setArgName("file");
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option(null, "output", true, "Output configuration file.");
+        option = new Option(null, "output", true, "Output file to store general properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -71,12 +71,11 @@ public class ConfigModifyCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
+        if (cmdArgs.length != 0) {
             printHelp();
             System.exit(1);
         }
 
-        String configID = args[0];
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
 
@@ -100,12 +99,12 @@ public class ConfigModifyCLI extends CLI {
             configData = ConfigData.valueOf(sw.toString());
         }
 
-        configData = configCLI.configClient.updateConfig(configID, configData);
+        configData = configCLI.configClient.updateConfig(configData);
 
         MainCLI.printMessage("Updated configuration");
 
         if (output == null) {
-            ConfigCLI.printConfigData(configData, true);
+            ConfigCLI.printConfigData(configData);
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {

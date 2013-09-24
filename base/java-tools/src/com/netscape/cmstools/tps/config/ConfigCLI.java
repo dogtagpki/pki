@@ -19,7 +19,7 @@
 package com.netscape.cmstools.tps.config;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -37,7 +37,6 @@ public class ConfigCLI extends CLI {
     public ConfigCLI(CLI parent) {
         super("config", "Configuration management commands", parent);
 
-        addModule(new ConfigFindCLI(this));
         addModule(new ConfigModifyCLI(this));
         addModule(new ConfigShowCLI(this));
     }
@@ -47,41 +46,18 @@ public class ConfigCLI extends CLI {
         client = parent.getClient();
         configClient = (ConfigClient)parent.getClient("config");
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
-    public static void printConfigData(ConfigData configData, boolean showProperties) throws IOException {
+    public static void printConfigData(ConfigData configData) throws IOException {
 
-        System.out.println("  Config ID: " + configData.getID());
-        System.out.println("  Display Name: " + configData.getDisplayName());
+        if (configData.getStatus() != null) System.out.println("  Status: " + configData.getStatus());
 
-        if (showProperties) {
-            System.out.println("  Properties:");
-            for (String name : configData.getPropertyNames()) {
-                String value = configData.getProperty(name);
-                System.out.println("    " + name + ": " + value);
-            }
+        System.out.println("  Properties:");
+        Map<String, String> properties = configData.getProperties();
+        for (String name : properties.keySet()) {
+            String value = properties.get(name);
+            System.out.println("    " + name + ": " + value);
         }
 
         Link link = configData.getLink();

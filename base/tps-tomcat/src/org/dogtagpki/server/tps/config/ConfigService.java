@@ -20,11 +20,6 @@ package org.dogtagpki.server.tps.config;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,11 +33,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.ResourceNotFoundException;
-import com.netscape.certsrv.tps.config.ConfigCollection;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.certsrv.tps.config.ConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
@@ -70,107 +61,28 @@ public class ConfigService extends PKIService implements ConfigResource {
         CMS.debug("ConfigService.<init>()");
     }
 
-    public Collection<String> getPatterns(String configID, Map<String, String> map) {
-        Collection<String> patterns = new ArrayList<String>();
-
-        String pattern = map.get("target." + configID + ".pattern");
-        if (pattern != null) {
-            // replace \| with |
-            pattern = pattern.replace("\\|",  "|");
-
-            String list = map.get("target." + configID + ".list");
-            if (list == null) {
-                patterns.add(pattern);
-
-            } else {
-                for (String value : list.split(",")) {
-                    patterns.add(pattern.replace("$name", value));
-                }
-            }
-        }
-
-        return patterns;
-    }
-
-    public ConfigData createConfigData(String configID, Map<String, String> map) throws UnsupportedEncodingException {
-
-        String displayName = map.get("target." + configID + ".displayname");
-        if (displayName == null) {
-            throw new ResourceNotFoundException("Configuration " + configID + " not found.");
-        }
+    public ConfigData createConfigData(Map<String, String> properties) throws UnsupportedEncodingException {
 
         ConfigData configData = new ConfigData();
-        configData.setID(configID);
-        configData.setDisplayName(displayName);
+        configData.setProperties(properties);
 
-        // add properties that fit the patterns
-        Collection<String> patterns = getPatterns(configID, map);
-        for (String pattern : patterns) {
-            for (String name : map.keySet()) {
-                if (!name.matches(pattern)) continue;
-
-                String value = map.get(name);
-                configData.setProperty(name, value);
-            }
-        }
-
-        configID = URLEncoder.encode(configID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ConfigResource.class).path("{configID}").build(configID);
+        URI uri = uriInfo.getBaseUriBuilder().path(ConfigResource.class).build();
         configData.setLink(new Link("self", uri));
 
         return configData;
     }
 
     @Override
-    public ConfigCollection findConfigs() {
-
-        CMS.debug("ConfigService.findConfigs()");
-
-        try {
-            IConfigStore configStore = CMS.getConfigStore();
-            Map<String, String> map = configStore.getProperties();
-
-            ConfigCollection result = new ConfigCollection();
-
-            Collection<String> configIDs = new LinkedHashSet<String>();
-            configIDs.add("Generals");
-
-            String list = map.get("target.configure.list");
-            if (list != null) {
-                configIDs.addAll(Arrays.asList(list.split(",")));
-            }
-
-            list = map.get("target.agent_approve.list");
-            if (list != null) {
-                configIDs.addAll(Arrays.asList(list.split(",")));
-            }
-
-            for (String configID : configIDs) {
-                ConfigData configData = createConfigData(configID, map);
-                result.addConfig(configData);
-            }
-
-            return result;
-
-        } catch (PKIException e) {
-            throw e;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-    }
-
-    @Override
-    public ConfigData getConfig(String configID) {
+    public ConfigData getConfig() {
 
         CMS.debug("ConfigService.getConfig()");
 
         try {
-            IConfigStore configStore = CMS.getConfigStore();
-            Map<String, String> map = configStore.getProperties();
+            ConfigDatabase configDatabase = new ConfigDatabase();
+            ConfigRecord configRecord = configDatabase.getRecord("Generals");
 
-            return createConfigData(configID, map);
+            Map<String, String> properties = configDatabase.getProperties(configRecord, null);
+            return createConfigData(properties);
 
         } catch (PKIException e) {
             throw e;
@@ -182,41 +94,31 @@ public class ConfigService extends PKIService implements ConfigResource {
     }
 
     @Override
-    public Response updateConfig(String configID, ConfigData newConfigData) {
+    public Response updateConfig(ConfigData configData) {
 
         CMS.debug("ConfigService.updateConfig()");
 
         try {
-            IConfigStore configStore = CMS.getConfigStore();
-            Map<String, String> map = configStore.getProperties();
+            ConfigDatabase configDatabase = new ConfigDatabase();
+            ConfigRecord configRecord = configDatabase.getRecord("Generals");
 
-            // verify that new properties fit the patterns
-            Collection<String> patterns = getPatterns(configID, map);
-            for (String pattern : patterns) {
-                for (String name : newConfigData.getPropertyNames()) {
-                    if (name.matches(pattern)) continue;
-                    throw new BadRequestException("Invalid property: " + name);
-                }
-            }
+            // validate new properties
+            Map<String, String> properties = configData.getProperties();
+            configDatabase.validateProperties(configRecord, null, properties);
 
             // remove old properties
-            ConfigData configData = createConfigData(configID, map);
-            for (String name : configData.getPropertyNames()) {
-                configStore.remove(name);
-            }
+            configDatabase.removeProperties(configRecord, null);
 
-            // store new properties
-            for (String name : newConfigData.getPropertyNames()) {
-                String value = newConfigData.getProperty(name);
-                configStore.put(name, value);
-            }
+            // add new properties
+            configDatabase.addProperties(configRecord, null, properties);
 
-            configStore.commit(true);
+            configDatabase.commit();
 
-            newConfigData = getConfig(configID);
+            properties = configDatabase.getProperties(configRecord, null);
+            configData = createConfigData(properties);
 
             return Response
-                    .ok(newConfigData)
+                    .ok(configData)
                     .type(MediaType.APPLICATION_XML)
                     .build();
 

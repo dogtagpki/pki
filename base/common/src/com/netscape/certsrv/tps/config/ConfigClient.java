@@ -44,17 +44,13 @@ public class ConfigClient extends Client {
         resource = createProxy(ConfigResource.class);
     }
 
-    public ConfigCollection findConfigs() {
-        return resource.findConfigs();
+    public ConfigData getConfig() {
+        return resource.getConfig();
     }
 
-    public ConfigData getConfig(String configID) {
-        return resource.getConfig(configID);
-    }
-
-    public ConfigData updateConfig(String configID, ConfigData configData) {
+    public ConfigData updateConfig(ConfigData configData) {
         @SuppressWarnings("unchecked")
-        ClientResponse<ConfigData> response = (ClientResponse<ConfigData>)resource.updateConfig(configID, configData);
+        ClientResponse<ConfigData> response = (ClientResponse<ConfigData>)resource.updateConfig(configData);
         return client.getEntity(response);
     }
 }
