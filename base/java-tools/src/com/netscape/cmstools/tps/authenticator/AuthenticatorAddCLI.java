@@ -43,17 +43,12 @@ public class AuthenticatorAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Authenticator ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "status", true, "Status: ENABLED, DISABLED.");
-        option.setArgName("status");
-        option.setRequired(true);
-        options.addOption(option);
-
-        option = new Option(null, "contents", true, "Input file containing authenticator attributes.");
+        Option option = new Option(null, "input", true, "Input file containing authenticator properties.");
         option.setArgName("file");
         option.setRequired(true);
         options.addOption(option);
@@ -71,37 +66,31 @@ public class AuthenticatorAddCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
+        if (cmdArgs.length != 0) {
             printHelp();
             System.exit(1);
         }
 
-        String authenticatorID = cmdArgs[0];
-        String status = cmd.getOptionValue("status");
-        String contents = cmd.getOptionValue("contents");
+        String input = cmd.getOptionValue("input");
 
-        AuthenticatorData authenticatorData = new AuthenticatorData();
-        authenticatorData.setID(authenticatorID);
-        authenticatorData.setStatus(status);
+        AuthenticatorData authenticatorData;
 
-        if (contents != null) {
-            try (BufferedReader in = new BufferedReader(new FileReader(contents));
-                StringWriter sw = new StringWriter();
-                PrintWriter out = new PrintWriter(sw, true)) {
+        try (BufferedReader in = new BufferedReader(new FileReader(input));
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw, true)) {
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    out.println(line);
-                }
-
-                authenticatorData.setContents(sw.toString());
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.println(line);
             }
+
+            authenticatorData = AuthenticatorData.valueOf(sw.toString());
         }
 
         authenticatorData = authenticatorCLI.authenticatorClient.addAuthenticator(authenticatorData);
 
-        MainCLI.printMessage("Added authenticator \"" + authenticatorID + "\"");
+        MainCLI.printMessage("Added authenticator \"" + authenticatorData.getID() + "\"");
 
-        AuthenticatorCLI.printAuthenticatorData(authenticatorData);
+        AuthenticatorCLI.printAuthenticatorData(authenticatorData, true);
     }
 }

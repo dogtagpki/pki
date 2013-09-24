@@ -64,15 +64,6 @@ public interface AuthenticatorResource {
             @PathParam("authenticatorID") String authenticatorID,
             AuthenticatorData authenticatorData);
 
-    @POST
-    @Path("{authenticatorID}")
-    @ClientResponseType(entityType=AuthenticatorData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response modifyAuthenticator(
-            @PathParam("authenticatorID") String authenticatorID,
-            AuthenticatorModification request);
-
     @DELETE
     @Path("{authenticatorID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

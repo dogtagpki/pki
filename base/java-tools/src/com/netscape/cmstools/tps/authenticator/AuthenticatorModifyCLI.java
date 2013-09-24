@@ -27,7 +27,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorModification;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -53,7 +52,7 @@ public class AuthenticatorModifyCLI extends CLI {
         option.setArgName("status");
         options.addOption(option);
 
-        option = new Option(null, "contents", true, "Input file containing authenticator attributes.");
+        option = new Option(null, "input", true, "Input file containing authenticator properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -77,31 +76,26 @@ public class AuthenticatorModifyCLI extends CLI {
 
         String authenticatorID = cmdArgs[0];
         String status = cmd.getOptionValue("status");
-        String contents = cmd.getOptionValue("contents");
+        String input = cmd.getOptionValue("input");
 
-        AuthenticatorModification authenticatorModification = new AuthenticatorModification();
-        authenticatorModification.setID(authenticatorID);
-        authenticatorModification.setStatus(status);
+        AuthenticatorData authenticatorData;
 
-        if (contents != null) {
-            // load contents from file
+        try (BufferedReader in = new BufferedReader(new FileReader(input));
             StringWriter sw = new StringWriter();
-            try (BufferedReader in = new BufferedReader(new FileReader(contents));
-                PrintWriter out = new PrintWriter(sw, true)) {
+            PrintWriter out = new PrintWriter(sw, true)) {
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    out.println(line);
-                }
-
-                authenticatorModification.setContents(sw.toString());
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.println(line);
             }
+
+            authenticatorData = AuthenticatorData.valueOf(sw.toString());
         }
 
-        AuthenticatorData authenticatorData = authenticatorCLI.authenticatorClient.modifyAuthenticator(authenticatorID, authenticatorModification);
+        authenticatorData = authenticatorCLI.authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);
 
         MainCLI.printMessage("Modified authenticator \"" + authenticatorID + "\"");
 
-        AuthenticatorCLI.printAuthenticatorData(authenticatorData);
+        AuthenticatorCLI.printAuthenticatorData(authenticatorData, true);
     }
 }

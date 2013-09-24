@@ -24,7 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorInfo;
+import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -35,9 +35,9 @@ public class AuthenticatorFindCLI extends CLI {
 
     public AuthenticatorCLI authenticatorCLI;
 
-    public AuthenticatorFindCLI(AuthenticatorCLI tokenCLI) {
-        super("find", "Find authenticators", tokenCLI);
-        this.authenticatorCLI = tokenCLI;
+    public AuthenticatorFindCLI(AuthenticatorCLI authenticatorCLI) {
+        super("find", "Find authenticators", authenticatorCLI);
+        this.authenticatorCLI = authenticatorCLI;
     }
 
     public void printHelp() {
@@ -72,13 +72,13 @@ public class AuthenticatorFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         AuthenticatorCollection result = authenticatorCLI.authenticatorClient.findAuthenticators(start, size);
-        Collection<AuthenticatorInfo> authenticators = result.getEntries();
+        Collection<AuthenticatorData> authenticators = result.getEntries();
 
         MainCLI.printMessage(authenticators.size() + " authenticator(s) matched");
 
         boolean first = true;
 
-        for (AuthenticatorInfo authenticatorInfo : authenticators) {
+        for (AuthenticatorData authenticatorData : authenticators) {
 
             if (first) {
                 first = false;
@@ -86,7 +86,7 @@ public class AuthenticatorFindCLI extends CLI {
                 System.out.println();
             }
 
-            AuthenticatorCLI.printAuthenticatorInfo(authenticatorInfo);
+            AuthenticatorCLI.printAuthenticatorData(authenticatorData, false);
         }
 
         MainCLI.printMessage("Number of entries returned " + authenticators.size());

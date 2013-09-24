@@ -18,11 +18,18 @@
 
 package org.dogtagpki.server.tps.authenticator;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
+import org.dogtagpki.server.tps.config.ConfigDatabase;
+import org.dogtagpki.server.tps.config.ConfigRecord;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.cmscore.dbs.Database;
 
 /**
- * This class implements in-memory connection database. In the future this
- * will be replaced with LDAP database.
+ * This class provides access to the authenticators in CS.cfg.
  *
  * @author Endi S. Dewata
  */
@@ -30,31 +37,95 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
     public AuthenticatorDatabase() {
         super("Authenticator");
+    }
 
-        // add sample records
-        try {
-            AuthenticatorRecord record1 = new AuthenticatorRecord();
-            record1.setID("authenticator1");
-            record1.setStatus("ENABLED");
-            record1.setContents("name=authenticator1\nparam=value");
-            addRecord(record1);
+    public AuthenticatorRecord createAuthenticatorRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String authenticatorID) {
+        AuthenticatorRecord authenticatorRecord = new AuthenticatorRecord();
+        authenticatorRecord.setID(authenticatorID);
+        Map<String, String> properties = configDatabase.getProperties(configRecord, authenticatorID);
+        authenticatorRecord.setProperties(properties);
+        return authenticatorRecord;
+    }
 
-            AuthenticatorRecord record2 = new AuthenticatorRecord();
-            record2.setID("authenticator2");
-            record2.setStatus("DISABLED");
-            record2.setContents("name=authenticator2\nparam=value");
-            addRecord(record2);
+    @Override
+    public Collection<AuthenticatorRecord> getRecords() throws Exception {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        Collection<AuthenticatorRecord> result = new ArrayList<AuthenticatorRecord>();
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+
+        for (String authenticatorID : configRecord.getKeys()) {
+            AuthenticatorRecord authenticatorRecord = createAuthenticatorRecord(configDatabase, configRecord, authenticatorID);
+            result.add(authenticatorRecord);
         }
+
+        return result;
     }
 
-    public void addRecord(AuthenticatorRecord authenticatorRecord) throws Exception {
-        addRecord(authenticatorRecord.getID(), authenticatorRecord);
+    @Override
+    public AuthenticatorRecord getRecord(String authenticatorID) throws Exception {
+
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+
+        return createAuthenticatorRecord(configDatabase, configRecord, authenticatorID);
     }
 
-    public void updateRecord(AuthenticatorRecord authenticatorRecord) throws Exception {
-        updateRecord(authenticatorRecord.getID(), authenticatorRecord);
+    @Override
+    public void addRecord(String authenticatorID, AuthenticatorRecord authenticatorRecord) throws Exception {
+
+        CMS.debug("AuthenticatorDatabase.addRecord(\"" + authenticatorID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+
+        // validate new properties
+        Map<String, String> properties = authenticatorRecord.getProperties();
+        configDatabase.validateProperties(configRecord, authenticatorID, properties);
+
+        // add new connection
+        configRecord.addKey(authenticatorID);
+        configDatabase.updateRecord("Authentication_Sources", configRecord);
+
+        // store new properties
+        configDatabase.addProperties(configRecord, authenticatorID, properties);
+
+        configDatabase.commit();
+    }
+
+    @Override
+    public void updateRecord(String authenticatorID, AuthenticatorRecord authenticatorRecord) throws Exception {
+
+        CMS.debug("AuthenticatorDatabase.updateRecord(\"" + authenticatorID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+
+        // validate new properties
+        Map<String, String> properties = authenticatorRecord.getProperties();
+        configDatabase.validateProperties(configRecord, authenticatorID, properties);
+
+        // remove old properties
+        configDatabase.removeProperties(configRecord, authenticatorID);
+
+        // add new properties
+        configDatabase.addProperties(configRecord, authenticatorID, properties);
+
+        configDatabase.commit();
+    }
+
+    @Override
+    public void removeRecord(String authenticatorID) throws Exception {
+
+        CMS.debug("AuthenticatorDatabase.removeRecord(\"" + authenticatorID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+
+        // remove properties
+        configDatabase.removeProperties(configRecord, authenticatorID);
+
+        // remove connection
+        configRecord.removeKey(authenticatorID);
+        configDatabase.updateRecord("Authentication_Sources", configRecord);
+
+        configDatabase.commit();
     }
 }

@@ -29,10 +29,10 @@ import com.netscape.certsrv.base.DataCollection;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Authenticators")
-public class AuthenticatorCollection extends DataCollection<AuthenticatorInfo> {
+public class AuthenticatorCollection extends DataCollection<AuthenticatorData> {
 
     @XmlElementRef
-    public Collection<AuthenticatorInfo> getEntries() {
+    public Collection<AuthenticatorData> getEntries() {
         return super.getEntries();
     }
 }

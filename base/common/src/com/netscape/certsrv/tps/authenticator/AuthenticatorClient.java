@@ -64,12 +64,6 @@ public class AuthenticatorClient extends Client {
         return client.getEntity(response);
     }
 
-    public AuthenticatorData modifyAuthenticator(String authenticatorID, AuthenticatorModification authenticatorModification) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<AuthenticatorData> response = (ClientResponse<AuthenticatorData>)resource.modifyAuthenticator(authenticatorID, authenticatorModification);
-        return client.getEntity(response);
-    }
-
     public void removeAuthenticator(String authenticatorID) {
         resource.removeAuthenticator(authenticatorID);
     }

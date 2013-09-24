@@ -18,16 +18,13 @@
 
 package com.netscape.cmstools.tps.authenticator;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Arrays;
+import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorInfo;
 import com.netscape.cmstools.cli.CLI;
 
 /**
@@ -52,51 +49,19 @@ public class AuthenticatorCLI extends CLI {
         client = parent.getClient();
         authenticatorClient = (AuthenticatorClient)parent.getClient("authenticator");
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
-    public static void printAuthenticatorInfo(AuthenticatorInfo authenticatorInfo) {
-        System.out.println("  Authenticator ID: " + authenticatorInfo.getID());
-        if (authenticatorInfo.getStatus() != null) System.out.println("  Status: " + authenticatorInfo.getStatus());
-
-        Link link = authenticatorInfo.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
-    }
-
-    public static void printAuthenticatorData(AuthenticatorData authenticatorData) throws IOException {
+    public static void printAuthenticatorData(AuthenticatorData authenticatorData, boolean showProperties) throws IOException {
         System.out.println("  Authenticator ID: " + authenticatorData.getID());
         if (authenticatorData.getStatus() != null) System.out.println("  Status: " + authenticatorData.getStatus());
 
-        System.out.println("  Contents:");
-        String contents = authenticatorData.getContents();
-        if (contents != null) {
-            BufferedReader in = new BufferedReader(new StringReader(contents));
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println("    " + line);
+        if (showProperties) {
+            System.out.println("  Properties:");
+            Map<String, String> properties = authenticatorData.getProperties();
+            for (String name : properties.keySet()) {
+                String value = properties.get(name);
+                System.out.println("    " + name + ": " + value);
             }
         }
 

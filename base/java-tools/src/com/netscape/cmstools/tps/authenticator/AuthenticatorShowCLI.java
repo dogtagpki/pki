@@ -46,7 +46,7 @@ public class AuthenticatorShowCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "contents", true, "Output file to store authenticator attributes.");
+        Option option = new Option(null, "output", true, "Output file to store authenticator properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -69,19 +69,19 @@ public class AuthenticatorShowCLI extends CLI {
         }
 
         String authenticatorID = args[0];
-        String file = cmd.getOptionValue("contents");
+        String output = cmd.getOptionValue("output");
 
         AuthenticatorData authenticatorData = authenticatorCLI.authenticatorClient.getAuthenticator(authenticatorID);
 
-        MainCLI.printMessage("Authenticator \"" + authenticatorID + "\"");
-        AuthenticatorCLI.printAuthenticatorData(authenticatorData);
+        if (output == null) {
+            MainCLI.printMessage("Authenticator \"" + authenticatorID + "\"");
+            AuthenticatorCLI.printAuthenticatorData(authenticatorData, true);
 
-        if (file != null) {
-            // store contents to file
-            PrintWriter out = new PrintWriter(new FileWriter(file));
-            String contents = authenticatorData.getContents();
-            if (contents != null) out.print(contents);
-            out.close();
+        } else {
+            try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
+                out.println(authenticatorData);
+            }
+            MainCLI.printMessage("Stored authenticator \"" + authenticatorID + "\" into " + output);
         }
     }
 }

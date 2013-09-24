@@ -38,8 +38,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorInfo;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorModification;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
 import com.netscape.cms.servlet.base.PKIService;
 
@@ -66,41 +64,16 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.<init>()");
     }
 
-    public AuthenticatorInfo createAuthenticatorInfo(AuthenticatorRecord authenticatorRecord) {
-
-        AuthenticatorInfo authenticatorInfo = new AuthenticatorInfo();
-        authenticatorInfo.setID(authenticatorRecord.getID());
-        authenticatorInfo.setStatus(authenticatorRecord.getStatus());
+    public AuthenticatorData createAuthenticatorData(AuthenticatorRecord authenticatorRecord) throws UnsupportedEncodingException {
 
         String authenticatorID = authenticatorRecord.getID();
-        try {
-            authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}").build(authenticatorID);
-        authenticatorInfo.setLink(new Link("self", uri));
-
-        return authenticatorInfo;
-    }
-
-    public AuthenticatorData createAuthenticatorData(AuthenticatorRecord authenticatorRecord) {
 
         AuthenticatorData authenticatorData = new AuthenticatorData();
-        authenticatorData.setID(authenticatorRecord.getID());
+        authenticatorData.setID(authenticatorID);
         authenticatorData.setStatus(authenticatorRecord.getStatus());
-        authenticatorData.setContents(authenticatorRecord.getContents());
+        authenticatorData.setProperties(authenticatorRecord.getProperties());
 
-        String authenticatorID = authenticatorRecord.getID();
-        try {
-            authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-
+        authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
         URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}").build(authenticatorID);
         authenticatorData.setLink(new Link("self", uri));
 
@@ -112,7 +85,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         AuthenticatorRecord authenticatorRecord = new AuthenticatorRecord();
         authenticatorRecord.setID(authenticatorData.getID());
         authenticatorRecord.setStatus(authenticatorData.getStatus());
-        authenticatorRecord.setContents(authenticatorData.getContents());
+        authenticatorRecord.setProperties(authenticatorData.getProperties());
 
         return authenticatorRecord;
     }
@@ -140,7 +113,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             // return entries up to the page size
             for ( ; i<start+size && authenticators.hasNext(); i++) {
-                response.addEntry(createAuthenticatorInfo(authenticators.next()));
+                response.addEntry(createAuthenticatorData(authenticators.next()));
             }
 
             // count the total entries
@@ -190,7 +163,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
-            database.addRecord(createAuthenticatorRecord(authenticatorData));
+            database.addRecord(authenticatorData.getID(), createAuthenticatorRecord(authenticatorData));
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorData.getID()));
 
             return Response
@@ -214,43 +187,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
-            database.updateRecord(createAuthenticatorRecord(authenticatorData));
+            database.updateRecord(authenticatorID, createAuthenticatorRecord(authenticatorData));
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
-
-            return Response
-                    .ok(authenticatorData)
-                    .type(MediaType.APPLICATION_XML)
-                    .build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Response modifyAuthenticator(String authenticatorID, AuthenticatorModification request) {
-
-        CMS.debug("AuthenticatorService.modifyAuthenticator(\"" + authenticatorID + "\", request");
-
-        try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
-
-            AuthenticatorRecord authenticatorRecord = database.getRecord(authenticatorID);
-
-            String status = request.getStatus();
-            if (status != null) {
-                authenticatorRecord.setStatus(status);
-            }
-
-            String contents = request.getContents();
-            if (contents != null) {
-                authenticatorRecord.setContents(contents);
-            }
-
-            database.updateRecord(authenticatorRecord);
-            AuthenticatorData authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
 
             return Response
                     .ok(authenticatorData)
