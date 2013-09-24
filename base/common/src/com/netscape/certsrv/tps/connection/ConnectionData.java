@@ -20,6 +20,11 @@ package com.netscape.certsrv.tps.connection;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -27,6 +32,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -51,7 +59,7 @@ public class ConnectionData {
 
     String id;
     String status;
-    String contents;
+    Map<String, String> properties = new LinkedHashMap<String, String>();
 
     Link link;
 
@@ -73,13 +81,67 @@ public class ConnectionData {
         this.status = status;
     }
 
-    @XmlElement(name="Contents")
-    public String getContents() {
-        return contents;
+    @XmlElement(name="Properties")
+    @XmlJavaTypeAdapter(MapAdapter.class)
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    public void setContents(String contents) {
-        this.contents = contents;
+    public void setProperties(Map<String, String> properties) {
+        this.properties.clear();
+        this.properties.putAll(properties);
+    }
+
+    public Collection<String> getPropertyNames() {
+        return properties.keySet();
+    }
+
+    public String getProperty(String name) {
+        return properties.get(name);
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
+    }
+
+    public String removeProperty(String name) {
+        return properties.remove(name);
+    }
+
+    public static class MapAdapter extends XmlAdapter<PropertyList, Map<String, String>> {
+
+        public PropertyList marshal(Map<String, String> map) {
+            PropertyList list = new PropertyList();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                Property property = new Property();
+                property.name = entry.getKey();
+                property.value = entry.getValue();
+                list.properties.add(property);
+            }
+            return list;
+        }
+
+        public Map<String, String> unmarshal(PropertyList list) {
+            Map<String, String> map = new LinkedHashMap<String, String>();
+            for (Property property : list.properties) {
+                map.put(property.name, property.value);
+            }
+            return map;
+        }
+    }
+
+    public static class PropertyList {
+        @XmlElement(name="Property")
+        public List<Property> properties = new ArrayList<Property>();
+    }
+
+    public static class Property {
+
+        @XmlAttribute
+        public String name;
+
+        @XmlValue
+        public String value;
     }
 
     @XmlElement(name="Link")
@@ -95,9 +157,9 @@ public class ConnectionData {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((contents == null) ? 0 : contents.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         return result;
     }
@@ -111,11 +173,6 @@ public class ConnectionData {
         if (getClass() != obj.getClass())
             return false;
         ConnectionData other = (ConnectionData) obj;
-        if (contents == null) {
-            if (other.contents != null)
-                return false;
-        } else if (!contents.equals(other.contents))
-            return false;
         if (id == null) {
             if (other.id != null)
                 return false;
@@ -125,6 +182,11 @@ public class ConnectionData {
             if (other.link != null)
                 return false;
         } else if (!link.equals(other.link))
+            return false;
+        if (properties == null) {
+            if (other.properties != null)
+                return false;
+        } else if (!properties.equals(other.properties))
             return false;
         if (status == null) {
             if (other.status != null)
@@ -158,7 +220,8 @@ public class ConnectionData {
         ConnectionData before = new ConnectionData();
         before.setID("connection1");
         before.setStatus("ENABLED");
-        before.setContents("name=connection1\nparam=value");
+        before.setProperty("param1", "value1");
+        before.setProperty("param2", "value2");
 
         String string = before.toString();
         System.out.println(string);

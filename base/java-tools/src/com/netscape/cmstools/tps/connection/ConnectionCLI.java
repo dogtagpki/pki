@@ -18,16 +18,13 @@
 
 package com.netscape.cmstools.tps.connection;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Arrays;
+import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.tps.connection.ConnectionClient;
 import com.netscape.certsrv.tps.connection.ConnectionData;
-import com.netscape.certsrv.tps.connection.ConnectionInfo;
 import com.netscape.cmstools.cli.CLI;
 
 /**
@@ -52,51 +49,19 @@ public class ConnectionCLI extends CLI {
         client = parent.getClient();
         connectionClient = (ConnectionClient)parent.getClient("connection");
 
-        if (args.length == 0) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String command = args[0];
-        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-
-        if (command == null) {
-            printHelp();
-            System.exit(1);
-        }
-
-        CLI module = getModule(command);
-        if (module != null) {
-            module.execute(commandArgs);
-
-        } else {
-            System.err.println("Error: Invalid command \"" + command + "\"");
-            printHelp();
-            System.exit(1);
-        }
+        super.execute(args);
     }
 
-    public static void printConnectionInfo(ConnectionInfo connectionInfo) {
-        System.out.println("  Connection ID: " + connectionInfo.getID());
-        if (connectionInfo.getStatus() != null) System.out.println("  Status: " + connectionInfo.getStatus());
-
-        Link link = connectionInfo.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
-    }
-
-    public static void printConnectionData(ConnectionData connectionData) throws IOException {
+    public static void printConnectionData(ConnectionData connectionData, boolean showProperties) throws IOException {
         System.out.println("  Connection ID: " + connectionData.getID());
         if (connectionData.getStatus() != null) System.out.println("  Status: " + connectionData.getStatus());
 
-        System.out.println("  Contents:");
-        String contents = connectionData.getContents();
-        if (contents != null) {
-            BufferedReader in = new BufferedReader(new StringReader(contents));
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println("    " + line);
+        if (showProperties) {
+            System.out.println("  Properties:");
+            Map<String, String> properties = connectionData.getProperties();
+            for (String name : properties.keySet()) {
+                String value = properties.get(name);
+                System.out.println("    " + name + ": " + value);
             }
         }
 

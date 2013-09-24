@@ -18,6 +18,10 @@
 
 package org.dogtagpki.server.tps.connection;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
+
 
 /**
  * @author Endi S. Dewata
@@ -26,7 +30,7 @@ public class ConnectionRecord {
 
     String id;
     String status;
-    String contents;
+    Map<String, String> properties = new TreeMap<String, String>();
 
     public String getID() {
         return id;
@@ -44,20 +48,37 @@ public class ConnectionRecord {
         this.status = status;
     }
 
-    public String getContents() {
-        return contents;
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    public void setContents(String contents) {
-        this.contents = contents;
+    public void setProperties(Map<String, String> properties) {
+        this.properties.clear();
+        this.properties.putAll(properties);
+    }
+
+    public Collection<String> getPropertyNames() {
+        return properties.keySet();
+    }
+
+    public String getProperty(String name) {
+        return properties.get(name);
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
+    }
+
+    public String removeProperty(String name) {
+        return properties.remove(name);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((contents == null) ? 0 : contents.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         return result;
     }
@@ -71,15 +92,15 @@ public class ConnectionRecord {
         if (getClass() != obj.getClass())
             return false;
         ConnectionRecord other = (ConnectionRecord) obj;
-        if (contents == null) {
-            if (other.contents != null)
-                return false;
-        } else if (!contents.equals(other.contents))
-            return false;
         if (id == null) {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
+            return false;
+        if (properties == null) {
+            if (other.properties != null)
+                return false;
+        } else if (!properties.equals(other.properties))
             return false;
         if (status == null) {
             if (other.status != null)

@@ -48,12 +48,7 @@ public class ConnectionAddCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "status", true, "Status: ENABLED, DISABLED.");
-        option.setArgName("status");
-        option.setRequired(true);
-        options.addOption(option);
-
-        option = new Option(null, "contents", true, "Input file containing connection attributes.");
+        Option option = new Option(null, "input", true, "Input file containing connection properties.");
         option.setArgName("file");
         option.setRequired(true);
         options.addOption(option);
@@ -71,37 +66,31 @@ public class ConnectionAddCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
+        if (cmdArgs.length != 0) {
             printHelp();
             System.exit(1);
         }
 
-        String connectionID = cmdArgs[0];
-        String status = cmd.getOptionValue("status");
-        String contents = cmd.getOptionValue("contents");
+        String input = cmd.getOptionValue("input");
 
-        ConnectionData connectionData = new ConnectionData();
-        connectionData.setID(connectionID);
-        connectionData.setStatus(status);
+        ConnectionData connectionData;
 
-        if (contents != null) {
-            try (BufferedReader in = new BufferedReader(new FileReader(contents));
-                StringWriter sw = new StringWriter();
-                PrintWriter out = new PrintWriter(sw, true)) {
+        try (BufferedReader in = new BufferedReader(new FileReader(input));
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw, true)) {
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    out.println(line);
-                }
-
-                connectionData.setContents(sw.toString());
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.println(line);
             }
+
+            connectionData = ConnectionData.valueOf(sw.toString());
         }
 
         connectionData = connectionCLI.connectionClient.addConnection(connectionData);
 
-        MainCLI.printMessage("Added connection \"" + connectionID + "\"");
+        MainCLI.printMessage("Added connection \"" + connectionData.getID() + "\"");
 
-        ConnectionCLI.printConnectionData(connectionData);
+        ConnectionCLI.printConnectionData(connectionData, true);
     }
 }

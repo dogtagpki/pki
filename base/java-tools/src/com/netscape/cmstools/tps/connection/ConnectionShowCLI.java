@@ -46,7 +46,7 @@ public class ConnectionShowCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "contents", true, "Output file to store connection attributes.");
+        Option option = new Option(null, "output", true, "Output file to store connection properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -69,19 +69,19 @@ public class ConnectionShowCLI extends CLI {
         }
 
         String connectionID = args[0];
-        String file = cmd.getOptionValue("contents");
+        String output = cmd.getOptionValue("output");
 
         ConnectionData connectionData = connectionCLI.connectionClient.getConnection(connectionID);
 
-        MainCLI.printMessage("Connection \"" + connectionID + "\"");
-        ConnectionCLI.printConnectionData(connectionData);
+        if (output == null) {
+            MainCLI.printMessage("Connection \"" + connectionID + "\"");
+            ConnectionCLI.printConnectionData(connectionData, true);
 
-        if (file != null) {
-            // store contents to file
-            PrintWriter out = new PrintWriter(new FileWriter(file));
-            String contents = connectionData.getContents();
-            if (contents != null) out.print(contents);
-            out.close();
+        } else {
+            try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
+                out.println(connectionData);
+            }
+            MainCLI.printMessage("Stored connection \"" + connectionID + "\" into " + output);
         }
     }
 }

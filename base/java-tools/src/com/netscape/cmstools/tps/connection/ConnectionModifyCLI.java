@@ -27,7 +27,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.connection.ConnectionData;
-import com.netscape.certsrv.tps.connection.ConnectionModification;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -53,7 +52,7 @@ public class ConnectionModifyCLI extends CLI {
         option.setArgName("status");
         options.addOption(option);
 
-        option = new Option(null, "contents", true, "Input file containing connection attributes.");
+        option = new Option(null, "input", true, "Input file containing connection properties.");
         option.setArgName("file");
         options.addOption(option);
 
@@ -77,31 +76,26 @@ public class ConnectionModifyCLI extends CLI {
 
         String connectionID = cmdArgs[0];
         String status = cmd.getOptionValue("status");
-        String contents = cmd.getOptionValue("contents");
+        String input = cmd.getOptionValue("input");
 
-        ConnectionModification connectionModification = new ConnectionModification();
-        connectionModification.setID(connectionID);
-        connectionModification.setStatus(status);
+        ConnectionData connectionData;
 
-        if (contents != null) {
-            // load contents from file
+        try (BufferedReader in = new BufferedReader(new FileReader(input));
             StringWriter sw = new StringWriter();
-            try (BufferedReader in = new BufferedReader(new FileReader(contents));
-                PrintWriter out = new PrintWriter(sw, true)) {
+            PrintWriter out = new PrintWriter(sw, true)) {
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    out.println(line);
-                }
-
-                connectionModification.setContents(sw.toString());
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.println(line);
             }
+
+            connectionData = ConnectionData.valueOf(sw.toString());
         }
 
-        ConnectionData connectionData = connectionCLI.connectionClient.modifyConnection(connectionID, connectionModification);
+        connectionData = connectionCLI.connectionClient.updateConnection(connectionID, connectionData);
 
         MainCLI.printMessage("Modified connection \"" + connectionID + "\"");
 
-        ConnectionCLI.printConnectionData(connectionData);
+        ConnectionCLI.printConnectionData(connectionData, true);
     }
 }

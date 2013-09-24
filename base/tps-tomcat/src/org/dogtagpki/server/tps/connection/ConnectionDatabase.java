@@ -18,11 +18,18 @@
 
 package org.dogtagpki.server.tps.connection;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
+import org.dogtagpki.server.tps.config.ConfigDatabase;
+import org.dogtagpki.server.tps.config.ConfigRecord;
+
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.cmscore.dbs.Database;
 
 /**
- * This class implements in-memory connection database. In the future this
- * will be replaced with LDAP database.
+ * This class provides access to the connections in CS.cfg.
  *
  * @author Endi S. Dewata
  */
@@ -30,31 +37,95 @@ public class ConnectionDatabase extends Database<ConnectionRecord> {
 
     public ConnectionDatabase() {
         super("Connection");
+    }
 
-        // add sample records
-        try {
-            ConnectionRecord record1 = new ConnectionRecord();
-            record1.setID("connection1");
-            record1.setStatus("ENABLED");
-            record1.setContents("name=connection1\nparam=value");
-            addRecord(record1);
+    public ConnectionRecord createConnectionRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String connectionID) {
+        ConnectionRecord connectionRecord = new ConnectionRecord();
+        connectionRecord.setID(connectionID);
+        Map<String, String> properties = configDatabase.getProperties(configRecord, connectionID);
+        connectionRecord.setProperties(properties);
+        return connectionRecord;
+    }
 
-            ConnectionRecord record2 = new ConnectionRecord();
-            record2.setID("connection2");
-            record2.setStatus("DISABLED");
-            record2.setContents("name=connection2\nparam=value");
-            addRecord(record2);
+    @Override
+    public Collection<ConnectionRecord> getRecords() throws Exception {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        Collection<ConnectionRecord> result = new ArrayList<ConnectionRecord>();
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+
+        for (String connectionID : configRecord.getKeys()) {
+            ConnectionRecord connectionRecord = createConnectionRecord(configDatabase, configRecord, connectionID);
+            result.add(connectionRecord);
         }
+
+        return result;
     }
 
-    public void addRecord(ConnectionRecord connectionRecord) throws Exception {
-        addRecord(connectionRecord.getID(), connectionRecord);
+    @Override
+    public ConnectionRecord getRecord(String connectionID) throws Exception {
+
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+
+        return createConnectionRecord(configDatabase, configRecord, connectionID);
     }
 
-    public void updateRecord(ConnectionRecord connectionRecord) throws Exception {
-        updateRecord(connectionRecord.getID(), connectionRecord);
+    @Override
+    public void addRecord(String connectionID, ConnectionRecord connectionRecord) throws Exception {
+
+        CMS.debug("ConnectionDatabase.addRecord(\"" + connectionID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+
+        // validate new properties
+        Map<String, String> properties = connectionRecord.getProperties();
+        configDatabase.validateProperties(configRecord, connectionID, properties);
+
+        // add new connection
+        configRecord.addKey(connectionID);
+        configDatabase.updateRecord("Subsystem_Connections", configRecord);
+
+        // store new properties
+        configDatabase.addProperties(configRecord, connectionID, properties);
+
+        configDatabase.commit();
+    }
+
+    @Override
+    public void updateRecord(String connectionID, ConnectionRecord connectionRecord) throws Exception {
+
+        CMS.debug("ConnectionDatabase.updateRecord(\"" + connectionID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+
+        // validate new properties
+        Map<String, String> properties = connectionRecord.getProperties();
+        configDatabase.validateProperties(configRecord, connectionID, properties);
+
+        // remove old properties
+        configDatabase.removeProperties(configRecord, connectionID);
+
+        // add new properties
+        configDatabase.addProperties(configRecord, connectionID, properties);
+
+        configDatabase.commit();
+    }
+
+    @Override
+    public void removeRecord(String connectionID) throws Exception {
+
+        CMS.debug("ConnectionDatabase.removeRecord(\"" + connectionID + "\")");
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+
+        // remove properties
+        configDatabase.removeProperties(configRecord, connectionID);
+
+        // remove connection
+        configRecord.removeKey(connectionID);
+        configDatabase.updateRecord("Subsystem_Connections", configRecord);
+
+        configDatabase.commit();
     }
 }

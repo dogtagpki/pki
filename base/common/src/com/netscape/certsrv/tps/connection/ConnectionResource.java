@@ -64,15 +64,6 @@ public interface ConnectionResource {
             @PathParam("connectionID") String connectionID,
             ConnectionData connectionData);
 
-    @POST
-    @Path("{connectionID}")
-    @ClientResponseType(entityType=ConnectionData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response modifyConnection(
-            @PathParam("connectionID") String connectionID,
-            ConnectionModification request);
-
     @DELETE
     @Path("{connectionID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

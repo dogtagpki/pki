@@ -64,12 +64,6 @@ public class ConnectionClient extends Client {
         return client.getEntity(response);
     }
 
-    public ConnectionData modifyConnection(String connectionID, ConnectionModification connectionModification) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ConnectionData> response = (ClientResponse<ConnectionData>)resource.modifyConnection(connectionID, connectionModification);
-        return client.getEntity(response);
-    }
-
     public void removeConnection(String connectionID) {
         resource.removeConnection(connectionID);
     }

@@ -38,8 +38,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.connection.ConnectionCollection;
 import com.netscape.certsrv.tps.connection.ConnectionData;
-import com.netscape.certsrv.tps.connection.ConnectionInfo;
-import com.netscape.certsrv.tps.connection.ConnectionModification;
 import com.netscape.certsrv.tps.connection.ConnectionResource;
 import com.netscape.cms.servlet.base.PKIService;
 
@@ -66,41 +64,16 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.<init>()");
     }
 
-    public ConnectionInfo createConnectionInfo(ConnectionRecord connectionRecord) {
-
-        ConnectionInfo connectionInfo = new ConnectionInfo();
-        connectionInfo.setID(connectionRecord.getID());
-        connectionInfo.setStatus(connectionRecord.getStatus());
+    public ConnectionData createConnectionData(ConnectionRecord connectionRecord) throws UnsupportedEncodingException {
 
         String connectionID = connectionRecord.getID();
-        try {
-            connectionID = URLEncoder.encode(connectionID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-
-        URI uri = uriInfo.getBaseUriBuilder().path(ConnectionResource.class).path("{connectionID}").build(connectionID);
-        connectionInfo.setLink(new Link("self", uri));
-
-        return connectionInfo;
-    }
-
-    public ConnectionData createConnectionData(ConnectionRecord connectionRecord) {
 
         ConnectionData connectionData = new ConnectionData();
-        connectionData.setID(connectionRecord.getID());
+        connectionData.setID(connectionID);
         connectionData.setStatus(connectionRecord.getStatus());
-        connectionData.setContents(connectionRecord.getContents());
+        connectionData.setProperties(connectionRecord.getProperties());
 
-        String connectionID = connectionRecord.getID();
-        try {
-            connectionID = URLEncoder.encode(connectionID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-
+        connectionID = URLEncoder.encode(connectionID, "UTF-8");
         URI uri = uriInfo.getBaseUriBuilder().path(ConnectionResource.class).path("{connectionID}").build(connectionID);
         connectionData.setLink(new Link("self", uri));
 
@@ -112,7 +85,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         ConnectionRecord connectionRecord = new ConnectionRecord();
         connectionRecord.setID(connectionData.getID());
         connectionRecord.setStatus(connectionData.getStatus());
-        connectionRecord.setContents(connectionData.getContents());
+        connectionRecord.setProperties(connectionData.getProperties());
 
         return connectionRecord;
     }
@@ -140,7 +113,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             // return entries up to the page size
             for ( ; i<start+size && connections.hasNext(); i++) {
-                response.addEntry(createConnectionInfo(connections.next()));
+                response.addEntry(createConnectionData(connections.next()));
             }
 
             // count the total entries
@@ -190,7 +163,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            database.addRecord(createConnectionRecord(connectionData));
+            database.addRecord(connectionData.getID(), createConnectionRecord(connectionData));
             connectionData = createConnectionData(database.getRecord(connectionData.getID()));
 
             return Response
@@ -214,43 +187,8 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            database.updateRecord(createConnectionRecord(connectionData));
+            database.updateRecord(connectionData.getID(), createConnectionRecord(connectionData));
             connectionData = createConnectionData(database.getRecord(connectionID));
-
-            return Response
-                    .ok(connectionData)
-                    .type(MediaType.APPLICATION_XML)
-                    .build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Response modifyConnection(String connectionID, ConnectionModification request) {
-
-        CMS.debug("ConnectionService.modifyConnection(\"" + connectionID + "\", request");
-
-        try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
-
-            ConnectionRecord connectionRecord = database.getRecord(connectionID);
-
-            String status = request.getStatus();
-            if (status != null) {
-                connectionRecord.setStatus(status);
-            }
-
-            String contents = request.getContents();
-            if (contents != null) {
-                connectionRecord.setContents(contents);
-            }
-
-            database.updateRecord(connectionRecord);
-            ConnectionData connectionData = createConnectionData(database.getRecord(connectionID));
 
             return Response
                     .ok(connectionData)

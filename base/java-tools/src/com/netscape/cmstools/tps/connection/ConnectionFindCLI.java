@@ -24,7 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.connection.ConnectionCollection;
-import com.netscape.certsrv.tps.connection.ConnectionInfo;
+import com.netscape.certsrv.tps.connection.ConnectionData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -35,9 +35,9 @@ public class ConnectionFindCLI extends CLI {
 
     public ConnectionCLI connectionCLI;
 
-    public ConnectionFindCLI(ConnectionCLI tokenCLI) {
-        super("find", "Find connections", tokenCLI);
-        this.connectionCLI = tokenCLI;
+    public ConnectionFindCLI(ConnectionCLI connectionCLI) {
+        super("find", "Find connections", connectionCLI);
+        this.connectionCLI = connectionCLI;
     }
 
     public void printHelp() {
@@ -72,13 +72,13 @@ public class ConnectionFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         ConnectionCollection result = connectionCLI.connectionClient.findConnections(start, size);
-        Collection<ConnectionInfo> connections = result.getEntries();
+        Collection<ConnectionData> connections = result.getEntries();
 
         MainCLI.printMessage(connections.size() + " connection(s) matched");
 
         boolean first = true;
 
-        for (ConnectionInfo connectionInfo : connections) {
+        for (ConnectionData connectionData : connections) {
 
             if (first) {
                 first = false;
@@ -86,7 +86,7 @@ public class ConnectionFindCLI extends CLI {
                 System.out.println();
             }
 
-            ConnectionCLI.printConnectionInfo(connectionInfo);
+            ConnectionCLI.printConnectionData(connectionData, false);
         }
 
         MainCLI.printMessage("Number of entries returned " + connections.size());

@@ -29,10 +29,10 @@ import com.netscape.certsrv.base.DataCollection;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Connections")
-public class ConnectionCollection extends DataCollection<ConnectionInfo> {
+public class ConnectionCollection extends DataCollection<ConnectionData> {
 
     @XmlElementRef
-    public Collection<ConnectionInfo> getEntries() {
+    public Collection<ConnectionData> getEntries() {
         return super.getEntries();
     }
 }
