@@ -2721,6 +2721,129 @@ class KRAConnector:
         # and this will raise an exception
         subprocess.check_output(command,stderr=subprocess.STDOUT)
 
+class TPSConnector:
+    """PKI Deployment TPS Connector Class"""
+
+    def __init__(self, deployer):
+        self.master_dict = deployer.master_dict
+        self.password = deployer.password
+
+    def deregister(self, critical_failure=False):
+        try:
+            # this is applicable to TPSs only
+            if self.master_dict['pki_subsystem_type'] != "tps":
+                return
+
+            config.pki_log.info(
+                log.PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+
+            cs_cfg = PKIConfigParser.read_simple_configuration_file(
+                         self.master_dict['pki_target_cs_cfg'])
+            tpshost = cs_cfg.get('service.machineName')
+            tpsport = cs_cfg.get('pkicreate.secure_port')
+            tkshostport = cs_cfg.get('conn.tks1.hostport')
+            if tkshostport is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_TKS_HOST_PORT,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
+                else:
+                    return
+
+            #retrieve tks host and port
+            if ':' in tkshostport:
+                tkshost = tkshostport.split(':')[0]
+                tksport = tkshostport.split(':')[1]
+            else:
+                tkshost = tkshostport
+                tksport = '443'
+
+            # retrieve subsystem nickname
+            subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
+            if subsystemnick is None:
+                config.pki_log.warning(
+                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+                else:
+                    return
+
+            # retrieve name of token based upon type (hardware/software)
+            if ':' in subsystemnick:
+                token_name = subsystemnick.split(':')[0]
+            else:
+                token_name = "internal"
+
+            token_pwd = self.password.get_password(
+                            self.master_dict['pki_shared_password_conf'],
+                            token_name,
+                            critical_failure)
+
+            if token_pwd is None or token_pwd == '':
+                config.pki_log.warning(
+                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
+                    token_name,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                if critical_failure == True:
+                    raise Exception(log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
+                else:
+                    return
+
+            self.execute_using_pki(tkshost, tksport, subsystemnick,
+                                 token_pwd, tpshost, tpsport)
+
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.warning(
+                log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
+                str(tkshost),
+                str(tksport),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                raise
+        return
+
+    def execute_using_pki(self, tkshost, tksport, subsystemnick,
+      token_pwd, tpshost, tpsport, critical_failure=False):
+        command = ["/bin/pki",
+                   "-p", str(tksport),
+                   "-h", tkshost,
+                   "-n", subsystemnick,
+                   "-P", "https",
+                   "-d", self.master_dict['pki_database_path'],
+                   "-c", token_pwd,
+                   "-t", "tks",
+                   "tks-tpsconnector-del", tpshost, str(tpsport)]
+
+        output = subprocess.check_output(command,
+                                         stderr=subprocess.STDOUT,
+                                         shell=False)
+
+        error = re.findall("ClientResponseFailure:(.*?)", output)
+        if error:
+            config.pki_log.warning(
+                log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
+                str(tpshost),
+                str(tpsport),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, output,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+        if critical_failure == True:
+            raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
+
 class SecurityDomain:
     """PKI Deployment Security Domain Class"""
 
@@ -3498,6 +3621,7 @@ class ConfigClient:
         data.authdbPort = self.master_dict['pki_authdb_port']
         data.authdbBaseDN = self.master_dict['pki_authdb_basedn']
         data.authdbSecureConn = self.master_dict['pki_authdb_secure_conn']
+        data.importSharedSecret = self.master_dict['pki_import_shared_secret']
 
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
@@ -3549,6 +3673,7 @@ class PKIDeployer:
         self.kra_connector = KRAConnector(self)
         self.security_domain = SecurityDomain(self)
         self.systemd = Systemd(self)
+        self.tps_connector = TPSConnector(self)
         self.config_client = ConfigClient(self)
 
 

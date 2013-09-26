@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.crypto.SecretKey;
+
 import netscape.security.pkcs.PKCS10;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.util.BigInt;
@@ -68,6 +70,7 @@ import netscape.security.x509.X509Key;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -95,12 +98,14 @@ import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SecretKeyFacade;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
@@ -1639,6 +1644,78 @@ public class CryptoUtil {
         return encoded;
     }
 
+    public static boolean sharedSecretExists(String nickname) throws NotInitializedException, TokenException {
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyManager km = new KeyManager(token);
+        return km.uniqueNamedKeyExists(nickname);
+    }
+
+    public static void createSharedSecret(String nickname) throws NotInitializedException, TokenException {
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyManager km = new KeyManager(token);
+        km.generateUniqueNamedKey(nickname);
+    }
+
+    public static void deleteSharedSecret(String nickname) throws NotInitializedException, TokenException,
+            InvalidKeyException {
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyManager km = new KeyManager(token);
+        km.deleteUniqueNamedKey(nickname);
+    }
+
+    public static byte[] exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert)
+            throws NotInitializedException, TokenException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidAlgorithmParameterException, InvalidKeyFormatException {
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyManager km = new KeyManager(token);
+        if (!km.uniqueNamedKeyExists(nickname)) {
+            throw new IOException("Shared secret " + nickname + " does not exist");
+        }
+        SecretKey skey = km.lookupUniqueNamedKey(EncryptionAlgorithm.DES3_ECB, nickname);
+
+        KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        PublicKey pub = wrappingCert.getPublicKey();
+        PK11PubKey pubK = PK11PubKey.fromSPKI(pub.getEncoded());
+        keyWrap.initWrap(pubK, null);
+        byte[] wrappedKey = keyWrap.wrap(((SecretKeyFacade) skey).key);
+        return wrappedKey;
+    }
+
+    /*
+    public static void importSharedSecret(KeyData data) throws EBaseException, NotInitializedException, TokenException,
+            NoSuchAlgorithmException, ObjectNotFoundException, InvalidKeyException, InvalidAlgorithmParameterException,
+            IOException {
+        byte[] wrappedKey = Utils.base64decode(data.getWrappedPrivateData());
+
+        IConfigStore cs = CMS.getConfigStore();
+        String subsystemNick = cs.getString("tps.cert.subsystem.nickname");
+        String keyNick = cs.getString("conn.tks1.tksSharedSymKeyName", "sharedSecret");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyManager km = new KeyManager(token);
+
+        if (km.uniqueNamedKeyExists(keyNick)) {
+            throw new IOException("Shared secret " + keyNick + " already exists");
+        }
+
+        KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        X509Certificate cert = cm.findCertByNickname(subsystemNick);
+        PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
+        keyWrap.initUnwrap(subsystemPrivateKey, null);
+
+        @SuppressWarnings("unused")
+        SymmetricKey unwrapped = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.DES,
+                SymmetricKey.Usage.DECRYPT, 0);
+
+        // TODO - I have a key - now what to do with it?
+        // need to somehow import/label the symkey
+    }*/
+
     public static String[] getECcurves() {
         return ecCurves;
     }
@@ -1666,7 +1743,6 @@ public class CryptoUtil {
         return vect;
     }
 }
-
 
 // START ENABLE_ECC
 // This following can be removed when JSS with ECC capability

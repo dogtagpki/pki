@@ -272,6 +272,10 @@ PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
 PKIHELPER_TOMCAT_INSTANCES_2 = "PKI Tomcat registry '%s' contains '%d' "\
                                "Tomcat PKI instances"
 PKIHELPER_TOUCH_1 = "touch %s"
+PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT = \
+    "contacting the TKS to update the TPS connector"
+PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE = "Failed to update TPS connector on TKS"
+PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2 = "Failed to update TPS connector for %s:%s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_UNDEFINED_CA_HOST_PORT = "CA Host or Port is undefined"
 PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 = \
@@ -280,6 +284,7 @@ PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 = \
 PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 = \
     "A value for '%s' MUST be defined in '%s'"
 PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
+PKIHELPER_UNDEFINED_TKS_HOST_PORT = "TKS Host or Port is undefined"
 PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 = "Password for token '%s' not defined"
 PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
 PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."

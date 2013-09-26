@@ -16,6 +16,7 @@ import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
+import com.netscape.cms.servlet.tks.TPSConnectorService;
 
 public class TKSApplication extends Application {
 
@@ -39,6 +40,9 @@ public class TKSApplication extends Application {
 
         // system certs
         classes.add(SystemCertService.class);
+
+        // tps connections and shared secrets
+        classes.add(TPSConnectorService.class);
 
         // exception mapper
         classes.add(PKIException.Mapper.class);

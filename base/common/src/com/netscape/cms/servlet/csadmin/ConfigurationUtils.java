@@ -147,11 +147,14 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
+import com.netscape.certsrv.system.TPSConnectorClient;
+import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -3568,6 +3571,63 @@ public class ConfigurationUtils {
         return null;
     }
 
+    public static void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
+            EBaseException, URISyntaxException {
+        IConfigStore cs = CMS.getConfigStore();
+        String host = cs.getString("service.machineName");
+        String port = cs.getString("service.securePort");
+        String dbDir = cs.getString("instanceRoot") + "/alias";
+        String dbNick = cs.getString("tps.cert.subsystem.nickname");
+
+        String passwordFile = cs.getString("passwordFile");
+        IConfigStore psStore = CMS.createFileConfigStore(passwordFile);
+        String dbPass = psStore.getString("internal");
+
+        ClientConfig config = new ClientConfig();
+        config.setServerURI("https://" + tksHost + ":" + tksPort + "/tks");
+        config.setCertDatabase(dbDir);
+        config.setCertNickname(dbNick);
+        config.setCertPassword(dbPass);
+
+        PKIClient client = new PKIClient(config);
+        PKIConnection connection = client.getConnection();
+
+        // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status
+        // during PKI instance creation since we are using an untrusted temporary CA cert.
+        connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
+        connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
+
+        AccountClient accountClient = new AccountClient(client);
+        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(client);
+
+        accountClient.login();
+        TPSConnectorData data = tpsConnectorClient.getConnector(host, port);
+        KeyData keyData = null;
+        if (data == null) {
+            data = tpsConnectorClient.createConnector(host, port);
+            keyData = tpsConnectorClient.createSharedSecret(data.getID());
+        } else {
+            String connId = data.getID();
+            keyData = tpsConnectorClient.getSharedSecret(connId);
+            if (keyData != null) {
+                keyData = tpsConnectorClient.replaceSharedSecret(connId);
+            } else {
+                keyData = tpsConnectorClient.createSharedSecret(connId);
+            }
+        }
+        accountClient.logout();
+
+        if (importKey) {
+            // TODO - we need code here to import the key into the tps certdb
+            // this is not needed if we are using a shared database with
+            // the tks.
+        }
+
+        // store the new nick in CS.cfg
+        String nick = "TPS-" + host + "-" + port + " sharedSecret";
+        cs.putString("conn.tks1.tksSharedSymKeyName", nick);
+        cs.commit(false);
+    }
 
     public static void importCACertToOCSP() throws IOException, EBaseException, CertificateEncodingException {
         IConfigStore config = CMS.getConfigStore();
@@ -3729,7 +3789,7 @@ public class ConfigurationUtils {
             CMS.debug("registerUser: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI + 
+                CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
                           " using " + targetURL);
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);

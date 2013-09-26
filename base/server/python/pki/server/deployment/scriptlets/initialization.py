@@ -99,6 +99,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove kra connector from CA if this is a KRA
         deployer.kra_connector.deregister()
 
+        # remove tps connector from TKS if this is a TPS
+        deployer.tps_connector.deregister()
+
         # de-register instance from its Security Domain
         #
         #     NOTE:  Since the security domain of an instance must be up

@@ -504,6 +504,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
                     ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
                 }
+
+                // generate shared secret from the tks
+                ConfigurationUtils.getSharedSecret(
+                        tksURI.getHost(),
+                        tksURI.getPort(),
+                        Boolean.getBoolean(data.getImportSharedSecret()));
+
             } catch (URISyntaxException e) {
                 throw new BadRequestException("Invalid URI for CA, TKS or KRA");
             } catch (Exception e) {
@@ -1146,6 +1153,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             // TODO check connection with authdb
+
+            if (data.getImportSharedSecret().equalsIgnoreCase("true")) {
+                data.setImportSharedSecret("true");
+            } else {
+                data.setImportSharedSecret("false");
+            }
         }
     }
 }

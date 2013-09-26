@@ -84,6 +84,8 @@ public class ConfigurationRequest {
     private static final String KRA_URI = "kraUri";
     private static final String ENABLE_SERVER_SIDE_KEYGEN = "enableServerSideKeygen";
 
+    // TKS/TPS shared secret parameters
+    private static final String IMPORT_SHARED_SECRET = "importSharedSecret";
 
     //defaults
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
@@ -243,6 +245,9 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue="false")
     protected String enableServerSideKeyGen;
 
+    @XmlElement(defaultValue="false")
+    protected String importSharedSecret;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -298,6 +303,7 @@ public class ConfigurationRequest {
         tksUri = form.getFirst(TKS_URI);
         kraUri = form.getFirst(KRA_URI);
         enableServerSideKeyGen = form.getFirst(ENABLE_SERVER_SIDE_KEYGEN);
+        importSharedSecret = form.getFirst(IMPORT_SHARED_SECRET);
     }
 
     public String getSubsystemName() {
@@ -878,6 +884,14 @@ public class ConfigurationRequest {
         this.enableServerSideKeyGen = enableServerSideKeyGen;
     }
 
+    public String getImportSharedSecret() {
+        return importSharedSecret;
+    }
+
+    public void setImportSharedSecret(String importSharedSecret) {
+        this.importSharedSecret = importSharedSecret;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -930,6 +944,7 @@ public class ConfigurationRequest {
                ", kraUri=" + kraUri +
                ", tksUri=" + tksUri +
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
+               ", importSharedSecret=" + importSharedSecret +
                "]";
     }
 }
