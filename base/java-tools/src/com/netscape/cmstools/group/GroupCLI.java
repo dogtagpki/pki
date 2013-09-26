@@ -63,9 +63,14 @@ public class GroupCLI extends CLI {
         client = parent.getClient();
         groupClient = (GroupClient)parent.getClient("group");
 
+        // if this is a top-level command
         if (groupClient == null) {
-            // if parent doesn't have group client then create a new one
-            groupClient = new GroupClient(client);
+            // determine the subsystem
+            String subsystem = client.getSubsystem();
+            if (subsystem == null) subsystem = "ca";
+
+            // create new group client
+            groupClient = new GroupClient(client, subsystem);
         }
 
         super.execute(args);

@@ -29,10 +29,6 @@ public class ActivityClient extends Client {
 
     public ActivityResource resource;
 
-    public ActivityClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public ActivityClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "activity");
         init();

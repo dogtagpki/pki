@@ -31,10 +31,6 @@ public class ConfigClient extends Client {
 
     public ConfigResource resource;
 
-    public ConfigClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public ConfigClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "config");
         init();

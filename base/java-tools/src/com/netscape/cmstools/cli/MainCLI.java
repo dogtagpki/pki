@@ -35,7 +35,6 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
@@ -60,26 +59,26 @@ public class MainCLI extends CLI {
 
     public File certDatabase;
 
-    public AccountClient accountClient;
-
     String output;
 
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
         addModule(new CACLI(this));
-        addModule(new CertCLI(this));
-        addModule(new ClientCLI(this));
-        addModule(new GroupCLI(this));
-        addModule(new KeyCLI(this));
         addModule(new KRACLI(this));
-        addModule(new KRAConnectorCLI(this));
         addModule(new OCSPCLI(this));
-        addModule(new ProfileCLI(this));
-        addModule(new SecurityDomainCLI(this));
         addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
-        addModule(new UserCLI(this));
+
+        addModule(new ClientCLI(this));
+
+        addModule(new ProxyCLI(new CertCLI(this), "ca"));
+        addModule(new ProxyCLI(new GroupCLI(this), "ca"));
+        addModule(new ProxyCLI(new KeyCLI(this), "kra"));
+        addModule(new ProxyCLI(new KRAConnectorCLI(this), "ca"));
+        addModule(new ProxyCLI(new ProfileCLI(this), "ca"));
+        addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
+        addModule(new ProxyCLI(new UserCLI(this), "ca"));
     }
 
     public String getFullModuleName(String moduleName) {
@@ -96,7 +95,43 @@ public class MainCLI extends CLI {
         formatter.printHelp(name+" [OPTIONS..] <command> [ARGS..]", options);
         System.out.println();
 
-        super.printHelp();
+        int leftPadding = 1;
+        int rightPadding = 25;
+
+        System.out.println("Subsystems:");
+
+        for (CLI module : modules.values()) {
+            if (!(module instanceof SubsystemCLI)) continue;
+
+            String label = module.getFullName();
+
+            int padding = rightPadding - leftPadding - label.length();
+            if (padding < 1)
+                padding = 1;
+
+            System.out.print(StringUtils.repeat(" ", leftPadding));
+            System.out.print(label);
+            System.out.print(StringUtils.repeat(" ", padding));
+            System.out.println(module.getDescription());
+        }
+
+        System.out.println();
+        System.out.println("Commands:");
+
+        for (CLI module : modules.values()) {
+            if (module instanceof SubsystemCLI) continue;
+
+            String label = module.getFullName();
+
+            int padding = rightPadding - leftPadding - label.length();
+            if (padding < 1)
+                padding = 1;
+
+            System.out.print(StringUtils.repeat(" ", leftPadding));
+            System.out.print(label);
+            System.out.print(StringUtils.repeat(" ", padding));
+            System.out.println(module.getDescription());
+        }
     }
 
     public void createOptions(Options options) throws UnknownHostException {
@@ -117,7 +152,7 @@ public class MainCLI extends CLI {
         option.setArgName("port");
         options.addOption(option);
 
-        option = new Option("t", true, "Subsystem type (default: ca)");
+        option = new Option("t", true, "Subsystem type");
         option.setArgName("type");
         options.addOption(option);
 
@@ -168,12 +203,17 @@ public class MainCLI extends CLI {
         String protocol = cmd.getOptionValue("P", "http");
         String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
         String port = cmd.getOptionValue("p", "8080");
-        String type = cmd.getOptionValue("t", "ca");
+        String subsystem = cmd.getOptionValue("t");
 
         if (uri == null)
-            uri = protocol + "://" + hostname + ":" + port + "/" + type;
+            uri = protocol + "://" + hostname + ":" + port;
+
+        if (subsystem != null)
+            uri = uri + "/" + subsystem;
 
         config.setServerURI(uri);
+
+        if (verbose) System.out.println("Server URI: "+uri);
 
         String certDatabase = cmd.getOptionValue("d");
         String certNickname = cmd.getOptionValue("n");
@@ -270,19 +310,9 @@ public class MainCLI extends CLI {
             file.mkdirs();
             connection.setOutput(file);
         }
-
-        String subsystem = config.getSubsystem();
-        if (subsystem != null) {
-            // if server URI includes subsystem, perform authentication
-            // against that subsystem
-            accountClient = new AccountClient(client, subsystem);
-        }
     }
 
     public void execute(String[] args) throws Exception {
-
-        CLI module;
-        String[] moduleArgs;
 
         try {
             createOptions(options);
@@ -308,6 +338,8 @@ public class MainCLI extends CLI {
 
             parseOptions(cmd);
 
+            init();
+
             if (verbose) {
                 System.out.print("Command:");
                 for (String arg : cmdArgs) {
@@ -317,65 +349,7 @@ public class MainCLI extends CLI {
                 System.out.println();
             }
 
-            String command = cmdArgs[0];
-            String moduleName;
-            String moduleCommand;
-
-            // If a command contains a '-' sign it will be
-            // split into module name and module command.
-            // Otherwise it's a single command.
-            int i = command.indexOf('-');
-            if (i >= 0) { // <module name>-<module command>
-                moduleName = command.substring(0, i);
-                moduleCommand = command.substring(i+1);
-
-            } else { // <command>
-                moduleName = command;
-                moduleCommand = null;
-            }
-
-            // get command module
-            if (verbose) System.out.println("Module: " + moduleName);
-            module = getModule(moduleName);
-            if (module == null)
-                throw new Error("Invalid module \"" + moduleName + "\".");
-
-            // prepare module arguments
-            if (moduleCommand != null) {
-                moduleArgs = new String[cmdArgs.length];
-                moduleArgs[0] = moduleCommand;
-                System.arraycopy(cmdArgs, 1, moduleArgs, 1, cmdArgs.length-1);
-
-            } else {
-                moduleArgs = new String[cmdArgs.length-1];
-                System.arraycopy(cmdArgs, 1, moduleArgs, 0, cmdArgs.length-1);
-            }
-
-        } catch (Throwable t) {
-            if (verbose) {
-                t.printStackTrace(System.err);
-            } else {
-                System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
-            }
-            printHelp();
-            System.exit(1);
-            return;
-        }
-
-        if (verbose) System.out.println("Server URI: "+config.getServerURI());
-
-        // execute command
-        try {
-            init();
-
-            // login if subsystem and username/nickname is specified
-            if (config.getSubsystem() != null &&
-                    (config.getUsername() != null || config.getCertNickname() != null)) {
-                accountClient.login();
-            }
-
-            // execute module command
-            module.execute(moduleArgs);
+            super.execute(cmdArgs);
 
         } catch (Throwable t) {
             if (verbose) {
@@ -384,10 +358,6 @@ public class MainCLI extends CLI {
                 System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
             }
             System.exit(1);
-
-        } finally {
-            // logout if subsystem is specified
-            if (config.getSubsystem() != null) accountClient.logout();
         }
     }
 

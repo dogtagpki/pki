@@ -50,7 +50,13 @@ public class KeyCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        keyClient = new KeyClient(client);
+
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "kra";
+
+        // create new key client
+        keyClient = new KeyClient(client, subsystem);
 
         super.execute(args);
     }

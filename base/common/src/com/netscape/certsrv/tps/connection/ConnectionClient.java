@@ -31,10 +31,6 @@ public class ConnectionClient extends Client {
 
     public ConnectionResource resource;
 
-    public ConnectionClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public ConnectionClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "connection");
         init();

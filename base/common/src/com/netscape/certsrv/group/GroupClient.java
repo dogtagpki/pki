@@ -32,10 +32,6 @@ public class GroupClient extends Client {
     public GroupResource groupClient;
     public GroupMemberResource groupMemberClient;
 
-    public GroupClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public GroupClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "group");
         init();

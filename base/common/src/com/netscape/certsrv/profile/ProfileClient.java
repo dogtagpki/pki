@@ -29,10 +29,6 @@ public class ProfileClient extends Client {
 
     public ProfileResource profileClient;
 
-    public ProfileClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public ProfileClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "profile");
         init();

@@ -33,10 +33,6 @@ public class CertClient extends Client {
     public CertResource certClient;
     public CertRequestResource certRequestResource;
 
-    public CertClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public CertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "cert");
         init();

@@ -47,7 +47,13 @@ public class KRAConnectorCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        kraConnectorClient = new KRAConnectorClient(client);
+
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
+
+        // create new KRA connector client
+        kraConnectorClient = new KRAConnectorClient(client, subsystem);
 
         super.execute(args);
     }

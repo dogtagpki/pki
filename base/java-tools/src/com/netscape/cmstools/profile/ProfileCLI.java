@@ -49,7 +49,13 @@ public class ProfileCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        profileClient = new ProfileClient(client);
+
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
+
+        // create new profile client
+        profileClient = new ProfileClient(client, subsystem);
 
         super.execute(args);
     }

@@ -87,12 +87,20 @@ public class CLI {
         this.description = description;
     }
 
-    public void addModule(CLI module) {
-        modules.put(module.getName(), module);
+    public CLI getParent() {
+        return parent;
     }
 
     public CLI getModule(String name) {
         return modules.get(name);
+    }
+
+    public void addModule(CLI module) {
+        modules.put(module.getName(), module);
+    }
+
+    public CLI removeModule(String name) {
+        return modules.remove(name);
     }
 
     public PKIClient getClient() {

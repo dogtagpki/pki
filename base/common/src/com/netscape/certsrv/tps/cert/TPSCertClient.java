@@ -29,10 +29,6 @@ public class TPSCertClient extends Client {
 
     public TPSCertResource resource;
 
-    public TPSCertClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public TPSCertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "cert");
         init();

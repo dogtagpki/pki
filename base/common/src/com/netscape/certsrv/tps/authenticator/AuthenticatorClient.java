@@ -31,10 +31,6 @@ public class AuthenticatorClient extends Client {
 
     public AuthenticatorResource resource;
 
-    public AuthenticatorClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public AuthenticatorClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "authenticator");
         init();

@@ -51,7 +51,13 @@ public class SecurityDomainCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        securityDomainClient = new SecurityDomainClient(client);
+
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
+
+        // create new security domain client
+        securityDomainClient = new SecurityDomainClient(client, subsystem);
 
         super.execute(args);
     }

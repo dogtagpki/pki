@@ -31,10 +31,6 @@ public class TokenClient extends Client {
 
     public TokenResource resource;
 
-    public TokenClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public TokenClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "token");
         init();

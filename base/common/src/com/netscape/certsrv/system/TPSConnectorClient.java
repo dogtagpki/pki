@@ -12,10 +12,6 @@ public class TPSConnectorClient extends Client {
 
     private TPSConnectorResource tpsConnectorClient;
 
-    public TPSConnectorClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public TPSConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "tpsconnector");
         init();

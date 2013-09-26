@@ -50,11 +50,6 @@ public class TPSConnectorCLI extends CLI {
         client = parent.getClient();
         tpsConnectorClient = (TPSConnectorClient)parent.getClient("tpsconnector");
 
-        if (tpsConnectorClient == null) {
-            // if parent doesn't have user client then create a new one
-            tpsConnectorClient = new TPSConnectorClient(client);
-        }
-
         if (args.length == 0) {
             printHelp();
             System.exit(1);

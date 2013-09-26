@@ -30,10 +30,6 @@ public class SecurityDomainClient extends Client {
 
     private SecurityDomainResource securityDomainClient;
 
-    public SecurityDomainClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public SecurityDomainClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "securitydomain");
         init();

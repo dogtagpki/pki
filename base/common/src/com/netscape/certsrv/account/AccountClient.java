@@ -30,10 +30,6 @@ public class AccountClient extends Client {
     public AccountResource resource;
     public boolean loggedIn;
 
-    public AccountClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public AccountClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "account");
         init();

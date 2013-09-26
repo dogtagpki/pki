@@ -31,10 +31,6 @@ public class ProfileMappingClient extends Client {
 
     public ProfileMappingResource resource;
 
-    public ProfileMappingClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public ProfileMappingClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "profile-mapping");
         init();

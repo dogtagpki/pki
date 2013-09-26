@@ -29,10 +29,6 @@ public class KRAConnectorClient extends Client {
 
     public KRAConnectorResource kraConnectorClient;
 
-    public KRAConnectorClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public KRAConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "kraconnector");
         init();

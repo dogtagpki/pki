@@ -33,10 +33,6 @@ public class UserClient extends Client {
     public UserCertResource userCertClient;
     public UserMembershipResource userMembershipClient;
 
-    public UserClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public UserClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "user");
         init();

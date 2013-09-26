@@ -333,7 +333,7 @@ public class ConfigurationUtils {
         String csType = cs.getString("cs.type");
 
         ClientConfig config = new ClientConfig();
-        config.setServerURI("https://" + sdhost + ":" + sdport + "/ca");
+        config.setServerURI("https://" + sdhost + ":" + sdport);
         config.setUsername(user);
         config.setPassword(passwd);
 
@@ -350,8 +350,8 @@ public class ConfigurationUtils {
         // utilizing an untrusted temporary CA cert.
         connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
 
-        AccountClient accountClient = new AccountClient(client);
-        SecurityDomainClient sdClient = new SecurityDomainClient(client);
+        AccountClient accountClient = new AccountClient(client, "ca");
+        SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         try {
             accountClient.login();
@@ -3585,7 +3585,7 @@ public class ConfigurationUtils {
         String dbPass = psStore.getString("internal");
 
         ClientConfig config = new ClientConfig();
-        config.setServerURI("https://" + tksHost + ":" + tksPort + "/tks");
+        config.setServerURI("https://" + tksHost + ":" + tksPort);
         config.setCertDatabase(dbDir);
         config.setCertNickname(dbNick);
         config.setCertPassword(dbPass);
@@ -3598,8 +3598,8 @@ public class ConfigurationUtils {
         connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
         connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
 
-        AccountClient accountClient = new AccountClient(client);
-        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(client);
+        AccountClient accountClient = new AccountClient(client, "tks");
+        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(client, "tks");
 
         accountClient.login();
         TPSConnectorData data = null;

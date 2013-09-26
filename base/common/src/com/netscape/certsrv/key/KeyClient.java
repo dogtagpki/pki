@@ -31,10 +31,6 @@ public class KeyClient extends Client {
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
 
-    public KeyClient(PKIClient client) throws URISyntaxException {
-        this(client, client.getSubsystem());
-    }
-
     public KeyClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "key");
         init();

@@ -69,9 +69,14 @@ public class UserCLI extends CLI {
         client = parent.getClient();
         userClient = (UserClient)parent.getClient("user");
 
+        // if this is a top-level command
         if (userClient == null) {
-            // if parent doesn't have user client then create a new one
-            userClient = new UserClient(client);
+            // determine the subsystem
+            String subsystem = client.getSubsystem();
+            if (subsystem == null) subsystem = "ca";
+
+            // create new user client
+            userClient = new UserClient(client, subsystem);
         }
 
         super.execute(args);
