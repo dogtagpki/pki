@@ -276,12 +276,46 @@ public class TKSKnownSessionKey
      */
     public void runSelfTest(ILogEventListener logger)
             throws ESelfTestException {
-        String logMessage = null;
+        IConfigStore cs = CMS.getConfigStore();
+        String sharedSecretName;
+        try {
+            boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
+            if (useNewNames) {
+                String tpsList = cs.getString("tps.list", "");
+                if (tpsList.isEmpty()) {
+                    CMS.debug("TKSKnownSessionKey: no shared secrets configured, exiting");
+                    return;
+                }
+
+                for (String tpsID : tpsList.split(",")) {
+                    sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
+                    if (!sharedSecretName.isEmpty()) {
+                        CMS.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
+                        generateSessionKey(logger, sharedSecretName);
+                    }
+                }
+            } else {
+                // legacy systems
+                sharedSecretName = cs.getString("tks.tksSharedSymKeyName", "sharedSecret");
+                generateSessionKey(logger, sharedSecretName);
+            }
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            CMS.debug("TKSKnownSessionKey: failed to read config file to set up test");
+            String logMessage = CMS.getLogMessage("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new ESelfTestException(logMessage);
+        }
+        return;
+    }
+
+    private void generateSessionKey(ILogEventListener logger, String sharedSecretName) throws ESelfTestException {
+        String logMessage;
         String keySet = "defKeySet";
 
-        byte[] sessionKey = SessionKey.ComputeSessionKey(mToken, mKeyName,
-                                                          mCardChallenge, mHostChallenge,
-                                                          mKeyInfo, mCUID, mMacKey, mUseSoftToken, keySet, null);
+        byte[] sessionKey = SessionKey.ComputeSessionKey(
+                mToken, mKeyName, mCardChallenge, mHostChallenge, mKeyInfo,
+                mCUID, mMacKey, mUseSoftToken, keySet, sharedSecretName);
 
         // Now we just see if we can successfully generate a session key.
         // For FIPS compliance, the routine now returns a wrapped key, which can't be extracted and compared.
@@ -296,7 +330,5 @@ public class TKSKnownSessionKey
             mSelfTestSubsystem.log(logger, logMessage);
             CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
         }
-
-        return;
     }
 }

@@ -323,6 +323,7 @@ tks.defaultSlot=Internal Key Storage Token
 tks.drm_transport_cert_nickname=
 tks.master_key_prefix=
 tks.tksSharedSymKeyName=sharedSecret
+tks.useNewSharedSecretNames=true
 tks.useDefaultSlot=true
 usrgrp._000=##
 usrgrp._001=## User/Group

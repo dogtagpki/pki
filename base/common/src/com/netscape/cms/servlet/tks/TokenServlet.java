@@ -284,10 +284,7 @@ public class TokenServlet extends CMSServlet {
         } catch (EBaseException eee) {
         }
 
-        try {
-            transportKeyName = sconfig.getString("tks.tksSharedSymKeyName", TRANSPORT_KEY_NAME);
-        } catch (EBaseException e) {
-        }
+        transportKeyName = getSharedSecretName(sconfig);
 
         CMS.debug("TokenServlet: ComputeSessionKey(): tksSharedSymKeyName: " + transportKeyName);
 
@@ -447,7 +444,7 @@ public class TokenServlet extends CMSServlet {
                             desKey = kg.generate();*/
 
                         /*
-                         * XXX GenerateSymkey firt generates a 16 byte DES2 key.
+                         * GenerateSymkey firt generates a 16 byte DES2 key.
                          * It then pads it into a 24 byte key with last
                          * 8 bytes copied from the 1st 8 bytes.  Effectively
                          * making it a 24 byte DES2 key.  We need this for
@@ -471,7 +468,7 @@ public class TokenServlet extends CMSServlet {
                         }
 
                         /*
-                         * XXX ECBencrypt actually takes the 24 byte DES2 key
+                         * ECBencrypt actually takes the 24 byte DES2 key
                          * and discard the last 8 bytes before it encrypts.
                          * This is done so that the applet can digest it
                          */
@@ -496,7 +493,7 @@ public class TokenServlet extends CMSServlet {
                         keycheck_s =
                                 com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
 
-                        //XXX use DRM transport cert to wrap desKey
+                        //use DRM transport cert to wrap desKey
                         String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
 
                         if ((drmTransNickname == null) || (drmTransNickname == "")) {
@@ -735,6 +732,36 @@ public class TokenServlet extends CMSServlet {
         }
 
         audit(auditMessage);
+    }
+
+    // This method will return the shared secret name.  In new 10.1 subsystems, this
+    // name will be stored in tps.X.nickname.
+    //
+    // Until multiple TKS/TPS connections is fully supported, this method will just
+    // return the first shared secret nickname found, on the assumption that only
+    // one nickname will be configured.  This will have to be changed to return the correct
+    // key based on some parameter in the request in future.
+    //
+    // On legacy systems, this method just returns what was previously returned.
+    private String getSharedSecretName(IConfigStore cs) throws EBaseException {
+        boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
+
+        if (useNewNames) {
+            String tpsList = cs.getString("tps.list", "");
+            if (!tpsList.isEmpty()) {
+                for (String tpsID : tpsList.split(",")) {
+                    String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
+                    if (!sharedSecretName.isEmpty()) {
+                        return sharedSecretName;
+                    }
+                }
+            }
+            CMS.debug("getSharedSecretName: no shared secret has been configured");
+            throw new EBaseException("No shared secret has been configured");
+        }
+
+        // legacy system - return as before
+        return cs.getString("tks.tksSharedSymKeyName", TRANSPORT_KEY_NAME);
     }
 
     private void processDiversifyKey(HttpServletRequest req,
