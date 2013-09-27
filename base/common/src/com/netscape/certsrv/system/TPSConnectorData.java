@@ -44,7 +44,7 @@ public class TPSConnectorData {
         this.id = id;
     }
 
-    @XmlAttribute(name="Host")
+    @XmlElement(name="Host")
     public String getHost() {
         return host;
     }
@@ -53,7 +53,7 @@ public class TPSConnectorData {
         this.host = host;
     }
 
-    @XmlAttribute(name="Port")
+    @XmlElement(name="Port")
     public String getPort() {
         return port;
     }
@@ -71,7 +71,7 @@ public class TPSConnectorData {
         this.userID = userID;
     }
 
-    @XmlAttribute(name="Nickname")
+    @XmlElement(name="Nickname")
     public String getNickname() {
         return nickname;
     }
@@ -80,6 +80,7 @@ public class TPSConnectorData {
         this.nickname = nickname;
     }
 
+    @XmlElement(name="Link")
     public Link getLink() {
         return link;
     }

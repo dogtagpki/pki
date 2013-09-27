@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -32,18 +35,31 @@ public class TPSConnectorRemoveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <TPS Host> <TPS Port>", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
+        Option option = new Option(null, "host", true, "TPS host");
+        option.setArgName("host");
+        options.addOption(option);
 
-        if (args.length != 2) {
+        option = new Option(null, "port", true, "TPS port");
+        option.setArgName("port");
+        options.addOption(option);
+
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(1);
         }
 
-        String tpsHost = args[0];
-        String tpsPort = args[1];
+        String tpsHost = cmd.getOptionValue("host");
+        String tpsPort = cmd.getOptionValue("port");
 
         tpsConnectorCLI.tpsConnectorClient.deleteConnector(tpsHost, tpsPort);
 

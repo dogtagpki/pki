@@ -2826,7 +2826,9 @@ class TPSConnector:
                    "-d", self.master_dict['pki_database_path'],
                    "-c", token_pwd,
                    "-t", "tks",
-                   "tks-tpsconnector-del", tpshost, str(tpsport)]
+                   "tks-tpsconnector-del",
+                   "--host", tpshost,
+                   "--port", str(tpsport)]
 
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,

@@ -22,9 +22,11 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.TPSConnectorCollection;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Ade Lee
@@ -65,14 +67,26 @@ public class TPSConnectorFindCLI extends CLI {
         String tpsPort = cmd.getOptionValue("port");
 
         if (tpsHost != null) {
-            if (tpsPort == null) tpsPort = "443";
-            TPSConnectorData data = tpsConnectorCLI.tpsConnectorClient.getConnector(
-                    tpsHost, tpsPort);
-            TPSConnectorCLI.printConnectorInfo(data);
+            if (tpsPort == null)
+                tpsPort = "443";
+            try {
+                TPSConnectorData data = tpsConnectorCLI.tpsConnectorClient.getConnector(
+                        tpsHost, tpsPort);
+                TPSConnectorCLI.printConnectorInfo(data);
+            } catch (ResourceNotFoundException e) {
+                System.out.println("  TPS connector not found.");
+                return;
+            }
         } else {
             TPSConnectorCollection result = tpsConnectorCLI.tpsConnectorClient.listConnectors();
             Collection<TPSConnectorData> conns = result.getEntries();
 
+            if (conns.isEmpty()) {
+                System.out.println("  No TPS connectors found.");
+                return;
+            }
+
+            MainCLI.printMessage(conns.size() + " TPS connector(s) matched");
             boolean first = true;
             for (TPSConnectorData data: conns) {
                 if (first) {
@@ -83,6 +97,8 @@ public class TPSConnectorFindCLI extends CLI {
 
                 TPSConnectorCLI.printConnectorInfo(data);
             }
+
+            MainCLI.printMessage("Number of entries returned " + conns.size());
         }
     }
 }

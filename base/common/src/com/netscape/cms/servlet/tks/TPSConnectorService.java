@@ -6,15 +6,17 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -26,6 +28,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.TPSConnectorCollection;
@@ -40,6 +43,8 @@ import com.netscape.cmsutil.util.Utils;
 
 public class TPSConnectorService implements TPSConnectorResource {
 
+    private static final String TPS_LIST = "tps.list";
+
     IConfigStore cs = CMS.getConfigStore();
 
     @Context
@@ -53,14 +58,11 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public TPSConnectorCollection listConnectors() {
         try {
-            String tpsList = cs.getString("tps.list", "");
-            if (tpsList.isEmpty()) {
-                return null;
-            }
-
             TPSConnectorCollection ret = new TPSConnectorCollection();
-            for (String tpsID : tpsList.split(",")) {
-                ret.addEntry(createTPSSystemClientData(tpsID));
+            String tpsList = cs.getString(TPS_LIST, "");
+
+            for (String tpsID : StringUtils.split(tpsList,",")) {
+                ret.addEntry(createTPSConnectorData(tpsID));
             }
             return ret;
         } catch (EBaseException e) {
@@ -69,7 +71,7 @@ public class TPSConnectorService implements TPSConnectorResource {
         }
     }
 
-    private TPSConnectorData createTPSSystemClientData(String tpsID) throws EBaseException {
+    private TPSConnectorData createTPSConnectorData(String tpsID) throws EBaseException {
         TPSConnectorData data = new TPSConnectorData();
         data.setID(tpsID);
         data.setHost(cs.getString("tps." + tpsID + ".host", ""));
@@ -84,16 +86,8 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public TPSConnectorData getConnector(String id) {
         try {
-            String tpsList = cs.getString("tps.list", "");
-            if (tpsList.isEmpty()) {
-                return null;
-            }
-
-            for (String tpsID : tpsList.split(",")) {
-                if (tpsID.equals(id))
-                    return createTPSSystemClientData(tpsID);
-            }
-            return null;
+            if (connectorExists(id)) return createTPSConnectorData(id);
+            throw new ResourceNotFoundException("Connector " + id + " not found.");
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Unable to get TPS connection data" + e);
@@ -103,17 +97,10 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public TPSConnectorData getConnector(String host, String port) {
         try {
-            String tpsList = cs.getString("tps.list", "");
-            if (tpsList.isEmpty()) {
-                return null;
-            }
-
-            for (String tpsID : tpsList.split(",")) {
-                TPSConnectorData data = createTPSSystemClientData(tpsID);
-                if (data.getHost().equals(host) && data.getPort().equals(port))
-                    return data;
-            }
-            return null;
+            String id = getConnectorID(host, port);
+            if (id != null) return createTPSConnectorData(id);
+            throw new ResourceNotFoundException(
+                    "Connector not found for " + host + ":" + port);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Unable to get TPS connection data" + e);
@@ -121,41 +108,34 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public TPSConnectorData createConnector(String tpsHost, String tpsPort) {
-        TPSConnectorData newData = new TPSConnectorData();
-        newData.setHost(tpsHost);
-        newData.setPort(tpsPort);
-        newData.setUserID("TPS-" + tpsHost + "-" + tpsPort);
+    public Response createConnector(String tpsHost, String tpsPort) {
         try {
-            int index = 0;
-            boolean indexFound = false;
-            String tpsList = cs.getString("tps.list", "");
-            if (!tpsList.isEmpty()) {
-                List<String> sorted = new ArrayList<String>(Arrays.asList(tpsList.split(",")));
-                Collections.sort(sorted);
-                for (String tpsID : sorted) {
-                    TPSConnectorData data = createTPSSystemClientData(tpsID);
-                    if (data.equals(newData)) {
-                        throw new BadRequestException("TPS connection already exists at " + data.getLink());
-                    }
-                    if (!indexFound && tpsID.equals(index)) {
-                        index++;
-                    } else {
-                        indexFound = true;
-                    }
-                }
+            String id = getConnectorID(tpsHost, tpsPort);
+            if (id != null) {
+                URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class)
+                        .path("{id}").build(id);
+                throw new BadRequestException("TPS connection already exists at " + uri.toString());
             }
-            String newID = Integer.toString(index);
+            String newID = findNextConnectorID();
+
+            TPSConnectorData newData = new TPSConnectorData();
             newData.setID(newID);
+            newData.setHost(tpsHost);
+            newData.setPort(tpsPort);
+            newData.setUserID("TPS-" + tpsHost + "-" + tpsPort);
             URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(newID);
             newData.setLink(new Link("self", uri));
             saveClientData(newData);
 
-            cs.putString("tps.list", tpsList.isEmpty() ? Integer.toString(index) :
-                    tpsList + "," + index);
-            cs.commit(false);
+            addToConnectorList(newID);
+            cs.commit(true);
 
-            return newData;
+            return Response
+                    .created(newData.getLink().getHref())
+                    .entity(newData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Unable to create  new TPS connection data" + e);
@@ -164,10 +144,9 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     private void saveClientData(TPSConnectorData newData) throws EBaseException {
         String id = newData.getID();
-        if ((id == null) || (id.isEmpty())) {
+        if (StringUtils.isEmpty(id)) {
             CMS.debug("saveClientData: Attempt to save tps connection with null or empty id");
             return;
-            // throw exception here?
         }
         String prefix = "tps." + id + ".";
 
@@ -179,39 +158,20 @@ public class TPSConnectorService implements TPSConnectorResource {
             cs.putString(prefix + "userid", newData.getUserID());
         if (newData.getNickname() != null)
             cs.putString(prefix + "nickname", newData.getNickname());
-
-        cs.commit(false);
     }
 
     @Override
     public void deleteConnector(String id) {
         try {
-            if ((id == null) || id.isEmpty())
+            if (StringUtils.isEmpty(id))
                 throw new BadRequestException("Attempt to delete TPS connection with null or empty id");
 
-            if (getConnector(id) == null) {
-                return;
-                // return 404 here?
-            }
+            if (!connectorExists(id)) return;
 
             deleteSharedSecret(id);
-
-            String prefix = "tps." + id;
-            cs.removeSubStore(prefix);
-
-            String tpsList = cs.getString("tps.list", "");
-            if (tpsList.isEmpty()) {
-                return;
-            }
-
-            List<String> newList = new ArrayList<String>();
-            for (String tpsID : tpsList.split(",")) {
-                if (!tpsID.equals(id)) {
-                    newList.add(tpsID);
-                }
-            }
-            cs.putString("tps.list", StringUtils.join(newList, ","));
-            cs.commit(false);
+            cs.removeSubStore("tps." + id);
+            removeFromConnectorList(id);
+            cs.commit(true);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Failed to delete TPS connection" + e);
@@ -219,10 +179,22 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
+    public void deleteConnector(String host, String port) {
+        String id;
+        try {
+            id = getConnectorID(host, port);
+            deleteConnector(id);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to delete TPS connector: " + e);
+        }
+    }
+
+    @Override
     public KeyData createSharedSecret(String id) {
         try {
-            if (getConnector(id) == null) {
-                throw new BadRequestException("TPS Connection does not exist");
+            if (!connectorExists(id)) {
+                throw new ResourceNotFoundException("TPS connection does not exist");
             }
 
             // get and validate user
@@ -240,7 +212,7 @@ public class TPSConnectorService implements TPSConnectorResource {
             CryptoUtil.createSharedSecret(nickname);
 
             cs.putString("tps." + id + ".nickname", nickname);
-            cs.commit(false);
+            cs.commit(true);
 
             byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
             KeyData keyData = new KeyData();
@@ -277,21 +249,21 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public KeyData replaceSharedSecret(String id) {
         try {
-            if (getConnector(id) == null) {
-                throw new BadRequestException("TPS Connection does not exist");
+            if (!connectorExists(id)) {
+                throw new ResourceNotFoundException("TPS connection does not exist");
             }
 
             // get and validate user
             String userid = validateUser(id);
 
-            // get user cert
-            IUser user = userGroupManager.getUser(userid);
-            X509Certificate[] certs = user.getX509Certificates();
-
             String nickname = userid + " sharedSecret";
             if (!CryptoUtil.sharedSecretExists(nickname)) {
                 throw new BadRequestException("Cannot replace. Shared secret does not exist");
             }
+
+            // get user cert
+            IUser user = userGroupManager.getUser(userid);
+            X509Certificate[] certs = user.getX509Certificates();
 
             CryptoUtil.deleteSharedSecret(nickname);
             CryptoUtil.createSharedSecret(nickname);
@@ -311,7 +283,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public void deleteSharedSecret(String id) {
         try {
-            if (getConnector(id) == null) {
+            if (!connectorExists(id)) {
                 return;
             }
 
@@ -325,7 +297,7 @@ public class TPSConnectorService implements TPSConnectorResource {
             CryptoUtil.deleteSharedSecret(nickname);
 
             cs.putString("tps." + id + ".nickname", "");
-            cs.commit(false);
+            cs.commit(true);
         } catch (InvalidKeyException | IllegalStateException | EBaseException
                 | NotInitializedException | TokenException e) {
             e.printStackTrace();
@@ -337,21 +309,22 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Override
     public KeyData getSharedSecret(String id) {
         try {
-            if (getConnector(id) == null) {
-                throw new BadRequestException("TPS Connection does not exist");
+            if (!connectorExists(id)) {
+                throw new ResourceNotFoundException("TPS connection does not exist");
             }
 
             // get and validate user
             String userid = validateUser(id);
 
-            // get user cert
-            IUser user = userGroupManager.getUser(userid);
-            X509Certificate[] certs = user.getX509Certificates();
-
             String nickname = userid + " sharedSecret";
             if (!CryptoUtil.sharedSecretExists(nickname)) {
                 return null;
             }
+
+            // get user cert
+            IUser user = userGroupManager.getUser(userid);
+            X509Certificate[] certs = user.getX509Certificates();
+
             byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
             KeyData keyData = new KeyData();
             keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
@@ -365,12 +338,44 @@ public class TPSConnectorService implements TPSConnectorResource {
         }
     }
 
-    @Override
-    public void deleteConnector(String host, String port) {
-        TPSConnectorData data = getConnector(host, port);
-        if (data == null) {
-            return;
+    private boolean connectorExists(String id) throws EBaseException {
+        String tpsList = cs.getString(TPS_LIST, "");
+        return ArrayUtils.contains(StringUtils.split(tpsList, ","), id);
+    }
+
+    private String getConnectorID(String host, String port) throws EBaseException {
+        String tpsList = cs.getString(TPS_LIST, "");
+        for (String tpsID : StringUtils.split(tpsList,",")) {
+            TPSConnectorData data = createTPSConnectorData(tpsID);
+            if (data.getHost().equals(host) && data.getPort().equals(port))
+                return tpsID;
         }
-        deleteConnector(data.getID());
+        return null;
+    }
+
+    private void addToConnectorList(String id) throws EBaseException {
+        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> sorted = new TreeSet<String>();
+        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+        sorted.add(id);
+        cs.putString(TPS_LIST, StringUtils.join(sorted, ","));
+    }
+
+    private void removeFromConnectorList(String id) throws EBaseException {
+        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> sorted = new TreeSet<String>();
+        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+        sorted.remove(id);
+        cs.putString(TPS_LIST, StringUtils.join(sorted, ","));
+    }
+
+    private String findNextConnectorID() throws EBaseException {
+        String tpsList = cs.getString(TPS_LIST, "");
+        Collection<String> sorted = new TreeSet<String>();
+        sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
+
+        int index = 0;
+        while (sorted.contains(Integer.toString(index))) index++;
+        return Integer.toString(index);
     }
 }

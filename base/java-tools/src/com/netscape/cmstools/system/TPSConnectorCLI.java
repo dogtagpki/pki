@@ -33,7 +33,7 @@ public class TPSConnectorCLI extends CLI {
     public TPSConnectorClient tpsConnectorClient;
 
     public TPSConnectorCLI(CLI parent) {
-        super("tpsconnector", "TPS Connector management commands", parent);
+        super("tpsconnector", "TPS connector management commands", parent);
 
         addModule(new TPSConnectorAddCLI(this));
         addModule(new TPSConnectorFindCLI(this));

@@ -26,6 +26,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -53,8 +56,9 @@ public interface TPSConnectorResource {
             @QueryParam("port") String port);
 
     @POST
+    @ClientResponseType(entityType=TPSConnectorData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSConnectorData createConnector(@QueryParam("host") String host,
+    public Response createConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @DELETE

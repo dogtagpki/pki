@@ -2,6 +2,8 @@ package com.netscape.certsrv.system;
 
 import java.net.URISyntaxException;
 
+import org.jboss.resteasy.client.ClientResponse;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyData;
@@ -36,7 +38,10 @@ public class TPSConnectorClient extends Client {
     }
 
     public TPSConnectorData createConnector(String tpsHost, String tpsPort) {
-        return tpsConnectorClient.createConnector(tpsHost, tpsPort);
+        @SuppressWarnings("unchecked")
+        ClientResponse<TPSConnectorData> response = (ClientResponse<TPSConnectorData>)
+                tpsConnectorClient.createConnector(tpsHost, tpsPort);
+        return client.getEntity(response);
     }
 
     public void deleteConnector(String id) {

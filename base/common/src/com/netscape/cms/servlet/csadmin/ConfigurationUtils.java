@@ -141,6 +141,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -3601,7 +3602,13 @@ public class ConfigurationUtils {
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(client);
 
         accountClient.login();
-        TPSConnectorData data = tpsConnectorClient.getConnector(host, port);
+        TPSConnectorData data = null;
+        try {
+            data = tpsConnectorClient.getConnector(host, port);
+        } catch (ResourceNotFoundException e) {
+            // no connector exists
+            data = null;
+        }
         KeyData keyData = null;
         if (data == null) {
             data = tpsConnectorClient.createConnector(host, port);
