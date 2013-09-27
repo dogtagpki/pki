@@ -45,12 +45,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
         ISubsystem, ITransportKeyUnit {
 
     public static final String PROP_NICKNAME = "nickName";
+    public static final String PROP_NEW_NICKNAME = "newNickName";
     public static final String PROP_SIGNING_ALGORITHM = "signingAlgorithm";
 
     // private RSAPublicKey mPublicKey = null;
     // private RSAPrivateKey mPrivateKey = null;
     private IConfigStore mConfig = null;
     private org.mozilla.jss.crypto.X509Certificate mCert = null;
+    private org.mozilla.jss.crypto.X509Certificate mNewCert = null;
     private CryptoManager mManager = null;
 
     /**
@@ -91,6 +93,11 @@ public class TransportKeyUnit extends EncryptionUnit implements
             Signature signer = token.getSignatureContext(sigalg);
             signer.initSign(getPrivateKey());
 
+            String newNickName = getNewNickName();
+            if (newNickName != null && newNickName.length() > 0) {
+                mNewCert = mManager.findCertByNickname(newNickName);
+            }
+
         } catch (org.mozilla.jss.CryptoManager.NotInitializedException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
 
@@ -115,6 +122,10 @@ public class TransportKeyUnit extends EncryptionUnit implements
         // 390148: returning the token that owns the private
         //         key.
         return getPrivateKey().getOwningToken();
+    }
+
+    public CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert) {
+        return getPrivateKey(cert).getOwningToken();
     }
 
     /**
@@ -144,6 +155,15 @@ public class TransportKeyUnit extends EncryptionUnit implements
         mConfig.putString(PROP_NICKNAME, str);
     }
 
+    private String getNewNickName() {
+        String newNickName = null;
+        try {
+            newNickName = mConfig.getString(PROP_NEW_NICKNAME);
+        } catch (Exception e) {
+        }
+        return newNickName;
+    }
+
     public String getSigningAlgorithm() throws EBaseException {
         return mConfig.getString(PROP_SIGNING_ALGORITHM);
     }
@@ -171,13 +191,54 @@ public class TransportKeyUnit extends EncryptionUnit implements
         return mCert;
     }
 
+    public org.mozilla.jss.crypto.X509Certificate getNewCertificate() {
+        return mNewCert;
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate verifyCertificate(String transportCert) {
+        org.mozilla.jss.crypto.X509Certificate cert = null;
+        if (transportCert != null && transportCert.length() > 0) {
+            String certB64 = null;
+            if (mCert != null) {
+                try {
+                    certB64 = ((CMS.BtoA(mCert.getEncoded())).replaceAll("\n", "")).replaceAll("\r", "");
+                    if (transportCert.equals(certB64)) {
+                        cert = mCert;
+                        CMS.debug("TransportKeyUnit:  Transport certificate verified");
+                    }
+                } catch (Exception e) {
+                }
+            }
+            if (cert == null && mNewCert != null) {
+                try {
+                    certB64 = ((CMS.BtoA(mNewCert.getEncoded())).replaceAll("\n", "")).replaceAll("\r", "");
+                    if (transportCert.equals(certB64)) {
+                        cert = mNewCert;
+                        CMS.debug("TransportKeyUnit:  New transport certificate verified");
+                    }
+                } catch (Exception e) {
+                }
+            }
+        } else {
+            cert = mCert;
+        }
+        return cert;
+    }
+
     public PublicKey getPublicKey() {
         return mCert.getPublicKey();
     }
 
     public PrivateKey getPrivateKey() {
+        return getPrivateKey(mCert);
+    }
+
+    public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert) {
+        if (cert == null) {
+            cert = mCert;
+        }
         try {
-            return mManager.findPrivKeyByCert(mCert);
+            return mManager.findPrivKeyByCert(cert);
         } catch (TokenException e) {
             return null;
         } catch (ObjectNotFoundException e) {

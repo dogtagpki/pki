@@ -25,6 +25,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
 
 /**
@@ -93,9 +94,15 @@ public class KRAService implements IService {
         } catch (EBaseException e) {
             r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             r.setExtData(IRequest.ERROR, e);
-            //	return true;
-            // #546508
-            return false;
+            CMS.debug("KRAService serviceRequest EBaseException:" + e.getMessage());
+            if ((e.getMessage()).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
+                r.setRequestStatus(RequestStatus.REJECTED);
+                return true;
+            } else {
+                // return true;
+                // #546508
+                return false;
+            }
         }
     }
 }

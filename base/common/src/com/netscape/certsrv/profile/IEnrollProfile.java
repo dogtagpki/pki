@@ -148,6 +148,13 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
 
     /**
+     * Name of request attribute that stores the transport certificate.
+     * <p>
+     * The value is of type String including base64 encoded certificate.
+     */
+    public static final String REQUEST_TRANSPORT_CERT = "req_transport_cert";
+
+    /**
      * Set Default X509CertInfo in the request.
      *
      * @param request profile-based certificate request.

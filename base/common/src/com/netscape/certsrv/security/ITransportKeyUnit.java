@@ -42,6 +42,27 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
     public org.mozilla.jss.crypto.X509Certificate getCertificate();
 
     /**
+     * Retrieves new transport certificate.
+     *
+     * @return certificate
+     */
+    public org.mozilla.jss.crypto.X509Certificate getNewCertificate();
+
+    /**
+     * Verifies transport certificate.
+     *
+     * @return certificate
+     */
+    public org.mozilla.jss.crypto.X509Certificate verifyCertificate(String transportCert);
+
+    /**
+     * Retrieves private key associated with certificate
+     *
+     * @return certificate
+     */
+    public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
+
+    /**
      * Unwraps symmetric key . This method
      * unwraps the symmetric key.
      *
