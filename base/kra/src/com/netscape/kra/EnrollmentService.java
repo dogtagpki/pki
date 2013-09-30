@@ -171,6 +171,20 @@ public class EnrollmentService implements IService {
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
 
+        String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
+//CMS.debug("EnrollmentService: serviceRequest: transportCert1=" + transportCert);
+//transportCert = null;
+//CMS.debug("EnrollmentService: serviceRequest: transportCert2=" + transportCert);
+        if (transportCert != null && transportCert.length() > 0) {
+            CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
+            request.deleteExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT);
+        } else {
+            CMS.debug("EnrollmentService: serviceRequest: Missing transport certificate");
+        }
+        org.mozilla.jss.crypto.X509Certificate tCert =  mTransportUnit.verifyCertificate(transportCert);
+        CMS.debug("EnrollmentService: tCert=" + ((tCert != null)?tCert.getSerialNumber().toString()+":"+
+                   tCert.getSubjectDN().toString()+":":"Invalid transport certificate"));
+
         SessionContext sContext = SessionContext.getContext();
         String agentId = (String) sContext.get(SessionContext.USER_ID);
         AuthToken authToken = (AuthToken) sContext.get(SessionContext.AUTH_TOKEN);
@@ -217,6 +231,10 @@ public class EnrollmentService implements IService {
             ArchiveOptions opts = new ArchiveOptions(aOpts[i].mAO);
 
           if (allowEncDecrypt_archival == true) {
+            if (tCert == null) {
+                 CMS.debug("EnrollmentService: Invalid transport certificate: "+transportCert);
+                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
+            }
             if (statsSub != null) {
               statsSub.startTiming("decrypt_user_key");
             }
@@ -227,7 +245,8 @@ public class EnrollmentService implements IService {
                         opts.getEncSymmKey(), 
                         opts.getSymmAlgOID(), 
                         opts.getSymmAlgParams(), 
-                        opts.getEncValue());
+                        opts.getEncValue(),
+                        tCert);
             if (statsSub != null) {
               statsSub.endTiming("decrypt_user_key");
             }
@@ -286,6 +305,10 @@ public class EnrollmentService implements IService {
             PublicKey pubkey = null;
             org.mozilla.jss.crypto.PrivateKey entityPrivKey = null;
             if ( allowEncDecrypt_archival == false) {
+                if (tCert == null) {
+                    CMS.debug("EnrollmentService: Invalid transport certificate: "+transportCert);
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
+                }
                 try {
                     pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
                 } catch (Exception e) {
@@ -299,7 +322,8 @@ public class EnrollmentService implements IService {
                         opts.getSymmAlgOID(),
                         opts.getSymmAlgParams(),
                         opts.getEncValue(),
-                        (PublicKey) pubkey);
+                        (PublicKey) pubkey,
+                        tCert);
             } // !allowEncDecrypt_archival
 
             if (keyAlg.equals("RSA") && (allowEncDecrypt_archival == true)) {

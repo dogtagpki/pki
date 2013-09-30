@@ -151,6 +151,12 @@ public class CAEnrollProfile extends EnrollProfile {
                             auditArchiveID);
 
                             audit(auditMessage);
+                            if (request.getError(getLocale(request)) != null &&
+                                (request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
+                                CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
+                                request.setRequestStatus(RequestStatus.REJECTED);
+                                ca.getRequestQueue().updateRequest(request);
+                            }
                             throw new ERejectException(
                                     request.getError(getLocale(request)));
                         }

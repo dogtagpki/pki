@@ -65,11 +65,15 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     public abstract CryptoToken getToken();
 
+    public abstract CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert);
+
     public abstract CryptoToken getInternalToken();
 
     public abstract PublicKey getPublicKey();
 
     public abstract PrivateKey getPrivateKey();
+
+    public abstract PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
 
     /**
      * Protects the private key so that it can be stored in
@@ -284,20 +288,30 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     /**
      * Decrypts the user private key.
      */
+    public byte[] decryptExternalPrivate(byte encSymmKey[],
+            String symmAlgOID, byte symmAlgParams[], byte encValue[])
+            throws EBaseException {
+        return decryptExternalPrivate(encSymmKey, symmAlgOID, symmAlgParams,
+                                      encValue, null);
+    }
+
+    /**
+     * Decrypts the user private key.
+     */
     public byte[] decryptExternalPrivate(byte encSymmKey[], 
-        String symmAlgOID, byte symmAlgParams[],
-        byte encValue[]) 
+        String symmAlgOID, byte symmAlgParams[], byte encValue[],
+        org.mozilla.jss.crypto.X509Certificate transCert) 
         throws EBaseException {
         try {
 
             CMS.debug("EncryptionUnit.decryptExternalPrivate");
-            CryptoToken token = getToken();
+            CryptoToken token = getToken(transCert);
 
             // (1) unwrap the session
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
 
-            rsaWrap.initUnwrap(getPrivateKey(), null);
+            rsaWrap.initUnwrap(getPrivateKey(transCert), null);
             SymmetricKey sk = rsaWrap.unwrapSymmetric(encSymmKey,
                     SymmetricKey.DES3, SymmetricKey.Usage.DECRYPT,
                     0);
@@ -342,21 +356,34 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     }
 
     /**
+     * External unwrapping. Unwraps the data using
+     * the transport private key.
+     */
+    public PrivateKey unwrap(byte encSymmKey[],
+        String symmAlgOID, byte symmAlgParams[],
+        byte encValue[], PublicKey pubKey)
+        throws EBaseException {
+        return unwrap (encSymmKey, symmAlgOID, symmAlgParams,
+                       encValue, pubKey, null);
+    }
+
+    /**
      * External unwrapping. Unwraps the data using 
      * the transport private key.
      */
     public PrivateKey unwrap(byte encSymmKey[], 
         String symmAlgOID, byte symmAlgParams[],
-        byte encValue[], PublicKey pubKey)
+        byte encValue[], PublicKey pubKey,
+        org.mozilla.jss.crypto.X509Certificate transCert)
         throws EBaseException {
         try {
-            CryptoToken token = getToken();
+            CryptoToken token = getToken(transCert);
 
             // (1) unwrap the session
             KeyWrapper rsaWrap = token.getKeyWrapper(
                     KeyWrapAlgorithm.RSA);
 
-            rsaWrap.initUnwrap(getPrivateKey(), null);
+            rsaWrap.initUnwrap(getPrivateKey(transCert), null);
             SymmetricKey sk = rsaWrap.unwrapSymmetric(encSymmKey,
                     SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP,
                     0);

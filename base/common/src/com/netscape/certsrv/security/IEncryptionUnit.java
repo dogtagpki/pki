@@ -83,6 +83,24 @@ public interface IEncryptionUnit extends IToken {
      * Unwraps data. This method rebuilds the private key by
      * unwrapping the private key data.
      *
+     * @param sessionKey session key that unwrap the private key
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param privateKey private key data
+     * @param pubKey public key
+     * @param transportCert transport certificate
+     * @return private key object
+     * @exception EBaseException failed to unwrap
+     */
+    public PrivateKey unwrap(byte encSymmKey[], String symmAlgOID,
+            byte symmAlgParams[], byte encValue[], PublicKey pubKey,
+            org.mozilla.jss.crypto.X509Certificate transportCert)
+            throws EBaseException;
+
+    /**
+     * Unwraps data. This method rebuilds the private key by
+     * unwrapping the private key data.
+     *
      * @param privateKey private key data
      * @param pubKey public key object
      * @return private key object
@@ -127,4 +145,20 @@ public interface IEncryptionUnit extends IToken {
         String symmAlgOID,
         byte symmAlgParams[], byte privateKey[])
         throws EBaseException;
+
+    /**
+     * Decrypts the external private key (private key from the end-user).
+     *
+     * @param sessionKey session key that protects the user private
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param privateKey private key data
+     * @param transportCert transport certificate
+     * @return private key data
+     * @exception EBaseException failed to decrypt
+     */
+    public byte[] decryptExternalPrivate(byte sessionKey[],
+            String symmAlgOID, byte symmAlgParams[], byte privateKey[],
+            org.mozilla.jss.crypto.X509Certificate transportCert)
+            throws EBaseException;
 }

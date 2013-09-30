@@ -655,6 +655,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
         }
     }
 
+    public CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert) {
+        return getToken();
+    }
+
     /**
      * Returns the certificate blob.
      */
@@ -680,6 +684,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
        } else {
         return mPrivateKey;
        }
+    }
+
+    public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert) {
+        return getPrivateKey();
     }
 
     /**

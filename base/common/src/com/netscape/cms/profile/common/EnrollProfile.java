@@ -815,6 +815,12 @@ public abstract class EnrollProfile extends BasicProfile
                     //req.set(REQUEST_ARCHIVE_OPTIONS, opt);
                     req.setExtData(REQUEST_ARCHIVE_OPTIONS, 
                         toByteArray(opt));
+                    try {
+                        String transportCert = CMS.getConfigStore().getString("ca.connector.KRA.transportCert", "");
+                        req.setExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT, transportCert);
+                    } catch (EBaseException ee) {
+                        CMS.debug("EnrollProfile: fillCertReqMsg - Exception reading transportCert: "+ ee);
+                    }
                 }
             }
 
