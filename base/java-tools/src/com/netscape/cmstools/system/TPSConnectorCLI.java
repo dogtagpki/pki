@@ -37,6 +37,7 @@ public class TPSConnectorCLI extends CLI {
 
         addModule(new TPSConnectorAddCLI(this));
         addModule(new TPSConnectorFindCLI(this));
+        addModule(new TPSConnectorModCLI(this));
         addModule(new TPSConnectorRemoveCLI(this));
     }
 

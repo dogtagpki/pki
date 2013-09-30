@@ -137,8 +137,45 @@ public class TPSConnectorService implements TPSConnectorResource {
                     .build();
 
         } catch (EBaseException e) {
+            CMS.debug("Unable to create new TPS Connector: " + e);
             e.printStackTrace();
-            throw new PKIException("Unable to create  new TPS connection data" + e);
+            throw new PKIException("Unable to create  new TPS connector: " + e);
+        }
+    }
+
+    @Override
+    public Response modifyConnector(String id, TPSConnectorData data) {
+        try {
+            if (id == null) {
+                throw new BadRequestException("Invalid connector ID");
+            }
+
+            if (!connectorExists(id)) {
+                throw new ResourceNotFoundException("TPS connection does not exist");
+            }
+
+            // Note: we are deliberately NOT allowing the userid to be modified by the
+            // admin here, because this is what maps to a user cert to retrieve the shared
+            // secret
+            if ((data.getUserID() != null) || (data.getNickname() != null)) {
+                throw new UnauthorizedException("Cannot change userid or nickname using this interface");
+            }
+            TPSConnectorData curData = getConnector(id);
+            curData.setHost(data.getHost());
+            curData.setPort(data.getPort());
+
+            saveClientData(curData);
+            cs.commit(true);
+
+            return Response
+                    .ok(curData.getLink().getHref())
+                    .entity(curData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } catch (EBaseException e) {
+            CMS.debug("Unable to modify TPS Connector: " + e);
+            e.printStackTrace();
+            throw new PKIException("Unable to modify TPS Connector: " + e);
         }
     }
 
@@ -287,8 +324,11 @@ public class TPSConnectorService implements TPSConnectorResource {
                 return;
             }
 
-            // get and validate user
-            String userid = validateUser(id);
+            // get user
+            String userid = cs.getString("tps." + id + ".userid", "");
+            if (userid.isEmpty()) {
+                throw new PKIException("Bad TPS connection configuration: userid not defined");
+            }
 
             String nickname = userid + " sharedSecret";
             if (!CryptoUtil.sharedSecretExists(nickname)) {

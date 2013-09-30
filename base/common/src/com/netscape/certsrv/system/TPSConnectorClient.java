@@ -44,6 +44,13 @@ public class TPSConnectorClient extends Client {
         return client.getEntity(response);
     }
 
+    public TPSConnectorData modifyConnector(String id, TPSConnectorData data) {
+        @SuppressWarnings("unchecked")
+        ClientResponse<TPSConnectorData> response = (ClientResponse<TPSConnectorData>)
+                tpsConnectorClient.modifyConnector(id, data);
+        return client.getEntity(response);
+    }
+
     public void deleteConnector(String id) {
         tpsConnectorClient.deleteConnector(id);
     }

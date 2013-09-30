@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -60,6 +61,13 @@ public interface TPSConnectorResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response createConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
+
+    @POST
+    @Path("{id}")
+    @ClientResponseType(entityType=TPSConnectorData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response modifyConnector(@PathParam("id") String id, TPSConnectorData data);
 
     @DELETE
     @Path("{id}")
