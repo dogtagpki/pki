@@ -27,6 +27,7 @@ import org.dogtagpki.server.tps.cert.TPSCertService;
 import org.dogtagpki.server.tps.config.ConfigService;
 import org.dogtagpki.server.tps.connection.ConnectionService;
 import org.dogtagpki.server.tps.logging.ActivityService;
+import org.dogtagpki.server.tps.profile.ProfileMappingService;
 import org.dogtagpki.server.tps.token.TokenService;
 
 import com.netscape.certsrv.base.PKIException;
@@ -81,6 +82,9 @@ public class TPSApplication extends Application {
 
         // connections
         classes.add(ConnectionService.class);
+
+        // profiles
+        classes.add(ProfileMappingService.class);
 
         // tokens
         classes.add(TokenService.class);
