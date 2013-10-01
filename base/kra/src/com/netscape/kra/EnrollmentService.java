@@ -172,9 +172,6 @@ public class EnrollmentService implements IService {
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
 
         String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
-//CMS.debug("EnrollmentService: serviceRequest: transportCert1=" + transportCert);
-//transportCert = null;
-//CMS.debug("EnrollmentService: serviceRequest: transportCert2=" + transportCert);
         if (transportCert != null && transportCert.length() > 0) {
             CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
             request.deleteExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT);
