@@ -16,6 +16,7 @@ import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
+import com.netscape.cmscore.selftests.SelfTestService;
 
 public class OCSPApplication extends Application {
 
@@ -29,6 +30,9 @@ public class OCSPApplication extends Application {
 
         // installer
         classes.add(SystemConfigService.class);
+
+        // selftests
+        classes.add(SelfTestService.class);
 
         // user and group management
         classes.add(GroupMemberService.class);

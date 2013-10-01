@@ -24,6 +24,7 @@ import com.netscape.cms.servlet.csadmin.SecurityDomainService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.profile.ProfileService;
 import com.netscape.cms.servlet.request.CertRequestService;
+import com.netscape.cmscore.selftests.SelfTestService;
 
 public class CertificateAuthorityApplication extends Application {
     private Set<Object> singletons = new HashSet<Object>();
@@ -43,6 +44,9 @@ public class CertificateAuthorityApplication extends Application {
 
         // profile management
         classes.add(ProfileService.class);
+
+        // selftests
+        classes.add(SelfTestService.class);
 
         // user and group management
         classes.add(GroupMemberService.class);

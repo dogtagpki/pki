@@ -15,28 +15,38 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tks;
+package com.netscape.certsrv.selftests;
 
 import java.net.URISyntaxException;
 
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.group.GroupClient;
-import com.netscape.certsrv.selftests.SelfTestClient;
-import com.netscape.certsrv.system.TPSConnectorClient;
-import com.netscape.certsrv.user.UserClient;
 
-public class TKSClient extends SubsystemClient {
+/**
+ * @author Endi S. Dewata
+ */
+public class SelfTestClient extends Client {
 
-    public TKSClient(PKIClient client) throws URISyntaxException {
-        super(client, "tks");
+    public SelfTestResource resource;
+
+    public SelfTestClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "selftest");
         init();
     }
 
     public void init() throws URISyntaxException {
-        addClient(new GroupClient(client, name));
-        addClient(new SelfTestClient(client, name));
-        addClient(new TPSConnectorClient(client, name));
-        addClient(new UserClient(client, name));
+        resource = createProxy(SelfTestResource.class);
+    }
+
+    public SelfTestCollection findSelfTests(Integer start, Integer size) {
+        return resource.findSelfTests(start, size);
+    }
+
+    public void executeSelfTests(String action) {
+        resource.executeSelfTests(action);
+    }
+
+    public SelfTestData getSelfTest(String selfTestID) {
+        return resource.getSelfTest(selfTestID);
     }
 }

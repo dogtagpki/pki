@@ -17,6 +17,7 @@ import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.tks.TPSConnectorService;
+import com.netscape.cmscore.selftests.SelfTestService;
 
 public class TKSApplication extends Application {
 
@@ -30,6 +31,9 @@ public class TKSApplication extends Application {
 
         // installer
         classes.add(SystemConfigService.class);
+
+        // selftests
+        classes.add(SelfTestService.class);
 
         // user and group management
         classes.add(GroupMemberService.class);
