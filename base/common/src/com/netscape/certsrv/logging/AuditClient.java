@@ -15,30 +15,38 @@
 //(C) 2013 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tks;
+package com.netscape.certsrv.logging;
 
 import java.net.URISyntaxException;
 
+import org.jboss.resteasy.client.ClientResponse;
+
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.group.GroupClient;
-import com.netscape.certsrv.logging.AuditClient;
-import com.netscape.certsrv.selftests.SelfTestClient;
-import com.netscape.certsrv.system.TPSConnectorClient;
-import com.netscape.certsrv.user.UserClient;
 
-public class TKSClient extends SubsystemClient {
+/**
+ * @author Endi S. Dewata
+ */
+public class AuditClient extends Client {
 
-    public TKSClient(PKIClient client) throws URISyntaxException {
-        super(client, "tks");
+    public AuditResource resource;
+
+    public AuditClient(PKIClient client, String subsystem) throws URISyntaxException {
+        super(client, subsystem, "audit");
         init();
     }
 
     public void init() throws URISyntaxException {
-        addClient(new AuditClient(client, name));
-        addClient(new GroupClient(client, name));
-        addClient(new SelfTestClient(client, name));
-        addClient(new TPSConnectorClient(client, name));
-        addClient(new UserClient(client, name));
+        resource = createProxy(AuditResource.class);
+    }
+
+    public AuditConfig getAuditConfig() {
+        return resource.getAuditConfig();
+    }
+
+    public AuditConfig updateAuditConfig(AuditConfig auditConfig) {
+        @SuppressWarnings("unchecked")
+        ClientResponse<AuditConfig> response = (ClientResponse<AuditConfig>)resource.updateAuditConfig(auditConfig);
+        return client.getEntity(response);
     }
 }

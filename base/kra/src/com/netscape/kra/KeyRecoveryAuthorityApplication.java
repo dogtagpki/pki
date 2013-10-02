@@ -18,6 +18,7 @@ import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.key.KeyService;
 import com.netscape.cms.servlet.request.KeyRequestService;
+import com.netscape.cmscore.logging.AuditService;
 import com.netscape.cmscore.selftests.SelfTestService;
 
 public class KeyRecoveryAuthorityApplication extends Application {
@@ -29,6 +30,9 @@ public class KeyRecoveryAuthorityApplication extends Application {
 
         // account
         classes.add(AccountService.class);
+
+        // audit
+        classes.add(AuditService.class);
 
         // installer
         classes.add(SystemConfigService.class);

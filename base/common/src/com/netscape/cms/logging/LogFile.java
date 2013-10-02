@@ -47,13 +47,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -91,7 +93,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public static final String PROP_SIGNED_AUDIT_LOG_SIGNING = "logSigning";
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "signedAuditCertNickname";
-    public static final String PROP_SIGNED_AUDIT_EVENTS = "events";
+    public static final String PROP_SIGNED_AUDIT_SELECTED_EVENTS = "events";
+    public static final String PROP_SIGNED_AUDIT_UNSELECTED_EVENTS = "unselected.events";
+    public static final String PROP_SIGNED_AUDIT_MANDATORY_EVENTS = "mandatory.events";
     public static final String PROP_LEVEL = "level";
     static final String PROP_FILE_NAME = "fileName";
     static final String PROP_LAST_HASH_FILE_NAME = "lastHashFileName";
@@ -184,10 +188,19 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     private Thread mFlushThread = null;
 
     /**
+     * The mandatory log event types
+     */
+    protected Set<String> mandatoryEvents = new LinkedHashSet<String>();
+
+    /**
      * The selected log event types
      */
-    protected String mSelectedEventsList = null;
-    protected Vector<String> mSelectedEvents = null;
+    protected Set<String> selectedEvents = new LinkedHashSet<String>();
+
+    /**
+     * The unselected log event types
+     */
+    protected Set<String> unselectedEvents = new LinkedHashSet<String>();
 
     /**
      * The eventType that this log is triggered
@@ -272,14 +285,23 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
         }
 
-        // selective logging
-        mSelectedEventsList = null;
-        try {
-            mSelectedEventsList = config.getString(PROP_SIGNED_AUDIT_EVENTS);
-        } catch (EBaseException e) {
-            // when not specified, ALL are selected by default
+        // mandatory events
+        String mandatoryEventsList = config.getString(PROP_SIGNED_AUDIT_MANDATORY_EVENTS, "");
+        for (String event : StringUtils.split(mandatoryEventsList, ", ")) {
+            mandatoryEvents.add(event);
         }
-        mSelectedEvents = string2Vector(mSelectedEventsList);
+
+        // selected events
+        String selectedEventsList = config.getString(PROP_SIGNED_AUDIT_SELECTED_EVENTS, "");
+        for (String event : StringUtils.split(selectedEventsList, ", ")) {
+            selectedEvents.add(event);
+        }
+
+        // unselected events
+        String unselectedEventsList = config.getString(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS, "");
+        for (String event : StringUtils.split(unselectedEventsList, ", ")) {
+            unselectedEvents.add(event);
+        }
 
         try {
             init(config);
@@ -289,33 +311,13 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     /**
-     * turns a comma-separated String into a Vector
-     */
-    protected Vector<String> string2Vector(String theString) {
-        Vector<String> theVector = new Vector<String>();
-        if (theString == null) {
-            return theVector;
-        }
-
-        StringTokenizer tokens = new StringTokenizer(theString,
-                                                    ",");
-        while (tokens.hasMoreTokens()) {
-            String eventId = tokens.nextToken().trim();
-
-            theVector.addElement(eventId);
-            CMS.debug("LogFile: log event type selected: " + eventId);
-        }
-        return theVector;
-    }
-
-    /**
      * add the event to the selected events list
      *
      * @param event to be selected
      */
     public void selectEvent(String event) {
-        if (!mSelectedEvents.contains(event))
-            mSelectedEvents.addElement(event);
+        selectedEvents.add(event);
+        unselectedEvents.remove(event);
     }
 
     /**
@@ -324,8 +326,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param event to be de-selected
      */
     public void deselectEvent(String event) {
-        if (mSelectedEvents.contains(event))
-            mSelectedEvents.removeElement(event);
+        selectedEvents.remove(event);
+        unselectedEvents.add(event);
     }
 
     /**
@@ -334,9 +336,14 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param events comma-separated event list
      */
     public void replaceEvents(String events) {
-        Vector<String> v = string2Vector(events);
-        mSelectedEvents.removeAllElements();
-        mSelectedEvents = v;
+        // unselect all events
+        unselectedEvents.addAll(selectedEvents);
+        selectedEvents.clear();
+
+        // select specified events
+        for (String event : StringUtils.split(events, ", ")) {
+            selectEvent(event);
+        }
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {
@@ -1066,22 +1073,29 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
         }
 
-        // Is the event type selected?
         // If no selection specified in configuration, then all are selected
-        // If no type specified in propertity file, then treated as selected
-        if (mSelectedEvents.size() > 0) {
-            String type = ev.getEventType();
-            if (type != null) {
-                if (!mSelectedEvents.contains(type)) {
-                    CMS.debug("LogFile: event type not selected: " + type);
-                    return;
-                }
-            }
+        if (selectedEvents.isEmpty()) {
+            String entry = logEvt2String(ev);
+            log(entry);
+            return;
         }
 
-        String entry = logEvt2String(ev);
+        // If no type specified in propertity file, then treated as selected
+        String type = ev.getEventType();
+        if (type == null) {
+            String entry = logEvt2String(ev);
+            log(entry);
+            return;
+        }
 
-        log(entry);
+        // Is the event type mandatory or selected?
+        if (mandatoryEvents.contains(type) || selectedEvents.contains(type)) {
+            String entry = logEvt2String(ev);
+            log(entry);
+            return;
+        }
+
+        CMS.debug("LogFile: event type not selected: " + type);
     }
 
     public String logEvt2String(ILogEvent ev) {
@@ -1378,7 +1392,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         //if( mType.equals( ILogger.PROP_SIGNED_AUDIT ) ) {
         v.addElement(PROP_SIGNED_AUDIT_LOG_SIGNING + "=");
         v.addElement(PROP_SIGNED_AUDIT_CERT_NICKNAME + "=");
-        v.addElement(PROP_SIGNED_AUDIT_EVENTS + "=");
+        v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=");
+        v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=");
+        v.addElement(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS + "=");
         //}
 
         return v;
@@ -1431,12 +1447,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                                 + mSAuditCertNickName);
                 }
 
-                if (mSelectedEventsList == null) {
-                    v.addElement(PROP_SIGNED_AUDIT_EVENTS + "=");
-                } else {
-                    v.addElement(PROP_SIGNED_AUDIT_EVENTS + "="
-                                + mSelectedEventsList);
-                }
+                v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=" + StringUtils.join(mandatoryEvents, ","));
+                v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=" + StringUtils.join(selectedEvents, ","));
+                v.addElement(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS + "=" + StringUtils.join(unselectedEvents, ","));
             }
         } catch (Exception e) {
         }
@@ -1469,8 +1482,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             ";boolean;Enable audit logs to be signed",
                     PROP_SIGNED_AUDIT_CERT_NICKNAME +
                             ";string;The nickname of the certificate to be used to sign audit logs",
-                    PROP_SIGNED_AUDIT_EVENTS +
-                            ";string;A comma-separated list of strings used to specify particular signed audit log events",
+                    PROP_SIGNED_AUDIT_MANDATORY_EVENTS +
+                            ";string;A comma-separated list of strings used to specify mandatory signed audit log events",
+                    PROP_SIGNED_AUDIT_SELECTED_EVENTS +
+                            ";string;A comma-separated list of strings used to specify selected signed audit log events",
+                    PROP_SIGNED_AUDIT_UNSELECTED_EVENTS +
+                            ";string;A comma-separated list of strings used to specify unselected signed audit log events",
             };
 
             return params;

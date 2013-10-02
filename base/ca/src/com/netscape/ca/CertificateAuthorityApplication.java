@@ -24,6 +24,7 @@ import com.netscape.cms.servlet.csadmin.SecurityDomainService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cms.servlet.profile.ProfileService;
 import com.netscape.cms.servlet.request.CertRequestService;
+import com.netscape.cmscore.logging.AuditService;
 import com.netscape.cmscore.selftests.SelfTestService;
 
 public class CertificateAuthorityApplication extends Application {
@@ -34,6 +35,9 @@ public class CertificateAuthorityApplication extends Application {
 
         // account
         classes.add(AccountService.class);
+
+        // audit
+        classes.add(AuditService.class);
 
         // installer
         classes.add(SystemConfigService.class);

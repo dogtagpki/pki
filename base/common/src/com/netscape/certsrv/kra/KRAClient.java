@@ -20,6 +20,7 @@ import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfos;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
+import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.system.SystemCertResource;
@@ -39,6 +40,7 @@ public class KRAClient extends SubsystemClient {
 
     public void init() throws URISyntaxException {
 
+        addClient(new AuditClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new UserClient(client, name));

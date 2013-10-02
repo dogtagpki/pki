@@ -41,6 +41,7 @@ import com.netscape.cms.servlet.admin.UserCertService;
 import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
+import com.netscape.cmscore.logging.AuditService;
 import com.netscape.cmscore.selftests.SelfTestService;
 
 /**
@@ -55,6 +56,9 @@ public class TPSApplication extends Application {
 
         // account
         classes.add(AccountService.class);
+
+        // audit
+        classes.add(AuditService.class);
 
         // installer
         classes.add(SystemConfigService.class);

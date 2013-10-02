@@ -22,6 +22,7 @@ import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.Client;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.group.GroupCLI;
+import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
 import com.netscape.cmstools.user.UserCLI;
 
@@ -35,6 +36,7 @@ public class CACLI extends SubsystemCLI {
     public CACLI(CLI parent) {
         super("ca", "CA management commands", parent);
 
+        addModule(new AuditCLI(this));
         addModule(new CertCLI(this));
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));

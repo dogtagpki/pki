@@ -23,6 +23,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
+import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.profile.ProfileResource;
@@ -40,6 +41,7 @@ public class CAClient extends SubsystemClient {
 
     public void init() throws URISyntaxException {
 
+        addClient(new AuditClient(client, name));
         addClient(new CertClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new SelfTestClient(client, name));

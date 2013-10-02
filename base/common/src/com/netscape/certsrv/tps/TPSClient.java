@@ -23,6 +23,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.logging.ActivityClient;
+import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
@@ -44,6 +45,7 @@ public class TPSClient extends SubsystemClient {
 
     public void init() throws URISyntaxException {
         addClient(new ActivityClient(client, name));
+        addClient(new AuditClient(client, name));
         addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));
         addClient(new ConfigClient(client, name));
