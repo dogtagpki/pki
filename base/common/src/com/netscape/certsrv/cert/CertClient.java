@@ -51,6 +51,10 @@ public class CertClient extends Client {
         return certClient.reviewCert(id);
     }
 
+    public CertDataInfos listCerts(String status, Integer start, Integer size) {
+        return certClient.listCerts(status, start, size);
+    }
+
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
         return certClient.searchCerts(data, start, size);
     }

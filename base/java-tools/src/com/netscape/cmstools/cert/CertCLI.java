@@ -69,13 +69,17 @@ public class CertCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
+        certClient = (CertClient)parent.getClient("cert");
 
-        // determine the subsystem
-        String subsystem = client.getSubsystem();
-        if (subsystem == null) subsystem = "ca";
+        // if this is a top-level command
+        if (certClient == null) {
+            // determine the subsystem
+            String subsystem = client.getSubsystem();
+            if (subsystem == null) subsystem = "ca";
 
-        // create new cert client
-        certClient = new CertClient(client, subsystem);
+            // create new cert client
+            certClient = new CertClient(client, subsystem);
+        }
 
         super.execute(args);
     }

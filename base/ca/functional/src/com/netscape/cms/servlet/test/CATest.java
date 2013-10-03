@@ -32,6 +32,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -151,12 +152,14 @@ public class CATest {
         }
 
         CAClient client;
+        CertClient certClient;
         try {
             ClientConfig config = new ClientConfig();
-            config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
+            config.setServerURI(protocol + "://" + host + ":" + port);
             config.setCertNickname(clientCertNickname);
 
             client = new CAClient(new PKIClient(config));
+            certClient = (CertClient)client.getClient("cert");
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -164,7 +167,7 @@ public class CATest {
 
         Collection<CertRequestInfo> list = null;
         try {
-            list = client.listRequests("complete", null);
+            list = certClient.listRequests("complete", null, null, null, null, null).getRequests();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -176,7 +179,7 @@ public class CATest {
         CertId id = new CertId(certIdToPrint);
         CertData certData = null;
         try {
-            certData = client.getCertData(id);
+            certData = certClient.getCert(id);
         } catch (CertNotFoundException e) {
             e.printStackTrace();
             log("Cert: " + certIdToPrint + " not found. \n" + e.toString());
@@ -190,7 +193,7 @@ public class CATest {
         CertId certIdBad = new CertId(certIdBadToPrint);
         CertData certDataBad = null;
         try {
-            certDataBad = client.getCertData(certIdBad);
+            certDataBad = certClient.getCert(certIdBad);
         } catch (CertNotFoundException e) {
             e.printStackTrace();
             log("Cert: " + certIdBadToPrint + " not found. \n" + e.toString());
@@ -202,7 +205,7 @@ public class CATest {
 
         CertDataInfos infos = null;
         try {
-            infos = client.listCerts("VALID");
+            infos = certClient.listCerts("VALID", 100, 10);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -212,19 +215,19 @@ public class CATest {
         //Initiate a Certificate Enrollment
 
         CertEnrollmentRequest data = createUserCertEnrollment();
-        enrollAndApproveCertRequest(client, data);
+        enrollAndApproveCertRequest(certClient, data);
 
         // submit a RA authenticated user cert request
         CertEnrollmentRequest rdata = createRAUserCertEnrollment();
-        enrollCertRequest(client, rdata);
+        enrollCertRequest(certClient, rdata);
 
         // now try a manually approved server cert
         CertEnrollmentRequest serverData = createServerCertEnrollment();
-        enrollAndApproveCertRequest(client,serverData);
+        enrollAndApproveCertRequest(certClient,serverData);
 
         // submit using an agent approval profile
         serverData.setProfileId("caAgentServerCert");
-        enrollCertRequest(client, serverData);
+        enrollCertRequest(certClient, serverData);
 
         //Perform a sample certificate search with advanced search terms
 
@@ -233,7 +236,7 @@ public class CATest {
         searchData.setSerialFrom("9999");
         searchData.setSerialTo("99990");
 
-        infos = client.searchCerts(searchData);
+        infos = certClient.findCerts(searchData, 100, 10);
 
         printCertInfos(infos, new FilterBuilder(searchData).buildFilter());
 
@@ -244,7 +247,7 @@ public class CATest {
         CertRequestInfo infoBad = null;
 
         try {
-            infoBad = client.getRequest(idBad);
+            infoBad = certClient.getRequest(idBad);
         } catch (RequestNotFoundException e) {
             e.printStackTrace();
             log("Exception getting request #: " + idBad.toString() + "\n" + e.toString());
@@ -259,7 +262,7 @@ public class CATest {
         searchData.setEmail("jmagne@redhat.com");
         searchData.setMatchExactly(true);
 
-        infos = client.searchCerts(searchData);
+        infos = certClient.findCerts(searchData, 100, 10);
 
         printCertInfos(infos, new FilterBuilder(searchData).buildFilter());
 
@@ -277,10 +280,10 @@ public class CATest {
 
     }
 
-    private static void enrollAndApproveCertRequest(CAClient client, CertEnrollmentRequest data) {
+    private static void enrollAndApproveCertRequest(CertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
-            reqInfo = client.enrollCertificate(data);
+            reqInfo = client.enrollRequest(data);
         } catch (Exception e) {
             e.printStackTrace();
             log(e.toString());
@@ -297,10 +300,10 @@ public class CATest {
         }
     }
 
-    private static void enrollCertRequest(CAClient client, CertEnrollmentRequest data) {
+    private static void enrollCertRequest(CertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
-            reqInfo = client.enrollCertificate(data);
+            reqInfo = client.enrollRequest(data);
         } catch (Exception e) {
             e.printStackTrace();
             log(e.toString());
