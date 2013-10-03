@@ -52,13 +52,16 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -78,7 +81,10 @@ public class SecurityDataRecoveryService implements IService {
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
     private ITransportKeyUnit mTransportUnit = null;
+    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
 
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED_5";
     public static final String ATTR_SERIALNO = "serialNumber";
     public static final String ATTR_KEY_RECORD = "keyRecord";
 
@@ -112,17 +118,21 @@ public class SecurityDataRecoveryService implements IService {
         byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         byte iv_in[] = null;
 
+        String subjectID = auditSubjectID();
+
         Hashtable<String, Object> params = mKRA.getVolatileRequest(
                 request.getRequestId());
 
+        BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
+        request.setExtData(ATTR_KEY_RECORD, serialno);
+        RequestId requestID = request.getRequestId();
+
         if (params == null) {
             CMS.debug("Can't get volatile params.");
+            auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                    "cannot get volatile params");
             throw new EBaseException("Can't obtain volatile params!");
         }
-
-        BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
-
-        request.setExtData(ATTR_KEY_RECORD, serialno);
 
         byte[] wrappedPassPhrase = null;
         byte[] wrappedSessKey = null;
@@ -202,6 +212,8 @@ public class SecurityDataRecoveryService implements IService {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
+                auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                        "Cannot unwrap passphrase");
                 throw new EBaseException("Can't unwrap pass phase! " + e.toString());
             } finally {
                 if ( pass != null) {
@@ -222,6 +234,8 @@ public class SecurityDataRecoveryService implements IService {
                     wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                     key_data = wrapper.wrap(symKey);
                 } catch (Exception e) {
+                    auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                            "Cannot wrap symmetric key");
                     throw new EBaseException("Can't wrap symmetric key! " + e.toString());
                 }
 
@@ -233,10 +247,14 @@ public class SecurityDataRecoveryService implements IService {
                         encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
                         key_data = encryptor.doFinal(unwrappedSecData);
                     } else {
+                        auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID,
+                                serialno.toString(), "Failed to create cipher");
                         throw new IOException("Failed to create cipher");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID,
+                            serialno.toString(), "Cannot wrap pass phrase");
                     throw new EBaseException("Can't wrap pass phrase!");
                 }
             }
@@ -246,7 +264,8 @@ public class SecurityDataRecoveryService implements IService {
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
 
         }
-        return false;
+        auditRecoveryRequestProcessed(subjectID, ILogger.SUCCESS, requestID, serialno.toString(), "None");
+        return false; //return true ? TODO
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
@@ -383,6 +402,49 @@ public class SecurityDataRecoveryService implements IService {
         }
 
         return retData;
+    }
+
+    private void audit(String msg) {
+        if (signedAuditLogger == null)
+            return;
+
+        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
+    }
+
+    private String auditSubjectID() {
+        if (signedAuditLogger == null) {
+            return null;
+        }
+
+        String subjectID = null;
+
+        // Initialize subjectID
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        if (auditContext != null) {
+            subjectID = (String) auditContext.get(SessionContext.USER_ID);
+            subjectID = (subjectID != null) ? subjectID.trim() : ILogger.NONROLEUSER;
+        } else {
+            subjectID = ILogger.UNIDENTIFIED;
+        }
+
+        return subjectID;
+    }
+
+    private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
+            String keyID, String reason) {
+        String auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED,
+                subjectID,
+                status,
+                requestID.toString(),
+                keyID,
+                reason);
+        audit(auditMessage);
     }
 
 }

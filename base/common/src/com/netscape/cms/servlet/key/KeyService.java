@@ -48,6 +48,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -73,12 +74,15 @@ public class KeyService extends PKIService implements KeyResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public static final int DEFAULT_MAXRESULTS = 100;
-    public static final int DEFAULT_MAXTIME = 10;
-
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
+
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY_5";
+
+    public static final int DEFAULT_MAXRESULTS = 100;
+    public static final int DEFAULT_MAXTIME = 10;
 
     public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
@@ -94,17 +98,21 @@ public class KeyService extends PKIService implements KeyResource {
     public KeyData retrieveKey(KeyRecoveryRequest data) {
         // auth and authz
         KeyId keyId = validateRequest(data);
+        RequestId requestID = data.getRequestId();
         KeyData keyData;
         try {
             keyData = getKey(keyId, data);
         } catch (EBaseException e) {
             e.printStackTrace();
+            auditRetrieveKey(ILogger.FAILURE, requestID, keyId, e.getMessage());
             throw new PKIException(e.getMessage());
         }
         if (keyData == null) {
             // no key record
+            auditRetrieveKey(ILogger.FAILURE, requestID, keyId, "No key record");
             throw new HTTPGoneException("No key record.");
         }
+        auditRetrieveKey(ILogger.SUCCESS, requestID, keyId, "None");
         return keyData;
     }
 
@@ -138,6 +146,7 @@ public class KeyService extends PKIService implements KeyResource {
                 request.getRequestId());
 
         if(requestParams == null) {
+            auditRetrieveKey(ILogger.FAILURE, rId, keyId, "cannot obtain volatile requestParams");
             throw new EBaseException("Can't obtain Volatile requestParams in getKey!");
         }
 
@@ -160,9 +169,10 @@ public class KeyService extends PKIService implements KeyResource {
             nonceData = data.getNonceData();
 
             if (transWrappedSessionKey == null) {
-                 //There must be at least a transWrappedSessionKey input provided.
-                 //The command AND the request have provided insufficient data, end of the line.
-                 throw new EBaseException("Can't retrieve key, insufficient input data!");
+                //There must be at least a transWrappedSessionKey input provided.
+                //The command AND the request have provided insufficient data, end of the line.
+                auditRetrieveKey(ILogger.FAILURE, rId, keyId, "insufficient input data");
+                throw new EBaseException("Can't retrieve key, insufficient input data!");
             }
 
             if (sessionWrappedPassphrase != null) {
@@ -217,6 +227,7 @@ public class KeyService extends PKIService implements KeyResource {
         // confirm request exists
         RequestId reqId = data.getRequestId();
         if (reqId == null) {
+            auditRetrieveKey(ILogger.FAILURE, null, null, "Request id not found");
             // log error
             throw new BadRequestException("Request id not found.");
         }
@@ -224,6 +235,7 @@ public class KeyService extends PKIService implements KeyResource {
         // confirm that at least one wrapping method exists
         // There must be at least the wrapped session key method.
         if ((data.getTransWrappedSessionKey() == null)) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "No wrapping method found");
             // log error
             throw new BadRequestException("No wrapping method found.");
         }
@@ -233,11 +245,13 @@ public class KeyService extends PKIService implements KeyResource {
         try {
             reqInfo = reqDAO.getRequest(reqId, uriInfo);
         } catch (EBaseException e1) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "failed to get request");
             // failed to get request
             e1.printStackTrace();
             throw new PKIException(e1.getMessage());
         }
         if (reqInfo == null) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "no request info available");
             // request not found
             throw new HTTPGoneException("No request information available.");
         }
@@ -245,6 +259,7 @@ public class KeyService extends PKIService implements KeyResource {
         //confirm request is of the right type
         String type = reqInfo.getRequestType();
         if (!type.equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "invalid request type");
             // log error
             throw new BadRequestException("Invalid request type");
         }
@@ -255,8 +270,9 @@ public class KeyService extends PKIService implements KeyResource {
         // confirm request is in approved state
         RequestStatus status = reqInfo.getRequestStatus();
         if (!status.equals(RequestStatus.APPROVED)) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "recovery request not approved");
             // log error
-            throw new UnauthorizedException("Unauthorized request.");
+            throw new UnauthorizedException("Unauthorized request.  Recovery request not approved.");
         }
 
         return reqInfo.getKeyId();
@@ -341,5 +357,16 @@ public class KeyService extends PKIService implements KeyResource {
         }
 
         return filter;
+    }
+
+    public void auditRetrieveKey(String status, RequestId requestID, KeyId keyID, String reason) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestID != null ? requestID.toString(): "null",
+                keyID != null ? keyID.toString(): "null",
+                reason);
+        auditor.log(msg);
     }
 }

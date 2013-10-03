@@ -18,20 +18,23 @@
 package com.netscape.kra;
 
 import java.math.BigInteger;
+
 import org.mozilla.jss.crypto.SymmetricKey;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
-import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.keydb.IKeyRecord;
-import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 
@@ -50,6 +53,11 @@ public class SecurityDataService implements IService {
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
+    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED_6";
+
 
     public SecurityDataService(IKeyRecoveryAuthority kra) {
         mKRA = kra;
@@ -82,9 +90,12 @@ public class SecurityDataService implements IService {
         CMS.debug("SecurityDataService.serviceRequest wrappedSecurityData: " + wrappedSecurityData);
 
         String owner = getOwnerName(request);
+        String subjectID = auditSubjectID();
 
         //Check here even though restful layer checks for this.
         if(wrappedSecurityData == null || clientId == null || dataType == null) {
+            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientId, null, "Bad data in request");
             throw new EBaseException("Bad data in SecurityDataService.serviceRequest");
         }
         //We need some info from the PKIArchiveOptions wrapped security data
@@ -95,7 +106,9 @@ public class SecurityDataService implements IService {
 
         //Check here just in case a null ArchiveOptions makes it this far
         if(options == null) {
-            throw new EBaseException("Problem decofing PKIArchiveOptions.");
+            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientId, null, "Problem decoding PKIArchiveOptions");
+            throw new EBaseException("Problem decoding PKIArchiveOptions.");
         }
 
         String algStr = options.getSymmAlgOID();
@@ -129,6 +142,8 @@ public class SecurityDataService implements IService {
         } else if (securityData != null) {
             privateSecurityData = mStorageUnit.encryptInternalPrivate(securityData);
         } else { // We have no data.
+            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
         }
         // create key record
@@ -141,6 +156,8 @@ public class SecurityDataService implements IService {
         //Now we need a serial number for our new key.
 
         if (rec.getSerialNumber() != null) {
+            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -150,6 +167,8 @@ public class SecurityDataService implements IService {
         if (serialNo == null) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientId, null, "Failed to get  next Key ID");
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -162,11 +181,58 @@ public class SecurityDataService implements IService {
 
         storage.addKeyRecord(rec);
 
+        auditArchivalRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
+                clientId, serialNo.toString(), "None");
+
         return true;
 
     }
     //ToDo: return real owner with auth
     private String getOwnerName(IRequest request) {
         return DEFAULT_OWNER;
+    }
+
+    private void audit(String msg) {
+        if (signedAuditLogger == null)
+            return;
+
+        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
+    }
+
+    private String auditSubjectID() {
+        if (signedAuditLogger == null) {
+            return null;
+        }
+
+        String subjectID = null;
+
+        // Initialize subjectID
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        if (auditContext != null) {
+            subjectID = (String) auditContext.get(SessionContext.USER_ID);
+            subjectID = (subjectID != null) ? subjectID.trim() : ILogger.NONROLEUSER;
+        } else {
+            subjectID = ILogger.UNIDENTIFIED;
+        }
+
+        return subjectID;
+    }
+
+    private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientID,
+            String keyID, String reason) {
+        String auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED,
+                subjectID,
+                status,
+                requestID.toString(),
+                clientID,
+                keyID != null ? keyID : "None",
+                reason);
+        audit(auditMessage);
     }
 }

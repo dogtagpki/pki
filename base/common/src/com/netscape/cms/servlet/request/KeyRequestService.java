@@ -29,11 +29,13 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfos;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
@@ -57,6 +59,15 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     @Context
     private HttpServletRequest servletRequest;
+
+    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_4";
+
+    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_4";
+
+    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE_4";
 
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;
@@ -104,9 +115,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestInfo info;
         try {
             info = dao.submitRequest(data, uriInfo);
+            auditArchivalRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
             throw new PKIException(e.toString());
         }
         return info;
@@ -137,9 +149,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestInfo info;
         try {
             info = dao.submitRequest(data, uriInfo);
+            auditRecoveryRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getKeyId());
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            auditRecoveryRequestMade(null, ILogger.FAILURE, data.getKeyId());
             throw new PKIException(e.toString());
         }
         return info;
@@ -153,9 +166,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
             dao.approveRequest(id);
+            auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
             throw new PKIException(e.toString());
         }
     }
@@ -168,9 +182,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
             dao.rejectRequest(id);
+            auditRecoveryRequestChange(id, ILogger.SUCCESS, "reject");
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            auditRecoveryRequestChange(id, ILogger.FAILURE, "reject");
             throw new PKIException(e.toString());
         }
     }
@@ -183,9 +198,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
             dao.cancelRequest(id);
+            auditRecoveryRequestChange(id, ILogger.SUCCESS, "cancel");
         } catch (EBaseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            auditRecoveryRequestChange(id, ILogger.FAILURE, "cancel");
             throw new PKIException(e.toString());
         }
     }
@@ -247,5 +263,35 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
 
         return filter;
+    }
+
+    public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId.toString(),
+                operation);
+        auditor.log(msg);
+    }
+
+    public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null? requestId.toString(): "null",
+                dataId.toString());
+        auditor.log(msg);
+    }
+
+    public void auditArchivalRequestMade(RequestId requestId, String status, String clientId) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null? requestId.toString(): "null",
+                clientId);
+        auditor.log(msg);
     }
 }
