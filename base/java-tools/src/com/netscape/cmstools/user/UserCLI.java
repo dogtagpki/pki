@@ -21,10 +21,8 @@ package com.netscape.cmstools.user;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
-import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -45,14 +43,9 @@ public class UserCLI extends CLI {
         addModule(new UserModifyCLI(this));
         addModule(new UserRemoveCLI(this));
 
-        addModule(new UserFindCertCLI(this));
-        addModule(new UserShowCertCLI(this));
-        addModule(new UserAddCertCLI(this));
-        addModule(new UserRemoveCertCLI(this));
+        addModule(new UserCertCLI(this));
 
-        addModule(new UserFindMembershipCLI(this));
-        addModule(new UserAddMembershipCLI(this));
-        addModule(new UserRemoveMembershipCLI(this));
+        addModule(new UserMembershipCLI(this));
     }
 
     public String getFullName() {
@@ -116,44 +109,6 @@ public class UserCLI extends CLI {
             for (String profile: tpsProfiles.split(",")) {
                 System.out.println("    " + profile);
             }
-        }
-    }
-
-    public static void printCert(
-            UserCertData userCertData,
-            boolean showPrettyPrint,
-            boolean showEncoded) {
-
-        System.out.println("  Cert ID: " + userCertData.getID());
-        System.out.println("  Version: " + userCertData.getVersion());
-        System.out.println("  Serial Number: " + userCertData.getSerialNumber().toHexString());
-        System.out.println("  Issuer: " + userCertData.getIssuerDN());
-        System.out.println("  Subject: " + userCertData.getSubjectDN());
-
-        Link link = userCertData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
-
-        String prettyPrint = userCertData.getPrettyPrint();
-        if (showPrettyPrint && prettyPrint != null) {
-            System.out.println();
-            System.out.println(prettyPrint);
-        }
-
-        String encoded = userCertData.getEncoded();
-        if (showEncoded && encoded != null) {
-            System.out.println();
-            System.out.println(encoded);
-        }
-    }
-
-    public static void printUserMembership(UserMembershipData userMembershipData) {
-        System.out.println("  Group: "+userMembershipData.getID());
-
-        Link link = userMembershipData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
         }
     }
 }

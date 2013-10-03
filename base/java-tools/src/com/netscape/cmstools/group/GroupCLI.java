@@ -23,7 +23,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
-import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -43,10 +42,7 @@ public class GroupCLI extends CLI {
         addModule(new GroupModifyCLI(this));
         addModule(new GroupRemoveCLI(this));
 
-        addModule(new GroupFindMemberCLI(this));
-        addModule(new GroupShowMemberCLI(this));
-        addModule(new GroupAddMemberCLI(this));
-        addModule(new GroupRemoveMemberCLI(this));
+        addModule(new GroupMemberCLI(this));
     }
 
     public String getFullName() {
@@ -83,15 +79,6 @@ public class GroupCLI extends CLI {
         if (!StringUtils.isEmpty(description)) System.out.println("  Description: "+description);
 
         Link link = groupData.getLink();
-        if (verbose && link != null) {
-            System.out.println("  Link: " + link.getHref());
-        }
-    }
-
-    public static void printGroupMember(GroupMemberData groupMemberData) {
-        System.out.println("  User: "+groupMemberData.getID());
-
-        Link link = groupMemberData.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
         }

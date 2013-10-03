@@ -32,13 +32,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserShowCertCLI extends CLI {
+public class UserCertShowCLI extends CLI {
 
-    public UserCLI userCLI;
+    public UserCertCLI userCertCLI;
 
-    public UserShowCertCLI(UserCLI userCLI) {
-        super("show-cert", "Show user cert", userCLI);
-        this.userCLI = userCLI;
+    public UserCertShowCLI(UserCertCLI userCertCLI) {
+        super("show", "Show user certificate", userCertCLI);
+        this.userCertCLI = userCertCLI;
     }
 
     public void printHelp() {
@@ -79,7 +79,7 @@ public class UserShowCertCLI extends CLI {
         String certID = cmdArgs[1];
         String file = cmd.getOptionValue("output");
 
-        UserCertData userCertData = userCLI.userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        UserCertData userCertData = userCertCLI.userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         String encoded = userCertData.getEncoded();
         if (encoded != null && file != null) {
@@ -91,6 +91,6 @@ public class UserShowCertCLI extends CLI {
 
         MainCLI.printMessage("Certificate \"" + userCertData.getID() + "\"");
 
-        UserCLI.printCert(userCertData, showPrettyPrint, showEncoded);
+        UserCertCLI.printCert(userCertData, showPrettyPrint, showEncoded);
     }
 }

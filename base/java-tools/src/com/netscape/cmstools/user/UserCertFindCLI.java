@@ -16,32 +16,32 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.group;
+package com.netscape.cmstools.user;
 
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.group.GroupMemberCollection;
-import com.netscape.certsrv.group.GroupMemberData;
+import com.netscape.certsrv.user.UserCertCollection;
+import com.netscape.certsrv.user.UserCertData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupFindMemberCLI extends CLI {
+public class UserCertFindCLI extends CLI {
 
-    public GroupCLI groupCLI;
+    public UserCertCLI userCertCLI;
 
-    public GroupFindMemberCLI(GroupCLI groupCLI) {
-        super("find-member", "Find group members", groupCLI);
-        this.groupCLI = groupCLI;
+    public UserCertFindCLI(UserCertCLI userCertCLI) {
+        super("find", "Find user certificates", userCertCLI);
+        this.userCertCLI = userCertCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -72,7 +72,7 @@ public class GroupFindMemberCLI extends CLI {
             System.exit(1);
         }
 
-        String groupID = cmdArgs[0];
+        String userID = cmdArgs[0];
 
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
@@ -80,15 +80,15 @@ public class GroupFindMemberCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        GroupMemberCollection response = groupCLI.groupClient.findGroupMembers(groupID, start, size);
+        UserCertCollection response = userCertCLI.userClient.findUserCerts(userID, start, size);
 
-        Collection<GroupMemberData> entries = response.getMembers();
+        Collection<UserCertData> entries = response.getCerts();
 
-        MainCLI.printMessage(entries.size()+" group member(s) matched");
+        MainCLI.printMessage(entries.size() + " user cert(s) matched");
 
         boolean first = true;
 
-        for (GroupMemberData groupMemberData : entries) {
+        for (UserCertData userCertData : entries) {
 
             if (first) {
                 first = false;
@@ -96,9 +96,9 @@ public class GroupFindMemberCLI extends CLI {
                 System.out.println();
             }
 
-            GroupCLI.printGroupMember(groupMemberData);
+            UserCertCLI.printCert(userCertData, false, false);
         }
 
-        MainCLI.printMessage("Number of entries returned "+entries.size());
+        MainCLI.printMessage("Number of entries returned " + entries.size());
     }
 }

@@ -16,28 +16,26 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.user;
+package com.netscape.cmstools.group;
 
-import java.net.URLEncoder;
-
+import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
-
 
 /**
  * @author Endi S. Dewata
  */
-public class UserRemoveCertCLI extends CLI {
+public class GroupMemberShowCLI extends CLI {
 
-    public UserCLI userCLI;
+    public GroupMemberCLI groupMemberCLI;
 
-    public UserRemoveCertCLI(UserCLI userCLI) {
-        super("remove-cert", "Remove user cert", userCLI);
-        this.userCLI = userCLI;
+    public GroupMemberShowCLI(GroupMemberCLI groupMemberCLI) {
+        super("show", "Show group member", groupMemberCLI);
+        this.groupMemberCLI = groupMemberCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> <Cert ID>", options);
+        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -47,15 +45,13 @@ public class UserRemoveCertCLI extends CLI {
             System.exit(1);
         }
 
-        String userID = args[0];
-        String certID = args[1];
+        String groupID = args[0];
+        String memberID = args[1];
 
-        if (verbose) {
-            System.out.println("Removing cert "+certID+" from user "+userID+".");
-        }
+        GroupMemberData groupMemberData = groupMemberCLI.groupClient.getGroupMember(groupID, memberID);
 
-        userCLI.userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        MainCLI.printMessage("Group member \""+memberID+"\"");
 
-        MainCLI.printMessage("Deleted certificate \"" + certID + "\"");
+        GroupMemberCLI.printGroupMember(groupMemberData);
     }
 }

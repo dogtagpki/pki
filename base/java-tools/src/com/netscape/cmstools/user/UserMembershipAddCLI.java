@@ -12,30 +12,30 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.group;
+package com.netscape.cmstools.user;
 
-import com.netscape.certsrv.group.GroupMemberData;
+import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupShowMemberCLI extends CLI {
+public class UserMembershipAddCLI extends CLI {
 
-    public GroupCLI groupCLI;
+    public UserMembershipCLI userMembershipCLI;
 
-    public GroupShowMemberCLI(GroupCLI groupCLI) {
-        super("show-member", "Show group member", groupCLI);
-        this.groupCLI = groupCLI;
+    public UserMembershipAddCLI(UserMembershipCLI userMembershipCLI) {
+        super("add", "Add user membership", userMembershipCLI);
+        this.userMembershipCLI = userMembershipCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -45,13 +45,13 @@ public class GroupShowMemberCLI extends CLI {
             System.exit(1);
         }
 
-        String groupID = args[0];
-        String memberID = args[1];
+        String userID = args[0];
+        String groupID = args[1];
 
-        GroupMemberData groupMemberData = groupCLI.groupClient.getGroupMember(groupID, memberID);
+        UserMembershipData userMembershipData = userMembershipCLI.userClient.addUserMembership(userID, groupID);
 
-        MainCLI.printMessage("Group member \""+memberID+"\"");
+        MainCLI.printMessage("Added membership in \""+groupID+"\"");
 
-        GroupCLI.printGroupMember(groupMemberData);
+        UserMembershipCLI.printUserMembership(userMembershipData);
     }
 }

@@ -12,46 +12,47 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2013 Red Hat, Inc.
+// (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
 package com.netscape.cmstools.user;
 
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserAddMembershipCLI extends CLI {
+public class UserMembershipCLI extends CLI {
 
-    public UserCLI userCLI;
+    public UserClient userClient;
 
-    public UserAddMembershipCLI(UserCLI userCLI) {
-        super("add-membership", "Add user membership", userCLI);
-        this.userCLI = userCLI;
-    }
+    public UserMembershipCLI(CLI parent) {
+        super("membership", "User membership management commands", parent);
 
-    public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
+        addModule(new UserMembershipFindCLI(this));
+        addModule(new UserMembershipAddCLI(this));
+        addModule(new UserMembershipRemoveCLI(this));
     }
 
     public void execute(String[] args) throws Exception {
 
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
+        client = parent.getClient();
+        userClient = (UserClient)parent.getClient("user");
+
+        super.execute(args);
+    }
+
+    public static void printUserMembership(UserMembershipData userMembershipData) {
+        System.out.println("  Group: "+userMembershipData.getID());
+
+        Link link = userMembershipData.getLink();
+        if (verbose && link != null) {
+            System.out.println("  Link: " + link.getHref());
         }
-
-        String userID = args[0];
-        String groupID = args[1];
-
-        UserMembershipData userMembershipData = userCLI.userClient.addUserMembership(userID, groupID);
-
-        MainCLI.printMessage("Added membership in \""+groupID+"\"");
-
-        UserCLI.printUserMembership(userMembershipData);
     }
 }

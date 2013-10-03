@@ -18,40 +18,42 @@
 
 package com.netscape.cmstools.group;
 
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupAddMemberCLI extends CLI {
+public class GroupMemberCLI extends CLI {
 
-    public GroupCLI groupCLI;
+    public GroupClient groupClient;
 
-    public GroupAddMemberCLI(GroupCLI groupCLI) {
-        super("add-member", "Add group member", groupCLI);
-        this.groupCLI = groupCLI;
-    }
+    public GroupMemberCLI(CLI parent) {
+        super("member", "Group member management commands", parent);
 
-    public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
+        addModule(new GroupMemberFindCLI(this));
+        addModule(new GroupMemberShowCLI(this));
+        addModule(new GroupMemberAddCLI(this));
+        addModule(new GroupMemberRemoveCLI(this));
     }
 
     public void execute(String[] args) throws Exception {
 
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
+        client = parent.getClient();
+        groupClient = (GroupClient)parent.getClient("group");
+
+        super.execute(args);
+    }
+
+    public static void printGroupMember(GroupMemberData groupMemberData) {
+        System.out.println("  User: "+groupMemberData.getID());
+
+        Link link = groupMemberData.getLink();
+        if (verbose && link != null) {
+            System.out.println("  Link: " + link.getHref());
         }
-
-        String groupID = args[0];
-        String memberID = args[1];
-
-        GroupMemberData groupMemberData = groupCLI.groupClient.addGroupMember(groupID, memberID);
-
-        MainCLI.printMessage("Added group member \""+memberID+"\"");
-
-        GroupCLI.printGroupMember(groupMemberData);
     }
 }

@@ -12,11 +12,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.group;
+package com.netscape.cmstools.user;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -24,17 +24,17 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class GroupRemoveMemberCLI extends CLI {
+public class UserMembershipRemoveCLI extends CLI {
 
-    public GroupCLI groupCLI;
+    public UserMembershipCLI userMembershipCLI;
 
-    public GroupRemoveMemberCLI(GroupCLI groupCLI) {
-        super("remove-member", "Remove group member", groupCLI);
-        this.groupCLI = groupCLI;
+    public UserMembershipRemoveCLI(UserMembershipCLI userMembershipCLI) {
+        super("remove", "Remove user membership", userMembershipCLI);
+        this.userMembershipCLI = userMembershipCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> <Member ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -44,11 +44,11 @@ public class GroupRemoveMemberCLI extends CLI {
             System.exit(1);
         }
 
-        String groupID = args[0];
-        String memberID = args[1];
+        String userID = args[0];
+        String groupID = args[1];
 
-        groupCLI.groupClient.removeGroupMember(groupID, memberID);
+        userMembershipCLI.userClient.removeUserMembership(userID, groupID);
 
-        MainCLI.printMessage("Deleted group member \""+memberID+"\"");
+        MainCLI.printMessage("Deleted membership in group \""+groupID+"\"");
     }
 }

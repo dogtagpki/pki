@@ -18,12 +18,12 @@
 
 package com.netscape.cmstools.user;
 
-import java.util.Collection;
+import java.io.File;
+import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.user.UserCertCollection;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -31,13 +31,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserFindCertCLI extends CLI {
+public class UserCertAddCLI extends CLI {
 
-    public UserCLI userCLI;
+    public UserCertCLI userCertCLI;
 
-    public UserFindCertCLI(UserCLI userCLI) {
-        super("find-cert", "Find user certs", userCLI);
-        this.userCLI = userCLI;
+    public UserCertAddCLI(UserCertCLI userCertCLI) {
+        super("add", "Add user certificate", userCertCLI);
+        this.userCertCLI = userCertCLI;
     }
 
     public void printHelp() {
@@ -46,12 +46,9 @@ public class UserFindCertCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "start", true, "Page start");
-        option.setArgName("start");
-        options.addOption(option);
-
-        option = new Option(null, "size", true, "Page size");
-        option.setArgName("size");
+        Option option = new Option(null, "input", true, "Input file");
+        option.setArgName("file");
+        option.setRequired(true);
         options.addOption(option);
 
         CommandLine cmd = null;
@@ -72,33 +69,29 @@ public class UserFindCertCLI extends CLI {
             System.exit(1);
         }
 
-        String userID = cmdArgs[0];
+        String userId = cmdArgs[0];
+        String file = cmd.getOptionValue("input");
 
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
-
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
-
-        UserCertCollection response = userCLI.userClient.findUserCerts(userID, start, size);
-
-        Collection<UserCertData> entries = response.getCerts();
-
-        MainCLI.printMessage(entries.size() + " user cert(s) matched");
-
-        boolean first = true;
-
-        for (UserCertData userCertData : entries) {
-
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-
-            UserCLI.printCert(userCertData, false, false);
+        // get cert from file
+        if (verbose) {
+            System.out.println("Reading cert from "+file+".");
+        }
+        String encoded = new Scanner(new File(file)).useDelimiter("\\A").next();
+        if (verbose) {
+            System.out.println(encoded);
         }
 
-        MainCLI.printMessage("Number of entries returned " + entries.size());
+        UserCertData userCertData = new UserCertData();
+        userCertData.setEncoded(encoded);
+
+        if (verbose) {
+            System.out.println(userCertData);
+        }
+
+        userCertData = userCertCLI.userClient.addUserCert(userId, userCertData);
+
+        MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");
+
+        UserCertCLI.printCert(userCertData, false, false);
     }
 }

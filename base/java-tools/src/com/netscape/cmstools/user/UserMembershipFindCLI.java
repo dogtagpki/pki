@@ -31,13 +31,13 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class UserFindMembershipCLI extends CLI {
+public class UserMembershipFindCLI extends CLI {
 
-    public UserCLI userCLI;
+    public UserMembershipCLI userMembershipCLI;
 
-    public UserFindMembershipCLI(UserCLI userCLI) {
-        super("find-membership", "Find user memberships", userCLI);
-        this.userCLI = userCLI;
+    public UserMembershipFindCLI(UserMembershipCLI userMembershipCLI) {
+        super("find", "Find user memberships", userMembershipCLI);
+        this.userMembershipCLI = userMembershipCLI;
     }
 
     public void printHelp() {
@@ -80,7 +80,7 @@ public class UserFindMembershipCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserMembershipCollection response = userCLI.userClient.findUserMemberships(userID, start, size);
+        UserMembershipCollection response = userMembershipCLI.userClient.findUserMemberships(userID, start, size);
 
         Collection<UserMembershipData> entries = response.getMemberships();
 
@@ -96,7 +96,7 @@ public class UserFindMembershipCLI extends CLI {
                 System.out.println();
             }
 
-            UserCLI.printUserMembership(userMembershipData);
+            UserMembershipCLI.printUserMembership(userMembershipData);
         }
 
         MainCLI.printMessage("Number of entries returned "+entries.size());
