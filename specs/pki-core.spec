@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.10%{?dist}
+Release:          0.11%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -579,43 +579,6 @@ fi
 	sed -i -e 's/        \[tomcatjss.jar\]=\${java_dir}\/tomcatjss.jar/        \[tomcatjss.jar\]=\${java_dir}\/tomcat7jss.jar/' %{buildroot}%{_datadir}/pki/scripts/operations
 %endif
 
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
-# generate 'pki-ca.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-# generate 'pki-kra.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-# generate 'pki-ocsp.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-# generate 'pki-tomcat.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-# generate 'pki-tks.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-# generate 'pki-tps.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
@@ -1026,13 +989,6 @@ fi
 %{_mandir}/man8/pkidestroy.8.gz
 %{_mandir}/man8/pkispawn.8.gz
 
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
@@ -1059,13 +1015,6 @@ fi
 %{_datadir}/pki/ca/webapps/
 %dir %{_localstatedir}/lock/pki/ca
 %dir %{_localstatedir}/run/pki/ca
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ca.conf
-
 
 %files -n pki-kra
 %defattr(-,root,root,-)
@@ -1080,13 +1029,6 @@ fi
 %{_datadir}/pki/kra/webapps/
 %dir %{_localstatedir}/lock/pki/kra
 %dir %{_localstatedir}/run/pki/kra
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-kra.conf
-
 
 %files -n pki-ocsp
 %defattr(-,root,root,-)
@@ -1101,13 +1043,6 @@ fi
 %{_datadir}/pki/ocsp/webapps/
 %dir %{_localstatedir}/lock/pki/ocsp
 %dir %{_localstatedir}/run/pki/ocsp
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-
 
 %files -n pki-tks
 %defattr(-,root,root,-)
@@ -1122,13 +1057,6 @@ fi
 %{_datadir}/pki/tks/webapps/
 %dir %{_localstatedir}/lock/pki/tks
 %dir %{_localstatedir}/run/pki/tks
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
-
 
 %files -n pki-tps-tomcat
 %defattr(-,root,root,-)
@@ -1143,13 +1071,6 @@ fi
 %{_datadir}/pki/tps/webapps/
 %dir %{_localstatedir}/lock/pki/tps
 %dir %{_localstatedir}/run/pki/tps
-# Details:
-#
-#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
-#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
-#
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tps.conf
-
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-javadoc
@@ -1159,6 +1080,9 @@ fi
 
 
 %changelog
+* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
+- Removed delivery of /var/lock and /var/run directories for fedora 20.
+
 * Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.10
 - Moved Tomcat-based TPS into pki-core.
 
