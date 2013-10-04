@@ -31,6 +31,9 @@ There are a small number of bootstrap parameters which are passed in the configu
 \fBpki_ca_signing_nickname=caSigningCert cert-%(pki_instance_name)s CA\fP
 .PP
 This substitutes the value of pki_instance_name into the parameter value.  It is possible to interpolate any parameter within a section or in [DEFAULT]. Any parameter used in interpolation can \fBONLY\fP be overridden within the same section.  So, for example, pki_instance_name should only be overridden in [DEFAULT]; otherwise, interpolations can fail.
+.TP
+\fBNote:\fP
+Any parameter values in the configuration file that needs to contain a \fB%\fP character must be properly escaped.  For example, a value of \fBfoo%bar\fP would be specified as \fBfoo%%bar\fP in the configuration file.
 
 .SH GENERAL INSTANCE PARAMETERS
 The parameters described below, as well as the parameters located in the following sections, can be customized as part of a deployment.  This list is not exhaustive.

@@ -1120,6 +1120,12 @@ class PKIConfigParser:
             config.pki_log.error(log.PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1,
                                  err, extra=config.PKI_INDENTATION_LEVEL_2)
             raise
+        except ConfigParser.InterpolationSyntaxError as err:
+            config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_1,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            sys.exit(1)
         return
 
 

@@ -39,6 +39,9 @@ respectively.
 The instances are created based on values for configuration parameters in the default configuration (/etc/pki/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
 .PP
 This configuration file contains directives that are divided into sections for different subsystem types (such as [DEFAULT], [CA], and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP and TKS), the sections read are [DEFAULT], [Tomcat] and the subsystem-type section ([CA], [KRA], [OCSP], or [TKS]), in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and system-specific upgrades in the [CA], [KRA], and other sections.
+.TP
+\fBNote:\fP
+Any parameter values in the configuration file that needs to contain a \fB%\fP character must be properly escaped.  For example, a value of \fBfoo%bar\fP would be specified as \fBfoo%%bar\fP in the configuration file.
 .PP
 At a minimum, the user-defined configuration file must provide some passwords needed for the install.  An example configuration file is provided in the 
 .B EXAMPLES

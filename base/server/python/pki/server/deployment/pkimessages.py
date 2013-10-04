@@ -179,6 +179,12 @@ PKIHELPER_CREATE_SECURITY_DATABASES_1 = "executing '%s'"
 PKIHELPER_DANGLING_SYMLINK_2 = "Dangling symlink '%s'-->'%s'"
 PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1 = "KeyError:  Master dictionary "\
                                             "is missing the key called '%s'!"
+PKIHELPER_DICTIONARY_INTERPOLATION_1 = "Deployment file could not be parsed "\
+                                       "correctly.  This might be because of "\
+                                       "unescaped '%%' characters.  You must "\
+                                       "escape '%%' characters in deployment "\
+                                       "files (example - 'setting=foo%%%%bar')."
+PKIHELPER_DICTIONARY_INTERPOLATION_2 = "Interpolation error (%s)"
 PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
 PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
 PKIHELPER_GID_2 = "GID of '%s' is %s"
