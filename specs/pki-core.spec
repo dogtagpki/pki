@@ -1066,7 +1066,7 @@ fi
 
 
 %changelog
-* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
+* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.12
 - Removed additional /var/run, /var/lock references.
 
 * Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
