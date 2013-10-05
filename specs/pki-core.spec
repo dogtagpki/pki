@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.11%{?dist}
+Release:          0.12%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -964,8 +964,6 @@ fi
 %{_datadir}/pki/scripts/pkicommon.pm
 %{_datadir}/pki/scripts/functions
 %{_datadir}/pki/scripts/pki_apache_initscript
-%dir %{_localstatedir}/lock/pki
-%dir %{_localstatedir}/run/pki
 %{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
@@ -975,8 +973,6 @@ fi
 %{_javadir}/pki/pki-cmscore.jar
 %{_javadir}/pki/pki-silent.jar
 %{_javadir}/pki/pki-tomcat.jar
-%dir %{_localstatedir}/lock/pki/tomcat
-%dir %{_localstatedir}/run/pki/tomcat
 %dir %{_sharedstatedir}/pki
 %{_bindir}/pkicreate
 %{_bindir}/pkiremove
@@ -1013,8 +1009,6 @@ fi
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
-%dir %{_localstatedir}/lock/pki/ca
-%dir %{_localstatedir}/run/pki/ca
 
 %files -n pki-kra
 %defattr(-,root,root,-)
@@ -1027,8 +1021,6 @@ fi
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
-%dir %{_localstatedir}/lock/pki/kra
-%dir %{_localstatedir}/run/pki/kra
 
 %files -n pki-ocsp
 %defattr(-,root,root,-)
@@ -1041,8 +1033,6 @@ fi
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
-%dir %{_localstatedir}/lock/pki/ocsp
-%dir %{_localstatedir}/run/pki/ocsp
 
 %files -n pki-tks
 %defattr(-,root,root,-)
@@ -1055,8 +1045,6 @@ fi
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
-%dir %{_localstatedir}/lock/pki/tks
-%dir %{_localstatedir}/run/pki/tks
 
 %files -n pki-tps-tomcat
 %defattr(-,root,root,-)
@@ -1069,8 +1057,6 @@ fi
 %{_datadir}/pki/tps/conf/
 %{_datadir}/pki/tps/setup/
 %{_datadir}/pki/tps/webapps/
-%dir %{_localstatedir}/lock/pki/tps
-%dir %{_localstatedir}/run/pki/tps
 
 %if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-javadoc
@@ -1080,6 +1066,9 @@ fi
 
 
 %changelog
+* Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
+- Removed additional /var/run, /var/lock references.
+
 * Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.11
 - Removed delivery of /var/lock and /var/run directories for fedora 20.
 
