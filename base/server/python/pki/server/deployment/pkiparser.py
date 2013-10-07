@@ -1125,7 +1125,7 @@ class PKIConfigParser:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
-            sys.exit(1)
+            raise
         return
 
 
