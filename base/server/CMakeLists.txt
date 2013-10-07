@@ -139,3 +139,7 @@ install(
 # install empty directories
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
+
+add_subdirectory(tomcat)
+add_subdirectory(cms)
+add_subdirectory(cmscore)

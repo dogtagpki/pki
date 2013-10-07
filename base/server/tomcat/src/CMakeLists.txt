@@ -1,4 +1,4 @@
-project(pki-certsrv_java NONE)
+project(pki-tomcat)
 
 find_file(JSS_JAR
     NAMES
@@ -118,79 +118,41 @@ find_file(HTTPCORE_JAR
         /usr/share/java/httpcomponents
 )
 
-# build pki-certsrv
-javac(pki-certsrv-classes
+# build pki-tomcat
+javac(pki-tomcat-classes
     SOURCES
-        com/netscape/certsrv/*.java
+        com/netscape/cms/tomcat/*.java
     CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_LANG_JAR}
-        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
-    DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar
 )
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pki-certsrv.mf
-    ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
+    ${CMAKE_CURRENT_SOURCE_DIR}/pki-tomcat.mf
+    ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
 )
 
-jar(pki-certsrv-jar
+jar(pki-tomcat-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
     OPTIONS
         m
     PARAMS
-        ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
+        ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
-        com/netscape/certsrv/*.class
+        com/netscape/cms/tomcat/*.class
     DEPENDS
-        pki-certsrv-classes
+        pki-tomcat-classes
 )
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
-set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
-
-
-# build pki-cmsbundle
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pki-cmsbundle.mf
-    ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsbundle.mf
-)
-
-jar(pki-cmsbundle-jar
-    CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
-    OPTIONS
-        m
-    PARAMS
-        ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsbundle.mf
-    FILES
-        LogMessages.properties
-        UserMessages.properties
-    DEPENDS
-        pki-cmsbundle-jar
-)
-
-install(
-    FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
+set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar CACHE INTERNAL "pki-tomcat jar file")
