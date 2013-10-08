@@ -42,6 +42,8 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupCollection;
 import com.netscape.certsrv.group.GroupData;
+import com.netscape.certsrv.group.GroupMemberCollection;
+import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.IAuditor;
@@ -329,6 +331,73 @@ public class GroupService extends PKIService implements GroupResource {
         } catch (EBaseException e) {
             auditDeleteGroup(groupID, ILogger.FAILURE);
             throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
+        try {
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setUriInfo(uriInfo);
+            return processor.findGroupMembers(groupID, start, size);
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public GroupMemberData getGroupMember(String groupID, String memberID) {
+        try {
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setUriInfo(uriInfo);
+            return processor.getGroupMember(groupID, memberID);
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Response addGroupMember(String groupID, String memberID) {
+        GroupMemberData groupMemberData = new GroupMemberData();
+        groupMemberData.setID(memberID);
+        groupMemberData.setGroupID(groupID);
+        return addGroupMember(groupMemberData);
+    }
+
+    public Response addGroupMember(GroupMemberData groupMemberData) {
+        try {
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setUriInfo(uriInfo);
+            return processor.addGroupMember(groupMemberData);
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void removeGroupMember(String groupID, String memberID) {
+        try {
+            GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setUriInfo(uriInfo);
+            processor.removeGroupMember(groupID, memberID);
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage(), e);
         }
     }
 

@@ -30,7 +30,6 @@ import com.netscape.certsrv.client.PKIClient;
 public class GroupClient extends Client {
 
     public GroupResource groupClient;
-    public GroupMemberResource groupMemberClient;
 
     public GroupClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "group");
@@ -39,7 +38,6 @@ public class GroupClient extends Client {
 
     public void init() throws URISyntaxException {
         groupClient = createProxy(GroupResource.class);
-        groupMemberClient = createProxy(GroupMemberResource.class);
     }
 
     public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) {
@@ -67,20 +65,20 @@ public class GroupClient extends Client {
     }
 
     public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
-        return groupMemberClient.findGroupMembers(groupID, start, size);
+        return groupClient.findGroupMembers(groupID, start, size);
     }
 
     public GroupMemberData getGroupMember(String groupID, String memberID) {
-        return groupMemberClient.getGroupMember(groupID, memberID);
+        return groupClient.getGroupMember(groupID, memberID);
     }
 
     public GroupMemberData addGroupMember(String groupID, String memberID) {
         @SuppressWarnings("unchecked")
-        ClientResponse<GroupMemberData> response = (ClientResponse<GroupMemberData>)groupMemberClient.addGroupMember(groupID, memberID);
+        ClientResponse<GroupMemberData> response = (ClientResponse<GroupMemberData>)groupClient.addGroupMember(groupID, memberID);
         return client.getEntity(response);
     }
 
     public void removeGroupMember(String groupID, String memberID) {
-        groupMemberClient.removeGroupMember(groupID, memberID);
+        groupClient.removeGroupMember(groupID, memberID);
     }
 }

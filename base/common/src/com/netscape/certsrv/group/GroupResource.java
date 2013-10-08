@@ -71,4 +71,29 @@ public interface GroupResource {
     @Path("{groupID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeGroup(@PathParam("groupID") String groupID);
+
+    @GET
+    @Path("{groupID}/members")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public GroupMemberCollection findGroupMembers(
+            @PathParam("groupID") String groupID,
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
+
+    @POST
+    @Path("{groupID}/members")
+    @ClientResponseType(entityType=GroupMemberData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response addGroupMember(@PathParam("groupID") String groupID, String memberID);
+
+    @GET
+    @Path("{groupID}/members/{memberID}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public GroupMemberData getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
+
+    @DELETE
+    @Path("{groupID}/members/{memberID}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public void removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

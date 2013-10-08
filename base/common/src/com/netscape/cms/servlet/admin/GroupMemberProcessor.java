@@ -41,8 +41,8 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.certsrv.group.GroupMemberResource;
 import com.netscape.certsrv.group.GroupNotFoundException;
+import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -85,8 +85,8 @@ public class GroupMemberProcessor extends Processor {
         groupMemberData.setGroupID(groupID);
 
         URI uri = uriInfo.getBaseUriBuilder()
-                .path(GroupMemberResource.class)
-                .path("{userID}")
+                .path(GroupResource.class)
+                .path("{groupID}/members/{memberID}")
                 .build(
                         URLEncoder.encode(groupID, "UTF-8"),
                         URLEncoder.encode(memberID, "UTF-8"));

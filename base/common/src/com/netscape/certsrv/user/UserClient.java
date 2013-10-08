@@ -30,8 +30,6 @@ import com.netscape.certsrv.client.PKIClient;
 public class UserClient extends Client {
 
     public UserResource userClient;
-    public UserCertResource userCertClient;
-    public UserMembershipResource userMembershipClient;
 
     public UserClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "user");
@@ -40,8 +38,6 @@ public class UserClient extends Client {
 
     public void init() throws URISyntaxException {
         userClient = createProxy(UserResource.class);
-        userCertClient = createProxy(UserCertResource.class);
-        userMembershipClient = createProxy(UserMembershipResource.class);
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) {
@@ -69,34 +65,34 @@ public class UserClient extends Client {
     }
 
     public UserCertCollection findUserCerts(String userID, Integer start, Integer size) {
-        return userCertClient.findUserCerts(userID, start, size);
+        return userClient.findUserCerts(userID, start, size);
     }
 
     public UserCertData getUserCert(String userID, String certID) {
-        return userCertClient.getUserCert(userID, certID);
+        return userClient.getUserCert(userID, certID);
     }
 
     public UserCertData addUserCert(String userID, UserCertData userCertData) {
         @SuppressWarnings("unchecked")
-        ClientResponse<UserCertData> response = (ClientResponse<UserCertData>)userCertClient.addUserCert(userID, userCertData);
+        ClientResponse<UserCertData> response = (ClientResponse<UserCertData>)userClient.addUserCert(userID, userCertData);
         return client.getEntity(response);
     }
 
     public void removeUserCert(String userID, String certID) {
-        userCertClient.removeUserCert(userID, certID);
+        userClient.removeUserCert(userID, certID);
     }
 
     public UserMembershipCollection findUserMemberships(String userID, Integer start, Integer size) {
-        return userMembershipClient.findUserMemberships(userID, start, size);
+        return userClient.findUserMemberships(userID, start, size);
     }
 
     public UserMembershipData addUserMembership(String userID, String groupID) {
         @SuppressWarnings("unchecked")
-        ClientResponse<UserMembershipData> response = (ClientResponse<UserMembershipData>)userMembershipClient.addUserMembership(userID, groupID);
+        ClientResponse<UserMembershipData> response = (ClientResponse<UserMembershipData>)userClient.addUserMembership(userID, groupID);
         return client.getEntity(response);
     }
 
     public void removeUserMembership(String userD, String groupID) {
-        userMembershipClient.removeUserMembership(userD, groupID);
+        userClient.removeUserMembership(userD, groupID);
     }
 }

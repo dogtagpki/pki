@@ -34,11 +34,8 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.authorization.ACLInterceptor;
 import com.netscape.cms.authorization.AuthMethodInterceptor;
 import com.netscape.cms.servlet.account.AccountService;
-import com.netscape.cms.servlet.admin.GroupMemberService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
-import com.netscape.cms.servlet.admin.UserCertService;
-import com.netscape.cms.servlet.admin.UserMembershipService;
 import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cmscore.logging.AuditService;
@@ -64,10 +61,7 @@ public class TPSApplication extends Application {
         classes.add(SystemConfigService.class);
 
         // user and group management
-        classes.add(GroupMemberService.class);
         classes.add(GroupService.class);
-        classes.add(UserCertService.class);
-        classes.add(UserMembershipService.class);
         classes.add(UserService.class);
 
         // system certs
