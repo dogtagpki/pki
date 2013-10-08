@@ -11,9 +11,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 @Path("profiles")
+@AuthMethodMapping("profiles")
 public interface ProfileResource {
 
     @GET
@@ -26,27 +28,27 @@ public interface ProfileResource {
     public ProfileData retrieveProfile(@PathParam("id") String id);
 
     @POST
-    @AuthMethodMapping("admin")
+    @ACLMapping("profile.create")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void createProfile(ProfileData data);
 
     @POST
     @Path("{id}")
-    @AuthMethodMapping("agent")
+    @ACLMapping("profile.approve")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void modifyProfileState(@PathParam("id") String id, @QueryParam("action") String action);
 
     @PUT
     @Path("{id}")
-    @AuthMethodMapping("admin")
+    @ACLMapping("profile.modify")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void modifyProfile(@PathParam("id") String id, ProfileData data);
 
     @DELETE
     @Path("{id}")
-    @AuthMethodMapping("admin")
+    @ACLMapping("profile.delete")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void deleteProfile(@PathParam("id") String id);
 
