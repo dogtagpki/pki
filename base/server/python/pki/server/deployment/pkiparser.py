@@ -325,10 +325,43 @@ class PKIConfigParser:
         rv = 0
         try:
             if config.user_deployment_cfg:
+                # We don't allow interpolation in password settings, which
+                # means that we need to deal with escaping '%' characters
+                # that might be present.
+                no_interpolation = ('pki_admin_password', 'pki_backup_password',
+                                    'pki_client_database_password',
+                                    'pki_client_pkcs12_password',
+                                    'pki_ds_password', 'pki_security_domain_password')
+
                 print 'Loading deployment configuration from ' + config.user_deployment_cfg + '.'
                 self.pki_config.read([config.user_deployment_cfg])
                 config.user_config.read([config.user_deployment_cfg])
 
+                # Look through each section and see if any password settings
+                # are present.  If so, escape any '%' characters.
+                sections = self.pki_config.sections()
+                if sections:
+                    sections.append('DEFAULT')
+                    for section in sections:
+                        for key in no_interpolation:
+                            try:
+                                val =  self.pki_config.get(section, key, raw=True)
+                                if val:
+                                    self.pki_config.set(section, key, val.replace("%", "%%"))
+                            except ConfigParser.NoOptionError:
+                                continue
+
+                sections = config.user_config.sections()
+                if sections:
+                    sections.append('DEFAULT')
+                    for section in sections:
+                        for key in no_interpolation:
+                            try:
+                                val =  config.user_config.get(section, key, raw=True)
+                                if val:
+                                    config.user_config.set(section, key, val.replace("%", "%%"))
+                            except ConfigParser.NoOptionError:
+                                continue
         except ConfigParser.ParsingError, err:
             print err
             rv = err
