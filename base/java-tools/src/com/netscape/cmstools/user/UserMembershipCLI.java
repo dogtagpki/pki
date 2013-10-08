@@ -31,7 +31,7 @@ public class UserMembershipCLI extends CLI {
 
     public UserClient userClient;
 
-    public UserMembershipCLI(CLI parent) {
+    public UserMembershipCLI(UserCLI parent) {
         super("membership", "User membership management commands", parent);
 
         addModule(new UserMembershipFindCLI(this));
@@ -42,7 +42,7 @@ public class UserMembershipCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        userClient = (UserClient)parent.getClient("user");
+        userClient = ((UserCLI)parent).userClient;
 
         super.execute(args);
     }

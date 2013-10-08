@@ -31,7 +31,7 @@ public class GroupMemberCLI extends CLI {
 
     public GroupClient groupClient;
 
-    public GroupMemberCLI(CLI parent) {
+    public GroupMemberCLI(GroupCLI parent) {
         super("member", "Group member management commands", parent);
 
         addModule(new GroupMemberFindCLI(this));
@@ -43,7 +43,7 @@ public class GroupMemberCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        groupClient = (GroupClient)parent.getClient("group");
+        groupClient = ((GroupCLI)parent).groupClient;
 
         super.execute(args);
     }

@@ -43,7 +43,7 @@ public class UserCertCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        userClient = (UserClient)parent.getClient("user");
+        userClient = ((UserCLI)parent).userClient;
 
         super.execute(args);
     }
