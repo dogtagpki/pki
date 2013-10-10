@@ -19,11 +19,13 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface ProfileResource {
 
     @GET
+    @ACLMapping("profile.list")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ProfileDataInfos listProfiles();
 
     @GET
     @Path("{id}")
+    @ACLMapping("profile.read")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public ProfileData retrieveProfile(@PathParam("id") String id);
 
