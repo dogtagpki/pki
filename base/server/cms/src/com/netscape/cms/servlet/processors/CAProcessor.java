@@ -18,7 +18,6 @@
 
 package com.netscape.cms.servlet.processors;
 
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -34,7 +33,6 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -54,7 +52,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
@@ -72,7 +69,7 @@ import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.util.Utils;
 
-public class CAProcessor {
+public class CAProcessor extends Processor {
 
     public final static String ARG_AUTH_TOKEN = "auth_token";
     public final static String ARG_REQUEST_OWNER = "requestOwner";
@@ -142,8 +139,6 @@ public class CAProcessor {
     protected String authzResourceName;
     protected String authMgr;
     protected String getClientCert = "false";
-    protected Locale locale;
-
     // subsystems
     protected ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem("ca");
     protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
@@ -155,14 +150,13 @@ public class CAProcessor {
 
     //logging and stats
 
-    protected ILogger logger = CMS.getLogger();
-    protected IAuditor auditor = CMS.getAuditor();
     protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
 
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+        super(id, locale);
+
         IConfigStore cs = CMS.getConfigStore().getSubStore("processor." + id);
-        this.locale = locale;
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
         this.authzResourceName = cs.getString(AUTHZ_RESOURCE_NAME, "").isEmpty() ? null :
             cs.getString(AUTHZ_RESOURCE_NAME);
@@ -335,17 +329,6 @@ public class CAProcessor {
             return null;
         }
         return cert;
-    }
-
-    public void log(int source, int level, String message) {
-
-        if (logger == null) return;
-
-        logger.log(ILogger.EV_SYSTEM,
-                null,
-                source,
-                level,
-                getClass().getSimpleName() + ": " + message);
     }
 
     protected static Hashtable<String, String> toHashtable(HttpServletRequest req) {
@@ -1261,52 +1244,5 @@ public class CAProcessor {
         nonces.remove(id);
 
         CMS.debug("Processor: Nonce verified");
-    }
-
-    public String getUserMessage(String messageId, String... params) {
-        return CMS.getUserMessage(locale, messageId, params);
-    }
-
-    public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
-
-        if (auditor == null) return;
-
-        String auditMessage = CMS.getLogMessage(
-                message,
-                auditor.getSubjectID(),
-                status,
-                auditor.getParamString(scope, type, id, params));
-
-        auditor.log(auditMessage);
-    }
-
-    /**
-     * Get the values of the fields annotated with @FormParam.
-     */
-    public Map<String, String> getParams(Object object) {
-
-        Map<String, String> map = new HashMap<String, String>();
-
-        // for each fields in the object
-        for (Method method : object.getClass().getMethods()) {
-            FormParam element = method.getAnnotation(FormParam.class);
-            if (element == null) continue;
-
-            String name = element.value();
-
-            try {
-                // get the value from the object
-                Object value = method.invoke(object);
-
-                // put the value in the map
-                map.put(name, value == null ? null : value.toString());
-
-            } catch (Exception e) {
-                // ignore inaccessible fields
-                e.printStackTrace();
-            }
-        }
-
-        return map;
     }
 }

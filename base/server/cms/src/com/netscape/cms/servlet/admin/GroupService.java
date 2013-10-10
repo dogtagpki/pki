@@ -345,6 +345,7 @@ public class GroupService extends PKIService implements GroupResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -360,6 +361,7 @@ public class GroupService extends PKIService implements GroupResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -382,6 +384,7 @@ public class GroupService extends PKIService implements GroupResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -397,6 +400,7 @@ public class GroupService extends PKIService implements GroupResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }

@@ -1021,6 +1021,7 @@ public class UserService extends PKIService implements UserResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -1048,6 +1049,7 @@ public class UserService extends PKIService implements UserResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -1063,6 +1065,7 @@ public class UserService extends PKIService implements UserResource {
             throw e;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
