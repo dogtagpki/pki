@@ -21,11 +21,11 @@
  */
 package com.netscape.certsrv.cert;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
@@ -54,26 +54,26 @@ public class CertEnrollmentRequest {
     private static final String RENEWAL = "renewal";
     private static final String SERIAL_NUM = "serial_num";
 
-    @XmlElement
+    @XmlElement(name="ProfileID")
     protected String profileId;
 
-    @XmlElement
-    protected boolean isRenewal;
+    @XmlElement(name="Renewal")
+    protected boolean renewal;
 
-    @XmlElement
+    @XmlElement(name="SerialNumber")
     protected String serialNum;   // used for one type of renewal
 
-    @XmlElement
+    @XmlElement(name="RemoteHost")
     protected String remoteHost;
 
-    @XmlElement
+    @XmlElement(name="RemoteAddress")
     protected String remoteAddr;
 
     @XmlElement(name = "Input")
-    protected List<ProfileInput> inputs = new ArrayList<ProfileInput>();
+    protected Collection<ProfileInput> inputs = new ArrayList<ProfileInput>();
 
     @XmlElement(name = "Output")
-    protected List<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
+    protected Collection<ProfileOutput> outputs = new ArrayList<ProfileOutput>();
 
     public CertEnrollmentRequest() {
         // required for jaxb
@@ -83,7 +83,7 @@ public class CertEnrollmentRequest {
         profileId = form.getFirst(PROFILE_ID);
         String renewalStr = form.getFirst(RENEWAL);
         serialNum = form.getFirst(SERIAL_NUM);
-        isRenewal = new Boolean(renewalStr);
+        renewal = new Boolean(renewalStr);
     }
 
     /**
@@ -96,7 +96,6 @@ public class CertEnrollmentRequest {
     /**
      * @param profileId the profileId to set
      */
-
     public void setProfileId(String profileId) {
         this.profileId = profileId;
     }
@@ -104,23 +103,29 @@ public class CertEnrollmentRequest {
     /**
      * @return renewal
      */
+    public boolean isRenewal() {
+        return renewal;
+    }
 
-    public boolean getIsRenewal() {
-        return isRenewal;
+    /**
+     * @param renewal the renewal to set
+     */
+    public void setRenewal(boolean renewal) {
+        this.renewal = renewal;
     }
 
     public void addInput(ProfileInput input) {
         ProfileInput curInput = getInput(input.getName());
         if (curInput != null) {
-            getInputs().remove(curInput);
+            inputs.remove(curInput);
         }
-        getInputs().add(input);
+        inputs.add(input);
     }
 
     public void deleteInput(ProfileInput input) {
         ProfileInput curInput = getInput(input.getName());
         if (curInput != null) {
-            getInputs().remove(curInput);
+            inputs.remove(curInput);
         }
     }
 
@@ -134,131 +139,57 @@ public class CertEnrollmentRequest {
         ProfileInput newInput = new ProfileInput();
         newInput.setName(name);
 
-        getInputs().add(newInput);
+        inputs.add(newInput);
 
         return newInput;
     }
 
     public ProfileInput getInput(String name) {
-        ProfileInput input = null;
-        for (ProfileInput curInput: getInputs()) {
-            if (curInput != null && curInput.getName().equals(name))
-                break;
+        for (ProfileInput input : inputs) {
+            if (input.getName().equals(name))
+                return input;
         }
-        return input;
+        return null;
     }
 
     public void addOutput(ProfileOutput output) {
         ProfileOutput curOutput = getOutput(output.getName());
         if (curOutput != null) {
-            getOutputs().remove(curOutput);
+            outputs.remove(curOutput);
         }
-        getOutputs().add(output);
+        outputs.add(output);
     }
 
     public void deleteOutput(ProfileOutput output) {
         ProfileOutput curOutput = getOutput(output.getName());
         if (curOutput != null) {
-            getInputs().remove(curOutput);
+            outputs.remove(curOutput);
         }
     }
 
     public ProfileOutput getOutput(String name) {
-        ProfileOutput output = null;
-        for (ProfileOutput curOutput: getOutputs()) {
-            if (curOutput != null && curOutput.getName().equals(name))
-                break;
+        for (ProfileOutput output : outputs) {
+            if (output.getName().equals(name))
+                return output;
         }
-        return output;
-    }
-
-    /**
-     * @param renewal the renewal to set
-     */
-    public void setIsRenewal(boolean isRenewal) {
-        this.isRenewal = isRenewal;
+        return null;
     }
 
     public HashMap<String, String> toParams() {
         HashMap<String, String> ret = new HashMap<String, String>();
-        ret.put("isRenewal", Boolean.valueOf(isRenewal).toString());
+        ret.put("isRenewal", Boolean.valueOf(renewal).toString());
         if (profileId != null) ret.put(PROFILE_ID, profileId);
         if (serialNum != null) ret.put(SERIAL_NUM, serialNum);
         if (remoteHost != null) ret.put("remoteHost", remoteHost);
         if (remoteAddr != null) ret.put("remoteAddr", remoteAddr);
 
         for (ProfileInput input: inputs) {
-            for (ProfileAttribute attr:input.getAttrs()) {
+            for (ProfileAttribute attr : input.getAttributes()) {
                 ret.put(attr.getName(), attr.getValue());
             }
         }
 
         return ret;
-    }
-
-    public static void main(String args[]) throws Exception {
-        CertEnrollmentRequest data = new CertEnrollmentRequest();
-        data.setProfileId("caUserCert");
-        data.setIsRenewal(false);
-
-        //Simulate a "caUserCert" Profile enrollment
-
-        ProfileInput certReq = data.createInput("KeyGenInput");
-        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
-        certReq.addAttribute(new ProfileAttribute(
-                "cert_request",
-                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz",
-                null));
-
-        ProfileInput subjectName = data.createInput("SubjectNameInput");
-        subjectName.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_c", "US", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
-        subjectName.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
-
-        ProfileInput submitter = data.createInput("SubmitterInfoInput");
-        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
-        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
-        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
-
-        try {
-            JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-            marshaller.marshal(data, stream);
-
-            System.out.println("Originally marshalled enrollment object. \n");
-
-            System.out.println(stream.toString());
-
-            //Try to unmarshall
-
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(stream.toByteArray());
-            Object unmarshalled = unmarshaller.unmarshal(bais);
-
-            //Try re-marshalling, unmarshalled object to compare
-
-            stream.reset();
-
-            marshaller.marshal(unmarshalled, stream);
-
-            System.out.println("Remarshalled unmarshalled enrollment object. \n");
-
-            System.out.println(stream.toString());
-
-        } catch (JAXBException e) {
-            System.out.println(e.toString());
-        }
     }
 
     public String getSerialNum() {
@@ -269,12 +200,13 @@ public class CertEnrollmentRequest {
         this.serialNum = serialNum;
     }
 
-    public List<ProfileInput> getInputs() {
+    public Collection<ProfileInput> getInputs() {
         return inputs;
     }
 
-    public void setInputs(List<ProfileInput> inputs) {
-        this.inputs = inputs;
+    public void setInputs(Collection<ProfileInput> inputs) {
+        this.inputs.clear();
+        this.inputs.addAll(inputs);
     }
 
     public String getRemoteAddr() {
@@ -293,16 +225,124 @@ public class CertEnrollmentRequest {
         this.remoteHost = remoteHost;
     }
 
-    public List<ProfileOutput> getOutputs() {
+    public Collection<ProfileOutput> getOutputs() {
         return outputs;
     }
 
-    public void setOutputs(List<ProfileOutput> outputs) {
-        this.outputs = outputs;
+    public void setOutputs(Collection<ProfileOutput> outputs) {
+        this.outputs.clear();
+        this.outputs.addAll(outputs);
     }
 
-    public void setRenewal(boolean isRenewal) {
-        this.isRenewal = isRenewal;
+    public static CertEnrollmentRequest fromXML(String string) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (CertEnrollmentRequest) unmarshaller.unmarshal(new StringReader(string));
     }
 
+    public String toXML() throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((inputs == null) ? 0 : inputs.hashCode());
+        result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
+        result = prime * result + ((profileId == null) ? 0 : profileId.hashCode());
+        result = prime * result + ((remoteAddr == null) ? 0 : remoteAddr.hashCode());
+        result = prime * result + ((remoteHost == null) ? 0 : remoteHost.hashCode());
+        result = prime * result + (renewal ? 1231 : 1237);
+        result = prime * result + ((serialNum == null) ? 0 : serialNum.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CertEnrollmentRequest other = (CertEnrollmentRequest) obj;
+        if (inputs == null) {
+            if (other.inputs != null)
+                return false;
+        } else if (!inputs.equals(other.inputs))
+            return false;
+        if (outputs == null) {
+            if (other.outputs != null)
+                return false;
+        } else if (!outputs.equals(other.outputs))
+            return false;
+        if (profileId == null) {
+            if (other.profileId != null)
+                return false;
+        } else if (!profileId.equals(other.profileId))
+            return false;
+        if (remoteAddr == null) {
+            if (other.remoteAddr != null)
+                return false;
+        } else if (!remoteAddr.equals(other.remoteAddr))
+            return false;
+        if (remoteHost == null) {
+            if (other.remoteHost != null)
+                return false;
+        } else if (!remoteHost.equals(other.remoteHost))
+            return false;
+        if (renewal != other.renewal)
+            return false;
+        if (serialNum == null) {
+            if (other.serialNum != null)
+                return false;
+        } else if (!serialNum.equals(other.serialNum))
+            return false;
+        return true;
+    }
+
+    public static void main(String args[]) throws Exception {
+        CertEnrollmentRequest before = new CertEnrollmentRequest();
+        before.setProfileId("caUserCert");
+        before.setRenewal(false);
+
+        //Simulate a "caUserCert" Profile enrollment
+
+        ProfileInput certReq = before.createInput("KeyGenInput");
+        certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
+        certReq.addAttribute(new ProfileAttribute(
+                "cert_request",
+                "MIIBozCCAZ8wggEFAgQBMQp8MIHHgAECpQ4wDDEKMAgGA1UEAxMBeKaBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA2NgaPHp0jiohcP4M+ufrJOZEqH8GV+liu5JLbT8nWpkfhC+8EUBqT6g+n3qroSxIcNVGNdcsBEqs1utvpItzyslAbpdyat3WwQep1dWMzo6RHrPDuIoxNA0Yka1n3qEX4U//08cLQtUv2bYglYgN/hOCNQemLV6vZWAv0n7zelkCAwEAAakQMA4GA1UdDwEB/wQEAwIF4DAzMBUGCSsGAQUFBwUBAQwIcmVnVG9rZW4wGgYJKwYBBQUHBQECDA1hdXRoZW50aWNhdG9yoYGTMA0GCSqGSIb3DQEBBQUAA4GBAJ1VOQcaSEhdHa94s8kifVbSZ2WZeYE5//qxL6wVlEst20vq4ybj13CetnbN3+WT49Zkwp7Fg+6lALKgSk47suTg3EbbQDm+8yOrC0nc/q4PTRoHl0alMmUxIhirYc1t3xoCMqJewmjX1bNP8lpVIZAYFZo4eZCpZaiSkM5BeHhz",
+                null));
+
+        ProfileInput subjectName = before.createInput("SubjectNameInput");
+        subjectName.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_c", "US", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
+        subjectName.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
+
+        ProfileInput submitter = before.createInput("SubmitterInfoInput");
+        submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
+        submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
+
+        String xml = before.toXML();
+        System.out.println(xml);
+
+        CertEnrollmentRequest after = CertEnrollmentRequest.fromXML(xml);
+        System.out.println(after.toXML());
+
+        System.out.println(before.equals(after));
+    }
 }

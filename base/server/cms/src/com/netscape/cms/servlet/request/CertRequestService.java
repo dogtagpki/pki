@@ -319,7 +319,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             String id = inputIds.nextElement();
             try {
                 ProfileInput input = ProfileService.createProfileInput(profile, id, getLocale(headers));
-                for (ProfileAttribute attr: input.getAttrs()) {
+                for (ProfileAttribute attr : input.getAttributes()) {
                     attr.setValue("");
                 }
                 request.addInput(input);

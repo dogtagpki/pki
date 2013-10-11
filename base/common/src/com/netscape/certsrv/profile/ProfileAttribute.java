@@ -25,17 +25,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.netscape.certsrv.property.Descriptor;
 
-@XmlRootElement
+@XmlRootElement(name="Attribute")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileAttribute {
 
     @XmlAttribute
     private String name;
 
-    @XmlElement
+    @XmlElement(name="Value")
     private String value;
 
-    @XmlElement
+    @XmlElement(name="Descriptor")
     private Descriptor descriptor;
 
     public ProfileAttribute() {

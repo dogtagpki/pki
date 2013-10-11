@@ -168,7 +168,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         CertRequestInfos ret = new CertRequestInfos();
 
         HashMap<String, Object> results = null;
-        if (data.getIsRenewal()) {
+        if (data.isRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
             results = processor.processRenewal(data, request);
         } else {

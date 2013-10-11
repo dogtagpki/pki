@@ -82,7 +82,7 @@ public class ProfileCLI extends CLI {
             System.out.println("  Input ID: " + input.getId());
             System.out.println("  Name: " + input.getName());
             System.out.println("  Class: " + input.getClassId());
-            for (ProfileAttribute attr: input.getAttrs()) {
+            for (ProfileAttribute attr : input.getAttributes()) {
                 System.out.println();
                 System.out.println("    Attribute Name: " + attr.getName());
                 System.out.println("    Attribute Description: " +
@@ -144,14 +144,14 @@ public class ProfileCLI extends CLI {
 
     public static void printEnrollmentTemplate(CertEnrollmentRequest request) {
         System.out.println("  Profile ID: " +  request.getProfileId());
-        System.out.println("  Renewal: " + request.getIsRenewal());
+        System.out.println("  Renewal: " + request.isRenewal());
 
         for (ProfileInput input: request.getInputs()) {
             System.out.println();
             System.out.println("  Input ID: " + input.getId());
             System.out.println("  Name: " + input.getName());
             System.out.println("  Class: " + input.getClassId());
-            for (ProfileAttribute attr: input.getAttrs()) {
+            for (ProfileAttribute attr : input.getAttributes()) {
                 System.out.println();
                 System.out.println("    Attribute Name: " + attr.getName());
                 System.out.println("    Attribute Description: " +

@@ -78,7 +78,7 @@ public class CertProcessor extends Processor {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
-            for (ProfileAttribute attr: input.getAttrs()) {
+            for (ProfileAttribute attr : input.getAttributes()) {
                 dataInputs.put(attr.getName(), attr.getValue());
             }
         }

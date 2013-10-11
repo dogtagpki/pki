@@ -317,7 +317,7 @@ public class CATest {
     private static CertEnrollmentRequest createUserCertEnrollment() {
         CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caUserCert");
-        data.setIsRenewal(false);
+        data.setRenewal(false);
 
         //Simulate a "caUserCert" Profile enrollment
 
@@ -348,7 +348,7 @@ public class CATest {
     private static CertEnrollmentRequest createRAUserCertEnrollment() {
         CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caDualRAuserCert");
-        data.setIsRenewal(false);
+        data.setRenewal(false);
 
         //Simulate a "caUserCert" Profile enrollment
 
@@ -373,7 +373,7 @@ public class CATest {
     private static CertEnrollmentRequest createServerCertEnrollment() {
         CertEnrollmentRequest data = new CertEnrollmentRequest();
         data.setProfileId("caServerCert");
-        data.setIsRenewal(false);
+        data.setRenewal(false);
 
         //Simulate a "caUserCert" Profile enrollment
 
@@ -441,7 +441,7 @@ public class CATest {
         List<ProfileInput> inputs = info.getInputs();
         for (ProfileInput input : inputs) {
             log("Input Id: " + input.getId());
-            for (ProfileAttribute attr: input.getAttrs()) {
+            for (ProfileAttribute attr : input.getAttributes()) {
                 log("Input Attribute Name: " + attr.getName() + "\n");
                 log("Input Attribute Value: " + attr.getValue() + "\n");
             }

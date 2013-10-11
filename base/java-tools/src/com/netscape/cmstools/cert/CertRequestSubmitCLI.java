@@ -1,12 +1,11 @@
 package com.netscape.cmstools.cert;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.Scanner;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -50,16 +49,16 @@ public class CertRequestSubmitCLI extends CLI {
             System.exit(-1);
         }
 
-        CertEnrollmentRequest erd = null;
-
         try {
-            erd = getEnrollmentRequest(cLineArgs[0]);
+            CertEnrollmentRequest erd = getEnrollmentRequest(cLineArgs[0]);
             CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
             MainCLI.printMessage("Submitted certificate request");
             printRequestInformation(cri);
+
         } catch (FileNotFoundException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);
+
         } catch (JAXBException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);
@@ -67,19 +66,22 @@ public class CertRequestSubmitCLI extends CLI {
     }
 
     private CertEnrollmentRequest getEnrollmentRequest(String fileName) throws JAXBException, FileNotFoundException {
-        CertEnrollmentRequest erd = null;
-        JAXBContext context = JAXBContext.newInstance(CertEnrollmentRequest.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        FileInputStream fis = new FileInputStream(fileName);
-        erd = (CertEnrollmentRequest) unmarshaller.unmarshal(fis);
-        return erd;
+        try (Scanner scanner = new Scanner(new File(fileName))) {
+            String xml = scanner.useDelimiter("\\A").next();
+            return CertEnrollmentRequest.fromXML(xml);
+        }
     }
 
     private void printRequestInformation(CertRequestInfos cri) {
         Collection<CertRequestInfo> allRequests = cri.getRequests();
+        boolean first = true;
         for (CertRequestInfo x : allRequests) {
+            if (first) {
+                first = false;
+            } else {
+                System.out.println();
+            }
             CertCLI.printCertRequestInfo(x);
         }
-        System.out.println();
     }
 }

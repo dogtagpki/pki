@@ -17,32 +17,60 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.netscape.certsrv.property.Descriptor;
 
+@XmlRootElement(name="Input")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileInput {
+
+    @XmlAttribute(name="id")
     private String id;
+
+    @XmlElement(name="ClassID")
     private String classId;
+
+    @XmlElement(name="Name")
     private String name;
+
+    @XmlElement(name="Text")
     private String text;
+
+    @XmlElement(name = "Attribute")
     private List<ProfileAttribute> attrs = new ArrayList<ProfileAttribute>();
+
+    @XmlElement(name = "ConfigAttribute")
     private List<ProfileAttribute> configAttrs = new ArrayList<ProfileAttribute>();
 
     public ProfileInput() {
         // required for jaxb
     }
 
-    public ProfileInput(IProfileInput input, String id, String classId, Locale locale) {
-        this.name = input.getName(locale);
+    public ProfileInput(String id, String name, String classId) {
         this.id = id;
+        this.name = name;
         this.classId = classId;
+    }
+
+    public ProfileInput(IProfileInput input, String id, String classId, Locale locale) {
+        this(id, input.getName(locale), classId);
         Enumeration<String> names = input.getValueNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
@@ -51,17 +79,14 @@ public class ProfileInput {
         }
     }
 
-    @XmlElement
     public String getClassId() {
         return classId;
     }
 
-    @XmlElement
     public String getName() {
         return name;
     }
 
-    @XmlElement
     public String getText() {
         return text;
     }
@@ -70,7 +95,6 @@ public class ProfileInput {
         this.classId = classId;
     }
 
-    @XmlAttribute
     public String getId() {
         return id;
     }
@@ -87,28 +111,34 @@ public class ProfileInput {
         this.text = text;
     }
 
-    @XmlElement(name = "attribute")
-    public List<ProfileAttribute> getAttrs() {
+    public Collection<ProfileAttribute> getAttributes() {
         return attrs;
     }
 
-    public void setAttrs(List<ProfileAttribute> attrs) {
-        this.attrs = attrs;
+    public void setAttributes(Collection<ProfileAttribute> attrs) {
+        this.attrs.clear();
+        this.attrs.addAll(attrs);
+    }
+
+    public ProfileAttribute getAttribute(String name) {
+        for (ProfileAttribute attr : attrs) {
+            if (attr.getName().equals(name)) return attr;
+        }
+        return null;
     }
 
     public void addAttribute(ProfileAttribute attr) {
         attrs.add(attr);
     }
 
-    public void removeAttribute(ProfileAttribute attr) {
-        attrs.remove(attr);
+    public void removeAttribute(String name) {
+        attrs.remove(name);
     }
 
     public void clearAttributes() {
         attrs.clear();
     }
 
-    @XmlElement(name = "config_attribute")
     public List<ProfileAttribute> getConfigAttrs() {
         return configAttrs;
     }
@@ -118,11 +148,11 @@ public class ProfileInput {
     }
 
     public void addConfigAttribute(ProfileAttribute configAttr) {
-        attrs.add(configAttr);
+        configAttrs.add(configAttr);
     }
 
     public void removeConfigAttribute(ProfileAttribute configAttr) {
-        attrs.remove(configAttr);
+        configAttrs.remove(configAttr);
     }
 
     public void clearConfigAttributes() {
@@ -184,4 +214,40 @@ public class ProfileInput {
         return true;
     }
 
+    public static ProfileInput fromXML(String string) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(ProfileInput.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (ProfileInput) unmarshaller.unmarshal(new StringReader(string));
+    }
+
+    public String toXML() throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(ProfileInput.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        ProfileInput before = new ProfileInput("i1", "SubjectNameInput", null);
+        before.addAttribute(new ProfileAttribute("sn_uid", "jmagne", null));
+        before.addAttribute(new ProfileAttribute("sn_e", "jmagne@redhat.com", null));
+        before.addAttribute(new ProfileAttribute("sn_c", "US", null));
+        before.addAttribute(new ProfileAttribute("sn_ou", "Development", null));
+        before.addAttribute(new ProfileAttribute("sn_ou1", "IPA", null));
+        before.addAttribute(new ProfileAttribute("sn_ou2", "Dogtag", null));
+        before.addAttribute(new ProfileAttribute("sn_ou3", "CA", null));
+        before.addAttribute(new ProfileAttribute("sn_cn", "Common", null));
+        before.addAttribute(new ProfileAttribute("sn_o", "RedHat", null));
+
+        String xml = before.toXML();
+        System.out.println(xml);
+
+        ProfileInput after = ProfileInput.fromXML(xml);
+        System.out.println(after.toXML());
+
+        System.out.println(before.equals(after));
+    }
 }

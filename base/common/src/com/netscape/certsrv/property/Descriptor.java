@@ -35,16 +35,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Descriptor implements IDescriptor {
 
-    @XmlElement(name = "syntax")
+    @XmlElement(name = "Syntax")
     protected String mSyntax = null;
 
-    @XmlElement(name = "constraint")
+    @XmlElement(name = "Constraint")
     protected String mConstraint = null;
 
-    @XmlElement(name = "description")
+    @XmlElement(name = "Description")
     protected String mDescription = null;
 
-    @XmlElement(name = "defaultValue")
+    @XmlElement(name = "DefaultValue")
     protected String mDef = null;
 
     public Descriptor() {

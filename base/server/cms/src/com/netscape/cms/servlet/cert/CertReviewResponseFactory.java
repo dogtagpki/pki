@@ -51,9 +51,9 @@ public class CertReviewResponseFactory {
         CertReviewResponse ret = new CertReviewResponse();
 
         if (request.getRequestType().equals("renewal")) {
-            ret.setIsRenewal(true);
+            ret.setRenewal(true);
         } else {
-            ret.setIsRenewal(false);
+            ret.setRenewal(false);
         }
 
         ret.setRequestId(request.getRequestId());
