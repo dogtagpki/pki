@@ -26,12 +26,12 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ClientRemoveCertCLI extends CLI {
+public class ClientCertRemoveCLI extends CLI {
 
     public ClientCLI clientCLI;
 
-    public ClientRemoveCertCLI(ClientCLI clientCLI) {
-        super("remove-cert", "Remove certificate from client security database", clientCLI);
+    public ClientCertRemoveCLI(ClientCLI clientCLI) {
+        super("cert-remove", "Remove certificate from client security database", clientCLI);
         this.clientCLI = clientCLI;
     }
 
@@ -58,7 +58,7 @@ public class ClientRemoveCertCLI extends CLI {
             System.exit(1);
         }
 
-        client = clientCLI.getClient();
+        client = parent.getClient();
 
         String nickname = cmdArgs[0];
         client.removeCert(nickname);

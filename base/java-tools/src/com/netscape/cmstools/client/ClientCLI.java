@@ -32,9 +32,9 @@ public class ClientCLI extends CLI {
     public ClientCLI(CLI parent) {
         super("client", "Client management commands", parent);
 
-        addModule(new ClientFindCertCLI(this));
-        addModule(new ClientImportCertCLI(this));
-        addModule(new ClientRemoveCertCLI(this));
+        addModule(new ClientCertFindCLI(this));
+        addModule(new ClientCertImportCLI(this));
+        addModule(new ClientCertRemoveCLI(this));
     }
 
     public String getFullName() {

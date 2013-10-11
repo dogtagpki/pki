@@ -27,12 +27,12 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ClientFindCertCLI extends CLI {
+public class ClientCertFindCLI extends CLI {
 
     public ClientCLI clientCLI;
 
-    public ClientFindCertCLI(ClientCLI clientCLI) {
-        super("find-cert", "Find certificates in client security database", clientCLI);
+    public ClientCertFindCLI(ClientCLI clientCLI) {
+        super("cert-find", "Find certificates in client security database", clientCLI);
         this.clientCLI = clientCLI;
     }
 
@@ -41,8 +41,6 @@ public class ClientFindCertCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-
-        client = clientCLI.getClient();
 
         options.addOption(null, "ca", false, "Find CA certificates only");
 
@@ -55,6 +53,8 @@ public class ClientFindCertCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
+        client = parent.getClient();
 
         X509Certificate[] certs;
         if (cmd.hasOption("ca")) {

@@ -32,12 +32,12 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ClientImportCertCLI extends CLI {
+public class ClientCertImportCLI extends CLI {
 
     public ClientCLI clientCLI;
 
-    public ClientImportCertCLI(ClientCLI clientCLI) {
-        super("import-cert", "Import certificate into client security database", clientCLI);
+    public ClientCertImportCLI(ClientCLI clientCLI) {
+        super("cert-import", "Import certificate into client security database", clientCLI);
         this.clientCLI = clientCLI;
     }
 
@@ -46,8 +46,6 @@ public class ClientImportCertCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-
-        client = clientCLI.getClient();
 
         Option option = new Option(null, "cert", true, "Import certificate file");
         option.setArgName("path");
@@ -69,6 +67,8 @@ public class ClientImportCertCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
+        client = parent.getClient();
 
         byte[] bytes = null;
         X509Certificate cert = null;
