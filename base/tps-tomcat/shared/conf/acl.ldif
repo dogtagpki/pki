@@ -23,3 +23,4 @@ resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) gro
 resourceACLS: certServer.tps.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.tps.groups:execute:allow (execute) group="TUS Administrators":Admins may execute group operations
 resourceACLS: certServer.tps.users:execute:allow (execute) group="TUS Administrators":Admins may execute user operations
+resourceACLS: certServer.tps.tokens:read,add,modify,remove:allow (read) group="TUS Administrators" || group="TUS Agents" || group="TUS Operators"; allow (add,remove) group="TUS Administrators" ; allow (modify) group="TUS Agents":Admins, agents, operators can read tokens, but only admins can add and remove tokens, and only agents can modify tokens.

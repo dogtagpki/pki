@@ -31,11 +31,16 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("tokens")
+@AuthMethodMapping("tokens")
+@ACLMapping("tokens.read")
 public interface TokenResource {
 
     @GET
@@ -53,6 +58,7 @@ public interface TokenResource {
     @ClientResponseType(entityType=TokenData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("tokens.add")
     public Response addToken(TokenData tokenData);
 
     @PUT
@@ -60,6 +66,7 @@ public interface TokenResource {
     @ClientResponseType(entityType=TokenData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("tokens.modify")
     public Response updateToken(
             @PathParam("tokenID") String tokenID,
             TokenData tokenData);
@@ -69,6 +76,7 @@ public interface TokenResource {
     @ClientResponseType(entityType=TokenData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("tokens.modify")
     public Response modifyToken(
             @PathParam("tokenID") String tokenID,
             TokenModifyRequest request);
@@ -76,5 +84,6 @@ public interface TokenResource {
     @DELETE
     @Path("{tokenID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("tokens.remove")
     public void removeToken(@PathParam("tokenID") String tokenID);
 }

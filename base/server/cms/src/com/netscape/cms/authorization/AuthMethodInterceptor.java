@@ -48,7 +48,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 @Provider
 public class AuthMethodInterceptor implements ContainerRequestFilter {
 
-    Properties authProperties;
+    Properties authMethodProperties;
 
     @Context
     ServletContext servletContext;
@@ -58,22 +58,24 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
 
     public synchronized void loadAuthProperties() throws IOException {
 
-        if (authProperties != null)
+        if (authMethodProperties != null)
             return;
 
-        authProperties = new Properties();
+        authMethodProperties = new Properties();
 
         URL url = servletContext.getResource("/WEB-INF/auth-method.properties");
 
         if (url == null) {
-            authProperties.put("default", "*");
-            authProperties.put("account", "certUserDBAuthMgr,passwdUserDBAuthMgr");
-            authProperties.put("admin", "certUserDBAuthMgr");
-            authProperties.put("agent", "certUserDBAuthMgr");
-            authProperties.put("profiles", "certUserDBAuthMgr");
-            authProperties.put("securityDomain.installToken", "passwdUserDBAuthMgr");
+            authMethodProperties.put("default", "*");
+            authMethodProperties.put("account", "certUserDBAuthMgr,passwdUserDBAuthMgr");
+            authMethodProperties.put("admin", "certUserDBAuthMgr");
+            authMethodProperties.put("agent", "certUserDBAuthMgr");
+            authMethodProperties.put("profiles", "certUserDBAuthMgr");
+            authMethodProperties.put("securityDomain.installToken", "passwdUserDBAuthMgr");
+            authMethodProperties.put("tokens", "certUserDBAuthMgr");
+
         } else {
-            authProperties.load(url.openStream());
+            authMethodProperties.load(url.openStream());
         }
     }
 
@@ -108,7 +110,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         try {
             loadAuthProperties();
 
-            String value = authProperties.getProperty(name);
+            String value = authMethodProperties.getProperty(name);
             Collection<String> authMethods = new HashSet<String>();
             if (value != null) {
                 for (String v : value.split(",")) {
