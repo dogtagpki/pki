@@ -48,6 +48,7 @@ ocsp.cert.signing.certusage=StatusResponder
 ocsp.cert.sslserver.certusage=SSLServer
 ocsp.cert.subsystem.certusage=SSLClient
 ocsp.cert.audit_signing.certusage=ObjectSigner
+ocsp.standalone=[PKI_STANDALONE]
 preop.cert.ocsp_signing.enable=true
 preop.cert.sslserver.enable=true
 preop.cert.subsystem.enable=true

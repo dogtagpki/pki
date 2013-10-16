@@ -57,6 +57,10 @@ PKI_VERBOSITY = \
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
 PKI_CONFIGURATION_RESTART_1 = "    After configuration, the server can be "\
                               "operated by the command:\n    %s"
+PKI_CONFIGURATION_STANDALONE_1 = "      Please obtain the necessary "\
+                                 "certificates for this stand-alone %s,\n"\
+                                 "      and re-run the configuration for "\
+                                 "step two."
 PKI_CONFIGURATION_URL_1 = "    Please start the configuration by accessing:\n    %s"
 PKI_CONFIGURATION_WIZARD_RESTART_1 = "After configuration, the server can be "\
                                      "operated by the command:\n%s"
@@ -86,6 +90,14 @@ PKI_SUBSYSTEM_ALREADY_EXISTS_2 = "PKI subsystem '%s' for instance '%s' "\
                                  "already exists!"
 PKI_SUBSYSTEM_DOES_NOT_EXIST_2 = "PKI subsystem '%s' for instance '%s' "\
                                  "does NOT exist!"
+PKI_EXTERNAL_UNSUPPORTED_1 = "PKI '%s' subsystems do NOT support "\
+                             "the 'pki_external' parameter!"
+PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1 = "PKI '%s' subsystems do NOT support "\
+                                      "the 'pki_external_step_two' parameter!"
+PKI_STANDALONE_UNSUPPORTED_1 = "PKI '%s' subsystems do NOT support "\
+                               "the 'pki_standalone' parameter!"
+PKI_SUBORDINATE_UNSUPPORTED_1 = "PKI '%s' subsystems do NOT support "\
+                                "the 'pki_subordinate' parameter!"
 
 PKI_IOERROR_1 = "IOError:  %s!"
 PKI_KEYERROR_1 = "KeyError:  %s!"
@@ -215,6 +227,9 @@ PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA = "cloned CAs, external "\
                                                      "CAs, and subordinate CAs"\
                                                      "MUST ALL be MUTUALLY "\
                                                      "EXCLUSIVE in '%s'"
+PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI = "cloned PKIs and "\
+                                                    "stand-alone PKIs MUST be "\
+                                                    "MUTUALLY EXCLUSIVE in '%s'"
 PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA = "cloned CAs and subordinate "\
                                             "CAs MUST be MUTUALLY "\
                                             "EXCLUSIVE in '%s'"
@@ -298,8 +313,8 @@ PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."
 PKIHELPER_USER_ADD_KEYERROR_1 = "KeyError:  pki_user %s"
 PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
-PKI_CONFIG_ADMIN_CERT_SAVE = "saving Admin Certificate to file:"
-PKI_CONFIG_ADMIN_CERT_ATOB = "converting Admin Certificate to binary:"
+PKI_CONFIG_ADMIN_CERT_SAVE_1 = "saving %s Admin Certificate to file:"
+PKI_CONFIG_ADMIN_CERT_ATOB_1 = "converting %s Admin Certificate to binary:"
 PKI_CONFIG_CDATA_TAG = "tag:"
 PKI_CONFIG_CDATA_CERT = "cert:"
 PKI_CONFIG_CDATA_REQUEST = "request:"
@@ -311,7 +326,32 @@ PKI_CONFIG_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
                               "from file:"
 PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
                                     "chain from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE = "loading external CA signed KRA "\
+                                            "Storage certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT = "loading external CA signed KRA "\
+                                              "Transport certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING = "loading external CA signed OCSP "\
+                                             "Signing certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1 = "loading external CA signed "\
+                                                "%s SSL Server certificate "\
+                                                "from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1 = "loading external CA signed "\
+                                                "%s Subsystem certificate "\
+                                                "from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1 = "loading external CA "\
+                                                    "signed %s Audit Signing "\
+                                                    "certificate from file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE = "saving KRA Storage CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT = "saving KRA Transport CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING = "saving OCSP Signing CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 = "saving %s Admin CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1 = "saving %s Audit Signing "\
+                                                   "CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1 = "saving %s SSL Server CSR "\
+                                               "to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1 = "saving %s Subsystem CSR "\
+                                               "to file:"
 PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION = \
     "Exception from Java Configuration Servlet:"
 PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"

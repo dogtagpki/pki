@@ -823,6 +823,8 @@ public class CryptoUtil {
         s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
         s = s.replaceAll("-----BEGIN CERTIFICATE-----", "");
         s = s.replaceAll("-----END CERTIFICATE-----", "");
+        s = s.replaceAll("-----BEGIN CERTIFICATE CHAIN-----", "");
+        s = s.replaceAll("-----END CERTIFICATE CHAIN-----", "");
 
         StringBuffer sb = new StringBuffer();
         StringTokenizer st = new StringTokenizer(s, "\r\n ");
@@ -847,6 +849,12 @@ public class CryptoUtil {
                 continue;
             }
             if (nextLine.equals("-----END CERTIFICATE-----")) {
+                continue;
+            }
+            if (nextLine.equals("-----BEGIN CERTIFICATE CHAIN-----")) {
+                continue;
+            }
+            if (nextLine.equals("-----END CERTIFICATE CHAIN-----")) {
                 continue;
             }
             sb.append(nextLine);

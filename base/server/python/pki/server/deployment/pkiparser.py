@@ -535,6 +535,20 @@ class PKIConfigParser:
 
             pkilogging.sensitive_parameters = self.pki_master_dict['sensitive_parameters'].split()
 
+            # Always create "false" values for these missing "boolean" keys
+            if not self.pki_master_dict.has_key('pki_external') or\
+               not len(self.pki_master_dict['pki_external']):
+                self.pki_master_dict['pki_external'] = "false"
+            if not self.pki_master_dict.has_key('pki_external_step_two') or\
+               not len(self.pki_master_dict['pki_external_step_two']):
+                self.pki_master_dict['pki_external_step_two'] = "false"
+            if not self.pki_master_dict.has_key('pki_standalone') or\
+               not len(self.pki_master_dict['pki_standalone']):
+                self.pki_master_dict['pki_standalone'] = "false"
+            if not self.pki_master_dict.has_key('pki_subordinate') or\
+               not len(self.pki_master_dict['pki_subordinate']):
+                self.pki_master_dict['pki_subordinate'] = "false"
+
             # PKI Target (slot substitution) name/value pairs
             self.pki_master_dict['pki_target_cs_cfg'] = \
                 os.path.join(
@@ -543,10 +557,10 @@ class PKIConfigParser:
             self.pki_master_dict['pki_target_registry'] = \
                 os.path.join(self.pki_master_dict['pki_instance_registry_path'],
                              self.pki_master_dict['pki_instance_name'])
-            if self.pki_master_dict['pki_subsystem'] == "CA" and\
-               config.str2bool(self.pki_master_dict['pki_external_step_two']):
-                # Use the 'pki_one_time_pin' established during the setup of
-                # External CA Step 1
+            if (config.str2bool(self.pki_master_dict['pki_external_step_two'])):
+                # For CA (External CA Step 2) and Stand-alone PKI (Step 2),
+                # use the 'pki_one_time_pin' established during the setup
+                # of (Step 1)
                 if os.path.exists(self.pki_master_dict['pki_target_cs_cfg'])\
                    and\
                    os.path.isfile(self.pki_master_dict['pki_target_cs_cfg']):
@@ -807,6 +821,19 @@ class PKIConfigParser:
                         "<!--"
                     self.pki_master_dict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
                         "<!--"
+                if (config.str2bool(self.pki_master_dict['pki_standalone'])):
+                    # Stand-alone PKI
+                    self.pki_master_dict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
+                        ""
+                    self.pki_master_dict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
+                        ""
+                    self.pki_master_dict['PKI_STANDALONE_SLOT'] = "true"
+                else:
+                    self.pki_master_dict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
+                        "-->"
+                    self.pki_master_dict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
+                        "<!--"
+                    self.pki_master_dict['PKI_STANDALONE_SLOT'] = "false"
                 self.pki_master_dict['PKI_TMPDIR_SLOT'] = \
                     self.pki_master_dict['pki_tomcat_tmpdir_path']
                 self.pki_master_dict['PKI_RESTEASY_LIB_SLOT'] = \
@@ -1026,9 +1053,14 @@ class PKIConfigParser:
                 else:
                     self.pki_master_dict['pki_security_domain_user'] = "caadmin"
 
-            if config.pki_subsystem != "CA" or\
-               config.str2bool(self.pki_master_dict['pki_clone']) or\
-               config.str2bool(self.pki_master_dict['pki_subordinate']):
+            if not config.str2bool(self.pki_master_dict['pki_skip_configuration']) and\
+               (config.str2bool(self.pki_master_dict['pki_standalone'])):
+                # Stand-alone PKI
+                self.pki_master_dict['pki_security_domain_type'] = "new"
+                self.pki_master_dict['pki_issuing_ca'] = "External CA"
+            elif config.pki_subsystem != "CA" or\
+                 config.str2bool(self.pki_master_dict['pki_clone']) or\
+                 config.str2bool(self.pki_master_dict['pki_subordinate']):
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
                 # Subordinate CA
@@ -1084,8 +1116,15 @@ class PKIConfigParser:
 
             if not 'pki_import_admin_cert' in self.pki_master_dict:
                 self.pki_master_dict['pki_import_admin_cert'] = 'false'
+            elif not config.str2bool(self.pki_master_dict['pki_skip_configuration']) and\
+                 (config.str2bool(self.pki_master_dict['pki_standalone'])):
+                # Stand-alone PKI
+                self.pki_master_dict['pki_import_admin_cert'] = 'false'
 
-            self.pki_master_dict['pki_ca_signing_tag'] = "signing"
+            if (config.str2bool(self.pki_master_dict['pki_standalone'])):
+                self.pki_master_dict['pki_ca_signing_tag'] = "external_signing"
+            else:
+                self.pki_master_dict['pki_ca_signing_tag'] = "signing"
             if self.pki_master_dict['pki_subsystem'] == "CA":
                 self.pki_master_dict['pki_ocsp_signing_tag'] = "ocsp_signing"
             elif self.pki_master_dict['pki_subsystem'] == "OCSP":

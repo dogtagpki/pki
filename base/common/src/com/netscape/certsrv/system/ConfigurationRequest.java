@@ -71,6 +71,7 @@ public class ConfigurationRequest {
     private static final String ADMIN_PROFILE_ID = "adminProfileID";
     private static final String IMPORT_ADMIN_CERT = "importAdminCert";
     private static final String ADMIN_CERT = "adminCert";
+    private static final String STANDALONE = "standAlone";
     private static final String STEP_TWO = "stepTwo";
     private static final String GENERATE_SERVER_CERT = "generateServerCert";
 
@@ -216,6 +217,9 @@ public class ConfigurationRequest {
     protected String adminCert;
 
     @XmlElement
+    protected String standAlone;
+
+    @XmlElement
     protected String stepTwo;
 
     @XmlElement(defaultValue = "true")
@@ -293,6 +297,7 @@ public class ConfigurationRequest {
         adminProfileID = form.getFirst(ADMIN_PROFILE_ID);
         adminCert = form.getFirst(ADMIN_CERT);
         importAdminCert = form.getFirst(IMPORT_ADMIN_CERT);
+        standAlone = form.getFirst(STANDALONE);
         stepTwo = form.getFirst(STEP_TWO);
         generateServerCert = form.getFirst(GENERATE_SERVER_CERT);
         authdbBaseDN = form.getFirst(AUTHDB_BASEDN);
@@ -796,8 +801,16 @@ public class ConfigurationRequest {
         this.adminCert = adminCert;
     }
 
-    public String getStepTwo() {
-        return stepTwo;
+    public boolean getStandAlone() {
+        return (standAlone != null && standAlone.equalsIgnoreCase("true"));
+    }
+
+    public void setStandAlone(String standAlone) {
+        this.standAlone = standAlone;
+    }
+
+    public boolean getStepTwo() {
+        return (stepTwo != null && stepTwo.equalsIgnoreCase("true"));
     }
 
     public void setStepTwo(String stepTwo) {
@@ -935,6 +948,7 @@ public class ConfigurationRequest {
                ", adminCert=" + adminCert +
                ", importAdminCert=" + importAdminCert +
                ", generateServerCert=" + generateServerCert +
+               ", standAlone=" + standAlone +
                ", stepTwo=" + stepTwo +
                ", authdbBaseDN=" + authdbBaseDN +
                ", authdbHost=" + authdbHost +

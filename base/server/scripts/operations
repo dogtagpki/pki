@@ -672,6 +672,39 @@ get_pki_configuration_definitions()
         fi
     fi
 
+    # If ${pki_subsystem} is a DRM or OCSP, check to see if
+    # it is either a Stand-alone DRM or a Stand-alone OCSP
+    #
+    #     NOTE:  Ignore errors when the '<pki>.standalone' parameter
+    #            is not present as this is most likely a legacy instance!
+    #
+    pki_standalone=""
+    if  [ "${pki_subsystem}" == "DRM"  ] ; then
+        line=`grep -e '^[ \t]*kra.standalone[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_standalone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_standalone}" == "true" ] ; then
+                # Set a fixed value for "${pki_standalone}"
+                pki_standalone="(Stand-alone)"
+            else
+                # Reset "${pki_standalone}" to be empty
+                pki_standalone=""
+            fi
+        fi
+    elif [ "${pki_subsystem}" == "OCSP" ] ; then
+        line=`grep -e '^[ \t]*ocsp.standalone[ \t]*=' ${PKI_SUBSYSTEM_CONFIGURATION_FILE}`
+        if [ "${line}" != "" ] ; then
+            pki_standalone=`echo "${line}" | sed -e 's/^[^=]*[ \t]*=[ \t]*\(.*\)/\1/' -e 's/[ \t]*$//'`
+            if [ "${pki_standalone}" == "true" ] ; then
+                # Set a fixed value for "${pki_standalone}"
+                pki_standalone="(Stand-alone)"
+            else
+                # Reset "${pki_standalone}" to be empty
+                pki_standalone=""
+            fi
+        fi
+    fi
+
     # Always obtain this PKI instance's "registered"
     # security domain information
     pki_security_domain_name=""
@@ -737,6 +770,13 @@ get_pki_configuration_definitions()
             #
             data="${pki_hierarchy} ${pki_subsystem}"
         fi
+    elif [ "${pki_standalone}" != "" ] ; then
+        # Possible Values:
+        #
+        #     "DRM (Stand-alone)"
+        #     "OCSP (Stand-alone)"
+        #
+        data="${pki_subsystem} ${pki_standalone}"
     else
         # Possible Values:
         #

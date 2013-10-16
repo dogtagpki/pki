@@ -35,6 +35,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        # ALWAYS establish the following Tomcat instance symbolic link since
+        # this link is required by both automatic pkispawn instance
+        # configuration as well as manual browser GUI instance configuration
+        deployer.symlink.create(deployer.master_dict['pki_systemd_service'],
+                                deployer.master_dict['pki_systemd_service_link'])
+
         if config.str2bool(deployer.master_dict['pki_skip_configuration']):
             config.pki_log.info(log.SKIP_CONFIGURATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -70,8 +76,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.master_dict['pki_client_key_database'],
             deployer.master_dict['pki_client_secmod_database'],
             password_file=deployer.master_dict['pki_client_password_conf'])
-        deployer.symlink.create(deployer.master_dict['pki_systemd_service'],
-                            deployer.master_dict['pki_systemd_service_link'])
 
         # Start/Restart this Apache/Tomcat PKI Process
         if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:

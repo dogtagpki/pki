@@ -2061,6 +2061,21 @@ public class ConfigurationUtils {
         CMS.reinit(IUGSubsystem.ID);
     }
 
+    public static void setExternalCACert(String certStr, String subsystem, IConfigStore config, Cert certObj) throws Exception {
+        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
+        certStr = CryptoUtil.normalizeCertStr(certStr);
+        config.putString(subsystem + ".external_ca.cert", certStr);
+        certObj.setSubsystem(subsystem);
+        certObj.setType(config.getString("preop.ca.type", "otherca"));
+        certObj.setCert(certStr);
+    }
+
+    public static void setExternalCACertChain(String certChainStr, String subsystem, IConfigStore config, Cert certObj) {
+        certChainStr = CryptoUtil.normalizeCertAndReq(certChainStr);
+        config.putString(subsystem + ".external_ca_chain.cert", certChainStr);
+        certObj.setCertChain(certChainStr);
+    }
+
     public static void createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
@@ -2248,15 +2263,22 @@ public class ConfigurationUtils {
                 String machineName = config.getString("machineName", "");
                 String securePort = config.getString("service.securePort", "");
                 if (certTag.equals("subsystem")) {
-                    String content =
-                            "requestor_name="
-                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
-                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                    + "&xmlOutput=true&sessionID=" + session_id;
-                    cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
-                            content, response, panel);
-                    if (cert == null) {
-                        throw new IOException("Error: remote certificate is null");
+                    boolean standalone = config.getBoolean(sysType.toLowerCase() + ".standalone", false);
+                    if (standalone) {
+                        // Treat standalone subsystem the same as "otherca"
+                        config.putString(subsystem + "." + certTag + ".cert",
+                                         "...paste certificate here...");
+                    } else {
+                        String content =
+                                "requestor_name="
+                                        + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
+                                        + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
+                                        + "&xmlOutput=true&sessionID=" + session_id;
+                        cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
+                                content, response, panel);
+                        if (cert == null) {
+                            throw new IOException("Error: remote certificate is null");
+                        }
                     }
                 } else if (v.equals("sdca")) {
                     String ca_hostname = "";
@@ -2612,7 +2634,7 @@ public class ConfigurationUtils {
         boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
         if (!enable) return 0;
 
-        CMS.debug("handleCerts(): for cert tag " + cert.getCertTag());
+        CMS.debug("handleCerts(): for cert tag '" + cert.getCertTag() + "' using cert type '" + cert.getType() + "'");
         String b64 = cert.getCert();
         String tokenname = config.getString("preop.module.token", "");
 
@@ -2648,7 +2670,7 @@ public class ConfigurationUtils {
                         CryptoUtil.importUserCertificate(impl, nickname);
                     else
                         CryptoUtil.importUserCertificate(impl, nickname, false);
-                    CMS.debug("handleCerts(): cert imported for certTag " + certTag);
+                    CMS.debug("handleCerts(): cert imported for certTag '" + certTag + "'");
                 } catch (Exception ee) {
                     ee.printStackTrace();
                     CMS.debug("handleCerts(): import certificate for certTag=" + certTag + " Exception: " + ee.toString());
@@ -2656,7 +2678,7 @@ public class ConfigurationUtils {
             }
         } else if (cert.getType().equals("remote")) {
             if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                CMS.debug("handleCert(): process remote...import cert");
+                CMS.debug("handleCerts(): process remote...import cert");
                 String b64chain = cert.getCertChain();
 
                 try {
@@ -2715,7 +2737,7 @@ public class ConfigurationUtils {
                 }
 
             } else {
-                CMS.debug("handleCert(): b64 not set");
+                CMS.debug("handleCerts(): b64 not set");
                 return 1;
             }
         } else {
@@ -2730,7 +2752,7 @@ public class ConfigurationUtils {
                     deleteCert(tokenname, nickname);
                 }
             } catch (Exception ee) {
-                CMS.debug("handleCert(): deleteCert Exception=" + ee.toString());
+                CMS.debug("handleCerts(): deleteCert Exception=" + ee.toString());
             }
 
             try {
@@ -2763,7 +2785,7 @@ public class ConfigurationUtils {
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
-        if (tag.equals("signing")) return;
+        if (tag.equals("signing") || tag.equals("external_signing")) return;
 
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
@@ -3138,43 +3160,50 @@ public class ConfigurationUtils {
         String select = config.getString("securitydomain.select", "");
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Security Domain Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise CA Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise CA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise KRA Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise KRA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise RA Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise RA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TKS Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise TKS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise OCSP Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise OCSP Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TPS Administrators");
-            if (!group.isMember(uid)) {
+            if (group != null && !group.isMember(uid)) {
+                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise TPS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }

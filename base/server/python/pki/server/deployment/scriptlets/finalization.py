@@ -32,9 +32,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        if deployer.master_dict['pki_subsystem'] == "CA" and\
+        if (deployer.master_dict['pki_subsystem'] == "CA" or
+            config.str2bool(deployer.master_dict['pki_standalone'])) and\
            config.str2bool(deployer.master_dict['pki_external_step_two']):
-            # must check for 'External CA Step 2' installation PRIOR to
+            # For External CAs (Step 2), or Stand-alone PKIs (Step 2),
+            # must check for (Step 2) installation PRIOR to
             # 'pki_skip_installation' since this value has been set to true
             # by the initialization scriptlet
             pass

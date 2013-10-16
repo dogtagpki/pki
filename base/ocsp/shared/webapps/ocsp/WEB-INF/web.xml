@@ -404,6 +404,121 @@
                          <param-value> ocspGetStatus </param-value> </init-param>
    </servlet>
 
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet>
+      <servlet-name>  ocspGetDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspGetDomainXML </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspUpdateDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspUpdateDomainXML-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspSecurityDomainLogin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.SecurityDomainLogin  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspSecurityDomainLogin  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspGetCookie  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspGetCookie  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /admin/ocsp/sendCookie.template </param-value> </init-param>
+             <init-param><param-name>  errorTemplatePath  </param-name>
+                         <param-value> /admin/ocsp/securitydomainlogin.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspTokenAuthenticate  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  ocspTokenAuthenticate-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> ocsp        </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> ocspTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+   </servlet>
+   [PKI_CLOSE_STANDALONE_COMMENT]
+
    <listener>
       <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
    </listener>
@@ -576,6 +691,43 @@
       <url-pattern>   /admin/ocsp/getStatus  </url-pattern>
    </servlet-mapping>
 
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet-mapping>
+      <servlet-name>  ocspGetDomainXML </servlet-name>
+      <url-pattern>   /admin/ocsp/getDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspUpdateDomainXML </servlet-name>
+      <url-pattern>   /agent/ocsp/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspUpdateDomainXML-admin </servlet-name>
+      <url-pattern>   /admin/ocsp/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspSecurityDomainLogin </servlet-name>
+      <url-pattern>   /admin/ocsp/securityDomainLogin  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspGetCookie </servlet-name>
+      <url-pattern>   /admin/ocsp/getCookie  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspTokenAuthenticate </servlet-name>
+      <url-pattern>   /ee/ocsp/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  ocspTokenAuthenticate-admin </servlet-name>
+      <url-pattern>   /admin/ocsp/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+   [PKI_CLOSE_STANDALONE_COMMENT]
+
 
    <!-- ==================== Default Session Configuration =============== -->
    <!-- You can set the default session timeout (in minutes) for all newly -->
@@ -612,6 +764,21 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+
+   [PKI_OPEN_STANDALONE_COMMENT]
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Security Domain Services</web-resource-name>
+            <url-pattern>/rest/securityDomain/installToken</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <login-config>
         <realm-name>Online Certificate Status Protocol Manager</realm-name>

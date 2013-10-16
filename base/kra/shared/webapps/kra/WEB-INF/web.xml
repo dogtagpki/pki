@@ -691,6 +691,121 @@
                          <param-value> kraGetStatus </param-value> </init-param>
    </servlet>
 
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet>
+      <servlet-name>  kraGetDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetDomainXML </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraUpdateDomainXML  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> true       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> agent          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> certUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraUpdateDomainXML-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraUpdateDomainXML </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> TokenAuth </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraSecurityDomainLogin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.SecurityDomainLogin  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraSecurityDomainLogin  </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.certificates </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraGetCookie  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
+            <init-param> <param-name>properties</param-name>
+                         <param-value>/WEB-INF/velocity.properties</param-value> </init-param>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraGetCookie  </param-value> </init-param>
+             <init-param><param-name>  AuthMgr     </param-name>
+                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /admin/kra/sendCookie.template </param-value> </init-param>
+             <init-param><param-name>  errorTemplatePath  </param-name>
+                         <param-value> /admin/kra/securitydomainlogin.template </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraTokenAuthenticate  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  kraTokenAuthenticate-admin  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  authority   </param-name>
+                         <param-value> kra         </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> kraTokenAuthenticate  </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> admin          </param-value> </init-param>
+   </servlet>
+   [PKI_CLOSE_STANDALONE_COMMENT]
+
 
    <!-- ==================== RESTEasy Configuration =============== -->
 
@@ -943,6 +1058,43 @@
       <url-pattern>   /admin/kra/getStatus  </url-pattern>
    </servlet-mapping>
 
+   [PKI_OPEN_STANDALONE_COMMENT]
+   <servlet-mapping>
+      <servlet-name>  kraGetDomainXML </servlet-name>
+      <url-pattern>   /admin/kra/getDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraUpdateDomainXML </servlet-name>
+      <url-pattern>   /agent/kra/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraUpdateDomainXML-admin </servlet-name>
+      <url-pattern>   /admin/kra/updateDomainXML  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraSecurityDomainLogin </servlet-name>
+      <url-pattern>   /admin/kra/securityDomainLogin  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraGetCookie </servlet-name>
+      <url-pattern>   /admin/kra/getCookie  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraTokenAuthenticate </servlet-name>
+      <url-pattern>   /ee/kra/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>  kraTokenAuthenticate-admin </servlet-name>
+      <url-pattern>   /admin/kra/tokenAuthenticate  </url-pattern>
+   </servlet-mapping>
+   [PKI_CLOSE_STANDALONE_COMMENT]
+
    <!-- ==================== Default Session Configuration =============== -->
    <!-- You can set the default session timeout (in minutes) for all newly -->
    <!-- created sessions by modifying the value below.                     -->
@@ -991,6 +1143,21 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+
+   [PKI_OPEN_STANDALONE_COMMENT]
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Security Domain Services</web-resource-name>
+            <url-pattern>/rest/securityDomain/installToken</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <login-config>
         <realm-name>Key Recovery Authority</realm-name>

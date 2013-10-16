@@ -416,9 +416,14 @@ def main(argv):
             print 'ERROR:  Unable to access directory server: ' + e.message['desc']
             sys.exit(1)
 
-        if config.pki_subsystem != "CA" or\
-            config.str2bool(parser.pki_master_dict['pki_clone']) or\
-            config.str2bool(parser.pki_master_dict['pki_subordinate']):
+        if ((config.pki_subsystem == "KRA" or
+             config.pki_subsystem == "OCSP") and
+            not config.str2bool(parser.pki_master_dict['pki_standalone'])) or\
+           config.pki_subsystem == "TKS" or\
+           config.pki_subsystem == "TPS" or\
+           config.str2bool(parser.pki_master_dict['pki_clone']) or\
+           (config.pki_subsystem == "CA" and
+            config.str2bool(parser.pki_master_dict['pki_subordinate'])):
             try:
                 # Verify existence of Security Domain Password
                 if not parser.pki_master_dict.has_key('pki_security_domain_password') or\
@@ -486,17 +491,25 @@ def print_install_information(pki_master_dict):
     else:
         print "      Administrator's username:             %s" % pki_master_dict['pki_admin_uid']
         if os.path.isfile(pki_master_dict['pki_client_admin_cert_p12']):
-            print "      Administrator's PKCS #12 file:\n            %s" % (pki_master_dict['pki_client_dir'] + '/ca_admin_cert.p12')
+            print "      Administrator's PKCS #12 file:\n            %s" % pki_master_dict['pki_client_admin_cert_p12']
         if not config.str2bool(pki_master_dict['pki_client_database_purge']):
             print
-            print "      Administrator's certificate nickname: %s" % pki_master_dict['pki_admin_nickname']
+            print "      Administrator's certificate nickname:\n            %s" % pki_master_dict['pki_admin_nickname']
             print "      Administrator's certificate database:\n            %s" % pki_master_dict['pki_client_database_dir']
         print
         print log.PKI_CHECK_STATUS_MESSAGE % pki_master_dict['pki_instance_name']
         print log.PKI_INSTANCE_RESTART_MESSAGE % pki_master_dict['pki_instance_name']
-        print log.PKI_ACCESS_URL % (pki_master_dict['pki_hostname'],
-                                    pki_master_dict['pki_https_port'],
-                                    config.pki_subsystem.lower())
+        if (((config.pki_subsystem == "KRA" or
+              config.pki_subsystem == "OCSP") and
+             config.str2bool(pki_master_dict['pki_standalone'])) and
+            not config.str2bool(pki_master_dict['pki_external_step_two'])):
+            # Stand-alone PKI KRA/OCSP (External CA Step 1)
+            print
+            print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
+        else:
+            print log.PKI_ACCESS_URL % (pki_master_dict['pki_hostname'],
+                                        pki_master_dict['pki_https_port'],
+                                        config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
 
 def log_error_details():

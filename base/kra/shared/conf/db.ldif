@@ -45,6 +45,18 @@ objectClass: groupOfUniqueNames
 cn: ClonedSubsystems
 description: People who can clone the master subsystem
 
+dn: cn=Security Domain Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Security Domain Administrators
+description: People who are the Security Domain administrators
+
+dn: cn=Enterprise KRA Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise KRA Administrators
+description: People who are the administrators for the security domain for KRA
+
 dn: ou=requests,{rootSuffix}
 objectClass: top
 objectClass: organizationalUnit

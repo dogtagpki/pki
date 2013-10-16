@@ -84,6 +84,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     IConfigStore cs;
     String csType;
+    String csSubsystem;
     String csState;
     boolean isMasterCA = false;
     String instanceRoot;
@@ -95,6 +96,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public SystemConfigService() throws EPropertyNotFound, EBaseException {
         cs = CMS.getConfigStore();
         csType = cs.getString("cs.type");
+        csSubsystem = csType.toLowerCase();
         csState = cs.getString("cs.state");
         String domainType = cs.getString("securitydomain.select", "existingdomain");
         if (csType.equals("CA") && domainType.equals("new")) {
@@ -135,7 +137,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         validateData(data);
         ConfigurationResponse response = new ConfigurationResponse();
 
+        if (data.getStandAlone() && data.getStepTwo()) {
+                // Stand-alone PKI (Step 2)
+                // Special case to import the external CA and its Chain
+                certList = "external_signing" + "," + certList;
+        }
+
         // specify module and log into token
+        CMS.debug("=== Token Panel ===");
         String token = data.getToken();
         if (token == null) {
             token = ConfigurationRequest.TOKEN_DEFAULT;
@@ -143,10 +152,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         tokenPanel(data, token);
 
         //configure security domain
+        CMS.debug("=== Security Domain Panel ===");
         String securityDomainType = data.getSecurityDomainType();
         String domainXML = securityDomainPanel(data, securityDomainType);
 
         //subsystem panel
+        CMS.debug("=== Subsystem Panel ===");
         cs.putString("preop.subsystem.name", data.getSubsystemName());
 
         // is this a clone of another subsystem?
@@ -160,6 +171,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // Hierarchy Panel
+        CMS.debug("=== Hierarchy Panel ===");
         hierarchyPanel(data);
 
         // TPS Panels
@@ -196,10 +208,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // Database Panel
+        CMS.debug("=== Database Panel ===");
         databasePanel(data);
 
         // SizePanel, NamePanel, CertRequestPanel
         //handle the CA URL
+        CMS.debug("=== Size Panel, Name Panel, CertRequest Panel ===");
         try {
             if ((data.getHierarchy() == null) || (data.getHierarchy().equals("join"))) {
                 String url = data.getIssuingCA();
@@ -248,29 +262,64 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             StringTokenizer t = new StringTokenizer(certList, ",");
             while (t.hasMoreTokens()) {
                 String ct = t.nextToken();
+                String certStr;
                 boolean enable = cs.getBoolean("preop.cert." + ct + ".enable", true);
                 if (!enable) continue;
 
                 Collection<SystemCertData> certData = data.getSystemCerts();
                 Iterator<SystemCertData> iterator = certData.iterator();
                 SystemCertData cdata = null;
+                boolean cdata_found = false;
                 while (iterator.hasNext()) {
                     cdata = iterator.next();
-                    if (cdata.getTag().equals(ct)) break;
+                    if (cdata.getTag().equals(ct)) {
+                        cdata_found = true;
+                        CMS.debug("Found data for '" + ct + "'");
+                        break;
+                    }
+                }
+                if (!cdata_found) {
+                    CMS.debug("No data for '" + ct + "' was found!");
+                    throw new BadRequestException("No data for '" + ct + "' was found!");
+                }
+
+                if (data.getStandAlone() && data.getStepTwo()) {
+                    // Stand-alone PKI (Step 2)
+                    if (ct.equals("external_signing")) {
+                        String b64 = cdata.getCert();
+                        if ((b64!= null) && (b64.length()>0) && (!b64.startsWith("..."))) {
+                            hasSigningCert = true;
+                            if (data.getIssuingCA().equals("External CA")) {
+                                String nickname = (cdata.getNickname() != null) ? cdata.getNickname() : "caSigningCert External CA";
+                                String tokenName = cdata.getToken() != null ? cdata.getToken() : token;
+                                Cert certObj = new Cert(tokenName, nickname, ct);
+                                ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, certObj);
+                                CMS.debug("Step 2:  certStr for '" + ct + "' is " + b64);
+                                String certChainStr = cdata.getCertChain();
+                                if (certChainStr != null) {
+                                    ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, certObj);
+                                    CMS.debug("Step 2:  certChainStr for '" + ct + "' is " + certChainStr);
+                                    certs.addElement(certObj);
+                                } else {
+                                    throw new BadRequestException("CertChain not provided");
+                                }
+                            }
+                            continue;
+                        }
+                    }
                 }
 
                 if (!generateServerCert && ct.equals("sslserver")) {
                     if (!cdata.getToken().equals("internal")) {
-                        cs.putString(csType.toLowerCase() + ".cert.sslserver.nickname", cdata.getNickname());
+                        cs.putString(csSubsystem + ".cert.sslserver.nickname", cdata.getNickname());
                     } else {
-                        cs.putString(csType.toLowerCase() + ".cert.sslserver.nickname", data.getToken() +
+                        cs.putString(csSubsystem + ".cert.sslserver.nickname", data.getToken() +
                                 ":" + cdata.getNickname());
                     }
-                    cs.putString(csType.toLowerCase() + ".sslserver.nickname", cdata.getNickname());
-                    cs.putString(csType.toLowerCase() + ".sslserver.cert", cdata.getCert());
-                    cs.putString(csType.toLowerCase() + ".sslserver.certreq", cdata.getRequest());
-                    cs.putString(csType.toLowerCase() + ".sslserver.tokenname", cdata.getToken());
-                    cs.putString(csType.toLowerCase() + ".sslserver.cert", cdata.getCert());
+                    cs.putString(csSubsystem + ".sslserver.nickname", cdata.getNickname());
+                    cs.putString(csSubsystem + ".sslserver.cert", cdata.getCert());
+                    cs.putString(csSubsystem + ".sslserver.certreq", cdata.getRequest());
+                    cs.putString(csSubsystem + ".sslserver.tokenname", cdata.getToken());
                     continue;
                 }
 
@@ -294,7 +343,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("preop.cert." + ct + ".nickname", nickname);
                 cs.putString("preop.cert." + ct + ".dn", dn);
 
-                if (data.getStepTwo() == null) {
+                if (!data.getStepTwo()) {
                     if (keytype.equals("ecc")) {
                         String curvename = (cdata.getKeyCurveName() != null) ?
                                 cdata.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
@@ -307,7 +356,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                         ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, ct);
                     }
                 } else {
-                    CMS.debug("configure(): step two selected.  keys will not be generated");
+                    CMS.debug("configure(): step two selected.  keys will not be generated for '" + ct + "'");
                 }
 
                 String tokenName = cdata.getToken() != null ? cdata.getToken() : token;
@@ -316,24 +365,50 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 certObj.setSubsystem(cs.getString("preop.cert." + ct + ".subsystem"));
                 certObj.setType(cs.getString("preop.cert." + ct + ".type"));
 
-                if (data.getStepTwo() == null) {
+                if (!data.getStepTwo()) {
                     ConfigurationUtils.configCert(null, null, null, certObj, null);
                 } else {
                     String subsystem = cs.getString("preop.cert." + ct + ".subsystem");
-                    String certStr = cs.getString(subsystem + "." + ct + ".cert" );
+                    if (data.getStandAlone()) {
+                        // Stand-alone PKI (Step 2)
+                        certStr = cdata.getCert();
+                        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
+                        certStr = CryptoUtil.normalizeCertStr(certStr);
+                        cs.putString(subsystem + "." + ct + ".cert", certStr);
+                    } else {
+                        certStr = cs.getString(subsystem + "." + ct + ".cert" );
+                    }
+
                     certObj.setCert(certStr);
-                    CMS.debug("Step 2: certStr for " + ct + " is " + certStr);
+                    CMS.debug("Step 2:  certStr for '" + ct + "' is " + certStr);
                 }
-                ConfigurationUtils.handleCertRequest(cs, ct, certObj);
+
+                // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
+                if (data.getStandAlone()) {
+                    if (!data.getStepTwo()) {
+                        // Stand-alone PKI (Step 1)
+                        ConfigurationUtils.handleCertRequest(cs, ct, certObj);
+
+                        CMS.debug("Stand-alone " + csType + " Admin CSR");
+                        String adminSubjectDN = data.getAdminSubjectDN();
+                        String certreqStr = data.getAdminCertRequest();
+                        certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
+                        cs.putString("preop.cert.admin.dn", adminSubjectDN);
+                        cs.putString(csSubsystem + ".admin.certreq", certreqStr);
+                        cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
+                    }
+                } else {
+                    ConfigurationUtils.handleCertRequest(cs, ct, certObj);
+                }
 
                 if (data.getIsClone().equals("true")) {
                     ConfigurationUtils.updateCloneConfig();
                 }
 
                 // to determine if we have the signing cert when using an external ca
-                // this will only execute on a ca
+                // this will only execute on a ca or stand-alone pki
                 String b64 = cdata.getCert();
-                if (ct.equals("signing") && (b64!= null) && (b64.length()>0) && (!b64.startsWith("..."))) {
+                if ((ct.equals("signing") || ct.equals("external_signing")) && (b64!= null) && (b64.length()>0) && (!b64.startsWith("..."))) {
                     hasSigningCert = true;
                     if (data.getIssuingCA().equals("External CA")) {
                         b64 = CryptoUtil.stripCertBrackets(b64.trim());
@@ -363,8 +438,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Error in setting certificate names and key sizes: " + e);
         }
 
-        // submitting to external ca
+        // non-Stand-alone PKI submitting CSRs to external ca
         if ((data.getIssuingCA()!= null) && data.getIssuingCA().equals("External CA") && (!hasSigningCert)) {
+            CMS.debug("Submit CSRs to external ca . . .");
             response.setSystemCerts(SystemCertDataFactory.create(certs));
             response.setStatus(SUCCESS);
             return response;
@@ -375,19 +451,22 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             Cert cert = c.nextElement();
             int ret;
             try {
+                CMS.debug("Processing '" + cert.getCertTag() + "' certificate:");
                 ret = ConfigurationUtils.handleCerts(cert);
                 ConfigurationUtils.setCertPermissions(cert.getCertTag());
+                CMS.debug("Processed '" + cert.getCertTag() + "' certificate.");
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new PKIException("Error in confguring system certificates" + e);
+                throw new PKIException("Error in configuring system certificates" + e);
             }
             if (ret != 0) {
-                throw new PKIException("Error in confguring system certificates");
+                throw new PKIException("Error in configuring system certificates");
             }
         }
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
         // BackupKeyCertPanel/SavePKCS12Panel
+        CMS.debug("=== BackupKeyCert Panel/SavePKCS12 Panel ===");
         if (data.getBackupKeys().equals("true")) {
             try {
                 ConfigurationUtils.backupKeys(data.getBackupPassword(), data.getBackupFile());
@@ -398,10 +477,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // AdminPanel
+        CMS.debug("=== Admin Panel ===");
         adminPanel(data, response);
 
         // Done Panel
         // Create or update security domain
+        CMS.debug("=== Done Panel ===");
         try {
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 ConfigurationUtils.createSecurityDomain();
@@ -426,7 +507,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // need to push connector information to the CA
         try {
-            if (csType.equals("KRA") && (!ca_host.equals(""))) {
+            if (csType.equals("KRA") && (!data.getStandAlone()) && (!ca_host.equals(""))) {
                 ConfigurationUtils.updateConnectorInfo(CMS.getAgentHost(), CMS.getAgentPort());
                 ConfigurationUtils.setupClientAuthUser();
             }
@@ -441,8 +522,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (csType.equals("OCSP") && (!ca_host.equals(""))) {
                 CMS.reinit(IOCSPAuthority.ID);
                 ConfigurationUtils.importCACertToOCSP();
-                ConfigurationUtils.updateOCSPConfig();
-                ConfigurationUtils.setupClientAuthUser();
+                if (!data.getStandAlone()) {
+                    ConfigurationUtils.updateOCSPConfig();
+                    ConfigurationUtils.setupClientAuthUser();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -582,6 +665,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                         data.getAdminName(), data.getAdminPassword());
                 if (data.getImportAdminCert().equalsIgnoreCase("true")) {
                     String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
+                    if (data.getStandAlone() && data.getStepTwo()) {
+                        // Stand-alone PKI (Step 2)
+                        CMS.debug("adminPanel:  Stand-alone " + csType + " Admin Cert");
+                        cs.putString(csSubsystem + ".admin.cert", b64);
+                        cs.commit(false);
+                    }
+                    // Convert Admin Cert to X509CertImpl
                     byte[] b = CryptoUtil.base64Decode(b64);
                     admincerts[0] = new X509CertImpl(b);
                 } else {
@@ -708,7 +798,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             psStore.putString("replicationdb", replicationpwd);
             psStore.commit(false);
 
-            if (data.getStepTwo() == null) {
+            if (!data.getStepTwo()) {
                 ConfigurationUtils.populateDB();
 
                 cs.putString("preop.internaldb.replicationpwd", replicationpwd);
@@ -833,7 +923,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
             cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
             cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-            cs.putString("preop.cert.subsystem.type", "local");
+            // Stand-alone PKI (Step 1)
+            if (data.getStandAlone()) {
+                cs.putString("preop.cert.subsystem.type", "remote");
+            } else {
+                cs.putString("preop.cert.subsystem.type", "local");
+            }
             cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
         } else {
             cs.putString("preop.securitydomain.select", "existing");
@@ -926,6 +1021,20 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new BadRequestException("Incorrect pin provided");
         }
 
+        // validate legal stand-alone PKI subsystems
+        if (data.getStandAlone()) {
+            // ADD checks for valid types of Stand-alone PKI subsystems here
+            // AND to the 'checkStandalonePKI()' Python method of
+            // the 'ConfigurationFile' Python class in the Python file called
+            // 'pkihelper.py'
+            if (!csType.equals("KRA")) {
+                throw new BadRequestException("Stand-alone PKI " + csType + " subsystems are currently NOT supported!");
+            }
+            if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
+                throw new BadRequestException("A stand-alone PKI subsystem cannot be a clone");
+            }
+        }
+
         // validate security domain settings
         String domainType = data.getSecurityDomainType();
         if (domainType == null) {
@@ -933,13 +1042,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (domainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            if (!csType.equals("CA")) {
-                throw new BadRequestException("New Domain is only valid for CA subsytems");
+            if (!(data.getStandAlone() || csType.equals("CA"))) {
+                throw new BadRequestException("New Domain is only valid for stand-alone PKI or CA subsytems");
             }
             if (data.getSecurityDomainName() == null) {
                 throw new BadRequestException("Security Domain Name is not provided");
             }
         } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
+            if (data.getStandAlone()) {
+                throw new BadRequestException("Existing security domains are not valid for stand-alone PKI subsytems");
+            }
+
             String domainURI = data.getSecurityDomainUri();
             if (domainURI == null) {
                 throw new BadRequestException("Existing security domain requested, but no security domain URI provided");
@@ -1058,7 +1171,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
-            throw new BadRequestException("Hierarchy is requred for CA, not provided");
+            throw new BadRequestException("Hierarchy is required for CA, not provided");
         }
 
         if (data.getIsClone().equals("false")) {
