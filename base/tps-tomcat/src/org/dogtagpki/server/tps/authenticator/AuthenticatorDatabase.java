@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Database;
 
 /**
@@ -39,7 +40,7 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
         super("Authenticator");
     }
 
-    public AuthenticatorRecord createAuthenticatorRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String authenticatorID) {
+    public AuthenticatorRecord createAuthenticatorRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String authenticatorID) throws EBaseException {
         AuthenticatorRecord authenticatorRecord = new AuthenticatorRecord();
         authenticatorRecord.setID(authenticatorID);
         Map<String, String> properties = configDatabase.getProperties(configRecord, authenticatorID);

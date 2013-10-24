@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Database;
 
 /**
@@ -39,7 +40,7 @@ public class ConnectionDatabase extends Database<ConnectionRecord> {
         super("Connection");
     }
 
-    public ConnectionRecord createConnectionRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String connectionID) {
+    public ConnectionRecord createConnectionRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String connectionID) throws EBaseException {
         ConnectionRecord connectionRecord = new ConnectionRecord();
         connectionRecord.setID(connectionID);
         Map<String, String> properties = configDatabase.getProperties(configRecord, connectionID);

@@ -105,7 +105,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             name = authMapping.value();
         }
 
-        CMS.debug("AuthMethodInterceptor: mapping name: " + name);
+        CMS.debug("AuthMethodInterceptor: mapping: " + name);
 
         try {
             loadAuthProperties();
@@ -156,7 +156,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             }
 
             if (authMethods.isEmpty() || authMethods.contains(authManager) || authMethods.contains("*")) {
-                CMS.debug("AuthMethodInterceptor: " + authManager + " allowed");
+                CMS.debug("AuthMethodInterceptor: access granted");
                 return;
             }
 

@@ -72,12 +72,14 @@ public class ACLInterceptor implements ContainerRequestFilter {
         ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext
                 .getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
         Method method = methodInvoker.getMethod();
+        Class<?> clazz = methodInvoker.getResourceClass();
+
+        CMS.debug("ACLInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         ACLMapping aclMapping = method.getAnnotation(ACLMapping.class);
 
         // If not available, get ACL mapping for the class.
         if (aclMapping == null) {
-            Class<?> clazz = method.getDeclaringClass();
             aclMapping = clazz.getAnnotation(ACLMapping.class);
         }
 
@@ -87,6 +89,9 @@ public class ACLInterceptor implements ContainerRequestFilter {
             return;
         }
 
+        String name = aclMapping.value();
+        CMS.debug("ACLInterceptor: mapping: " + name);
+
         Principal principal = securityContext.getUserPrincipal();
 
         // If unauthenticated, reject request.
@@ -94,6 +99,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: No user principal provided.");
             throw new ForbiddenException("No user principal provided.");
         }
+
+        CMS.debug("ACLInterceptor: principal: " + principal.getName());
 
         // If unrecognized principal, reject request.
         if (!(principal instanceof PKIPrincipal)) {
@@ -113,7 +120,6 @@ public class ACLInterceptor implements ContainerRequestFilter {
         try {
             loadAuthProperties();
 
-            String name = aclMapping.value();
             String value = authProperties.getProperty(name);
 
             // If no property defined, allow request.
@@ -130,6 +136,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Invalid ACL mapping.");
             }
 
+            CMS.debug("ACLInterceptor: ACL: " + value);
+
             // Check authorization.
             IAuthzSubsystem mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
             AuthzToken authzToken = mAuthz.authorize(
@@ -143,6 +151,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 CMS.debug("ACLInterceptor: No authorization token present.");
                 throw new ForbiddenException("No authorization token present.");
             }
+
+            CMS.debug("ACLInterceptor: access granted");
 
         } catch (EAuthzAccessDenied e) {
             CMS.debug("ACLInterceptor: " + e.getMessage());

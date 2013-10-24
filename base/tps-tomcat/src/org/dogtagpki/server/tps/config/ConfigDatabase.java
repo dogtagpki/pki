@@ -43,12 +43,9 @@ import com.netscape.cmscore.dbs.Database;
 public class ConfigDatabase extends Database<ConfigRecord> {
 
     IConfigStore configStore = CMS.getConfigStore();
-    Map<String, String> map;
 
     public ConfigDatabase() throws EBaseException {
         super("Configuration");
-
-        map = configStore.getProperties();
     }
 
     public String createFilter(ConfigRecord record, String key) {
@@ -67,12 +64,12 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         Collection<String> configIDs = new LinkedHashSet<String>();
         configIDs.add("Generals");
 
-        String list = map.get("target.configure.list");
+        String list = configStore.get("target.configure.list");
         if (list != null) {
             configIDs.addAll(Arrays.asList(list.split(",")));
         }
 
-        list = map.get("target.agent_approve.list");
+        list = configStore.get("target.agent_approve.list");
         if (list != null) {
             configIDs.addAll(Arrays.asList(list.split(",")));
         }
@@ -93,13 +90,13 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         ConfigRecord record = new ConfigRecord();
         record.setID(configID);
 
-        String displayName = map.get("target." + configID + ".displayname");
+        String displayName = configStore.get("target." + configID + ".displayname");
         if (displayName == null) {
             throw new ResourceNotFoundException("Configuration " + configID + " not found.");
         }
         record.setDisplayName(displayName);
 
-        String pattern = map.get("target." + configID + ".pattern");
+        String pattern = configStore.get("target." + configID + ".pattern");
         if (pattern == null) {
             throw new ResourceNotFoundException("Missing pattern for " + configID + " configuration.");
         }
@@ -107,7 +104,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         // replace \| with |
         record.setPattern(pattern.replace("\\|",  "|"));
 
-        String list = map.get("target." + configID + ".list");
+        String list = configStore.get("target." + configID + ".list");
         if (list != null) {
             record.setKeys(Arrays.asList(list.split(",")));
         }
@@ -126,10 +123,9 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         configStore.put("target." + configID + ".list", StringUtils.join(newRecord.getKeys(), ","));
 
         configStore.commit(true);
-        map = configStore.getProperties();
     }
 
-    public Map<String, String> getProperties(ConfigRecord record, String key) {
+    public Map<String, String> getProperties(ConfigRecord record, String key) throws EBaseException {
 
         CMS.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\")");
 
@@ -137,6 +133,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
         // get properties that match the filter
         String filter = createFilter(record, key);
+        Map<String, String> map = configStore.getProperties();
         for (String name : map.keySet()) {
             if (!name.matches(filter)) continue;
 
@@ -184,8 +181,5 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
         // save configuration
         configStore.commit(true);
-
-        // reload configuration
-        map = configStore.getProperties();
     }
 }

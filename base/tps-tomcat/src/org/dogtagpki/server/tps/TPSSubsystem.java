@@ -22,6 +22,7 @@ import org.dogtagpki.server.tps.cert.TPSCertDatabase;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.connection.ConnectionDatabase;
 import org.dogtagpki.server.tps.logging.ActivityDatabase;
+import org.dogtagpki.server.tps.profile.ProfileDatabase;
 import org.dogtagpki.server.tps.profile.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.token.TokenDatabase;
 import org.mozilla.jss.CryptoManager;
@@ -59,6 +60,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public TPSCertDatabase certDatabase;
     public ConfigDatabase configDatabase;
     public ConnectionDatabase connectionDatabase;
+    public ProfileDatabase profileDatabase;
     public ProfileMappingDatabase profileMappingDatabase;
     public TokenDatabase tokenDatabase;
 
@@ -92,6 +94,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         configDatabase = new ConfigDatabase();
         authenticatorDatabase = new AuthenticatorDatabase();
         connectionDatabase = new ConnectionDatabase();
+        profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
     }
 
@@ -158,6 +161,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public ConnectionDatabase getConnectionDatabase() {
         return connectionDatabase;
+    }
+
+    public ProfileDatabase getProfileDatabase() {
+        return profileDatabase;
     }
 
     public ProfileMappingDatabase getProfileMappingDatabase() {
