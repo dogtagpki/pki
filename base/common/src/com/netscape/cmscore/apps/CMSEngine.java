@@ -262,22 +262,6 @@ public class CMSEngine implements ICMSEngine {
      * private constructor.
      */
     public CMSEngine() {
-
-        // Shutdown on SIGINT, SIGTERM, or SIGHUP.
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                /*LogDoc
-                *
-                * @phase watchdog check
-                */
-                getLogger().log(ILogger.EV_SYSTEM,
-                        ILogger.S_OTHER,
-                        ILogger.LL_INFO,
-                        "OS: Received shutdown signal");
-
-                shutdown();
-            };
-        });
     }
 
     /**
