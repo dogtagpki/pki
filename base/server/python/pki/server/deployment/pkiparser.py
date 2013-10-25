@@ -536,6 +536,9 @@ class PKIConfigParser:
             pkilogging.sensitive_parameters = self.pki_master_dict['sensitive_parameters'].split()
 
             # Always create "false" values for these missing "boolean" keys
+            if not self.pki_master_dict.has_key('pki_enable_access_log') or\
+               not len(self.pki_master_dict['pki_enable_access_log']):
+                self.pki_master_dict['pki_enable_access_log'] = "false"
             if not self.pki_master_dict.has_key('pki_external') or\
                not len(self.pki_master_dict['pki_external']):
                 self.pki_master_dict['pki_external'] = "false"
@@ -834,6 +837,16 @@ class PKIConfigParser:
                     self.pki_master_dict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
                         "<!--"
                     self.pki_master_dict['PKI_STANDALONE_SLOT'] = "false"
+                if (config.str2bool(self.pki_master_dict['pki_enable_access_log'])):
+                    self.pki_master_dict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                        ""
+                    self.pki_master_dict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                        ""
+                else:
+                    self.pki_master_dict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                        "-->"
+                    self.pki_master_dict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                        "<!--"
                 self.pki_master_dict['PKI_TMPDIR_SLOT'] = \
                     self.pki_master_dict['pki_tomcat_tmpdir_path']
                 self.pki_master_dict['PKI_RESTEASY_LIB_SLOT'] = \

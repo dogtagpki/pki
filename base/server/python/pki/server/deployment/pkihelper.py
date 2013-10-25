@@ -423,12 +423,22 @@ class Namespace:
                 raise Exception(log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (self.master_dict['pki_instance_name'],
                                                                           self.master_dict['pki_instance_registry_path']))
 
-
 class ConfigurationFile:
     """PKI Deployment Configuration File Class"""
 
     def __init__(self, deployer):
         self.master_dict = deployer.master_dict
+        # set useful 'boolean' object variables for this class
+        self.clone = config.str2bool(self.master_dict['pki_clone'])
+        self.external = config.str2bool(self.master_dict['pki_external'])
+        self.external_step_two = config.str2bool(
+                                     self.master_dict['pki_external_step_two'])
+        self.skip_configuration = config.str2bool(
+                                    self.master_dict['pki_skip_configuration'])
+        self.standalone = config.str2bool(self.master_dict['pki_standalone'])
+        self.subordinate = config.str2bool(self.master_dict['pki_subordinate'])
+        # set useful 'string' object variables for this class
+        self.subsystem = self.master_dict['pki_subsystem']
 
     def log_configuration_url(self):
         # NOTE:  This is the one and only parameter containing a sensitive
@@ -451,53 +461,52 @@ class ConfigurationFile:
 
     def confirm_external(self):
         # ALWAYS defined via 'pkiparser.py'
-        if config.str2bool(self.master_dict['pki_external']):
+        if self.external:
             # Only allowed for External CA
-            if self.master_dict['pki_subsystem'] != "CA":
+            if self.subsystem != "CA":
                 config.pki_log.error(log.PKI_EXTERNAL_UNSUPPORTED_1,
-                                     self.master_dict['pki_subsystem'],
+                                     self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_EXTERNAL_UNSUPPORTED_1,
-                                self.master_dict['pki_subsystem'])
+                                self.subsystem)
 
     def confirm_standalone(self):
         # ALWAYS defined via 'pkiparser.py'
-        if config.str2bool(self.master_dict['pki_standalone']):
+        if self.standalone:
             # Only allowed for Stand-alone PKI
             #
             # ADD checks for valid types of Stand-alone PKI subsystems here
             # AND to the 'private void validateData(ConfigurationRequest data)'
             # Java method located in the file called 'SystemConfigService.java'
             #
-            if self.master_dict['pki_subsystem'] != "KRA":
+            if self.subsystem != "KRA":
                 config.pki_log.error(log.PKI_STANDALONE_UNSUPPORTED_1,
-                                     self.master_dict['pki_subsystem'],
+                                     self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_STANDALONE_UNSUPPORTED_1,
-                                self.master_dict['pki_subsystem'])
+                                self.subsystem)
 
     def confirm_subordinate(self):
         # ALWAYS defined via 'pkiparser.py'
-        if config.str2bool(self.master_dict['pki_subordinate']):
+        if self.subordinate:
             # Only allowed for Subordinate CA
-            if self.master_dict['pki_subsystem'] != "CA":
+            if self.subsystem != "CA":
                 config.pki_log.error(log.PKI_SUBORDINATE_UNSUPPORTED_1,
-                                     self.master_dict['pki_subsystem'],
+                                     self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_SUBORDINATE_UNSUPPORTED_1,
-                                self.master_dict['pki_subsystem'])
+                                self.subsystem)
 
     def confirm_external_step_two(self):
         # ALWAYS defined via 'pkiparser.py'
-        if config.str2bool(self.master_dict['pki_external_step_two']):
+        if self.external_step_two:
             # Only allowed for External CA or Stand-alone PKI
-            if self.master_dict['pki_subsystem'] != "CA" and\
-               not config.str2bool(self.master_dict['pki_standalone']):
+            if self.subsystem != "CA" and not self.standalone:
                 config.pki_log.error(log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
-                                     self.master_dict['pki_subsystem'],
+                                     self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
-                                self.master_dict['pki_subsystem'])
+                                self.subsystem)
 
     def confirm_data_exists(self, param):
         if not self.master_dict.has_key(param) or\
@@ -528,13 +537,13 @@ class ConfigurationFile:
 
     def verify_sensitive_data(self):
         # Silently verify the existence of 'sensitive' data
-        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             # Verify existence of Directory Server Password
             # (unless configuration will not be automatically executed)
-            if not config.str2bool(self.master_dict['pki_skip_configuration']):
+            if not self.skip_configuration:
                 self.confirm_data_exists("pki_ds_password")
             # Verify existence of Admin Password (except for Clones)
-            if not config.str2bool(self.master_dict['pki_clone']):
+            if not self.clone:
                 self.confirm_data_exists("pki_admin_password")
             # If required, verify existence of Backup Password
             if config.str2bool(self.master_dict['pki_backup_keys']):
@@ -544,20 +553,19 @@ class ConfigurationFile:
             # Verify existence of Client PKCS #12 Password for Admin Cert
             self.confirm_data_exists("pki_client_pkcs12_password")
             # Verify existence of PKCS #12 Password (ONLY for Clones)
-            if config.str2bool(self.master_dict['pki_clone']):
+            if self.clone:
                 self.confirm_data_exists("pki_clone_pkcs12_password")
             # Verify existence of Security Domain Password
             # (ONLY for PKI KRA, PKI OCSP, PKI TKS, PKI TPS, Clones, or
             #  Subordinate CA that will be automatically configured and
             #  are not Stand-alone PKI)
-            if self.master_dict['pki_subsystem'] == "KRA" or\
-               self.master_dict['pki_subsystem'] == "OCSP" or\
-               self.master_dict['pki_subsystem'] == "TKS" or\
-               self.master_dict['pki_subsystem'] == "TPS" or\
-               config.str2bool(self.master_dict['pki_clone']) or\
-               config.str2bool(self.master_dict['pki_subordinate']):
-                if not config.str2bool(self.master_dict['pki_skip_configuration']) and\
-                   not config.str2bool(self.master_dict['pki_standalone']):
+            if (self.subsystem == "KRA" or
+                self.subsystem == "OCSP" or
+                self.subsystem == "TKS" or
+                self.subsystem == "TPS" or
+                self.clone or
+                self.subordinate):
+                if not self.skip_configuration and not self.standalone:
                     self.confirm_data_exists("pki_security_domain_password")
             # If required, verify existence of Token Password
             if not self.master_dict['pki_token_name'] == "internal":
@@ -566,39 +574,34 @@ class ConfigurationFile:
 
     def verify_mutually_exclusive_data(self):
         # Silently verify the existence of 'mutually exclusive' data
-        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            if self.master_dict['pki_subsystem'] == "CA":
-                if config.str2bool(self.master_dict['pki_clone']) and\
-                   config.str2bool(self.master_dict['pki_external']) and\
-                   config.str2bool(self.master_dict['pki_subordinate']):
+        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.subsystem == "CA":
+                if self.clone and self.external and self.subordinate:
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
                         self.master_dict['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
-                elif config.str2bool(self.master_dict['pki_clone']) and\
-                     config.str2bool(self.master_dict['pki_external']):
+                elif self.clone and self.external:
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
                         self.master_dict['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA % self.master_dict['pki_user_deployment_cfg'])
-                elif config.str2bool(self.master_dict['pki_clone']) and\
-                     config.str2bool(self.master_dict['pki_subordinate']):
+                elif self.clone and self.subordinate:
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
                         self.master_dict['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
-                elif config.str2bool(self.master_dict['pki_external']) and\
-                     config.str2bool(self.master_dict['pki_subordinate']):
+                elif self.external and self.subordinate:
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
                         self.master_dict['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA % self.master_dict['pki_user_deployment_cfg'])
-            elif config.str2bool(self.master_dict['pki_standalone']):
-                if config.str2bool(self.master_dict['pki_clone']):
+            elif self.standalone:
+                if self.clone:
                     config.pki_log.error(
                         log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI,
                         self.master_dict['pki_user_deployment_cfg'],
@@ -618,12 +621,12 @@ class ConfigurationFile:
         #          etc.), and "correctness" (e. g. - file, directory, boolean
         #          'True' or 'False', etc.) of ALL required "value" parameters.
         #
-        if self.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             self.confirm_external()
             self.confirm_standalone()
             self.confirm_subordinate()
             self.confirm_external_step_two()
-            if config.str2bool(self.master_dict['pki_clone']):
+            if self.clone:
                 # Verify existence of clone parameters
                 #
                 #     NOTE:  Although this will be checked prior to getting to
@@ -646,9 +649,9 @@ class ConfigurationFile:
                 self.confirm_file_exists("pki_clone_pkcs12_path")
                 self.confirm_data_exists("pki_clone_replication_security")
                 self.confirm_data_exists("pki_clone_uri")
-            elif config.str2bool(self.master_dict['pki_external']):
+            elif self.external:
                 # External CA
-                if not config.str2bool(self.master_dict['pki_external_step_two']):
+                if not self.external_step_two:
                     # External CA (Step 1)
                     self.confirm_data_exists("pki_external_csr_path")
                     self.confirm_missing_file("pki_external_csr_path")
@@ -658,9 +661,8 @@ class ConfigurationFile:
                     self.confirm_file_exists("pki_external_ca_cert_chain_path")
                     self.confirm_data_exists("pki_external_ca_cert_path")
                     self.confirm_file_exists("pki_external_ca_cert_path")
-            elif not config.str2bool(self.master_dict['pki_skip_configuration']) and\
-                 config.str2bool(self.master_dict['pki_standalone']):
-                if not config.str2bool(self.master_dict['pki_external_step_two']):
+            elif not self.skip_configuration and self.standalone:
+                if not self.external_step_two:
                     # Stand-alone PKI Admin CSR (Step 1)
                     self.confirm_data_exists("pki_external_admin_csr_path")
                     self.confirm_missing_file("pki_external_admin_csr_path")
@@ -674,7 +676,7 @@ class ConfigurationFile:
                     self.confirm_data_exists("pki_external_subsystem_csr_path")
                     self.confirm_missing_file("pki_external_subsystem_csr_path")
                     # Stand-alone PKI KRA CSRs
-                    if self.master_dict['pki_subsystem'] == "KRA":
+                    if self.subsystem == "KRA":
                         # Stand-alone PKI KRA Storage CSR (Step 1)
                         self.confirm_data_exists("pki_external_storage_csr_path")
                         self.confirm_missing_file("pki_external_storage_csr_path")
@@ -682,7 +684,7 @@ class ConfigurationFile:
                         self.confirm_data_exists("pki_external_transport_csr_path")
                         self.confirm_missing_file("pki_external_transport_csr_path")
                     # Stand-alone PKI OCSP CSRs
-                    if self.master_dict['pki_subsystem'] == "OCSP":
+                    if self.subsystem == "OCSP":
                         # Stand-alone PKI OCSP OCSP Signing CSR (Step 1)
                         self.confirm_data_exists("pki_external_signing_csr_path")
                         self.confirm_missing_file("pki_external_signing_csr_path")
@@ -706,7 +708,7 @@ class ConfigurationFile:
                     self.confirm_data_exists("pki_external_subsystem_cert_path")
                     self.confirm_file_exists("pki_external_subsystem_cert_path")
                     # Stand-alone PKI KRA Certificates
-                    if self.master_dict['pki_subsystem'] == "KRA":
+                    if self.subsystem == "KRA":
                         # Stand-alone PKI KRA Storage Certificate (Step 2)
                         self.confirm_data_exists("pki_external_storage_cert_path")
                         self.confirm_file_exists("pki_external_storage_cert_path")
@@ -714,7 +716,7 @@ class ConfigurationFile:
                         self.confirm_data_exists("pki_external_transport_cert_path")
                         self.confirm_file_exists("pki_external_transport_cert_path")
                     # Stand-alone PKI OCSP Certificates
-                    if self.master_dict['pki_subsystem'] == "OCSP":
+                    if self.subsystem == "OCSP":
                         # Stand-alone PKI OCSP OCSP Signing Certificate (Step 2)
                         self.confirm_data_exists("pki_external_signing_cert_path")
                         self.confirm_file_exists("pki_external_signing_cert_path")
@@ -979,7 +981,7 @@ class Instance:
             accept='application/xml')
 
         # catching all exceptions because we do not want to break if underlying
-        # requests or urllib3 use a different exception.  
+        # requests or urllib3 use a different exception.
         # If the connection fails, we will time out in any case
         # pylint: disable-msg=W0703
         try:
@@ -3142,6 +3144,15 @@ class ConfigClient:
     def __init__(self, deployer):
         self.deployer = deployer
         self.master_dict = deployer.master_dict
+        # set useful 'boolean' object variables for this class
+        self.clone = config.str2bool(self.master_dict['pki_clone'])
+        self.external = config.str2bool(self.master_dict['pki_external'])
+        self.external_step_two = config.str2bool(
+                                     self.master_dict['pki_external_step_two'])
+        self.standalone = config.str2bool(self.master_dict['pki_standalone'])
+        self.subordinate = config.str2bool(self.master_dict['pki_subordinate'])
+        # set useful 'string' object variables for this class
+        self.subsystem = self.master_dict['pki_subsystem']
 
     def configure_pki_data(self, data):
         config.pki_log.info(log.PKI_CONFIG_CONFIGURING_PKI_DATA,
@@ -3171,93 +3182,57 @@ class ConfigClient:
             if not isinstance(certs, types.ListType):
                 certs = [certs]
             for cdata in certs:
-                if self.master_dict['pki_subsystem'] == "CA" and\
-                   config.str2bool(self.master_dict['pki_external']) and\
-                   not config.str2bool(self.master_dict['pki_external_step_two']):
+                if (self.subsystem == "CA" and
+                    self.external and
+                    not self.external_step_two):
                     # External CA (Step 1)
                     if cdata['tag'].lower() == "signing":
                         # Save 'External CA Signing Certificate' CSR (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE + \
-                            " '" + self.master_dict['pki_external_csr_path'] + "'",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + \
-                            "\n" + cdata['request'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_csr_path']))
-                        with open(self.master_dict['pki_external_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE,
+                            self.master_dict['pki_external_csr_path'])
                         return
-                elif config.str2bool(self.master_dict['pki_standalone']) and\
-                     not config.str2bool(self.master_dict['pki_external_step_two']):
+                elif self.standalone and not self.external_step_two:
                     # Stand-alone PKI (Step 1)
                     if cdata['tag'].lower() == "audit_signing":
                         # Save Stand-alone PKI 'Audit Signing Certificate' CSR
                         # (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1 + \
-                            " '" + self.master_dict['pki_external_audit_signing_csr_path'] + "'",
-                            self.master_dict['pki_subsystem'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_audit_signing_csr_path']))
-                        with open(self.master_dict['pki_external_audit_signing_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1,
+                            self.master_dict['pki_external_audit_signing_csr_path'],
+                            self.subsystem)
                     elif cdata['tag'].lower() == "signing":
                         # Save Stand-alone PKI OCSP 'OCSP Signing Certificate'
                         # CSR (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING + \
-                            " '" + self.master_dict['pki_external_signing_csr_path'] + "'",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_signing_csr_path']))
-                        with open(self.master_dict['pki_external_signing_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING,
+                            self.master_dict['pki_external_signing_csr_path'])
                     elif cdata['tag'].lower() == "sslserver":
                         # Save Stand-alone PKI 'SSL Server Certificate' CSR
                         # (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1 + \
-                            " '" + self.master_dict['pki_external_sslserver_csr_path'] + "'",
-                            self.master_dict['pki_subsystem'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_sslserver_csr_path']))
-                        with open(self.master_dict['pki_external_sslserver_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1,
+                            self.master_dict['pki_external_sslserver_csr_path'],
+                            self.subsystem)
                     elif cdata['tag'].lower() == "storage":
                         # Save Stand-alone PKI KRA 'Storage Certificate' CSR
                         # (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE + \
-                            " '" + self.master_dict['pki_external_storage_csr_path'] + "'",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_storage_csr_path']))
-                        with open(self.master_dict['pki_external_storage_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE,
+                            self.master_dict['pki_external_storage_csr_path'])
                     elif cdata['tag'].lower() == "subsystem":
                         # Save Stand-alone PKI 'Subsystem Certificate' CSR
                         # (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1 + \
-                            " '" + self.master_dict['pki_external_subsystem_csr_path'] + "'",
-                            self.master_dict['pki_subsystem'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_subsystem_csr_path']))
-                        with open(self.master_dict['pki_external_subsystem_csr_path'], "w") as f:
-                            f.write(cdata['request'])
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1,
+                            self.master_dict['pki_external_subsystem_csr_path'],
+                            self.subsystem)
                     elif cdata['tag'].lower() == "transport":
                         # Save Stand-alone PKI KRA 'Transport Certificate' CSR
                         # (Step 1)
-                        config.pki_log.info(log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT + \
-                            " '" + self.master_dict['pki_external_transport_csr_path'] + "'",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_transport_csr_path']))
-                        with open(self.master_dict['pki_external_transport_csr_path'], "w") as f:
-                            f.write(cdata['request'])
-                    # Print this certificate request
-                    config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + \
-                        "\n" + cdata['request'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                        self.save_system_csr(cdata['request'],
+                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT,
+                            self.master_dict['pki_external_transport_csr_path'])
                 else:
                     config.pki_log.debug(log.PKI_CONFIG_CDATA_TAG + \
                                            " " + cdata['tag'],
@@ -3270,9 +3245,9 @@ class ConfigClient:
                                          extra=config.PKI_INDENTATION_LEVEL_2)
 
             # Cloned PKI subsystems do not return an Admin Certificate
-            if not config.str2bool(self.master_dict['pki_clone']):
-                if config.str2bool(self.master_dict['pki_standalone']):
-                    if not config.str2bool(self.master_dict['pki_external_step_two']):
+            if not self.clone:
+                if self.standalone:
+                    if not self.external_step_two:
                         # NOTE:  Do nothing for Stand-alone PKI (Step 1)
                         #        as this has already been addressed
                         #        in 'set_admin_parameters()'
@@ -3307,12 +3282,9 @@ class ConfigClient:
         # Store the Administration Certificate in a file
         admin_cert_file = self.master_dict['pki_client_admin_cert']
         admin_cert_bin_file = admin_cert_file + ".der"
-        config.pki_log.debug(log.PKI_CONFIG_ADMIN_CERT_SAVE_1 + \
-                             " '" + admin_cert_file + "'",
-                             self.master_dict['pki_subsystem_name'],
-                             extra=config.PKI_INDENTATION_LEVEL_2)
-        with open(admin_cert_file, "w") as f:
-            f.write(admin_cert)
+        self.save_admin_cert(log.PKI_CONFIG_ADMIN_CERT_SAVE_1,
+                             admin_cert, admin_cert_file,
+                             self.master_dict['pki_subsystem_name'])
 
         # convert the cert file to binary
         command = ["AtoB", admin_cert_file, admin_cert_bin_file]
@@ -3368,12 +3340,12 @@ class ConfigClient:
         # Miscellaneous Configuration Information
         data.pin = self.master_dict['pki_one_time_pin']
         data.subsystemName = self.master_dict['pki_subsystem_name']
-        data.standAlone = self.master_dict['pki_standalone']
-        data.stepTwo = self.master_dict['pki_external_step_two']
+        data.standAlone = self.standalone
+        data.stepTwo = self.external_step_two
 
         # Cloning parameters
         if self.master_dict['pki_instance_type'] == "Tomcat":
-            if config.str2bool(self.master_dict['pki_clone']):
+            if self.clone:
                 self.set_cloning_parameters(data)
             else:
                 data.isClone = "false"
@@ -3382,10 +3354,8 @@ class ConfigClient:
         self.set_hierarchy_parameters(data)
 
         # Security Domain
-        if ((self.master_dict['pki_subsystem'] != "CA" or
-             config.str2bool(self.master_dict['pki_clone']) or
-             config.str2bool(self.master_dict['pki_subordinate'])) and
-            (not config.str2bool(self.master_dict['pki_standalone']))):
+        if ((self.subsystem != "CA" or self.clone or self.subordinate) and
+            not self.standalone):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
             # Subordinate CA
@@ -3395,7 +3365,7 @@ class ConfigClient:
             self.set_new_security_domain(data)
 
         # database
-        if self.master_dict['pki_subsystem'] != "RA":
+        if self.subsystem != "RA":
             self.set_database_parameters(data)
 
         # backup
@@ -3403,7 +3373,7 @@ class ConfigClient:
             self.set_backup_parameters(data)
 
         # admin user
-        if not config.str2bool(self.master_dict['pki_clone']):
+        if not self.clone:
             self.set_admin_parameters(data)
 
         # Issuing CA Information
@@ -3413,70 +3383,121 @@ class ConfigClient:
         self.set_system_certs(data)
 
         # TPS parameters
-        if self.master_dict['pki_subsystem'] == "TPS":
+        if self.subsystem == "TPS":
             self.set_tps_parameters(data)
 
         return data
+
+    def save_admin_csr(self):
+        config.pki_log.info(
+            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 + \
+            " '" + \
+            self.master_dict['pki_external_admin_csr_path'] + \
+            "'", self.subsystem,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+        self.deployer.directory.create(
+            os.path.dirname(self.master_dict['pki_external_admin_csr_path']))
+        with open(self.master_dict['pki_external_admin_csr_path'], "w") as f:
+            f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
+        admin_certreq = None
+        with open(os.path.join(
+                  self.master_dict['pki_client_database_dir'],
+                  "admin_pkcs10.bin.asc"), "r") as f:
+            admin_certreq = f.read()
+        with open(self.master_dict['pki_external_admin_csr_path'], "a") as f:
+            f.write(admin_certreq)
+            f.write("-----END CERTIFICATE REQUEST-----")
+        # Read in and print Admin certificate request
+        with open(self.master_dict['pki_external_admin_csr_path'], "r") as f:
+            admin_certreq = f.read()
+        config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + \
+            "\n" + admin_certreq,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+    def save_admin_cert(self, message, input_data, output_file, subsystem_name):
+        config.pki_log.debug(message + " '" + output_file + "'", subsystem_name,
+                             extra=config.PKI_INDENTATION_LEVEL_2)
+        with open(output_file, "w") as f:
+            f.write(input_data)
+
+    def save_system_csr(self, csr, message, path, subsystem=None):
+        if subsystem is not None:
+            config.pki_log.info(message + " '" + path + "'", subsystem,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+        else:
+            config.pki_log.info(message + " '" + path + "'",
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+        self.deployer.directory.create(os.path.dirname(path))
+        with open(path, "w") as f:
+            f.write(csr)
+        # Print this certificate request
+        config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + "\n" + csr,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+
+    def load_system_cert(self, cert, message, path, subsystem=None):
+        if subsystem is not None:
+            config.pki_log.info(message + " '" + path + "'", subsystem,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+        else:
+            config.pki_log.info(message + " '" + path + "'",
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+        with open(path, "r") as f:
+            cert.cert = f.read()
+
+    def load_system_cert_chain(self, cert, message, path):
+        config.pki_log.info(message + " '" + path + "'",
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+        with open(path, "r") as f:
+            cert.certChain = f.read()
 
     def set_system_certs(self, data):
         systemCerts = []
 
         # Create 'CA Signing Certificate'
-        if not config.str2bool(self.master_dict['pki_clone']):
-            if self.master_dict['pki_subsystem'] == "CA" or\
-               config.str2bool(self.master_dict['pki_standalone']):
-                if self.master_dict['pki_subsystem'] == "CA":
+        if not self.clone:
+            if self.subsystem == "CA" or self.standalone:
+                if self.subsystem == "CA":
                     # PKI CA, Subordinate CA, or External CA
                     cert1 = self.create_system_cert("ca_signing")
                     cert1.signingAlgorithm = \
                         self.master_dict['pki_ca_signing_signing_algorithm']
-                if config.str2bool(self.master_dict['pki_external_step_two']):
+                if self.external_step_two:
                     # External CA (Step 2) or Stand-alone PKI (Step 2)
-                    if not self.master_dict['pki_subsystem'] == "CA":
+                    if not self.subsystem == "CA":
                         # Stand-alone PKI (Step 2)
                         cert1 = pki.system.SystemCertData()
                         cert1.tag = self.master_dict['pki_ca_signing_tag']
                     # Load the External CA or Stand-alone PKI
                     # 'External CA Signing Certificate' (Step 2)
-                    config.pki_log.info(
-                        log.PKI_CONFIG_EXTERNAL_CA_LOAD + " '" +
-                        self.master_dict['pki_external_ca_cert_path'] + "'",
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    with open(self.master_dict['pki_external_ca_cert_path'], "r") as f:
-                        cert1.cert = f.read()
+                    self.load_system_cert(cert1,
+                        log.PKI_CONFIG_EXTERNAL_CA_LOAD,
+                        self.master_dict['pki_external_ca_cert_path'])
                     # Load the External CA or Stand-alone PKI
                     # 'External CA Signing Certificate Chain' (Step 2)
-                    config.pki_log.info(
-                        log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD + " '" +
-                        self.master_dict['pki_external_ca_cert_chain_path'] +
-                        "'", extra=config.PKI_INDENTATION_LEVEL_2)
-                    with open(self.master_dict['pki_external_ca_cert_chain_path'], "r") as f:
-                        cert1.certChain = f.read()
+                    self.load_system_cert_chain(cert1,
+                        log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
+                        self.master_dict['pki_external_ca_cert_chain_path'])
                     systemCerts.append(cert1)
-                elif self.master_dict['pki_subsystem'] == "CA":
+                elif self.subsystem == "CA":
                     # PKI CA or Subordinate CA
                     systemCerts.append(cert1)
 
         # Create 'OCSP Signing Certificate'
-        if not config.str2bool(self.master_dict['pki_clone']):
-            if ((self.master_dict['pki_subsystem'] == "OCSP" and
-                 config.str2bool(self.master_dict['pki_standalone'])) and
-                config.str2bool(self.master_dict['pki_external_step_two'])):
+        if not self.clone:
+            if (self.subsystem == "OCSP" and
+                self.standalone and
+                self.external_step_two):
                 # Stand-alone PKI OCSP (Step 2)
                 cert2 = self.create_system_cert("ocsp_signing")
                 # Load the Stand-alone PKI OCSP 'OCSP Signing Certificate'
                 # (Step 2)
-                config.pki_log.info(
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING + " '" +
-                    self.master_dict['pki_external_signing_cert_path'] + "'",
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                with open(self.master_dict['pki_external_signing_cert_path'], "r") as f:
-                    cert2.cert = f.read()
+                self.load_system_cert(cert2,
+                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING,
+                    self.master_dict['pki_external_signing_cert_path'])
                 cert2.signingAlgorithm = \
                     self.master_dict['pki_ocsp_signing_signing_algorithm']
                 systemCerts.append(cert2)
-            elif self.master_dict['pki_subsystem'] == "CA" or\
-                 self.master_dict['pki_subsystem'] == "OCSP":
+            elif self.subsystem == "CA" or self.subsystem == "OCSP":
                 # External CA, Subordinate CA, PKI CA, or PKI OCSP
                 cert2 = self.create_system_cert("ocsp_signing")
                 cert2.signingAlgorithm = \
@@ -3488,18 +3509,14 @@ class ConfigClient:
 
         # create new sslserver cert only if this is a new instance
         system_list = self.deployer.instance.tomcat_instance_subsystems()
-        if (config.str2bool(self.master_dict['pki_standalone']) and
-            config.str2bool(self.master_dict['pki_external_step_two'])):
+        if self.standalone and self.external_step_two:
             # Stand-alone PKI (Step 2)
             cert3 = self.create_system_cert("ssl_server")
             # Load the Stand-alone PKI 'SSL Server Certificate' (Step 2)
-            config.pki_log.info(
-                log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1 + " '" +
-                self.master_dict['pki_external_sslserver_cert_path'] + "'",
-                self.master_dict['pki_subsystem'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            with open(self.master_dict['pki_external_sslserver_cert_path'], "r") as f:
-                cert3.cert = f.read()
+            self.load_system_cert(cert3,
+                log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1,
+                self.master_dict['pki_external_sslserver_cert_path'],
+                self.subsystem)
             systemCerts.append(cert3)
         elif len(system_list) >= 2:
             # Existing PKI Instance
@@ -3507,8 +3524,7 @@ class ConfigClient:
             for subsystem in system_list:
                 dst = self.master_dict['pki_instance_path'] + '/conf/' + \
                     subsystem.lower() + '/CS.cfg'
-                if subsystem != self.master_dict['pki_subsystem'] and \
-                   os.path.exists(dst):
+                if subsystem != self.subsystem and os.path.exists(dst):
                     cert3 = self.retrieve_existing_server_cert(dst)
                     systemCerts.append(cert3)
                     break
@@ -3520,19 +3536,15 @@ class ConfigClient:
             systemCerts.append(cert3)
 
         # Create 'Subsystem Certificate'
-        if not config.str2bool(self.master_dict['pki_clone']):
-            if (config.str2bool(self.master_dict['pki_standalone']) and
-                config.str2bool(self.master_dict['pki_external_step_two'])):
+        if not self.clone:
+            if self.standalone and self.external_step_two:
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
                 # Load the Stand-alone PKI 'Subsystem Certificate' (Step 2)
-                config.pki_log.info(
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1 + " '" +
-                    self.master_dict['pki_external_subsystem_cert_path'] + "'",
-                    self.master_dict['pki_subsystem'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                with open(self.master_dict['pki_external_subsystem_cert_path'], "r") as f:
-                    cert4.cert = f.read()
+                self.load_system_cert(cert4,
+                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1,
+                    self.master_dict['pki_external_subsystem_cert_path'],
+                    self.subsystem)
                 systemCerts.append(cert4)
             else:
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
@@ -3541,55 +3553,44 @@ class ConfigClient:
                 systemCerts.append(cert4)
 
         # Create 'Audit Signing Certificate'
-        if not config.str2bool(self.master_dict['pki_clone']):
-            if (config.str2bool(self.master_dict['pki_standalone']) and
-                config.str2bool(self.master_dict['pki_external_step_two'])):
+        if not self.clone:
+            if self.standalone and self.external_step_two:
                 # Stand-alone PKI (Step 2)
                 cert5 = self.create_system_cert("audit_signing")
                 # Load the Stand-alone PKI 'Audit Signing Certificate' (Step 2)
-                config.pki_log.info(
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1 +
-                    " '" +
-                    self.master_dict['pki_external_audit_signing_cert_path'] +
-                    "'", self.master_dict['pki_subsystem'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                with open(self.master_dict['pki_external_audit_signing_cert_path'], "r") as f:
-                    cert5.cert = f.read()
+                self.load_system_cert(cert5,
+                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1,
+                    self.master_dict['pki_external_audit_signing_cert_path'],
+                    self.subsystem)
                 cert5.signingAlgorithm = \
                     self.master_dict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
-            elif self.master_dict['pki_subsystem'] != "RA":
+            elif self.subsystem != "RA":
                 cert5 = self.create_system_cert("audit_signing")
                 cert5.signingAlgorithm = \
                     self.master_dict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
 
         # Create 'DRM Transport Certificate' and 'DRM Storage Certificate'
-        if not config.str2bool(self.master_dict['pki_clone']):
-            if ((self.master_dict['pki_subsystem'] == "KRA" and
-                 config.str2bool(self.master_dict['pki_standalone'])) and
-                config.str2bool(self.master_dict['pki_external_step_two'])):
+        if not self.clone:
+            if (self.subsystem == "KRA" and
+                self.standalone and
+                self.external_step_two):
                 # Stand-alone PKI KRA Transport Certificate (Step 2)
                 cert6 = self.create_system_cert("transport")
                 # Load the Stand-alone PKI KRA 'Transport Certificate' (Step 2)
-                config.pki_log.info(
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT + " '" +
-                    self.master_dict['pki_external_transport_cert_path'] + "'",
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                with open(self.master_dict['pki_external_transport_cert_path'], "r") as f:
-                    cert6.cert = f.read()
+                self.load_system_cert(cert6,
+                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT,
+                    self.master_dict['pki_external_transport_cert_path'])
                 systemCerts.append(cert6)
                 # Stand-alone PKI KRA Storage Certificate (Step 2)
                 cert7 = self.create_system_cert("storage")
                 # Load the Stand-alone PKI KRA 'Storage Certificate' (Step 2)
-                config.pki_log.info(
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE + " '" +
-                    self.master_dict['pki_external_storage_cert_path'] + "'",
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                with open(self.master_dict['pki_external_storage_cert_path'], "r") as f:
-                    cert7.cert = f.read()
+                self.load_system_cert(cert7,
+                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE,
+                    self.master_dict['pki_external_storage_cert_path'])
                 systemCerts.append(cert7)
-            elif self.master_dict['pki_subsystem'] == "KRA":
+            elif self.subsystem == "KRA":
                 # PKI KRA Transport Certificate
                 cert6 = self.create_system_cert("transport")
                 systemCerts.append(cert6)
@@ -3615,14 +3616,14 @@ class ConfigClient:
                 self.master_dict['pki_clone_replication_clone_port']
 
     def set_hierarchy_parameters(self, data):
-        if self.master_dict['pki_subsystem'] == "CA":
-            if config.str2bool(self.master_dict['pki_clone']):
+        if self.subsystem == "CA":
+            if self.clone:
                 # Cloned CA
                 data.hierarchy = "root"
-            elif config.str2bool(self.master_dict['pki_external']):
+            elif self.external:
                 # External CA
                 data.hierarchy = "join"
-            elif config.str2bool(self.master_dict['pki_subordinate']):
+            elif self.subordinate:
                 # Subordinate CA
                 data.hierarchy = "join"
             else:
@@ -3670,8 +3671,8 @@ class ConfigClient:
         data.adminProfileID = self.master_dict['pki_admin_profile_id']
         data.adminUID = self.master_dict['pki_admin_uid']
         data.adminSubjectDN = self.master_dict['pki_admin_subject_dn']
-        if config.str2bool(self.master_dict['pki_standalone']):
-            if not config.str2bool(self.master_dict['pki_external_step_two']):
+        if self.standalone:
+            if not self.external_step_two:
                 # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' FALSE for
                 #             Stand-alone PKI (Step 1)
                 self.master_dict['pki_import_admin_cert'] = "False"
@@ -3681,7 +3682,7 @@ class ConfigClient:
                 self.master_dict['pki_import_admin_cert'] = "True"
         if config.str2bool(self.master_dict['pki_import_admin_cert']):
             data.importAdminCert = "true"
-            if config.str2bool(self.master_dict['pki_standalone']):
+            if self.standalone:
                 # Stand-alone PKI (Step 2)
                 #
                 # Copy the Stand-alone PKI 'Admin Certificate'
@@ -3738,39 +3739,15 @@ class ConfigClient:
                                          extra=config.PKI_INDENTATION_LEVEL_2)
                     raise
 
-                if config.str2bool(self.master_dict['pki_standalone']):
-                    if not config.str2bool(self.master_dict['pki_external_step_two']):
-                        # For convenience and consistency, save a copy of
-                        # the Stand-alone PKI 'Admin Certificate' CSR to the
-                        # specified "pki_external_admin_csr_path" location
-                        # (Step 1)
-                        config.pki_log.info(
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 + \
-                            " '" + \
-                            self.master_dict['pki_external_admin_csr_path'] + \
-                            "'", self.master_dict['pki_subsystem'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        self.deployer.directory.create(
-                            os.path.dirname(self.master_dict['pki_external_admin_csr_path']))
-                        with open(self.master_dict['pki_external_admin_csr_path'], "w") as f:
-                            f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
-                        admin_certreq = None
-                        with open(os.path.join(
-                                  self.master_dict['pki_client_database_dir'],
-                                  "admin_pkcs10.bin.asc"), "r") as f:
-                            admin_certreq = f.read()
-                        with open(self.master_dict['pki_external_admin_csr_path'], "a") as f:
-                            f.write(admin_certreq)
-                            f.write("-----END CERTIFICATE REQUEST-----")
-                        # Read in and print Admin certificate request
-                        with open(self.master_dict['pki_external_admin_csr_path'], "r") as f:
-                            admin_certreq = f.read()
-                        config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + \
-                            "\n" + admin_certreq,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        # IMPORTANT:  ALWAYS save the client database for
-                        #             Stand-alone PKI (Step 1)
-                        self.master_dict['pki_client_database_purge'] = "False"
+                if self.standalone and not self.external_step_two:
+                    # For convenience and consistency, save a copy of
+                    # the Stand-alone PKI 'Admin Certificate' CSR to the
+                    # specified "pki_external_admin_csr_path" location
+                    # (Step 1)
+                    self.save_admin_csr()
+                    # IMPORTANT:  ALWAYS save the client database for
+                    #             Stand-alone PKI (Step 1)
+                    self.master_dict['pki_client_database_purge'] = "False"
 
                 with open(output_file + ".asc", "r") as f:
                     b64 = f.read().replace('\n', '')
@@ -3781,10 +3758,10 @@ class ConfigClient:
                 raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
     def set_issuing_ca_parameters(self, data):
-        if self.master_dict['pki_subsystem'] != "CA" or\
-           config.str2bool(self.master_dict['pki_clone']) or\
-           config.str2bool(self.master_dict['pki_subordinate']) or\
-           config.str2bool(self.master_dict['pki_external']):
+        if (self.subsystem != "CA" or
+            self.clone or
+            self.subordinate or
+            self.external):
             # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
             # Subordinate CA, External CA, or Stand-alone PKI

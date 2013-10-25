@@ -266,10 +266,10 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 
         <!-- Access log processes all example.
              Documentation at: /docs/config/valve.html -->
-        <!--
+        [PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT]
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"  
                prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
-        -->
+        [PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT]
 
       </Host>
     </Engine>
