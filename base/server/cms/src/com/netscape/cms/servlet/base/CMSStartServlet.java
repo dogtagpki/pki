@@ -120,6 +120,9 @@ public class CMSStartServlet extends HttpServlet {
         return "CMS startup servlet";
     }
 
+    /**
+     * This method will be called when Tomcat is shutdown.
+     */
     public void destroy() {
         CMS.shutdown();
         super.destroy();
