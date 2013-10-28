@@ -1,6 +1,6 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.0.5
+Version:          10.0.6
 Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
@@ -11,67 +11,67 @@ BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
 %if 0%{?rhel} || 0%{?fedora} >= 19
-%define dogtag_pki_theme_version   10.0.5
+%define dogtag_pki_theme_version   10.0.6
 %define esc_version                1.1.0
 %define jss_version                4.2.6-28
-%define pki_core_version           10.0.5
-%define pki_kra_version            10.0.5
-%define pki_ocsp_version           10.0.5
-%define pki_ra_version             10.0.5
-%define pki_tks_version            10.0.5
-%define pki_tps_version            10.0.5
-%define pki_console_version        10.0.5
+%define pki_core_version           10.0.6
+%define pki_kra_version            10.0.6
+%define pki_ocsp_version           10.0.6
+%define pki_ra_version             10.0.6
+%define pki_tks_version            10.0.6
+%define pki_tps_version            10.0.6
+%define pki_console_version        10.0.6
 %define tomcatjss_version          7.1.0
 %else
 %if 0%{?fedora} >= 18
-%define dogtag_pki_theme_version   10.0.5
+%define dogtag_pki_theme_version   10.0.6
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.5
-%define pki_kra_version            10.0.5
-%define pki_ocsp_version           10.0.5
-%define pki_ra_version             10.0.5
-%define pki_tks_version            10.0.5
-%define pki_tps_version            10.0.5
-%define pki_console_version        10.0.5
+%define pki_core_version           10.0.6
+%define pki_kra_version            10.0.6
+%define pki_ocsp_version           10.0.6
+%define pki_ra_version             10.0.6
+%define pki_tks_version            10.0.6
+%define pki_tps_version            10.0.6
+%define pki_console_version        10.0.6
 %define tomcatjss_version          7.0.0-4
 %else
 %if 0%{?fedora} >= 17
-%define dogtag_pki_theme_version   10.0.5
+%define dogtag_pki_theme_version   10.0.6
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.5
-%define pki_kra_version            10.0.5
-%define pki_ocsp_version           10.0.5
-%define pki_ra_version             10.0.5
-%define pki_tks_version            10.0.5
-%define pki_tps_version            10.0.5
-%define pki_console_version        10.0.5
+%define pki_core_version           10.0.6
+%define pki_kra_version            10.0.6
+%define pki_ocsp_version           10.0.6
+%define pki_ra_version             10.0.6
+%define pki_tks_version            10.0.6
+%define pki_tps_version            10.0.6
+%define pki_console_version        10.0.6
 %define tomcatjss_version          7.0.0-3
 %else
 %if 0%{?fedora} >= 16
-%define dogtag_pki_theme_version   10.0.5
+%define dogtag_pki_theme_version   10.0.6
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.5
-%define pki_kra_version            10.0.5
-%define pki_ocsp_version           10.0.5
-%define pki_ra_version             10.0.5
-%define pki_tks_version            10.0.5
-%define pki_tps_version            10.0.5
-%define pki_console_version        10.0.5
+%define pki_core_version           10.0.6
+%define pki_kra_version            10.0.6
+%define pki_ocsp_version           10.0.6
+%define pki_ra_version             10.0.6
+%define pki_tks_version            10.0.6
+%define pki_tps_version            10.0.6
+%define pki_console_version        10.0.6
 %define tomcatjss_version          6.0.2
 %else
-%define dogtag_pki_theme_version   10.0.5
+%define dogtag_pki_theme_version   10.0.6
 %define esc_version                1.1.0
 %define jss_version                4.2.6-24
-%define pki_core_version           10.0.5
-%define pki_kra_version            10.0.5
-%define pki_ocsp_version           10.0.5
-%define pki_ra_version             10.0.5
-%define pki_tks_version            10.0.5
-%define pki_tps_version            10.0.5
-%define pki_console_version        10.0.5
+%define pki_core_version           10.0.6
+%define pki_kra_version            10.0.6
+%define pki_ocsp_version           10.0.6
+%define pki_ra_version             10.0.6
+%define pki_tks_version            10.0.6
+%define pki_tps_version            10.0.6
+%define pki_console_version        10.0.6
 %define tomcatjss_version          2.0.0
 %endif
 %endif
@@ -186,6 +186,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
+- Updated version number.
+
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
 

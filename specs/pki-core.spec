@@ -4,7 +4,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.5
+Version:          10.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -1134,6 +1134,11 @@ fi
 
 
 %changelog
+* Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
+- Store authentication info in session.
+- Fixed error handling in DoUnrevoke servlet.
+- Fixed errors during Tomcat shutdown.
+
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
 

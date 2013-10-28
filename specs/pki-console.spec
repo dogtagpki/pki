@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          10.0.5
+Version:          10.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -80,6 +80,9 @@ cd build
 
 
 %changelog
+* Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
+- Updated version number.
+
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
 

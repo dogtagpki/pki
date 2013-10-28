@@ -1,5 +1,5 @@
 Name:             pki-ra
-Version:          10.0.5
+Version:          10.0.6
 Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
@@ -198,6 +198,9 @@ fi
 
 
 %changelog
+* Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
+- Updated version number.
+
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
 
