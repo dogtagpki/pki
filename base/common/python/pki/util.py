@@ -53,10 +53,14 @@ def copy(source, dest):
                 targetfile = os.path.join(destpath, filename)
                 copyfile(sourcefile, targetfile)
 
-def copyfile(source, dest):
+def copyfile(source, dest, overwrite=True):
     """
     Copy a file or link while preserving its attributes.
     """
+
+    # if dest already exists and not overwriting, do nothing
+    if os.path.exists(dest) and not overwrite:
+        return
 
     if os.path.islink(source):
         target = os.readlink(source)
