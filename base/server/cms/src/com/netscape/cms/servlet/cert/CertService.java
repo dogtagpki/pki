@@ -77,7 +77,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -194,7 +194,7 @@ public class CertService extends PKIService implements CertResource {
         try {
             X509Certificate clientCert = null;
             try {
-                clientCert = Processor.getSSLClientCertificate(servletRequest);
+                clientCert = CAProcessor.getSSLClientCertificate(servletRequest);
             } catch (EBaseException e) {
                 // No client certificate, ignore.
             }

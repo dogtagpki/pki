@@ -72,7 +72,7 @@ import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.util.Utils;
 
-public class Processor {
+public class CAProcessor {
 
     public final static String ARG_AUTH_TOKEN = "auth_token";
     public final static String ARG_REQUEST_OWNER = "requestOwner";
@@ -160,7 +160,7 @@ public class Processor {
     protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
 
-    public Processor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         IConfigStore cs = CMS.getConfigStore().getSubStore("processor." + id);
         this.locale = locale;
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);

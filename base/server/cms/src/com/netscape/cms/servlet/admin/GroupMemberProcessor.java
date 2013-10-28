@@ -48,12 +48,12 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupMemberProcessor extends Processor {
+public class GroupMemberProcessor extends CAProcessor {
 
     public final static int DEFAULT_SIZE = 20;
 

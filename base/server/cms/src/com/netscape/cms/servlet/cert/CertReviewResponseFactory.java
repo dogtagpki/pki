@@ -40,7 +40,7 @@ import com.netscape.certsrv.profile.ProfilePolicySet;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
@@ -142,7 +142,7 @@ public class CertReviewResponseFactory {
         ret.setRequestId(ireq.getRequestId());
 
         if (noncesEnabled) {
-            ret.setNonce(req.getParameter(Processor.ARG_REQUEST_NONCE));
+            ret.setNonce(req.getParameter(CAProcessor.ARG_REQUEST_NONCE));
         }
 
         // populate profile policy values

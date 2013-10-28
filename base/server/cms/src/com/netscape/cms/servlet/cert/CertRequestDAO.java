@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 
 /**
@@ -176,7 +176,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             results = processor.processEnrollment(data, request);
         }
 
-        IRequest reqs[] = (IRequest[]) results.get(Processor.ARG_REQUESTS);
+        IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);
         for (IRequest req : reqs) {
             CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
             ret.addRequest(info);

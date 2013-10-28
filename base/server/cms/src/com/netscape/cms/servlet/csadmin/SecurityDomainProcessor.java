@@ -55,13 +55,13 @@ import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * @author Endi S. Dewata
  */
-public class SecurityDomainProcessor extends Processor {
+public class SecurityDomainProcessor extends CAProcessor {
 
     public final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
             "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";

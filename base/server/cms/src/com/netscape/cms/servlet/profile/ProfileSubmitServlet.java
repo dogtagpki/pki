@@ -47,7 +47,7 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -140,10 +140,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
             return;
         }
 
-        IRequest[] reqs = (IRequest []) results.get(Processor.ARG_REQUESTS);
-        String errorCode = (String) results.get(Processor.ARG_ERROR_CODE);
-        String errorReason = (String) results.get(Processor.ARG_ERROR_REASON);
-        IProfile profile = (IProfile) results.get(Processor.ARG_PROFILE);
+        IRequest[] reqs = (IRequest []) results.get(CAProcessor.ARG_REQUESTS);
+        String errorCode = (String) results.get(CAProcessor.ARG_ERROR_CODE);
+        String errorReason = (String) results.get(CAProcessor.ARG_ERROR_REASON);
+        IProfile profile = (IProfile) results.get(CAProcessor.ARG_PROFILE);
         ArgSet args = new ArgSet();
 
         if (errorCode != null) {

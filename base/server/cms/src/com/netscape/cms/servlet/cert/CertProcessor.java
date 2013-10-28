@@ -42,10 +42,10 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-public class CertProcessor extends Processor {
+public class CertProcessor extends CAProcessor {
 
     public CertProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);

@@ -32,12 +32,12 @@ import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.KRAConnectorInfo;
-import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 
 /**
  * @author Ade Lee
  */
-public class KRAConnectorProcessor extends Processor {
+public class KRAConnectorProcessor extends CAProcessor {
     private boolean connectorExists = false;
 
     // Connector constants
