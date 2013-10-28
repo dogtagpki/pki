@@ -1138,6 +1138,7 @@ fi
 - Store authentication info in session.
 - Fixed error handling in DoUnrevoke servlet.
 - Fixed errors during Tomcat shutdown.
+- Backup upgrade tracker.
 
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
