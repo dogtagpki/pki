@@ -107,6 +107,7 @@ class PKIUpgradeTracker(object):
         index_key='PKI_UPGRADE_INDEX'):
 
         self.name = name
+        self.filename = filename
 
         self.version_key = version_key
         self.index_key = index_key
@@ -266,6 +267,7 @@ class PKIUpgradeScriptlet(object):
         # in this version, update the tracker version.
 
         tracker = self.upgrader.get_tracker()
+        self.backup(tracker.filename)
 
         if not self.last:
             tracker.set_index(self.index)
@@ -388,7 +390,8 @@ class PKIUpgradeScriptlet(object):
 
             if os.path.isfile(path):
                 if verbose: print 'Saving ' + path
-                pki.util.copyfile(path, dest)
+                # do not overwrite initial backup
+                pki.util.copyfile(path, dest, overwrite=False)
 
             else:
                 for sourcepath, _, filenames in os.walk(path):
@@ -404,7 +407,8 @@ class PKIUpgradeScriptlet(object):
                         targetfile = os.path.join(destpath, filename)
 
                         if verbose: print 'Saving ' + sourcefile
-                        pki.util.copyfile(sourcefile, targetfile)
+                        # do not overwrite initial backup
+                        pki.util.copyfile(sourcefile, targetfile, overwrite=False)
 
         else:
 

@@ -60,6 +60,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
         # in this version, update the tracker version.
 
         tracker = self.upgrader.get_server_tracker(instance, subsystem)
+        self.backup(tracker.filename)
 
         if not self.last:
             tracker.set_index(self.index)
