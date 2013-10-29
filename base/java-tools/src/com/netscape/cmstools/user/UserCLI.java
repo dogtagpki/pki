@@ -53,9 +53,18 @@ public class UserCLI extends CLI {
         addModule(new UserAddCertCLI(this));
         addModule(new UserRemoveCertCLI(this));
 
+        addModule(new UserCertFindCLI(this));
+        addModule(new UserCertShowCLI(this));
+        addModule(new UserCertAddCLI(this));
+        addModule(new UserCertRemoveCLI(this));
+
         addModule(new UserFindMembershipCLI(this));
         addModule(new UserAddMembershipCLI(this));
         addModule(new UserRemoveMembershipCLI(this));
+
+        addModule(new UserMembershipFindCLI(this));
+        addModule(new UserMembershipAddCLI(this));
+        addModule(new UserMembershipRemoveCLI(this));
     }
 
     public void printHelp() {

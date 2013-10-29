@@ -18,44 +18,14 @@
 
 package com.netscape.cmstools.user;
 
-import java.net.URLEncoder;
-
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 
 /**
  * @author Endi S. Dewata
  */
-public class UserRemoveCertCLI extends CLI {
-
-    public UserCLI parent;
+public class UserRemoveCertCLI extends UserCertRemoveCLI {
 
     public UserRemoveCertCLI(UserCLI parent) {
-        super("remove-cert", "Remove user cert");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String userID = args[0];
-        String certID = args[1];
-
-        if (verbose) {
-            System.out.println("Removing cert "+certID+" from user "+userID+".");
-        }
-
-        parent.client.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
-
-        MainCLI.printMessage("Deleted certificate \"" + certID + "\"");
+        super("remove-cert", parent);
     }
 }

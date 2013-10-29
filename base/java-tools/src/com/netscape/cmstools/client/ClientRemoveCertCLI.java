@@ -18,49 +18,13 @@
 
 package com.netscape.cmstools.client;
 
-import org.apache.commons.cli.CommandLine;
-
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class ClientRemoveCertCLI extends CLI {
-
-    public ClientCLI parent;
+public class ClientRemoveCertCLI extends ClientCertRemoveCLI {
 
     public ClientRemoveCertCLI(ClientCLI parent) {
-        super("remove-cert", "Remove certificate from client security database");
-        this.parent = parent;
+        super("remove-cert", parent);
     }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <nickname>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        CommandLine cmd = null;
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length != 1) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String nickname = cmdArgs[0];
-        parent.parent.client.removeCert(nickname);
-
-        MainCLI.printMessage("Removed certificate \"" + nickname + "\"");
-   }
 }

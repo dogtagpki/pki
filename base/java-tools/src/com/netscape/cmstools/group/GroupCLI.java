@@ -51,6 +51,11 @@ public class GroupCLI extends CLI {
         addModule(new GroupShowMemberCLI(this));
         addModule(new GroupAddMemberCLI(this));
         addModule(new GroupRemoveMemberCLI(this));
+
+        addModule(new GroupMemberFindCLI(this));
+        addModule(new GroupMemberShowCLI(this));
+        addModule(new GroupMemberAddCLI(this));
+        addModule(new GroupMemberRemoveCLI(this));
     }
 
     public void printHelp() {

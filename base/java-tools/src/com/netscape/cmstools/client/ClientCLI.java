@@ -41,6 +41,10 @@ public class ClientCLI extends CLI {
         addModule(new ClientFindCertCLI(this));
         addModule(new ClientImportCertCLI(this));
         addModule(new ClientRemoveCertCLI(this));
+
+        addModule(new ClientCertFindCLI(this));
+        addModule(new ClientCertImportCLI(this));
+        addModule(new ClientCertRemoveCLI(this));
     }
 
     public void printHelp() {
