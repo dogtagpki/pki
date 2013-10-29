@@ -18,40 +18,14 @@
 
 package com.netscape.cmstools.group;
 
-import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupAddMemberCLI extends CLI {
-
-    public GroupCLI parent;
+@Deprecated
+public class GroupAddMemberCLI extends GroupMemberAddCLI {
 
     public GroupAddMemberCLI(GroupCLI parent) {
-        super("add-member", "Add group member");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String groupID = args[0];
-        String memberID = args[1];
-
-        GroupMemberData groupMemberData = parent.client.addGroupMember(groupID, memberID);
-
-        MainCLI.printMessage("Added group member \""+memberID+"\"");
-
-        GroupCLI.printGroupMember(groupMemberData);
+        super("add-member", parent);
     }
 }

@@ -18,37 +18,14 @@
 
 package com.netscape.cmstools.group;
 
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupRemoveMemberCLI extends CLI {
-
-    public GroupCLI parent;
+@Deprecated
+public class GroupRemoveMemberCLI extends GroupMemberRemoveCLI {
 
     public GroupRemoveMemberCLI(GroupCLI parent) {
-        super("remove-member", "Remove group member");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <Group ID> <Member ID>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String groupID = args[0];
-        String memberID = args[1];
-
-        parent.client.removeGroupMember(groupID, memberID);
-
-        MainCLI.printMessage("Deleted group member \""+memberID+"\"");
+        super("remove-member", parent);
     }
 }

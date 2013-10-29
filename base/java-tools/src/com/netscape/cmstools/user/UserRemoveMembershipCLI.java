@@ -18,37 +18,14 @@
 
 package com.netscape.cmstools.user;
 
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserRemoveMembershipCLI extends CLI {
-
-    public UserCLI parent;
+@Deprecated
+public class UserRemoveMembershipCLI extends UserMembershipRemoveCLI {
 
     public UserRemoveMembershipCLI(UserCLI parent) {
-        super("remove-membership", "Remove user membership");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String userID = args[0];
-        String groupID = args[1];
-
-        parent.client.removeUserMembership(userID, groupID);
-
-        MainCLI.printMessage("Deleted membership in group \""+groupID+"\"");
+        super("remove-membership", parent);
     }
 }

@@ -18,40 +18,14 @@
 
 package com.netscape.cmstools.user;
 
-import com.netscape.certsrv.user.UserMembershipData;
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserAddMembershipCLI extends CLI {
-
-    public UserCLI parent;
+@Deprecated
+public class UserAddMembershipCLI extends UserMembershipAddCLI {
 
     public UserAddMembershipCLI(UserCLI parent) {
-        super("add-membership", "Add user membership");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Group ID>", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String userID = args[0];
-        String groupID = args[1];
-
-        UserMembershipData userMembershipData = parent.client.addUserMembership(userID, groupID);
-
-        MainCLI.printMessage("Added membership in \""+groupID+"\"");
-
-        UserCLI.printUserMembership(userMembershipData);
+        super("add-membership", parent);
     }
 }

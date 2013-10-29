@@ -18,79 +18,14 @@
 
 package com.netscape.cmstools.user;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-
-import com.netscape.certsrv.user.UserCertData;
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class UserShowCertCLI extends CLI {
-
-    public UserCLI parent;
+@Deprecated
+public class UserShowCertCLI extends UserCertShowCLI {
 
     public UserShowCertCLI(UserCLI parent) {
-        super("show-cert", "Show user cert");
-        this.parent = parent;
-    }
-
-    public void printHelp() {
-        formatter.printHelp(parent.name + "-" + name + " <User ID> <Cert ID> [OPTIONS...]", options);
-    }
-
-    public void execute(String[] args) throws Exception {
-
-        Option option = new Option(null, "output", true, "Output file");
-        option.setArgName("file");
-        options.addOption(option);
-
-        options.addOption(null, "pretty", false, "Pretty print");
-        options.addOption(null, "encoded", false, "Base-64 encoded");
-
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-
-        boolean showPrettyPrint = cmd.hasOption("pretty");
-        boolean showEncoded = cmd.hasOption("encoded");
-
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length != 2) {
-            printHelp();
-            System.exit(1);
-        }
-
-        String userID = cmdArgs[0];
-        String certID = cmdArgs[1];
-        String file = cmd.getOptionValue("output");
-
-        UserCertData userCertData = parent.client.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
-
-        String encoded = userCertData.getEncoded();
-        if (encoded != null && file != null) {
-            // store cert to file
-            PrintWriter out = new PrintWriter(new FileWriter(file));
-            out.print(encoded);
-            out.close();
-        }
-
-        MainCLI.printMessage("Certificate \"" + userCertData.getID() + "\"");
-
-        UserCLI.printCert(userCertData, showPrettyPrint, showEncoded);
+        super("show-cert", parent);
     }
 }

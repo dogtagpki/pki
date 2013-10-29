@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -64,6 +67,10 @@ public class CLI {
         this.description = description;
     }
 
+    public boolean isDeprecated() {
+        return getClass().getAnnotation(Deprecated.class) != null;
+    }
+
     public void addModule(CLI module) {
         modules.put(module.getName(), module);
     }
@@ -75,7 +82,55 @@ public class CLI {
     public void execute(String[] args) throws Exception {
     }
 
+    public Collection<CLI> getDeprecatedModules() {
+        Collection<CLI> list = new ArrayList<CLI>();
+        for (CLI module : modules.values()) {
+            if (!module.isDeprecated()) continue;
+            list.add(module);
+        }
+        return list;
+    }
+
     public void printHelp() {
+
+        int leftPadding = 1;
+        int rightPadding = 25;
+
+        System.out.println("Commands:");
+
+        for (CLI module : modules.values()) {
+            if (module.isDeprecated()) continue;
+
+            String label = name + "-" + module.getName();
+
+            int padding = rightPadding - leftPadding - label.length();
+            if (padding < 1)
+                padding = 1;
+
+            System.out.print(StringUtils.repeat(" ", leftPadding));
+            System.out.print(label);
+            System.out.print(StringUtils.repeat(" ", padding));
+            System.out.println(module.getDescription());
+        }
+
+        Collection<CLI> deprecatedModules = getDeprecatedModules();
+
+        if (!deprecatedModules.isEmpty()) {
+            System.out.println();
+            System.out.println("Deprecated:");
+
+            for (CLI module : deprecatedModules) {
+                String label = name+"-"+module.getName();
+
+                int padding = rightPadding - leftPadding - label.length();
+                if (padding < 1) padding = 1;
+
+                System.out.print(StringUtils.repeat(" ", leftPadding));
+                System.out.print(label);
+                System.out.print(StringUtils.repeat(" ", padding));
+                System.out.println(module.getDescription());
+            }
+        }
     }
 
     public static boolean isVerbose() {
