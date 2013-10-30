@@ -88,6 +88,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # establish Tomcat instance common lib jar symbolic links
             util.symlink.create(master['pki_apache_commons_collections_jar'],
                 master['pki_apache_commons_collections_jar_link'])
+            util.symlink.create(master['pki_apache_commons_io_jar'],
+                master['pki_apache_commons_io_jar_link'])
             util.symlink.create(master['pki_apache_commons_lang_jar'],
                 master['pki_apache_commons_lang_jar_link'])
             util.symlink.create(master['pki_apache_commons_logging_jar'],

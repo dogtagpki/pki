@@ -46,6 +46,10 @@ grant codeBase "file:/usr/share/java/apache-commons-collections.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/share/java/apache-commons-io.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:/usr/share/java/apache-commons-lang.jar" {
         permission java.security.AllPermission;
 };
