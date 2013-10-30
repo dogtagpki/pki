@@ -124,53 +124,27 @@ To release a certificate that has been placed on hold:
 .B pki <agent authentication> cert-release-hold <certificate ID>
 
 .SS Certificate Requests
-To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in an XML file. For example:
+To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in the XML template file, of the profile type the request relates to.
 
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-.br
-<CertEnrollmentRequest>
-    <profileId>caUserCert</profileId>
-    <isRenewal>false</isRenewal>
-    <Input>
-        <InputAttrs>
-            <InputAttr name="cert_request_type">crmf</InputAttr>
-            <InputAttr name="cert_request">MIIBozCCAZ8wggEFA ...
-                CSR in Base 64 ... </InputAttr>
-        </InputAttrs>
-        <inputId>KeyGenInput</inputId>
-    </Input>
-    <Input>
-        <InputAttrs>
-            <InputAttr name="sn_uid">testuser</InputAttr>
-            <InputAttr name="sn_e">testuser@example.com</InputAttr>
-            <InputAttr name="sn_c">US</InputAttr>
-            <InputAttr name="sn_ou">Engineering</InputAttr>
-            <InputAttr name="sn_cn">Test User</InputAttr>
-            <InputAttr name="sn_o">Example</InputAttr>
-        </InputAttrs>
-        <inputId>SubjectNameInput</inputId>
-    </Input>
-    <Input>
-        <InputAttrs>
-            <InputAttr name="requestor_name">admin</InputAttr>
-            <InputAttr name="requestor_email">admin@example.com
-            </InputAttr>
-            <InputAttr name="requestor_phone">123-456-7890</InputAttr>
-        </InputAttrs>
-        <inputId>SubmitterInfoInput</inputId>
-    </Input>
-.br
-</CertEnrollmentRequest>
+The list of profiles can be viewed using the CLI command:  
 
-Then submit the request for review.  This can be done without authentication.
+.B pki ca-cert-request-profile-find
+
+The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
+
+\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP , 
+
+will store the XML template of the request in the specified output file.
+
+Then, fill in the values in the XML file and submit the request for review.  This can be done without authentication.
 
 .B pki cert-request-submit <request file>
 
 Then, an agent needs to review the request by running the following command:
 
-.B pki <agent authentication> cert-request-review <request ID> --output <request review file>
+.B pki <agent authentication> cert-request-review <request ID> --file <file to store the certificate request>
 
-The request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
+The certificate request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
 
 .B Action (approve/reject/cancel/update/validate/assign/unassign):
 

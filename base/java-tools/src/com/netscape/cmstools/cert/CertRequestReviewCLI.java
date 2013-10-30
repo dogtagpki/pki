@@ -47,7 +47,7 @@ public class CertRequestReviewCLI extends CLI {
         option.setArgName("action");
         options.addOption(option);
 
-        option = new Option(null, "output", true, "Output filename");
+        option = new Option(null, "file", true, "File to store the certificate request");
         option.setArgName("filename");
         options.addOption(option);
 
@@ -78,8 +78,8 @@ public class CertRequestReviewCLI extends CLI {
         String filename = null;
 
         if (action == null) {
-            if (cmd.hasOption("output")) {
-                filename = cmd.getOptionValue("output");
+            if (cmd.hasOption("file")) {
+                filename = cmd.getOptionValue("file");
             } else {
                 System.err.println("Error: Missing output file name.");
                 printHelp();
