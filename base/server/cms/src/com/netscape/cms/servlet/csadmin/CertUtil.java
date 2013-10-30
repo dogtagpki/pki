@@ -17,14 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +37,8 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -271,52 +274,84 @@ public class CertUtil {
     }
 
     /**
-     * reads from the admin cert profile caAdminCert.profile and takes the first
-     * entry in the list of allowed algorithms. Users that wish a different algorithm
-     * can specify it in the profile using default.params.signingAlg
+     * reads from the admin cert profile caAdminCert.profile and determines the algorithm as follows:
+     *
+     * 1.  First gets list of allowed algorithms from profile (constraint.params.signingAlgsAllowed)
+     *     If entry does not exist, uses entry "ca.profiles.defaultSigningAlgsAllowed" from CS.cfg
+     *     If that entry does not exist, uses basic default
+     *
+     * 2.  Gets default.params.signingAlg from profile.
+     *     If entry does not exist or equals "-", selects first algorithm in allowed algorithm list 
+     *     that matches CA signing key type
+     *     Otherwise returns entry if it matches signing CA key type.
+     *
+     * @throws EBaseException
+     * @throws IOException
+     * @throws FileNotFoundException
      */
 
-    public static String getAdminProfileAlgorithm(IConfigStore config) {
-        String algorithm = "SHA256withRSA";
-        try {
-            String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
-            String pfile = config.getString("profile.caAdminCert.config");
-            FileInputStream fis = new FileInputStream(pfile);
-            DataInputStream in = new DataInputStream(fis);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    public static String getAdminProfileAlgorithm(IConfigStore config) throws EBaseException, FileNotFoundException,
+            IOException {
+        String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
+        String pfile = config.getString("profile.caAdminCert.config");
+        Properties props = new Properties();
+        props.load(new FileInputStream(pfile));
 
-            String strLine;
-            while ((strLine = br.readLine()) != null) {
-                String marker2 = "default.params.signingAlg=";
-                int indx = strLine.indexOf(marker2);
-                if (indx != -1) {
-                    String alg = strLine.substring(indx + marker2.length());
-                    if ((alg.length() > 0) && (!alg.equals("-"))) {
-                        algorithm = alg;
-                        break;
-                    }
-                    ;
-                }
-                ;
+        Set<String> keys = props.stringPropertyNames();
+        Iterator<String> iter = keys.iterator();
+        String defaultAlg = null;
+        String[] algsAllowed = null;
 
-                String marker = "signingAlgsAllowed=";
-                indx = strLine.indexOf(marker);
-                if (indx != -1) {
-                    String[] algs = strLine.substring(indx + marker.length()).split(",");
-                    for (int i = 0; i < algs.length; i++) {
-                        if ((caSigningKeyType.equals("rsa") && (algs[i].indexOf("RSA") != -1)) ||
-                                (caSigningKeyType.equals("ecc") && (algs[i].indexOf("EC") != -1))) {
-                            algorithm = algs[i];
-                            break;
-                        }
-                    }
+        while (iter.hasNext()) {
+            String key = iter.next();
+            if (key.endsWith("default.params.signingAlg")) {
+                defaultAlg = props.getProperty(key);
+            }
+            if (key.endsWith("constraint.params.signingAlgsAllowed")) {
+                algsAllowed = StringUtils.split(props.getProperty(key), ",");
+            }
+        }
+
+        if (algsAllowed == null) { //algsAllowed not defined in profile, use a global setting
+            algsAllowed = StringUtils.split(config.getString("ca.profiles.defaultSigningAlgsAllowed",
+                    "SHA256withRSA,SHA256withEC,SHA1withDSA"), ",");
+        }
+
+        if (ArrayUtils.isEmpty(algsAllowed)) {
+            throw new EBaseException("No allowed signing algorithms defined.");
+        }
+
+        if (StringUtils.isNotEmpty(defaultAlg) && !defaultAlg.equals("-")) {
+            // check if the defined default algorithm is valid
+            if (! isAlgorithmValid(caSigningKeyType, defaultAlg)) {
+                throw new EBaseException("Administrator cert cannot be signed by specfied algorithm." +
+                                         "Algorithm incompatible with signing key");
+            }
+
+            for (String alg : algsAllowed) {
+                if (defaultAlg.trim().equals(alg.trim())) {
+                    return defaultAlg;
                 }
             }
-            in.close();
-        } catch (Exception e) {
-            CMS.debug("getAdminProfleAlgorithm: exception: " + e);
+            throw new EBaseException(
+                    "Administrator Certificate cannot be signed by the specified algorithm " +
+                    "as it is not one of the allowed signing algorithms.  Check the admin cert profile.");
         }
-        return algorithm;
+
+        // no algorithm specified.  Pick the first allowed algorithm.
+        for (String alg : algsAllowed) {
+            if (isAlgorithmValid(caSigningKeyType, alg)) return alg;
+        }
+
+        throw new EBaseException(
+                "Admin certificate cannot be signed by any of the specified possible algorithms." +
+                "Algorithm is incompatible with the CA signing key type" );
+    }
+
+    private static boolean isAlgorithmValid(String signingKeyType, String algorithm) {
+       return ((signingKeyType.equals("rsa") && algorithm.contains("RSA")) ||
+               (signingKeyType.equals("ecc") && algorithm.contains("EC"))  ||
+               (signingKeyType.equals("dsa") && algorithm.contains("DSA")));
     }
 
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
