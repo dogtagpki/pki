@@ -1141,6 +1141,7 @@ fi
 - Backup upgrade tracker.
 - Added CLI command aliases.
 - Fixed references to /var/run and /var/lock in tmpfiles.
+- Added missing link for apache-commons-io
 
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
