@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.5%{?dist}
+Release:          0.6%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -164,10 +164,10 @@ echo %{_libdir}/tps > %{buildroot}%{_sysconfdir}/ld.so.conf.d/tps-%{_arch}.conf
 #
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
 # generate 'pki-tps.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
-echo "D /var/run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/lock/pki/tps 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
+echo "D /run/pki/tps 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tps.conf
 
 %{__rm} %{buildroot}%{_initrddir}/pki-tpsd
 
@@ -240,6 +240,9 @@ fi
 
 
 %changelog
+* Thu Oct 31 2013 Ade Lee <alee@redhat.com> 10.1.0-0.6
+- Fixed references to /var/run and /var/lock in tmpfiles. 
+
 * Wed Aug 14 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.5
 - Moved Tomcat-based TPS into pki-core.
 
