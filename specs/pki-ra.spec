@@ -128,10 +128,10 @@ chmod 755 %{buildroot}%{_datadir}/pki/ra/docroot/ee/user/*.cgi
 #
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
 # generate 'pki-ra.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
-echo "D /var/lock/pki/ra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
-echo "D /var/run/pki/ra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /run/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /run/lock/pki/ra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
+echo "D /run/pki/ra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ra.conf
 
 %{__rm} %{buildroot}%{_initrddir}/pki-rad
 
@@ -200,6 +200,7 @@ fi
 %changelog
 * Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
 - Updated version number.
+- Fixed references to /var/run and /var/lock in tmpfiles.
 
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
