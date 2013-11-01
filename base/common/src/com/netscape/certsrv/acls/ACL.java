@@ -39,11 +39,11 @@ public class ACL implements IACL, java.io.Serializable {
     */
     private static final long serialVersionUID = -1867465948611161868L;
 
-    protected Vector<ACLEntry> mEntries = new Vector<ACLEntry>(); // ACL entries
-    protected Vector<String> mRights = null; // possible rights entries
-    protected String mResourceACLs = null; // exact resourceACLs string on ldap server
-    protected String mName = null; // resource name
-    protected String mDescription = null; // resource description
+    protected Vector<ACLEntry> entries = new Vector<ACLEntry>(); // ACL entries
+    protected Vector<String> rights = null; // possible rights entries
+    protected String resourceACLs = null; // exact resourceACLs string on ldap server
+    protected String name = null; // resource name
+    protected String description = null; // resource description
 
     /**
      * Class constructor.
@@ -68,11 +68,11 @@ public class ACL implements IACL, java.io.Serializable {
     public ACL(String name, Vector<String> rights, String resourceACLs) {
         setName(name);
         if (rights != null) {
-            mRights = rights;
+            this.rights = rights;
         } else {
-            mRights = new Vector<String>();
+            this.rights = new Vector<String>();
         }
-        mResourceACLs = resourceACLs;
+        this.resourceACLs = resourceACLs;
 
     }
 
@@ -83,7 +83,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param name name of the resource
      */
     public void setName(String name) {
-        mName = name;
+        this.name = name;
     }
 
     /**
@@ -93,7 +93,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return name of the resource
      */
     public String getName() {
-        return mName;
+        return name;
     }
 
     /**
@@ -102,7 +102,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return resource's acl
      */
     public String getResourceACLs() {
-        return mResourceACLs;
+        return resourceACLs;
     }
 
     /**
@@ -112,7 +112,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param description Description of the protected resource
      */
     public void setDescription(String description) {
-        mDescription = description;
+        this.description = description;
     }
 
     /**
@@ -122,7 +122,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return Description of the protected resource
      */
     public String getDescription() {
-        return mDescription;
+        return description;
     }
 
     /**
@@ -131,7 +131,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param entry the <code>ACLEntry</code> to be added to this resource
      */
     public void addEntry(ACLEntry entry) {
-        mEntries.addElement(entry);
+        entries.addElement(entry);
     }
 
     /**
@@ -140,7 +140,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return enumeration for the <code>ACLEntry</code> vector
      */
     public Enumeration<ACLEntry> entries() {
-        return mEntries.elements();
+        return entries.elements();
     }
 
     /**
@@ -151,17 +151,17 @@ public class ACL implements IACL, java.io.Serializable {
      *         <resource name>[<ACLEntry1>,<ACLEntry 2>,...<ACLEntry N>]
      */
     public String toString() {
-        StringBuffer entries = new StringBuffer();
+        StringBuilder entries = new StringBuilder();
         Enumeration<ACLEntry> e = entries();
 
         for (; e.hasMoreElements();) {
             ACLEntry entry = e.nextElement();
 
-            entries.append(entry.toString());
+            entries.append(entry);
             if (e.hasMoreElements())
                 entries.append(",");
         }
-        return getName() + "[" + entries.toString() + "]";
+        return getName() + "[" + entries + "]";
     }
 
     /**
@@ -170,7 +170,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param right The right to be added for this ACL
      */
     public void addRight(String right) {
-        mRights.addElement(right);
+        rights.addElement(right);
     }
 
     /**
@@ -180,7 +180,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @return true if it's one of the "rights"; false otherwise
      */
     public boolean checkRight(String permission) {
-        return mRights.contains(permission);
+        return rights.contains(permission);
     }
 
     /**
@@ -189,6 +189,6 @@ public class ACL implements IACL, java.io.Serializable {
      * @return enumeration of rights defined for this ACL
      */
     public Enumeration<String> rights() {
-        return mRights.elements();
+        return rights.elements();
     }
 }

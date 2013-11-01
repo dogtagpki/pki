@@ -34,9 +34,9 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     private static final long serialVersionUID = 422656406529200393L;
 
     protected Hashtable<String, String> mPerms = new Hashtable<String, String>();
-    protected String mExpressions = null;
-    protected boolean mNegative = false;
-    protected String mACLEntryString = null;
+    protected String expressions = null;
+    protected boolean negative = false;
+    protected String aclEntryString = null;
 
     /**
      * Class Constructor
@@ -51,14 +51,14 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *         false if this ACL entry expression is for "allow"
      */
     public boolean isNegative() {
-        return mNegative;
+        return negative;
     }
 
     /**
      * Sets this ACL entry negative. This ACL entry expression is for "deny".
      */
     public void setNegative() {
-        mNegative = true;
+        negative = true;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      * </PRE>
      */
     public void setACLEntryString(String s) {
-        mACLEntryString = s;
+        aclEntryString = s;
     }
 
     /**
@@ -84,7 +84,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      * </PRE>
      */
     public String getACLEntryString() {
-        return mACLEntryString;
+        return aclEntryString;
     }
 
     /**
@@ -120,7 +120,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *            group="Administrators"
      */
     public void setAttributeExpressions(String expressions) {
-        mExpressions = expressions;
+        this.expressions = expressions;
     }
 
     /**
@@ -130,7 +130,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
      *         group="Administrators"
      */
     public String getAttributeExpressions() {
-        return mExpressions;
+        return expressions;
     }
 
     /**
