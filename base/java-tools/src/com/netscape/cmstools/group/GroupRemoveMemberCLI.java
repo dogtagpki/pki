@@ -22,6 +22,7 @@ package com.netscape.cmstools.group;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class GroupRemoveMemberCLI extends GroupMemberRemoveCLI {
 
     public GroupRemoveMemberCLI(GroupCLI parent) {

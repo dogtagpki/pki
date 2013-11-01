@@ -1139,7 +1139,7 @@ fi
 - Fixed error handling in DoUnrevoke servlet.
 - Fixed errors during Tomcat shutdown.
 - Backup upgrade tracker.
-- Added CLI command aliases.
+- Renamed some CLI commands.
 - Fixed references to /var/run and /var/lock in tmpfiles.
 - Added missing link for apache-commons-io
 

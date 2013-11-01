@@ -23,6 +23,7 @@ package com.netscape.cmstools.user;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class UserRemoveCertCLI extends UserCertRemoveCLI {
 
     public UserRemoveCertCLI(UserCLI parent) {

@@ -22,6 +22,7 @@ package com.netscape.cmstools.client;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class ClientImportCertCLI extends ClientCertImportCLI {
 
     public ClientImportCertCLI(ClientCLI parent) {

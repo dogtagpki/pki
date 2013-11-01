@@ -22,6 +22,7 @@ package com.netscape.cmstools.user;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class UserAddMembershipCLI extends UserMembershipAddCLI {
 
     public UserAddMembershipCLI(UserCLI parent) {

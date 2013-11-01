@@ -58,26 +58,6 @@ public class GroupCLI extends CLI {
         addModule(new GroupMemberRemoveCLI(this));
     }
 
-    public void printHelp() {
-
-        System.out.println("Commands:");
-
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        for (CLI module : modules.values()) {
-            String label = name+"-"+module.getName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1) padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
-        }
-    }
-
     public void execute(String[] args) throws Exception {
 
         client = new GroupClient(parent.client);

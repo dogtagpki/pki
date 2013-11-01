@@ -22,6 +22,7 @@ package com.netscape.cmstools.client;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class ClientRemoveCertCLI extends ClientCertRemoveCLI {
 
     public ClientRemoveCertCLI(ClientCLI parent) {

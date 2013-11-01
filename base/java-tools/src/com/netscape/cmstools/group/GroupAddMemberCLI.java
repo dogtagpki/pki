@@ -22,6 +22,7 @@ package com.netscape.cmstools.group;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class GroupAddMemberCLI extends GroupMemberAddCLI {
 
     public GroupAddMemberCLI(GroupCLI parent) {

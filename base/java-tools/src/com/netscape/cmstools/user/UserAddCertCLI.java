@@ -22,6 +22,7 @@ package com.netscape.cmstools.user;
 /**
  * @author Endi S. Dewata
  */
+@Deprecated
 public class UserAddCertCLI extends UserCertAddCLI {
 
     public UserAddCertCLI(UserCLI parent) {
