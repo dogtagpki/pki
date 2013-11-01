@@ -1135,13 +1135,14 @@ fi
 
 %changelog
 * Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
-- Store authentication info in session.
-- Fixed error handling in DoUnrevoke servlet.
-- Fixed errors during Tomcat shutdown.
-- Backup upgrade tracker.
-- Renamed some CLI commands.
-- Fixed references to /var/run and /var/lock in tmpfiles.
-- Added missing link for apache-commons-io
+- Trac #739, BZ#999722 - Fixed error handling in DoUnrevoke servlet.
+- Trac #775, BZ#1018628 - Fixed errors during Tomcat shutdown.
+- Trac #776, BZ#1024679 - Added missing link for apache-commons-io
+- Trac #781, BZ#1024445 - Admin cert signed with SHA1, should be SHA256
+- Trac #780 - Store authentication info in session.
+- Trac #763 - Backup upgrade tracker.
+- Trac #779 - Renamed some CLI commands.
+- Trac #743 - Fixed references to /var/run and /var/lock in tmpfiles.
 
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
