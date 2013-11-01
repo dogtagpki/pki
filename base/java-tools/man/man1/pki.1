@@ -132,7 +132,7 @@ The list of profiles can be viewed using the CLI command:
 
 The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
 
-\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP , 
+\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP
 
 will store the XML template of the request in the specified output file.
 
@@ -173,11 +173,11 @@ To delete a group:
 
 To add a user to a group:
 
-.B pki <admin authentication> group-add-member <group ID> <Member ID>
+.B pki <admin authentication> group-member-add <group ID> <Member ID>
 
 To delete a user from a group:
 
-.B pki <admin authentication> group-remove-member <group ID> <Member ID>
+.B pki <admin authentication> group-member-del <group ID> <Member ID>
 
 .\".SS Key Management Commands
 .\"\fBpki\fP can be used with a KRA to find specific keys and key requests.  This will be documented in more detail at a later time.

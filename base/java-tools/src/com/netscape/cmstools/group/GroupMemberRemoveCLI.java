@@ -29,7 +29,7 @@ public class GroupMemberRemoveCLI extends CLI {
     public GroupMemberCLI groupMemberCLI;
 
     public GroupMemberRemoveCLI(GroupMemberCLI groupMemberCLI) {
-        super("remove", "Remove group member", groupMemberCLI);
+        super("del", "Remove group member", groupMemberCLI);
         this.groupMemberCLI = groupMemberCLI;
     }
 

@@ -32,7 +32,7 @@ public class UserCertRemoveCLI extends CLI {
     public UserCertCLI userCertCLI;
 
     public UserCertRemoveCLI(UserCertCLI userCertCLI) {
-        super("remove", "Remove user certificate", userCertCLI);
+        super("del", "Remove user certificate", userCertCLI);
         this.userCertCLI = userCertCLI;
     }
 

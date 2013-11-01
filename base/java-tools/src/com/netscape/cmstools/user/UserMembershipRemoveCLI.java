@@ -29,7 +29,7 @@ public class UserMembershipRemoveCLI extends CLI {
     public UserMembershipCLI userMembershipCLI;
 
     public UserMembershipRemoveCLI(UserMembershipCLI userMembershipCLI) {
-        super("remove", "Remove user membership", userMembershipCLI);
+        super("del", "Remove user membership", userMembershipCLI);
         this.userMembershipCLI = userMembershipCLI;
     }
 
