@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -60,6 +60,14 @@ BuildRequires:    selinux-policy-devel >= 3.10.0-151
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+
+Patch0: 0000-Storing-authentication-info-in-session.patch
+Patch1: 0001-Fixed-error-handling-in-DoUnrevoke-servlet.patch
+Patch2: 0002-Fixed-errors-during-Tomcat-shutdown.patch
+Patch3: 0003-Fixed-logic-for-setting-admin-cert-signing-algorithm.patch
+Patch4: 0004-Backup-upgrade-tracker.patch
+Patch5: 0005-Added-CLI-command-aliases.patch
+Patch6: 0006-Added-new-link-for-resteasy-dependency.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -502,6 +510,15 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -551,35 +568,35 @@ cd build
 #
 %{__mkdir_p} %{buildroot}%{_sysconfdir}/tmpfiles.d
 # generate 'pki-ca.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
-echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /run/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /run/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+echo "D /run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 %if ! 0%{?rhel}
 # generate 'pki-kra.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
-echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /run/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /run/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
 %endif
 %if ! 0%{?rhel}
 # generate 'pki-ocsp.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
-echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /run/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /run/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
 %endif
 # generate 'pki-tomcat.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
-echo "D /var/run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /run/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /run/lock/pki/tomcat 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
+echo "D /run/pki/tomcat 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tomcat.conf
 %if ! 0%{?rhel}
 # generate 'pki-tks.conf' under the 'tmpfiles.d' directory
-echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
-echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /run/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /run/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 %endif
 
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
@@ -1134,6 +1151,16 @@ fi
 
 
 %changelog
+* Sat Nov 2 2013 Ade Lee <alee@redhat.com> 10.0.5-2
+- Trac #739, BZ#999722 - Fixed error handling in DoUnrevoke servlet.
+- Trac #775, BZ#1018628 - Fixed errors during Tomcat shutdown.
+- Trac #776, BZ#1024679 - Added missing link for apache-commons-io
+- Trac #781, BZ#1024445 - Admin cert signed with SHA1, should be SHA256
+- Trac #780 - Store authentication info in session.
+- Trac #763 - Backup upgrade tracker.
+- Trac #779 - Renamed some CLI commands.
+- Trac #743 - Fixed references to /var/run and /var/lock in tmpfiles.
+
 * Fri Sep 6 2013 Ade Lee <alee@redhat.com> 10.0.5-1
 - Roll release to next version
 
