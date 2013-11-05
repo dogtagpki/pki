@@ -2623,7 +2623,7 @@ class KRAConnector:
                    "-P", "https",
                    "-d", self.master_dict['pki_database_path'],
                    "-c", token_pwd,
-                   "kraconnector-del", krahost, str(kraport)]
+                   "ca-kraconnector-del", krahost, str(kraport)]
 
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,
