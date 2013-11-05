@@ -342,7 +342,13 @@ RA_Token::SetCUID (Buffer & cuid)
 void
 RA_Token::SetMSN (Buffer & msn)
 {
-  m_msn = msn;
+  if (msn != NULL && msn.size() < 4) {
+    // Supply a default value of 'FFFFFFFF' for 'msn'
+    printf ("RA_Token::SetMSN - Use 'FFFFFFFF' instead of specified 'msn'!\n");
+    m_msn = *(ToBuffer ("FFFFFFFF"));
+  } else {
+    m_msn = msn;
+  }
 }
 
 Buffer & RA_Token::GetAppletVersion ()
