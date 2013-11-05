@@ -65,19 +65,16 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      *
      * @param identity the given user
      * @exception EUsrGrpException thrown when failed to add user to the group
-     * @exception LDAPException thrown when the LDAP internal database is not available
      */
-    public void addUser(IUser identity) throws EUsrGrpException, LDAPException;
+    public void addUser(IUser identity) throws EUsrGrpException;
 
     /**
      * Adds a user certificate to user
      *
      * @param identity user interface
      * @exception EUsrGrpException thrown when failed to add the user certificate to the given user
-     * @exception LDAPException thrown when the LDAP internal database is not available
      */
-    public void addUserCert(IUser identity) throws EUsrGrpException,
-            LDAPException;
+    public void addUserCert(IUser identity) throws EUsrGrpException;
 
     /**
      * Add a certSubjectDN field to the user
@@ -85,15 +82,14 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * @throws EUsrGrpException
      * @throws LDAPException
      */
-    public void addCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException;
+    public void addCertSubjectDN(IUser identity) throws EUsrGrpException;
 
     /**
      * Remove a certSubjectDN field from the user
      * @param identity
      * @throws EUsrGrpException
-     * @throws LDAPException
      */
-    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException;
+    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException;
 
     /**
      * Removes a user certificate for a user entry
@@ -281,10 +277,8 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * @param filter search filter
      * @return an user
      * @exception EUsrGrpException thrown when failed to find user
-     * @exception LDAPException thrown when the internal database is not available
      */
-    public IUser findUsersByCert(String filter) throws
-            EUsrGrpException, LDAPException;
+    public IUser findUsersByCert(String filter) throws EUsrGrpException;
 
     /**
      * Get user locator which does the mapping between the user and the certificate.

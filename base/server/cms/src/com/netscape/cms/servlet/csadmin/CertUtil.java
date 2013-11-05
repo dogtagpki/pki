@@ -29,7 +29,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPException;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.X500Name;
@@ -45,6 +44,7 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
@@ -281,7 +281,7 @@ public class CertUtil {
      *     If that entry does not exist, uses basic default
      *
      * 2.  Gets default.params.signingAlg from profile.
-     *     If entry does not exist or equals "-", selects first algorithm in allowed algorithm list 
+     *     If entry does not exist or equals "-", selects first algorithm in allowed algorithm list
      *     that matches CA signing key type
      *     Otherwise returns entry if it matches signing CA key type.
      *
@@ -584,27 +584,25 @@ public class CertUtil {
             user.setUserType("agentType");
             user.setState("1");
             user.setPhone("");
-            certs[0] = cert;
-            user.setX509Certificates(certs);
             system.addUser(user);
             CMS.debug("CertUtil addUserCertificate: successfully add the user");
-        } catch (LDAPException e) {
+
+        } catch (ConflictingOperationException e) {
             CMS.debug("CertUtil addUserCertificate" + e.toString());
-            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                try {
-                    user = system.getUser(id);
-                    user.setX509Certificates(certs);
-                } catch (Exception ee) {
-                    CMS.debug("CertUtil addUserCertificate: successfully find the user");
-                }
-            }
+            // ignore
+
         } catch (Exception e) {
             CMS.debug("CertUtil addUserCertificate addUser " + e.toString());
         }
 
         try {
+            user = system.getUser(id);
+            certs[0] = cert;
+            user.setX509Certificates(certs);
+
             system.addUserCert(user);
             CMS.debug("CertUtil addUserCertificate: successfully add the user certificate");
+
         } catch (Exception e) {
             CMS.debug("CertUtil addUserCertificate exception=" + e.toString());
         }

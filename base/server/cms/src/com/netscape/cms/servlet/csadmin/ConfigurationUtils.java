@@ -137,6 +137,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -3121,7 +3122,7 @@ public class ConfigurationUtils {
     }
 
     public static void createAdmin(String uid, String email, String name, String pwd) throws IOException,
-            EBaseException {
+            EBaseException, LDAPException {
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         IConfigStore config = CMS.getConfigStore();
         String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
@@ -3137,14 +3138,10 @@ public class ConfigurationUtils {
             user.setState("1");
             user.setPhone("");
             system.addUser(user);
-        } catch (LDAPException e) {
+
+        } catch (ConflictingOperationException e) {
             CMS.debug("AdminPanel createAdmin: addUser " + e.toString());
-            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                throw new IOException(e.toString());
-            }
-        } catch (Exception e) {
-            CMS.debug("AdminPanel createAdmin: addUser " + e.toString());
-            throw new IOException(e.toString());
+            // ignore
         }
 
         IGroup group = null;
@@ -3529,10 +3526,8 @@ public class ConfigurationUtils {
             user.setX509Certificates(certs);
             try {
                 system.addUser(user);
-            } catch (LDAPException e) {
-                if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                    throw e;
-                }
+            } catch (ConflictingOperationException e) {
+                // ignore if
             }
             CMS.debug("DonePanel display: successfully add the user");
             system.addUserCert(user);
@@ -3777,7 +3772,7 @@ public class ConfigurationUtils {
         removeOldDBUsers(certs[0].getSubjectDN().toString());
     }
 
-    public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException {
+    public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
         CMS.debug("Adding all profiles to TPS admin user");
         IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
         IUser user = system.getUser(adminID);

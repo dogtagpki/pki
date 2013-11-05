@@ -31,7 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPException;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.x509.X509CertImpl;
 
@@ -40,6 +39,7 @@ import org.mozilla.jss.crypto.InternalCertificate;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.ISubsystem;
@@ -900,21 +900,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_ADD_FAILED"), null, resp);
                 }
                 return;
-            } catch (LDAPException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_USER_FAIL", e.toString()));
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
-
-                sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_ADD_FAILED"), null, resp);
-                return;
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
 
@@ -1251,7 +1237,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID"), null, resp);
                 return;
 
-            } catch (LDAPException e) {
+            } catch (ConflictingOperationException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
@@ -1261,14 +1247,10 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
-                    sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_CERT_EXISTS"), null, resp);
-                } else {
-                    sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_MOD_FAILED"), null, resp);
-                }
+                sendResponse(ERROR,
+                        CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_CERT_EXISTS"), null, resp);
                 return;
+
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, e.toString());
 

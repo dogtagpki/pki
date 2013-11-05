@@ -39,7 +39,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.ldap.LDAPException;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.x509.X509CertImpl;
 
@@ -49,7 +48,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -62,7 +60,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -187,7 +184,7 @@ public class UserService extends PKIService implements UserResource {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user;
@@ -266,13 +263,13 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             if (userID.indexOf(BACK_SLASH) != -1) {
                 // backslashes (BS) are not allowed
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS", headers));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS", headers));
             }
 
             if (userID.equals(SYSTEM_USER)) {
@@ -288,7 +285,7 @@ public class UserService extends PKIService implements UserResource {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
 
                 log(ILogger.LL_FAILURE, msg);
-                throw new BadRequestDataException(msg);
+                throw new BadRequestException(msg);
 
             } else {
                 user.setFullName(fname);
@@ -337,43 +334,24 @@ public class UserService extends PKIService implements UserResource {
             String csType = cs.getString("cs.type");
             if (tpsProfiles != null) {
                 if (!csType.equals("TPS")) {
-                    throw new BadRequestDataException("Cannot set tpsProfiles on a non-TPS subsystem");
+                    throw new BadRequestException("Cannot set tpsProfiles on a non-TPS subsystem");
                 }
                 String[] profiles = tpsProfiles.split(",");
                 user.setTpsProfiles(Arrays.asList(profiles));
             }
 
-            try {
-                userGroupManager.addUser(user);
+            userGroupManager.addUser(user);
 
-                auditAddUser(userID, userData, ILogger.SUCCESS);
+            auditAddUser(userID, userData, ILogger.SUCCESS);
 
-                // read the data back
-                userData = getUser(userID);
+            // read the data back
+            userData = getUser(userID);
 
-                return Response
-                        .created(userData.getLink().getHref())
-                        .entity(userData)
-                        .type(MediaType.APPLICATION_XML)
-                        .build();
-
-            } catch (EUsrGrpException e) {
-                log(ILogger.LL_FAILURE, e.toString());
-
-                if (user.getUserID() == null) {
-                    throw new BadRequestDataException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "uid"));
-                } else {
-                    throw new PKIException(e.getMessage(), e);
-                }
-
-            } catch (LDAPException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_USER_FAIL", e.toString()));
-                throw LDAPExceptionConverter.toPKIException(e);
-
-            } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(e.getMessage(), e);
-            }
+            return Response
+                    .created(userData.getLink().getHref())
+                    .entity(userData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
 
         } catch (PKIException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
@@ -407,7 +385,7 @@ public class UserService extends PKIService implements UserResource {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestDataException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IUser user = userGroupManager.createUser(userID);
@@ -447,29 +425,23 @@ public class UserService extends PKIService implements UserResource {
             String csType = cs.getString("cs.type");
             if (tpsProfiles != null) {
                 if (!csType.equals("TPS")) {
-                    throw new BadRequestDataException("Cannot set tpsProfiles on a non-TPS subsystem");
+                    throw new BadRequestException("Cannot set tpsProfiles on a non-TPS subsystem");
                 }
                 String[] profiles = tpsProfiles.split(",");
                 user.setTpsProfiles(Arrays.asList(profiles));
             }
 
-            try {
-                userGroupManager.modifyUser(user);
+            userGroupManager.modifyUser(user);
 
-                auditModifyUser(userID, userData, ILogger.SUCCESS);
+            auditModifyUser(userID, userData, ILogger.SUCCESS);
 
-                // read the data back
-                userData = getUser(userID);
+            // read the data back
+            userData = getUser(userID);
 
-                return Response
-                        .ok(userData)
-                        .type(MediaType.APPLICATION_XML)
-                        .build();
-
-            } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
-            }
+            return Response
+                    .ok(userData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
 
         } catch (PKIException e) {
             auditModifyUser(userID, userData, ILogger.FAILURE);
@@ -509,35 +481,27 @@ public class UserService extends PKIService implements UserResource {
             }
 
             // get list of groups, and see if uid belongs to any
-            Enumeration<IGroup> groups;
+            Enumeration<IGroup> groups = userGroupManager.findGroups("*");
 
-            try {
-                groups = userGroupManager.findGroups("*");
+            while (groups.hasMoreElements()) {
+                IGroup group = groups.nextElement();
+                if (!group.isMember(userID)) continue;
 
-            } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
+                userGroupManager.removeUserFromGroup(group, userID);
             }
 
-            try {
-                while (groups.hasMoreElements()) {
-                    IGroup group = groups.nextElement();
-                    if (!group.isMember(userID)) continue;
+            // comes out clean of group membership...now remove user
+            userGroupManager.removeUser(userID);
 
-                    userGroupManager.removeUserFromGroup(group, userID);
-                }
-
-                // comes out clean of group membership...now remove user
-                userGroupManager.removeUser(userID);
-
-                auditDeleteUser(userID, ILogger.SUCCESS);
-
-            } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_FAIL_USER_RMV", headers));
-            }
+            auditDeleteUser(userID, ILogger.SUCCESS);
 
         } catch (PKIException e) {
             auditDeleteUser(userID, ILogger.FAILURE);
             throw e;
+
+        } catch (EBaseException e) {
+            auditDeleteUser(userID, ILogger.FAILURE);
+            throw new PKIException(e.getMessage());
         }
     }
 
@@ -864,13 +828,6 @@ public class UserService extends PKIService implements UserResource {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
                 throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID", headers));
-
-            } catch (LDAPException e) {
-                if (e.getLDAPResultCode() == LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
-                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_CERT_EXISTS", headers));
-                } else {
-                    throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
-                }
             }
 
         } catch (PKIException e) {

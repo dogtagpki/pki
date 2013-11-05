@@ -42,8 +42,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -264,8 +266,7 @@ public final class UGSubsystem implements IUGSubsystem {
      * Searchs for identities that matches the certificate locater
      * generated filter.
      */
-    public IUser findUsersByCert(String filter) throws
-            EUsrGrpException, LDAPException {
+    public IUser findUsersByCert(String filter) throws EUsrGrpException {
         if (filter == null) {
             return null;
         }
@@ -299,10 +300,13 @@ public final class UGSubsystem implements IUGSubsystem {
             Enumeration<IUser> e = buildUsers(res);
 
             return e.nextElement();
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
+
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -646,7 +650,7 @@ public final class UGSubsystem implements IUGSubsystem {
      * Adds identity. Certificates handled by a separate call to
      * addUserCert()
      */
-    public void addUser(IUser identity) throws EUsrGrpException, LDAPException {
+    public void addUser(IUser identity) throws EUsrGrpException {
         User id = (User) identity;
 
         if (id == null) {
@@ -731,8 +735,15 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             ldapconn = getConn();
             ldapconn.add(entry);
+
+        } catch (LDAPException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
+
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -742,8 +753,7 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * adds a user certificate to user
      */
-    public void addUserCert(IUser identity) throws EUsrGrpException,
-            LDAPException {
+    public void addUserCert(IUser identity) throws EUsrGrpException {
         User user = (User) identity;
 
         if (user == null) {
@@ -790,9 +800,12 @@ public final class UGSubsystem implements IUGSubsystem {
                     e.printStackTrace();
                 }
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
-                throw e;
+                throw LDAPExceptionConverter.toPKIException(e);
+
             } catch (ELdapException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
+
             } finally {
                 if (ldapconn != null)
                     returnConn(ldapconn);
@@ -802,7 +815,7 @@ public final class UGSubsystem implements IUGSubsystem {
         return;
     }
 
-    public void addCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException {
+    public void addCertSubjectDN(IUser identity) throws EUsrGrpException {
         User user = (User) identity;
 
         if (user == null) {
@@ -838,9 +851,12 @@ public final class UGSubsystem implements IUGSubsystem {
                     e.printStackTrace();
                 }
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
-                throw e;
+                throw LDAPExceptionConverter.toPKIException(e);
+
             } catch (ELdapException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
+
             } finally {
                 if (ldapconn != null)
                     returnConn(ldapconn);
@@ -850,7 +866,7 @@ public final class UGSubsystem implements IUGSubsystem {
         return;
     }
 
-    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException {
+    public void removeCertSubjectDN(IUser identity) throws EUsrGrpException {
         User user = (User) identity;
 
         if (user == null) {
@@ -887,9 +903,12 @@ public final class UGSubsystem implements IUGSubsystem {
                     e.printStackTrace();
                 }
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
-                throw e;
+                throw LDAPExceptionConverter.toPKIException(e);
+
             } catch (ELdapException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
+
             } finally {
                 if (ldapconn != null)
                     returnConn(ldapconn);
@@ -916,19 +935,19 @@ public final class UGSubsystem implements IUGSubsystem {
         ldapUser = (User) getUser(user.getUserID());
 
         if (ldapUser == null) {
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USER_NOT_FOUND"));
+            throw new ResourceNotFoundException(CMS.getUserMessage("CMS_USRGRP_USER_NOT_FOUND"));
         }
 
         X509Certificate[] certs = ldapUser.getX509Certificates();
 
         if (certs == null) {
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
+            throw new ResourceNotFoundException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
         }
 
         String delCertdn = user.getCertDN();
 
         if (delCertdn == null) {
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
+            throw new ResourceNotFoundException(CMS.getUserMessage("CMS_USRGRP_CERT_NOT_FOUND"));
         }
 
         int certCount = 0;
@@ -963,7 +982,7 @@ public final class UGSubsystem implements IUGSubsystem {
                     if (e.getLDAPResultCode() == 16) { // ignore missing seeAlso attribute
                         CMS.debug("removeUserCert: No attribute "+LDAP_ATTR_CERTDN+" in entry "+dn);
                     } else {
-                        throw e;
+                        throw LDAPExceptionConverter.toPKIException(e);
                     }
                 }
 
@@ -1000,10 +1019,11 @@ public final class UGSubsystem implements IUGSubsystem {
 
             } catch (LDAPException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
-                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_USER_FAIL"));
+                throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (ELdapException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } finally {
                 if (ldapconn != null)
@@ -1031,12 +1051,14 @@ public final class UGSubsystem implements IUGSubsystem {
                     LDAPModification.ADD, memberAttr);
 
             ldapconn.modify(groupDN, singleChange);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"));
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1058,12 +1080,14 @@ public final class UGSubsystem implements IUGSubsystem {
                     LDAPModification.DELETE, memberAttr);
 
             ldapconn.modify(groupDN, singleChange);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_USER_FAIL"));
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1094,10 +1118,11 @@ public final class UGSubsystem implements IUGSubsystem {
 
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_USER_FAIL"));
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1259,9 +1284,13 @@ public final class UGSubsystem implements IUGSubsystem {
                     new Object[] { adminId, user.getUserID() }
                     );
 
-        } catch (Exception e) {
+        } catch (LDAPException e) {
+            throw LDAPExceptionConverter.toPKIException(e);
+
+        } catch (ELdapException e) {
             //e.printStackTrace();
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_USER_FAIL"));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1664,13 +1693,15 @@ public final class UGSubsystem implements IUGSubsystem {
 
             ldapconn = getConn();
             ldapconn.add(entry);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_GROUP_FAIL"));
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_GROUP_FAIL"));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1693,12 +1724,15 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             ldapconn = getConn();
             ldapconn.delete("cn=" + LDAPUtil.escapeRDNValue(name) + "," + getGroupBaseDN());
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_GROUP_FAIL"));
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
+            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_GROUP_FAIL"));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1748,13 +1782,15 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn = getConn();
             ldapconn.modify("cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) +
                     "," + getGroupBaseDN(), mod);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
+            throw LDAPExceptionConverter.toPKIException(e);
 
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_GROUP_FAIL"));
-        } catch (Exception e) {
+        } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_GROUP_FAIL"));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);

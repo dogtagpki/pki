@@ -27,12 +27,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPException;
 import netscape.security.x509.X509CertImpl;
 
 import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -291,13 +291,12 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             IUser user = ug.getUser(uid);
             user.setX509Certificates(certs);
             ug.addUserCert(user);
-        } catch (LDAPException e) {
+
+        } catch (ConflictingOperationException e) {
             CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: "
                     + e.toString());
-            if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
-                context.put("updateStatus", "failure");
-                throw new IOException(e.toString());
-            }
+            // ignore
+
         } catch (Exception e) {
             CMS.debug(
                     "ImportAdminCertPanel update: failed to add certificate. Exception: "

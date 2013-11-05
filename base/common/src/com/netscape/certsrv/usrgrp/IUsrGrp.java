@@ -19,8 +19,6 @@ package com.netscape.certsrv.usrgrp;
 
 import java.io.Serializable;
 
-import netscape.ldap.LDAPException;
-
 /**
  * This interface defines the basic capabilities of
  * a usr/group manager. (get/add/modify/remove users or groups)
@@ -62,10 +60,8 @@ public interface IUsrGrp extends IIdEvaluator , Serializable {
      * @param user an user interface
      * @exception EUsrGrpException thrown when some of the user attribute values
      *                are null
-     * @exception LDAPException thrown when the LDAP internal database is not
-     *                available, or the add operation failed
      */
-    public void addUser(IUser user) throws EUsrGrpException, LDAPException;
+    public void addUser(IUser user) throws EUsrGrpException;
 
     /**
      * Removes a user.

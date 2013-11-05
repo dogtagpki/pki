@@ -21,10 +21,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPException;
 import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
@@ -201,17 +201,11 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                                ILogger.SUCCESS,
                                auditParams);
             audit(auditMessage);
-        } catch (LDAPException e) {
+
+        } catch (ConflictingOperationException e) {
             CMS.debug("UpdateSubsystemGroup: update " + e.toString());
-            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                   auditSubjectID,
-                                   ILogger.FAILURE,
-                                   auditParams);
-                audit(auditMessage);
-                throw new EProfileException(e.toString());
-            }
+            // ignore
+
         } catch (Exception e) {
             CMS.debug("UpdateSubsystemGroup: update addUser " + e.toString());
             auditMessage = CMS.getLogMessage(

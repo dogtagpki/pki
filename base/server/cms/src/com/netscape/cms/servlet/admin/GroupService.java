@@ -38,6 +38,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupCollection;
@@ -207,23 +208,18 @@ public class GroupService extends PKIService implements GroupResource {
             }
 
             // allow adding a group with no members
-            try {
-                userGroupManager.addGroup(group);
+            userGroupManager.addGroup(group);
 
-                auditAddGroup(groupID, groupData, ILogger.SUCCESS);
+            auditAddGroup(groupID, groupData, ILogger.SUCCESS);
 
-                // read the data back
-                groupData = getGroup(groupID);
+            // read the data back
+            groupData = getGroup(groupID);
 
-                return Response
-                        .created(groupData.getLink().getHref())
-                        .entity(groupData)
-                        .type(MediaType.APPLICATION_XML)
-                        .build();
-
-            } catch (Exception e) {
-                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_ADD_FAILED", headers));
-            }
+            return Response
+                    .created(groupData.getLink().getHref())
+                    .entity(groupData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
 
         } catch (PKIException e) {
             auditAddGroup(groupID, groupData, ILogger.FAILURE);
@@ -263,27 +259,25 @@ public class GroupService extends PKIService implements GroupResource {
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
 
+            if (group == null) {
+                throw new ResourceNotFoundException("Group " + groupID + "  not found.");
+            }
+
             group.set("description", groupData.getDescription());
 
             // allow adding a group with no members, except "Certificate
             // Server Administrators"
-            try {
-                userGroupManager.modifyGroup(group);
+            userGroupManager.modifyGroup(group);
 
-                auditModifyGroup(groupID, groupData, ILogger.SUCCESS);
+            auditModifyGroup(groupID, groupData, ILogger.SUCCESS);
 
-                // read the data back
-                groupData = getGroup(groupID);
+            // read the data back
+            groupData = getGroup(groupID);
 
-                return Response
-                        .ok(groupData)
-                        .type(MediaType.APPLICATION_XML)
-                        .build();
-
-            } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
-                throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED", headers));
-            }
+            return Response
+                    .ok(groupData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
 
         } catch (PKIException e) {
             auditModifyGroup(groupID, groupData, ILogger.FAILURE);

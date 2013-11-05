@@ -254,7 +254,7 @@ public class GroupMemberProcessor extends Processor {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditAddGroupMember(groupID, groupMemberData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
         }
     }
 
@@ -372,7 +372,7 @@ public class GroupMemberProcessor extends Processor {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_USER_ADD_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
         }
     }
 

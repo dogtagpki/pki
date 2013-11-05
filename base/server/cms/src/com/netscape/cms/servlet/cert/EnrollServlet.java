@@ -1555,15 +1555,8 @@ public class EnrollServlet extends CMSServlet {
         IUser adminuser = ug.createUser(userid);
 
         adminuser.setX509Certificates(issuedCerts);
-        try {
-            ug.addUserCert(adminuser);
-        } catch (netscape.ldap.LDAPException e) {
-            CMS.debug(
-                    "EnrollServlet: Cannot add admin's certificate to its entry in the " +
-                            "user group database. Error " + e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_ADDING_ADMIN_CERT_ERROR", e.toString()));
-        }
+        ug.addUserCert(adminuser);
+
         IGroup agentGroup =
                 ug.getGroupFromName(CA_AGENT_GROUP);
 
