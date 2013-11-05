@@ -18,11 +18,16 @@
 
 package com.netscape.cms.servlet.request;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
@@ -77,7 +82,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     /**
      * Used to retrieve key request info for a specific request
      */
+    @Override
     public KeyRequestInfo getRequestInfo(RequestId id) {
+        if (id == null) {
+            CMS.debug("getRequestInfo: is is null");
+            throw new BadRequestException("Unable to get Request: invalid ID");
+        }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
@@ -96,12 +106,14 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     }
 
     // Archiving - used to test integration with a browser
-    public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form) {
+    @Override
+    public Response archiveKey(MultivaluedMap<String, String> form) {
         KeyArchivalRequest data = new KeyArchivalRequest(form);
         return archiveKey(data);
     }
 
-    public KeyRequestInfo archiveKey(KeyArchivalRequest data) {
+    @Override
+    public Response archiveKey(KeyArchivalRequest data) {
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
@@ -116,21 +128,28 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         try {
             info = dao.submitRequest(data, uriInfo);
             auditArchivalRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
-        } catch (EBaseException e) {
+
+            return Response
+                    .created(new URI(info.getRequestURL()))
+                    .entity(info)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
             throw new PKIException(e.toString());
         }
-        return info;
     }
 
     //Recovery - used to test integration with a browser
-    public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form) {
+    @Override
+    public Response recoverKey(MultivaluedMap<String, String> form) {
         KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return recoverKey(data);
     }
 
-    public KeyRequestInfo recoverKey(KeyRecoveryRequest data) {
+    @Override
+    public Response recoverKey(KeyRecoveryRequest data) {
         // auth and authz
 
         //Check for entirely illegal data combination here
@@ -150,14 +169,20 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         try {
             info = dao.submitRequest(data, uriInfo);
             auditRecoveryRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getKeyId());
-        } catch (EBaseException e) {
+
+            return Response
+                    .created(new URI(info.getRequestURL()))
+                    .entity(info)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditRecoveryRequestMade(null, ILogger.FAILURE, data.getKeyId());
             throw new PKIException(e.toString());
         }
-        return info;
     }
 
+    @Override
     public void approveRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
@@ -174,6 +199,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
+    @Override
     public void rejectRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
@@ -190,9 +216,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
+    @Override
     public void cancelRequest(RequestId id) {
         if (id == null) {
-            throw new BadRequestException("Request id is null.");
+            throw new BadRequestException("Invalid request id.");
         }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -209,6 +236,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     /**
      * Used to generate list of key requests based on the search parameters
      */
+    @Override
     public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // auth and authz

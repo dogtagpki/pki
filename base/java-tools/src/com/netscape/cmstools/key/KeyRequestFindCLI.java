@@ -68,6 +68,14 @@ public class KeyRequestFindCLI extends CLI {
         option.setArgName("max time");
         options.addOption(option);
 
+        option = new Option(null, "start", true, "Page to start");
+        option.setArgName("starting page");
+        options.addOption(option);
+
+        option = new Option(null, "pageSize", true, "Page size");
+        option.setArgName("page size");
+        options.addOption(option);
+
         CommandLine cmd = null;
 
         try {

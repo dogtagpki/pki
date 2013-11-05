@@ -75,8 +75,10 @@ public class KRAClient extends SubsystemClient {
         data.setClientId(clientId);
         data.setDataType(dataType);
 
-        KeyRequestInfo info = keyRequestClient.archiveKey(data);
-        return info;
+        @SuppressWarnings("unchecked")
+        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+                keyRequestClient.archiveKey(data);
+        return client.getEntity(response);
     }
 
     public KeyDataInfo getKeyData(String clientId, String status) {
@@ -109,8 +111,10 @@ public class KRAClient extends SubsystemClient {
             data.setNonceData(Utils.base64encode(nonceData));
         }
 
-        KeyRequestInfo info = keyRequestClient.recoverKey(data);
-        return info;
+        @SuppressWarnings("unchecked")
+        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+                keyRequestClient.recoverKey(data);
+        return client.getEntity(response);
     }
 
     public void approveRecovery(RequestId recoveryId) {

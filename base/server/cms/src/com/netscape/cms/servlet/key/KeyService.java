@@ -95,7 +95,12 @@ public class KeyService extends PKIService implements KeyResource {
      * @param data
      * @return
      */
+    @Override
     public KeyData retrieveKey(KeyRecoveryRequest data) {
+        if (data == null) {
+            CMS.debug("retrieveKey: data is null");
+            throw new BadRequestException("Cannot retrieve key. Invalid request");
+        }
         // auth and authz
         KeyId keyId = validateRequest(data);
         RequestId requestID = data.getRequestId();
@@ -117,6 +122,7 @@ public class KeyService extends PKIService implements KeyResource {
     }
 
     // retrieval - used to test integration with a browser
+    @Override
     public KeyData retrieveKey(MultivaluedMap<String, String> form) {
         KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return retrieveKey(data);
@@ -281,6 +287,7 @@ public class KeyService extends PKIService implements KeyResource {
     /**
      * Used to generate list of key infos based on the search parameters
      */
+    @Override
     public KeyDataInfos listKeys(String clientID, String status, Integer maxResults, Integer maxTime) {
         // auth and authz
 
@@ -297,7 +304,7 @@ public class KeyService extends PKIService implements KeyResource {
 
             e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
-                throw new EBaseException("search results are null");
+                return infos;
             }
 
             while (e.hasMoreElements()) {

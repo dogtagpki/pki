@@ -9,6 +9,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -48,28 +51,32 @@ public interface KeyRequestResource {
     // Archiving - used to test integration with a browser
     @POST
     @Path("archive")
+    @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form);
+    public Response archiveKey(MultivaluedMap<String, String> form);
 
     @POST
     @Path("archive")
+    @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfo archiveKey(KeyArchivalRequest data);
+    public Response archiveKey(KeyArchivalRequest data);
 
     //Recovery - used to test integration with a browser
     @POST
     @Path("recover")
+    @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form);
+    public Response recoverKey(MultivaluedMap<String, String> form);
 
     @POST
     @Path("recover")
+    @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfo recoverKey(KeyRecoveryRequest data);
+    public Response recoverKey(KeyRecoveryRequest data);
 
     @POST
     @Path("{id}/approve")
