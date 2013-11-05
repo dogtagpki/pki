@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -45,6 +48,19 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 @XmlRootElement(name = "Profile")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProfileData {
+
+    public static Marshaller marshaller;
+    public static Unmarshaller unmarshaller;
+
+    static {
+        try {
+            marshaller = JAXBContext.newInstance(ProfileData.class).createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            unmarshaller = JAXBContext.newInstance(ProfileData.class).createUnmarshaller();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @XmlAttribute
     protected String id;

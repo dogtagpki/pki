@@ -51,8 +51,11 @@ public class ProfileAddCLI extends CLI {
 
         try {
             ProfileData data = ProfileCLI.readProfileFromFile(filename);
-            profileCLI.profileClient.createProfile(data);
+            data = profileCLI.profileClient.createProfile(data);
+
             MainCLI.printMessage("Added profile " + data.getId());
+
+            ProfileCLI.printProfile(data, profileCLI.getClient().getConfig().getServerURI());
         } catch (FileNotFoundException | JAXBException  e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);

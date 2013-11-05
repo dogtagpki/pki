@@ -10,6 +10,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -30,10 +33,11 @@ public interface ProfileResource {
     public ProfileData retrieveProfile(@PathParam("id") String id);
 
     @POST
+    @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profile.create")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void createProfile(ProfileData data);
+    public Response createProfile(ProfileData data);
 
     @POST
     @Path("{id}")
@@ -43,10 +47,11 @@ public interface ProfileResource {
 
     @PUT
     @Path("{id}")
+    @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profile.modify")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void modifyProfile(@PathParam("id") String id, ProfileData data);
+    public Response modifyProfile(@PathParam("id") String id, ProfileData data);
 
     @DELETE
     @Path("{id}")

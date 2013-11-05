@@ -34,7 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -400,7 +402,8 @@ public class ProfileService extends PKIService implements ProfileResource {
         }
     }
 
-    public void createProfile(ProfileData data) {
+    @Override
+    public Response createProfile(ProfileData data) {
         if (ps == null) {
             CMS.debug("createProfile: ps is null");
             throw new PKIException("Error creating profile.  Profile Service not available");
@@ -445,6 +448,17 @@ public class ProfileService extends PKIService implements ProfileResource {
                     profileId,
                     ILogger.SUCCESS,
                     auditParams);
+
+            changeProfileData(data, profile);
+
+            ProfileData profileData = createProfileData(profileId);
+
+            return Response
+                    .created(profileData.getLink().getHref())
+                    .entity(profileData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
         } catch (EBaseException | IOException e) {
             CMS.debug("createProfile: error in creating profile: " + e);
             e.printStackTrace();
@@ -458,11 +472,10 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             throw new PKIException("Error in creating profile");
         }
-
-        changeProfileData(data, profile);
     }
 
-    public void modifyProfile(String profileId, ProfileData data) {
+    @Override
+    public Response modifyProfile(String profileId, ProfileData data) {
         if (ps == null) {
             CMS.debug("modifyProfile: ps is null");
             throw new PKIException("Error modifying profile.  Profile Service not available");
@@ -475,13 +488,19 @@ public class ProfileService extends PKIService implements ProfileResource {
                 throw new ProfileNotFoundException("Cannot modify profile `" + profileId +
                         "`.  Profile not found");
             }
+
+            changeProfileData(data, profile);
+
+            ProfileData profileData = createProfileData(profileId);
+            return Response
+                    .ok(profileData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
         } catch (EBaseException e) {
             CMS.debug("modifyProfile: error obtaining profile `" + profileId + "`: " + e);
             e.printStackTrace();
             throw new PKIException("Error modifying profile.  Cannot obtain profile.");
         }
-
-        changeProfileData(data, profile);
     }
 
     private void changeProfileData(ProfileData data, IProfile profile) {

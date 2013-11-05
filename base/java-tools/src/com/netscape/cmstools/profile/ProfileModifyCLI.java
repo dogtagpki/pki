@@ -51,8 +51,12 @@ public class ProfileModifyCLI extends CLI {
 
         try {
             ProfileData data = ProfileCLI.readProfileFromFile(filename);
-            profileCLI.profileClient.modifyProfile(data);
+            data = profileCLI.profileClient.modifyProfile(data);
+
             MainCLI.printMessage("Modified profile " + data.getId());
+
+            ProfileCLI.printProfile(data, profileCLI.getClient().getConfig().getServerURI());
+
         } catch (FileNotFoundException | JAXBException  e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);
