@@ -105,13 +105,15 @@ public class ProfileService extends PKIService implements ProfileResource {
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
             "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
 
+    @Override
     public ProfileDataInfos listProfiles() {
         List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
         ProfileDataInfos infos = new ProfileDataInfos();
         boolean visibleOnly = true;
 
         if (ps == null) {
-            return null;
+            CMS.debug("listProfiles: ps is null");
+            throw new PKIException("Error listing profiles.  Profile Service not available");
         }
 
         PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
@@ -141,12 +143,19 @@ public class ProfileService extends PKIService implements ProfileResource {
         return infos;
     }
 
+    @Override
     public ProfileData retrieveProfile(String profileId) throws ProfileNotFoundException {
         ProfileData data = null;
         boolean visibleOnly = true;
 
+        if (profileId == null) {
+            CMS.debug("retrieveProfile: profileID is null");
+            throw new BadRequestException("Unable to retrieve profile: invalid profile ID");
+        }
+
         if (ps == null) {
-            return null;
+            CMS.debug("retrieveProfile: ps is null");
+            throw new PKIException("Error retrieving profile.  Profile Service not available");
         }
 
         PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
@@ -342,15 +351,27 @@ public class ProfileService extends PKIService implements ProfileResource {
         return ret;
     }
 
+    @Override
     public void modifyProfileState(String profileId, String action) {
+        if (profileId == null) {
+            CMS.debug("modifyProfileState: invalid request. profileId is null");
+            throw new BadRequestException("Unable to modify profile state: Invalid Profile Id");
+        }
+
         if (ps == null) {
             CMS.debug("modifyProfileState: ps is null");
             throw new PKIException("Error modifying profile state.  Profile Service not available");
         }
 
-        if (profileId == null) {
-            CMS.debug("modifyProfileState: invalid request. profileId is null");
-            throw new BadRequestException("Invalid ProfileId");
+        try {
+            IProfile profile = ps.getProfile(profileId);
+            if (profile == null) {
+                CMS.debug("Trying to modify profile: " + profileId + ".  Profile not found.");
+                throw new ProfileNotFoundException(profileId);
+            }
+        } catch (EProfileException e1) {
+            e1.printStackTrace();
+            throw new PKIException("Error modifying profile state: unable to get profile");
         }
 
         Principal principal = servletRequest.getUserPrincipal();
@@ -404,6 +425,11 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response createProfile(ProfileData data) {
+        if (data == null) {
+            CMS.debug("createProfile: profile data is null");
+            throw new BadRequestException("Unable to create profile: Invalid profile data.");
+        }
+
         if (ps == null) {
             CMS.debug("createProfile: ps is null");
             throw new PKIException("Error creating profile.  Profile Service not available");
@@ -476,6 +502,16 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response modifyProfile(String profileId, ProfileData data) {
+        if (profileId == null) {
+            CMS.debug("modifyProfile: invalid request. profileId is null");
+            throw new BadRequestException("Unable to modify profile: Invalid Profile Id");
+        }
+
+        if (data == null) {
+            CMS.debug("modifyProfile: invalid request. data is null");
+            throw new BadRequestException("Unable to modify profile: Invalid profile data");
+        }
+
         if (ps == null) {
             CMS.debug("modifyProfile: ps is null");
             throw new PKIException("Error modifying profile.  Profile Service not available");
@@ -485,8 +521,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         try {
             profile = ps.getProfile(profileId);
             if (profile == null) {
-                throw new ProfileNotFoundException("Cannot modify profile `" + profileId +
-                        "`.  Profile not found");
+                throw new ProfileNotFoundException(profileId);
             }
 
             changeProfileData(data, profile);
@@ -898,7 +933,13 @@ public class ProfileService extends PKIService implements ProfileResource {
         }
     }
 
+    @Override
     public void deleteProfile(@PathParam("id") String profileId) {
+        if (profileId == null) {
+            CMS.debug("deleteProfile: invalid request. profileId is null");
+            throw new BadRequestException("Unable to delete profile: Invalid Profile Id");
+        }
+
         if (ps == null) {
             CMS.debug("deleteProfile: ps is null");
             throw new PKIException("Error deleting profile.  Profile Service not available");
@@ -908,7 +949,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
                 CMS.debug("Trying to delete profile: " + profileId + ".  Profile already deleted.");
-                return;
+                throw new ProfileNotFoundException(profileId);
             }
 
             if (ps.isProfileEnable(profileId)) {
