@@ -83,7 +83,7 @@ public class CertRequestFindCLI extends CLI {
         if (requestType != null && requestType.equals("all")) requestType = null;
 
         try {
-            certRequests = certCLI.certClient.certRequestResource.listRequests(requestState, requestType, start, size, maxResults, maxTime);
+            certRequests = certCLI.certClient.certRequestClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
         } catch (PKIException e) {
             System.err.println("Error: Cannot list certificate requests. " + e.getMessage());
             System.exit(-1);

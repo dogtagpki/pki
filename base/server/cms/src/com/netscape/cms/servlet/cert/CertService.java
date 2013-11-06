@@ -113,12 +113,6 @@ public class CertService extends PKIService implements CertResource {
         repo = authority.getCertificateRepository();
     }
 
-    private void validateRequest(CertId id) {
-        if (id == null) {
-            throw new BadRequestException("Invalid id in CertResourceService.validateRequest.");
-        }
-    }
-
     @Override
     public CertData getCert(CertId id) {
         return getCert(id, false);
@@ -130,7 +124,9 @@ public class CertService extends PKIService implements CertResource {
     }
 
     public CertData getCert(CertId id, boolean generateNonce) {
-        validateRequest(id);
+        if (id == null) {
+            throw new BadRequestException("Unable to get certificate: Invalid id.");
+        }
 
         CertRetrievalRequest data = new CertRetrievalRequest();
         data.setCertId(id);
@@ -161,6 +157,20 @@ public class CertService extends PKIService implements CertResource {
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request, boolean caCert) {
+        if (id == null) {
+            CMS.debug("revokeCert: id is null");
+            throw new BadRequestException("Unable to revoke cert: invalid id");
+        }
+        if (request == null) {
+            CMS.debug("revokeCert: request is null");
+            throw new BadRequestException("Unable to revoke cert: invalid request");
+        }
+
+        // check cert actually exists.  This will throw a CertNotFoundException
+        // if the cert does not exist
+        @SuppressWarnings("unused")
+        CertData data = getCert(id);
+
         RevocationReason revReason = request.getReason();
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
             CertUnrevokeRequest unrevRequest = new CertUnrevokeRequest();
@@ -284,6 +294,20 @@ public class CertService extends PKIService implements CertResource {
 
     @Override
     public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
+        if (id == null) {
+            CMS.debug("unrevokeCert: id is null");
+            throw new BadRequestException("Unable to unrevoke cert: invalid id");
+        }
+        if (request == null) {
+            CMS.debug("unrevokeCert: request is null");
+            throw new BadRequestException("Unable to unrevoke cert: invalid request");
+        }
+
+        // check cert actually exists.  This will throw a CertNotFoundException
+        // if the cert does not exist
+        @SuppressWarnings("unused")
+        CertData data = getCert(id);
+
         RevocationProcessor processor;
         try {
             processor = new RevocationProcessor("caDoUnrevoke", getLocale(headers));

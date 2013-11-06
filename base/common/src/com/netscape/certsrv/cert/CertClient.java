@@ -31,7 +31,7 @@ import com.netscape.certsrv.request.RequestId;
 public class CertClient extends Client {
 
     public CertResource certClient;
-    public CertRequestResource certRequestResource;
+    public CertRequestResource certRequestClient;
 
     public CertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "cert");
@@ -40,7 +40,7 @@ public class CertClient extends Client {
 
     public void init() throws URISyntaxException {
         certClient = createProxy(CertResource.class);
-        certRequestResource = createProxy(CertRequestResource.class);
+        certRequestClient = createProxy(CertRequestResource.class);
     }
 
     public CertData getCert(CertId id) {
@@ -72,56 +72,56 @@ public class CertClient extends Client {
     }
 
     public CertRequestInfos enrollRequest(CertEnrollmentRequest data) {
-        return certRequestResource.enrollCert(data);
+        return certRequestClient.enrollCert(data);
     }
 
     public CertRequestInfo getRequest(RequestId id) {
-        return certRequestResource.getRequestInfo(id);
+        return certRequestClient.getRequestInfo(id);
     }
 
     public CertReviewResponse reviewRequest(RequestId id) {
-        return certRequestResource.reviewRequest(id);
+        return certRequestClient.reviewRequest(id);
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.approveRequest(id, data);
+        certRequestClient.approveRequest(id, data);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.rejectRequest(id, data);
+        certRequestClient.rejectRequest(id, data);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.cancelRequest(id, data);
+        certRequestClient.cancelRequest(id, data);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.updateRequest(id, data);
+        certRequestClient.updateRequest(id, data);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.validateRequest(id, data);
+        certRequestClient.validateRequest(id, data);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.assignRequest(id, data);
+        certRequestClient.assignRequest(id, data);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) {
-        certRequestResource.unassignRequest(id, data);
+        certRequestClient.unassignRequest(id, data);
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) {
-        return certRequestResource.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+        return certRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
     }
 
     public CertEnrollmentRequest getEnrollmentTemplate(String id) {
-        return certRequestResource.getEnrollmentTemplate(id);
+        return certRequestClient.getEnrollmentTemplate(id);
     }
 
     public ProfileDataInfos listEnrollmentTemplates() {
-        return certRequestResource.listEnrollmentTemplates();
+        return certRequestClient.listEnrollmentTemplates();
     }
 
 }

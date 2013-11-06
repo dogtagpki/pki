@@ -86,8 +86,12 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     /**
      * Used to retrieve key request info for a specific request
      */
+    @Override
     public CertRequestInfo getRequestInfo(RequestId id) {
-        // auth and authz
+        if (id == null) {
+            CMS.debug("getRequestInfo: id is null");
+            throw new BadRequestException("Unable to get request: invalid id");
+        }
         CertRequestInfo info;
 
         CertRequestDAO dao = new CertRequestDAO();
@@ -100,7 +104,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
 
         if (info == null) {
-            // request does not exist
             throw new RequestNotFoundException(id);
         }
 
@@ -108,15 +111,18 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     // Enrollment - used to test integration with a browser
+    @Override
     public CertRequestInfos enrollCert(MultivaluedMap<String, String> form) {
         CertEnrollmentRequest data = new CertEnrollmentRequest(form);
         return enrollCert(data);
     }
 
+    @Override
     public CertRequestInfos enrollCert(CertEnrollmentRequest data) {
         CertRequestInfos infos;
         if (data == null) {
-            throw new BadRequestException("Bad data input into CertRequestResourceService.enrollCert!");
+            CMS.debug("enrollCert: data is null");
+            throw new BadRequestException("Unable to create enrollment reequest: Invalid input data");
         }
         CertRequestDAO dao = new CertRequestDAO();
 
@@ -135,33 +141,44 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new PKIException(e.toString());
         }
 
+        // this will return an error code of 200, instead of 201
+        // because it is possible to create more than one request
+        // as a result of this enrollment
+
         return infos;
     }
 
+    @Override
     public void approveRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "approve");
     }
 
+    @Override
     public void rejectRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "reject");
     }
 
+    @Override
     public void cancelRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "cancel");
     }
 
+    @Override
     public void updateRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "update");
     }
 
+    @Override
     public void validateRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "validate");
     }
 
+    @Override
     public void unassignRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "unassign");
     }
 
+    @Override
     public void assignRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "assign");
     }
@@ -195,12 +212,16 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e);
         } catch (RequestNotFoundException e) {
             CMS.debug(e);
-            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_REQUEST_NOT_FOUND", id.toString()));
+            throw e;
         }
     }
 
+    @Override
     public CertReviewResponse reviewRequest(@PathParam("id") RequestId id) {
-     // auth and authz
+        if (id == null) {
+            CMS.debug("reviewRequest: id is null");
+            throw new BadRequestException("Unable to review request: invalid id");
+        }
         CertReviewResponse info;
 
         CertRequestDAO dao = new CertRequestDAO();
@@ -223,10 +244,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     /**
      * Used to generate list of cert requests based on the search parameters
      */
+    @Override
     public CertRequestInfos listRequests(String requestState, String requestType,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
-        // auth and authz
-
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType);
         CMS.debug("listRequests: filter is " + filter);
@@ -276,15 +296,15 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
     @Override
     public CertEnrollmentRequest getEnrollmentTemplate(String profileId) {
+        if (profileId == null) {
+            CMS.debug("getEnrollmenTemplate: invalid request. profileId is null");
+            throw new BadRequestException("Invalid ProfileId");
+        }
+
         IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
         if (ps == null) {
             CMS.debug("getEnrollmentTemplate: ps is null");
             throw new PKIException("Error modifying profile state.  Profile Service not available");
-        }
-
-        if (profileId == null) {
-            CMS.debug("getEnrollmenTemplate: invalid request. profileId is null");
-            throw new BadRequestException("Invalid ProfileId");
         }
 
         IProfile profile = null;
