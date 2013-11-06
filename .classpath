@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/test/src"/>
+	<classpathentry kind="src" output="tests/dogtag/dev_java_tests/bin" path="tests/dogtag/dev_java_tests/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/symkey/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/test"/>
