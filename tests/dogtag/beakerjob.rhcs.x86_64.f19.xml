@@ -1,0 +1,45 @@
+<job retention_tag="scratch">
+	<whiteboard>
+		dogtag rhcs test single rpm param value TEST_ALL TRUE
+	</whiteboard>
+	<recipeSet priority="Normal">
+		<recipe kernel_options="" kernel_options_post="" ks_meta="" role="RECIPE_MEMBERS" whiteboard="">
+			<autopick random="false"/>
+			<watchdog panic="ignore"/>
+			<packages/>
+			<ks_appends/>
+			<repos>
+				<repo name="repo1" url="http://mickey.dsdev.sjc.redhat.com/repos/pki/dogtag/10/F19/devel_x86_64/x86_64/"/>
+				<repo name="repo2" url="http://mickey.dsdev.sjc.redhat.com/repos/pki/dogtag/10/F19/devel_x86_64/noarch/"/>
+			</repos>
+			<distroRequires>
+				<and>
+					<distro_family op="=" value="Fedora19"/>
+					<distro_variant op="=" value="Fedora"/>
+					<distro_name op="=" value="Fedora-19"/>
+					<distro_arch op="=" value="x86_64"/>
+				</and>
+			</distroRequires>
+			<hostRequires>
+				<system_type value="Machine"/>
+			</hostRequires>
+			<partitions/>
+			<task name="/distribution/install" role="STANDALONE">
+				<params/>
+			</task>
+			<task name="/CoreOS/rhcs/lsunkaras_dir" role="MASTER">
+				<params>
+					<param name="TEST_ALL" value="TRUE"/>
+					<param name="QUICKINSTALL" value="FALSE"/>
+					<param name="USER_ADD_CA" value="FALSE"/>
+					<param name="USER_SHOW_CA" value="FALSE"/>
+					<param name="USER_FIND_CA" value="FALSE"/>
+					<param name="USER_DEL_CA" value="FALSE"/>
+				</params>
+			</task>
+			<task name="/distribution/reservesys" role="STANDALONE">
+				<params/>
+			</task>
+		</recipe>
+	</recipeSet>
+</job>
