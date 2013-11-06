@@ -1,0 +1,16 @@
+#!/usr/bin/expect
+
+set timeout 20
+
+set copy_dir [lindex $argv 0]
+set url [lindex $argv 1]
+
+set password [lindex $argv 2]
+
+spawn scp -r $copy_dir $url
+
+expect "*password*"
+
+send "$password\r"
+
+expect eof

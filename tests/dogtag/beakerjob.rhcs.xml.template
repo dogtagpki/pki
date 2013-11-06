@@ -9,15 +9,12 @@
 			<packages/>
 			<ks_appends/>
 			<repos>
-				<repo name="repo1" url="http://mickey.dsdev.sjc.redhat.com/repos/pki/dogtag/10/F19/devel_x86_64/x86_64/"/>
-				<repo name="repo2" url="http://mickey.dsdev.sjc.redhat.com/repos/pki/dogtag/10/F19/devel_x86_64/noarch/"/>
 			</repos>
 			<distroRequires>
 				<and>
-					<distro_family op="=" value="Fedora19"/>
-					<distro_variant op="=" value="Fedora"/>
-					<distro_name op="=" value="Fedora-19"/>
-					<distro_arch op="=" value="x86_64"/>
+					<distro_family op="=" value=""/>
+					<distro_name op="=" value=""/>
+					<distro_arch op="=" value=""/>
 				</and>
 			</distroRequires>
 			<hostRequires>
@@ -27,7 +24,7 @@
 			<task name="/distribution/install" role="STANDALONE">
 				<params/>
 			</task>
-			<task name="/CoreOS/rhcs/lsunkaras_dir" role="MASTER">
+			<task name="/CoreOS/rhcs/PKI_TEST_USER_ID" role="MASTER">
 				<params>
 					<param name="TEST_ALL" value="TRUE"/>
 					<param name="QUICKINSTALL" value="FALSE"/>
@@ -35,6 +32,7 @@
 					<param name="USER_SHOW_CA" value="FALSE"/>
 					<param name="USER_FIND_CA" value="FALSE"/>
 					<param name="USER_DEL_CA" value="FALSE"/>
+                                        <param name="DEV_JAVA_TESTS" value="FALSE"/>
 				</params>
 			</task>
 			<task name="/distribution/reservesys" role="STANDALONE">

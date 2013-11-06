@@ -11,7 +11,6 @@
 COMPOSE_PWD=`dirname $0`
 source ${COMPOSE_PWD}/compose_functions
 
-
 ## Always switch into the base directory three levels
 ## above this shell script prior to executing it so
 ## that all of its output is written to this directory
@@ -214,3 +213,9 @@ chmod 775 ${PKI_CORE_PACKAGE_SCRIPT}
 cd ${PKI_PACKAGES} ;
 bash ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
 
+if [ "$CREATEREPO" == "Y" ] ; then
+   echo "Creating a repository of the built rpms"
+   cp -r $PKI_PWD/$PKI_DIR/scripts/repository.cfg .
+   cp -r $PKI_PWD/$PKI_DIR/scripts/scp_the_repo.exp .
+   Create_repo_after_build $REPO_CFG_FILE
+fi

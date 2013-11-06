@@ -109,6 +109,9 @@ Usage()
 	printf "                           ${MESSAGE}\n\n"
 	printf "Options:\n"
 	printf "  --without-javadoc        do not build Javadoc RPMS\n\n"
+        printf "  --createrepo=<repository_location_details_file> create a \n"
+        printf "                           repository with the rpms built."
+        printf "                           Provide the configuration file with the details. \n\n"
 }
 
 
@@ -236,12 +239,90 @@ Fetch_Source_Tarball()
 	done
 }
 
+###
+#   Create repository using the details in the config file ###
+#   Function parameters - $1 - repository file path.
+#   Sample repository file :
+#   ### Location where the files have to be copied ###
+#   ### Same parameter for both local and remote ###
+#   REPOSITORY_LOCATION=/var/www/html/pki/
+#
+#   ### Remote host details###
+#   REMOTE_HOSTNAME_OR_IP=vm-051.idm.lab.bos.redhat.com
+#   USERNAME=root
+#   PASSWORD=********
+###
+#
+Create_repo_after_build()
+{
+	if [ $# -eq 0 ]; then
+             echo "No repository configuration provided. Cannot create a repo."
+             exit -1
+	fi
+
+	if [ ! -f $1 ]; then
+             echo "$1 does not exist."
+             exit -1
+	fi
+
+	source $1
+
+	### Remove leading and trailing whitespaces ###
+	repo_location=`echo $REPOSITORY_LOCATION |sed -e 's/^ *//g' -e 's/ *$//g'`
+	destination=`echo $REMOTE_HOSTNAME_OR_IP|sed -e 's/^ *//g' -e 's/ *$//g'`
+	uname=`echo $USERNAME |sed -e 's/^ *//g' -e 's/ *$//g'`
+	pwd=`echo $PASSWORD |sed -e 's/^ *//g' -e 's/ *$//g'`
+
+	if [ "$repo_location" != "" ] ; then
+                if [ "$destination" != "" ] ; then
+                        createrepo ./RPMS/noarch/
+                        createrepo ./RPMS/x86_64/
+                        createrepo ./SOURCES/
+                        createrepo ./SRPMS/
+                        createrepo ./SPECS/
+                        if [ $uname == "" ] ; then
+                              echo "No username provided in the configuration file."
+                              echo "Enter the username:"
+                              read $uname
+                        fi
+                        if [ $pwd == "" ] ; then
+                              echo "No password provided in the configuration file."
+                              echo "Enter the password:"
+                              read -s $pwd
+                        fi
+                        url="$uname@$destination:$repo_location"
+                        echo $url
+                        ./scp_the_repo.exp "RPMS/" $url $PASSWORD
+                        ./scp_the_repo.exp "SRPMS/" $url $PASSWORD
+                        ./scp_the_repo.exp "SOURCES/" $url $PASSWORD
+                        ./scp_the_repo.exp "SPECS/" $url $PASSWORD
+                        if [ $? -ne 0 ]; then
+                             echo "Cannot copy the repositories to $destination\n"
+                             exit -1
+                        fi
+                        echo "Copied the repo to the location on the destination"
+                        exit 0
+                fi
+                if [ ! -e $repo_location ] ; then
+                       mkdir -p $repo_location
+                fi
+                cp -r RPMS SOURCES SRPMS SPECS $repo_location
+                createrepo $REPOSITORY_LOCATION/RPMS/noarch/
+                createrepo $REPOSITORY_LOCATION/RPMS/x86_64/
+                createrepo $REPOSITORY_LOCATION/SOURCES/
+                createrepo $REPOSITORY_LOCATION/SRPMS/
+                createrepo $REPOSITORY_LOCATION/SPECS/
+                echo "Build repository created at $repo_location."
+                exit 0
+	fi
+	echo "Cannot create repository. $repo_location has empty value in repository.cfg"
+}
 
 ##
 ## Check for command line argument validity
 ##
 
-GETOPT=`getopt -o '' -l without-javadoc,work-dir: -n "$0" -- "$@"`
+GETOPT=`getopt -o '' -l without-javadoc,work-dir:,createrepo: -n "$0" -- "$@"`
 
 if [ $? != 0 ] ; then
     Usage
@@ -254,6 +335,7 @@ while true ; do
     case "$1" in
         --without-javadoc) JAVADOC="--without javadoc" ; shift ;;
         --work-dir) WORK_DIR="$2" ; shift 2 ;;
+        --createrepo) CREATEREPO="Y" ; REPO_CFG_FILE="$2" ; shift 2 ;;
         --) shift ; break ;;
         *) echo "$0: unrecognized option '$1'" 1>&2 ; exit 255 ;;
     esac

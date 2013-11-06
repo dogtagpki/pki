@@ -1,0 +1,80 @@
+#!/bin/bash
+# BEGIN COPYRIGHT BLOCK
+# (C) 2010 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+
+check_for_dependencies()
+{
+    NOT_FOUND="FALSE"
+    for i in "expect" "beakerlib" "beaker-client" "rhts-devel"
+    do
+        rpm -qa $i
+        if [ $? -ne 0 ] ; then
+            echo "$i package required."
+            NOT_FOUND="TRUE"
+        fi
+    done
+    if [ $NOT_FOUND = "TRUE" ] ; then
+        echo "Cannot compose test rpm without installing the dependencies."
+        exit -1
+    fi
+}
+
+check_for_dependencies
+
+if [ $# -lt 2 ];
+then
+  echo "Usage: $0 User-ID_for_personalization Job_xml_config_file [--runtests]"
+  exit -1
+fi
+
+RUN_TESTS='N'
+
+if [ $# -gt 2 ];
+then
+    if [ $3 = "--runtests" ]
+    then
+        RUN_TESTS='Y'
+    fi
+fi
+
+### Directory with all the compose scripts
+COMPOSE_DIR=`dirname $0 | cd ; pwd`
+
+PKI_SOURCE_DIR=`cd $COMPOSE_DIR/..; pwd`
+
+###   Build the task rpm outside the PKI git source tree.
+###   The rhts-build-package command checks if the code is is a git repository,
+###   if yes, it will compare tags of the current branch and the master branch.
+###   If they do not match then the rpm is not built.
+
+WORK_DIR=`cd $COMPOSE_DIR/../..;pwd`
+
+BUILD_DIR="$WORK_DIR/package.tests"
+
+rm -rf $BUILD_DIR
+
+mkdir $BUILD_DIR
+
+cd $BUILD_DIR
+
+cp -r "$PKI_SOURCE_DIR/tests" .
+
+cd tests/dogtag
+
+### Passing the keyword for personalizing and an option
+### to maintain a seperate folder for each beaker job (Optional)
+./make-package.sh $1 $2
+
+mv *.rpm ../../
+
+mv *.xml ../../
+
+### Running the tasks
+
+cd $COMPOSE_DIR
+
+if [ $RUN_TESTS = "Y" ] ; then
+     ./run_tests
+fi
