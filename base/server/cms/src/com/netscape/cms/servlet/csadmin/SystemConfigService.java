@@ -815,7 +815,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 ConfigurationUtils.populateVLVIndexes();
             }
         } catch (Exception e) {
-            throw new PKIException("Error in populating database" + e);
+            e.printStackTrace();
+            throw new PKIException("Error in populating database: " + e, e);
         }
     }
 
