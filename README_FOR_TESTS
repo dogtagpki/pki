@@ -1,0 +1,180 @@
+
+         Setting up and running the tests for Dogtag Certificate System
+        ================================================================
+
+** Note- All the paths mentioned in this document start from the root of the
+          cloned source tree.
+
+1. Running the tests on local machine.
+
+1.1.Running the tests standalone in Eclipse(only the Java tests (JUnit v>=4.11))
+
+  1.1.1. Setting up the test environment.
+
+         The test environment has to be setup using the deploment configuration
+         file tests/dogtag/dev_java_tests/deploy.cfg (the -f option for
+         pkispawn).
+
+         If there are any changes to the values in this file, they must also be
+         updated in tests/dogtag/dev_java_tests/test.cfg. (Used by the tests)
+         The files, when used as they are, will run the tests successfully.
+
+   **Note- The test environment has to be setup before running the tests.
+           The tests do not setup the environment.
+   **Note- The details of the nssdb holding the ca_admin_cert.p12 has to be
+           updated in the test.cfg for running the tests.
+
+  1.1.2. Running the tests
+
+         The tests can be either run individually or as as part of a suite.
+         To run the tests as a suite, Open BeakerTestSuite and run as JUnit
+         test.
+         A suite is a test runner which executes all the tests added to it
+         using the $SuiteClasses tag.
+
+         A customized suite, PKITestSuite, is used to provide additional
+         functionality when the tests are run on a beaker test machine.
+
+         To run the tests individually(a class like CATestJunit),
+         just run the class as a JUnitTest.
+
+1.2.Running all the tests on a beaker test machine from command line.
+
+  1.2.1 Setting up a beaker client on a local machine.
+
+        The following steps help setup a beaker client for creating the task rpm
+        and submitting the beaker job to the beaker server.
+
+        -- Create a repo file in /etc/yum.repos.d, ex. beaker-client.repo, with
+           the following content.
+
+           [beaker-client]
+           name=Beaker Client - Fedora<version>
+           baseurl=http://beaker-project.org/yum/client/Fedora<version>
+           enabled=1
+           gpgcheck=0
+
+           [beaker-client-testing]
+           name=Beaker Client - Fedora<version> Testing
+           baseurl=http://beaker-project.org/yum/client-testing/Fedora<version>
+           enabled=0
+           gpgheck=0
+
+        -- Install the packages(yum): expect, beakerlib, beaker-client, rhts-devel
+
+        -- Create a file /etc/beaker/client.conf (if not already present the
+           packages are installed) and paste this content.
+
+           # Base URL of the Beaker server (without trailing slash!)
+           HUB_URL = "<BEAKER_SERVER_URL>"
+           # Hub authentication method
+           AUTH_METHOD = "krbv"
+           #AUTH_METHOD = "password"
+
+           # Username and password
+           USERNAME = "example"
+           #PASSWORD = ""
+
+           # Kerberos principal. If commented, default principal obtained by kinit is used.
+           #KRB_PRINCIPAL = "host/$HOSTNAME"
+
+           # Kerberos keytab file.
+           #KRB_KEYTAB = "/etc/krb5.keytab"
+
+           # Kerberos service prefix. Example: host, HTTP
+           #KRB_SERVICE = "HTTP"
+
+           # Kerberos realm. If commented, last two parts of domain name are used. Example: MYDOMAIN.COM.
+           KRB_REALM = ""
+
+           # Kerberos credential cache file.
+           #KRB_CCACHE = ""
+
+           Provide the details as per the authentication protocol used by the
+           server: Username/Password or a Kerberos login.
+
+        This sets up the machine as a beaker client, on which new task rpms can
+        be built and new jobs submitted to the beaker server.
+        A beaker job is an XML file. The template used to create a job is in
+        tests/beaker/rhcs/beakerjob.rhcs.xml.template.
+
+  1.2.2 Building the beaker task rpm and submitting a beaker job.
+
+     ** Building the task rpm and submitting the job to a beaker server is done
+        by executing the compose script in pki/scripts:
+
+        ./compose_pki_test_package User-ID_for_personalization Job_xml_config_file [--runtests]
+
+        The builds are done in <pki_source_root>/../package.tests/ folder.
+
+        -- The user id is for personalizing the rpm.
+
+           This path at which the test source is extracted from the rpm on the
+           beaker server is specified by the TEST variable in the
+           Makefile (pki/tests/beaker/rhcs/Makefile).
+
+           So another rpm with the same to-be-extracted path overwrites
+           the existing test code.
+           In order to prevent it, a unique id is asked to personalize the rpm
+           to provide a unique to-be-extracted path for every test rpm of
+           dogtag tests (especially at a user level).
+
+        -- Job_xml_configuration_file (the absolute path of the file from /)
+           - to configure the recipe of a job.
+
+           The contents of the file should be:
+
+           [DEFAULT]
+           repos=http://<REPO_HOST_NAME>/pki/F20/RPMS/noarch
+                 http://<REPO_HOST_NAME>/pki/F20/RPMS/x86_64
+           hostname=
+           distro_family=Fedora20
+           distro_name=Fedora-20-Alpha
+           distro_arch=x86_64
+
+           The repos parameter should the URL's for accessing the dogtag rpms.
+           The hostname means the hostname of a specific beaker test machine.
+           The distro_* are the details of the distribution on the beaker
+           server, that has to be installed on the test machine.
+
+        -- The optional --runtests option.
+           Without the --runtests options the task rpm and the job xml are
+           not submitted to the beaker server.
+
+     ** An already built rpm/job (built without the --runtests option above)
+        can be submitted to a beaker server by:
+
+        ./run_tests [--wait-on-beaker-job]
+
+        -- The run_tests just submits the task rpm and job xml to beaker.
+           But specifying --wait-on-beaker-job option, the process is
+           blocked until the job is completed.
+
+     ** Creating a repository of the built rpms.
+
+        A --createrepo option has been added to be used by the build compose
+        scripts. For example:
+
+        ./compose_pki_core_packages --createrepo=<repository_location_details> hybrid_rpms
+
+        builds the rpms, copied them to the location specified in the file
+        passed as the value to the option and creates it as a repository.
+        If the location specified is hosted on a httpd server, this repository
+        URL can be in the job xml. The file should contain the following:
+
+        ### Location where the files have to be copied ###
+	### Same parameter for both local and remote ###
+	REPOSITORY_LOCATION=/var/www/html/pki
+
+	### Remote host details###
+	REMOTE_HOSTNAME_OR_IP=
+	USERNAME=
+	PASSWORD=
+
+        If a remote host name is provided then the repos are scp'ed at the
+        location provided on the remote host using the credentials provided.
+        (If no login credentials are provided, then a prompt appears asking
+         for them.)
+
+**Note- In the case of creating a repository on a remote machine, the remote
+        machine must be a known_host to the local machine.

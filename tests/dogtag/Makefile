@@ -25,7 +25,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-export TEST=/CoreOS/rhcs/PKI_TEST_USER_ID
+export TEST=/CoreOS/dogtag/PKI_TEST_USER_ID
 export TESTVERSION=1.0.8_RPM_IDENTIFIER
 
 BUILT_FILE=
