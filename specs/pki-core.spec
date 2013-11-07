@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.12%{?dist}
+Release:          0.13%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -292,6 +292,11 @@ Requires:         pki-selinux = %{version}-%{release}
 %else
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
+%endif
+
+%if 0%{?fedora} >= 20
+Requires:         tomcat >= 7.0.47
+%else
 Requires:         tomcat >= 7.0.27
 %endif
 
@@ -299,7 +304,7 @@ Requires:         velocity
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
-Requires:         tomcat >= 7.0.27
+
 %if 0%{?rhel} || 0%{?fedora} >= 19
 Requires:         tomcatjss >= 7.1.0
 %endif
@@ -1066,6 +1071,9 @@ fi
 
 
 %changelog
+* Thu Nov 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.13
+- Updated requirements for tomcat
+
 * Fri Oct 4 2013 Ade Lee <alee@redhat.com> 10.1.0-0.12
 - Removed additional /var/run, /var/lock references.
 
