@@ -18,7 +18,6 @@
 
 package com.netscape.certsrv.group;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.bind.JAXBContext;
@@ -26,41 +25,17 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.DataCollection;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="GroupMembers")
-public class GroupMemberCollection {
-
-    Collection<GroupMemberData> members = new ArrayList<GroupMemberData>();
-    Collection<Link> links = new ArrayList<Link>();
+public class GroupMemberCollection extends DataCollection<GroupMemberData> {
 
     @XmlElement(name="Member")
-    public Collection<GroupMemberData> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Collection<GroupMemberData> members) {
-        this.members = members;
-    }
-
-    public void addMember(GroupMemberData member) {
-        members.add(member);
-    }
-
-    @XmlElement(name="Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLink(Collection<Link> links) {
-        this.links = links;
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
+    public Collection<GroupMemberData> getEntries() {
+        return super.getEntries();
     }
 
     public static void main(String args[]) throws Exception {
@@ -70,12 +45,12 @@ public class GroupMemberCollection {
         GroupMemberData member1 = new GroupMemberData();
         member1.setID("User 1");
         member1.setGroupID("Group 1");
-        response.addMember(member1);
+        response.addEntry(member1);
 
         GroupMemberData member2 = new GroupMemberData();
         member2.setID("User 2");
         member2.setGroupID("Group 1");
-        response.addMember(member2);
+        response.addEntry(member2);
 
         JAXBContext context = JAXBContext.newInstance(GroupMemberCollection.class);
         Marshaller marshaller = context.createMarshaller();

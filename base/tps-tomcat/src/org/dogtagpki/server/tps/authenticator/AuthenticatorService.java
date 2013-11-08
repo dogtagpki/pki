@@ -105,7 +105,6 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             Iterator<AuthenticatorRecord> authenticators = database.getRecords().iterator();
 
             AuthenticatorCollection response = new AuthenticatorCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -118,6 +117,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             // count the total entries
             for ( ; authenticators.hasNext(); i++) authenticators.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

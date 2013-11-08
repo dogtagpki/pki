@@ -30,8 +30,17 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
  */
 public class DataCollection<E> {
 
+    Integer total;
     Collection<E> entries = new ArrayList<E>();
     Collection<Link> links = new ArrayList<Link>();
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
 
     public Collection<E> getEntries() {
         return entries;

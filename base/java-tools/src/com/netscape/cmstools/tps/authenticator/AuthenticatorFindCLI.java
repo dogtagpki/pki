@@ -74,7 +74,8 @@ public class AuthenticatorFindCLI extends CLI {
         AuthenticatorCollection result = authenticatorCLI.authenticatorClient.findAuthenticators(start, size);
         Collection<AuthenticatorData> authenticators = result.getEntries();
 
-        MainCLI.printMessage(authenticators.size() + " authenticator(s) matched");
+        MainCLI.printMessage(result.getTotal() + " authenticator(s) matched");
+        if (result.getTotal() == 0) return;
 
         boolean first = true;
 

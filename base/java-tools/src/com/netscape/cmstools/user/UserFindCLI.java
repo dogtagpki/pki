@@ -76,9 +76,10 @@ public class UserFindCLI extends CLI {
 
         UserCollection response = userCLI.userClient.findUsers(filter, start, size);
 
-        Collection<UserData> entries = response.getUsers();
+        Collection<UserData> entries = response.getEntries();
 
-        MainCLI.printMessage(entries.size() + " user(s) matched");
+        MainCLI.printMessage(response.getTotal() + " user(s) matched");
+        if (response.getTotal() == 0) return;
 
         boolean first = true;
 

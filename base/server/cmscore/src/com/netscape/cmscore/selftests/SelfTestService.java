@@ -21,6 +21,8 @@ package com.netscape.cmscore.selftests;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -96,12 +98,36 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         CMS.debug("SelfTestService.findSelfTests()");
 
         try {
-            SelfTestCollection response = new SelfTestCollection();
+            start = start == null ? 0 : start;
+            size = size == null ? DEFAULT_SIZE : size;
 
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
-            for (String name : subsystem.listSelfTestsEnabledOnDemand()) {
-                SelfTestData data = createSelfTestData(subsystem, name);
+            Iterator<String> entries = Arrays.asList(subsystem.listSelfTestsEnabledOnDemand()).iterator();
+
+            SelfTestCollection response = new SelfTestCollection();
+            int i = 0;
+
+            // skip to the start of the page
+            for ( ; i<start && entries.hasNext(); i++) entries.next();
+
+            // return entries up to the page size
+            for ( ; i<start+size && entries.hasNext(); i++) {
+                SelfTestData data = createSelfTestData(subsystem, entries.next());
                 response.addEntry(data);
+            }
+
+            // count the total entries
+            for ( ; entries.hasNext(); i++) entries.next();
+            response.setTotal(i);
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                response.addLink(new Link("prev", uri));
+            }
+
+            if (start+size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+                response.addLink(new Link("next", uri));
             }
 
             return response;

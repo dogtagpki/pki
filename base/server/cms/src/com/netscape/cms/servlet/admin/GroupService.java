@@ -109,7 +109,6 @@ public class GroupService extends PKIService implements GroupResource {
             Enumeration<IGroup> groups = userGroupManager.listGroups(filter);
 
             GroupCollection response = new GroupCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -118,11 +117,12 @@ public class GroupService extends PKIService implements GroupResource {
             // return entries up to the page size
             for ( ; i<start+size && groups.hasMoreElements(); i++) {
                 IGroup group = groups.nextElement();
-                response.addGroup(createGroupData(group));
+                response.addEntry(createGroupData(group));
             }
 
             // count the total entries
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

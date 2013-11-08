@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,21 +54,46 @@ public class TPSConnectorService implements TPSConnectorResource {
     @Context
     private HttpServletRequest servletRequest;
 
+    public final static int DEFAULT_SIZE = 20;
+
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     @Override
-    public TPSConnectorCollection listConnectors() {
+    public TPSConnectorCollection findConnectors(Integer start, Integer size) {
         try {
-            TPSConnectorCollection ret = new TPSConnectorCollection();
             String tpsList = cs.getString(TPS_LIST, "");
+            Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList,",")).iterator();
 
-            for (String tpsID : StringUtils.split(tpsList,",")) {
-                ret.addEntry(createTPSConnectorData(tpsID));
+            TPSConnectorCollection response = new TPSConnectorCollection();
+            int i = 0;
+
+            // skip to the start of the page
+            for ( ; i<start && entries.hasNext(); i++) entries.next();
+
+            // return entries up to the page size
+            for ( ; i<start+size && entries.hasNext(); i++) {
+                response.addEntry(createTPSConnectorData(entries.next()));
             }
-            return ret;
+
+            // count the total entries
+            for ( ; entries.hasNext(); i++) entries.next();
+            response.setTotal(i);
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                response.addLink(new Link("prev", uri));
+            }
+
+            if (start+size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+                response.addLink(new Link("next", uri));
+            }
+
+            return response;
+
         } catch (EBaseException e) {
             e.printStackTrace();
-            throw new PKIException("Unable to get TPS connection data" + e);
+            throw new PKIException("Unable to get TPS connection data: " + e);
         }
     }
 

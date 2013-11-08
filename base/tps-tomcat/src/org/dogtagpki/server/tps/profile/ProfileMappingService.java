@@ -105,7 +105,6 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             Iterator<ProfileMappingRecord> profileMappings = database.getRecords().iterator();
 
             ProfileMappingCollection response = new ProfileMappingCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -118,6 +117,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             // count the total entries
             for ( ; profileMappings.hasNext(); i++) profileMappings.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

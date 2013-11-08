@@ -18,7 +18,6 @@
 
 package com.netscape.certsrv.user;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.bind.JAXBContext;
@@ -26,41 +25,17 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.DataCollection;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="UserMemberships")
-public class UserMembershipCollection {
-
-    Collection<UserMembershipData> memberships = new ArrayList<UserMembershipData>();
-    Collection<Link> links = new ArrayList<Link>();
+public class UserMembershipCollection extends DataCollection<UserMembershipData> {
 
     @XmlElement(name="Membership")
-    public Collection<UserMembershipData> getMemberships() {
-        return memberships;
-    }
-
-    public void setMemberships(Collection<UserMembershipData> members) {
-        this.memberships = members;
-    }
-
-    public void addMembership(UserMembershipData member) {
-        memberships.add(member);
-    }
-
-    @XmlElement(name="Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLink(Collection<Link> links) {
-        this.links = links;
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
+    public Collection<UserMembershipData> getEntries() {
+        return super.getEntries();
     }
 
     public static void main(String args[]) throws Exception {
@@ -70,12 +45,12 @@ public class UserMembershipCollection {
         UserMembershipData membership1 = new UserMembershipData();
         membership1.setID("Group 1");
         membership1.setUserID("User 1");
-        response.addMembership(membership1);
+        response.addEntry(membership1);
 
         UserMembershipData membership2 = new UserMembershipData();
         membership2.setID("Group 2");
         membership2.setUserID("User 1");
-        response.addMembership(membership2);
+        response.addEntry(membership2);
 
         JAXBContext context = JAXBContext.newInstance(UserMembershipCollection.class);
         Marshaller marshaller = context.createMarshaller();

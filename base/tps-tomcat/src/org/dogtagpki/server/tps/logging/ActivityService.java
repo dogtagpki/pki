@@ -110,7 +110,6 @@ public class ActivityService extends PKIService implements ActivityResource {
             Iterator<ActivityRecord> activities = database.getRecords().iterator();
 
             ActivityCollection response = new ActivityCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -123,6 +122,7 @@ public class ActivityService extends PKIService implements ActivityResource {
 
             // count the total entries
             for ( ; activities.hasNext(); i++) activities.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

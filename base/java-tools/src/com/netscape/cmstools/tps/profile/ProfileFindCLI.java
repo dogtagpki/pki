@@ -74,7 +74,8 @@ public class ProfileFindCLI extends CLI {
         ProfileCollection result = profileCLI.profileClient.findProfiles(start, size);
         Collection<ProfileData> profiles = result.getEntries();
 
-        MainCLI.printMessage(profiles.size() + " profile(s) matched");
+        MainCLI.printMessage(result.getTotal() + " profile(s) matched");
+        if (result.getTotal() == 0) return;
 
         boolean first = true;
 

@@ -82,9 +82,10 @@ public class UserCertFindCLI extends CLI {
 
         UserCertCollection response = userCertCLI.userClient.findUserCerts(userID, start, size);
 
-        Collection<UserCertData> entries = response.getCerts();
+        Collection<UserCertData> entries = response.getEntries();
 
-        MainCLI.printMessage(entries.size() + " user cert(s) matched");
+        MainCLI.printMessage(response.getTotal() + " user cert(s) matched");
+        if (response.getTotal() == 0) return;
 
         boolean first = true;
 

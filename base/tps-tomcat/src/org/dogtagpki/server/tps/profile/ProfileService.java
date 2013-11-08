@@ -108,7 +108,6 @@ public class ProfileService extends PKIService implements ProfileResource {
             Iterator<ProfileRecord> profiles = database.getRecords().iterator();
 
             ProfileCollection response = new ProfileCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -121,6 +120,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             // count the total entries
             for ( ; profiles.hasNext(); i++) profiles.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

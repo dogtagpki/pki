@@ -74,7 +74,8 @@ public class ConnectionFindCLI extends CLI {
         ConnectionCollection result = connectionCLI.connectionClient.findConnections(start, size);
         Collection<ConnectionData> connections = result.getEntries();
 
-        MainCLI.printMessage(connections.size() + " connection(s) matched");
+        MainCLI.printMessage(result.getTotal() + " connection(s) matched");
+        if (result.getTotal() == 0) return;
 
         boolean first = true;
 

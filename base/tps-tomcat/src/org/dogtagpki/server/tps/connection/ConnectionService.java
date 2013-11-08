@@ -105,7 +105,6 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             Iterator<ConnectionRecord> connections = database.getRecords().iterator();
 
             ConnectionCollection response = new ConnectionCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -118,6 +117,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             // count the total entries
             for ( ; connections.hasNext(); i++) connections.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

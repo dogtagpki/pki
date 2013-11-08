@@ -121,7 +121,6 @@ public class TokenService extends PKIService implements TokenResource {
             Iterator<TokenRecord> tokens = database.getRecords().iterator();
 
             TokenCollection response = new TokenCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -134,6 +133,7 @@ public class TokenService extends PKIService implements TokenResource {
 
             // count the total entries
             for ( ; tokens.hasNext(); i++) tokens.next();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

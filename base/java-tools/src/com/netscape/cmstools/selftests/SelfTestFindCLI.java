@@ -74,7 +74,8 @@ public class SelfTestFindCLI extends CLI {
         SelfTestCollection result = selfTestCLI.selfTestClient.findSelfTests(start, size);
         Collection<SelfTestData> selfTests = result.getEntries();
 
-        MainCLI.printMessage(selfTests.size() + " connection(s) matched");
+        MainCLI.printMessage(result.getTotal() + " self test(s) matched");
+        if (result.getTotal() == 0) return;
 
         boolean first = true;
 

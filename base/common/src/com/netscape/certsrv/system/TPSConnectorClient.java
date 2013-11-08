@@ -21,8 +21,8 @@ public class TPSConnectorClient extends Client {
         tpsConnectorClient = createProxy(TPSConnectorResource.class);
     }
 
-    public TPSConnectorCollection listConnectors() {
-        return tpsConnectorClient.listConnectors();
+    public TPSConnectorCollection findConnectors(Integer start, Integer size) {
+        return tpsConnectorClient.findConnectors(start, size);
     }
 
     public TPSConnectorData getConnector(String id) {

@@ -82,9 +82,10 @@ public class GroupMemberFindCLI extends CLI {
 
         GroupMemberCollection response = groupMemberCLI.groupClient.findGroupMembers(groupID, start, size);
 
-        Collection<GroupMemberData> entries = response.getMembers();
+        Collection<GroupMemberData> entries = response.getEntries();
 
-        MainCLI.printMessage(entries.size()+" group member(s) matched");
+        MainCLI.printMessage(response.getTotal() + " group member(s) matched");
+        if (response.getTotal() == 0) return;
 
         boolean first = true;
 

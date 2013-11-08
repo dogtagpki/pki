@@ -18,48 +18,22 @@
 
 package com.netscape.certsrv.group;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.DataCollection;
 
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Groups")
-public class GroupCollection {
-
-    Collection<GroupData> groups = new ArrayList<GroupData>();
-    Collection<Link> links = new ArrayList<Link>();
+public class GroupCollection extends DataCollection<GroupData> {
 
     @XmlElementRef
-    public Collection<GroupData> getGroups() {
-        return groups;
-    }
-
-    public void setGroups(Collection<GroupData> groups) {
-        this.groups = groups;
-    }
-
-    public void addGroup(GroupData groupData) {
-        groups.add(groupData);
-    }
-
-    @XmlElement(name="Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLink(Collection<Link> links) {
-        this.links = links;
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
+    public Collection<GroupData> getEntries() {
+        return super.getEntries();
     }
 }

@@ -74,7 +74,8 @@ public class ProfileMappingFindCLI extends CLI {
         ProfileMappingCollection result = profileMappingCLI.profileMappingClient.findProfileMappings(start, size);
         Collection<ProfileMappingData> profileMappings = result.getEntries();
 
-        MainCLI.printMessage(profileMappings.size() + " profile mapping(s) matched");
+        MainCLI.printMessage(result.getTotal() + " profile mapping(s) matched");
+        if (result.getTotal() == 0) return;
 
         boolean first = true;
 

@@ -28,6 +28,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +138,6 @@ public class UserService extends PKIService implements UserResource {
             Enumeration<IUser> users = userGroupManager.findUsers(filter);
 
             UserCollection response = new UserCollection();
-
             int i = 0;
 
             // skip to the start of the page
@@ -146,11 +146,12 @@ public class UserService extends PKIService implements UserResource {
             // return entries up to the page size
             for ( ; i<start+size && users.hasMoreElements(); i++) {
                 IUser user = users.nextElement();
-                response.addUser(createUserData(user));
+                response.addEntry(createUserData(user));
             }
 
             // count the total entries
             for ( ; users.hasMoreElements(); i++) users.nextElement();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
@@ -556,24 +557,33 @@ public class UserService extends PKIService implements UserResource {
                 throw new UserNotFoundException(userID);
             }
 
-            UserCertCollection response = new UserCertCollection();
-
             X509Certificate[] certs = user.getX509Certificates();
-            if (certs != null) {
-                for (int i=start; i<start+size && i<certs.length; i++) {
-                    X509Certificate cert = certs[i];
-                    response.addCert(createUserCertData(userID, cert));
-                }
+            if (certs == null) certs = new X509Certificate[0];
+            Iterator<X509Certificate> entries = Arrays.asList(certs).iterator();
 
-                if (start > 0) {
-                    URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
-                    response.addLink(new Link("prev", uri));
-                }
+            UserCertCollection response = new UserCertCollection();
+            int i = 0;
 
-                if (start+size < certs.length) {
-                    URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
-                    response.addLink(new Link("next", uri));
-                }
+            // skip to the start of the page
+            for ( ; i<start && entries.hasNext(); i++) entries.next();
+
+            // return entries up to the page size
+            for ( ; i<start+size && entries.hasNext(); i++) {
+                response.addEntry(createUserCertData(userID, entries.next()));
+            }
+
+            // count the total entries
+            for ( ; entries.hasNext(); i++) entries.next();
+            response.setTotal(i);
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                response.addLink(new Link("prev", uri));
+            }
+
+            if (start+size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+                response.addLink(new Link("next", uri));
             }
 
             return response;
@@ -944,10 +954,9 @@ public class UserService extends PKIService implements UserResource {
                 throw new UserNotFoundException(userID);
             }
 
-            UserMembershipCollection response = new UserMembershipCollection();
-
             Enumeration<IGroup> groups = userGroupManager.findGroupsByUser(user.getUserDN());
 
+            UserMembershipCollection response = new UserMembershipCollection();
             int i = 0;
 
             // skip to the start of the page
@@ -956,11 +965,12 @@ public class UserService extends PKIService implements UserResource {
             // return entries up to the page size
             for ( ; i<start+size && groups.hasMoreElements(); i++) {
                 IGroup group = groups.nextElement();
-                response.addMembership(createUserMembershipData(userID, group.getName()));
+                response.addEntry(createUserMembershipData(userID, group.getName()));
             }
 
             // count the total entries
             for ( ; groups.hasMoreElements(); i++) groups.nextElement();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

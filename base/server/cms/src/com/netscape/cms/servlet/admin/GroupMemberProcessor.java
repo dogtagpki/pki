@@ -124,11 +124,12 @@ public class GroupMemberProcessor extends Processor {
             // return entries up to the page size
             for ( ; i<start+size && members.hasMoreElements(); i++) {
                 String memberID = members.nextElement();
-                response.addMember(createGroupMemberData(groupID, memberID));
+                response.addEntry(createGroupMemberData(groupID, memberID));
             }
 
             // count the total entries
             for ( ; members.hasMoreElements(); i++) members.nextElement();
+            response.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();

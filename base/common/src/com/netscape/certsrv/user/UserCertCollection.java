@@ -18,43 +18,21 @@
 
 package com.netscape.certsrv.user;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jboss.resteasy.plugins.providers.atom.Link;
+import com.netscape.certsrv.base.DataCollection;
 
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="UserCerts")
-public class UserCertCollection {
-
-    List<UserCertData> certs = new ArrayList<UserCertData>();
-    Collection<Link> links = new ArrayList<Link>();
+public class UserCertCollection extends DataCollection<UserCertData> {
 
     @XmlElement(name="Cert")
-    public Collection<UserCertData> getCerts() {
-        return certs;
-    }
-
-    public void addCert(UserCertData cert) {
-        certs.add(cert);
-    }
-
-    @XmlElement(name="Link")
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLink(Collection<Link> links) {
-        this.links = links;
-    }
-
-    public void addLink(Link link) {
-        links.add(link);
+    public Collection<UserCertData> getEntries() {
+        return super.getEntries();
     }
 }
