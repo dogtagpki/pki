@@ -178,3 +178,45 @@
 
 **Note- In the case of creating a repository on a remote machine, the remote
         machine must be a known_host to the local machine.
+
+2. Setting up a Jenkins server for continuous integration testing
+
+  -- Install Jenkins. (It is better to configure the Jenkins server to use a
+                       port other than 8080)
+
+  -- Create a New Project - ex: Dogtag-pki
+
+  -- Configuring the project (Click on "Configure" in the left panel):
+
+     * Setting up the workspace:
+
+       i. For continuous integration, the project can be configured to clone
+          the source from the repository (git://git.fedorahosted.org/git/pki.git).
+          To use the Git SCM, install the Jenkins-Git plugin.
+          Goto Jenkins -> Manage Jenkins -> Manage Plugins to find and install
+          the plugin. The Git option can be found in the SCM section.
+
+       ii. For using the working project directory as the source to build the
+           rpms - Select None in the SCM section and set the path to the
+           project root (pki) as custom workspace in the Advanced Project Options section.
+           Click on Advanced -> Select Use custom workspace -> Enter the path.
+
+   -- Building the rpms and running the tests.
+
+      In the "Build" section, select "Add build step" -> "Execute Shell"
+      Paste the following code in the Command text box.
+
+      cd $WORKSPACE/scripts; ./compose_pki_core_packages [--createrepo=<repository_file_absolute_path>] hybrid_rpms
+      echo "Compose the test package and submit the beaker task and job"
+      cd $WORKSPACE/scripts; ./compose_pki_test_package <UserID> <Job_XML_config_file_absolute_path> --runtests
+
+      This will build the rpms, create the repo(if specified), compose
+      the test rpm and submit the tests to the beaker.
+      (The description to the commands used and setting up the beaker-client
+       are specified in the previous sections of this document)
+
+   -- The Build Triggers section provides options for specifying the time at
+      which a new build can be triggered - periodically or on a git commit.
+
+   -- If no Build triggers are configured in the project, the build process can be initiated by clicking on "Build Now" link in the left panel.
+      The console output can be viewed by clicking the "Console Output" link.
