@@ -36,6 +36,6 @@ rm -rf Makefile
 
 mv .Makefile.save Makefile
 
-sed -e "s|PKI_TEST_USER_ID|${user_id}|g"  beakerjob.rhcs.xml.template >> beakerjob.rhcs.xml
+sed -e "s|PKI_TEST_USER_ID|${user_id}|g"  beakerjob.dogtag.xml.template >> beakerjob.rhcs.xml
 
 python update_beaker_job.py beakerjob.rhcs.xml $2

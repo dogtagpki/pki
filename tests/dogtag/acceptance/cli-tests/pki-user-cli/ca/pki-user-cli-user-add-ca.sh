@@ -587,7 +587,7 @@ run_pki-user-cli-user-add-ca_tests(){
                   -n CA_adminV \
                   -c $nss_db_password \
                   -t ca \
-                   group-add-member Administrators $user > $TmpDir/pki-user-add-ca-007_1.out"  \
+                   group-member-add Administrators $user > $TmpDir/pki-user-add-ca-007_1.out"  \
                    0 \
                    "Add user $user to Administrators group"
 
@@ -598,14 +598,14 @@ run_pki-user-cli-user-add-ca_tests(){
                   -n CA_adminV \
                   -c $nss_db_password \
                   -t ca \
-                   group-find-member Administrators > $TmpDir/pki-user-add-ca-007.out" \
+                   group-member-find Administrators > $TmpDir/pki-user-add-ca-007.out" \
                    0 \
-                   "Show pki group-find-member Administrators"
+                   "Show pki group-member-find Administrators"
        rlRun "pki -d /tmp/requestdb \
                   -n CA_adminV \
                   -c $nss_db_password \
                   -t ca \
-                   group-add-member \"Certificate Manager Agents\"  $user > $TmpDir/pki-user-add-ca-007_1_1.out"  \
+                   group-member-add \"Certificate Manager Agents\"  $user > $TmpDir/pki-user-add-ca-007_1_1.out"  \
                    0 \
                    "Add user $user to Administrators group"
 
@@ -616,9 +616,9 @@ run_pki-user-cli-user-add-ca_tests(){
                   -n CA_adminV \
                   -c $nss_db_password \
                   -t ca \
-                   group-find-member \"Certificate Manager Agents\"  > $TmpDir/pki-user-add-ca-007_2.out" \
+                   group-member-find \"Certificate Manager Agents\"  > $TmpDir/pki-user-add-ca-007_2.out" \
                    0 \
-                   "Show pki group-find-member Administrators"
+                   "Show pki group-member-find Administrators"
 
        rlAssertGrep "User: $user" "$TmpDir/pki-user-add-ca-007_2.out"
    rlPhaseEnd
@@ -717,7 +717,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminE-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a agent cert"
-        rlAssertGrep "RuntimeException: java.io.IOException: SocketException cannot read on socket" "$TmpDir/pki-user-add-ca-adminE-002.out"
+        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-adminE-002.out"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -735,7 +735,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentE-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a agent cert"
-        rlAssertGrep "RuntimeException: java.io.IOException: SocketException cannot read on socket" "$TmpDir/pki-user-add-ca-agentE-002.out"
+        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-agentE-002.out"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -785,7 +785,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminUTCA-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a untrusted cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-adminUTCA-002.out"
+        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-adminUTCA-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_add-CA-0014: Cannot add user using a CA_agentUTCA"
@@ -800,14 +800,14 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentUTCA-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a untrusted cert"
-        rlAssertGrep "RuntimeException: java.net.SocketException: Object not found: org.mozilla.jss.crypto.ObjectNotFoundException" "$TmpDir/pki-user-add-ca-agentUTCA-002.out"
+        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-agentUTCA-002.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_cleanup-001_15: Deleting the temp directory and users"
         del_user=($CA_adminV_user $CA_adminR_user $CA_adminE_user $CA_adminUTCA_user $CA_agentV_user $CA_agentR_user $CA_agentE_user $CA_agentUTCA_user $CA_auditV_user $CA_operatorV_user)
 
         #===Deleting users created using CA_adminV cert===#
         i=1
-        while [ $i -lt 25] ; do
+        while [ $i -lt 25 ] ; do
                rlRun "pki -d /tmp/requestdb \
                           -n CA_adminV \
                           -c $nss_db_password \

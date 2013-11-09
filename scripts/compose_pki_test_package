@@ -45,7 +45,7 @@ COMPOSE_DIR=`dirname $0 | cd ; pwd`
 PKI_SOURCE_DIR=`cd $COMPOSE_DIR/..; pwd`
 
 ###   Build the task rpm outside the PKI git source tree.
-###   The rhts-build-package command checks if the code is is a git repository,
+###   The rhts-mk-build-package command checks if the code is is a git repository,
 ###   if yes, it will compare tags of the current branch and the master branch.
 ###   If they do not match then the rpm is not built.
 

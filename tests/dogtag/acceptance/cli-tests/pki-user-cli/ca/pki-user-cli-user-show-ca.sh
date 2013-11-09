@@ -593,7 +593,7 @@ run_pki-user-cli-user-show-ca_tests(){
 
         #===Deleting users created using CA_adminV cert===#
         i=1
-        while [ $i -lt 24] ; do
+        while [ $i -lt 24 ] ; do
                rlRun "pki -d /tmp/requestdb \
                           -n CA_adminV \
                           -c $nss_db_password \

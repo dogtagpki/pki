@@ -54,11 +54,11 @@ user7=0
 ########################################################################
 
 run_pki-user-cli-user-find-ca_tests(){
-    rlPhaseStartSetup "pki_user_cli_user_show-ca-startup:Getting the temp directory and nss certificate db "
+    rlPhaseStartSetup "pki_user_cli_user_find-ca-startup:Getting the temp directory and nss certificate db "
          rlLog "nss_db directory = $TmpDir/nssdb"
          rlLog "temp directory = /tmp/requestdb"
     rlPhaseEnd
-    rlPhaseStartSetup "pki_user_cli_user_show-ca-startup-addusers:Add users to test the user-find functionality"
+    rlPhaseStartSetup "pki_user_cli_user_find-ca-startup-addusers:Add users to test the user-find functionality"
 	i=1
         while [ $i -lt 25 ] ; do
                rlRun "pki -d /tmp/requestdb \
@@ -108,7 +108,7 @@ run_pki-user-cli-user-find-ca_tests(){
                                 user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003.out 2>&1" \
                          0 \
                         "All users"
-        rlAssertGrep "Number of entries returned 46" "$TmpDir/pki-user-find-ca-003.out"
+        rlAssertGrep "Number of entries returned 47" "$TmpDir/pki-user-find-ca-003.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-004: Find users, check for negative input --size=-1"
@@ -202,7 +202,7 @@ run_pki-user-cli-user-find-ca_tests(){
 
         #===Deleting users created using CA_adminV cert===#
         i=1
-        while [ $i -lt 24] ; do
+        while [ $i -lt 25 ] ; do
                rlRun "pki -d /tmp/requestdb \
                           -n CA_adminV \
                           -c $nss_db_password \

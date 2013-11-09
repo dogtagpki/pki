@@ -124,7 +124,7 @@ run_pki-user-cli-user-ca_tests(){
 			   -n \"$admin_cert_nickname\" \
 			   -c $nss_db_password \
 			   -t ca \
-			    group-add-member Administrators $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
+			    group-member-add Administrators $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Administrators group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-ca-group001$i.out"
@@ -134,7 +134,7 @@ run_pki-user-cli-user-ca_tests(){
 			   -n \"$admin_cert_nickname\" \
 			   -c $nss_db_password \
 			   -t ca \
-			    group-add-member \"Certificate Manager Agents\" $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
+			    group-member-add \"Certificate Manager Agents\" $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Certificate Manager Agents group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-ca-group001$i.out"
@@ -145,7 +145,7 @@ run_pki-user-cli-user-ca_tests(){
 			   -n \"$admin_cert_nickname\" \
 			   -c $nss_db_password \
 			   -t ca \
-			    group-add-member Auditors $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
+			    group-member-add Auditors $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Auditors group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-ca-group001$i.out"
@@ -156,7 +156,7 @@ run_pki-user-cli-user-ca_tests(){
 			   -n \"$admin_cert_nickname\" \
 			   -c $nss_db_password \
 			   -t ca \
-			    group-add-member \"Trusted Managers\"  $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
+			    group-member-add \"Trusted Managers\"  $userid > $TmpDir/pki-user-add-ca-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Trusted Managers  group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-ca-group001$i.out"
@@ -180,17 +180,17 @@ run_pki-user-cli-user-ca_tests(){
 			rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i /tmp/requestdb/request_001$i.out"
 			rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i /tmp/requestdb/request_001$i.out"
 			rlRun "dos2unix /tmp/requestdb/request_001$i.out"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='cert_request_type']/value\" -v 'pkcs10' $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='cert_request']/value\" -v \"$(cat -v /tmp/requestdb/request_001$i.out)\" $temp_file" 0 "adding certificate request"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_uid']/value\" -v $userid $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_e']/value\" -v $userid@example.com $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_cn']/value\" -v $userfullName $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_ou']/value\" -v Engineering $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_o']/value\" -v Example $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='sn_c']/value\" -v US $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='requestor_name']/value\" -v $userid $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='requestor_email']/value\" -v $userid@example.com $temp_file"
-			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/attribute[@name='requestor_phone']/value\" -v 123-456-7890 $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v 'pkcs10' $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v /tmp/requestdb/request_001$i.out)\" $temp_file" 0 "adding certificate request"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v $userid $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_e']/Value\" -v $userid@example.com $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v $userfullName $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_ou']/Value\" -v Engineering $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_o']/Value\" -v Example $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_c']/Value\" -v US $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v $userid $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v $userid@example.com $temp_file"
+			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $temp_file"
 
 			if [ $userid == $CA_adminV_user -o $userid == $CA_adminR_user -o $userid == $CA_agentV_user -o $userid == $CA_agentR_user -o $userid == $CA_auditV_user -o $userid == $CA_operatorV_user ]; then
 				#cert-request-submit=====
@@ -241,7 +241,7 @@ run_pki-user-cli-user-ca_tests(){
 					   -n \"$admin_cert_nickname\" \
 					   -c $nss_db_password \
 					   -t ca \
-					    user-add-cert $userid --input /tmp/requestdb/validcert_001$i.pem  > /tmp/requestdb/useraddcert__001$i.out" \
+					    user-cert-add $userid --input /tmp/requestdb/validcert_001$i.pem  > /tmp/requestdb/useraddcert__001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 
@@ -308,7 +308,7 @@ run_pki-user-cli-user-ca_tests(){
 					   -n \"$admin_cert_nickname\" \
 					   -c $nss_db_password \
 					   -t ca \
-					    user-add-cert $userid --input /tmp/requestdb/validcert_001$i.pem  > /tmp/requestdb/useraddcert__001$i.out" \
+					    user-cert-add $userid --input /tmp/requestdb/validcert_001$i.pem  > /tmp/requestdb/useraddcert__001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 				rlLog "Modifying profile back to the defaults"
@@ -333,7 +333,7 @@ run_pki-user-cli-user-ca_tests(){
                    -n \"$admin_cert_nickname\" \
                    -c $nss_db_password \
                    -t ca \
-                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert__001$i.out" \
+                    user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert__001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	elif [ $userid == $CA_agentUTCA_user ]; then
@@ -342,7 +342,7 @@ run_pki-user-cli-user-ca_tests(){
                    -n \"$admin_cert_nickname\" \
                    -c $nss_db_password \
                    -t ca \
-                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert__001$i.out" \
+                    user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert__001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	#Revoke certificate of user CA_adminR and CA_agentR

@@ -30,7 +30,7 @@ public class PKIJUnitTest {
         if (runWithBeaker == null || (! runWithBeaker.toLowerCase().equals("true"))) {
             properties = new Properties();
             try {
-                properties.load(new BufferedReader(new FileReader("tests/dogtag/dev_java_tests/conf/test.cfg")));
+                properties.load(new BufferedReader(new FileReader("tests/dogtag/conf/test.cfg")));
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Cannot read the configuration file");

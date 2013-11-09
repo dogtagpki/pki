@@ -73,6 +73,10 @@ run_pki-user-cli-user-del-ca_tests(){
 	#===Deleting users created using CA_adminV cert===#
 	i=1
 	while [ $i -lt 25 ] ; do
+	       rlLog "pki -d /tmp/requestdb \
+                          -n CA_adminV \
+                          -c $nss_db_password \
+                           user-del  u$i"
                rlRun "pki -d /tmp/requestdb \
                           -n CA_adminV \
                           -c $nss_db_password \
@@ -97,10 +101,14 @@ run_pki-user-cli-user-del-ca_tests(){
 	j=1
         while [ $j -lt 8 ] ; do
 	       eval usr=\$user$j
+	       rlLog "pki -d /tmp/requestdb \
+                          -n CA_adminV \
+                          -c $nss_db_password \
+                           user-del $usr "
                rlRun "pki -d /tmp/requestdb \
                           -n CA_adminV \
                           -c $nss_db_password \
-                           user-del $usr> $TmpDir/pki-user-del-ca-user2-00$j.out" \
+                           user-del $usr > $TmpDir/pki-user-del-ca-user2-00$j.out" \
 			   0 \
 			   "Deleted user  $usr"
 		rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user2-00$j.out"

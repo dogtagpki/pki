@@ -242,17 +242,8 @@ Fetch_Source_Tarball()
 ###
 #   Create repository using the details in the config file ###
 #   Function parameters - $1 - repository file path.
-#   Sample repository file :
-#   ### Location where the files have to be copied ###
-#   ### Same parameter for both local and remote ###
-#   REPOSITORY_LOCATION=/var/www/html/pki/
-#
-#   ### Remote host details###
-#   REMOTE_HOSTNAME_OR_IP=vm-051.idm.lab.bos.redhat.com
-#   USERNAME=root
-#   PASSWORD=********
 ###
-#
+
 Create_repo_after_build()
 {
 	if [ $# -eq 0 ]; then
@@ -269,7 +260,7 @@ Create_repo_after_build()
 
 	### Remove leading and trailing whitespaces ###
 	repo_location=`echo $REPOSITORY_LOCATION |sed -e 's/^ *//g' -e 's/ *$//g'`
-	destination=`echo $REMOTE_HOSTNAME_OR_IP|sed -e 's/^ *//g' -e 's/ *$//g'`
+	destination=`echo $REPOSITORY_HOST|sed -e 's/^ *//g' -e 's/ *$//g'`
 	uname=`echo $USERNAME |sed -e 's/^ *//g' -e 's/ *$//g'`
 	pwd=`echo $PASSWORD |sed -e 's/^ *//g' -e 's/ *$//g'`
 
@@ -277,9 +268,7 @@ Create_repo_after_build()
                 if [ "$destination" != "" ] ; then
                         createrepo ./RPMS/noarch/
                         createrepo ./RPMS/x86_64/
-                        createrepo ./SOURCES/
                         createrepo ./SRPMS/
-                        createrepo ./SPECS/
                         if [ $uname == "" ] ; then
                               echo "No username provided in the configuration file."
                               echo "Enter the username:"
@@ -294,8 +283,6 @@ Create_repo_after_build()
                         echo $url
                         ./scp_the_repo.exp "RPMS/" $url $PASSWORD
                         ./scp_the_repo.exp "SRPMS/" $url $PASSWORD
-                        ./scp_the_repo.exp "SOURCES/" $url $PASSWORD
-                        ./scp_the_repo.exp "SPECS/" $url $PASSWORD
                         if [ $? -ne 0 ]; then
                              echo "Cannot copy the repositories to $destination\n"
                              exit -1
@@ -309,9 +296,7 @@ Create_repo_after_build()
                 cp -r RPMS SOURCES SRPMS SPECS $repo_location
                 createrepo $REPOSITORY_LOCATION/RPMS/noarch/
                 createrepo $REPOSITORY_LOCATION/RPMS/x86_64/
-                createrepo $REPOSITORY_LOCATION/SOURCES/
                 createrepo $REPOSITORY_LOCATION/SRPMS/
-                createrepo $REPOSITORY_LOCATION/SPECS/
                 echo "Build repository created at $repo_location."
                 exit 0
 	fi

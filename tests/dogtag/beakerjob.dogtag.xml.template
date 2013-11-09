@@ -24,7 +24,7 @@
 			<task name="/distribution/install" role="STANDALONE">
 				<params/>
 			</task>
-			<task name="/CoreOS/rhcs/PKI_TEST_USER_ID" role="MASTER">
+			<task name="/CoreOS/dogtag/PKI_TEST_USER_ID" role="MASTER">
 				<params>
 					<param name="TEST_ALL" value="TRUE"/>
 					<param name="QUICKINSTALL" value="FALSE"/>
