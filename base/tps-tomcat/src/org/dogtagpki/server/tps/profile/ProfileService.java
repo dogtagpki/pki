@@ -146,6 +146,8 @@ public class ProfileService extends PKIService implements ProfileResource {
     @Override
     public ProfileData getProfile(String profileID) {
 
+        if (profileID == null) throw new BadRequestException("Profile ID is null.");
+
         CMS.debug("ProfileService.getProfile(\"" + profileID + "\")");
 
         try {
@@ -165,6 +167,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response addProfile(ProfileData profileData) {
+
+        if (profileData == null) throw new BadRequestException("Profile data is null.");
 
         CMS.debug("ProfileService.addProfile(\"" + profileData.getID() + "\")");
 
@@ -193,6 +197,9 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
+
+        if (profileID == null) throw new BadRequestException("Profile ID is null.");
+        if (profileData == null) throw new BadRequestException("Profile data is null.");
 
         CMS.debug("ProfileService.updateProfile(\"" + profileID + "\")");
 
@@ -240,6 +247,9 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response changeProfileStatus(String profileID, String action) {
+
+        if (profileID == null) throw new BadRequestException("Profile ID is null.");
+        if (action == null) throw new BadRequestException("Action is null.");
 
         CMS.debug("ProfileService.changeProfileStatus(\"" + profileID + "\")");
 
@@ -298,6 +308,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public void removeProfile(String profileID) {
+
+        if (profileID == null) throw new BadRequestException("Profile ID is null.");
 
         CMS.debug("ProfileService.removeProfile(\"" + profileID + "\")");
 

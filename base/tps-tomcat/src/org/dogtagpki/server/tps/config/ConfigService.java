@@ -33,6 +33,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.certsrv.tps.config.ConfigResource;
@@ -95,6 +96,8 @@ public class ConfigService extends PKIService implements ConfigResource {
 
     @Override
     public Response updateConfig(ConfigData configData) {
+
+        if (configData == null) throw new BadRequestException("Config data is null.");
 
         CMS.debug("ConfigService.updateConfig()");
 

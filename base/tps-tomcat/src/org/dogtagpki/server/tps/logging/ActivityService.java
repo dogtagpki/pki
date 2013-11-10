@@ -33,6 +33,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
@@ -144,6 +145,8 @@ public class ActivityService extends PKIService implements ActivityResource {
 
     @Override
     public ActivityData getActivity(String activityID) {
+
+        if (activityID == null) throw new BadRequestException("Activity ID is null.");
 
         CMS.debug("ActivityService.getActivity(\"" + activityID + "\")");
 

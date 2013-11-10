@@ -256,6 +256,8 @@ public class UserService extends PKIService implements UserResource {
     @Override
     public Response addUser(UserData userData) {
 
+        if (userData == null) throw new BadRequestException("User data is null.");
+
         IConfigStore cs = CMS.getConfigStore();
         String userID = userData.getID();
 
@@ -379,6 +381,8 @@ public class UserService extends PKIService implements UserResource {
      */
     @Override
     public Response modifyUser(String userID, UserData userData) {
+
+        if (userData == null) throw new BadRequestException("User data is null.");
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -598,6 +602,9 @@ public class UserService extends PKIService implements UserResource {
 
     @Override
     public UserCertData getUserCert(String userID, String certID) {
+
+        if (certID == null) throw new BadRequestException("Certificate ID is null.");
+
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -671,6 +678,8 @@ public class UserService extends PKIService implements UserResource {
      */
     @Override
     public Response addUserCert(String userID, UserCertData userCertData) {
+
+        if (userCertData == null) throw new BadRequestException("Certificate data is null.");
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -870,6 +879,9 @@ public class UserService extends PKIService implements UserResource {
     @Override
     public void removeUserCert(String userID, String certID) {
 
+        if (userID == null) throw new BadRequestException("User ID is null.");
+        if (certID == null) throw new BadRequestException("Certificate ID is null.");
+
         try {
             certID = URLDecoder.decode(certID, "UTF-8");
         } catch (Exception e) {
@@ -995,6 +1007,10 @@ public class UserService extends PKIService implements UserResource {
 
     @Override
     public Response addUserMembership(String userID, String groupID) {
+
+        if (userID == null) throw new BadRequestException("User ID is null.");
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+
         try {
             GroupMemberData groupMemberData = new GroupMemberData();
             groupMemberData.setID(userID);
@@ -1023,6 +1039,10 @@ public class UserService extends PKIService implements UserResource {
 
     @Override
     public void removeUserMembership(String userID, String groupID) {
+
+        if (userID == null) throw new BadRequestException("User ID is null.");
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);

@@ -188,6 +188,8 @@ public class GroupService extends PKIService implements GroupResource {
     @Override
     public Response addGroup(GroupData groupData) {
 
+        if (groupData == null) throw new BadRequestException("Group data is null.");
+
         String groupID = groupData.getID();
 
         // ensure that any low-level exceptions are reported
@@ -248,6 +250,8 @@ public class GroupService extends PKIService implements GroupResource {
      */
     @Override
     public Response modifyGroup(String groupID, GroupData groupData) {
+
+        if (groupData == null) throw new BadRequestException("Group data is null.");
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -346,6 +350,10 @@ public class GroupService extends PKIService implements GroupResource {
 
     @Override
     public GroupMemberData getGroupMember(String groupID, String memberID) {
+
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+        if (memberID == null) throw new BadRequestException("Member ID is null.");
+
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
@@ -362,6 +370,10 @@ public class GroupService extends PKIService implements GroupResource {
 
     @Override
     public Response addGroupMember(String groupID, String memberID) {
+
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+        if (memberID == null) throw new BadRequestException("Member ID is null.");
+
         GroupMemberData groupMemberData = new GroupMemberData();
         groupMemberData.setID(memberID);
         groupMemberData.setGroupID(groupID);
@@ -385,6 +397,10 @@ public class GroupService extends PKIService implements GroupResource {
 
     @Override
     public void removeGroupMember(String groupID, String memberID) {
+
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+        if (memberID == null) throw new BadRequestException("Member ID is null.");
+
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);

@@ -35,6 +35,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.connection.ConnectionCollection;
 import com.netscape.certsrv.tps.connection.ConnectionData;
@@ -140,6 +141,8 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     @Override
     public ConnectionData getConnection(String connectionID) {
 
+        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+
         CMS.debug("ConnectionService.getConnection(\"" + connectionID + "\")");
 
         try {
@@ -156,6 +159,8 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
     @Override
     public Response addConnection(ConnectionData connectionData) {
+
+        if (connectionData == null) throw new BadRequestException("Connection data is null.");
 
         CMS.debug("ConnectionService.addConnection(\"" + connectionData.getID() + "\")");
 
@@ -181,6 +186,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     @Override
     public Response updateConnection(String connectionID, ConnectionData connectionData) {
 
+        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (connectionData == null) throw new BadRequestException("Connection data is null.");
+
         CMS.debug("ConnectionService.updateConnection(\"" + connectionID + "\")");
 
         try {
@@ -203,6 +211,8 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
     @Override
     public void removeConnection(String connectionID) {
+
+        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
 
         CMS.debug("ConnectionService.removeConnection(\"" + connectionID + "\")");
 

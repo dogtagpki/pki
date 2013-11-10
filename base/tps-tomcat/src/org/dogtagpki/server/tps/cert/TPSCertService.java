@@ -33,6 +33,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
@@ -154,6 +155,8 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
     @Override
     public TPSCertData getCert(String certID) {
+
+        if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
         System.out.println("TPSCertService.getCert(\"" + certID + "\")");
 

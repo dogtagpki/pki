@@ -35,6 +35,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -140,6 +141,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     @Override
     public AuthenticatorData getAuthenticator(String authenticatorID) {
 
+        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
+
         CMS.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
         try {
@@ -156,6 +159,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
     @Override
     public Response addAuthenticator(AuthenticatorData authenticatorData) {
+
+        if (authenticatorData == null) throw new BadRequestException("Authenticator data is null.");
 
         CMS.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
@@ -181,6 +186,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     @Override
     public Response updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) {
 
+        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
+        if (authenticatorData == null) throw new BadRequestException("Authenticator data is null.");
+
         CMS.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
         try {
@@ -203,6 +211,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
     @Override
     public void removeAuthenticator(String authenticatorID) {
+
+        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
 
         CMS.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 

@@ -35,6 +35,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -156,6 +157,8 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public TokenData getToken(String tokenID) {
 
+        if (tokenID == null) throw new BadRequestException("Token ID is null.");
+
         CMS.debug("TokenService.getToken(\"" + tokenID + "\")");
 
         try {
@@ -172,6 +175,8 @@ public class TokenService extends PKIService implements TokenResource {
 
     @Override
     public Response addToken(TokenData tokenData) {
+
+        if (tokenData == null) throw new BadRequestException("Token data is null.");
 
         CMS.debug("TokenService.addToken(\"" + tokenData.getID() + "\")");
 
@@ -196,6 +201,9 @@ public class TokenService extends PKIService implements TokenResource {
 
     @Override
     public Response updateToken(String tokenID, TokenData tokenData) {
+
+        if (tokenID == null) throw new BadRequestException("Token ID is null.");
+        if (tokenData == null) throw new BadRequestException("Token data is null.");
 
         CMS.debug("TokenService.updateToken(\"" + tokenID + "\")");
 
@@ -223,6 +231,9 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public Response modifyToken(String tokenID, TokenModifyRequest request) {
 
+        if (tokenID == null) throw new BadRequestException("Token ID is null.");
+        if (request == null) throw new BadRequestException("Token modification is null.");
+
         CMS.debug("TokenService.modifyToken(\"" + tokenID + "\", request");
 
         try {
@@ -247,6 +258,8 @@ public class TokenService extends PKIService implements TokenResource {
 
     @Override
     public void removeToken(String tokenID) {
+
+        if (tokenID == null) throw new BadRequestException("Token ID is null.");
 
         CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
