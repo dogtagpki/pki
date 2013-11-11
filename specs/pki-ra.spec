@@ -198,8 +198,8 @@ fi
 
 
 %changelog
-+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.5
-+- Change release number for beta build
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.5
+- Change release number for beta build
 
 * Thu Oct 31 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
 - Fixed references to /var/run and /var/lock in tmpfiles.
