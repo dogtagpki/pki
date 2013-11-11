@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.13%{?dist}
+Release:          0.14%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1071,6 +1071,9 @@ fi
 
 
 %changelog
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.14
+- Change release number for beta build
+
 * Thu Nov 7 2013 Ade Lee <alee@redhat.com> 10.1.0-0.13
 - Updated requirements for tomcat
 

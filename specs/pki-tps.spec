@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.6%{?dist}
+Release:          0.7%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -240,6 +240,9 @@ fi
 
 
 %changelog
+* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.7
+- Change release number for beta build
+
 * Thu Oct 31 2013 Ade Lee <alee@redhat.com> 10.1.0-0.6
 - Fixed references to /var/run and /var/lock in tmpfiles. 
 

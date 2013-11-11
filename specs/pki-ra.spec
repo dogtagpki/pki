@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.1.0
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -198,6 +198,9 @@ fi
 
 
 %changelog
++* Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.5
++- Change release number for beta build
+
 * Thu Oct 31 2013 Ade Lee <alee@redhat.com> 10.1.0-0.4
 - Fixed references to /var/run and /var/lock in tmpfiles.
 
