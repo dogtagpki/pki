@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -115,6 +116,8 @@ public class AuditService extends PKIService implements AuditResource {
 
     @Override
     public Response updateAuditConfig(AuditConfig auditConfig) {
+
+        if (auditConfig == null) throw new BadRequestException("Audit config is null.");
 
         CMS.debug("AuditService.updateAuditConfig()");
 

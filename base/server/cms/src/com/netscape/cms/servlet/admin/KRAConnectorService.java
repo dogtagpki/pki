@@ -24,6 +24,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
@@ -49,6 +50,9 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
 
     @Override
     public void addConnector(KRAConnectorInfo info) {
+
+        if (info == null) throw new BadRequestException("KRA connector info is null.");
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.addConnector(info);
@@ -60,6 +64,10 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
 
     @Override
     public void removeConnector(String host, String port) {
+
+        if (host == null) throw new BadRequestException("KRA connector host is null.");
+        if (port == null) throw new BadRequestException("KRA connector port is null.");
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.removeConnector(host, port);

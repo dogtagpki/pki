@@ -141,6 +141,8 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public SelfTestData getSelfTest(String selfTestID) {
 
+        if (selfTestID == null) throw new BadRequestException("Self test ID is null.");
+
         CMS.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
 
         try {
@@ -155,6 +157,8 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
     @Override
     public void executeSelfTests(String action) {
+
+        if (action == null) throw new BadRequestException("Action is null.");
 
         CMS.debug("SelfTestService.executeSelfTests(\"" + action + "\")");
 

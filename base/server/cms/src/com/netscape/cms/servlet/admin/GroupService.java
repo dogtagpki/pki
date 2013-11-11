@@ -334,6 +334,9 @@ public class GroupService extends PKIService implements GroupResource {
 
     @Override
     public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
+
+        if (groupID == null) throw new BadRequestException("Group ID is null.");
+
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);

@@ -111,6 +111,9 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public TPSConnectorData getConnector(String id) {
+
+        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+
         try {
             if (connectorExists(id)) return createTPSConnectorData(id);
             throw new ResourceNotFoundException("Connector " + id + " not found.");
@@ -122,6 +125,10 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public TPSConnectorData getConnector(String host, String port) {
+
+        if (host == null) throw new BadRequestException("TPS connector host is null.");
+        if (port == null) throw new BadRequestException("TPS connector port is null.");
+
         try {
             String id = getConnectorID(host, port);
             if (id != null) return createTPSConnectorData(id);
@@ -135,6 +142,10 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public Response createConnector(String tpsHost, String tpsPort) {
+
+        if (tpsHost == null) throw new BadRequestException("TPS connector host is null.");
+        if (tpsPort == null) throw new BadRequestException("TPS connector port is null.");
+
         try {
             String id = getConnectorID(tpsHost, tpsPort);
             if (id != null) {
@@ -174,6 +185,10 @@ public class TPSConnectorService implements TPSConnectorResource {
         try {
             if (id == null) {
                 throw new BadRequestException("Invalid connector ID");
+            }
+
+            if (data == null) {
+                throw new BadRequestException("Invalid connector data");
             }
 
             if (!connectorExists(id)) {
@@ -243,6 +258,10 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public void deleteConnector(String host, String port) {
+
+        if (host == null) throw new BadRequestException("TPS connector host is null.");
+        if (port == null) throw new BadRequestException("TPS connector port is null.");
+
         String id;
         try {
             id = getConnectorID(host, port);
@@ -255,6 +274,9 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public KeyData createSharedSecret(String id) {
+
+        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
@@ -311,6 +333,9 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public KeyData replaceSharedSecret(String id) {
+
+        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
@@ -345,9 +370,12 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public void deleteSharedSecret(String id) {
+
+        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+
         try {
             if (!connectorExists(id)) {
-                return;
+                throw new ResourceNotFoundException("TPS connection does not exist");
             }
 
             // get user
@@ -374,6 +402,9 @@ public class TPSConnectorService implements TPSConnectorResource {
 
     @Override
     public KeyData getSharedSecret(String id) {
+
+        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
