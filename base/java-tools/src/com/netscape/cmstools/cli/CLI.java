@@ -97,6 +97,10 @@ public class CLI {
         return getClass().getAnnotation(Deprecated.class) != null;
     }
 
+    public Collection<CLI> getModules() {
+        return modules.values();
+    }
+
     public CLI getModule(String name) {
         return modules.get(name);
     }
@@ -181,11 +185,11 @@ public class CLI {
         // For example: cert-request-find
         String command = args[0];
 
-        // The command will be split into module name and module command, for example:
+        // The command will be split into module name and sub command, for example:
         //  - module name: cert
-        //  - module command: request-find
+        //  - sub command: request-find
         String moduleName = null;
-        String moduleCommand = null;
+        String subCommand = null;
 
         // Search the module by incrementally adding parts into module name.
         // Repeat until it finds the module or until there is no more parts to add.
@@ -197,21 +201,36 @@ public class CLI {
             // Find the next dash.
             int i = command.indexOf('-', position);
             if (i >= 0) {
-                // If dash found, split command.
+                // Dash found. Split command into module name and sub command.
                 moduleName = command.substring(0, i);
-                moduleCommand = command.substring(i+1);
+                subCommand = command.substring(i+1);
 
             } else {
-                // If dash not found, use the whole command.
+                // Dash not found. Use the whole command.
                 moduleName = command;
-                moduleCommand = null;
+                subCommand = null;
             }
 
             // Find module with that name.
-            module = getModule(moduleName);
+            CLI m = getModule(moduleName);
 
-            // If module found, stop.
-            if (module != null) break;
+            if (m != null) {
+                // Module found. Check sub command.
+                if (subCommand == null) {
+                    // No sub command. Use this module.
+                    module = m;
+                    break;
+                }
+
+                // There is a sub command. It must be processed by module's children.
+                if (!m.getModules().isEmpty()) {
+                    // Module has children. Use this module.
+                    module = m;
+                    break;
+                }
+
+                // Module doesn't have children. Keep looking.
+            }
 
             // If there's no more dashes, stop.
             if (i < 0) break;
@@ -227,10 +246,10 @@ public class CLI {
 
         // Prepare module arguments.
         String[] moduleArgs;
-        if (moduleCommand != null) {
+        if (subCommand != null) {
             // If module command exists, include it as arguments: <module command> <args>...
             moduleArgs = new String[args.length];
-            moduleArgs[0] = moduleCommand;
+            moduleArgs[0] = subCommand;
             System.arraycopy(args, 1, moduleArgs, 1, args.length-1);
 
         } else {

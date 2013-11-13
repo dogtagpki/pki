@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
+import java.util.Collection;
+
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -67,6 +69,10 @@ public class ProxyCLI extends CLI {
 
     public CLI getParent() {
         return module.getParent();
+    }
+
+    public Collection<CLI> getModules() {
+        return module.getModules();
     }
 
     public CLI getModule(String name) {
