@@ -1,6 +1,6 @@
 package com.netscape.ocsp;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.ws.rs.core.Application;
@@ -15,15 +15,15 @@ import com.netscape.cms.servlet.account.AccountService;
 import com.netscape.cms.servlet.admin.GroupService;
 import com.netscape.cms.servlet.admin.SystemCertService;
 import com.netscape.cms.servlet.admin.UserService;
+import com.netscape.cms.servlet.csadmin.SecurityDomainService;
 import com.netscape.cms.servlet.csadmin.SystemConfigService;
 import com.netscape.cmscore.logging.AuditService;
-import com.netscape.cms.servlet.csadmin.SecurityDomainService;
 import com.netscape.cmscore.selftests.SelfTestService;
 
 public class OCSPApplication extends Application {
 
-    private Set<Object> singletons = new HashSet<Object>();
-    private Set<Class<?>> classes = new HashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<Object>();
+    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
 
     public OCSPApplication() {
 

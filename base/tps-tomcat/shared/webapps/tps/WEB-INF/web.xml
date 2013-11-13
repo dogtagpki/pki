@@ -201,6 +201,32 @@
 
     <security-constraint>
         <web-resource-collection>
+            <web-resource-name>Authenticators</web-resource-name>
+            <url-pattern>/rest/authenticators/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Profiles</web-resource-name>
+            <url-pattern>/rest/profiles/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
             <web-resource-name>Token Services</web-resource-name>
             <url-pattern>/rest/tokens/*</url-pattern>
         </web-resource-collection>

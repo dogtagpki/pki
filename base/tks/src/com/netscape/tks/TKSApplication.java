@@ -1,6 +1,6 @@
 package com.netscape.tks;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.ws.rs.core.Application;
@@ -19,8 +19,8 @@ import com.netscape.cmscore.selftests.SelfTestService;
 
 public class TKSApplication extends Application {
 
-    private Set<Object> singletons = new HashSet<Object>();
-    private Set<Class<?>> classes = new HashSet<Class<?>>();
+    private Set<Object> singletons = new LinkedHashSet<Object>();
+    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
 
     public TKSApplication() {
 

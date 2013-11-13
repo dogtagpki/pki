@@ -31,11 +31,16 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("authenticators")
+@AuthMethodMapping("authenticators")
+@ACLMapping("authenticators.read")
 public interface AuthenticatorResource {
 
     @GET
@@ -53,6 +58,7 @@ public interface AuthenticatorResource {
     @ClientResponseType(entityType=AuthenticatorData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("authenticators.add")
     public Response addAuthenticator(AuthenticatorData authenticatorData);
 
     @PUT
@@ -60,6 +66,7 @@ public interface AuthenticatorResource {
     @ClientResponseType(entityType=AuthenticatorData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("authenticators.modify")
     public Response updateAuthenticator(
             @PathParam("authenticatorID") String authenticatorID,
             AuthenticatorData authenticatorData);
@@ -67,5 +74,6 @@ public interface AuthenticatorResource {
     @DELETE
     @Path("{authenticatorID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("authenticators.remove")
     public void removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 }
