@@ -215,7 +215,6 @@ bash ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
 
 if [ "$CREATEREPO" == "Y" ] ; then
    echo "Creating a repository of the built rpms"
-   cp -r $PKI_PWD/$PKI_DIR/scripts/repository.cfg .
    cp -r $PKI_PWD/$PKI_DIR/scripts/scp_the_repo.exp .
    Create_repo_after_build $REPO_CFG_FILE
 fi

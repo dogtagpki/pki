@@ -63,23 +63,13 @@ cp -r "$PKI_SOURCE_DIR/tests" .
 
 ### Compile the java test source ###
 
-if [ ! -d "$PKI_SOURCE_DIR/build/classes" ] ; then
-
-   echo "\nThe java tests cannot be compiled since the pki source is not compiled/built.\n"
-   echo "The core sources can be compiled either by eclipse or using the compose scripts.\n"
-   echo "Cannot build the test RPM."
-
-   exit -1
-
-fi
-
 cd tests/dogtag/dev_java_tests
 
 rm -rf bin
 
 mkdir bin
 
-CLASSPATH=$PKI_SOURCE_DIR/build/classes:/usr/share/java/junit4.jar:`pwd`/src:/usr/lib64/jss/jss4.jar:/usr/share/java/httpcomponents/httpclient.jar:/usr/share/java/httpcomponents/httpcore.jar:/usr/share/java/resteasy/jaxrs-api.jar:/usr/share/java/resteasy/resteasy-atom-provider.jar:/usr/share/java/resteasy/resteasy-jaxb-provider.jar:/usr/share/java/resteasy/resteasy-jaxrs.jar:/usr/share/java/resteasy/resteasy-jaxrs-jandex.jar:/usr/share/java/resteasy/resteasy-jettison-provider.jar:/usr/share/java/apache-commons-cli.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/apache-commons-logging.jar:/usr/share/java/commons-codec.jar:/usr/share/java/commons-httpclient.jar:/usr/share/java/idm-console-base-1.1.7.jar:/usr/share/java/idm-console-mcc.jar:/usr/share/java/idm-console-nmclf.jar:/usr/share/java/jakarta-commons-httpclient.jar:/usr/share/java/jaxb-api.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/apache-commons-lang.jar:/usr/share/java/istack-commons-runtime.jar:/usr/share/java/scannotation.jar:/usr/share/java/servlet.jar:/usr/share/java/velocity.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/xml-commons-apis.jar:/usr/share/java/tomcat/catalina.jar:/usr/share/java/tomcat/tomcat-util.jar:/usr/share/java/commons-io.jar
+CLASSPATH=$PKI_SOURCE_DIR/base/test/src:$PKI_SOURCE_DIR/tests/dogtag/dev_java_tests/src:$PKI_SOURCE_DIR/base/symkey/src:$PKI_SOURCE_DIR/base/util/src:$PKI_SOURCE_DIR/base/util/test:$PKI_SOURCE_DIR/base/common/src:$PKI_SOURCE_DIR/base/common/functional/src:$PKI_SOURCE_DIR/base/java-tools/src:$PKI_SOURCE_DIR/base/server/tomcat/src:$PKI_SOURCE_DIR/base/server/cms/src:$PKI_SOURCE_DIR/base/server/cmscore/src:$PKI_SOURCE_DIR/base/server/test:$PKI_SOURCE_DIR/base/silent/src:$PKI_SOURCE_DIR/base/ca/src:$PKI_SOURCE_DIR/base/ca/functional/src:$PKI_SOURCE_DIR/base/kra/src:$PKI_SOURCE_DIR/base/kra/functional/src:$PKI_SOURCE_DIR/base/ocsp/src:$PKI_SOURCE_DIR/base/tks/src:$PKI_SOURCE_DIR/base/tps-tomcat/src:$PKI_SOURCE_DIR/base/migrate/80:/usr/share/java/junit4.jar:`pwd`/src:/usr/lib64/jss/jss4.jar:/usr/share/java/httpcomponents/httpclient.jar:/usr/share/java/httpcomponents/httpcore.jar:/usr/share/java/resteasy/jaxrs-api.jar:/usr/share/java/resteasy/resteasy-atom-provider.jar:/usr/share/java/resteasy/resteasy-jaxb-provider.jar:/usr/share/java/resteasy/resteasy-jaxrs.jar:/usr/share/java/resteasy/resteasy-jaxrs-jandex.jar:/usr/share/java/resteasy/resteasy-jettison-provider.jar:/usr/share/java/apache-commons-cli.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/apache-commons-logging.jar:/usr/share/java/commons-codec.jar:/usr/share/java/commons-httpclient.jar:/usr/share/java/idm-console-base-1.1.7.jar:/usr/share/java/idm-console-mcc.jar:/usr/share/java/idm-console-nmclf.jar:/usr/share/java/jakarta-commons-httpclient.jar:/usr/share/java/jaxb-api.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/apache-commons-lang.jar:/usr/share/java/istack-commons-runtime.jar:/usr/share/java/scannotation.jar:/usr/share/java/servlet.jar:/usr/share/java/velocity.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/xml-commons-apis.jar:/usr/share/java/tomcat/catalina.jar:/usr/share/java/tomcat/tomcat-util.jar:/usr/share/java/commons-io.jar
 
 javac -classpath $CLASSPATH -d bin src/*java
 

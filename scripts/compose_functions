@@ -293,7 +293,7 @@ Create_repo_after_build()
                 if [ ! -e $repo_location ] ; then
                        mkdir -p $repo_location
                 fi
-                cp -r RPMS SOURCES SRPMS SPECS $repo_location
+                cp -r RPMS SRPMS $repo_location
                 createrepo $REPOSITORY_LOCATION/RPMS/noarch/
                 createrepo $REPOSITORY_LOCATION/RPMS/x86_64/
                 createrepo $REPOSITORY_LOCATION/SRPMS/
