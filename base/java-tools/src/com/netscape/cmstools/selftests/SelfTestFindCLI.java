@@ -72,11 +72,11 @@ public class SelfTestFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         SelfTestCollection result = selfTestCLI.selfTestClient.findSelfTests(start, size);
-        Collection<SelfTestData> selfTests = result.getEntries();
 
-        MainCLI.printMessage(result.getTotal() + " self test(s) matched");
+        MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
 
+        Collection<SelfTestData> selfTests = result.getEntries();
         boolean first = true;
 
         for (SelfTestData selfTestInfo : selfTests) {

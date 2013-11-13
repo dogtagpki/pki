@@ -81,7 +81,9 @@ public interface CertRequestResource {
     @GET
     @Path("certrequests/profiles")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileDataInfos listEnrollmentTemplates();
+    public ProfileDataInfos listEnrollmentTemplates(
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
 
     @GET
     @Path("certrequests/profiles/{id}")

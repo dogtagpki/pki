@@ -20,8 +20,11 @@ package com.netscape.cms.servlet.key;
 
 
 import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Path;
@@ -31,6 +34,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -74,15 +79,16 @@ public class KeyService extends PKIService implements KeyResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    private IKeyRepository repo;
-    private IKeyRecoveryAuthority kra;
-    private IRequestQueue queue;
-
     private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY_5";
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
+    public final static int DEFAULT_SIZE = 20;
+
+    private IKeyRepository repo;
+    private IKeyRecoveryAuthority kra;
+    private IRequestQueue queue;
 
     public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
@@ -288,8 +294,11 @@ public class KeyService extends PKIService implements KeyResource {
      * Used to generate list of key infos based on the search parameters
      */
     @Override
-    public KeyDataInfos listKeys(String clientID, String status, Integer maxResults, Integer maxTime) {
-        // auth and authz
+    public KeyDataInfos listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+            Integer start, Integer size) {
+
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
 
         // get ldap filter
         String filter = createSearchFilter(status, clientID);
@@ -300,24 +309,42 @@ public class KeyService extends PKIService implements KeyResource {
 
         KeyDataInfos infos = new KeyDataInfos();
         try {
-            Enumeration<IKeyRecord> e = null;
-
-            e = repo.searchKeys(filter, maxResults, maxTime);
+            Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
                 return infos;
             }
 
+            // store non-null results in a list
+            List<KeyDataInfo> results = new ArrayList<KeyDataInfo>();
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
-                if (rec != null) {
-                    infos.addKeyInfo(createKeyDataInfo(rec));
-                }
+                if (rec == null) continue;
+                results.add(createKeyDataInfo(rec));
+            }
+
+            int total = results.size();
+            infos.setTotal(total);
+
+            // return entries in the requested page
+            for (int i = start; i < start + size && i < total; i++) {
+                infos.addEntry(results.get(i));
+            }
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                infos.addLink(new Link("prev", uri));
+            }
+
+            if (start + size < total) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+                infos.addLink(new Link("next", uri));
             }
 
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+
         return infos;
     }
 

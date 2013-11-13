@@ -63,6 +63,14 @@ public class KeyFindCLI extends CLI {
         option.setArgName("max time");
         options.addOption(option);
 
+        option = new Option(null, "start", true, "Page start");
+        option.setArgName("start");
+        options.addOption(option);
+
+        option = new Option(null, "size", true, "Page size");
+        option.setArgName("size");
+        options.addOption(option);
+
         CommandLine cmd = null;
 
         try {
@@ -83,7 +91,13 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        KeyDataInfos keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime);
+        s = cmd.getOptionValue("start");
+        Integer start = s == null ? null : Integer.valueOf(s);
+
+        s = cmd.getOptionValue("size");
+        Integer size = s == null ? null : Integer.valueOf(s);
+
+        KeyDataInfos keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime, start, size);
 
         Collection<KeyDataInfo> entries = keys.getKeyInfos();
 

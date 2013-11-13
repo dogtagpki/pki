@@ -73,7 +73,7 @@ public class CertRequestSubmitCLI extends CLI {
     }
 
     private void printRequestInformation(CertRequestInfos cri) {
-        Collection<CertRequestInfo> allRequests = cri.getRequests();
+        Collection<CertRequestInfo> allRequests = cri.getEntries();
         boolean first = true;
         for (CertRequestInfo x : allRequests) {
             if (first) {

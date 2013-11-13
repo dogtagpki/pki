@@ -21,6 +21,7 @@ package com.netscape.cmstools.cert;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.xml.bind.JAXBException;
@@ -29,7 +30,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
@@ -118,24 +118,15 @@ public class CertFindCLI extends CLI {
 
         addSearchAttribute(cmd, searchData);
 
-        CertDataInfos certs = null;
-        try {
-            certs = certCLI.certClient.findCerts(searchData, start, size);
-        } catch (PKIException e) {
-            System.err.println("Error: Cannot list certificates. " + e.getMessage());
-            System.exit(1);
-        }
+        CertDataInfos certs = certCLI.certClient.findCerts(searchData, start, size);
 
-        if (certs.getCertInfos() == null || certs.getCertInfos().isEmpty()) {
-            MainCLI.printMessage("No certificates found");
-            System.exit(0); // valid result
-        }
-
-        MainCLI.printMessage(certs.getCertInfos().size() + " certificate(s) found");
+        MainCLI.printMessage(certs.getTotal() + " entries found");
+        if (certs.getTotal() == 0) return;
 
         boolean first = true;
 
-        for (CertDataInfo cert : certs.getCertInfos()) {
+        Collection<CertDataInfo> entries = certs.getEntries();
+        for (CertDataInfo cert : entries) {
             if (first) {
                 first = false;
             } else {
@@ -145,7 +136,7 @@ public class CertFindCLI extends CLI {
             CertCLI.printCertInfo(cert);
         }
 
-        MainCLI.printMessage("Number of entries returned " + certs.getCertInfos().size());
+        MainCLI.printMessage("Number of entries returned " + certs.getEntries().size());
     }
 
     public void addOptions() {

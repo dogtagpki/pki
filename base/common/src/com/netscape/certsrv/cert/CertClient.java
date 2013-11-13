@@ -51,8 +51,8 @@ public class CertClient extends Client {
         return certClient.reviewCert(id);
     }
 
-    public CertDataInfos listCerts(String status, Integer start, Integer size) {
-        return certClient.listCerts(status, start, size);
+    public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
+        return certClient.listCerts(status, maxResults, maxTime, start, size);
     }
 
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
@@ -120,8 +120,8 @@ public class CertClient extends Client {
         return certRequestClient.getEnrollmentTemplate(id);
     }
 
-    public ProfileDataInfos listEnrollmentTemplates() {
-        return certRequestClient.listEnrollmentTemplates();
+    public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) {
+        return certRequestClient.listEnrollmentTemplates(start, size);
     }
 
 }

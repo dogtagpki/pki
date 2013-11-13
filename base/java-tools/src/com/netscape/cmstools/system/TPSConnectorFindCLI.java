@@ -72,7 +72,7 @@ public class TPSConnectorFindCLI extends CLI {
 
         TPSConnectorCollection result = tpsConnectorCLI.tpsConnectorClient.findConnectors(start, size);
 
-        MainCLI.printMessage(result.getTotal() + " TPS connector(s) matched");
+        MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
 
         Collection<TPSConnectorData> conns = result.getEntries();

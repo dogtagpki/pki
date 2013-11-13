@@ -167,7 +167,7 @@ public class CATest {
 
         Collection<CertRequestInfo> list = null;
         try {
-            list = certClient.listRequests("complete", null, null, null, null, null).getRequests();
+            list = certClient.listRequests("complete", null, null, null, null, null).getEntries();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -205,7 +205,7 @@ public class CATest {
 
         CertDataInfos infos = null;
         try {
-            infos = certClient.listCerts("VALID", 100, 10);
+            infos = certClient.listCerts("VALID", null, null, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -268,7 +268,7 @@ public class CATest {
 
         //Get a list of Profiles
 
-        ProfileDataInfos pInfos = client.listProfiles();
+        ProfileDataInfos pInfos = client.listProfiles(null, null);
 
         printProfileInfos(pInfos);
 
@@ -289,7 +289,7 @@ public class CATest {
             log(e.toString());
         }
 
-        for (CertRequestInfo info : reqInfo.getRequests()) {
+        for (CertRequestInfo info : reqInfo.getEntries()) {
             printRequestInfo(info);
 
             CertReviewResponse reviewData = client.reviewRequest(info.getRequestId());
@@ -309,7 +309,7 @@ public class CATest {
             log(e.toString());
         }
 
-        for (CertRequestInfo info : reqInfo.getRequests()) {
+        for (CertRequestInfo info : reqInfo.getEntries()) {
             printRequestInfo(info);
         }
     }
@@ -402,7 +402,7 @@ public class CATest {
             return;
         }
 
-        Collection<ProfileDataInfo> listProfiles = pInfos.getProfileInfos();
+        Collection<ProfileDataInfo> listProfiles = pInfos.getEntries();
         if (listProfiles != null) {
             log("\nProfiles found. \n");
             for (ProfileDataInfo info: listProfiles) {
@@ -455,7 +455,7 @@ public class CATest {
             return;
         }
 
-        Collection<CertDataInfo> listCerts = infos.getCertInfos();
+        Collection<CertDataInfo> listCerts = infos.getEntries();
         if (listCerts != null) {
             log("\nCertificates found with search filter: " + filter + "\n");
             for (CertDataInfo info: listCerts) {

@@ -19,84 +19,32 @@ package com.netscape.certsrv.key;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.netscape.certsrv.base.Link;
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "KeyRequestInfos")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRequestInfos {
+public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
 
     @XmlElementRef
-    protected Collection<KeyRequestInfo> requests = new ArrayList<KeyRequestInfo>();
-
-    @XmlElement(name = "Link")
-    protected List<Link> links = new ArrayList<Link>();
-
-    /**
-     * @return the requests
-     */
-    public Collection<KeyRequestInfo> getRequests() {
-        return requests;
+    public Collection<KeyRequestInfo> getEntries() {
+        return super.getEntries();
     }
-
-    /**
-     * @param requests the requests to set
-     */
-    public void setRequests(Collection<KeyRequestInfo> requests) {
-        this.requests.clear();
-        if (requests == null) return;
-        this.requests.addAll(requests);
-    }
-
-    /**
-     * @param request the request to add
-     */
-    public void addRequest(KeyRequestInfo request) {
-        requests.add(request);
-    }
-
-    /**
-     * @return the links
-     */
-    public List<Link> getLinks() {
-        return links;
-    }
-
-    /**
-     * @param links the links to set
-     */
-    public void setLinks(List<Link> links) {
-        this.links.clear();
-        if (links == null) return;
-        this.links.addAll(links);
-    }
-
-    /**
-     * @param links the link to add
-     */
-    public void addLink(Link link) {
-        this.links.add(link);
-    }
-
     @XmlTransient
     public String getNext() {
-        for (Link link : links) {
-            if ("next".equals(link.getRelationship())) {
-                return link.getHref();
+        for (Link link : getLinks()) {
+            if ("next".equals(link.getRel())) {
+                return link.getHref().toString();
             }
         }
         return null;
@@ -104,43 +52,12 @@ public class KeyRequestInfos {
 
     @XmlTransient
     public String getPrevious() {
-        for (Link link : links) {
-            if ("previous".equals(link.getRelationship())) {
-                return link.getHref();
+        for (Link link : getLinks()) {
+            if ("previous".equals(link.getRel())) {
+                return link.getHref().toString();
             }
         }
         return null;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((links == null) ? 0 : links.hashCode());
-        result = prime * result + ((requests == null) ? 0 : requests.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        KeyRequestInfos other = (KeyRequestInfos) obj;
-        if (links == null) {
-            if (other.links != null)
-                return false;
-        } else if (!links.equals(other.links))
-            return false;
-        if (requests == null) {
-            if (other.requests != null)
-                return false;
-        } else if (!requests.equals(other.requests))
-            return false;
-        return true;
     }
 
     public String toString() {
@@ -172,7 +89,7 @@ public class KeyRequestInfos {
         KeyRequestInfo request = new KeyRequestInfo();
         request.setRequestType("securityDataEnrollment");
         request.setRequestStatus(RequestStatus.COMPLETE);
-        before.addRequest(request);
+        before.addEntry(request);
 
         String string = before.toString();
         System.out.println(string);

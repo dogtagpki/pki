@@ -72,11 +72,11 @@ public class AuthenticatorFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         AuthenticatorCollection result = authenticatorCLI.authenticatorClient.findAuthenticators(start, size);
-        Collection<AuthenticatorData> authenticators = result.getEntries();
 
-        MainCLI.printMessage(result.getTotal() + " authenticator(s) matched");
+        MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
 
+        Collection<AuthenticatorData> authenticators = result.getEntries();
         boolean first = true;
 
         for (AuthenticatorData authenticatorData : authenticators) {

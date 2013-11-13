@@ -82,11 +82,10 @@ public class UserMembershipFindCLI extends CLI {
 
         UserMembershipCollection response = userMembershipCLI.userClient.findUserMemberships(userID, start, size);
 
-        Collection<UserMembershipData> entries = response.getEntries();
-
-        MainCLI.printMessage(response.getTotal() + " membership(s) matched");
+        MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;
 
+        Collection<UserMembershipData> entries = response.getEntries();
         boolean first = true;
 
         for (UserMembershipData userMembershipData : entries) {

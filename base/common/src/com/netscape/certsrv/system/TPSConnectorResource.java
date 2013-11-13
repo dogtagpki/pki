@@ -43,7 +43,9 @@ import com.netscape.certsrv.key.KeyData;
 public interface TPSConnectorResource {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSConnectorCollection findConnectors(Integer start, Integer size);
+    public TPSConnectorCollection findConnectors(
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
 
     @GET
     @Path("{id}")

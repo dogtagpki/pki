@@ -47,7 +47,9 @@ public class DataCollection<E> {
     }
 
     public void setEntries(Collection<E> entries) {
-        this.entries = entries;
+        this.entries.clear();
+        if (entries == null) return;
+        this.entries.addAll(entries);
     }
 
     public void addEntry(E entry) {
@@ -63,8 +65,10 @@ public class DataCollection<E> {
         return links;
     }
 
-    public void setLink(Collection<Link> links) {
-        this.links = links;
+    public void setLinks(Collection<Link> links) {
+        this.links.clear();
+        if (links == null) return;
+        this.links.addAll(links);
     }
 
     public void addLink(Link link) {

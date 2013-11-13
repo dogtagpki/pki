@@ -23,10 +23,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Link;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
@@ -91,6 +92,7 @@ public abstract class CMSRequestDAO {
             IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
                     pageSize + 1, "requestId");
             totalSize = vlvlist.getSize();
+            ret.setTotal(totalSize);
             current = vlvlist.getCurrentIndex();
 
             int numRecords = (totalSize > (current + pageSize)) ? pageSize :
@@ -98,7 +100,7 @@ public abstract class CMSRequestDAO {
 
             for (int i = 0; i < numRecords; i++) {
                 IRequest request = vlvlist.getElementAt(i);
-                ret.addRequest(createCMSRequestInfo(request, uriInfo));
+                ret.addEntry(createCMSRequestInfo(request, uriInfo));
             }
         } else {
             // The non-vlv requests are indexed, but are not paginated.
@@ -113,9 +115,10 @@ public abstract class CMSRequestDAO {
                 RequestId rid = requests.nextElement();
                 IRequest request = queue.findRequest(rid);
                 if (request != null) {
-                    ret.addRequest(createCMSRequestInfo(request, uriInfo));
+                    ret.addEntry(createCMSRequestInfo(request, uriInfo));
                 }
             }
+            ret.setTotal(ret.getEntries().size());
         }
 
         // builder for vlv links

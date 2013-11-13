@@ -96,6 +96,8 @@ public class ProfileService extends PKIService implements ProfileResource {
     @Context
     private HttpServletRequest servletRequest;
 
+    public final static int DEFAULT_SIZE = 20;
+
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     private IConfigStore cs = CMS.getConfigStore().getSubStore("profile");
@@ -106,8 +108,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
 
     @Override
-    public ProfileDataInfos listProfiles() {
-        List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
+    public ProfileDataInfos listProfiles(Integer start, Integer size) {
+
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
         ProfileDataInfos infos = new ProfileDataInfos();
         boolean visibleOnly = true;
 
@@ -122,24 +127,41 @@ public class ProfileService extends PKIService implements ProfileResource {
                 principal.hasRole("Certificate Manager Administrators"))) {
             visibleOnly = false;
         }
-        Enumeration<String> profileIds = ps.getProfileIds();
-        if (profileIds != null) {
-            while (profileIds.hasMoreElements()) {
-                String id = profileIds.nextElement();
-                ProfileDataInfo info = null;
-                try {
-                    info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
-                } catch (EBaseException e) {
-                    continue;
-                }
 
-                if (info != null) {
-                    list.add(info);
-                }
+        Enumeration<String> e = ps.getProfileIds();
+        if (e == null) return infos;
+
+        // store non-null results in a list
+        List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
+        while (e.hasMoreElements()) {
+            try {
+                String id = e.nextElement();
+                ProfileDataInfo info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
+                if (info == null) continue;
+                results.add(info);
+            } catch (EBaseException ex) {
+                continue;
             }
         }
 
-        infos.setProfileInfos(list);
+        int total = results.size();
+        infos.setTotal(total);
+
+        // return entries in the requested page
+        for (int i = start; i < start + size && i < total; i++) {
+            infos.addEntry(results.get(i));
+        }
+
+        if (start > 0) {
+            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+            infos.addLink(new Link("prev", uri));
+        }
+
+        if (start + size < total) {
+            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            infos.addLink(new Link("next", uri));
+        }
+
         return infos;
     }
 

@@ -18,6 +18,7 @@
 
 package com.netscape.cms.servlet.request;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -29,6 +30,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -119,13 +122,15 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
     @Override
     public CertRequestInfos enrollCert(CertEnrollmentRequest data) {
-        CertRequestInfos infos;
+
         if (data == null) {
             CMS.debug("enrollCert: data is null");
             throw new BadRequestException("Unable to create enrollment reequest: Invalid input data");
         }
+
         CertRequestDAO dao = new CertRequestDAO();
 
+        CertRequestInfos infos;
         try {
             infos = dao.submitRequest(data, servletRequest, uriInfo, getLocale(headers));
         } catch (EAuthException e) {
@@ -354,35 +359,54 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public ProfileDataInfos listEnrollmentTemplates() {
+    public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) {
+
+        start = start == null ? DEFAULT_START : start;
+        size = size == null ? DEFAULT_PAGESIZE : size;
+
         IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
-        List<ProfileDataInfo> list = new ArrayList<ProfileDataInfo>();
+
+        if (ps == null) {
+            throw new PKIException("Profile subsystem unavailable.");
+        }
+
         ProfileDataInfos infos = new ProfileDataInfos();
         boolean visibleOnly = true;
 
-        if (ps == null) {
-            return null;
-        }
+        Enumeration<String> e = ps.getProfileIds();
+        if (e == null) return infos;
 
-        Enumeration<String> profileIds = ps.getProfileIds();
-        if (profileIds != null) {
-            while (profileIds.hasMoreElements()) {
-                String id = profileIds.nextElement();
-                ProfileDataInfo info = null;
-                try {
-                    info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
-                } catch (EBaseException e) {
-                    continue;
-                }
-
-                if (info != null) {
-                    list.add(info);
-                }
+        // store non-null results in a list
+        List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
+        while (e.hasMoreElements()) {
+            try {
+                String id = e.nextElement();
+                ProfileDataInfo info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
+                if (info == null) continue;
+                results.add(info);
+            } catch (EBaseException ex) {
+                continue;
             }
         }
 
-        infos.setProfileInfos(list);
+        int total = results.size();
+        infos.setTotal(total);
+
+        // return entries in the requested page
+        for (int i = start; i < start + size && i < total; i++) {
+            infos.addEntry(results.get(i));
+        }
+
+        if (start > 0) {
+            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+            infos.addLink(new Link("prev", uri));
+        }
+
+        if (start + size < total) {
+            URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            infos.addLink(new Link("next", uri));
+        }
+
         return infos;
     }
-
 }

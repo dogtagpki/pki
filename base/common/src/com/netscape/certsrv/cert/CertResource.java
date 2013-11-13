@@ -1,7 +1,6 @@
 package com.netscape.certsrv.cert;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -17,16 +16,15 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 @Path("")
 public interface CertResource {
 
-    public static final int DEFAULT_MAXTIME = 0;
-    public static final int DEFAULT_MAXRESULTS = 20;
-
     @GET
     @Path("certs")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public CertDataInfos listCerts(
             @QueryParam("status") String status,
-            @DefaultValue("" + DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
-            @DefaultValue("" + DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime);
+            @QueryParam("maxResults") Integer maxResults,
+            @QueryParam("maxTime") Integer maxTime,
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
 
     @POST
     @Path("certs/search")

@@ -18,11 +18,12 @@
 
 package com.netscape.cmstools.cert;
 
+import java.util.Collection;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.request.RequestId;
@@ -50,7 +51,6 @@ public class CertRequestFindCLI extends CLI {
         addOptions();
 
         CommandLine cmd = null;
-        CertRequestInfos certRequests = null;
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
@@ -82,19 +82,15 @@ public class CertRequestFindCLI extends CLI {
         String requestType = cmd.getOptionValue("type");
         if (requestType != null && requestType.equals("all")) requestType = null;
 
-        try {
-            certRequests = certCLI.certClient.certRequestClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
-        } catch (PKIException e) {
-            System.err.println("Error: Cannot list certificate requests. " + e.getMessage());
-            System.exit(-1);
-        }
-        if (certRequests.getRequests() == null || certRequests.getRequests().isEmpty()) {
-            MainCLI.printMessage("No matches found.");
-            System.exit(-1);
-        }
+        CertRequestInfos response = certCLI.certClient.certRequestClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
 
+        MainCLI.printMessage(response.getTotal() + " entries matched");
+        if (response.getTotal() == 0) return;
+
+        Collection<CertRequestInfo> entries = response.getEntries();
         boolean first = true;
-        for (CertRequestInfo certRequest : certRequests.getRequests()) {
+
+        for (CertRequestInfo certRequest : entries) {
             if (first) {
                 first = false;
             } else {
@@ -104,7 +100,7 @@ public class CertRequestFindCLI extends CLI {
             CertCLI.printCertRequestInfo(certRequest);
         }
 
-        MainCLI.printMessage("Number of entries returned " + certRequests.getRequests().size());
+        MainCLI.printMessage("Number of entries returned " + entries.size());
     }
 
     public void addOptions() {

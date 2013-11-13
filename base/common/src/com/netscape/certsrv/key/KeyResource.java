@@ -23,7 +23,9 @@ public interface KeyResource {
     public KeyDataInfos listKeys(@QueryParam("clientID") String clientID,
                                  @QueryParam("status") String status,
                                  @QueryParam("maxResults") Integer maxResults,
-                                 @QueryParam("maxTime") Integer maxTime);
+                                 @QueryParam("maxTime") Integer maxTime,
+                                 @QueryParam("start") Integer start,
+                                 @QueryParam("size") Integer size);
 
 
     /**

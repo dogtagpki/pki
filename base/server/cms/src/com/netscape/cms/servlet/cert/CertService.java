@@ -103,6 +103,8 @@ public class CertService extends PKIService implements CertResource {
     ICertificateRepository repo;
     Random random;
 
+    public static final int DEFAULT_MAXTIME = 0;
+    public static final int DEFAULT_MAXRESULTS = 20;
     public final static int DEFAULT_SIZE = 20;
 
     public CertService() {
@@ -387,36 +389,74 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertDataInfos listCerts(String status, int maxResults, int maxTime) {
-        // get ldap filter
-        String filter = createSearchFilter(status);
-        CMS.debug("listKeys: filter is " + filter);
+    public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
 
-        CertDataInfos infos;
+        maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
+        maxTime    = maxTime == null ? DEFAULT_MAXTIME : maxTime;
+        start      = start == null ? 0 : start;
+        size       = size == null ? DEFAULT_SIZE : size;
+
+        String filter = createSearchFilter(status);
+        CMS.debug("listCerts: filter is " + filter);
+
+        CertDataInfos infos = new CertDataInfos();
         try {
-            infos = getCertList(filter, maxResults, maxTime);
+            Enumeration<ICertRecord> e = repo.searchCertificates(filter, maxResults, maxTime);
+            if (e == null) {
+                throw new EBaseException("search results are null");
+            }
+
+            // store non-null results in a list
+            List<CertDataInfo> results = new ArrayList<CertDataInfo>();
+            while (e.hasMoreElements()) {
+                ICertRecord rec = e.nextElement();
+                if (rec == null) continue;
+                results.add(createCertDataInfo(rec));
+            }
+
+            int total = results.size();
+            infos.setTotal(total);
+
+            // return entries in the requested page
+            for (int i = start; i < start + size && i < total ; i++) {
+                infos.addEntry(results.get(i));
+            }
+
+            if (start > 0) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
+                infos.addLink(new Link("prev", uri));
+            }
+
+            if (start + size < total) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
+                infos.addLink(new Link("next", uri));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException("Error listing certs in CertsResourceService.listCerts!", e);
+            throw new PKIException("Error listing certs in CertService.listCerts!", e);
         }
+
         return infos;
     }
 
     @Override
     public CertDataInfos searchCerts(CertSearchRequest data, Integer start, Integer size) {
+
         if (data == null) {
             throw new BadRequestException("Search request is null.");
         }
+
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
         String filter = createSearchFilter(data);
 
         CertDataInfos infos = new CertDataInfos();
-
-        Enumeration<ICertRecord> e = null;
         try {
-
-            e = repo.findCertRecords(filter);
+            Enumeration<ICertRecord> e = repo.findCertRecords(filter);
+            if (e == null) {
+                throw new EBaseException("search results are null");
+            }
 
             int i = 0;
 
@@ -427,12 +467,14 @@ public class CertService extends PKIService implements CertResource {
             // return entries up to the page size
             for (; i < start + size && e.hasMoreElements(); i++) {
                 ICertRecord user = e.nextElement();
-                infos.addCertData(createCertDataInfo(user));
+                infos.addEntry(createCertDataInfo(user));
             }
 
             // count the total entries
             for (; e.hasMoreElements(); i++)
                 e.nextElement();
+
+            infos.setTotal(i);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
@@ -443,46 +485,12 @@ public class CertService extends PKIService implements CertResource {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 infos.addLink(new Link("next", uri));
             }
+
         } catch (Exception e1) {
-            throw new PKIException("Error listing certs in CertsResourceService.listCerts!", e1);
+            throw new PKIException("Error searching certs in CertService.searchCerts!", e1);
         }
 
         return infos;
-    }
-
-    /**
-     * Returns list of certs meeting specified search filter.
-     * Currently, vlv searches are not used for certs.
-     *
-     * @param filter
-     * @param maxResults
-     * @param maxTime
-     * @param uriInfo
-     * @return
-     * @throws EBaseException
-     * @throws InvalidKeyException
-     */
-    private CertDataInfos getCertList(String filter, int maxResults, int maxTime)
-            throws EBaseException, InvalidKeyException {
-        List<CertDataInfo> list = new ArrayList<CertDataInfo>();
-        Enumeration<ICertRecord> e = null;
-
-        e = repo.searchCertificates(filter, maxResults, maxTime);
-        if (e == null) {
-            throw new EBaseException("search results are null");
-        }
-
-        while (e.hasMoreElements()) {
-            ICertRecord rec = e.nextElement();
-            if (rec != null) {
-                list.add(createCertDataInfo(rec));
-            }
-        }
-
-        CertDataInfos ret = new CertDataInfos();
-        ret.setCertInfos(list);
-
-        return ret;
     }
 
     public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws EBaseException, CertificateEncodingException {

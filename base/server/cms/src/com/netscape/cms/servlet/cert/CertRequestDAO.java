@@ -93,14 +93,16 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
 
-        Collection<? extends CMSRequestInfo> cmsList = cmsInfos.getRequests();
+        ret.setTotal(cmsInfos.getTotal());
+
+        Collection<? extends CMSRequestInfo> cmsList = cmsInfos.getEntries();
 
         // We absolutely know 100% that this list is a list
         // of CertRequestInfo objects. This is because the method
         // createCMSRequestInfo. Is the only one adding to it
 
         List<CertRequestInfo> list = (List<CertRequestInfo>) cmsList;
-        ret.setRequests(list);
+        ret.setEntries(list);
 
         ret.setLinks(cmsInfos.getLinks());
 
@@ -179,8 +181,10 @@ public class CertRequestDAO extends CMSRequestDAO {
         IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);
         for (IRequest req : reqs) {
             CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
-            ret.addRequest(info);
+            ret.addEntry(info);
         }
+
+        ret.setTotal(ret.getEntries().size());
 
         // TODO - what happens if the errorCode is internal error ?
 

@@ -50,8 +50,8 @@ public class CAClient extends SubsystemClient {
         profileClient = createProxy(ProfileResource.class);
     }
 
-    public ProfileDataInfos listProfiles() {
-        return profileClient.listProfiles();
+    public ProfileDataInfos listProfiles(Integer start, Integer size) {
+        return profileClient.listProfiles(start, size);
     }
 
     public ProfileData getProfile(String id) {

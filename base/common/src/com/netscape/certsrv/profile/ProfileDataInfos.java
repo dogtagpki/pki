@@ -18,58 +18,29 @@
 package com.netscape.certsrv.profile;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.netscape.certsrv.base.Link;
+import org.jboss.resteasy.plugins.providers.atom.Link;
+
+import com.netscape.certsrv.base.DataCollection;
+//import com.netscape.certsrv.base.Link;
 
 @XmlRootElement(name = "ProfileDataInfos")
-public class ProfileDataInfos {
+public class ProfileDataInfos extends DataCollection<ProfileDataInfo> {
 
-    protected Collection<ProfileDataInfo> profileInfos;
-    protected List<Link> links;
-
-    /**
-     * @return the ProfileInfos
-     */
     @XmlElementRef
-    public Collection<ProfileDataInfo> getProfileInfos() {
-        return profileInfos;
-    }
-
-    /**
-     * @param ProfileInfos theProfileInfos to set
-     */
-    public void setProfileInfos(Collection<ProfileDataInfo> profileInfos) {
-        this.profileInfos = profileInfos;
-    }
-
-    /**
-     * @return the links
-     */
-    @XmlElementRef
-    public List<Link> getLinks() {
-        return links;
-    }
-
-    /**
-     * @param links the links to set
-     */
-    public void setLinks(List<Link> links) {
-        this.links = links;
+    public Collection<ProfileDataInfo> getEntries() {
+        return super.getEntries();
     }
 
     @XmlTransient
     public String getNext() {
-        if (links == null) {
-            return null;
-        }
-        for (Link link : links) {
-            if ("next".equals(link.getRelationship())) {
-                return link.getHref();
+        for (Link link : getLinks()) {
+            if ("next".equals(link. getRel())) {
+                return link.getHref().toString();
             }
         }
         return null;
@@ -77,12 +48,9 @@ public class ProfileDataInfos {
 
     @XmlTransient
     public String getPrevious() {
-        if (links == null) {
-            return null;
-        }
-        for (Link link : links) {
-            if ("previous".equals(link.getRelationship())) {
-                return link.getHref();
+        for (Link link : getLinks()) {
+            if ("previous".equals(link.getRel())) {
+                return link.getHref().toString();
             }
         }
         return null;

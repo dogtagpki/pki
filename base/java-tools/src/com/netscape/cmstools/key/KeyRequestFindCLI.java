@@ -106,10 +106,10 @@ public class KeyRequestFindCLI extends CLI {
         KeyRequestInfos keys = keyCLI.keyClient.findKeyRequests(
                 status, type, clientID, start, pageSize, maxResults, maxTime);
 
-        Collection<KeyRequestInfo> entries = keys.getRequests();
+        MainCLI.printMessage(keys.getTotal() + " entries matched");
+        if (keys.getTotal() == 0) return;
 
-        MainCLI.printMessage(entries.size() + " key request(s) matched");
-
+        Collection<KeyRequestInfo> entries = keys.getEntries();
         boolean first = true;
 
         for (KeyRequestInfo info : entries) {

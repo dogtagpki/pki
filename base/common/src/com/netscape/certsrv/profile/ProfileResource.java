@@ -24,7 +24,9 @@ public interface ProfileResource {
     @GET
     @ACLMapping("profile.list")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileDataInfos listProfiles();
+    public ProfileDataInfos listProfiles(
+            @QueryParam("start") Integer start,
+            @QueryParam("size") Integer size);
 
     @GET
     @Path("{id}")

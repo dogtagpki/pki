@@ -76,11 +76,10 @@ public class GroupFindCLI extends CLI {
 
         GroupCollection response = groupCLI.groupClient.findGroups(filter, start, size);
 
-        Collection<GroupData> entries = response.getEntries();
-
-        MainCLI.printMessage(response.getTotal() + " group(s) matched");
+        MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;
 
+        Collection<GroupData> entries = response.getEntries();
         boolean first = true;
 
         for (GroupData groupData : entries) {

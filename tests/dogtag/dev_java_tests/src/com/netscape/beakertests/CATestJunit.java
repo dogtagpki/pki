@@ -86,7 +86,7 @@ public class CATestJunit extends PKIJUnitTest {
 
         Collection<CertRequestInfo> list = null;
         try {
-            list = certClient.listRequests("complete", null, null, null, null, null).getRequests();
+            list = certClient.listRequests("complete", null, null, null, null, null).getEntries();
         } catch (Exception e) {
             e.printStackTrace();
         }

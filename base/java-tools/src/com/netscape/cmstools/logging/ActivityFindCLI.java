@@ -72,11 +72,11 @@ public class ActivityFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         ActivityCollection result = activityCLI.activityClient.findActivities(start, size);
-        Collection<ActivityData> activities = result.getEntries();
 
-        MainCLI.printMessage(result.getTotal() + " activity(s) matched");
+        MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
 
+        Collection<ActivityData> activities = result.getEntries();
         boolean first = true;
 
         for (ActivityData activityData : activities) {

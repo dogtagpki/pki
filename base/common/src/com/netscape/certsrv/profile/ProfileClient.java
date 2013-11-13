@@ -44,8 +44,8 @@ public class ProfileClient extends Client {
         return profileClient.retrieveProfile(id);
     }
 
-    public ProfileDataInfos listProfiles() {
-        return profileClient.listProfiles();
+    public ProfileDataInfos listProfiles(Integer start, Integer size) {
+        return profileClient.listProfiles(start, size);
     }
 
     public void enableProfile(String id) {
