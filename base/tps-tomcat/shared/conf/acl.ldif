@@ -27,4 +27,5 @@ resourceACLS: certServer.tps.connections:read,add,modify,remove:allow (read,add,
 resourceACLS: certServer.tps.groups:execute:allow (execute) group="TUS Administrators":Admins may execute group operations
 resourceACLS: certServer.tps.users:execute:allow (execute) group="TUS Administrators":Admins may execute user operations
 resourceACLS: certServer.tps.profiles:read,add,modify,approve,remove:allow (read) group="TUS Administrators" || group="TUS Agents" ; allow (add,remove,modify) group="TUS Administrators" ; allow (approve) group="TUS Agents":Admins, agents, and operators can read profiles, but only admins can add, modify, and remove profiles, and only agents can approve profiles.
+resourceACLS: certServer.tps.selftests:read,execute:allow (read,execute) group="TUS Administrators":Only admins can access selftests.
 resourceACLS: certServer.tps.tokens:read,add,modify,remove:allow (read) group="TUS Administrators" || group="TUS Agents" || group="TUS Operators"; allow (add,remove) group="TUS Administrators" ; allow (modify) group="TUS Agents":Admins, agents, operators can read tokens, but only admins can add and remove tokens, and only agents can modify tokens.

@@ -25,11 +25,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("selftests")
+@AuthMethodMapping("selftests")
+@ACLMapping("selftests.read")
 public interface SelfTestResource {
 
     @GET
@@ -40,6 +45,7 @@ public interface SelfTestResource {
 
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("selftests.execute")
     public void executeSelfTests(@QueryParam("action") String action);
 
     @GET
