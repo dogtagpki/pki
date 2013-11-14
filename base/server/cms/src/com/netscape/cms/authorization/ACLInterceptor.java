@@ -17,9 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.security.Principal;
 import java.util.Properties;
 
@@ -49,7 +50,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 @Provider
 public class ACLInterceptor implements ContainerRequestFilter {
 
-    Properties authProperties;
+    Properties properties;
 
     @Context
     ServletContext servletContext;
@@ -57,14 +58,33 @@ public class ACLInterceptor implements ContainerRequestFilter {
     @Context
     SecurityContext securityContext;
 
-    public synchronized void loadAuthProperties() throws IOException {
+    public synchronized void loadProperties() throws IOException {
 
-        if (authProperties != null)
+        if (properties != null)
             return;
 
-        URL url = servletContext.getResource("/WEB-INF/auth.properties");
-        authProperties = new Properties();
-        authProperties.load(url.openStream());
+        properties = new Properties();
+
+        String context = servletContext.getContextPath();
+        String subsystem = context.startsWith("/") ? context.substring(1) : context;
+
+        // load default mapping
+        String defaultMapping = "/usr/share/pki/" + subsystem + "/conf/acl.properties";
+        CMS.debug("ACLInterceptor: loading " + defaultMapping);
+        try (FileReader in = new FileReader(defaultMapping)) {
+            properties.load(in);
+        }
+
+        // load custom mapping
+        File customMapping = new File(System.getProperty("catalina.base")
+                + "/" + subsystem + "/conf/acl.properties");
+        CMS.debug("ACLInterceptor: checking " + customMapping);
+        if (customMapping.exists()) {
+            CMS.debug("ACLInterceptor: loading " + customMapping);
+            try (FileReader in = new FileReader(customMapping)) {
+                properties.load(in);
+            }
+        }
     }
 
     @Override
@@ -118,9 +138,9 @@ public class ACLInterceptor implements ContainerRequestFilter {
         }
 
         try {
-            loadAuthProperties();
+            loadProperties();
 
-            String value = authProperties.getProperty(name);
+            String value = properties.getProperty(name);
 
             // If no property defined, allow request.
             if (value == null) {

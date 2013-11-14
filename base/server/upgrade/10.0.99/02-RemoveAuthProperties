@@ -21,25 +21,22 @@
 
 import os
 import pki
-import shutil
 import pki.server.upgrade
 
 
-class UpdateAuthzProperties(pki.server.upgrade.PKIServerUpgradeScriptlet):
+class RemoveAuthProperties(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-        self.message = 'Update auth.properties'
+        self.message = 'Remove auth.properties'
 
     def upgrade_subsystem(self, instance, subsystem):
+
         auth_properties = os.path.join(
             instance.base_dir,
             'webapps', subsystem.name,
             'WEB-INF', 'auth.properties')
 
         self.backup(auth_properties)
-        default_auth_properties = os.path.join(
-            pki.SHARE_DIR, subsystem.name,
-            'webapps', subsystem.name,
-            'WEB-INF', 'auth.properties')
 
-        shutil.copyfile(default_auth_properties, auth_properties)
+        if os.path.exists(auth_properties):
+            os.remove(auth_properties)

@@ -17,9 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 @Provider
 public class AuthMethodInterceptor implements ContainerRequestFilter {
 
-    Properties authMethodProperties;
+    Properties properties;
 
     @Context
     ServletContext servletContext;
@@ -56,37 +57,32 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
     @Context
     SecurityContext securityContext;
 
-    public synchronized void loadAuthProperties() throws IOException {
+    public synchronized void loadProperties() throws IOException {
 
-        if (authMethodProperties != null)
+        if (properties != null)
             return;
 
-        authMethodProperties = new Properties();
+        properties = new Properties();
 
-        URL url = servletContext.getResource("/WEB-INF/auth-method.properties");
+        String context = servletContext.getContextPath();
+        String subsystem = context.startsWith("/") ? context.substring(1) : context;
 
-        if (url == null) {
-            authMethodProperties.put("default", "*");
-            authMethodProperties.put("account", "certUserDBAuthMgr,passwdUserDBAuthMgr");
-            authMethodProperties.put("authenticators", "certUserDBAuthMgr");
-            authMethodProperties.put("certs", "certUserDBAuthMgr");
-            authMethodProperties.put("certrequests", "certUserDBAuthMgr");
-            authMethodProperties.put("config", "certUserDBAuthMgr");
-            authMethodProperties.put("connections", "certUserDBAuthMgr");
-            authMethodProperties.put("groups", "certUserDBAuthMgr");
-            authMethodProperties.put("keys", "certUserDBAuthMgr");
-            authMethodProperties.put("keyrequests", "certUserDBAuthMgr");
-            authMethodProperties.put("kraconnectors", "certUserDBAuthMgr");
-            authMethodProperties.put("profiles", "certUserDBAuthMgr");
-            authMethodProperties.put("profile-mappings", "certUserDBAuthMgr");
-            authMethodProperties.put("securityDomain.installToken", "passwdUserDBAuthMgr");
-            authMethodProperties.put("selftests", "certUserDBAuthMgr");
-            authMethodProperties.put("tokens", "certUserDBAuthMgr");
-            authMethodProperties.put("tpsconnectors", "certUserDBAuthMgr");
-            authMethodProperties.put("users", "certUserDBAuthMgr");
+        // load default mapping
+        String defaultMapping = "/usr/share/pki/" + subsystem + "/conf/auth-method.properties";
+        CMS.debug("AuthMethodInterceptor: loading " + defaultMapping);
+        try (FileReader in = new FileReader(defaultMapping)) {
+            properties.load(in);
+        }
 
-        } else {
-            authMethodProperties.load(url.openStream());
+        // load custom mapping
+        File customMapping = new File(System.getProperty("catalina.base") +
+                "/" + subsystem + "/conf/auth-method.properties");
+        CMS.debug("AuthMethodInterceptor: checking " + customMapping);
+        if (customMapping.exists()) {
+            CMS.debug("AuthMethodInterceptor: loading " + customMapping);
+            try (FileReader in = new FileReader(customMapping)) {
+                properties.load(in);
+            }
         }
     }
 
@@ -119,9 +115,9 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         CMS.debug("AuthMethodInterceptor: mapping: " + name);
 
         try {
-            loadAuthProperties();
+            loadProperties();
 
-            String value = authMethodProperties.getProperty(name);
+            String value = properties.getProperty(name);
             Collection<String> authMethods = new HashSet<String>();
             if (value != null) {
                 for (String v : value.split(",")) {
