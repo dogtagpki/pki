@@ -14,8 +14,8 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 
 
 @Path("agent/keys")
-@ACLMapping("agent.keys")
-@AuthMethodMapping("agent")
+@ACLMapping("keys")
+@AuthMethodMapping("keys")
 public interface KeyResource {
 
     @GET

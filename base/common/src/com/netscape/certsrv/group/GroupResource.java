@@ -38,8 +38,8 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
  * @author Endi S. Dewata
  */
 @Path("admin/groups")
-@ACLMapping("admin.groups")
-@AuthMethodMapping("admin")
+@ACLMapping("groups")
+@AuthMethodMapping("groups")
 public interface GroupResource {
 
     @GET

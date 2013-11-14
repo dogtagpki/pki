@@ -38,8 +38,8 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
  * @author Endi S. Dewata
  */
 @Path("admin/users")
-@ACLMapping("admin.users")
-@AuthMethodMapping("admin")
+@ACLMapping("users")
+@AuthMethodMapping("users")
 public interface UserResource {
 
     public static final String ATTR_TPS_PROFILES = "tpsProfiles";

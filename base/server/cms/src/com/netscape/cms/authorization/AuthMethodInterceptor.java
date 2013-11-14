@@ -68,15 +68,21 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         if (url == null) {
             authMethodProperties.put("default", "*");
             authMethodProperties.put("account", "certUserDBAuthMgr,passwdUserDBAuthMgr");
-            authMethodProperties.put("admin", "certUserDBAuthMgr");
-            authMethodProperties.put("agent", "certUserDBAuthMgr");
+            authMethodProperties.put("authenticators", "certUserDBAuthMgr");
+            authMethodProperties.put("certs", "certUserDBAuthMgr");
+            authMethodProperties.put("certrequests", "certUserDBAuthMgr");
             authMethodProperties.put("config", "certUserDBAuthMgr");
             authMethodProperties.put("connections", "certUserDBAuthMgr");
-            authMethodProperties.put("authenticators", "certUserDBAuthMgr");
+            authMethodProperties.put("groups", "certUserDBAuthMgr");
+            authMethodProperties.put("keys", "certUserDBAuthMgr");
+            authMethodProperties.put("keyrequests", "certUserDBAuthMgr");
+            authMethodProperties.put("kraconnectors", "certUserDBAuthMgr");
             authMethodProperties.put("profiles", "certUserDBAuthMgr");
             authMethodProperties.put("securityDomain.installToken", "passwdUserDBAuthMgr");
             authMethodProperties.put("selftests", "certUserDBAuthMgr");
             authMethodProperties.put("tokens", "certUserDBAuthMgr");
+            authMethodProperties.put("tpsconnectors", "certUserDBAuthMgr");
+            authMethodProperties.put("users", "certUserDBAuthMgr");
 
         } else {
             authMethodProperties.load(url.openStream());

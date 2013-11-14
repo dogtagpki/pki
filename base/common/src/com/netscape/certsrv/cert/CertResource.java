@@ -43,31 +43,31 @@ public interface CertResource {
     @GET
     @Path("agent/certs/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certs")
-    @AuthMethodMapping("agent")
+    @ACLMapping("certs")
+    @AuthMethodMapping("certs")
     public CertData reviewCert(@PathParam("id") CertId id);
 
     @POST
     @Path("agent/certs/{id}/revoke-ca")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certs")
-    @AuthMethodMapping("agent")
+    @ACLMapping("certs")
+    @AuthMethodMapping("certs")
     public CertRequestInfo revokeCACert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
     @Path("agent/certs/{id}/revoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certs")
-    @AuthMethodMapping("agent")
+    @ACLMapping("certs")
+    @AuthMethodMapping("certs")
     public CertRequestInfo revokeCert(@PathParam("id") CertId id, CertRevokeRequest request);
 
     @POST
     @Path("agent/certs/{id}/unrevoke")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("agent.certs")
-    @AuthMethodMapping("agent")
+    @ACLMapping("certs")
+    @AuthMethodMapping("certs")
     public CertRequestInfo unrevokeCert(@PathParam("id") CertId id, CertUnrevokeRequest request);
 }

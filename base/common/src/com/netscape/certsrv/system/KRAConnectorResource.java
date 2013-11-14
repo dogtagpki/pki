@@ -32,8 +32,8 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
  * @author Ade Lee
  */
 @Path("admin/kraconnector")
-@ACLMapping("admin.kraconnector")
-@AuthMethodMapping("admin")
+@ACLMapping("kraconnectors")
+@AuthMethodMapping("kraconnectors")
 public interface KRAConnectorResource {
 
     @POST

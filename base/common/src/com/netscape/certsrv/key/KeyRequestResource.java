@@ -18,8 +18,8 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("agent/keyrequests")
-@ACLMapping("agent.keyrequests")
-@AuthMethodMapping("agent")
+@ACLMapping("keyrequests")
+@AuthMethodMapping("keyrequests")
 public interface KeyRequestResource {
 
     public final String SYMMETRIC_KEY_TYPE = "symmetricKey";

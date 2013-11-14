@@ -39,7 +39,7 @@ import com.netscape.certsrv.key.KeyData;
  * @author Ade Lee
  */
 @Path("/admin/tps-connectors")
-@AuthMethodMapping("admin")
+@AuthMethodMapping("tpsconnectors")
 public interface TPSConnectorResource {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
