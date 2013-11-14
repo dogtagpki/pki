@@ -27,11 +27,16 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("config")
+@AuthMethodMapping("config")
+@ACLMapping("config.read")
 public interface ConfigResource {
 
     @GET
@@ -42,5 +47,6 @@ public interface ConfigResource {
     @ClientResponseType(entityType=ConfigData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("config.modify")
     public Response updateConfig(ConfigData configData);
 }
