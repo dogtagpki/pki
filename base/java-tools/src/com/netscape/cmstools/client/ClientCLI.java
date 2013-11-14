@@ -32,6 +32,7 @@ public class ClientCLI extends CLI {
     public ClientCLI(CLI parent) {
         super("client", "Client management commands", parent);
 
+        addModule(new ClientInitCLI(this));
         addModule(new ClientCertFindCLI(this));
         addModule(new ClientCertImportCLI(this));
         addModule(new ClientCertRemoveCLI(this));

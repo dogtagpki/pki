@@ -454,7 +454,7 @@ public class PKIConnection {
                 CryptoManager.getInstance();
 
             } catch (NotInitializedException e) {
-                throw new IOException(e);
+                throw new IOException("Certificate database not initialized.", e);
             }
 
             String hostName = null;

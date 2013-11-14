@@ -30,6 +30,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.util.IncorrectPasswordException;
@@ -152,16 +153,16 @@ public class MainCLI extends CLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option("d", true, "Certificate database");
+        option = new Option("d", true, "Certificate database location (default: ~/.dogtag/nssdb)");
         option.setArgName("database");
+        options.addOption(option);
+
+        option = new Option("c", true, "Certificate database password");
+        option.setArgName("password");
         options.addOption(option);
 
         option = new Option("n", true, "Certificate nickname");
         option.setArgName("nickname");
-        options.addOption(option);
-
-        option = new Option("c", true, "Certificate password");
-        option.setArgName("password");
         options.addOption(option);
 
         option = new Option("u", true, "Username");
@@ -238,6 +239,19 @@ public class MainCLI extends CLI {
 
         list = cmd.getOptionValue("ignore-cert-status");
         convertCertStatusList(list, ignoredCertStatuses);
+
+        if (config.getCertDatabase() == null) {
+            // Use default certificate database
+            this.certDatabase = new File(
+                    System.getProperty("user.home") + File.separator +
+                    ".dogtag" + File.separator + "nssdb");
+
+        } else {
+            // Use existing certificate database
+            this.certDatabase = new File(config.getCertDatabase());
+        }
+
+        if (verbose) System.out.println("Certificate database: "+this.certDatabase.getAbsolutePath());
     }
 
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
@@ -259,35 +273,24 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        if (config.getCertDatabase() == null) {
-            // Create a default certificate database
-            certDatabase = new File(
-                    System.getProperty("user.home") + File.separator +
-                    ".dogtag" + File.separator + "nssdb");
-
-            certDatabase.mkdirs();
-
-        } else {
-            // Use existing certificate database
-            certDatabase = new File(config.getCertDatabase());
-        }
-
-        if (verbose) System.out.println("Certificate database: "+certDatabase.getAbsolutePath());
-
         // Main program should initialize certificate database
-        CryptoManager.initialize(certDatabase.getAbsolutePath());
+        if (certDatabase.exists()) {
+            CryptoManager.initialize(certDatabase.getAbsolutePath());
+        }
 
         // If password is specified, use password to access client database
         if (config.getCertPassword() != null) {
-            CryptoManager manager = CryptoManager.getInstance();
-            CryptoToken token = manager.getInternalKeyStorageToken();
-            Password password = new Password(config.getCertPassword().toCharArray());
-
             try {
+                CryptoManager manager = CryptoManager.getInstance();
+                CryptoToken token = manager.getInternalKeyStorageToken();
+                Password password = new Password(config.getCertPassword().toCharArray());
                 token.login(password);
 
+            } catch (NotInitializedException e) {
+                // The original exception doesn't contain a message.
+                throw new Error("Certificate database not initialized.");
+
             } catch (IncorrectPasswordException e) {
-                System.out.println("Error: "+e.getClass().getSimpleName()+": "+e.getMessage());
                 // The original exception doesn't contain a message.
                 throw new IncorrectPasswordException("Incorrect certificate database password.");
             }
@@ -310,42 +313,57 @@ public class MainCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
+        createOptions(options);
+
+        CommandLine cmd;
         try {
-            createOptions(options);
+            cmd = parser.parse(options, args, true);
+        } catch (Exception e) {
+            throw new Error(e.getMessage(), e);
+        }
 
-            CommandLine cmd;
-            try {
-                cmd = parser.parse(options, args, true);
-            } catch (Exception e) {
-                throw new Error(e.getMessage(), e);
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmd.hasOption("version")) {
+            printVersion();
+            System.exit(1);
+        }
+
+        if (cmdArgs.length == 0 || cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
+
+        parseOptions(cmd);
+
+        if (verbose) {
+            System.out.print("Command:");
+            for (String arg : cmdArgs) {
+                if (arg.contains(" ")) arg = "\""+arg+"\"";
+                System.out.print(" "+arg);
             }
+            System.out.println();
+        }
 
-            String[] cmdArgs = cmd.getArgs();
-
-            if (cmd.hasOption("version")) {
-                printVersion();
-                System.exit(1);
-            }
-
-            if (cmdArgs.length == 0 || cmd.hasOption("help")) {
-                printHelp();
-                System.exit(1);
-            }
-
-            parseOptions(cmd);
-
+        // Do not call CryptoManager.initialize() on client-init
+        // because otherwise the database will be locked.
+        if (!cmdArgs[0].equals("client-init")) {
             init();
+        }
 
-            if (verbose) {
-                System.out.print("Command:");
-                for (String arg : cmdArgs) {
-                    if (arg.contains(" ")) arg = "\""+arg+"\"";
-                    System.out.print(" "+arg);
-                }
-                System.out.println();
-            }
+        super.execute(cmdArgs);
+    }
 
-            super.execute(cmdArgs);
+    public static void printMessage(String message) {
+        System.out.println(StringUtils.repeat("-", message.length()));
+        System.out.println(message);
+        System.out.println(StringUtils.repeat("-", message.length()));
+    }
+
+    public static void main(String args[]) {
+        try {
+            MainCLI cli = new MainCLI();
+            cli.execute(args);
 
         } catch (Throwable t) {
             if (verbose) {
@@ -355,16 +373,5 @@ public class MainCLI extends CLI {
             }
             System.exit(1);
         }
-    }
-
-    public static void printMessage(String message) {
-        System.out.println(StringUtils.repeat("-", message.length()));
-        System.out.println(message);
-        System.out.println(StringUtils.repeat("-", message.length()));
-    }
-
-    public static void main(String args[]) throws Exception {
-        MainCLI cli = new MainCLI();
-        cli.execute(args);
     }
 }
