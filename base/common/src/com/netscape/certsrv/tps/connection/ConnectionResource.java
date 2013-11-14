@@ -31,11 +31,16 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("connections")
+@AuthMethodMapping("connections")
+@ACLMapping("connections.read")
 public interface ConnectionResource {
 
     @GET
@@ -53,6 +58,7 @@ public interface ConnectionResource {
     @ClientResponseType(entityType=ConnectionData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("connections.add")
     public Response addConnection(ConnectionData connectionData);
 
     @PUT
@@ -60,6 +66,7 @@ public interface ConnectionResource {
     @ClientResponseType(entityType=ConnectionData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("connections.modify")
     public Response updateConnection(
             @PathParam("connectionID") String connectionID,
             ConnectionData connectionData);
@@ -67,5 +74,6 @@ public interface ConnectionResource {
     @DELETE
     @Path("{connectionID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("connections.remove")
     public void removeConnection(@PathParam("connectionID") String connectionID);
 }

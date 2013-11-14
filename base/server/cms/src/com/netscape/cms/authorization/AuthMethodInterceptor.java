@@ -71,6 +71,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             authMethodProperties.put("admin", "certUserDBAuthMgr");
             authMethodProperties.put("agent", "certUserDBAuthMgr");
             authMethodProperties.put("config", "certUserDBAuthMgr");
+            authMethodProperties.put("connections", "certUserDBAuthMgr");
             authMethodProperties.put("authenticators", "certUserDBAuthMgr");
             authMethodProperties.put("profiles", "certUserDBAuthMgr");
             authMethodProperties.put("securityDomain.installToken", "passwdUserDBAuthMgr");
