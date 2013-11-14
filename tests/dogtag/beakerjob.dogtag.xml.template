@@ -1,6 +1,6 @@
 <job retention_tag="scratch">
 	<whiteboard>
-		dogtag rhcs test single rpm param value TEST_ALL TRUE
+		Dogtag PKI beaker testing.
 	</whiteboard>
 	<recipeSet priority="Normal">
 		<recipe kernel_options="" kernel_options_post="" ks_meta="" role="RECIPE_MEMBERS" whiteboard="">

@@ -47,18 +47,11 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-del-ca.sh
 . ./dev_java_tests/run_junit_tests.sh
+
 PACKAGE="pki-tools"
 
 # Make sure TESTORDER is initialized or multihost may have issues
 TESTORDER=1
-
-#Test type specified as parameter in beakerjob.rhcs.xml.template
-#QUICKINSTALL=TRUE
-#USER_ADD_CA=TRUE
-#USER_SHOW_CA=TRUE
-#USER_FIND_CA=TRUE
-#USER_DEL_CA=TRUE
-#TEST=TRUE
 rlJournalStart
     rlPhaseStartSetup "list files in /opt/rhqa_pki"
 	rlRun "ls /opt/rhqa_pki" 0 "Listing files in /opt/rhqa_pki"
@@ -70,23 +63,27 @@ rlJournalStart
 	#Execute pki user config tests
         if [ "$QUICKINSTALL" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                   run_rhcs_install_subsystems
-#                  run_pki-user-cli-user-ca_tests
         fi
         if [ "$USER_ADD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-add-ca tests
+		  run_pki-user-cli-user-ca_tests
                   run_pki-user-cli-user-add-ca_tests
         fi
         if [ "$USER_SHOW_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-show-ca tests
+                  run_pki-user-cli-user-ca_tests
                   run_pki-user-cli-user-show-ca_tests
         fi
         if [ "$USER_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-find-ca tests
-                  run_pki-user-cli-user-find-ca_tests
+                  run_pki-user-cli-user-ca_tests
+		  run_pki-user-cli-user-find-ca_tests
         fi
         if [ "$USER_DEL_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
-	                # Execute pki user-del-ca tests
-	          run_pki-user-cli-user-del-ca_tests
+                # Execute pki user-del-ca tests
+	          run_pki-user-cli-user-ca_tests
+		  run_pki-user-cli-user-del-ca_tests
+
         fi
     rlPhaseEnd
 
