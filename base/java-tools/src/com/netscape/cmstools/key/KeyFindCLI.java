@@ -99,7 +99,7 @@ public class KeyFindCLI extends CLI {
 
         KeyDataInfos keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime, start, size);
 
-        Collection<KeyDataInfo> entries = keys.getKeyInfos();
+        Collection<KeyDataInfo> entries = keys.getEntries();
 
         MainCLI.printMessage(entries.size() + " key(s) matched");
 

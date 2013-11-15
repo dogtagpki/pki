@@ -83,7 +83,7 @@ public class KRAClient extends SubsystemClient {
 
     public KeyDataInfo getKeyData(String clientId, String status) {
         KeyDataInfos infos = keyClient.listKeys(clientId, status, null, null, null, null);
-        Collection<KeyDataInfo> list = infos.getKeyInfos();
+        Collection<KeyDataInfo> list = infos.getEntries();
         Iterator<KeyDataInfo> iter = list.iterator();
 
         while (iter.hasNext()) {

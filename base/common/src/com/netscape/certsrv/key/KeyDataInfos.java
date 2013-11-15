@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.DataCollection;
 public class KeyDataInfos extends DataCollection<KeyDataInfo> {
 
     @XmlElementRef
-    public Collection<KeyDataInfo> getKeyInfos() {
+    public Collection<KeyDataInfo> getEntries() {
         return super.getEntries();
     }
 }
