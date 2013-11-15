@@ -1,6 +1,6 @@
 Name:             pki-ra
 Version:          10.1.0
-Release:          0.5%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -50,7 +50,6 @@ Core package:
 
   * pki-server
   * pki-tools
-  * pki-selinux (f17 only)
 
 Additionally, Certificate System requires ONE AND ONLY ONE of the following
 "Mutually-Exclusive" PKI Theme packages:
@@ -198,6 +197,10 @@ fi
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
 * Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.5
 - Change release number for beta build
 

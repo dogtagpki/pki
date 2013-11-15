@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          0.14%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -47,22 +47,9 @@ BuildRequires:    policycoreutils-python
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} || 0%{?fedora} >= 19
 BuildRequires:    jss >= 4.2.6-28
-%else
-BuildRequires:    jss >= 4.2.6-24
-%endif
 BuildRequires:    systemd-units
-%if 0%{?rhel} || 0%{?fedora} >= 19
 BuildRequires:    tomcatjss >= 7.1.0
-%endif
-%if 0%{?fedora} == 18
-BuildRequires:    tomcatjss >= 7.0.0-4
-%endif
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-BuildRequires:    tomcatjss >= 6.0.2
-BuildRequires:    selinux-policy-devel >= 3.10.0-151
-%endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -101,7 +88,6 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-symkey                                                         \
   * pki-base                                                           \
   * pki-tools                                                          \
-  * pki-selinux (f17 only)                                             \
   * pki-server                                                         \
   * pki-ca                                                             \
   * pki-kra                                                            \
@@ -123,7 +109,6 @@ required by BOTH native-based Apache AND java-based Tomcat             \
 Certificate System instances consisting of the following components:   \
                                                                        \
   * pki-tools                                                          \
-  * pki-selinux (f17 only)                                             \
                                                                        \
 Additionally, PKI Core contains the following fundamental packages     \
 required ONLY by ALL java-based Tomcat Certificate System instances:   \
@@ -165,11 +150,7 @@ Group:            System Environment/Libraries
 Requires:         java >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} || 0%{?fedora} >= 19
 Requires:         jss >= 4.2.6-28
-%else
-Requires:         jss >= 4.2.6-24
-%endif
 
 Provides:         symkey = %{version}-%{release}
 
@@ -206,11 +187,7 @@ Requires:         java >= 1:1.7.0
 Requires:         javassist
 Requires:         jettison
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} || 0%{?fedora} >= 19
 Requires:         jss >= 4.2.6-28
-%else
-Requires:         jss >= 4.2.6-24
-%endif
 Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
@@ -287,33 +264,17 @@ Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-Requires:         pki-selinux = %{version}-%{release}
-%else
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
-%endif
 
-%if 0%{?fedora} >= 20
 Requires:         tomcat >= 7.0.47
-%else
-Requires:         tomcat >= 7.0.27
-%endif
 
 Requires:         velocity
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
-%if 0%{?rhel} || 0%{?fedora} >= 19
 Requires:         tomcatjss >= 7.1.0
-%endif
-%if 0%{?fedora} == 18
-Requires:         tomcatjss >= 7.0.0-4
-%endif
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-Requires:         tomcatjss >= 6.0.2
-%endif
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
@@ -328,26 +289,6 @@ This package is a part of the PKI Core used by the Certificate System.
 The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
-
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-%package -n       pki-selinux
-Summary:          Certificate System - PKI Selinux Policies
-Group:            System Environment/Base
-
-BuildArch:        noarch
-
-Requires:         policycoreutils
-Requires:         selinux-policy-targeted
-Conflicts:        selinux-policy-base >= 3.11.1-43
-Requires:         selinux-policy >= 3.10.0-151
-
-%description -n   pki-selinux
-Selinux policies for the PKI components.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-%endif
 
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
@@ -558,9 +499,6 @@ cd build
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
 %endif
 	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-        -DBUILD_PKI_SELINUX:BOOL=ON \
-%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 # %{__make} VERBOSE=1 %{?_smp_mflags} test
@@ -577,12 +515,6 @@ sh ../pylint-build-scan.sh %{buildroot} `pwd`
 if [ $? -eq 1 ]; then
     exit 1
 fi
-# Fedora 18 and 17:  Substitute 'tomcat7jss.jar' for 'tomcatjss.jar'
-%if ! 0%{?rhel} && 0%{?fedora} <= 18
-	sed -i -e 's/grant codeBase "file:\/usr\/share\/java\/tomcatjss.jar" {/grant codeBase "file:\/usr\/share\/java\/tomcat7jss.jar" {/' %{buildroot}%{_datadir}/pki/server/conf/pki.policy
-	sed -i -e 's/pki_tomcatjss_jar=\/usr\/share\/java\/tomcatjss.jar/pki_tomcatjss_jar=\/usr\/share\/java\/tomcat7jss.jar/' %{buildroot}%{_sysconfdir}/pki/default.cfg
-	sed -i -e 's/        \[tomcatjss.jar\]=\${java_dir}\/tomcatjss.jar/        \[tomcatjss.jar\]=\${java_dir}\/tomcat7jss.jar/' %{buildroot}%{_datadir}/pki/scripts/operations
-%endif
 
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
@@ -608,7 +540,7 @@ fi                                                                           \
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
-%if ! 0%{?rhel} && 0%{?fedora} >= 19
+%if ! 0%{?rhel}
 %pretrans -n pki-base -p <lua>
 function test(a)
     if posix.stat(a) then
@@ -625,9 +557,9 @@ if (test("/etc/sysconfig/pki/ca") or
     test("/etc/sysconfig/pki/kra") or
     test("/etc/sysconfig/pki/ocsp") or
     test("/etc/sysconfig/pki/tks")) then
-   msg = "Unable to upgrade to Fedora 19.  There are Dogtag 9 instances\n" ..
+   msg = "Unable to upgrade to Fedora 20.  There are Dogtag 9 instances\n" ..
          "that will no longer work since they require Tomcat 6, and \n" ..
-         "Tomcat 6 is no longer available in Fedora 19.\n\n" ..
+         "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
          "Please follow these instructions to migrate the instances to \n" ..
          "Dogtag 10:\n\n" ..
          "http://pki.fedoraproject.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
@@ -636,17 +568,7 @@ end
 %endif
 
 %post -n pki-base
-
-%if ! 0%{?rhel} && 0%{?fedora} <= 18
-if [ "`uname -i`" == "x86_64" ]
-then
-	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib64\/java/' %{_datadir}/pki/etc/pki.conf
-else
-	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
-fi
-%else
-	sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
-%endif
+sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
 
 if [ $1 -eq 1 ]
 then
@@ -667,26 +589,6 @@ then
     # On RPM uninstallation remove system upgrade tracker
     rm -f %{_sysconfdir}/pki/pki.version
 fi
-
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-%pre -n pki-selinux
-%saveFileContext targeted
-
-%post -n pki-selinux
-semodule -s targeted -i %{_datadir}/selinux/modules/pki.pp
-%relabel targeted
-
-%preun -n pki-selinux
-if [ $1 = 0 ]; then
-     %saveFileContext targeted
-fi
-
-%postun -n pki-selinux
-if [ $1 = 0 ]; then
-     semodule -s targeted -r pki
-     %relabel targeted
-fi
-%endif
 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
@@ -993,13 +895,6 @@ fi
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
-%if ! 0%{?rhel} && 0%{?fedora} <= 17
-%files -n pki-selinux
-%defattr(-,root,root,-)
-%doc base/selinux/LICENSE
-%{_datadir}/selinux/modules/pki.pp
-%endif
-
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
@@ -1071,6 +966,10 @@ fi
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
 * Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.14
 - Change release number for beta build
 

@@ -1,6 +1,6 @@
 Name:             pki-tps
 Version:          10.1.0
-Release:          0.7%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - Token Processing System
 URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
@@ -66,7 +66,6 @@ PKI Core package:                                                         \
                                                                           \
   * pki-server                                                            \
   * pki-tools                                                             \
-  * pki-selinux (f17 only)                                                \
                                                                           \
 Additionally, Certificate System requires ONE AND ONLY ONE of the         \
 following "Mutually-Exclusive" PKI Theme packages:                        \
@@ -240,6 +239,9 @@ fi
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Update release number for release build
+
 * Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.7
 - Change release number for beta build
 

@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.1.0
-Release:          0.3%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -80,6 +80,10 @@ cd build
 
 
 %changelog
+* Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
+- Trac Ticket 788 - Clean up spec files
+- Update release number for release build
+
 * Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.3
 - Change release number for beta build
 
