@@ -144,4 +144,26 @@ public class KRAClient extends SubsystemClient {
     public KeyRequestInfo getRequest(RequestId id) {
         return keyRequestClient.getRequestInfo(id);
     }
+
+    public RequestId requestKeyRecovery(String keyId, String b64Certificate) {
+        // create key recovery request
+        KeyRecoveryRequest data = new KeyRecoveryRequest();
+        data.setKeyId(new KeyId(keyId));
+        data.setCertificate(b64Certificate);
+
+        @SuppressWarnings("unchecked")
+        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+                keyRequestClient.recoverKey(data);
+        return client.getEntity(response).getRequestId();
+    }
+
+    public KeyData recoverKey(RequestId requestId, String passphrase) {
+        // recover key based on approved request
+        KeyRecoveryRequest data = new KeyRecoveryRequest();
+        data.setRequestId(requestId);
+        data.setPassphrase(passphrase);
+
+        KeyData key = keyClient.retrieveKey(data);
+        return key;
+    }
 }

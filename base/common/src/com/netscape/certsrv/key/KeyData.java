@@ -39,6 +39,9 @@ public class KeyData {
     @XmlElement
     String nonceData;
 
+    @XmlElement
+    String p12Data;
+
     public KeyData() {
         // required for JAXB (defaults)
     }
@@ -73,4 +76,17 @@ public class KeyData {
         this.nonceData = nonceData;
     }
 
+    /**
+     * @return the p12Data
+     */
+    public String getP12Data() {
+        return p12Data;
+    }
+
+    /**
+     * @param p12Data the p12Data to set
+     */
+    public void setP12Data(String p12Data) {
+        this.p12Data = p12Data;
+    }
 }

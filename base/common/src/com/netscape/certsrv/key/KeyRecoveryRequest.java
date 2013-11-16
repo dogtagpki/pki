@@ -64,6 +64,12 @@ public class KeyRecoveryRequest {
     @XmlElement
     protected String nonceData;
 
+    @XmlElement
+    protected String certificate;
+
+    @XmlElement
+    protected String passphrase;
+
     public KeyRecoveryRequest() {
         // required for JAXB (defaults)
     }
@@ -152,4 +158,31 @@ public class KeyRecoveryRequest {
         this.nonceData = nonceData;
     }
 
+    /**
+     * @return the certificate
+     */
+    public String getCertificate() {
+        return certificate;
+    }
+
+    /**
+     * @param certificate the certificate to set
+     */
+    public void setCertificate(String certificate) {
+        this.certificate = certificate;
+    }
+
+    /**
+     * @return the passphrase
+     */
+    public String getPassphrase() {
+        return passphrase;
+    }
+
+    /**
+     * @param passphrase the passphrase to set
+     */
+    public void setPassphrase(String passphrase) {
+        this.passphrase = passphrase;
+    }
 }

@@ -53,6 +53,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -60,6 +61,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author alee
@@ -89,11 +91,13 @@ public class KeyService extends PKIService implements KeyResource {
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
+    private IKeyService service;
 
     public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();
+        service = (IKeyService) kra;
     }
 
     /**
@@ -108,11 +112,25 @@ public class KeyService extends PKIService implements KeyResource {
             throw new BadRequestException("Cannot retrieve key. Invalid request");
         }
         // auth and authz
-        KeyId keyId = validateRequest(data);
         RequestId requestID = data.getRequestId();
+        IRequest request;
+        try {
+            request = queue.findRequest(requestID);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            auditRetrieveKey(ILogger.FAILURE, requestID, null, e.getMessage());
+            throw new PKIException(e.getMessage());
+        }
+        String type = request.getRequestType();
+        KeyId keyId = null;
         KeyData keyData;
         try {
-            keyData = getKey(keyId, data);
+            if (IRequest.KEYRECOVERY_REQUEST.equals(type)) {
+                keyData = recoverKey(data);
+            } else {
+                keyId = validateRequest(data);
+                keyData = getKey(keyId, data);
+            }
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRetrieveKey(ILogger.FAILURE, requestID, keyId, e.getMessage());
@@ -402,5 +420,53 @@ public class KeyService extends PKIService implements KeyResource {
                 keyID != null ? keyID.toString(): "null",
                 reason);
         auditor.log(msg);
+    }
+
+    /**
+     * Used to retrieve a key
+     * @param data
+     * @return
+     */
+    private KeyData recoverKey(KeyRecoveryRequest data) {
+        // confirm request exists
+        RequestId reqId = data.getRequestId();
+
+        IRequest request = null;
+        try {
+            request = queue.findRequest(reqId);
+        } catch (EBaseException e) {
+        }
+        if (request == null) {
+            throw new HTTPGoneException("No request record.");
+        }
+        String type = request.getRequestType();
+        RequestStatus status = request.getRequestStatus();
+        if (!IRequest.KEYRECOVERY_REQUEST.equals(type) ||
+            !status.equals(RequestStatus.APPROVED)) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "Unauthorized request.");
+            throw new UnauthorizedException("Unauthorized request.");
+        }
+
+        String passphrase = data.getPassphrase();
+        byte pkcs12[] = null;
+        try {
+            pkcs12 = service.doKeyRecovery(reqId.toString(), passphrase);
+        } catch (EBaseException e) {
+        }
+        if (pkcs12 == null) {
+            throw new HTTPGoneException("Key not recovered.");
+        }
+        String pkcs12base64encoded = Utils.base64encode(pkcs12);
+
+        KeyData keyData = new KeyData();
+        keyData.setP12Data(pkcs12base64encoded);
+
+        try {
+            queue.processRequest(request);
+            queue.markAsServiced(request);
+        } catch (EBaseException e) {
+        }
+
+        return keyData;
     }
 }

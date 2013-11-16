@@ -18,8 +18,10 @@
 
 package com.netscape.cms.servlet.request;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.CertificateException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -29,6 +31,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -40,12 +44,17 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfos;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author alee
@@ -78,6 +87,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public static final int DEFAULT_PAGESIZE = 20;
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
+
+    private IKeyRecoveryAuthority kra;
+    private IRequestQueue queue;
+    private IKeyService service;
+
+    public KeyRequestService() {
+        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
+        queue = kra.getRequestQueue();
+        service = (IKeyService) kra;
+    }
 
     /**
      * Used to retrieve key request info for a specific request
@@ -160,14 +179,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         if (data == null) {
             throw new BadRequestException("Invalid request.");
         }
-        if (data.getTransWrappedSessionKey() == null
-                && data.getSessionWrappedPassphrase() != null) {
+        if (data.getCertificate() == null &&
+            data.getTransWrappedSessionKey() == null &&
+            data.getSessionWrappedPassphrase() != null) {
             throw new BadRequestException("No wrapped session key.");
         }
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
         try {
-            info = dao.submitRequest(data, uriInfo);
+            info = (data.getCertificate() != null)?
+                    requestKeyRecovery(data): dao.submitRequest(data, uriInfo);
             auditRecoveryRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getKeyId());
 
             return Response
@@ -182,6 +203,33 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
+    private KeyRequestInfo requestKeyRecovery(KeyRecoveryRequest data) {
+        KeyRequestInfo info = null;
+        if (data == null) {
+            throw new BadRequestException("Invalid request.");
+        }
+        String keyId = data.getKeyId().toString();
+        String b64Certificate = data.getCertificate();
+        byte[] certData = Utils.base64decode(b64Certificate);
+        String agentID = servletRequest.getUserPrincipal().getName();
+        String requestId = null;
+        try {
+            requestId = service.initAsyncKeyRecovery(new BigInteger(keyId), new X509CertImpl(certData), agentID);
+        } catch (EBaseException | CertificateException e) {
+            e.printStackTrace();
+            throw new PKIException(e.toString());
+        }
+        IRequest request = null;
+        try {
+            request = queue.findRequest(new RequestId(requestId));
+        } catch (EBaseException e) {
+        }
+        KeyRequestDAO dao = new KeyRequestDAO();
+        info = dao.createCMSRequestInfo(request, uriInfo);
+
+        return info;
+    }
+
     @Override
     public void approveRequest(RequestId id) {
         if (id == null) {
@@ -190,8 +238,15 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
-            dao.approveRequest(id);
-            auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
+            IRequest request = queue.findRequest(id);
+            String type = request.getRequestType();
+            if (IRequest.KEYRECOVERY_REQUEST.equals(type)) {
+                service.addAgentAsyncKeyRecovery(id.toString(), servletRequest.getUserPrincipal().getName());
+                auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
+            } else if (IRequest.SECURITY_DATA_RECOVERY_REQUEST.equals(type)) {
+                dao.approveRequest(id);
+                auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
+            }
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
