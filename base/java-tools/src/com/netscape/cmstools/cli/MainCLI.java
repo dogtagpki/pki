@@ -347,7 +347,8 @@ public class MainCLI extends CLI {
 
         // Do not call CryptoManager.initialize() on client-init
         // because otherwise the database will be locked.
-        if (!cmdArgs[0].equals("client-init")) {
+        String command = cmdArgs[0];
+        if (!command.equals("client-init") && !command.equals("client-cert-import")) {
             init();
         }
 

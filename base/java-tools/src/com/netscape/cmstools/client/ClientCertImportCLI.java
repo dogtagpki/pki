@@ -19,6 +19,7 @@
 package com.netscape.cmstools.client;
 
 import java.io.File;
+import java.io.FileOutputStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -106,17 +107,52 @@ public class ClientCertImportCLI extends CLI {
             System.exit(1);
         }
 
-        // import the certificate
-        if (isCACert) {
-            if (verbose) System.out.println("Importing CA certificate.");
-            cert = client.importCACertPackage(bytes);
+        MainCLI mainCLI = (MainCLI)parent.getParent();
 
-        } else {
-            if (verbose) System.out.println("Importing certificate.");
-            cert = client.importCertPackage(bytes, client.config.getCertNickname());
+        if (mainCLI.config.getCertNickname() == null) {
+            System.err.println("Error: Certificate nickname is required.");
+            System.exit(1);
         }
 
-        MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");
-        ClientCLI.printCertInfo(cert);
+        File certDatabase = mainCLI.certDatabase;
+        File certFile = new File(certDatabase, "import.crt");
+
+        try {
+            try (FileOutputStream out = new FileOutputStream(certFile)) {
+                out.write(bytes);
+            }
+
+            String flag;
+            if (isCACert) {
+                if (verbose) System.out.println("Importing CA certificate.");
+                flag = "CT,c,";
+
+            } else {
+                if (verbose) System.out.println("Importing certificate.");
+                flag = "u,u,u";
+            }
+
+            String[] commands = {
+                    "/usr/bin/certutil", "-A",
+                    "-d", certDatabase.getAbsolutePath(),
+                    "-i", certFile.getAbsolutePath(),
+                    "-n", mainCLI.config.getCertNickname(),
+                    "-t", flag
+            };
+
+            Runtime rt = Runtime.getRuntime();
+            Process p = rt.exec(commands);
+
+            int rc = p.waitFor();
+            if (rc != 0) {
+                MainCLI.printMessage("Import failed");
+                return;
+            }
+
+            MainCLI.printMessage("Imported certificate \"" + mainCLI.config.getCertNickname() + "\"");
+
+        } finally {
+            certFile.delete();
+        }
     }
 }
