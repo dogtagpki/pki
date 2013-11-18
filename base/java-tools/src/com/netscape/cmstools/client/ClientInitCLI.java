@@ -61,7 +61,7 @@ public class ClientInitCLI extends CLI {
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
         if (mainCLI.config.getCertPassword() == null) {
-            System.err.println("Error: Certificate database password is required.");
+            System.err.println("Error: Security database password is required.");
             System.exit(1);
         }
 
@@ -71,7 +71,7 @@ public class ClientInitCLI extends CLI {
         if (certDatabase.exists()) {
 
             if (!force) {
-                System.out.print("Certificate database already exists. Overwrite (y/N)? ");
+                System.out.print("Security database already exists. Overwrite (y/N)? ");
                 System.out.flush();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

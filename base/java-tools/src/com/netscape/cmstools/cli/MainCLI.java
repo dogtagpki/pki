@@ -153,11 +153,11 @@ public class MainCLI extends CLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option("d", true, "Certificate database location (default: ~/.dogtag/nssdb)");
+        option = new Option("d", true, "Security database location (default: ~/.dogtag/nssdb)");
         option.setArgName("database");
         options.addOption(option);
 
-        option = new Option("c", true, "Certificate database password");
+        option = new Option("c", true, "Security database password");
         option.setArgName("password");
         options.addOption(option);
 
@@ -241,17 +241,17 @@ public class MainCLI extends CLI {
         convertCertStatusList(list, ignoredCertStatuses);
 
         if (config.getCertDatabase() == null) {
-            // Use default certificate database
+            // Use default security database
             this.certDatabase = new File(
                     System.getProperty("user.home") + File.separator +
                     ".dogtag" + File.separator + "nssdb");
 
         } else {
-            // Use existing certificate database
+            // Use existing security database
             this.certDatabase = new File(config.getCertDatabase());
         }
 
-        if (verbose) System.out.println("Certificate database: "+this.certDatabase.getAbsolutePath());
+        if (verbose) System.out.println("Security database: "+this.certDatabase.getAbsolutePath());
     }
 
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
@@ -273,12 +273,12 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        // Main program should initialize certificate database
+        // Main program should initialize security database
         if (certDatabase.exists()) {
             CryptoManager.initialize(certDatabase.getAbsolutePath());
         }
 
-        // If password is specified, use password to access client database
+        // If password is specified, use password to access security database
         if (config.getCertPassword() != null) {
             try {
                 CryptoManager manager = CryptoManager.getInstance();
@@ -288,11 +288,11 @@ public class MainCLI extends CLI {
 
             } catch (NotInitializedException e) {
                 // The original exception doesn't contain a message.
-                throw new Error("Certificate database not initialized.");
+                throw new Error("Security database does not exist.");
 
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
-                throw new IncorrectPasswordException("Incorrect certificate database password.");
+                throw new IncorrectPasswordException("Incorrect security database password.");
             }
 
         }

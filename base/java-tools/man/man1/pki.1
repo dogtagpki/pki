@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki 1 "November 5, 2013" "version 10.1" "PKI Command-Line Interface (CLI) Tools" Ade Lee
+.TH pki 1 "November 18, 2013" "version 10.1" "PKI Command-Line Interface (CLI)" Ade Lee
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -15,22 +15,23 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for man page specific macros, see man(7)
 .SH NAME
-pki \- Command-Line Interface Tool for accessing Certificate System Servers.
+pki \- Command-Line Interface for accessing Certificate System services.
 
 .SH SYNOPSIS
 pki [CLI options] <command> [command arguments]
 
 .SH DESCRIPTION
 .PP
-\fBpki\fR provides a command-line interface to Certificate System Servers, allowing administrators to manage certificates, groups, keys, security domains, and users.
+\fBpki\fR provides a command-line interface allowing clients to access various services on the Certificate System server.
+These services include certificates, groups, keys, security domains, and users.
   
 .SH OPTIONS
 .TP
-.B -c <database password>
-Specifies the certificate database password.
+.B -c <security database password>
+Specifies the security database password.
 .TP
-.B -d <database>
-Specifies the certificate database to be used.
+.B -d <security database location>
+Specifies the security database location (default: ~/.dogtag/nssdb).
 .TP
 .B -h <hostname>
 Specifies the hostname (default: localhost).
@@ -65,8 +66,26 @@ Specifies the user password.
 .SH OPERATIONS
 To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands. To view the sub-commands, type \fBpki <command>\fP.  To view each command's usage, type \fB pki <command> --help\fP.
 
+.SS Security Database
+
+The CLI uses a security database to store keys and certificates on the client side. To create a new database execute the following command:
+
+.B pki -d <security database location> -c <security database password> client-init
+
+To view certificates in the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-find
+
+To import a certificate into the security database:
+
+.B pki -d <security database location> -c <security database password> -n <certificate nickname> client-cert-import --cert <certificate file>
+
+To delete a certificate from the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-del <certificate nickname>
+
 .SS Connection
-By default, the \fBpki\fP client connects to a server running on the localhost via the non-secure HTTP port 8080.  To specify a different server location, use the appropriate arguments to give a different host (\fB-h\fP), port (\fB-p\fP), or connection protocol (\fB-P\fP).
+By default, the CLI connects to a server running on the localhost via the non-secure HTTP port 8080.  To specify a different server location, use the appropriate arguments to give a different host (\fB-h\fP), port (\fB-p\fP), or connection protocol (\fB-P\fP).
 
 .B pki -P <protocol> -h <hostname> -p <port> <command>
 
@@ -89,7 +108,7 @@ To authenticate with a username and password:
 
 To authenticate with a client certificate:
 
-.B pki -d <certificate database directory> -c <certificate database password> -n "<certificate nickname>" <command>
+.B pki -d <security database location> -c <security database password> -n <certificate nickname> <command>
     
 .SS Viewing Certificates
 Certificates can be viewed anonymously.
