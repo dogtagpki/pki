@@ -132,6 +132,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             return response;
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -150,6 +153,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
             return createConnectionData(database.getRecord(connectionID));
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,6 +183,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -203,6 +212,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -220,6 +232,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
             database.removeRecord(connectionID);
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();

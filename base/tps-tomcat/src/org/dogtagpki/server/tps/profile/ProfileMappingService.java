@@ -131,6 +131,9 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             return response;
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -147,6 +150,9 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             return createProfileMappingData(database.getRecord(profileMappingID));
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,6 +178,9 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -195,6 +204,9 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -210,6 +222,9 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
             database.removeRecord(profileMappingID);
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();

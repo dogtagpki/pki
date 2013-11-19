@@ -132,6 +132,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             return response;
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -150,6 +153,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             return createAuthenticatorData(database.getRecord(authenticatorID));
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,6 +183,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -203,6 +212,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                     .type(MediaType.APPLICATION_XML)
                     .build();
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -220,6 +232,9 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
             database.removeRecord(authenticatorID);
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             e.printStackTrace();

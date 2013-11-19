@@ -21,6 +21,9 @@ package org.dogtagpki.server.tps.config;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import com.netscape.certsrv.base.ConflictingOperationException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
+
 /**
  * @author Endi S. Dewata
  */
@@ -64,11 +67,17 @@ public class ConfigRecord {
         this.keys.addAll(keys);
     }
 
+    public boolean containsKey(String key) {
+        return keys.contains(key);
+    }
+
     public void addKey(String key) {
+        if (keys.contains(key)) throw new ConflictingOperationException("Entry already exists: " + key);
         keys.add(key);
     }
 
     public void removeKey(String key) {
+        if (!keys.contains(key)) throw new ResourceNotFoundException("Entry does not exist: " + key);
         keys.remove(key);
     }
 

@@ -127,7 +127,11 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public Map<String, String> getProperties(ConfigRecord record, String key) throws EBaseException {
 
-        CMS.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\")");
+        CMS.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\", \"" + key + "\")");
+
+        if (!record.containsKey(key)) {
+            throw new ResourceNotFoundException("Entry does not exist: " + key);
+        }
 
         Map<String, String> properties = new TreeMap<String, String>();
 
