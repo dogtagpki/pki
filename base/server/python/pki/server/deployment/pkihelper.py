@@ -170,7 +170,8 @@ class Identity:
             try:
                 # Execute this "groupadd" command.
                 with open(os.devnull, "w") as fnull:
-                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
+                    subprocess.check_call(command, stdout=fnull, stderr=fnull,
+                                          close_fds=True)
             except subprocess.CalledProcessError as exc:
                 config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
@@ -234,7 +235,8 @@ class Identity:
             try:
                 # Execute this "useradd" command.
                 with open(os.devnull, "w") as fnull:
-                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
+                    subprocess.check_call(command, stdout=fnull, stderr=fnull,
+                                          close_fds=True)
             except subprocess.CalledProcessError as exc:
                 config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
