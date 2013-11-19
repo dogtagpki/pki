@@ -31,11 +31,16 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
+
 
 /**
  * @author Endi S. Dewata
  */
 @Path("profile-mappings")
+@AuthMethodMapping("profile-mappings")
+@ACLMapping("profile-mappings.read")
 public interface ProfileMappingResource {
 
     @GET
@@ -53,6 +58,7 @@ public interface ProfileMappingResource {
     @ClientResponseType(entityType=ProfileMappingData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("profile-mappings.add")
     public Response addProfileMapping(ProfileMappingData profileMappingData);
 
     @PUT
@@ -60,6 +66,7 @@ public interface ProfileMappingResource {
     @ClientResponseType(entityType=ProfileMappingData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("profile-mappings.modify")
     public Response updateProfileMapping(
             @PathParam("profileMappingID") String profileMappingID,
             ProfileMappingData profileMappingData);
@@ -67,5 +74,6 @@ public interface ProfileMappingResource {
     @DELETE
     @Path("{profileMappingID}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @ACLMapping("profile-mappings.remove")
     public void removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 }
