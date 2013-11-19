@@ -173,7 +173,7 @@ class identity:
                               pki_group + " " +\
                               "> /dev/null 2>&1"
             # Execute this "groupadd" command.
-            subprocess.call(command, shell=True)
+            subprocess.call(command, shell=True, close_fds=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -248,7 +248,7 @@ class identity:
                               pki_user + " " +\
                               "> /dev/null 2>&1"
             # Execute this "useradd" command.
-            subprocess.call(command, shell=True)
+            subprocess.call(command, shell=True, close_fds=True)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
