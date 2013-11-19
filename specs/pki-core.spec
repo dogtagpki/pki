@@ -37,7 +37,7 @@ BuildRequires:    resteasy-base-jaxrs
 BuildRequires:    resteasy-base-jaxrs-api
 BuildRequires:    resteasy-base-jettison-provider
 %else
-BuildRequires:    resteasy >= 2.3.2-1
+BuildRequires:    resteasy >= 3.0.1-3
 %endif
 
 BuildRequires:    pylint
@@ -199,7 +199,7 @@ Requires:    resteasy-base-jaxrs
 Requires:    resteasy-base-jaxrs-api
 Requires:    resteasy-base-jettison-provider
 %else
-Requires:         resteasy >= 2.3.2-1
+Requires:         resteasy >= 3.0.1-3
 %endif
 Requires:         xalan-j2
 Requires:         xerces-j2
@@ -969,6 +969,7 @@ fi
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build
+- Updated requirements for resteasy
 
 * Sun Nov 10 2013 Ade Lee <alee@redhat.com> 10.1.0-0.14
 - Change release number for beta build
