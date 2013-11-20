@@ -1,0 +1,64 @@
+#!/usr/bin/python
+# Authors:
+#     Ade Lee <alee@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+
+import grp
+import os
+import pwd
+import re
+import pki.server.upgrade
+
+
+class FixLogFileOwnership(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        self.message = 'Fix log file ownership'
+
+    def upgrade_instance(self, instance):
+        registry_file = os.path.join(
+            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
+
+        with open(registry_file, "r") as registry:
+            lines = registry.readlines()
+
+        for line in lines:
+            m = re.search('^PKI_USER=(.*)$', line)
+            if m:
+                user = m.group(1)
+            m = re.search('^PKI_GROUP=(.*)$', line)
+            if m:
+                group = m.group(1)
+
+        uid = pwd.getpwnam(user).pw_uid
+        gid = grp.getgrnam(group).gr_gid
+
+        log_dir = os.path.join('/var/log/pki', instance.name)
+
+        self._chown(log_dir, uid, gid)
+
+
+    def _chown(self, path, uid, gid):
+        os.chown(path, uid, gid)
+        for item in os.listdir(path):
+            itempath = os.path.join(path, item)
+            if os.path.isfile(itempath):
+                os.chown(itempath, uid, gid)
+            elif os.path.isdir(itempath):
+                self._chown(itempath, uid, gid)

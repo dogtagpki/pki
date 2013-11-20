@@ -34,9 +34,6 @@ if [ -f /etc/pki/pki.conf ] ; then
   . /etc/pki/pki.conf
 fi
 
-# PKI subsystem-level directory and file values for locks
-lockfile="/var/lock/subsys/${SERVICE_NAME}"
-
 default_error=0
 
 case $command in
@@ -1420,11 +1417,6 @@ start()
             error_rv=$rv
         fi
     done
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt ${errors} ] ; then
-        touch ${lockfile}
-        chmod 00600 ${lockfile}
-    fi
 
     # ONLY print a "WARNING" message if multiple
     # instances are being examined
