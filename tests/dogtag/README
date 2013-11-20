@@ -7,13 +7,14 @@
 
 1. Running the tests on local machine.
 
-1.1.Running the tests standalone in Eclipse(only the Java tests (JUnit v>=4.11))
+1.1.Running the tests standalone in Eclipse (only the Java tests
+                                            (JUnit v>=4.11 ))
 
-  1.1.1. Setting up the test environment.
+   1.1.1. Setting up the test environment.
 
-         A new DS instance, to be used by the CA instance for
-         which the tests are run, can be created by running the following
-         command:
+       A new DS instance, to be used by the CA instance for
+       which the tests are run, can be created by running the following
+       command:
 
          setup-ds.pl --silent --\
 		     General.FullMachineName=$HOSTNAME\
@@ -25,8 +26,8 @@
 		     slapd.RootDN="cn=Directory Manager"\
 		     slapd.RootDNPwd=Secret123
 
-         Then a CA instance can be created using the deploment configuration
-         file tests/dogtag/conf/deploy.cfg with the command:
+       Then a CA instance can be created using the deploment configuration
+       file tests/dogtag/conf/deploy.cfg with the command:
 
          pkispawn -s CA -f deploy.cfg
 
@@ -53,74 +54,73 @@
          tests/dogtag/conf/test.cfg. (Used by the tests)
          With all the setting above mentioned the tests will run successfully.
 
-  1.1.2. Running the tests
+   1.1.2. Running the tests
 
-         The tests can be either run individually or as as part of a suite
-         in Eclipse.
-         To run the tests as a suite, Open BeakerTestSuite and run as JUnit
-         test.
-         A suite is a test runner which executes all the tests added to it
-         using the @SuiteClasses tag.
+       The tests can be either run individually or as as part of a suite
+       in Eclipse.
+       To run the tests as a suite, Open BeakerTestSuite and run as JUnit
+       test.
+       A suite is a test runner which executes all the tests added to it
+       using the @SuiteClasses tag.
 
-         A customized suite, PKITestSuite, is used to provide additional
-         functionality when the tests are run on a beaker test machine.
+       A customized suite, PKITestSuite, is used to provide additional
+       functionality when the tests are run on a beaker test machine.
 
-         To run the tests individually(a class like CATestJunit),
-         just run the class as a JUnitTest.
+       To run the tests individually(a class like CATestJunit),
+       just run the class as a JUnitTest.
 
 1.2.Running all the tests on a beaker test machine from command line.
 
-  1.2.1 Setting up a beaker client on a local machine.
+   1.2.1 Setting up a beaker client on a local machine.
 
-        The following steps help setup a beaker client for creating the task rpm
-        and submitting the beaker job to the beaker server.
+       The following steps help setup a beaker client for creating the task rpm
+       and submitting the beaker job to the beaker server.
 
-        -- Copy the file tests/dogtag/conf/beaker-client.repo to
-           /etc/yum.repos.d and replace <version> with the version of fedora.
-           (run this command for fedora version: cat /etc/fedora-release)
+       -- Copy the file tests/dogtag/conf/beaker-client.repo to
+          /etc/yum.repos.d and replace <version> with the version of fedora.
+          (run this command for fedora version: cat /etc/fedora-release)
 
-        -- Do: yum install expect beakerlib beaker-client rhts-devel
+       -- Do: yum install expect beakerlib beaker-client rhts-devel
 
-        -- Create a folder /etc/beaker and copy the file
-           tests/dogtag/conf/client.conf to that folder. Update the client.conf
-           file with the beaker server's authentication details.
+       -- Create a folder /etc/beaker and copy the file
+          tests/dogtag/conf/client.conf to that folder. Update the client.conf
+          file with the beaker server's authentication details.
+          For an Username/Password authentication enter values
+          for HUB_URL, USERNAME, PASSWORD. The sample file has been configured
+          for using this setting as default.
 
-           For an Username/Password authentication enter values
-           for HUB_URL, USERNAME, PASSWORD. The sample file has been configured
-           for using this setting as default.
+          For a Kerberos authentication, comment the AUTH_METHOD="password",
+          USERNAME and PASSWORD fields uncomment and enter the values for
+          HUB_URL and KRB_REALM and uncomment the line AUTH_METHOD="krbv".
 
-           For a Kerberos authentication, comment the AUTH_METHOD="password",
-           USERNAME and PASSWORD fields uncomment and enter the values for
-           HUB_URL and KRB_REALM and uncomment the line AUTH_METHOD="krbv".
+       This sets up the machine as a beaker client, on which new task rpms can
+       be built and new jobs submitted to the beaker server.
 
-        This sets up the machine as a beaker client, on which new task rpms can
-        be built and new jobs submitted to the beaker server.
+   1.2.2 Building the beaker task rpm and submitting a beaker job.
 
-  1.2.2 Building the beaker task rpm and submitting a beaker job.
+       1.2.2.1 Creating a repository of the built rpms.
 
-     1.2.2.1 Creating a repository of the built rpms.
-
-        Use --createrepo option in the compose scripts to create a repository
-        of the rpms built, like:
+       Use --createrepo option in the compose scripts to create a repository
+       of the rpms built, like:
 
         ./compose_pki_core_packages --createrepo=conf/repository.cfg hybrid_rpms
 
-        This command builds the rpms, copies them to the REPOSITORY_LOCATION specified in the file
-        and creates it as a repository.
-        If the location specified is hosted on a httpd server, this repository
-        URL can be in the job xml.
+       This command builds the rpms, copies them to the REPOSITORY_LOCATION specified in the
+       file and creates it as a repository.
+       If the location specified is hosted on a httpd server, this repository
+       URL can be used in the job xml as a repo URL.
 
-        If a remote host name is provided then the repos are scp'ed at the
-        location provided on the remote host using the credentials provided.
-        (If no login credentials are provided, then a prompt appears asking
-         for them.)
+       If a remote host name is provided then the repos are scp'ed at the
+       location provided on the remote host using the credentials provided.
+       (If no login credentials are provided, then a prompt appears asking
+        for them.)
 
-     1.2.2.2 Building the task rpm and submitting the job to a beaker server is done
-        by executing the compose script in pki/scripts:
+       1.2.2.2 Building the task rpm and submitting the job to a beaker server
+               is done by executing the compose script in pki/scripts:
 
-        ./compose_pki_test_package unique_identifier [--submit-tests]
+         ./compose_pki_test_package unique_identifier [--submit-tests]
 
-        The builds are done in <pki_source_root>/../package.tests/ folder.
+         The builds are done in <pki_source_root>/../package.tests/ folder.
 
          -- The unique_identifier is for personalizing the rpm.
 
@@ -137,74 +137,187 @@
          -- The optional --submit-tests option.
             This option submits the test rpm to the beaker server.
 
-        ./create_beaker_job unique_identifier beaker_job_config [--submit-job]
+         ./create_beaker_job unique_identifier beaker_job_config [--submit-job]
 
-        The unique_identifier has the same functionality as the one used in the
-        compose_pki_test_rpm command.
+         The unique_identifier has the same functionality as the one used in the
+         compose_pki_test_rpm command.
 
-        The "beaker_job_config" (the absolute path of the file from /)
-        is for configuring the recipe of a job.
+         The "beaker_job_config" (the absolute path of the file from /)
+         is for configuring the recipe of a job.
 
-        A sample configuration file is at tests/conf/beaker-job.cfg.
+         A sample configuration file is at tests/conf/beaker-job.cfg.
 
-        The repos parameter should point to the URL's to access the dogtag
-        rpms. The hostname means the hostname of a specific beaker test
-        machine. The distro_* are the details of the distribution on the
-        beaker server, that has to be installed on the test machine.
+         The repos parameter should point to the URL's to access the dogtag
+         rpms. The hostname means the hostname of a specific beaker test
+         machine. The distro_* are the details of the distribution on the
+         beaker server, that has to be installed on the test machine.
 
-        The optional --submit-job command submits the job to the beaker server.
+         The optional --submit-job command submits the job to the beaker server.
 
-**Note- A beaker job is an XML file. The template used to create a job is in
-        tests/dogtag/beakerjob.dogtag.xml.template.
-        The task /distribution/reservesys is commented. On uncommenting this
-        task in the template, the beaker test machine is reserved for a certain
-        period of time after the tests are run. This option can be used to
-        debug any tests that are failing.
+**Note-  A beaker job is an XML file. The template used to create a job is in
+         tests/dogtag/beakerjob.dogtag.xml.template.
+         The task /distribution/reservesys is commented. On uncommenting this
+         task in the template, the beaker test machine is reserved for a certain
+         period of time after the tests are run. This option can be used to
+         debug any tests that are failing.
 
-**Note- In the case of creating a repository on a remote machine, the remote
-        machine must be a known_host to the local machine.
+**Note-  In the case of creating a repository on a remote machine, the remote
+         machine must be a known_host to the local machine.
 
 2. Setting up a Jenkins server for continuous integration testing
 
-  -- Follow the steps in section 1.2.1 to setup a beaker-client on the
-     system.
+   Note- Follow the steps in section 1.2.1 to setup a beaker-client on the
+         system.
 
-  -- Install Jenkins. (It is better to configure the Jenkins server to use a
-                       port other than 8080)
+2.1 Setting up a  Jenkins server.
 
-  -- Create a New Project - ex: Dogtag-pki
+   2.1.1 Installing the Jenkins (and plugins)
 
-  -- Configuring the project (Click on "Configure" in the left panel):
+       The instructions for installing a jenkins server can be found at:
+       https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins.
+       (It is better to configure the Jenkins server to listen on a
+       port other than 8080 to not raise port conflicts. The jenkins
+       configuraion file is at /etc/sysconfig/jenkins. A server restart is
+       necessary for any changes to this file to be effective. )
 
-     * Setting up the workspace:
+       The Jenkins UI can be accessed by the URL:
+       http://<hostname>:<port>/, where the hostname is the hostname of the
+       machine where Jenkins is installed and port is the port on which the
+       server is listening.
 
-       i. For continuous integration, the project can be configured to clone
-          the source from the repository (git://git.fedorahosted.org/git/pki.git).
-          To use the Git SCM, install the Jenkins-Git plugin.
-          Goto Jenkins -> Manage Jenkins -> Manage Plugins to find and install
-          the plugin. The Git option can be found in the SCM section.
+       The CI test framework requires a few additional plugins to be installed
+       for the Jenkins server.
 
-       ii. For using the working project directory as the source to build the
-           rpms - Select None in the SCM section and set the path to the
-           project root (pki) as custom workspace in the Advanced Project Options section.
-           Click on Advanced -> Select Use custom workspace -> Enter the path.
+       -- Goto Jenkins -> Manage Jenkins -> Manage Plugins page on the UI.
+          Click on the "Available" tab.
+          Search and install the following plugins:
+              * GitHub plugin
+              * Jenkins Beaker builder plugin
+              * Jenkins Email Extension Plugin
 
-   -- Building the rpms and running the tests.
+   2.1.2 Configuring Jenkins setup
 
-      In the "Build" section, select "Add build step" -> "Execute Shell"
-      Paste the following code in the Command text box.
+       The following configurations are required for the setup to be
+       complete:
+       Goto Jenkins -> Manage Jenkins -> Configure System.
 
-      cd $WORKSPACE/scripts; ./compose_pki_core_packages [--createrepo=<repository_file_absolute_path>] hybrid_rpms
-      echo "Compose the test package and submit the beaker task and job"
-      cd $WORKSPACE/scripts; ./compose_pki_test_package <UserID> <Job_XML_config_file_absolute_path> --runtests
+       Update the "System Admin e-mail address" in "Jenkins Location" section.
 
-      This will build the rpms, create the repo(if specified), compose
-      the test rpm and submit the tests to the beaker.
-      (The description to the commands used and setting up the beaker-client
-       are specified in the previous sections of this document)
+       Enter the details of the beaker server in the "Beaker Builder" section.
+       The server's certificate needs to be stored in a Java keystore if the
+       connection uses https protocol. The details for fixing this issue can be
+       found in the plugin documentation at:
+       https://wiki.jenkins-ci.org/display/JENKINS/Beaker+Builder+Plugin.
 
-   -- The Build Triggers section provides options for specifying the time at
-      which a new build can be triggered - periodically or on a git commit.
+       The "Email Notification" section needs to be completed with the details
+       of the SMTP server and its authentication details (Click on the Advanced
+       button).
 
-   -- If no Build triggers are configured in the project, the build process can be initiated by clicking on "Build Now" link in the left panel.
-      The console output can be viewed by clicking the "Console Output" link.
+2.2  Create a New Project - ex: Dogtag-pki
+
+   2.2.1 Configuring the project (Click on "Configure" in the left panel):
+
+       Setting up the workspace:
+
+       Set the path to the custom workspace in the Advanced Project Options
+       section to "<Any path on the system>/pki"
+       Click on Advanced -> Select Use custom workspace -> Enter the path.
+       The build proces of Dogtag requires the top source directory to be
+       named as pki. Hence it is required to setup a the workspace path.
+       To use the default Jenkins workspace, set the path as
+       /var/lib/jenkins/workspace/pki.
+
+           i. For continuous integration, the project can be configured to
+              clone the source from the repository.
+              (git://git.fedorahosted.org/git/pki.git).
+              The Git option can be found in the SCM section.
+
+           ii. For using the working project directory as the source to build
+               the rpms - Select None in the SCM section and clone the source
+               in the above mentioned location.
+
+   2.2.2 Building the rpms and running the tests.
+
+       In the "Build" section, select "Add build step" -> "Execute Shell"
+       Paste the following code in the Command text box.
+
+         cd $WORKSPACE/scripts; ./compose_pki_core_packages [--  createrepo=<repository_file_absolute_path>] hybrid_rpms
+         echo "Compose the test package and submit the beaker task and job"
+         cd $WORKSPACE/scripts; ./compose_pki_test_package dogtagCI --submit-tests
+
+       This shell script builds the pki core rpms, copies them to a repository,
+       creates the test rpms using the unique_identifier dogtagCI and submits
+       it to the beaker server.
+
+       Then, select "Add build step" -> "Execute Beaker Task".
+       Select the option "Specify Job XML".
+       Copy the text in the pki/tests/dogtag/beakerjob.dogtag.xml.template file
+       into the test area.
+       Replace the string PKI_TEST_USER_ID in the task name to dogtagCI.
+       Enter values for the distro required in the distroRequires element of
+       the XML.
+       Add the repository URLs in the repos element as follows:
+           <repo name="repo1" url="<URL_to_access_the_repos>"/>
+           <repo name="repo2" url="<URL_to_access_the_repos>"/>
+
+       Again, select "Add build step" -> "Execute shell"
+       Paste the following code in the text box:
+
+       echo "Check if there are any regressions in the current beaker test run."
+       cd $WORKSPACE/tests/dogtag/util
+       ./examine_results.sh ${BEAKER_JOB_ID}
+
+       This shell script examines the results of the curent and the previous
+       run and send an email as per the triggers, only if any regressions are
+       found.
+
+   2.2.3 Setting up the mail client
+
+       For setting up the post build email notification, select
+       "Add post-build action" -> "Email Notification". This can be used to
+       specify the email recipients and configuring when and to whom the email
+       has to be sent.
+
+       Configuring only this action will send emails for any result of the
+       build process to all the recipients. (Even if the build passes
+       successfully always.)
+
+       To get an email only when there are any regressions, add another post
+       build action, "Add post-build action" -> "Edit Email Notification".
+       This action provides additional options to configure the email itself.
+
+       Click on "Advanced" button and copy the following code into the
+       Pre-send script text box :
+
+         def fileName = new FilePath(build.getWorkspace(), "/beaker/regressions.txt");
+         if (fileName.exists) {
+             def file = new File(fileName.toString())
+             msg.setText(file.getText());
+         } else {
+             cancel=true;
+         }
+
+       This Groovy script looks for a file regressions.txt, created by the
+       examine_results script mentioned shown in the previous section. The
+       file contains the names of the tests that passed previously
+       but failed now. A mail will also be generated if there are tests that
+       passed now and were failing before.
+
+       This helps reduce spamming of emails when running the continuous
+       integration testng framework.
+
+       The "Add Trigger" selection box will be useful to add a trigger to
+       configure for which  result of the build an email has to be sent
+       to the recipients.
+
+   Additional Information:
+
+       -- The Build Triggers section provides options for specifying the time
+          at which a new build can be triggered - periodically or on a git
+          commit.
+
+       -- If no Build triggers are configured in the project, the build
+          process can be initiated by clicking on "Build Now" link in the left
+          panel.
+          The console output can be viewed by clicking the "Console Output"
+          link.
