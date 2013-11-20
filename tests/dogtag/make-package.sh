@@ -1,9 +1,9 @@
 #!/bin/sh
 
 ### Exit if there not enough parameters specified.
-if [ $# -lt 2 ];
+if [ $# -lt 1 ];
 then
-  echo "Usage: ./make-package.sh User-ID Job_xml_config_file [Different_subfolder_for_each_beaker_job_?(Y/N)]"
+  echo "Usage: ./make-package.sh unique_identifier [--use-different-folders]"
   exit -1
 fi
 
@@ -15,7 +15,7 @@ date_time="`date -u +%Y%m%d%H%M%S`"
 rpm_identifier=".$date_time"
 if [ $# -gt 1 ];
 then
-    if [ $2 = 'Y'  -o  $2 = 'y' ];
+    if [ $2 = '--use-different-folders' ];
     then
         user_id="$1/$date_time"
         rpm_identifier=""
@@ -36,6 +36,3 @@ rm -rf Makefile
 
 mv .Makefile.save Makefile
 
-sed -e "s|PKI_TEST_USER_ID|${user_id}|g"  beakerjob.dogtag.xml.template >> beakerjob.dogtag.xml
-
-python update_beaker_job.py beakerjob.dogtag.xml $2

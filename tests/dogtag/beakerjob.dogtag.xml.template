@@ -35,9 +35,9 @@
                                         <param name="DEV_JAVA_TESTS" value="FALSE"/>
 				</params>
 			</task>
-			<task name="/distribution/reservesys" role="STANDALONE">
+			<!-- <task name="/distribution/reservesys" role="STANDALONE">
 				<params/>
-			</task>
+			</task> -->
 		</recipe>
 	</recipeSet>
 </job>

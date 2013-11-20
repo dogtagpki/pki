@@ -23,17 +23,17 @@ check_for_dependencies()
 
 check_for_dependencies
 
-if [ $# -lt 2 ];
+if [ $# -lt 1 ];
 then
-  echo "Usage: $0 User-ID_for_personalization Job_xml_config_file [--runtests]"
+  echo "Usage: $0 unique_identifier [--submit-tests]"
   exit -1
 fi
 
 RUN_TESTS='N'
 
-if [ $# -gt 2 ];
+if [ $# -gt 1 ];
 then
-    if [ $3 = "--runtests" ]
+    if [ $2 = "--submit-tests" ]
     then
         RUN_TESTS='Y'
     fi
@@ -53,11 +53,13 @@ WORK_DIR=`cd $COMPOSE_DIR/../..;pwd`
 
 BUILD_DIR="$WORK_DIR/package.tests"
 
-rm -rf $BUILD_DIR
-
-mkdir $BUILD_DIR
+if [ ! -d $BUILD_DIR ] ; then
+    mkdir $BUILD_DIR
+fi
 
 cd $BUILD_DIR
+
+rm -rf *.rpm
 
 cp -r "$PKI_SOURCE_DIR/tests" .
 
@@ -79,16 +81,13 @@ cd ..
 
 ### Passing the keyword for personalizing and an option
 ### to maintain a seperate folder for each beaker job (Optional)
-./make-package.sh $1 $2
+./make-package.sh $1
 
 mv *.rpm ../../
 
-mv *.xml ../../
-
+cd ../..
 ### Running the tasks
 
-cd $COMPOSE_DIR
-
 if [ $RUN_TESTS = "Y" ] ; then
-     ./run_tests
+     bkr task-add *.rpm
 fi

@@ -1,0 +1,42 @@
+#! /bin/bash
+
+### Exit if there not enough parameters specified.
+if [ $# -lt 2 ];
+then
+  echo "Usage: ./create-beaker-job-xml unique_identifier Job_xml_config_file [--submit-job]"
+  exit -1
+fi
+
+user_id=$1
+### Directory with all the compose scripts
+COMPOSE_DIR=`dirname $0 | cd ; pwd`
+
+PKI_SOURCE_DIR=`cd $COMPOSE_DIR/..; pwd`
+
+WORK_DIR=`cd $COMPOSE_DIR/../..;pwd`
+
+BUILD_DIR="$WORK_DIR/package.tests"
+
+if [ ! -d $BUILD_DIR ] ; then
+    mkdir $BUILD_DIR
+fi
+
+cd $BUILDDIR
+
+cp -r $PKI_SOURCE_DIR/tests .
+
+cd tests/dogtag
+
+sed -e "s|PKI_TEST_USER_ID|${user_id}|g"  beakerjob.dogtag.xml.template >> beakerjob.dogtag.xml
+
+python update_beaker_job.py beakerjob.dogtag.xml $2
+
+if [ $# -gt 2 ];
+then
+    if [ $3 = "--submit-job" ]
+    then
+        bkr job-submit beakerjob.dogtag.xml
+    fi
+fi
+
+mv beakerjob.dogtag.xml ../../
