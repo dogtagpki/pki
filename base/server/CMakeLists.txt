@@ -142,5 +142,6 @@ install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
 
 add_subdirectory(tomcat)
 add_subdirectory(cms)
+add_subdirectory(cmsbundle)
 add_subdirectory(cmscore)
 add_subdirectory(test)
