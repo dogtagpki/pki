@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          10.1.0
-Release:          1%{?dist}
+Version:          10.2.0
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -80,6 +80,9 @@ cd build
 
 
 %changelog
+* Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
+- Updated version number to 10.2.0-0.1.
+
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build

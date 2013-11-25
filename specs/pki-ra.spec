@@ -1,6 +1,6 @@
 Name:             pki-ra
-Version:          10.1.0
-Release:          1%{?dist}
+Version:          10.2.0
+Release:          0.1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,8 +21,8 @@ Requires:         mod_perl >= 1.99_16
 Requires:         mod_revocator >= 1.0.3
 Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
-Requires:         pki-server >= 10.1.0
-Requires:         pki-server-theme >= 10.1.0
+Requires:         pki-server >= 10.2.0
+Requires:         pki-server-theme >= 10.2.0
 Requires:         perl-DBD-SQLite
 Requires:         sqlite
 Requires:         /usr/sbin/sendmail
@@ -197,6 +197,9 @@ fi
 
 
 %changelog
+* Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
+- Updated version number to 10.2.0-0.1.
+
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build

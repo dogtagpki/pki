@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.1.0
-Release:          1%{?dist}
+Version:          10.2.0
+Release:          0.1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -9,16 +9,16 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-%define dogtag_pki_theme_version   10.1.0
+%define dogtag_pki_theme_version   10.2.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-28
-%define pki_core_version           10.1.0
-%define pki_kra_version            10.1.0
-%define pki_ocsp_version           10.1.0
-%define pki_ra_version             10.1.0
-%define pki_tks_version            10.1.0
-%define pki_tps_version            10.1.0
-%define pki_console_version        10.1.0
+%define pki_core_version           10.2.0
+%define pki_kra_version            10.2.0
+%define pki_ocsp_version           10.2.0
+%define pki_ra_version             10.2.0
+%define pki_tks_version            10.2.0
+%define pki_tps_version            10.2.0
+%define pki_console_version        10.2.0
 %define tomcatjss_version          7.1.0
 
 Requires:         apache-commons-codec
@@ -125,6 +125,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
+- Updated version number to 10.2.0-0.1.
+
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build
