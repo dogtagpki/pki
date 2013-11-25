@@ -109,9 +109,10 @@ Usage()
 	printf "                           ${MESSAGE}\n\n"
 	printf "Options:\n"
 	printf "  --without-javadoc        do not build Javadoc RPMS\n\n"
-        printf "  --createrepo=<repository_location_details_file> create a \n"
-        printf "                           repository with the rpms built."
-        printf "                           Provide the configuration file with the details. \n\n"
+	printf "  --without-server         do not build server RPMS\n\n"
+	printf "  --createrepo=<repository_config> create a \n"
+	printf "                           repository with the rpms built."
+	printf "                           Provide the configuration file with the details. \n\n"
 }
 
 
@@ -307,7 +308,7 @@ Create_repo_after_build()
 ## Check for command line argument validity
 ##
 
-GETOPT=`getopt -o '' -l without-javadoc,work-dir:,createrepo: -n "$0" -- "$@"`
+GETOPT=`getopt -o '' -l without-javadoc,without-server,work-dir:,createrepo: -n "$0" -- "$@"`
 
 if [ $? != 0 ] ; then
     Usage
@@ -318,7 +319,8 @@ eval set -- "$GETOPT"
 
 while true ; do
     case "$1" in
-        --without-javadoc) JAVADOC="--without javadoc" ; shift ;;
+        --without-javadoc) WITHOUT_JAVADOCS="--without javadoc" ; shift ;;
+        --without-server) WITHOUT_SERVER="--without server" ; shift ;;
         --work-dir) WORK_DIR="$2" ; shift 2 ;;
         --createrepo) CREATEREPO="Y" ; REPO_CFG_FILE="$2" ; shift 2 ;;
         --) shift ; break ;;
@@ -331,32 +333,36 @@ if [ $# -ne 1 ] ; then
 	exit 255
 fi
 
+OPTIONS="--define \"_topdir \`pwd\`\" $WITHOUT_JAVADOCS $WITHOUT_SERVER"
+
 if	[ $1 = "srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
+	OPTIONS="$OPTIONS -bs"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
 elif [ $1 = "hybrid_srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
+	OPTIONS="$OPTIONS -bs"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
+	OPTIONS="$OPTIONS -bs"
 	FETCH_SOURCE_TARBALL=1
 	FETCH_PATCH_FILES=1
 elif [ $1 = "rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
+	OPTIONS="$OPTIONS -ba"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
 elif [ $1 = "hybrid_rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
+	OPTIONS="$OPTIONS -ba"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
+	OPTIONS="$OPTIONS -ba"
 	FETCH_SOURCE_TARBALL=1
 	FETCH_PATCH_FILES=1
 else
 	Usage
 	exit 255
 fi
+
+RPMBUILD_CMD="rpmbuild $OPTIONS"
 export RPMBUILD_CMD

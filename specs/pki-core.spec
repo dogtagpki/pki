@@ -11,6 +11,9 @@ URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Daemons
 
+%bcond_without    server
+%bcond_without    javadoc
+
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
@@ -238,6 +241,8 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
+
+%if %{with server}
 
 %package -n       pki-server
 Summary:          Certificate System - PKI Server Framework
@@ -479,6 +484,8 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
+%endif # %{with server}
+
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
@@ -498,7 +505,12 @@ cd build
 %else
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
 %endif
-	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+%if ! %{with server}
+	-DWITH_SERVER:BOOL=OFF \
+%endif
+%if ! %{with javadoc}
+	-DWITH_JAVADOC:BOOL=OFF \
+%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 # %{__make} VERBOSE=1 %{?_smp_mflags} test
@@ -508,6 +520,8 @@ cd build
 %{__rm} -rf %{buildroot}
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+
+%if %{with server}
 
 # Scanning the python code with pylint. A return value of 0 represents there are no
 # errors or warnings reported by pylint.
@@ -537,6 +551,9 @@ if [ -d /etc/sysconfig/pki/%i ]; then                                        \
   done                                                                       \
 fi                                                                           \
 )
+
+%endif # %{with server}
+
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
@@ -589,6 +606,8 @@ then
     # On RPM uninstallation remove system upgrade tracker
     rm -f %{_sysconfdir}/pki/pki.version
 fi
+
+%if %{with server}
 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
@@ -791,6 +810,9 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
+%endif # %{with server}
+
+
 %files -n pki-symkey
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
@@ -854,6 +876,8 @@ fi
 %{_mandir}/man1/pki.1.gz
 
 
+%if %{with server}
+
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
@@ -894,6 +918,7 @@ fi
 
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
+
 
 %files -n pki-ca
 %defattr(-,root,root,-)
@@ -958,16 +983,18 @@ fi
 %{_datadir}/pki/tps/setup/
 %{_datadir}/pki/tps/webapps/
 
-%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
+%if %{with javadoc}
 %files -n pki-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
 %endif
 
+%endif # %{with server}
 
 %changelog
 * Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
 - Updated version number to 10.2.0-0.1.
+- Added option to build without server packages.
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files

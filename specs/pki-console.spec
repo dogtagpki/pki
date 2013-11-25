@@ -6,6 +6,8 @@ URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Base
 
+%bcond_without    javadoc
+
 BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -61,7 +63,9 @@ cd build
 	-DVAR_INSTALL_DIR:PATH=/var \
     -DBUILD_PKI_CONSOLE:BOOL=ON \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
-    %{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+%if ! %{with javadoc}
+    -DWITH_JAVADOC:BOOL=OFF \
+%endif
     ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 

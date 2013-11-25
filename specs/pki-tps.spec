@@ -6,6 +6,8 @@ URL:              http://pki.fedoraproject.org/
 License:          LGPLv2
 Group:            System Environment/Daemons
 
+%bcond_without    javadoc
+
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
@@ -128,7 +130,9 @@ cd build
 %else
 	-DRESTEASY_LIB=/usr/share/java/resteasy \
 %endif
-	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+%if ! %{with javadoc}
+	-DWITH_JAVADOC:BOOL=OFF \
+%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 

@@ -38,10 +38,14 @@ PKI_CORE_VERSION="10.2.0"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
-PKI_COMPONENT_LIST="test setup symkey util common native-tools java-tools server selinux ca kra ocsp tks tps-tomcat silent"
+PKI_COMPONENT_LIST="test symkey util common native-tools java-tools"
 
 if [ "$WITHOUT_JAVADOC" = "" ]; then
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
+fi
+
+if [ "$WITHOUT_SERVER" = "" ]; then
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps-tomcat setup silent"
 fi
 
 ##
