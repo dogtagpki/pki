@@ -55,4 +55,5 @@ resourceACLS: certServer.ca.account:login,logout:allow (login,logout) user="anyb
 resourceACLS: certServer.ca.certrequests:execute:allow (execute) group="Certificate Manager Agents":Agents may execute cert request operations
 resourceACLS: certServer.ca.certs:execute:allow (execute) group="Certificate Manager Agents":Agents may execute cert operations
 resourceACLS: certServer.ca.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.ca.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
 resourceACLS: certServer.ca.users:execute:allow (execute) group="Administrators":Admins may execute user operations

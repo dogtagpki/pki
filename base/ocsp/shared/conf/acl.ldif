@@ -30,4 +30,5 @@ resourceACLS: certServer.ocsp.group:read,modify:allow (modify,read) group="Admin
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.ocsp.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.ocsp.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.ocsp.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
 resourceACLS: certServer.ocsp.users:execute:allow (execute) group="Administrators":Admins may execute user operations

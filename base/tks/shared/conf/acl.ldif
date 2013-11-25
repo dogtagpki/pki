@@ -30,4 +30,5 @@ resourceACLS: certServer.tks.importTransportCert:read,modify:allow (modify,read)
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.tks.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.tks.groups:execute:allow (execute) group="Administrators":Admins may execute group operations
+resourceACLS: certServer.tks.selftests:read,execute:allow (read,execute) group="Administrators":Only admins can access selftests.
 resourceACLS: certServer.tks.users:execute:allow (execute) group="Administrators":Admins may execute user operations
