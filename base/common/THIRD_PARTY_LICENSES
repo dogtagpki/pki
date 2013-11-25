@@ -15,6 +15,15 @@ jQuery.i18n.properties - dual licensed under MIT and GPL licenses
    License URLS:  http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt
                   http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt
 
+Underscore - licensed under MIT license
+ * underscore.js
+   Project URL:  http://underscorejs.org/
+   License URL:  https://github.com/jashkenas/underscore/blob/master/LICENSE
+
+Backbone - licensed under MIT license
+ * backbone.js
+   Project URL:  http://backbonejs.org/
+   License URL:  https://github.com/jashkenas/backbone/blob/master/LICENSE
 
 
 Full license texts, copyright notices, and headers are listed below.
@@ -58,3 +67,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *              by Keith Wood (kbwood{at}iinet.com.au) June 2007
  *
  *****************************************************************************/
+
+= Underscore header =
+
+//     Underscore.js 1.5.2
+//     http://underscorejs.org
+//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     Underscore may be freely distributed under the MIT license.
+
+= Backbone header =
+
+//     Backbone.js 1.1.0
+
+//     (c) 2010-2011 Jeremy Ashkenas, DocumentCloud Inc.
+//     (c) 2011-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     Backbone may be freely distributed under the MIT license.
+//     For all details and documentation:
+//     http://backbonejs.org
