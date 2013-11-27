@@ -19,8 +19,8 @@
 <html>
 
 <head>
-<script type="text/javascript" language="JavaScript" src="/pki/js/jquery-min.js"></script>
-<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties-min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties.js"></script>
 
 <script type="text/javascript" language="JavaScript">
 $(function() {

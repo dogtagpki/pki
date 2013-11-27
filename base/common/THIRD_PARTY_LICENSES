@@ -5,12 +5,12 @@ Dogtag copyright.
 Third party code:
 
 jQuery - licensed under MIT license
- * jquery-min.js (compressed 'minified' version)
+ * jquery.js
    Project URL:  http://jquery.com/
    License URL:  https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt
 
 jQuery.i18n.properties - dual licensed under MIT and GPL licenses
- * jquery.i18n.properties-min.js (compressed 'minified' version)
+ * jquery.i18n.properties.js
    Project URL:   http://code.google.com/p/jquery-i18n-properties/
    License URLS:  http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt
                   http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt
@@ -45,15 +45,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 = jQuery.i18n.properties header =
 
-******************************************************************************
+/******************************************************************************
  * jquery.i18n.properties
  *
  * Dual licensed under the GPL (http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt) and
  * MIT (http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt) licenses.
  *
- * @version     1.1.x
+ * @version     1.0.x
  * @author      Nuno Fernandes
- *              Matthew Lohbihler
  * @url         www.codingwithcoffee.com
  * @inspiration Localisation assistance for jQuery (http://keith-wood.name/localisation.html)
  *              by Keith Wood (kbwood{at}iinet.com.au) June 2007
