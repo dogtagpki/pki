@@ -39,18 +39,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.SKIP_INSTANCE_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
+
         config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # establish instance logs
-        deployer.directory.create(deployer.master_dict['pki_instance_log_path'])
-        # establish instance configuration
-        deployer.directory.create(deployer.master_dict['pki_instance_configuration_path'])
-        # establish Apache/Tomcat specific instance
-        if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+
+        # if this is the first subsystem
+        if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+            len(deployer.instance.tomcat_instance_subsystems()) == 1:
+
+            # establish instance logs
+            deployer.directory.create(deployer.master_dict['pki_instance_log_path'])
+
             # establish Tomcat instance configuration
-            deployer.directory.copy(deployer.master_dict['pki_source_server_path'],
-                                deployer.master_dict['pki_instance_configuration_path'],
-                                overwrite_flag=True)
+            deployer.directory.copy(
+                deployer.master_dict['pki_source_server_path'],
+                deployer.master_dict['pki_instance_configuration_path'])
+
             # establish Tomcat instance base
             deployer.directory.create(deployer.master_dict['pki_tomcat_common_path'])
             deployer.directory.create(deployer.master_dict['pki_tomcat_common_lib_path'])
@@ -67,7 +71,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.symlink.create(deployer.master_dict['pki_instance_conf_log4j_properties'],
                                 deployer.master_dict['pki_instance_lib_log4j_properties'])
             deployer.directory.create(deployer.master_dict['pki_tomcat_tmpdir_path'])
-            deployer.directory.create(deployer.master_dict['pki_tomcat_webapps_path'])
+
+            # Copy /usr/share/pki/server/webapps to <instance>/webapps
+            deployer.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps"),
+                deployer.master_dict['pki_tomcat_webapps_path'])
+
+            # If desired and available,
+            # copy selected server theme
+            # to <instance>/webapps/pki
+            if config.str2bool(deployer.master_dict['pki_theme_enable']) and\
+                os.path.exists(deployer.master_dict['pki_theme_server_dir']):
+                deployer.directory.copy(
+                    deployer.master_dict['pki_theme_server_dir'],
+                    os.path.join(
+                        deployer.master_dict['pki_tomcat_webapps_path'],
+                        "pki"),
+                    overwrite_flag=True)
+
             deployer.directory.create(deployer.master_dict['pki_tomcat_work_path'])
             deployer.directory.create(deployer.master_dict['pki_tomcat_work_catalina_path'])
             deployer.directory.create(deployer.master_dict['pki_tomcat_work_catalina_host_path'])
@@ -120,9 +144,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.master_dict['pki_resteasy_jettison_provider_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_scannotation_jar'],
                 deployer.master_dict['pki_scannotation_jar_link'])
-            if deployer.master_dict['pki_subsystem'] == 'TKS':
-                deployer.symlink.create(deployer.master_dict['pki_symkey_jar'],
-                    deployer.master_dict['pki_symkey_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_tomcatjss_jar'],
                 deployer.master_dict['pki_tomcatjss_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_velocity_jar'],
@@ -133,23 +154,31 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.master_dict['pki_xml_commons_apis_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_xml_commons_resolver_jar'],
                 deployer.master_dict['pki_xml_commons_resolver_jar_link'])
-        # establish shared NSS security databases for this instance
-        deployer.directory.create(deployer.master_dict['pki_database_path'])
-        # establish instance convenience symbolic links
-        deployer.symlink.create(deployer.master_dict['pki_database_path'],
+
+            # establish shared NSS security databases for this instance
+            deployer.directory.create(deployer.master_dict['pki_database_path'])
+            # establish instance convenience symbolic links
+            deployer.symlink.create(deployer.master_dict['pki_database_path'],
                             deployer.master_dict['pki_instance_database_link'])
-        deployer.symlink.create(deployer.master_dict['pki_instance_configuration_path'],
+            deployer.symlink.create(deployer.master_dict['pki_instance_configuration_path'],
                             deployer.master_dict['pki_instance_conf_link'])
-        deployer.symlink.create(deployer.master_dict['pki_instance_log_path'],
+            deployer.symlink.create(deployer.master_dict['pki_instance_log_path'],
                             deployer.master_dict['pki_instance_logs_link'])
+
+        if deployer.master_dict['pki_subsystem'] == 'TKS':
+            deployer.symlink.create(deployer.master_dict['pki_symkey_jar'],
+                deployer.master_dict['pki_symkey_jar_link'])
+
         return self.rv
 
     def destroy(self, deployer):
 
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+
         if deployer.master_dict['pki_subsystem'] == 'TKS':
             deployer.symlink.delete(deployer.master_dict['pki_symkey_jar_link'])
+
         if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
            deployer.instance.apache_instance_subsystems() == 0:
             # remove Apache instance base
@@ -165,6 +194,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if deployer.instance.apache_instances() == 0:
                 deployer.directory.delete(
                     deployer.master_dict['pki_instance_type_registry_path'])
+
         elif deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
              len(deployer.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base
@@ -183,4 +213,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if deployer.instance.tomcat_instances() == 0:
                 deployer.directory.delete(
                     deployer.master_dict['pki_instance_type_registry_path'])
+
         return self.rv

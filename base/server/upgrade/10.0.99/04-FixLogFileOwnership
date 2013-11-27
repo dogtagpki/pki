@@ -51,14 +51,4 @@ class FixLogFileOwnership(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         log_dir = os.path.join('/var/log/pki', instance.name)
 
-        self._chown(log_dir, uid, gid)
-
-
-    def _chown(self, path, uid, gid):
-        os.chown(path, uid, gid)
-        for item in os.listdir(path):
-            itempath = os.path.join(path, item)
-            if os.path.isfile(itempath):
-                os.chown(itempath, uid, gid)
-            elif os.path.isdir(itempath):
-                self._chown(itempath, uid, gid)
+        pki.util.chown(log_dir, uid, gid)
