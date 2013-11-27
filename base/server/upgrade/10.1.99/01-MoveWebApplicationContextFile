@@ -1,0 +1,96 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+
+import grp
+import os
+import pwd
+import re
+
+import pki.server.upgrade
+
+
+class MoveWebApplicationContextFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Move web application context file'
+
+    def upgrade_instance(self, instance):
+
+        self.upgrade_webapp(instance, 'ROOT')
+        self.upgrade_webapp(instance, 'pki')
+
+    def upgrade_subsystem(self, instance, subsystem):
+
+        self.upgrade_webapp(instance, subsystem.name)
+
+    def upgrade_webapp(self, instance, webapp):
+
+        metainf_dir = os.path.join(instance.base_dir, 'webapps', webapp, 'META-INF')
+        self.backup(metainf_dir)
+
+        old_context_file = os.path.join(metainf_dir, 'context.xml')
+        self.backup(old_context_file)
+
+        catalina_dir = os.path.join(instance.base_dir, 'conf', 'Catalina')
+        self.backup(catalina_dir)
+
+        localhost_dir = os.path.join(catalina_dir, 'localhost')
+        self.backup(localhost_dir)
+
+        new_context_file = os.path.join(localhost_dir, webapp + '.xml')
+        self.backup(new_context_file)
+
+        # prepare target folder
+        if not os.path.exists(localhost_dir):
+            os.makedirs(localhost_dir)
+
+        # copy context file, don't overwrite existing file
+        pki.util.copyfile(old_context_file, new_context_file, overwrite=False)
+
+        # find uid and gid
+        registry_file = os.path.join(
+            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
+
+        with open(registry_file, 'r') as registry:
+            lines = registry.readlines()
+
+        for line in lines:
+            m = re.search('^PKI_USER=(.*)$', line)
+            if m:
+                user = m.group(1)
+            m = re.search('^PKI_GROUP=(.*)$', line)
+            if m:
+                group = m.group(1)
+
+        uid = pwd.getpwnam(user).pw_uid
+        gid = grp.getgrnam(group).gr_gid
+
+        # set file and folder ownership
+        pki.util.chown(catalina_dir, uid, gid)
+
+        # remove old context file
+        if os.path.exists(old_context_file):
+            os.remove(old_context_file)
+
+        # remove empty META-INF
+        if not os.listdir(metainf_dir):
+            os.rmdir(metainf_dir)

@@ -97,3 +97,18 @@ def copydirs(source, dest):
     os.utime(dest, (st.st_atime, st.st_mtime))
     os.chmod(dest, st.st_mode)
     os.chown(dest, st.st_uid, st.st_gid)
+
+def chown(path, uid, gid):
+    """
+    Change ownership of a folder and its contents.
+    """
+
+    os.chown(path, uid, gid)
+
+    for item in os.listdir(path):
+        itempath = os.path.join(path, item)
+
+        if os.path.isfile(itempath):
+            os.chown(itempath, uid, gid)
+        elif os.path.isdir(itempath):
+            chown(itempath, uid, gid)
