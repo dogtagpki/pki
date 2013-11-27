@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.DataCollection;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Activities")
+@XmlRootElement(name="Certificates")
 public class TPSCertCollection extends DataCollection<TPSCertData> {
 
     @XmlElementRef

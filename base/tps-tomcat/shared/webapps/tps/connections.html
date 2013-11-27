@@ -18,22 +18,38 @@
 <html>
 <head>
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/connection.js"></script>
+    <script>
+$(function() {
+    new TableView({
+        el: $("table[name='connections']"),
+        collection: new ConnectionCollection()
+    });
+});
+    </script>
 </head>
 <body>
 
-<h1>Token Processing Service</h1>
+<h1>Connections</h1>
 
-<ul>
-<li><a href="tokens.html">Tokens</a></li>
-<li><a href="certs.html">Certificates</a></li>
-<li><a href="activities.html">Activities</a></li>
-<li><a href="profiles.html">Profiles</a></li>
-<li><a href="selftests.html">Self Tests</a></li>
-<li><a href="users.html">Users</a></li>
-<li><a href="groups.html">Groups</a></li>
-<li><a href="authenticators.html">Authenticators</a></li>
-<li><a href="connections.html">Connections</a></li>
-</ul>
+<table name="connections">
+<thead>
+    <tr>
+        <td>Connection ID</td>
+        <td>Status</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td name="id">&nbsp;</td>
+        <td name="status">&nbsp;</td>
+    </tr>
+</tbody>
+</table>
 
 </body>
 </html>

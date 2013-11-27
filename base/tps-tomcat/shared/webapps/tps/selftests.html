@@ -18,22 +18,44 @@
 <html>
 <head>
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/selftest.js"></script>
+    <script>
+$(function() {
+    new TableView({
+        el: $("table[name='selftests']"),
+        collection: new SelfTestCollection()
+    });
+});
+    </script>
 </head>
 <body>
 
-<h1>Token Processing Service</h1>
+<h1>Self Tests</h1>
 
-<ul>
-<li><a href="tokens.html">Tokens</a></li>
-<li><a href="certs.html">Certificates</a></li>
-<li><a href="activities.html">Activities</a></li>
-<li><a href="profiles.html">Profiles</a></li>
-<li><a href="selftests.html">Self Tests</a></li>
-<li><a href="users.html">Users</a></li>
-<li><a href="groups.html">Groups</a></li>
-<li><a href="authenticators.html">Authenticators</a></li>
-<li><a href="connections.html">Connections</a></li>
-</ul>
+<table name="selftests">
+<thead>
+    <tr>
+        <td>Self Test ID</td>
+        <td>Enabled at Statup</td>
+        <td>Critical at Startup</td>
+        <td>Enabled on Demand</td>
+        <td>Critical on Demand</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td name="id">&nbsp;</td>
+        <td name="enabledAtStartup">&nbsp;</td>
+        <td name="criticalAtStartup">&nbsp;</td>
+        <td name="enabledOnDemand">&nbsp;</td>
+        <td name="criticalOnDemand">&nbsp;</td>
+    </tr>
+</tbody>
+</table>
 
 </body>
 </html>

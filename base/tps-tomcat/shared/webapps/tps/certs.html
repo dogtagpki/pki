@@ -1,0 +1,69 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2013 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/cert.js"></script>
+    <script>
+$(function() {
+    new TableView({
+        el: $("table[name='certificates']"),
+        collection: new CertificateCollection()
+    });
+});
+    </script>
+</head>
+<body>
+
+<h1>Certificates</h1>
+
+<table name="certificates">
+<thead>
+    <tr>
+        <td>Certificate ID</td>
+        <td>Serial Number</td>
+        <td>Subject</td>
+        <td>Token ID</td>
+        <td>User ID</td>
+        <td>Key Type</td>
+        <td>Status</td>
+        <td>Create Time</td>
+        <td>Modify Time</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td name="id">&nbsp;</td>
+        <td name="serialNumber">&nbsp;</td>
+        <td name="subject">&nbsp;</td>
+        <td name="tokenID">&nbsp;</td>
+        <td name="userID">&nbsp;</td>
+        <td name="keyType">&nbsp;</td>
+        <td name="status">&nbsp;</td>
+        <td name="createTime">&nbsp;</td>
+        <td name="modifyTime">&nbsp;</td>
+    </tr>
+</tbody>
+</table>
+
+</body>
+</html>

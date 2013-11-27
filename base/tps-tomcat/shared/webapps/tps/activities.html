@@ -1,0 +1,65 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2013 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/activity.js"></script>
+    <script>
+$(function() {
+    new TableView({
+        el: $("table[name='activities']"),
+        collection: new ActivityCollection()
+    });
+});
+    </script>
+</head>
+<body>
+
+<h1>Activities</h1>
+
+<table name="activities">
+<thead>
+    <tr>
+        <td>Activity ID</td>
+        <td>Token ID</td>
+        <td>User ID</td>
+        <td>IP</td>
+        <td>Operation</td>
+        <td>Result</td>
+        <td>Date</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td name="id">&nbsp;</td>
+        <td name="tokenID">&nbsp;</td>
+        <td name="userID">&nbsp;</td>
+        <td name="ip">&nbsp;</td>
+        <td name="operation">&nbsp;</td>
+        <td name="result">&nbsp;</td>
+        <td name="date">&nbsp;</td>
+    </tr>
+</tbody>
+</table>
+
+</body>
+</html>
