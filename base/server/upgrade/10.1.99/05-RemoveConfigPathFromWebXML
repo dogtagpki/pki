@@ -1,0 +1,80 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+from lxml import etree
+
+import pki.server.upgrade
+
+
+class RemoveConfigPathFromWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Remove config path from web.xml'
+
+    def upgrade_subsystem(self, instance, subsystem):
+
+        default_cs_cfg = os.path.join(instance.base_dir, 'conf', subsystem.name, 'CS.cfg')
+        web_xml = os.path.join(instance.base_dir, 'webapps', subsystem.name, 'WEB-INF', 'web.xml')
+
+        if not os.path.exists(web_xml):
+            return
+
+        self.backup(web_xml)
+
+        document = etree.parse(web_xml)
+        self.remove_config_path(document, default_cs_cfg)
+
+        with open(web_xml, 'w') as f:
+            f.write(etree.tostring(document, pretty_print=True))
+
+    def remove_config_path(self, document, default_cs_cfg):
+
+        context = document.getroot()
+
+        # find CMSStartServlet servlet
+        for servlet in context.findall('servlet'):
+
+            servlet_class = servlet.find('servlet-class')
+            value = servlet_class.text.strip()
+
+            if value != 'com.netscape.cms.servlet.base.CMSStartServlet':
+                continue
+
+            # servlet found, find cfgPath parameter
+            for init_param in servlet.findall('init-param'):
+
+                param_name = init_param.find('param-name')
+                value = param_name.text.strip()
+
+                if value != 'cfgPath':
+                    continue
+
+                # parameter found, check value
+                param_value = init_param.find('param-value')
+                value = param_value.text.strip()
+
+                # if cfgPath points to the default CS.cfg, remove the parameter
+                if value == default_cs_cfg:
+                    servlet.remove(init_param)
+
+                return
