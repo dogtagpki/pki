@@ -19,11 +19,13 @@
  * @author Endi S. Dewata
  */
 
-table {
-    border: 1px solid black;
-    border-spacing: 0;
-}
+@import url("pki-base.css");
+@import url("pki-tabs.css");
+@import url("pki-forms.css");
+@import url("pki-tables.css");
+@import url("pki-dialogs.css");
 
-table td {
-    border: 1px solid black;
+body {
+  margin: 48px auto;
+  width: 850px;
 }

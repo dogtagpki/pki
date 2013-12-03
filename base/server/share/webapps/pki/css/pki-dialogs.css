@@ -1,0 +1,80 @@
+#dialog:target {
+  display: block;
+}
+
+#dialog {
+  display: none;
+}
+
+.rcue-dialog-background {
+  background-color: rgba(0,0,0, 0.39);
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.rcue-dialog {
+  font-size: 12px;
+  padding: 16px 22px;
+  width: 560px;
+  height: 420px;
+  border: 1px solid #6e6d6d;
+  box-shadow: rgba(0,0,0, 0.39) 0 0 2px;
+  background-color: #fff;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.rcue-dialog header {
+  margin-bottom: 48px;
+}
+
+.rcue-dialog header .rcue-button-close {
+  background-image: url("/pki/images/dialog-button-close.png");
+  width: 25px;
+  height: 25px;
+  background-repeat: no-repeat;
+  background-position: center;
+  float: right;
+  display: inline-block;
+  margin-top: -4px;
+  margin-right: -6px;
+}
+
+.rcue-dialog header h1 {
+  float: left;
+}
+
+.rcue-dialog header a {
+  float: right;
+}
+
+.rcue-dialog fieldset legend {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.rcue-dialog fieldset label {
+  min-width: 100px;
+  display: inline-block;
+}
+
+.rcue-dialog footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 16px;
+  padding-left: 22px;
+  width: 100%;
+}
+
+.rcue-dialog footer button {
+  float: right;
+}

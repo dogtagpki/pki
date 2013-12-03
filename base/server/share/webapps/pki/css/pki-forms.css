@@ -1,0 +1,240 @@
+fieldset {
+  border: none;
+}
+
+/* Text Field */
+
+input[type="text"],
+input[type="password"] {
+  margin: 4px;
+  color: #4d5258;
+  padding: 3px 9px;
+  min-width: 200px;
+  height: 26px;
+  border: 1px #b6b6b6 solid;
+  border-radius: 2px;
+  background-image: url("/pki/images/input-background.png");
+  background-position: top left;
+  background-repeat: repeat-x;
+}
+
+input[type="text"]:enabled:hover,
+input[type="password"]:enabled:hover {
+  border-color: #62afdb;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: #62afdb;
+  box-shadow: #62afdb 0 0 3.5px;
+}
+
+input[type="text"]:disabled,
+input[type="password"]:disabled {
+  background-image: none;
+  background-color: #f8f8f8;
+}
+
+::-webkit-input-placeholder {
+   font-style: italic;
+   color: #999;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   font-style: italic;
+   color: #999;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   font-style: italic;
+   color: #999;
+}
+
+:-ms-input-placeholder {
+   font-style: italic;
+   color: #999;
+}
+
+
+/* Text Field Error State */
+
+input[type="text"].error,
+input[type="password"].error {
+  border-color: #e30000 !important;
+}
+
+
+input[type="text"].error:focus,
+input[type="password"].error:focus {
+  box-shadow: #f18080 0 0 3.5px;
+}
+
+
+/* Default Button */
+
+button + button {
+  margin-left: 0;
+}
+
+button {
+  border-color: #21799e;
+  background-image: linear-gradient(top, #fafafa 0%, #ededed 100%);
+  background-image: -o-linear-gradient(top, #fafafa 0%, #ededed 100%);
+  background-image: -moz-linear-gradient(top, #fafafa 0%, #ededed 100%);
+  background-image: -webkit-linear-gradient(top, #fafafa 0%, #ededed 100%);
+  background-image: -ms-linear-gradient(top, #fafafa 0%, #ededed 100%);
+  background-image: -webkit-gradient(
+	  linear,
+	  left top,
+	  left bottom,
+	  color-stop(0.0, #fafafa),
+	  color-stop(1,0, #ededed)
+  );
+  color: #fff;
+  padding: 4px 14px;
+  border: 1px #bbb solid;
+  border-radius: 2px;
+  color: #4d5258;
+  font-weight: bold;
+  min-width: 45px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  margin: 4px;
+}
+
+button:hover,
+button:focus {
+  background-image: none !important;
+  background-color: #eee;
+}
+
+button:disabled {
+  border-color: #cdcdcd !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  color: #bbb !important;
+  font-weight: normal;
+  cursor: default;
+}
+
+button:enabled:active {
+  background-color: #eee;
+  box-shadow: inset 0 0 5px 3px #c6c6c6;
+}
+
+
+/* Primary Button */
+
+button.primary {
+  border-color: #21799e;
+  background-image: linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -o-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -moz-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -webkit-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -ms-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -webkit-gradient(
+	  linear,
+	  left top,
+	  left bottom,
+	  color-stop(0.0, #00A9EC),
+	  color-stop(1,0, #009BD3)
+  );
+  color: #fff;
+}
+
+button.primary:hover,
+button.primary:focus {
+  background-color: #009BD3;
+}
+
+button.primary:enabled:active {
+  background-color: #0099d4;
+  box-shadow: inset 0 0 5px 3px #0074ae;
+}
+
+
+/* Destructive Button */
+
+button.destructive {
+  border-color: #350000;
+  background-image: linear-gradient(top, #d90000 0%, #ad0101 100%);
+  background-image: -o-linear-gradient(top, #d90000 0%, #ad0101 100%);
+  background-image: -moz-linear-gradient(top, #d90000 0%, #ad0101 100%);
+  background-image: -webkit-linear-gradient(top, #d90000 0%, #ad0101 100%);
+  background-image: -ms-linear-gradient(top, #d90000 0%, #ad0101 100%);
+  background-image: -webkit-gradient(
+	  linear,
+	  left top,
+	  left bottom,
+	  color-stop(0.0, #d90000),
+	  color-stop(1,0, #ad0101)
+  );
+  color: #fff;
+}
+
+button.destructive:hover,
+button.destructive:focus {
+  background-color: #ad0101;
+}
+
+button.destructive:enabled:active {
+  background-color: #ad0101;
+  box-shadow: inset 0 0 5px 3px #750101;
+}
+
+
+/* Checkboxes and Radios */
+input[type="checkbox"],
+input[type="radio"] {
+  display: none;
+}
+
+input[type="checkbox"] + label,
+input[type="radio"] + label {
+  display: inline-block;
+  margin: 4px;
+  padding: 0 24px;
+  background-repeat: no-repeat;
+  background-position: center left;
+}
+
+input[type="checkbox"] + label {
+  background-image: url('/pki/images/checkbutton-background.png');
+}
+
+input[type="checkbox"]:hover + label {
+  background-image: url('/pki/images/checkbutton-background-hover.png');
+}
+
+input[type="checkbox"]:checked + label {
+  background-image: url('/pki/images/checkbutton-background-selected.png');
+}
+
+input[type="checkbox"]:disabled + label {
+  background-image: url('/pki/images/checkbutton-background-disabled.png');
+}
+
+input[type="checkbox"]:checked:disabled + label {
+  background-image: url('/pki/images/checkbutton-background-selected-disabled.png');
+}
+
+input[type="radio"] + label {
+  background-image: url('/pki/images/radiobutton-background.png');
+}
+
+input[type="radio"]:hover + label {
+  background-image: url('/pki/images/radiobutton-background-hover.png');
+}
+
+input[type="radio"]:checked + label {
+  background-image: url('/pki/images/radiobutton-background-selected.png');
+}
+
+input[type="radio"]:disabled + label {
+  background-image: url('/pki/images/radiobutton-background-disabled.png');
+}
+
+input[type="radio"]:checked:disabled + label {
+  background-image: url('/pki/images/radiobutton-background-selected-disabled.png');
+}
