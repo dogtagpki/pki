@@ -27,7 +27,7 @@
 $(function() {
     new TableView({
         el: $("table[name='connections']"),
-        collection: new ConnectionCollection()
+        collection: new ConnectionCollection({ size: 3 })
     });
 });
     </script>
@@ -55,6 +55,16 @@ $(function() {
         <td name="status">&nbsp;</td>
     </tr>
 </tbody>
+<tfoot>
+    <tr>
+         <th class="rcue-table-actions" colspan="2">
+             <span>
+                 <a href="#" class="prev">Prev</a>
+                 <a href="#" class="next">Next</a>
+             <span>
+         </th>
+    </tr>
+</tfoot>
 </table>
 
 </body>

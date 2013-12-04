@@ -27,7 +27,7 @@
 $(function() {
     new TableView({
         el: $("table[name='selftests']"),
-        collection: new SelfTestCollection()
+        collection: new SelfTestCollection({ size: 3 })
     });
 });
     </script>
@@ -61,6 +61,16 @@ $(function() {
         <td name="criticalOnDemand">&nbsp;</td>
     </tr>
 </tbody>
+<tfoot>
+    <tr>
+         <th class="rcue-table-actions" colspan="5">
+             <span>
+                 <a href="#" class="prev">Prev</a>
+                 <a href="#" class="next">Next</a>
+             <span>
+         </th>
+    </tr>
+</tfoot>
 </table>
 
 </body>

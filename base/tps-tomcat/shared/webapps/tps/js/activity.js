@@ -23,29 +23,23 @@ var ActivityModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/activities"
 });
 
-var ActivityCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/activities";
+var ActivityCollection = Collection.extend({
+    urlRoot: "/tps/rest/activities",
+    getEntries: function(response) {
+        return response.Activities.Activity;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Activities.Activity;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new ActivityModel({
-                id: item["@id"],
-                tokenID: item.TokenID,
-                userID: item.UserID,
-                ip: item.IP,
-                operation: item.Operation,
-                result: item.Result,
-                date: item.Date
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Activities.Link;
+    },
+    parseEntry: function(entry) {
+        return new ActivityModel({
+            id: entry["@id"],
+            tokenID: entry.TokenID,
+            userID: entry.UserID,
+            ip: entry.IP,
+            operation: entry.Operation,
+            result: entry.Result,
+            date: entry.Date
         });
-
-        return models;
     }
 });

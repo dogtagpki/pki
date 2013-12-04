@@ -23,31 +23,25 @@ var CertificateModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/certs"
 });
 
-var CertificateCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/certs";
+var CertificateCollection = Collection.extend({
+    urlRoot: "/tps/rest/certs",
+    getEntries: function(response) {
+        return response.Certificates.Certificate;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Certificates.Certificate;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new CertificateModel({
-                id: item["@id"],
-                serialNumber: item.SerialNumber,
-                subject: item.Subject,
-                tokenID: item.TokenID,
-                userID: item.UserID,
-                keyType: item.KeyType,
-                status: item.Status,
-                createTime: item.CreateTime,
-                modifyTime: item.ModifyTime
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Certificates.Link;
+    },
+    parseEntry: function(entry) {
+        return new CertificateModel({
+            id: entry["@id"],
+            serialNumber: entry.SerialNumber,
+            subject: entry.Subject,
+            tokenID: entry.TokenID,
+            userID: entry.UserID,
+            keyType: entry.KeyType,
+            status: entry.Status,
+            createTime: entry.CreateTime,
+            modifyTime: entry.ModifyTime
         });
-
-        return models;
     }
 });

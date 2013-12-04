@@ -23,30 +23,24 @@ var TokenModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/tokens"
 });
 
-var TokenCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/tokens";
+var TokenCollection = Collection.extend({
+    urlRoot: "/tps/rest/tokens",
+    getEntries: function(response) {
+        return response.Tokens.Token;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Tokens.Token;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new TokenModel({
-                id: item["@id"],
-                userID: item.UserID,
-                status: item.Status,
-                reason: item.Reason,
-                appletID: item.AppletID,
-                keyInfo: item.KeyInfo,
-                created: item.CreateTimestamp,
-                modified: item.ModifyTimestamp
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Tokens.Link;
+    },
+    parseEntry: function(entry) {
+        return new TokenModel({
+            id: entry["@id"],
+            userID: entry.UserID,
+            status: entry.Status,
+            reason: entry.Reason,
+            appletID: entry.AppletID,
+            keyInfo: entry.KeyInfo,
+            created: entry.CreateTimestamp,
+            modified: entry.ModifyTimestamp
         });
-
-        return models;
     }
 });

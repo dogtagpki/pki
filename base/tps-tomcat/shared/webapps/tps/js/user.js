@@ -23,24 +23,18 @@ var UserModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/admin/users"
 });
 
-var UserCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/admin/users";
+var UserCollection = Collection.extend({
+    urlRoot: "/tps/rest/admin/users",
+    getEntries: function(response) {
+        return response.Users.User;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Users.User;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new UserModel({
-                id: item["@id"],
-                fullName: item.FullName
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Users.Link;
+    },
+    parseEntry: function(entry) {
+        return new UserModel({
+            id: entry["@id"],
+            fullName: entry.FullName
         });
-
-        return models;
     }
 });

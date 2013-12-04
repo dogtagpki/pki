@@ -23,27 +23,21 @@ var SelfTestModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/selftests"
 });
 
-var SelfTestCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/selftests";
+var SelfTestCollection = Collection.extend({
+    urlRoot: "/tps/rest/selftests",
+    getEntries: function(response) {
+        return response.SelfTests.SelfTest;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.SelfTests.SelfTest;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new SelfTestModel({
-                id: item["@id"],
-                enabledAtStartup: item.EnabledAtStartup,
-                criticalAtStartup: item.CriticalAtStartup,
-                enabledOnDemand: item.EnabledOnDemand,
-                criticalOnDemand: item.CriticalOnDemand,
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.SelfTests.Link;
+    },
+    parseEntry: function(entry) {
+        return new SelfTestModel({
+            id: entry["@id"],
+            enabledAtStartup: entry.EnabledAtStartup,
+            criticalAtStartup: entry.CriticalAtStartup,
+            enabledOnDemand: entry.EnabledOnDemand,
+            criticalOnDemand: entry.CriticalOnDemand,
         });
-
-        return models;
     }
 });

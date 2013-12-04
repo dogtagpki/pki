@@ -23,24 +23,18 @@ var AuthenticatorModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/authenticators"
 });
 
-var AuthenticatorCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/authenticators";
+var AuthenticatorCollection = Collection.extend({
+    urlRoot: "/tps/rest/authenticators",
+    getEntries: function(response) {
+        return response.Authenticators.Authenticator;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Authenticators.Authenticator;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new AuthenticatorModel({
-                id: item["@id"],
-                status: item.Status
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Authenticators.Link;
+    },
+    parseEntry: function(entry) {
+        return new AuthenticatorModel({
+            id: entry["@id"],
+            status: entry.Status
         });
-
-        return models;
     }
 });

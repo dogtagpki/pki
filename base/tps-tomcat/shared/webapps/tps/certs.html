@@ -27,7 +27,7 @@
 $(function() {
     new TableView({
         el: $("table[name='certificates']"),
-        collection: new CertificateCollection()
+        collection: new CertificateCollection({ size: 3 })
     });
 });
     </script>
@@ -69,6 +69,16 @@ $(function() {
         <td name="modifyTime">&nbsp;</td>
     </tr>
 </tbody>
+<tfoot>
+    <tr>
+         <th class="rcue-table-actions" colspan="9">
+             <span>
+                 <a href="#" class="prev">Prev</a>
+                 <a href="#" class="next">Next</a>
+             <span>
+         </th>
+    </tr>
+</tfoot>
 </table>
 
 </body>

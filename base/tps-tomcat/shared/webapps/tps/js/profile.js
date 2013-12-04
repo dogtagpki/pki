@@ -23,24 +23,18 @@ var ProfileModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/profiles"
 });
 
-var ProfileCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/profiles";
+var ProfileCollection = Collection.extend({
+    urlRoot: "/tps/rest/profiles",
+    getEntries: function(response) {
+        return response.Profiles.Profile;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Profiles.Profile;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new ProfileModel({
-                id: item["@id"],
-                status: item.Status
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Profiles.Link;
+    },
+    parseEntry: function(entry) {
+        return new ProfileModel({
+            id: entry["@id"],
+            status: entry.Status
         });
-
-        return models;
     }
 });

@@ -23,24 +23,18 @@ var ConnectionModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/connections"
 });
 
-var ConnectionCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/connections";
+var ConnectionCollection = Collection.extend({
+    urlRoot: "/tps/rest/connections",
+    getEntries: function(response) {
+        return response.Connections.Connection;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Connections.Connection;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new ConnectionModel({
-                id: item["@id"],
-                status: item.Status
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Connections.Link;
+    },
+    parseEntry: function(entry) {
+        return new ConnectionModel({
+            id: entry["@id"],
+            status: entry.Status
         });
-
-        return models;
     }
 });

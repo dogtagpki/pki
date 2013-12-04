@@ -27,7 +27,7 @@
 $(function() {
     new TableView({
         el: $("table[name='activities']"),
-        collection: new ActivityCollection()
+        collection: new ActivityCollection({ size: 3 })
     });
 });
     </script>
@@ -65,6 +65,16 @@ $(function() {
         <td name="date">&nbsp;</td>
     </tr>
 </tbody>
+<tfoot>
+    <tr>
+         <th class="rcue-table-actions" colspan="7">
+             <span>
+                 <a href="#" class="prev">Prev</a>
+                 <a href="#" class="next">Next</a>
+             <span>
+         </th>
+    </tr>
+</tfoot>
 </table>
 
 </body>

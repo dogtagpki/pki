@@ -23,24 +23,18 @@ var GroupModel = Backbone.Model.extend({
     urlRoot: "/tps/rest/admin/groups"
 });
 
-var GroupCollection = Backbone.Collection.extend({
-    url: function() {
-        return "/tps/rest/admin/groups";
+var GroupCollection = Collection.extend({
+    urlRoot: "/tps/rest/admin/groups",
+    getEntries: function(response) {
+        return response.Groups.Group;
     },
-    parse: function(response) {
-        var models = [];
-
-        var list = response.Groups.Group;
-        list = list == undefined ? [] : [].concat(list);
-
-        _(list).each(function(item) {
-            var model = new GroupModel({
-                id: item["@id"],
-                description: item.Description
-            });
-            models.push(model);
+    getLinks: function(response) {
+        return response.Groups.Link;
+    },
+    parseEntry: function(entry) {
+        return new GroupModel({
+            id: entry["@id"],
+            description: entry.Description
         });
-
-        return models;
     }
 });
