@@ -405,29 +405,50 @@ class PKIConfigParser:
             port = self.pki_master_dict['pki_ds_ldap_port']
 
         self.ds_connection = ldap.initialize(protocol + '://' + hostname + ':' + port)
-        self.ds_connection.search_s('', ldap.SCOPE_BASE)
 
     def ds_bind(self):
         self.ds_connection.simple_bind_s(
             self.pki_master_dict['pki_ds_bind_dn'],
             self.pki_master_dict['pki_ds_password'])
 
-    def ds_base_dn_exists(self):
-        try:
-            results = self.ds_connection.search_s(
-                self.pki_master_dict['pki_ds_base_dn'],
-                ldap.SCOPE_BASE)
-
-            if results is None or len(results) == 0:
-                return False
-
-            return True
-
-        except ldap.NO_SUCH_OBJECT:
-            return False
+    def ds_search(self, key=None):
+        if key is None:
+            key = ''
+        self.ds_connection.search_s(key, ldap.SCOPE_BASE)
 
     def ds_close(self):
         self.ds_connection.unbind_s()
+
+    def ds_verify_configuration(self):
+
+        try:
+            self.ds_connect()
+            self.ds_bind()
+            self.ds_search()
+        except:
+            raise
+        finally:
+            self.ds_close()
+
+    def ds_base_dn_exists(self):
+        base_dn_exists = True
+        try:
+            self.ds_connect()
+            self.ds_bind()
+            self.ds_search()
+            try:
+                results = self.ds_search(self.pki_master_dict['pki_ds_base_dn'])
+
+                if results is None or len(results) == 0:
+                    base_dn_exists = False
+
+            except ldap.NO_SUCH_OBJECT:
+                base_dn_exists = False
+        except:
+            raise
+        finally:
+            self.ds_close()
+        return base_dn_exists
 
     def sd_connect(self):
         self.sd_connection = pki.client.PKIConnection(

@@ -182,26 +182,16 @@ def main(argv):
             while True:
                 parser.read_text('Hostname', config.pki_subsystem, 'pki_ds_hostname')
                 parser.read_text('Port', config.pki_subsystem, 'pki_ds_ldap_port')
-
-                try:
-                    parser.ds_connect()
-                    break
-
-                except ldap.LDAPError as e:
-                    parser.print_text('ERROR: ' + e.message['desc'])
-
-            while True:
                 parser.read_text('Bind DN', config.pki_subsystem, 'pki_ds_bind_dn')
                 parser.read_password('Password', config.pki_subsystem, 'pki_ds_password')
 
                 try:
-                    parser.ds_bind()
-                    break
+                    parser.ds_verify_configuration()
 
                 except ldap.LDAPError as e:
                     parser.print_text('ERROR: ' + e.message['desc'])
+                    continue
 
-            while True:
                 parser.read_text('Base DN', config.pki_subsystem, 'pki_ds_base_dn')
                 try:
                     if not parser.ds_base_dn_exists():
@@ -221,8 +211,6 @@ def main(argv):
 
                 if remove == 'y' or remove == 'yes':
                     break
-
-            parser.ds_close()
 
             print
 
@@ -402,15 +390,12 @@ def main(argv):
                     extra=config.PKI_INDENTATION_LEVEL_0)
                 sys.exit(1)
 
-            parser.ds_connect()
-            parser.ds_bind()
+            parser.ds_verify_configuration()
 
             if parser.ds_base_dn_exists() and\
                 not config.str2bool(parser.pki_master_dict['pki_ds_remove_data']):
                 print 'ERROR:  Base DN already exists.'
                 sys.exit(1)
-
-            parser.ds_close()
 
         except ldap.LDAPError as e:
             print 'ERROR:  Unable to access directory server: ' + e.message['desc']
