@@ -25,9 +25,17 @@
     <script src="/tps/js/cert.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#certificate-dialog"),
+        title: "Edit Certificate",
+        readonly: ["id", "serialNumber", "subject", "tokenID", "userID",
+            "keyType", "status", "createTime", "modifyTime"]
+    });
+
     new TableView({
         el: $("table[name='certificates']"),
-        collection: new CertificateCollection({ size: 3 })
+        collection: new CertificateCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -80,6 +88,30 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="certificate-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Certificate</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Certificate ID</label><input name="id" type="text"><br>
+            <label>Serial Number</label><input name="serialNumber" type="text"><br>
+            <label>Subject</label><input name="subject" type="text"><br>
+            <label>Token ID</label><input name="tokenID" type="text"><br>
+            <label>User ID</label><input name="userID" type="text"><br>
+            <label>Key Type</label><input name="keyType" type="text"><br>
+            <label>Status</label><input name="status" type="text"><br>
+            <label>Created</label><input name="createTime" type="text"><br>
+            <label>Modified</label><input name="modifyTime" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

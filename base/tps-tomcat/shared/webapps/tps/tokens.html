@@ -25,9 +25,17 @@
     <script src="/tps/js/token.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#token-dialog"),
+        title: "Edit Token",
+        readonly: ["id", "status", "reason", "appletID", "keyInfo",
+            "createTimestamp", "modifyTimestamp"]
+    });
+
     new TableView({
         el: $("table[name='tokens']"),
-        collection: new TokenCollection({ size: 3 })
+        collection: new TokenCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -78,6 +86,29 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="token-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Token</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Token ID</label><input name="id" type="text"><br>
+            <label>User ID</label><input name="userID" type="text"><br>
+            <label>Status</label><input name="status" type="text"><br>
+            <label>Reason</label><input name="reason" type="text"><br>
+            <label>Applet ID</label><input name="appletID" type="text"><br>
+            <label>Key Info</label><input name="keyInfo" type="text"><br>
+            <label>Created</label><input name="createTimestamp" type="text"><br>
+            <label>Modified</label><input name="modifyTimestamp" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

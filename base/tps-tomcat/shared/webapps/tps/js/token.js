@@ -19,8 +19,34 @@
  * @author Endi S. Dewata
  */
 
-var TokenModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/tokens"
+var TokenModel = Model.extend({
+    urlRoot: "/tps/rest/tokens",
+    parseResponse: function(response) {
+        return {
+            id: response.Token["@id"],
+            userID: response.Token.UserID,
+            status: response.Token.Status,
+            reason: response.Token.Reason,
+            appletID: response.Token.AppletID,
+            keyInfo: response.Token.KeyInfo,
+            createTimestamp: response.Token.CreateTimestamp,
+            modifyTimestamp: response.Token.ModifyTimestamp
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Token: {
+                "@id": attributes.id,
+                UserID: attributes.userID,
+                Status: attributes.status,
+                Reason: attributes.reason,
+                AppletID: attributes.appletID,
+                KeyInfo: attributes.keyInfo,
+                CreateTimestamp: attributes.createTimestamp,
+                ModifyTimestamp: attributes.modifyTimestamp
+            }
+        };
+    }
 });
 
 var TokenCollection = Collection.extend({

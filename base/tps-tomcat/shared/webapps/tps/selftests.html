@@ -25,9 +25,16 @@
     <script src="/tps/js/selftest.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#selftest-dialog"),
+        title: "Edit Self Test",
+        readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
+    });
+
     new TableView({
         el: $("table[name='selftests']"),
-        collection: new SelfTestCollection({ size: 3 })
+        collection: new SelfTestCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -72,6 +79,26 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="selftest-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Self Test</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Self Test ID</label><input name="id" type="text"><br>
+            <label>Enabled at Startup</label><input name="enabledAtStartup" type="text"><br>
+            <label>Critical at Startup</label><input name="criticalAtStartup" type="text"><br>
+            <label>Enabled on Demand</label><input name="enabledOnDemand" type="text"><br>
+            <label>Critical on Demand</label><input name="criticalOnDemand" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

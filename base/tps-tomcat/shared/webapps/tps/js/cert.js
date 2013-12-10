@@ -19,8 +19,36 @@
  * @author Endi S. Dewata
  */
 
-var CertificateModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/certs"
+var CertificateModel = Model.extend({
+    urlRoot: "/tps/rest/certs",
+    parseResponse: function(response) {
+        return {
+            id: response.Certificate["@id"],
+            serialNumber: response.Certificate.SerialNumber,
+            subject: response.Certificate.Subject,
+            tokenID: response.Certificate.TokenID,
+            userID: response.Certificate.UserID,
+            keyType: response.Certificate.KeyType,
+            status: response.Certificate.Status,
+            createTime: response.Certificate.CreateTime,
+            modifyTime: response.Certificate.ModifyTime
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Certificate: {
+                "@id": attributes.id,
+                SerialNumber: attributes.serialNumber,
+                Subject: attributes.subject,
+                TokenID: attributes.tokenID,
+                UserID: attributes.userID,
+                KeyType: attributes.keyType,
+                Status: attributes.status,
+                CreateTime: CreateTimeattributes.createTime,
+                ModifyTime: attributes.modifyTime
+            }
+        };
+    }
 });
 
 var CertificateCollection = Collection.extend({

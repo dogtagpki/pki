@@ -19,6 +19,24 @@
  * @author Endi S. Dewata
  */
 
+var Model = Backbone.Model.extend({
+    parseResponse: function(response) {
+        return response;
+    },
+    parse: function(response, options) {
+        return this.parseResponse(response);
+    },
+    createRequest: function(attributes) {
+        return attributes;
+    },
+    save: function(attributes, options) {
+        var self = this;
+        if (attributes == undefined) attributes = self.attributes;
+        var request = self.createRequest(attributes);
+        Model.__super__.save.call(self, request, options);
+    }
+});
+
 var Collection = Backbone.Collection.extend({
     urlRoot: null,
     initialize: function(options) {
@@ -85,21 +103,183 @@ var Collection = Backbone.Collection.extend({
     }
 });
 
+var Dialog = Backbone.View.extend({
+    initialize: function(options) {
+        var self = this;
+        Dialog.__super__.initialize.call(self, options);
+
+        self.title = options.title;
+
+        self.readonly = options.readonly;
+        // by default all fields are editable
+        if (self.readonly == undefined) self.readonly = [];
+
+        self.actions = options.actions;
+        if (self.actions == undefined) {
+            // by default all buttons are active
+            self.actions = [];
+            self.$("button").each(function(index) {
+                var button = $(this);
+                var action = button.attr("name");
+                self.actions.push(action);
+            });
+        }
+    },
+    render: function() {
+        var self = this;
+
+        if (self.title) {
+            self.$("header h1").text(self.title);
+        }
+
+        self.$(".rcue-button-close").click(function(e) {
+            self.close();
+            e.preventDefault();
+        });
+
+        $("input", self.$el).each(function(index) {
+            var input = $(this);
+
+            self.loadField(input);
+
+            // mark some fields readonly
+            var name = input.attr("name");
+            if ( _.contains(self.readonly, name)) {
+                input.attr("readonly", "readonly");
+            }
+        });
+
+        self.$("button").each(function(index) {
+            var button = $(this);
+            var action = button.attr("name");
+
+            if (_.contains(self.actions, action)) {
+                // enable buttons for specified actions
+                button.click(function(e) {
+                    self.performAction(action);
+                    e.preventDefault();
+                });
+            } else {
+                // hide unused buttons
+                button.hide();
+            }
+        });
+    },
+    performAction: function(action) {
+        var self = this;
+
+        if (action == "save") {
+            // save changes
+            self.save({
+                success: function(model, response, options) {
+                    self.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 200) {
+                        self.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
+                }
+            });
+
+        } else {
+            self.close();
+        }
+    },
+    open: function() {
+        var self = this;
+
+        // load data
+        self.model.fetch({
+            success: function(model, response, options) {
+                self.render();
+                self.$el.show();
+            },
+            error: function(model, response, options) {
+                alert("ERROR: " + response);
+            }
+        });
+    },
+    close: function() {
+        this.$el.hide();
+    },
+    loadField: function(input) {
+        var self = this;
+        var name = input.attr("name");
+        var value = self.model.get(name);
+        input.val(value);
+    },
+    save: function(options) {
+        var self = this;
+
+        var attributes = {};
+        $("input", self.$el).each(function(index) {
+            var input = $(this);
+            self.saveField(input, attributes);
+        });
+        self.model.set(attributes);
+
+        var changedAttributes = self.model.changedAttributes();
+        if (!changedAttributes) return;
+
+        // save changed attributes only
+        self.model.save(changedAttributes, {
+            patch: true,
+            wait: true,
+            success: options.success,
+            error: options.error
+        });
+    },
+    saveField: function(input, attributes) {
+        var self = this;
+        var name = input.attr("name");
+        var value = input.val();
+        attributes[name] = value;
+    }
+});
+
 var TableItemView = Backbone.View.extend({
+    initialize: function(options) {
+        var self = this;
+        TableItemView.__super__.initialize.call(self, options);
+        self.table = options.table;
+    },
     render: function() {
         var self = this;
         $("td", self.el).each(function(index) {
             var item = $(this);
             var name = item.attr("name");
             var value = self.model.get(name);
-            item.text(value);
+
+            if (name == "id") {
+                item.empty();
+                $("<a/>", {
+                    href: "#",
+                    text: value,
+                    click: function(e) {
+                        var dialog = self.table.editDialog;
+                        dialog.model = self.model;
+                        dialog.open();
+                        e.preventDefault();
+                    }
+                }).appendTo(item);
+            } else {
+                item.text(value);
+                self.model.on("change:" + name, function(event) {
+                    item.text(self.model.get(name));
+                });
+            }
         });
     }
 });
 
 var TableView = Backbone.View.extend({
-    initialize: function() {
+    initialize: function(options) {
         var self = this;
+
+        TableView.__super__.initialize.call(self, options);
+        self.editDialog = options.editDialog;
 
         self.tbody = $("tbody", self.el);
         self.template = $("tr", self.tbody).detach();
@@ -131,6 +311,7 @@ var TableView = Backbone.View.extend({
                 _(self.collection.models).each(function(item) {
                     var itemView = new TableItemView({
                         el: self.template.clone(),
+                        table: self,
                         model: item
                     });
                     itemView.render();

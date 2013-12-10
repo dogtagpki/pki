@@ -19,8 +19,32 @@
  * @author Endi S. Dewata
  */
 
-var ActivityModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/activities"
+var ActivityModel = Model.extend({
+    urlRoot: "/tps/rest/activities",
+    parseResponse: function(response) {
+        return {
+            id: response.Activity["@id"],
+            tokenID: response.Activity.TokenID,
+            userID: response.Activity.UserID,
+            ip: response.Activity.IP,
+            operation: response.Activity.Operation,
+            result: response.Activity.Result,
+            date: response.Activity.Date
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Activity: {
+                "@id": attributes.id,
+                TokenID: attributes.tokenID,
+                UserID: attributes.userID,
+                IP: attributes.ip,
+                Operation: attributes.operation,
+                Result: attributes.result,
+                Date: attributes.date
+            }
+        };
+    }
 });
 
 var ActivityCollection = Collection.extend({

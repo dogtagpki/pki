@@ -25,9 +25,16 @@
     <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
+    var editDialog = new UserDialog({
+        el: $("#user-dialog"),
+        title: "Edit User",
+        readonly: ["id", "type"]
+    });
+
     new TableView({
         el: $("table[name='users']"),
-        collection: new UserCollection({ size: 3 })
+        collection: new UserCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -66,6 +73,27 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="user-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>User</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>User ID</label><input name="id" type="text"><br>
+            <label>Full Name</label><input name="fullName" type="text"><br>
+            <label>Email</label><input name="email" type="text"><br>
+            <label>Type</label><input name="type" type="text"><br>
+            <label>State</label><input name="state" type="text"><br>
+            <label>TPS Profiles</label><input name="tpsProfiles" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

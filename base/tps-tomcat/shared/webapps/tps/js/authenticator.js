@@ -19,8 +19,22 @@
  * @author Endi S. Dewata
  */
 
-var AuthenticatorModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/authenticators"
+var AuthenticatorModel = Model.extend({
+    urlRoot: "/tps/rest/authenticators",
+    parseResponse: function(response) {
+        return {
+            id: response.Authenticator["@id"],
+            status: response.Authenticator.Status
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Authenticator: {
+                "@id": attributes.id,
+                Status: attributes.status
+            }
+        };
+    }
 });
 
 var AuthenticatorCollection = Collection.extend({

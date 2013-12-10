@@ -19,8 +19,22 @@
  * @author Endi S. Dewata
  */
 
-var GroupModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/admin/groups"
+var GroupModel = Model.extend({
+    urlRoot: "/tps/rest/admin/groups",
+    parseResponse: function(response) {
+        return {
+            id: response.Group["@id"],
+            description: response.Group.Description
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+           Group: {
+               "@id": attributes.id,
+                Description: attributes.description
+           }
+        };
+    }
 });
 
 var GroupCollection = Collection.extend({

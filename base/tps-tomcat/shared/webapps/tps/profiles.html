@@ -25,9 +25,17 @@
     <script src="/tps/js/profile.js"></script>
     <script>
 $(function() {
+    var editDialog = new ProfileDialog({
+        el: $("#profile-dialog"),
+        title: "Edit Profile",
+        readonly: ["id", "status"],
+        actions: ["enable", "disable", "cancel"]
+    });
+
     new TableView({
         el: $("table[name='profiles']"),
-        collection: new ProfileCollection({ size: 3 })
+        collection: new ProfileCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -66,6 +74,26 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="profile-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Edit Profile</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Profile ID</label><input name="id" type="text"><br>
+            <label>Status</label><input name="status" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="approve">Approve</button>
+            <button name="reject">Reject</button>
+            <button name="enable">Enable</button>
+            <button name="disable">Disable</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

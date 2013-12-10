@@ -25,9 +25,17 @@
     <script src="/tps/js/activity.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#activity-dialog"),
+        title: "Edit Activity",
+        readonly: ["id", "tokenID", "userID", "ip",
+            "operation", "result", "date"]
+    });
+
     new TableView({
         el: $("table[name='activities']"),
-        collection: new ActivityCollection({ size: 3 })
+        collection: new ActivityCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -76,6 +84,28 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="activity-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Activity</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Activity ID</label><input name="id" type="text"><br>
+            <label>Token ID</label><input name="tokenID" type="text"><br>
+            <label>User ID</label><input name="userID" type="text"><br>
+            <label>IP</label><input name="ip" type="text"><br>
+            <label>operation</label><input name="operation" type="text"><br>
+            <label>Result</label><input name="result" type="text"><br>
+            <label>Date</label><input name="date" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

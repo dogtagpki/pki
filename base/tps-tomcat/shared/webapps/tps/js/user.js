@@ -19,8 +19,50 @@
  * @author Endi S. Dewata
  */
 
-var UserModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/admin/users"
+var UserModel = Model.extend({
+    urlRoot: "/tps/rest/admin/users",
+    parseResponse: function(response) {
+        var attributes = response.User.Attributes.Attribute;
+        attributes = attributes == undefined ? [] : [].concat(attributes);
+
+        var attrs = {};
+        _(attributes).each(function(attribute) {
+            var name = attribute["@name"];
+            var value = attribute["$"];
+            attrs[name] = value;
+        });
+
+        return {
+            id: response.User["@id"],
+            fullName: response.User.FullName,
+            email: response.User.Email,
+            state: response.User.State,
+            type: response.User.Type,
+            attributes: attrs
+        };
+    },
+    createRequest: function(attributes) {
+        var attrs = [];
+        _(attributes.attributes).each(function(value, name) {
+            attrs.push({
+                Attribute: {
+                    "@name": name,
+                    "$": value
+                }
+            });
+        });
+
+        return {
+            User: {
+                "@id": attributes.id,
+                FullName: attributes.fullName,
+                Email: attributes.email,
+                State: attributes.state,
+                Type: attributes.type,
+                Attributes: attrs
+            }
+        };
+    }
 });
 
 var UserCollection = Collection.extend({
@@ -36,5 +78,35 @@ var UserCollection = Collection.extend({
             id: entry["@id"],
             fullName: entry.FullName
         });
+    }
+});
+
+var UserDialog = Dialog.extend({
+    loadField: function(input) {
+        var self = this;
+
+        var name = input.attr("name");
+        if (name != "tpsProfiles") {
+            UserDialog.__super__.loadField.call(self, input);
+            return;
+        }
+
+        var attributes = self.model.get("attributes");
+        var value = attributes.tpsProfiles;
+        input.val(value);
+    },
+    saveField: function(input, attributes) {
+        var self = this;
+
+        var name = input.attr("name");
+        if (name != "tpsProfiles") {
+            UserDialog.__super__.saveField.call(self, input, attributes);
+            return;
+        }
+
+        var attrs = attributes["attributes"];
+        if (attrs == undefined) attrs = {};
+        attrs.tpsProfiles = input.val();
+        attributes["attributes"] = attrs;
     }
 });

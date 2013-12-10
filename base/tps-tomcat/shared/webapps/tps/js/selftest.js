@@ -19,8 +19,28 @@
  * @author Endi S. Dewata
  */
 
-var SelfTestModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/selftests"
+var SelfTestModel = Model.extend({
+    urlRoot: "/tps/rest/selftests",
+    parseResponse: function(response) {
+        return {
+            id: response.SelfTest["@id"],
+            enabledAtStartup: response.SelfTest.EnabledAtStartup,
+            criticalAtStartup: response.SelfTest.CriticalAtStartup,
+            enabledOnDemand: response.SelfTest.EnabledOnDemand,
+            criticalOnDemand: response.SelfTest.CriticalOnDemand,
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            SelfTest: {
+                "@id": attributes.id,
+                EnabledAtStartup: attributes.enabledAtStartup,
+                CriticalAtStartup: attributes.criticalAtStartup,
+                EnabledOnDemand: attributes.enabledOnDemand,
+                CriticalOnDemand: attributes.criticalOnDemand
+            }
+        };
+    }
 });
 
 var SelfTestCollection = Collection.extend({

@@ -25,9 +25,16 @@
     <script src="/tps/js/group.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#group-dialog"),
+        title: "Edit Group",
+        readonly: ["id"]
+    });
+
     new TableView({
         el: $("table[name='groups']"),
-        collection: new GroupCollection({ size: 3 })
+        collection: new GroupCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -66,6 +73,23 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="group-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Group</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Group ID</label><input name="id" type="text"><br>
+            <label>Description</label><input name="description" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>

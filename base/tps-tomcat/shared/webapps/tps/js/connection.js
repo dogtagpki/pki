@@ -19,8 +19,22 @@
  * @author Endi S. Dewata
  */
 
-var ConnectionModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/connections"
+var ConnectionModel = Model.extend({
+    urlRoot: "/tps/rest/connections",
+    parseResponse: function(response) {
+        return {
+            id: response.Connection["@id"],
+            status: response.Connection.Status
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Connection: {
+                "@id": attributes.id,
+                Status: attributes.status
+            }
+        };
+    }
 });
 
 var ConnectionCollection = Collection.extend({

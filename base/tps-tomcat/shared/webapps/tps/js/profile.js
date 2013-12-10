@@ -19,8 +19,22 @@
  * @author Endi S. Dewata
  */
 
-var ProfileModel = Backbone.Model.extend({
-    urlRoot: "/tps/rest/profiles"
+var ProfileModel = Model.extend({
+    urlRoot: "/tps/rest/profiles",
+    parseResponse: function(response) {
+        return {
+            id: response.Profile["@id"],
+            status: response.Profile.Status
+        };
+    },
+    createRequest: function(attributes) {
+        return {
+            Profile: {
+                "@id": attributes.id,
+                Status: attributes.status
+            }
+        };
+    }
 });
 
 var ProfileCollection = Collection.extend({
@@ -36,5 +50,19 @@ var ProfileCollection = Collection.extend({
             id: entry["@id"],
             status: entry.Status
         });
+    }
+});
+
+var ProfileDialog = Dialog.extend({
+    performAction: function(action) {
+        var self = this;
+
+        if (action == "enable") {
+
+        } else if (action == "disable") {
+
+        } else {
+            ProfileDialog.__super__.performAction.call(self, action);
+        }
     }
 });

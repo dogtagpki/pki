@@ -25,9 +25,16 @@
     <script src="/tps/js/authenticator.js"></script>
     <script>
 $(function() {
+    var editDialog = new Dialog({
+        el: $("#authenticator-dialog"),
+        title: "Edit Authenticator",
+        readonly: ["id"]
+    });
+
     new TableView({
         el: $("table[name='authenticators']"),
-        collection: new AuthenticatorCollection({ size: 3 })
+        collection: new AuthenticatorCollection({ size: 3 }),
+        editDialog: editDialog
     });
 });
     </script>
@@ -66,6 +73,23 @@ $(function() {
     </tr>
 </tfoot>
 </table>
+
+<div id="authenticator-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Authenticator</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Authenticator ID</label><input name="id" type="text"><br>
+            <label>Status</label><input name="status" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
 
 </body>
 </html>
