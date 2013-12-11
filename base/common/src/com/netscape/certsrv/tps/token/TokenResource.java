@@ -33,6 +33,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.PATCH;
 
 
 /**
@@ -67,11 +68,11 @@ public interface TokenResource {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.modify")
-    public Response updateToken(
+    public Response replaceToken(
             @PathParam("tokenID") String tokenID,
             TokenData tokenData);
 
-    @POST
+    @PATCH
     @Path("{tokenID}")
     @ClientResponseType(entityType=TokenData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -79,7 +80,7 @@ public interface TokenResource {
     @ACLMapping("tokens.modify")
     public Response modifyToken(
             @PathParam("tokenID") String tokenID,
-            TokenModifyRequest request);
+            TokenData tokenData);
 
     @DELETE
     @Path("{tokenID}")

@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
-import com.netscape.certsrv.tps.token.TokenModifyRequest;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.cms.servlet.base.PKIService;
 
@@ -200,12 +199,12 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public Response updateToken(String tokenID, TokenData tokenData) {
+    public Response replaceToken(String tokenID, TokenData tokenData) {
 
         if (tokenID == null) throw new BadRequestException("Token ID is null.");
         if (tokenData == null) throw new BadRequestException("Token data is null.");
 
-        CMS.debug("TokenService.updateToken(\"" + tokenID + "\")");
+        CMS.debug("TokenService.replaceToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
@@ -229,21 +228,27 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public Response modifyToken(String tokenID, TokenModifyRequest request) {
+    public Response modifyToken(String tokenID, TokenData tokenData) {
 
         if (tokenID == null) throw new BadRequestException("Token ID is null.");
-        if (request == null) throw new BadRequestException("Token modification is null.");
+        if (tokenData == null) throw new BadRequestException("Token data is null.");
 
-        CMS.debug("TokenService.modifyToken(\"" + tokenID + "\", request");
+        CMS.debug("TokenService.modifyToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             TokenRecord tokenRecord = database.getRecord(tokenID);
-            // TODO: perform modification
 
-            TokenData tokenData = createTokenData(tokenRecord);
+            String userID = tokenData.getUserID();
+            if (userID != null) {
+                tokenRecord.setUserID(userID);
+            }
+
+            database.updateRecord(tokenID, tokenRecord);
+
+            tokenData = createTokenData(database.getRecord(tokenID));
 
             return Response
                     .ok(tokenData)

@@ -56,7 +56,7 @@ public class TokenClient extends Client {
 
     public TokenData updateToken(String tokenID, TokenData tokenData) {
         @SuppressWarnings("unchecked")
-        ClientResponse<TokenData> response = (ClientResponse<TokenData>)resource.updateToken(tokenID, tokenData);
+        ClientResponse<TokenData> response = (ClientResponse<TokenData>)resource.replaceToken(tokenID, tokenData);
         return client.getEntity(response);
     }
 

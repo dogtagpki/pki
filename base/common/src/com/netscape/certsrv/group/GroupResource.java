@@ -33,6 +33,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.PATCH;
 
 /**
  * @author Endi S. Dewata
@@ -60,7 +61,7 @@ public interface GroupResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public GroupData getGroup(@PathParam("groupID") String groupID);
 
-    @POST
+    @PATCH
     @Path("{groupID}")
     @ClientResponseType(entityType=GroupData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

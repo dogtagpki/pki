@@ -267,7 +267,10 @@ public class GroupService extends PKIService implements GroupResource {
                 throw new ResourceNotFoundException("Group " + groupID + "  not found.");
             }
 
-            group.set("description", groupData.getDescription());
+            String description = groupData.getDescription();
+            if (description != null) {
+                group.set("description", description);
+            }
 
             // allow adding a group with no members, except "Certificate
             // Server Administrators"

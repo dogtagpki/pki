@@ -367,6 +367,85 @@ public class UserService extends PKIService implements UserResource {
     }
 
     /**
+     * Replaces an existing user in local scope.
+     * <P>
+     *
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
+     * <P>
+     *
+     * <ul>
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
+     * </ul>
+     */
+    @Override
+    public Response replaceUser(String userID, UserData userData) {
+
+        if (userData == null) throw new BadRequestException("User data is null.");
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        IConfigStore cs = CMS.getConfigStore();
+        try {
+            if (userID == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
+            }
+
+            IUser user = userGroupManager.createUser(userID);
+
+            String fullName = userData.getFullName();
+            user.setFullName(fullName);
+
+            String email = userData.getEmail();
+            user.setEmail(email);
+
+            String pword = userData.getPassword();
+            IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+
+            if (!passwdCheck.isGoodPassword(pword)) {
+                throw new EUsrGrpException(passwdCheck.getReason(pword));
+            }
+
+            user.setPassword(pword);
+
+            String phone = userData.getPhone();
+            user.setPhone(phone);
+
+            String state = userData.getState();
+            user.setState(state);
+
+            String csType = cs.getString("cs.type");
+            if (csType.equals("TPS")) {
+                String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+                String[] profiles = tpsProfiles.split(",");
+                user.setTpsProfiles(Arrays.asList(profiles));
+            }
+
+            userGroupManager.modifyUser(user);
+
+            auditModifyUser(userID, userData, ILogger.SUCCESS);
+
+            // read the data back
+            userData = getUser(userID);
+
+            return Response
+                    .ok(userData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
+        } catch (PKIException e) {
+            auditModifyUser(userID, userData, ILogger.FAILURE);
+            throw e;
+
+        } catch (EBaseException e) {
+            auditModifyUser(userID, userData, ILogger.FAILURE);
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    /**
      * Modifies an existing user in local scope.
      * <P>
      *
