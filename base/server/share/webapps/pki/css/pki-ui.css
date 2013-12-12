@@ -47,3 +47,25 @@ input[readonly="readonly"]:focus {
 input[readonly="readonly"]:enabled:hover {
   border-color: #FFFFFF;
 }
+
+table tfoot tr th {
+  padding: 6px 15px;
+  font-size: 11.5px;
+  text-align: left;
+  font-weight: bold;
+  border: none;
+  border-right: 1px #dcdcdc solid;
+  background-image: linear-gradient(top, #fafafa 0%, #eee 100%);
+  background-image: -o-linear-gradient(top, #fafafa 0%, #eee 100%);
+  background-image: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);
+  background-image: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);
+  background-image: -ms-linear-gradient(top, #fafafa 0%, #eee 100%);
+  background-image: -webkit-gradient(
+	  linear,
+	  left top,
+	  left bottom,
+	  color-stop(0.0, #fafafa),
+	  color-stop(1,0, #eee)
+  );
+  border-bottom: 1px #cedede solid;
+}
