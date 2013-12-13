@@ -108,14 +108,17 @@ public class UserService extends PKIService implements UserResource {
 
         UserData userData = new UserData();
 
-        String id = user.getUserID();
-        if (!StringUtils.isEmpty(id)) userData.setID(id);
+        String userID = user.getUserID();
+        if (!StringUtils.isEmpty(userID)) {
+            userData.setID(userID);
+            userData.setUserID(userID);
+        }
 
         String fullName = user.getFullName();
         if (!StringUtils.isEmpty(fullName)) userData.setFullName(fullName);
 
-        String userID = URLEncoder.encode(id, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(UserResource.class).path("{userID}").build(userID);
+        String encodedUserID = URLEncoder.encode(userID, "UTF-8");
+        URI uri = uriInfo.getBaseUriBuilder().path(UserResource.class).path("{userID}").build(encodedUserID);
         userData.setLink(new Link("self", uri));
 
         return userData;
@@ -256,10 +259,13 @@ public class UserService extends PKIService implements UserResource {
     @Override
     public Response addUser(UserData userData) {
 
+        CMS.debug("UserService.addUser()");
+
         if (userData == null) throw new BadRequestException("User data is null.");
 
         IConfigStore cs = CMS.getConfigStore();
-        String userID = userData.getID();
+        String userID = userData.getUserID();
+        CMS.debug("User ID: " + userID);
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -284,6 +290,7 @@ public class UserService extends PKIService implements UserResource {
             IUser user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
+            CMS.debug("Full name: " + fname);
             if (fname == null || fname.length() == 0) {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
 
@@ -295,6 +302,7 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String email = userData.getEmail();
+            CMS.debug("Email: " + email);
             if (email != null) {
                 user.setEmail(email);
             } else {
@@ -302,6 +310,7 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String pword = userData.getPassword();
+            CMS.debug("Password: " + (pword == null ? null : "********"));
             if (pword != null && !pword.equals("")) {
                 IPasswordCheck passwdCheck = CMS.getPasswordChecker();
 
@@ -315,6 +324,7 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String phone = userData.getPhone();
+            CMS.debug("Phone: " + phone);
             if (phone != null) {
                 user.setPhone(phone);
             } else {
@@ -322,6 +332,7 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String type = userData.getType();
+            CMS.debug("Type: " + type);
             if (type != null) {
                 user.setUserType(type);
             } else {
@@ -329,11 +340,13 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String state = userData.getState();
+            CMS.debug("State: " + state);
             if (state != null) {
                 user.setState(state);
             }
 
             String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+            CMS.debug("TPS profiles: " + tpsProfiles);
             String csType = cs.getString("cs.type");
             if (tpsProfiles != null) {
                 if (!csType.equals("TPS")) {

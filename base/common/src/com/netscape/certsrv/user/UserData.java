@@ -60,6 +60,7 @@ public class UserData {
     }
 
     String id;
+    String userID;
     String fullName;
     String email;
     String password;
@@ -88,6 +89,15 @@ public class UserData {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    @XmlElement(name="UserID")
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     @FormParam(Constants.PR_USER_FULLNAME)
@@ -167,10 +177,12 @@ public class UserData {
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((fullName == null) ? 0 : fullName.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((phone == null) ? 0 : phone.hashCode());
         result = prime * result + ((state == null) ? 0 : state.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((userID == null) ? 0 : userID.hashCode());
         return result;
     }
 
@@ -203,6 +215,11 @@ public class UserData {
                 return false;
         } else if (!id.equals(other.id))
             return false;
+        if (link == null) {
+            if (other.link != null)
+                return false;
+        } else if (!link.equals(other.link))
+            return false;
         if (password == null) {
             if (other.password != null)
                 return false;
@@ -222,6 +239,11 @@ public class UserData {
             if (other.type != null)
                 return false;
         } else if (!type.equals(other.type))
+            return false;
+        if (userID == null) {
+            if (other.userID != null)
+                return false;
+        } else if (!userID.equals(other.userID))
             return false;
         return true;
     }

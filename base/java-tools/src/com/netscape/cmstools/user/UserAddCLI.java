@@ -86,10 +86,10 @@ public class UserAddCLI extends CLI {
             System.exit(1);
         }
 
-        String userId = cmdArgs[0];
+        String userID = cmdArgs[0];
 
         UserData userData = new UserData();
-        userData.setID(userId);
+        userData.setUserID(userID);
         userData.setFullName(cmd.getOptionValue("fullName"));
         userData.setEmail(cmd.getOptionValue("email"));
         userData.setPassword(cmd.getOptionValue("password"));
@@ -99,7 +99,7 @@ public class UserAddCLI extends CLI {
 
         userData = userCLI.userClient.addUser(userData);
 
-        MainCLI.printMessage("Added user \"" + userId + "\"");
+        MainCLI.printMessage("Added user \"" + userID + "\"");
 
         UserCLI.printUser(userData);
     }

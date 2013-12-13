@@ -22,18 +22,24 @@
 var UserModel = Model.extend({
     urlRoot: "/tps/rest/admin/users",
     parseResponse: function(response) {
-        var attributes = response.User.Attributes.Attribute;
-        attributes = attributes == undefined ? [] : [].concat(attributes);
+
+        if (!response || !response.User) return {};
 
         var attrs = {};
-        _(attributes).each(function(attribute) {
-            var name = attribute["@name"];
-            var value = attribute["$"];
-            attrs[name] = value;
-        });
+        if (response.User.Attributes) {
+            var attributes = response.User.Attributes.Attribute;
+            attributes = attributes == undefined ? [] : [].concat(attributes);
+
+            _(attributes).each(function(attribute) {
+                var name = attribute["@name"];
+                var value = attribute["$"];
+                attrs[name] = value;
+            });
+        }
 
         return {
             id: response.User["@id"],
+            userID: response.User.UserID,
             fullName: response.User.FullName,
             email: response.User.Email,
             state: response.User.State,
@@ -54,7 +60,8 @@ var UserModel = Model.extend({
 
         return {
             User: {
-                "@id": attributes.id,
+                "@id": this.id,
+                UserID: attributes.userID,
                 FullName: attributes.fullName,
                 Email: attributes.email,
                 State: attributes.state,
@@ -66,6 +73,7 @@ var UserModel = Model.extend({
 });
 
 var UserCollection = Collection.extend({
+    model: UserModel,
     urlRoot: "/tps/rest/admin/users",
     getEntries: function(response) {
         return response.Users.User;
@@ -76,6 +84,7 @@ var UserCollection = Collection.extend({
     parseEntry: function(entry) {
         return new UserModel({
             id: entry["@id"],
+            userID: entry.UserID,
             fullName: entry.FullName
         });
     }
@@ -92,8 +101,10 @@ var UserDialog = Dialog.extend({
         }
 
         var attributes = self.model.get("attributes");
-        var value = attributes.tpsProfiles;
-        input.val(value);
+        if (attributes) {
+            var value = attributes.tpsProfiles;
+            input.val(value);
+        }
     },
     saveField: function(input, attributes) {
         var self = this;

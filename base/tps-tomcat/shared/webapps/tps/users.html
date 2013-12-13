@@ -25,15 +25,24 @@
     <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
+    var addDialog = new UserDialog({
+        el: $("#user-dialog"),
+        title: "Add User",
+        readonly: ["type"],
+        actions: ["cancel", "add"]
+    });
+
     var editDialog = new UserDialog({
         el: $("#user-dialog"),
         title: "Edit User",
-        readonly: ["id", "type"]
+        readonly: ["userID", "type"],
+        actions: ["cancel", "save"]
     });
 
     new TableView({
         el: $("table[name='users']"),
         collection: new UserCollection({ size: 3 }),
+        addDialog: addDialog,
         editDialog: editDialog
     });
 });
@@ -48,7 +57,10 @@ $(function() {
     <tr>
          <th class="rcue-table-actions" colspan="2">
              <span><input type="text" placeholder="Search..."></span>
-             <span><button>Add</button><button>Remove</button></span>
+             <span>
+                 <button name="add">Add</button>
+                 <button name="remove">Remove</button>
+             </span>
          </th>
     </tr>
     <tr>
@@ -58,7 +70,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td name="id">&nbsp;</td>
+        <td name="userID">&nbsp;</td>
         <td name="fullName">&nbsp;</td>
     </tr>
 </tbody>
@@ -81,7 +93,7 @@ $(function() {
             <a class="rcue-button-close" href="#"></a>
         </header>
         <fieldset>
-            <label>User ID</label><input name="id" type="text"><br>
+            <label>User ID</label><input name="userID" type="text"><br>
             <label>Full Name</label><input name="fullName" type="text"><br>
             <label>Email</label><input name="email" type="text"><br>
             <label>Type</label><input name="type" type="text"><br>
@@ -89,7 +101,9 @@ $(function() {
             <label>TPS Profiles</label><input name="tpsProfiles" type="text"><br>
         </fieldset>
         <footer>
+            <button name="add" class="primary">Add</button>
             <button name="save" class="primary">Save</button>
+            <button name="remove" class="primary">Remove</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

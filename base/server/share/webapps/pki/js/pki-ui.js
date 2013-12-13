@@ -32,7 +32,11 @@ var Model = Backbone.Model.extend({
     save: function(attributes, options) {
         var self = this;
         if (attributes == undefined) attributes = self.attributes;
+        // convert attributes into JSON request
         var request = self.createRequest(attributes);
+        // remove old attributes
+        if (self.isNew()) self.clear();
+        // send JSON request
         Model.__super__.save.call(self, request, options);
     }
 });
@@ -137,15 +141,14 @@ var Dialog = Backbone.View.extend({
             e.preventDefault();
         });
 
+        // set/unset readonly fields
         $("input", self.$el).each(function(index) {
             var input = $(this);
-
-            self.loadField(input);
-
-            // mark some fields readonly
             var name = input.attr("name");
             if ( _.contains(self.readonly, name)) {
                 input.attr("readonly", "readonly");
+            } else {
+                input.removeAttr("readonly");
             }
         });
 
@@ -155,6 +158,7 @@ var Dialog = Backbone.View.extend({
 
             if (_.contains(self.actions, action)) {
                 // enable buttons for specified actions
+                button.show();
                 button.click(function(e) {
                     self.performAction(action);
                     e.preventDefault();
@@ -164,12 +168,30 @@ var Dialog = Backbone.View.extend({
                 button.hide();
             }
         });
+
+        self.loadFields();
+        // save the fields back into model so the model
+        // can detect which fields are changed
+        self.saveFields();
     },
     performAction: function(action) {
         var self = this;
 
-        if (action == "save") {
-            // save changes
+        if (action == "add") {
+            self.add({
+                success: function(model, response, options) {
+                    self.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 201) {
+                        self.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
+                }
+            });
+
+        } else if (action == "save") {
             self.save({
                 success: function(model, response, options) {
                     self.close();
@@ -189,8 +211,27 @@ var Dialog = Backbone.View.extend({
     },
     open: function() {
         var self = this;
+        if (self.model.isNew()) {
+            self.render();
+            self.$el.show();
+        } else {
+            self.load();
+        }
+    },
+    close: function() {
+        var self = this;
+        self.$el.hide();
 
-        // load data
+        // remove event handlers
+        self.$(".rcue-button-close").off("click");
+        self.$("button").each(function(index) {
+            var button = $(this);
+            button.off("click");
+        });
+        self.trigger("close");
+    },
+    load: function() {
+        var self = this;
         self.model.fetch({
             success: function(model, response, options) {
                 self.render();
@@ -201,16 +242,53 @@ var Dialog = Backbone.View.extend({
             }
         });
     },
-    close: function() {
-        this.$el.hide();
+    loadFields: function() {
+        var self = this;
+
+        $("input", self.$el).each(function(index) {
+            var input = $(this);
+            self.loadField(input);
+        });
     },
     loadField: function(input) {
         var self = this;
         var name = input.attr("name");
         var value = self.model.get(name);
+        if (!value) value = "";
         input.val(value);
     },
+    add: function(options) {
+        var self = this;
+
+        self.saveFields();
+
+        var changedAttributes = self.model.changedAttributes();
+        if (!changedAttributes) return;
+
+        // save non-empty attributes with POST
+        self.model.save(changedAttributes, {
+            wait: true,
+            success: options.success,
+            error: options.error
+        });
+    },
     save: function(options) {
+        var self = this;
+
+        self.saveFields();
+
+        var changedAttributes = self.model.changedAttributes();
+        if (!changedAttributes) return;
+
+        // save changed attributes with PATCH
+        self.model.save(changedAttributes, {
+            patch: true,
+            wait: true,
+            success: options.success,
+            error: options.error
+        });
+    },
+    saveFields: function() {
         var self = this;
 
         var attributes = {};
@@ -219,17 +297,6 @@ var Dialog = Backbone.View.extend({
             self.saveField(input, attributes);
         });
         self.model.set(attributes);
-
-        var changedAttributes = self.model.changedAttributes();
-        if (!changedAttributes) return;
-
-        // save changed attributes only
-        self.model.save(changedAttributes, {
-            patch: true,
-            wait: true,
-            success: options.success,
-            error: options.error
-        });
     },
     saveField: function(input, attributes) {
         var self = this;
@@ -252,7 +319,8 @@ var TableItemView = Backbone.View.extend({
             var name = item.attr("name");
             var value = self.model.get(name);
 
-            if (name == "id") {
+            if (index == 0) {
+                // link first cell to edit dialog
                 item.empty();
                 $("<a/>", {
                     href: "#",
@@ -264,8 +332,11 @@ var TableItemView = Backbone.View.extend({
                         e.preventDefault();
                     }
                 }).appendTo(item);
+
             } else {
+                // show cell content in plain text
                 item.text(value);
+                // update cell automatically on model change
                 self.model.on("change:" + name, function(event) {
                     item.text(self.model.get(name));
                 });
@@ -279,13 +350,25 @@ var TableView = Backbone.View.extend({
         var self = this;
 
         TableView.__super__.initialize.call(self, options);
+        self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
 
-        self.tbody = $("tbody", self.el);
+        self.thead = $("thead", self.$el);
+        $("button[name=add]", self.thead).click(function(e) {
+            var dialog = self.addDialog;
+            dialog.model = new self.collection.model();
+            dialog.on("close", function(event) {
+                self.render();
+            });
+            dialog.open();
+            e.preventDefault();
+        });
+
+        self.tbody = $("tbody", self.$el);
         self.template = $("tr", self.tbody).detach();
 
         // attach link handlers
-        self.tfoot = $("tfoot", self.el);
+        self.tfoot = $("tfoot", self.$el);
         $("a.prev", self.tfoot).click(function(e) {
             if (self.collection.link("prev") == undefined) return;
             self.collection.go("prev");
