@@ -69,7 +69,7 @@ public class GroupAddCLI extends CLI {
         String groupID = cmdArgs[0];
 
         GroupData groupData = new GroupData();
-        groupData.setID(groupID);
+        groupData.setGroupID(groupID);
         groupData.setDescription(cmd.getOptionValue("description"));
 
         groupData = groupCLI.groupClient.addGroup(groupData);

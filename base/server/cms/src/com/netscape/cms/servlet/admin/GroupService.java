@@ -79,14 +79,17 @@ public class GroupService extends PKIService implements GroupResource {
 
         GroupData groupData = new GroupData();
 
-        String id = group.getGroupID();
-        if (!StringUtils.isEmpty(id)) groupData.setID(id);
+        String groupID = group.getGroupID();
+        if (!StringUtils.isEmpty(groupID)) {
+            groupData.setID(groupID);
+            groupData.setGroupID(groupID);
+        }
 
         String description = group.getDescription();
         if (!StringUtils.isEmpty(description)) groupData.setDescription(description);
 
-        String groupID = URLEncoder.encode(groupData.getID(), "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(GroupResource.class).path("{groupID}").build(groupID);
+        String encodedGroupID = URLEncoder.encode(groupData.getID(), "UTF-8");
+        URI uri = uriInfo.getBaseUriBuilder().path(GroupResource.class).path("{groupID}").build(encodedGroupID);
         groupData.setLink(new Link("self", uri));
 
         return groupData;
@@ -190,7 +193,7 @@ public class GroupService extends PKIService implements GroupResource {
 
         if (groupData == null) throw new BadRequestException("Group data is null.");
 
-        String groupID = groupData.getID();
+        String groupID = groupData.getGroupID();
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures

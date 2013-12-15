@@ -22,15 +22,18 @@
 var GroupModel = Model.extend({
     urlRoot: "/tps/rest/admin/groups",
     parseResponse: function(response) {
+        if (!response || !response.Group) return {};
         return {
             id: response.Group["@id"],
+            groupID: response.Group.GroupID,
             description: response.Group.Description
         };
     },
     createRequest: function(attributes) {
         return {
            Group: {
-               "@id": attributes.id,
+               "@id": this.id,
+                GroupID: attributes.groupID,
                 Description: attributes.description
            }
         };
@@ -38,6 +41,7 @@ var GroupModel = Model.extend({
 });
 
 var GroupCollection = Collection.extend({
+    model: GroupModel,
     urlRoot: "/tps/rest/admin/groups",
     getEntries: function(response) {
         return response.Groups.Group;
@@ -48,6 +52,7 @@ var GroupCollection = Collection.extend({
     parseEntry: function(entry) {
         return new GroupModel({
             id: entry["@id"],
+            groupID: entry.GroupID,
             description: entry.Description
         });
     }

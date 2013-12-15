@@ -34,6 +34,8 @@ import com.netscape.certsrv.common.Constants;
 public class GroupData {
 
     String id;
+    String groupID;
+
     String description;
 
     Link link;
@@ -45,6 +47,15 @@ public class GroupData {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    @XmlElement(name="GroupID")
+    public String getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
     }
 
     @FormParam(Constants.PR_GROUP_DESC)
@@ -71,7 +82,9 @@ public class GroupData {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((link == null) ? 0 : link.hashCode());
         return result;
     }
 
@@ -89,10 +102,20 @@ public class GroupData {
                 return false;
         } else if (!description.equals(other.description))
             return false;
+        if (groupID == null) {
+            if (other.groupID != null)
+                return false;
+        } else if (!groupID.equals(other.groupID))
+            return false;
         if (id == null) {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
+            return false;
+        if (link == null) {
+            if (other.link != null)
+                return false;
+        } else if (!link.equals(other.link))
             return false;
         return true;
     }
