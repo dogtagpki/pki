@@ -55,7 +55,7 @@ void AP_Context::LogError( const char *func, int line, const char *fmt, ... )
     PR_vsnprintf( buf, MAX_LOG_MSG_SIZE, fmt, argp );
     va_end( argp );
 
-    ap_log_error( func, line, APLOG_MODULE_INDEX, APLOG_ERR, 0, m_sv, buf );
+    ap_log_error( func, line, APLOG_MODULE_INDEX, APLOG_ERR, 0, m_sv, "%s", buf );
 }
 
 
@@ -68,7 +68,7 @@ void AP_Context::LogInfo( const char *func, int line, const char *fmt, ... )
     PR_vsnprintf( buf, MAX_LOG_MSG_SIZE, fmt, argp );
     va_end( argp );
 
-    ap_log_error( func, line, APLOG_MODULE_INDEX, APLOG_INFO, 0, m_sv, buf );
+    ap_log_error( func, line, APLOG_MODULE_INDEX, APLOG_INFO, 0, m_sv, "%s", buf );
 }
 
 
