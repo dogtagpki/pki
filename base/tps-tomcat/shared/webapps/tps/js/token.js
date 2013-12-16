@@ -22,8 +22,10 @@
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
+        if (!response || !response.Token) return {};
         return {
             id: response.Token["@id"],
+            tokenID: response.Token.TokenID,
             userID: response.Token.UserID,
             status: response.Token.Status,
             reason: response.Token.Reason,
@@ -36,7 +38,8 @@ var TokenModel = Model.extend({
     createRequest: function(attributes) {
         return {
             Token: {
-                "@id": attributes.id,
+                "@id": this.id,
+                TokenID: attributes.tokenID,
                 UserID: attributes.userID,
                 Status: attributes.status,
                 Reason: attributes.reason,
@@ -50,6 +53,7 @@ var TokenModel = Model.extend({
 });
 
 var TokenCollection = Collection.extend({
+    model: TokenModel,
     urlRoot: "/tps/rest/tokens",
     getEntries: function(response) {
         return response.Tokens.Token;
@@ -60,6 +64,7 @@ var TokenCollection = Collection.extend({
     parseEntry: function(entry) {
         return new TokenModel({
             id: entry["@id"],
+            tokenID: entry.TokenID,
             userID: entry.UserID,
             status: entry.Status,
             reason: entry.Reason,

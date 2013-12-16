@@ -69,7 +69,7 @@ public class TokenAddCLI extends CLI {
         String tokenID = cmdArgs[0];
 
         TokenData tokenData = new TokenData();
-        tokenData.setID(tokenID);
+        tokenData.setTokenID(tokenID);
         tokenData.setUserID(cmd.getOptionValue("user"));
 
         tokenData = tokenCLI.tokenClient.addToken(tokenData);

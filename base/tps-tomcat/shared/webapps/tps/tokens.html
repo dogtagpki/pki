@@ -25,16 +25,26 @@
     <script src="/tps/js/token.js"></script>
     <script>
 $(function() {
+    var addDialog = new Dialog({
+        el: $("#token-dialog"),
+        title: "Add Token",
+        readonly: ["status", "reason", "appletID", "keyInfo",
+            "createTimestamp", "modifyTimestamp"],
+        actions: ["cancel", "add"]
+    });
+
     var editDialog = new Dialog({
         el: $("#token-dialog"),
         title: "Edit Token",
-        readonly: ["id", "status", "reason", "appletID", "keyInfo",
-            "createTimestamp", "modifyTimestamp"]
+        readonly: ["tokenID", "status", "reason", "appletID", "keyInfo",
+            "createTimestamp", "modifyTimestamp"],
+        actions: ["cancel", "save"]
     });
 
     new TableView({
         el: $("table[name='tokens']"),
         collection: new TokenCollection({ size: 3 }),
+        addDialog: addDialog,
         editDialog: editDialog
     });
 });
@@ -49,7 +59,10 @@ $(function() {
     <tr>
          <th class="rcue-table-actions" colspan="8">
              <span><input type="text" placeholder="Search..."></span>
-             <span><button>Add</button><button>Remove</button></span>
+             <span>
+                 <button name="add">Add</button>
+                 <button name="remove">Remove</button>
+             </span>
          </th>
     </tr>
     <tr>
@@ -65,7 +78,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td name="id">&nbsp;</td>
+        <td name="tokenID">&nbsp;</td>
         <td name="userID">&nbsp;</td>
         <td name="status">&nbsp;</td>
         <td name="reason">&nbsp;</td>
@@ -94,7 +107,7 @@ $(function() {
             <a class="rcue-button-close" href="#"></a>
         </header>
         <fieldset>
-            <label>Token ID</label><input name="id" type="text"><br>
+            <label>Token ID</label><input name="tokenID" type="text"><br>
             <label>User ID</label><input name="userID" type="text"><br>
             <label>Status</label><input name="status" type="text"><br>
             <label>Reason</label><input name="reason" type="text"><br>
@@ -104,7 +117,9 @@ $(function() {
             <label>Modified</label><input name="modifyTimestamp" type="text"><br>
         </fieldset>
         <footer>
+            <button name="add" class="primary">Add</button>
             <button name="save" class="primary">Save</button>
+            <button name="remove" class="primary">Remove</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

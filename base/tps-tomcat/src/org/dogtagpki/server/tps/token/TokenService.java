@@ -69,6 +69,7 @@ public class TokenService extends PKIService implements TokenResource {
 
         TokenData tokenData = new TokenData();
         tokenData.setID(tokenRecord.getId());
+        tokenData.setTokenID(tokenRecord.getId());
         tokenData.setUserID(tokenRecord.getUserID());
         tokenData.setStatus(tokenRecord.getStatus());
         tokenData.setReason(tokenRecord.getReason());
@@ -177,14 +178,15 @@ public class TokenService extends PKIService implements TokenResource {
 
         if (tokenData == null) throw new BadRequestException("Token data is null.");
 
-        CMS.debug("TokenService.addToken(\"" + tokenData.getID() + "\")");
+        String tokenID = tokenData.getTokenID();
+        CMS.debug("TokenService.addToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            database.addRecord(tokenData.getID(), createTokenRecord(tokenData));
-            tokenData = createTokenData(database.getRecord(tokenData.getID()));
+            database.addRecord(tokenID, createTokenRecord(tokenData));
+            tokenData = createTokenData(database.getRecord(tokenID));
 
             return Response
                     .created(tokenData.getLink().getHref())
