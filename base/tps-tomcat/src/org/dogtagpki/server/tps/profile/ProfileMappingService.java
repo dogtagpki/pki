@@ -21,6 +21,7 @@ package org.dogtagpki.server.tps.profile;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,8 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
@@ -196,8 +199,89 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
-            database.updateRecord(profileMappingData.getID(), createProfileMappingRecord(profileMappingData));
+            ProfileMappingRecord record = database.getRecord(profileMappingID);
+
+            String status = record.getStatus();
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to update profile mapping " + profileMappingID);
+            }
+
+            status = profileMappingData.getStatus();
+            if (!"Enabled".equals(status)) {
+                throw new ForbiddenException("Invalid profile mapping status: " + status);
+            }
+
+            Principal principal = servletRequest.getUserPrincipal();
+            if (database.requiresApproval() && !database.canApprove(principal)) {
+                status = "Pending_Approval";
+            }
+
+            record.setStatus(status);
+            record.setProperties(profileMappingData.getProperties());
+            database.updateRecord(profileMappingID, record);
+
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
+
+            return Response
+                    .ok(profileMappingData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response changeProfileMappingStatus(String profileMappingID, String action) {
+
+        if (profileMappingID == null) throw new BadRequestException("Profile mapping ID is null.");
+        if (action == null) throw new BadRequestException("Action is null.");
+
+        CMS.debug("ProfileMappingService.changeProfileMappingStatus(\"" + profileMappingID + "\")");
+
+        try {
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
+
+            ProfileMappingRecord record = database.getRecord(profileMappingID);
+            String status = record.getStatus();
+
+            if ("Disabled".equals(status)) {
+                if ("enable".equals(action)) {
+                    status = "Enabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Enabled".equals(status)) {
+                if ("disable".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Pending_Approval".equals(status)) {
+                if ("approve".equals(action)) {
+                    status = "Enabled";
+                } else if ("reject".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else {
+                throw new PKIException("Invalid profile mapping status: " + status);
+            }
+
+            record.setStatus(status);
+            database.updateRecord(profileMappingID, record);
+
+            ProfileMappingData profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
 
             return Response
                     .ok(profileMappingData)
@@ -221,6 +305,14 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
+
+            ProfileMappingRecord record = database.getRecord(profileMappingID);
+            String status = record.getStatus();
+
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to delete profile mapping " + profileMappingID);
+            }
+
             database.removeRecord(profileMappingID);
 
         } catch (PKIException e) {

@@ -60,6 +60,12 @@ public class ProfileMappingClient extends Client {
         return client.getEntity(response);
     }
 
+    public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) {
+        @SuppressWarnings("unchecked")
+        ClientResponse<ProfileMappingData> response = (ClientResponse<ProfileMappingData>)resource.changeProfileMappingStatus(profileMappingID, action);
+        return client.getEntity(response);
+    }
+
     public void removeProfileMapping(String profileMappingID) {
         resource.removeProfileMapping(profileMappingID);
     }

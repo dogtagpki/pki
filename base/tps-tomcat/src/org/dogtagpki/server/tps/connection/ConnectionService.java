@@ -21,6 +21,7 @@ package org.dogtagpki.server.tps.connection;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.connection.ConnectionCollection;
 import com.netscape.certsrv.tps.connection.ConnectionData;
@@ -204,8 +206,89 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            database.updateRecord(connectionData.getID(), createConnectionRecord(connectionData));
+            ConnectionRecord record = database.getRecord(connectionID);
+
+            String status = record.getStatus();
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to update connection " + connectionID);
+            }
+
+            status = connectionData.getStatus();
+            if (!"Enabled".equals(status)) {
+                throw new ForbiddenException("Invalid connection status: " + status);
+            }
+
+            Principal principal = servletRequest.getUserPrincipal();
+            if (database.requiresApproval() && !database.canApprove(principal)) {
+                status = "Pending_Approval";
+            }
+
+            record.setStatus(status);
+            record.setProperties(connectionData.getProperties());
+            database.updateRecord(connectionID, record);
+
             connectionData = createConnectionData(database.getRecord(connectionID));
+
+            return Response
+                    .ok(connectionData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response changeConnectionStatus(String connectionID, String action) {
+
+        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (action == null) throw new BadRequestException("Action is null.");
+
+        CMS.debug("ConnectionService.changeConnectionStatus(\"" + connectionID + "\")");
+
+        try {
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            ConnectionDatabase database = subsystem.getConnectionDatabase();
+
+            ConnectionRecord record = database.getRecord(connectionID);
+            String status = record.getStatus();
+
+            if ("Disabled".equals(status)) {
+                if ("enable".equals(action)) {
+                    status = "Enabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Enabled".equals(status)) {
+                if ("disable".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Pending_Approval".equals(status)) {
+                if ("approve".equals(action)) {
+                    status = "Enabled";
+                } else if ("reject".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else {
+                throw new PKIException("Invalid connection status: " + status);
+            }
+
+            record.setStatus(status);
+            database.updateRecord(connectionID, record);
+
+            ConnectionData connectionData = createConnectionData(database.getRecord(connectionID));
 
             return Response
                     .ok(connectionData)
@@ -231,6 +314,14 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
+
+            ConnectionRecord record = database.getRecord(connectionID);
+            String status = record.getStatus();
+
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to delete connection " + connectionID);
+            }
+
             database.removeRecord(connectionID);
 
         } catch (PKIException e) {

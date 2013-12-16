@@ -21,6 +21,7 @@ package org.dogtagpki.server.tps.authenticator;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -204,8 +206,89 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
-            database.updateRecord(authenticatorID, createAuthenticatorRecord(authenticatorData));
+            AuthenticatorRecord record = database.getRecord(authenticatorID);
+
+            String status = record.getStatus();
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to update authenticator " + authenticatorID);
+            }
+
+            status = authenticatorData.getStatus();
+            if (!"Enabled".equals(status)) {
+                throw new ForbiddenException("Invalid authenticator status: " + status);
+            }
+
+            Principal principal = servletRequest.getUserPrincipal();
+            if (database.requiresApproval() && !database.canApprove(principal)) {
+                status = "Pending_Approval";
+            }
+
+            record.setStatus(status);
+            record.setProperties(authenticatorData.getProperties());
+            database.updateRecord(authenticatorID, record);
+
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
+
+            return Response
+                    .ok(authenticatorData)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response changeAuthenticatorStatus(String authenticatorID, String action) {
+
+        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
+        if (action == null) throw new BadRequestException("Action is null.");
+
+        CMS.debug("AuthenticatorService.changeAuthenticatorStatus(\"" + authenticatorID + "\")");
+
+        try {
+            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
+
+            AuthenticatorRecord record = database.getRecord(authenticatorID);
+            String status = record.getStatus();
+
+            if ("Disabled".equals(status)) {
+                if ("enable".equals(action)) {
+                    status = "Enabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Enabled".equals(status)) {
+                if ("disable".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else if ("Pending_Approval".equals(status)) {
+                if ("approve".equals(action)) {
+                    status = "Enabled";
+                } else if ("reject".equals(action)) {
+                    status = "Disabled";
+                } else {
+                    throw new BadRequestException("Invalid action: " + action);
+                }
+
+            } else {
+                throw new PKIException("Invalid authenticator status: " + status);
+            }
+
+            record.setStatus(status);
+            database.updateRecord(authenticatorID, record);
+
+            AuthenticatorData authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
 
             return Response
                     .ok(authenticatorData)
@@ -231,6 +314,14 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
+
+            AuthenticatorRecord record = database.getRecord(authenticatorID);
+            String status = record.getStatus();
+
+            if (!"Disabled".equals(status)) {
+                throw new ForbiddenException("Unable to delete authenticator " + authenticatorID);
+            }
+
             database.removeRecord(authenticatorID);
 
         } catch (PKIException e) {

@@ -48,8 +48,8 @@ public class ProfileMappingModifyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "status", true, "Status: ENABLED, DISABLED.");
-        option.setArgName("status");
+        Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
+        option.setArgName("action");
         options.addOption(option);
 
         option = new Option(null, "input", true, "Input file containing profile mapping properties.");
@@ -75,24 +75,37 @@ public class ProfileMappingModifyCLI extends CLI {
         }
 
         String profileMappingID = cmdArgs[0];
-        String status = cmd.getOptionValue("status");
+        String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
         ProfileMappingData profileMappingData;
 
-        try (BufferedReader in = new BufferedReader(new FileReader(input));
-            StringWriter sw = new StringWriter();
-            PrintWriter out = new PrintWriter(sw, true)) {
+        if (action.equals("update")) {
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                out.println(line);
+            if (input == null) {
+                System.err.println("Error: Missing input file");
+                printHelp();
+                System.exit(1);
+                return;
             }
 
-            profileMappingData = ProfileMappingData.valueOf(sw.toString());
-        }
+            try (BufferedReader in = new BufferedReader(new FileReader(input));
+                StringWriter sw = new StringWriter();
+                PrintWriter out = new PrintWriter(sw, true)) {
 
-        profileMappingData = profileMappingCLI.profileMappingClient.updateProfileMapping(profileMappingID, profileMappingData);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    out.println(line);
+                }
+
+                profileMappingData = ProfileMappingData.valueOf(sw.toString());
+            }
+
+            profileMappingData = profileMappingCLI.profileMappingClient.updateProfileMapping(profileMappingID, profileMappingData);
+
+        } else { // other actions
+            profileMappingData = profileMappingCLI.profileMappingClient.changeProfileMappingStatus(profileMappingID, action);
+        }
 
         MainCLI.printMessage("Modified profile mapping \"" + profileMappingID + "\"");
 

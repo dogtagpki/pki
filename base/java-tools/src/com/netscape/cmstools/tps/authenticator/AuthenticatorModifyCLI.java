@@ -48,8 +48,8 @@ public class AuthenticatorModifyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "status", true, "Status: ENABLED, DISABLED.");
-        option.setArgName("status");
+        Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
+        option.setArgName("action");
         options.addOption(option);
 
         option = new Option(null, "input", true, "Input file containing authenticator properties.");
@@ -75,24 +75,37 @@ public class AuthenticatorModifyCLI extends CLI {
         }
 
         String authenticatorID = cmdArgs[0];
-        String status = cmd.getOptionValue("status");
+        String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
         AuthenticatorData authenticatorData;
 
-        try (BufferedReader in = new BufferedReader(new FileReader(input));
-            StringWriter sw = new StringWriter();
-            PrintWriter out = new PrintWriter(sw, true)) {
+        if (action.equals("update")) {
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                out.println(line);
+            if (input == null) {
+                System.err.println("Error: Missing input file");
+                printHelp();
+                System.exit(1);
+                return;
             }
 
-            authenticatorData = AuthenticatorData.valueOf(sw.toString());
-        }
+            try (BufferedReader in = new BufferedReader(new FileReader(input));
+                StringWriter sw = new StringWriter();
+                PrintWriter out = new PrintWriter(sw, true)) {
 
-        authenticatorData = authenticatorCLI.authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    out.println(line);
+                }
+
+                authenticatorData = AuthenticatorData.valueOf(sw.toString());
+            }
+
+            authenticatorData = authenticatorCLI.authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);
+
+        } else { // other actions
+            authenticatorData = authenticatorCLI.authenticatorClient.changeAuthenticatorStatus(authenticatorID, action);
+        }
 
         MainCLI.printMessage("Modified authenticator \"" + authenticatorID + "\"");
 

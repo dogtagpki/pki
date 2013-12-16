@@ -43,7 +43,7 @@ public class ProfileAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {

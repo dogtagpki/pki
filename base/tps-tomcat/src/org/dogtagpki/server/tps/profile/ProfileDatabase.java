@@ -18,54 +18,33 @@
 
 package org.dogtagpki.server.tps.profile;
 
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cms.realm.PKIPrincipal;
-import com.netscape.cmscore.dbs.Database;
+import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
  * This class provides access to the profiles in CS.cfg.
  *
  * @author Endi S. Dewata
  */
-public class ProfileDatabase extends Database<ProfileRecord> {
-
-    IConfigStore configStore = CMS.getConfigStore();
+public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
 
     public ProfileDatabase() {
-        super("Profile");
-    }
-
-    public boolean requiresApproval() throws EBaseException {
-        String value = configStore.getString("target.agent_approve.list", "");
-        return Arrays.asList(StringUtils.split(value, ",")).contains("Profiles");
-    }
-
-    public boolean canApprove(Principal principal) {
-        if (!(principal instanceof PKIPrincipal)) {
-            return false;
-        }
-
-        PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
-        return pkiPrincipal.hasRole("TUS Agents");
+        super("Profile", "Profiles");
     }
 
     public ProfileRecord createProfileRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String profileID) throws EBaseException {
         ProfileRecord profileRecord = new ProfileRecord();
         profileRecord.setID(profileID);
 
-        String status = configStore.getString("config.Profiles." + profileID + ".state", "Disabled");
+        String status = getRecordStatus(profileID);
         profileRecord.setStatus(status);
 
         Map<String, String> properties = configDatabase.getProperties(configRecord, profileID);
@@ -79,7 +58,7 @@ public class ProfileDatabase extends Database<ProfileRecord> {
 
         Collection<ProfileRecord> result = new ArrayList<ProfileRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profiles");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         for (String profileID : configRecord.getKeys()) {
             ProfileRecord profileRecord = createProfileRecord(configDatabase, configRecord, profileID);
@@ -93,7 +72,7 @@ public class ProfileDatabase extends Database<ProfileRecord> {
     public ProfileRecord getRecord(String profileID) throws Exception {
 
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profiles");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         return createProfileRecord(configDatabase, configRecord, profileID);
     }
@@ -103,7 +82,7 @@ public class ProfileDatabase extends Database<ProfileRecord> {
 
         CMS.debug("ProfileDatabase.addRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profiles");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = profileRecord.getProperties();
@@ -111,20 +90,13 @@ public class ProfileDatabase extends Database<ProfileRecord> {
 
         // add new profile
         configRecord.addKey(profileID);
-        configDatabase.updateRecord("Profiles", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
 
         // store new properties
         configDatabase.addProperties(configRecord, profileID, properties);
 
-        // store status
-        String status = profileRecord.getStatus();
-        if (status == null || requiresApproval()) {
-            status = "Disabled";
-        }
-
-        IConfigStore configStore = CMS.getConfigStore();
-        configStore.put("config.Profiles." + profileID + ".state", status);
-        configStore.put("config.Profiles." + profileID + ".timestamp", "" + (System.currentTimeMillis() * 1000));
+        // create status
+        createRecordStatus(profileID, profileRecord.getStatus());
 
         configDatabase.commit();
     }
@@ -134,7 +106,7 @@ public class ProfileDatabase extends Database<ProfileRecord> {
 
         CMS.debug("ProfileDatabase.updateRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profiles");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = profileRecord.getProperties();
@@ -146,9 +118,8 @@ public class ProfileDatabase extends Database<ProfileRecord> {
         // add new properties
         configDatabase.addProperties(configRecord, profileID, properties);
 
-        IConfigStore configStore = CMS.getConfigStore();
-        configStore.put("config.Profiles." + profileID + ".state", profileRecord.getStatus());
-        configStore.put("config.Profiles." + profileID + ".timestamp", "" + (System.currentTimeMillis() * 1000));
+        // update status
+        setRecordStatus(profileID, profileRecord.getStatus());
 
         configDatabase.commit();
     }
@@ -158,18 +129,17 @@ public class ProfileDatabase extends Database<ProfileRecord> {
 
         CMS.debug("ProfileDatabase.removeRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profiles");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // remove properties
         configDatabase.removeProperties(configRecord, profileID);
 
         // remove profile
         configRecord.removeKey(profileID);
-        configDatabase.updateRecord("Profiles", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
 
-        IConfigStore configStore = CMS.getConfigStore();
-        configStore.remove("config.Profiles." + profileID + ".state");
-        configStore.remove("config.Profiles." + profileID + ".timestamp");
+        // remove status
+        removeRecordStatus(profileID);
 
         configDatabase.commit();
     }

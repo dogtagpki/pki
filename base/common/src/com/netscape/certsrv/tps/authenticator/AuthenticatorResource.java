@@ -55,25 +55,35 @@ public interface AuthenticatorResource {
     public AuthenticatorData getAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 
     @POST
+    @ACLMapping("authenticators.add")
     @ClientResponseType(entityType=AuthenticatorData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("authenticators.add")
     public Response addAuthenticator(AuthenticatorData authenticatorData);
 
     @PUT
     @Path("{authenticatorID}")
+    @ACLMapping("authenticators.modify")
     @ClientResponseType(entityType=AuthenticatorData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("authenticators.modify")
     public Response updateAuthenticator(
             @PathParam("authenticatorID") String authenticatorID,
             AuthenticatorData authenticatorData);
 
+    @POST
+    @Path("{authenticatorID}")
+    @ACLMapping("authenticators.approve")
+    @ClientResponseType(entityType=AuthenticatorData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response changeAuthenticatorStatus(
+            @PathParam("authenticatorID") String authenticatorID,
+            @QueryParam("action") String action);
+
     @DELETE
     @Path("{authenticatorID}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("authenticators.remove")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 }

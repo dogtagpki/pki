@@ -208,24 +208,23 @@ public class ProfileService extends PKIService implements ProfileResource {
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             ProfileRecord record = database.getRecord(profileID);
-            String status = record.getStatus();
 
+            String status = record.getStatus();
             if (!"Disabled".equals(status)) {
                 throw new ForbiddenException("Unable to update profile " + profileID);
             }
 
             status = profileData.getStatus();
-            if ("Enabled".equals(status)) {
-                Principal principal = servletRequest.getUserPrincipal();
-                if (database.requiresApproval() && !database.canApprove(principal)) {
-                    status = "Pending_Approval";
-                }
-                record.setStatus(status);;
-
-            } else {
+            if (!"Enabled".equals(status)) {
                 throw new ForbiddenException("Invalid profile status: " + status);
             }
 
+            Principal principal = servletRequest.getUserPrincipal();
+            if (database.requiresApproval() && !database.canApprove(principal)) {
+                status = "Pending_Approval";
+            }
+
+            record.setStatus(status);
             record.setProperties(profileData.getProperties());
             database.updateRecord(profileID, record);
 

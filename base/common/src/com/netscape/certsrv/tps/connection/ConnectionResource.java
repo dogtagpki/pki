@@ -55,25 +55,35 @@ public interface ConnectionResource {
     public ConnectionData getConnection(@PathParam("connectionID") String connectionID);
 
     @POST
+    @ACLMapping("connections.add")
     @ClientResponseType(entityType=ConnectionData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("connections.add")
     public Response addConnection(ConnectionData connectionData);
 
     @PUT
     @Path("{connectionID}")
+    @ACLMapping("connections.modify")
     @ClientResponseType(entityType=ConnectionData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("connections.modify")
     public Response updateConnection(
             @PathParam("connectionID") String connectionID,
             ConnectionData connectionData);
 
+    @POST
+    @Path("{connectionID}")
+    @ACLMapping("connections.approve")
+    @ClientResponseType(entityType=ConnectionData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response changeConnectionStatus(
+            @PathParam("connectionID") String connectionID,
+            @QueryParam("action") String action);
+
     @DELETE
     @Path("{connectionID}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("connections.remove")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeConnection(@PathParam("connectionID") String connectionID);
 }

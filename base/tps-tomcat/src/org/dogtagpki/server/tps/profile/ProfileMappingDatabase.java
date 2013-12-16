@@ -27,22 +27,26 @@ import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.Database;
+import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
  * This class provides access to the profileMappings in CS.cfg.
  *
  * @author Endi S. Dewata
  */
-public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
+public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> {
 
     public ProfileMappingDatabase() {
-        super("Profile Mapping");
+        super("Profile Mapping", "Profile_Mappings");
     }
 
     public ProfileMappingRecord createProfileMappingRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String profileMappingID) throws EBaseException {
         ProfileMappingRecord profileMappingRecord = new ProfileMappingRecord();
         profileMappingRecord.setID(profileMappingID);
+
+        String status = getRecordStatus(profileMappingID);
+        profileMappingRecord.setStatus(status);
+
         Map<String, String> properties = configDatabase.getProperties(configRecord, profileMappingID);
         profileMappingRecord.setProperties(properties);
         return profileMappingRecord;
@@ -53,7 +57,7 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
 
         Collection<ProfileMappingRecord> result = new ArrayList<ProfileMappingRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profile_Mappings");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         for (String profileMappingID : configRecord.getKeys()) {
             ProfileMappingRecord profileMappingRecord = createProfileMappingRecord(configDatabase, configRecord, profileMappingID);
@@ -67,7 +71,7 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
     public ProfileMappingRecord getRecord(String profileMappingID) throws Exception {
 
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profile_Mappings");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         return createProfileMappingRecord(configDatabase, configRecord, profileMappingID);
     }
@@ -78,7 +82,7 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
 
         CMS.debug("ProfileMappingDatabase.addRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profile_Mappings");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = profileMappingRecord.getProperties();
@@ -86,10 +90,13 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
 
         // add new profileMapping
         configRecord.addKey(profileMappingID);
-        configDatabase.updateRecord("Profile_Mappings", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
 
         // store new properties
         configDatabase.addProperties(configRecord, profileMappingID, properties);
+
+        // create status
+        createRecordStatus(profileMappingID, profileMappingRecord.getStatus());
 
         configDatabase.commit();
     }
@@ -99,7 +106,7 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
 
         CMS.debug("ProfileMappingDatabase.updateRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profile_Mappings");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = profileMappingRecord.getProperties();
@@ -111,6 +118,9 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
         // add new properties
         configDatabase.addProperties(configRecord, profileMappingID, properties);
 
+        // update status
+        setRecordStatus(profileMappingID, profileMappingRecord.getStatus());
+
         configDatabase.commit();
     }
 
@@ -119,14 +129,17 @@ public class ProfileMappingDatabase extends Database<ProfileMappingRecord> {
 
         CMS.debug("ProfileMappingDatabase.removeRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Profile_Mappings");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // remove properties
         configDatabase.removeProperties(configRecord, profileMappingID);
 
         // remove profileMapping
         configRecord.removeKey(profileMappingID);
-        configDatabase.updateRecord("Profile_Mappings", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
+
+        // remove status
+        removeRecordStatus(profileMappingID);
 
         configDatabase.commit();
     }

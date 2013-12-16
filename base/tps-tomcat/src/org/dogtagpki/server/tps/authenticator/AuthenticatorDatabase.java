@@ -27,22 +27,26 @@ import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.Database;
+import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
  * This class provides access to the authenticators in CS.cfg.
  *
  * @author Endi S. Dewata
  */
-public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
+public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
 
     public AuthenticatorDatabase() {
-        super("Authenticator");
+        super("Authenticator", "Authentication_Sources");
     }
 
     public AuthenticatorRecord createAuthenticatorRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String authenticatorID) throws EBaseException {
         AuthenticatorRecord authenticatorRecord = new AuthenticatorRecord();
         authenticatorRecord.setID(authenticatorID);
+
+        String status = getRecordStatus(authenticatorID);
+        authenticatorRecord.setStatus(status);
+
         Map<String, String> properties = configDatabase.getProperties(configRecord, authenticatorID);
         authenticatorRecord.setProperties(properties);
         return authenticatorRecord;
@@ -53,7 +57,7 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
         Collection<AuthenticatorRecord> result = new ArrayList<AuthenticatorRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         for (String authenticatorID : configRecord.getKeys()) {
             AuthenticatorRecord authenticatorRecord = createAuthenticatorRecord(configDatabase, configRecord, authenticatorID);
@@ -67,7 +71,7 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
     public AuthenticatorRecord getRecord(String authenticatorID) throws Exception {
 
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         return createAuthenticatorRecord(configDatabase, configRecord, authenticatorID);
     }
@@ -77,7 +81,7 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
         CMS.debug("AuthenticatorDatabase.addRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = authenticatorRecord.getProperties();
@@ -85,10 +89,13 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
         // add new connection
         configRecord.addKey(authenticatorID);
-        configDatabase.updateRecord("Authentication_Sources", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
 
         // store new properties
         configDatabase.addProperties(configRecord, authenticatorID, properties);
+
+        // create status
+        createRecordStatus(authenticatorID, authenticatorRecord.getStatus());
 
         configDatabase.commit();
     }
@@ -98,7 +105,7 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
         CMS.debug("AuthenticatorDatabase.updateRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
         Map<String, String> properties = authenticatorRecord.getProperties();
@@ -110,6 +117,9 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
         // add new properties
         configDatabase.addProperties(configRecord, authenticatorID, properties);
 
+        // update status
+        setRecordStatus(authenticatorID, authenticatorRecord.getStatus());
+
         configDatabase.commit();
     }
 
@@ -118,14 +128,17 @@ public class AuthenticatorDatabase extends Database<AuthenticatorRecord> {
 
         CMS.debug("AuthenticatorDatabase.removeRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Authentication_Sources");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // remove properties
         configDatabase.removeProperties(configRecord, authenticatorID);
 
         // remove connection
         configRecord.removeKey(authenticatorID);
-        configDatabase.updateRecord("Authentication_Sources", configRecord);
+        configDatabase.updateRecord(substoreName, configRecord);
+
+        // remove status
+        removeRecordStatus(authenticatorID);
 
         configDatabase.commit();
     }

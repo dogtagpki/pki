@@ -21,12 +21,12 @@ resourceACLS: certServer.admin.certificate:import:allow (import) user="anybody":
 resourceACLS: certServer.admin.request.enrollment:submit,read,execute:allow (submit) user="anybody":Anybody may submit an enrollment request
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.tps.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
-resourceACLS: certServer.tps.authenticators:read,add,modify,remove:allow (read,add,modify,remove) group="TUS Administrators":Only admins can access authenticators.
+resourceACLS: certServer.tps.authenticators:read,add,modify,approve,remove:allow (read,add,modify,approve,remove) group="TUS Administrators":Only admins can access authenticators.
 resourceACLS: certServer.tps.config:read,modify:allow (read,modify) group="TUS Administrators":Only admins can access configuration.
-resourceACLS: certServer.tps.connections:read,add,modify,remove:allow (read,add,modify,remove) group="TUS Administrators":Only admins can access configuration.
+resourceACLS: certServer.tps.connections:read,add,modify,approve,remove:allow (read,add,modify,approve,remove) group="TUS Administrators":Only admins can access connections.
 resourceACLS: certServer.tps.groups:execute:allow (execute) group="TUS Administrators":Admins may execute group operations
 resourceACLS: certServer.tps.users:execute:allow (execute) group="TUS Administrators":Admins may execute user operations
-resourceACLS: certServer.tps.profiles:read,add,modify,approve,remove:allow (read) group="TUS Administrators" || group="TUS Agents" ; allow (add,modify,remove) group="TUS Administrators" ; allow (approve) group="TUS Agents":Admins, agents, and operators can read profiles, but only admins can add, modify, and remove profiles, and only agents can approve profiles.
-resourceACLS: certServer.tps.profile-mappings:read,add,modify,remove:allow (read,add,modify,remove) group="TUS Administrators" :Only admins can access profile mappings.
+resourceACLS: certServer.tps.profiles:read,add,modify,approve,remove:allow (read) group="TUS Administrators" || group="TUS Agents" ; allow (add,modify,remove) group="TUS Administrators" ; allow (approve) group="TUS Agents":Admins and agents can read, but only admins can add, modify, and remove, and only agents can approve.
+resourceACLS: certServer.tps.profile-mappings:read,add,modify,approve,remove:allow (read,add,modify,approve,remove) group="TUS Administrators" :Only admins can access profile mappings.
 resourceACLS: certServer.tps.selftests:read,execute:allow (read,execute) group="TUS Administrators":Only admins can access selftests.
 resourceACLS: certServer.tps.tokens:read,add,modify,remove:allow (read) group="TUS Administrators" || group="TUS Agents" || group="TUS Operators"; allow (add,remove) group="TUS Administrators" ; allow (modify) group="TUS Agents":Admins, agents, operators can read tokens, but only admins can add and remove tokens, and only agents can modify tokens.

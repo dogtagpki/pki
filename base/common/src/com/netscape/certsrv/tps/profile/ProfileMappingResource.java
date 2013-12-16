@@ -55,25 +55,35 @@ public interface ProfileMappingResource {
     public ProfileMappingData getProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 
     @POST
+    @ACLMapping("profile-mappings.add")
     @ClientResponseType(entityType=ProfileMappingData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("profile-mappings.add")
     public Response addProfileMapping(ProfileMappingData profileMappingData);
 
     @PUT
     @Path("{profileMappingID}")
+    @ACLMapping("profile-mappings.modify")
     @ClientResponseType(entityType=ProfileMappingData.class)
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @ACLMapping("profile-mappings.modify")
     public Response updateProfileMapping(
             @PathParam("profileMappingID") String profileMappingID,
             ProfileMappingData profileMappingData);
 
+    @POST
+    @Path("{profileMappingID}")
+    @ACLMapping("profiles-mappings.approve")
+    @ClientResponseType(entityType=ProfileMappingData.class)
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response changeProfileMappingStatus(
+            @PathParam("profileMappingID") String profileMappingID,
+            @QueryParam("action") String action);
+
     @DELETE
     @Path("{profileMappingID}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("profile-mappings.remove")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 }

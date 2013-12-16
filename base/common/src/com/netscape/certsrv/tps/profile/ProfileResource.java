@@ -81,7 +81,6 @@ public interface ProfileResource {
             @PathParam("profileID") String profileID,
             @QueryParam("action") String action);
 
-
     @DELETE
     @Path("{profileID}")
     @ACLMapping("profiles.remove")

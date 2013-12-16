@@ -48,12 +48,12 @@ public class ProfileModifyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "input", true, "Input file containing profile properties.");
-        option.setArgName("file");
+        Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
+        option.setArgName("action");
         options.addOption(option);
 
-        option = new Option(null, "action", true, "Action: approve, reject, enable, disable.");
-        option.setArgName("action");
+        option = new Option(null, "input", true, "Input file containing profile properties.");
+        option.setArgName("file");
         options.addOption(option);
 
         CommandLine cmd = null;
@@ -75,18 +75,20 @@ public class ProfileModifyCLI extends CLI {
         }
 
         String profileID = cmdArgs[0];
+        String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
-        String action = cmd.getOptionValue("action");
 
         ProfileData profileData;
 
-        if (input == null && action == null || input != null && action != null) {
-            System.err.println("Error: Either input file or action should be specified");
-            printHelp();
-            System.exit(1);
-            return;
+        if (action.equals("update")) {
 
-        } else if (input != null) {
+            if (input == null) {
+                System.err.println("Error: Missing input file");
+                printHelp();
+                System.exit(1);
+                return;
+            }
+
             try (BufferedReader in = new BufferedReader(new FileReader(input));
                 StringWriter sw = new StringWriter();
                 PrintWriter out = new PrintWriter(sw, true)) {
@@ -101,7 +103,7 @@ public class ProfileModifyCLI extends CLI {
 
             profileData = profileCLI.profileClient.updateProfile(profileID, profileData);
 
-        } else { // action != null
+        } else { // other actions
             profileData = profileCLI.profileClient.changeProfileStatus(profileID, action);
         }
 
