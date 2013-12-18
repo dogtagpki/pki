@@ -55,7 +55,7 @@ $(function() {
 <table name="users">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span><input type="text" placeholder="Search..."></span>
              <span>
                  <button name="add">Add</button>
@@ -64,19 +64,21 @@ $(function() {
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="user_selectall" type="checkbox"><label for="user_selectall">&nbsp;</label></th>
         <th>User ID</th>
         <th>Full Name</th>
     </tr>
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="user_select" type="checkbox"><label for="user_select">&nbsp;</label></td>
         <td name="userID">&nbsp;</td>
         <td name="fullName">&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

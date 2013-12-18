@@ -46,25 +46,27 @@ $(function() {
 <table name="connections">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span><input type="text" placeholder="Search..."></span>
              <span><button>Add</button><button>Remove</button></span>
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="connection_selectall" type="checkbox"><label for="connection_selectall">&nbsp;</label></th>
         <th>Connection ID</th>
         <th>Status</th>
     </tr>
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="connection_select" type="checkbox"><label for="connection_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="status">&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

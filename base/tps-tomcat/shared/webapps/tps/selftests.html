@@ -46,12 +46,13 @@ $(function() {
 <table name="selftests">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="5">
+         <th class="rcue-table-actions" colspan="6">
              <span><input type="text" placeholder="Search..."></span>
              <span><button>Add</button><button>Remove</button></span>
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="selftest_selectall" type="checkbox"><label for="selftest_selectall">&nbsp;</label></th>
         <th>Self Test ID</th>
         <th>Enabled at Statup</th>
         <th>Critical at Startup</th>
@@ -61,6 +62,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="selftest_select" type="checkbox"><label for="selftest_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="enabledAtStartup">&nbsp;</td>
         <td name="criticalAtStartup">&nbsp;</td>
@@ -70,7 +72,7 @@ $(function() {
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="5">
+         <th class="rcue-table-actions" colspan="6">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

@@ -73,3 +73,12 @@ table tfoot tr th {
   );
   border-bottom: 1px #cedede solid;
 }
+
+table .checkbox {
+  width: 13px;
+}
+
+table .checkbox input + label {
+  width: 13px;
+  padding: 0px;
+}

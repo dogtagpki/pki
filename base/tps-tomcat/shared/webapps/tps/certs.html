@@ -47,12 +47,13 @@ $(function() {
 <table name="certificates">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="9">
+         <th class="rcue-table-actions" colspan="10">
              <span><input type="text" placeholder="Search..."></span>
              <span><button>Add</button><button>Remove</button></span>
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="cert_selectall" type="checkbox"><label for="cert_selectall">&nbsp;</label></tdh>
         <th>Certificate ID</th>
         <th>Serial Number</th>
         <th>Subject</th>
@@ -66,6 +67,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="cert_select" type="checkbox"><label for="cert_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="serialNumber">&nbsp;</td>
         <td name="subject">&nbsp;</td>
@@ -79,7 +81,7 @@ $(function() {
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="9">
+         <th class="rcue-table-actions" colspan="10">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

@@ -57,7 +57,7 @@ $(function() {
 <table name="tokens">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="8">
+         <th class="rcue-table-actions" colspan="9">
              <span><input type="text" placeholder="Search..."></span>
              <span>
                  <button name="add">Add</button>
@@ -66,6 +66,7 @@ $(function() {
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="token_selectall" type="checkbox"><label for="token_selectall">&nbsp;</label></th>
         <th>Token ID</th>
         <th>User ID</th>
         <th>Status</th>
@@ -78,6 +79,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="token_select" type="checkbox"><label for="token_select">&nbsp;</label></td>
         <td name="tokenID">&nbsp;</td>
         <td name="userID">&nbsp;</td>
         <td name="status">&nbsp;</td>
@@ -90,7 +92,7 @@ $(function() {
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="8">
+         <th class="rcue-table-actions" colspan="9">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

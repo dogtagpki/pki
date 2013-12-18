@@ -54,7 +54,7 @@ $(function() {
 <table name="groups">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span><input type="text" placeholder="Search..."></span>
              <span>
                  <button name="add">Add</button>
@@ -63,19 +63,21 @@ $(function() {
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="group_selectall" type="checkbox"><label for="group_selectall">&nbsp;</label></th>
         <th>Group ID</th>
         <th>Description</th>
     </tr>
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="group_select" type="checkbox"><label for="group_select">&nbsp;</label></td>
         <td name="groupID">&nbsp;</td>
         <td name="description">&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>

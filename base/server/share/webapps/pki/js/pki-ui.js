@@ -306,6 +306,16 @@ var Dialog = Backbone.View.extend({
     }
 });
 
+var BlankTableItem = Backbone.View.extend({
+    render: function() {
+        var self = this;
+        $("td:first", self.$el).each(function(index) {
+            var item = $(this);
+            item.html("&nbsp;");
+        });
+    }
+});
+
 var TableItemView = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
@@ -314,17 +324,25 @@ var TableItemView = Backbone.View.extend({
     },
     render: function() {
         var self = this;
-        $("td", self.el).each(function(index) {
+        $("td", self.$el).each(function(index) {
             var item = $(this);
             var name = item.attr("name");
-            var value = self.model.get(name);
 
             if (index == 0) {
-                // link first cell to edit dialog
+                // setup select checkbox
+                var checkbox = $("input[type='checkbox']", item);
+                var id = checkbox.attr("id");
+                var label = $("label[for='" + id + "']", item);
+                id = id + "_" + self.model.id;
+                checkbox.attr("id", id);
+                label.attr("for", id);
+
+            } else if (index == 1) {
+                // setup link to edit dialog
                 item.empty();
                 $("<a/>", {
                     href: "#",
-                    text: value,
+                    text: self.model.get(name),
                     click: function(e) {
                         var dialog = self.table.editDialog;
                         dialog.model = self.model;
@@ -338,7 +356,7 @@ var TableItemView = Backbone.View.extend({
 
             } else {
                 // show cell content in plain text
-                item.text(value);
+                item.text(self.model.get(name));
                 // update cell automatically on model change
                 self.model.on("change:" + name, function(event) {
                     item.text(self.model.get(name));
@@ -357,14 +375,18 @@ var TableView = Backbone.View.extend({
         self.editDialog = options.editDialog;
 
         self.thead = $("thead", self.$el);
-        $("button[name=add]", self.thead).click(function(e) {
+        $("button[name='add']", self.thead).click(function(e) {
             var dialog = self.addDialog;
             dialog.model = new self.collection.model();
             dialog.once("close", function(event) {
                 self.render();
             });
             dialog.open();
-            e.preventDefault();
+        });
+
+        $("input[type='checkbox']", self.thead).click(function(e) {
+            var checked = $(this).is(":checked");
+            $("input[type='checkbox']", self.tbody).prop("checked", checked);
         });
 
         self.tbody = $("tbody", self.$el);
@@ -394,21 +416,25 @@ var TableView = Backbone.View.extend({
                 self.tbody.empty();
 
                 // display result page
-                _(self.collection.models).each(function(item) {
-                    var itemView = new TableItemView({
+                _(self.collection.models).each(function(model) {
+                    var item = new TableItemView({
                         el: self.template.clone(),
                         table: self,
-                        model: item
+                        model: model
                     });
-                    itemView.render();
-                    self.tbody.append(itemView.el);
+                    item.render();
+                    self.tbody.append(item.$el);
                 }, self);
 
                 // add blank lines
                 if (self.collection.options.size != undefined) {
                     var blanks = self.collection.options.size - self.collection.models.length;
                     for (var i = 0; i < blanks; i++) {
-                        self.tbody.append(self.template.clone());
+                        var item = new BlankTableItem({
+                            el: self.template.clone()
+                        });
+                        item.render();
+                        self.tbody.append(item.$el);
                     }
                 }
             }

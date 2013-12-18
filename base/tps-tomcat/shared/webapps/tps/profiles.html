@@ -46,25 +46,27 @@ $(function() {
 <table name="profiles">
 <thead>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span><input type="text" placeholder="Search..."></span>
              <span><button>Add</button><button>Remove</button></span>
          </th>
     </tr>
     <tr>
+        <th class="checkbox"><input id="profile_selectall" type="checkbox"><label for="profile_selectall">&nbsp;</label></th>
         <th>Profile ID</th>
         <th>Status</th>
     </tr>
 </thead>
 <tbody>
     <tr>
+        <td class="checkbox"><input id="profile_select" type="checkbox"><label for="profile_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="status">&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="rcue-table-actions" colspan="2">
+         <th class="rcue-table-actions" colspan="3">
              <span>
                  <a href="#" class="prev">Prev</a>
                  <a href="#" class="next">Next</a>
