@@ -328,6 +328,9 @@ var TableItemView = Backbone.View.extend({
                     click: function(e) {
                         var dialog = self.table.editDialog;
                         dialog.model = self.model;
+                        dialog.once("close", function(event) {
+                            self.render();
+                        });
                         dialog.open();
                         e.preventDefault();
                     }
@@ -357,7 +360,7 @@ var TableView = Backbone.View.extend({
         $("button[name=add]", self.thead).click(function(e) {
             var dialog = self.addDialog;
             dialog.model = new self.collection.model();
-            dialog.on("close", function(event) {
+            dialog.once("close", function(event) {
                 self.render();
             });
             dialog.open();

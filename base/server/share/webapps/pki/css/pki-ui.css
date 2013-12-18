@@ -34,6 +34,10 @@ body {
   display: none;
 }
 
+.rcue-dialog footer {
+  right: 0;
+}
+
 input[readonly="readonly"] {
   background-image: none;
   border: 1px solid #FFFFFF;

@@ -28,8 +28,7 @@ $(function() {
     var editDialog = new ProfileDialog({
         el: $("#profile-dialog"),
         title: "Edit Profile",
-        readonly: ["id", "status"],
-        actions: ["enable", "disable", "cancel"]
+        readonly: ["id", "status"]
     });
 
     new TableView({
@@ -88,8 +87,8 @@ $(function() {
         <footer>
             <button name="approve">Approve</button>
             <button name="reject">Reject</button>
-            <button name="enable">Enable</button>
-            <button name="disable">Disable</button>
+            <button name="enable" class="primary">Enable</button>
+            <button name="disable" class="primary">Disable</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

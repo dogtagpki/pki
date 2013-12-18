@@ -25,10 +25,10 @@
     <script src="/tps/js/authenticator.js"></script>
     <script>
 $(function() {
-    var editDialog = new Dialog({
+    var editDialog = new AuthenticatorDialog({
         el: $("#authenticator-dialog"),
         title: "Edit Authenticator",
-        readonly: ["id"]
+        readonly: ["id", "status"]
     });
 
     new TableView({
@@ -85,7 +85,10 @@ $(function() {
             <label>Status</label><input name="status" type="text"><br>
         </fieldset>
         <footer>
-            <button name="save" class="primary">Save</button>
+            <button name="approve">Approve</button>
+            <button name="reject">Reject</button>
+            <button name="enable" class="primary">Enable</button>
+            <button name="disable" class="primary">Disable</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

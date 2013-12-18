@@ -27,6 +27,15 @@ var ConnectionModel = Model.extend({
             status: response.Connection.Status
         };
     },
+    parseXML: function(data) {
+        var xml = $(data);
+        var entry = $("Connection", xml);
+        var status = $("Status", entry);
+        return {
+            id: entry.attr("id"),
+            status: status.text()
+        };
+    },
     createRequest: function(attributes) {
         return {
             Connection: {
@@ -34,6 +43,28 @@ var ConnectionModel = Model.extend({
                 Status: attributes.status
             }
         };
+    },
+    enable: function(options) {
+        var self = this;
+        $.post(self.url() + "?action=enable")
+            .done(function(data, textStatus, jqXHR) {
+                self.set(self.parseXML(data));
+                options.success.call(self, data, textStatus, jqXHR);
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                options.error.call(self, jqXHR, textStatus, errorThrown);
+            });
+    },
+    disable: function(options) {
+        var self = this;
+        $.post(self.url() + "?action=disable")
+            .done(function(data, textStatus, jqXHR) {
+                self.set(self.parseXML(data));
+                options.success.call(self, data, textStatus, jqXHR);
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                options.error.call(self, jqXHR, textStatus, errorThrown);
+            });
     }
 });
 
@@ -50,5 +81,47 @@ var ConnectionCollection = Collection.extend({
             id: entry["@id"],
             status: entry.Status
         });
+    }
+});
+
+var ConnectionDialog = Dialog.extend({
+    render: function() {
+        var self = this;
+        var status = self.model.get("status");
+        if (status == "Enabled") {
+            self.actions = ["disable", "cancel"];
+        } else if (status == "Disabled") {
+            self.actions = ["enable", "cancel"];
+        } else {
+            alert("ERROR: Invalid status: " + status);
+        }
+        ConnectionDialog.__super__.render.call(self);
+    },
+    performAction: function(action) {
+        var self = this;
+
+        if (action == "enable") {
+            self.model.enable({
+                success: function(data,textStatus, jqXHR) {
+                    self.close();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert("ERROR: " + textStatus);
+                }
+            });
+
+        } else if (action == "disable") {
+            self.model.disable({
+                success: function(data,textStatus, jqXHR) {
+                    self.close();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert("ERROR: " + textStatus);
+                }
+            });
+
+        } else {
+            ConnectionDialog.__super__.performAction.call(self, action);
+        }
     }
 });
