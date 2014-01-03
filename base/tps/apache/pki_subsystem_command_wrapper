@@ -78,8 +78,8 @@ OS=`uname -s`
 ARCHITECTURE=""
 
 if [ "${OS}" = "Linux" ] ; then
-	ARCHITECTURE=`uname -i`
-	if [ "${ARCHITECTURE}" = "i386" ] ; then
+	ARCHITECTURE=`arch`
+	if [ "${ARCHITECTURE}" = "i686" ] ; then
 		LD_LIBRARY_PATH=/usr/lib/java:/usr/lib:/lib
 		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
 		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}

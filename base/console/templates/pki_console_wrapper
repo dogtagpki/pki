@@ -81,11 +81,11 @@ OS=`uname -s`
 ARCHITECTURE=""
 
 if [ "${OS}" = "Linux" ] ; then
-    ARCHITECTURE=`uname -i`
+    ARCHITECTURE=`arch`
     JAVA="java"
     JAVA_OPTIONS=""
 
-    if [ "${ARCHITECTURE}" = "i386" ] ; then
+    if [ "${ARCHITECTURE}" = "i686" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
         LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH

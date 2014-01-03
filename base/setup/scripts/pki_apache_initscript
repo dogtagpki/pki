@@ -12,7 +12,7 @@ PKI_REGISTRY_FILE=[PKI_REGISTRY_FILE]
 shopt -s nullglob
 
 OS=`uname -s`
-ARCHITECTURE=`uname -i`
+ARCHITECTURE=`arch`
 
 # Source values associated with this particular PKI instance
 if [ -f $PKI_REGISTRY_FILE ]; then

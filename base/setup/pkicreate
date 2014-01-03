@@ -629,7 +629,7 @@ if ($^O eq "linux") {
 
 # Initialize Java-specific variables
 if ($^O eq "linux") {
-    if ($default_hardware_platform eq "i386") {
+    if ($default_hardware_platform eq "i686") {
         # 32-bit Linux
 
         # Supported hardware token PKCS #11 modules

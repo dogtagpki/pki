@@ -45,10 +45,10 @@ sub invalid_architecture()
 ##      search order this command uses to find shared libraries.             ##
 ###############################################################################
 
-my $ARCHITECTURE=`uname -i`;
+my $ARCHITECTURE=`arch`;
 chop( $ARCHITECTURE );
 
-if( $ARCHITECTURE eq "i386" ) {
+if( $ARCHITECTURE eq "i686" ) {
     $libpath="/usr/lib";
 
     $ENV{LD_LIBRARY_PATH} = "/usr/lib/jss:"

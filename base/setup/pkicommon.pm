@@ -207,10 +207,10 @@ if ($^O eq "linux") {
     $pki_registry_path = "$default_registry_path/pki";
     $default_initscripts_path = "/etc/rc.d/init.d";
     $default_lockdir = "/var/lock/pki";
-    $default_hardware_platform = `uname -i`;
+    $default_hardware_platform = `arch`;
     $default_hardware_platform =~ s/\s+$//g;
     chomp($default_hardware_platform);
-    if ($default_hardware_platform eq "i386") {
+    if ($default_hardware_platform eq "i686") {
         # 32-bit Linux
         $default_system_binaries       = "/bin";
         $default_system_libraries      = "/lib";

@@ -33,8 +33,8 @@ OS=`uname -s`
 PLATFORM=""
 
 if [ $OS = "Linux" ]; then
-	PLATFORM=`uname -i`
-	if [ $PLATFORM = "i386" ]; then
+	PLATFORM=`arch`
+	if [ $PLATFORM = "i686" ]; then
 		# 32-bit Linux
 		LD_LIBRARY_PATH=/usr/lib/dirsec:/usr/lib:$LD_LIBRARY_PATH
 	elif [ $PLATFORM = "x86_64" ]; then

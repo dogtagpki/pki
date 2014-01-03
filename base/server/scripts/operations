@@ -56,7 +56,7 @@ esac
 shopt -s nullglob
 
 OS=`uname -s`
-ARCHITECTURE=`uname -i`
+ARCHITECTURE=`arch`
 
 # Check to insure that this script's original invocation directory
 # has not been deleted!
