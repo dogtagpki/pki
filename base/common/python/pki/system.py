@@ -21,6 +21,11 @@
 
 import pki.encoder as encoder
 import xml.etree.ElementTree as ET
+import os
+
+SYSTEM_TYPE="Fedora/RHEL"
+if os.path.exists("/etc/debian_version"):
+    SYSTEM_TYPE="debian"
 
 class SecurityDomainInfo:
 

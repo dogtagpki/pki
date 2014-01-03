@@ -36,10 +36,23 @@ fi
 
 default_error=0
 
+if [ -f /etc/debian_version ]; then
+    debian=true
+else
+    debian=false
+fi
+
 case $command in
     start)
         # 1 generic or unspecified error (current practice)
         default_error=1
+        ;;
+    stop|restart)
+        if $debian; then
+            default_error=1
+        else
+            default_error=2
+        fi
         ;;
     status)
         # 4 program or service status is unknown
@@ -133,6 +146,9 @@ usage()
 {
     echo -n "Usage: /usr/bin/pkidaemon "
     echo -n "{start"
+    if $debian; then
+        echo -n "|stop|restart"
+    fi
     echo -n "|status} "
     echo -n "instance-type "
     echo -n "[instance-name]"
@@ -271,7 +287,6 @@ fi
 check_pki_configuration_status()
 {
     rv=0
-
     case ${PKI_WEB_SERVER_TYPE} in
         tomcat)
             for SUBSYSTEM in ca kra ocsp tks; do
@@ -289,7 +304,6 @@ check_pki_configuration_status()
             exit ${default_error}
             ;;
     esac
-
     if [ $rv -ne 0 ] ; then
         echo "    '${PKI_INSTANCE_NAME}' must still be CONFIGURED!"
         echo "    (see /var/log/${PKI_INSTANCE_NAME}-install.log)"
@@ -885,6 +899,23 @@ display_instance_status()
     return $rv
 }
 
+display_instance_status_debian()
+{
+    set_debian_tomcat_parameters
+    start-stop-daemon --status --pidfile "$CATALINA_PID" \
+            --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
+            >/dev/null 2>&1
+    rv=$?
+
+    if [ $rv -eq 0 ] ; then
+        display_configuration_information
+    else
+        echo "Instance $PKI_INSTANCE_NAME is not running."
+    fi
+
+    return $rv
+}
+
 make_symlink()
 {
     symlink="${1}"
@@ -1059,7 +1090,13 @@ verify_symlinks()
     declare -A systemd_symlinks
 
     # Dogtag 10 Conditional Variables
-    jni_jar_dir=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
+    if $debian ; then
+        jni_jar_dir="/usr/share/java"
+        tomcat_dir="/usr/share/tomcat7"
+    else
+        jni_jar_dir=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
+        tomcat_dir="/usr/share/tomcat"
+    fi
 
     # Dogtag 10 Symbolic Link Target Variables
     java_dir="/usr/share/java"
@@ -1080,7 +1117,7 @@ verify_symlinks()
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
         [alias]=/etc/pki/${PKI_INSTANCE_NAME}/alias
-        [bin]=/usr/share/tomcat/bin
+        [bin]=${tomcat_dir}/bin
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME})
 
@@ -1175,30 +1212,57 @@ verify_symlinks()
         [pki-tps.jar]=${java_dir}/pki/pki-tps.jar)
 
     # '${pki_common_jar_dir}' symlinks
-    common_jar_symlinks=(
-        [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
-        [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
-        [apache-commons-io.jar]=${java_dir}/apache-commons-io.jar
-        [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
-        [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
-        [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar
-        [httpcore.jar]=${java_dir}/httpcomponents/httpcore.jar
-        [javassist.jar]=${java_dir}/javassist.jar
-        [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
-        [jettison.jar]=${java_dir}/jettison.jar
-        [jss4.jar]=${jni_jar_dir}/jss4.jar
-        [ldapjdk.jar]=${java_dir}/ldapjdk.jar
-        [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
-        [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
-        [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
-        [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
-        [resteasy-jettison-provider.jar]=${RESTEASY_LIB}/resteasy-jettison-provider.jar
-        [scannotation.jar]=${java_dir}/scannotation.jar
-        [tomcatjss.jar]=${java_dir}/tomcatjss.jar
-        [velocity.jar]=${java_dir}/velocity.jar
-        [xerces-j2.jar]=${java_dir}/xerces-j2.jar
-        [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
-        [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
+    if ! $debian; then
+        common_jar_symlinks=(
+            [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
+            [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
+            [apache-commons-io.jar]=${java_dir}/apache-commons-io.jar
+            [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
+            [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
+            [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar
+            [httpcore.jar]=${java_dir}/httpcomponents/httpcore.jar
+            [javassist.jar]=${java_dir}/javassist.jar
+            [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
+            [jettison.jar]=${java_dir}/jettison.jar
+            [jss4.jar]=${jni_jar_dir}/jss4.jar
+            [ldapjdk.jar]=${java_dir}/ldapjdk.jar
+            [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
+            [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
+            [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
+            [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
+            [resteasy-jettison-provider.jar]=${RESTEASY_LIB}/resteasy-jettison-provider.jar
+            [scannotation.jar]=${java_dir}/scannotation.jar
+            [tomcatjss.jar]=${java_dir}/tomcatjss.jar
+            [velocity.jar]=${java_dir}/velocity.jar
+            [xerces-j2.jar]=${java_dir}/xerces-j2.jar
+            [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
+            [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
+    else
+        common_jar_symlinks=(
+            [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
+            [apache-commons-collections.jar]=${java_dir}/commons-collections3.jar
+            [apache-commons-io.jar]=${java_dir}/commons-io.jar
+            [apache-commons-lang.jar]=${java_dir}/commons-lang.jar
+            [apache-commons-logging.jar]=${java_dir}/commons-logging.jar
+            [httpclient.jar]=${java_dir}/httpclient.jar
+            [httpcore.jar]=${java_dir}/httpcore.jar
+            [javassist.jar]=${java_dir}/javassist.jar
+            [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
+            [jettison.jar]=${java_dir}/jettison.jar
+            [jss4.jar]=${jni_jar_dir}/jss4.jar
+            [ldapjdk.jar]=${java_dir}/ldapjdk.jar
+            [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
+            [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
+            [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
+            [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
+            [resteasy-jettison-provider.jar]=${RESTEASY_LIB}/resteasy-jettison-provider.jar
+            [scannotation.jar]=${java_dir}/scannotation.jar
+            [tomcatjss.jar]=${java_dir}/tomcatjss.jar
+            [velocity.jar]=${java_dir}/velocity.jar
+            [xerces-j2.jar]=${java_dir}/xercesImpl.jar
+            [xml-commons-apis.jar]=${java_dir}/xml-apis.jar
+            [xml-commons-resolver.jar]=${java_dir}/xml-resolver.jar)
+    fi
 
     if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
         common_jar_symlinks[symkey.jar]=${jni_jar_dir}/symkey.jar
@@ -1369,6 +1433,287 @@ start_instance()
     fi
 }
 
+# function used in debian to find the correct jdk
+# this is used to set OPENJDKS
+# taken from /etc/init.d/tomcat7
+find_openjdks()
+{
+    for jvmdir in /usr/lib/jvm/java-7-openjdk-*
+    do
+        if [ -d "${jvmdir}" -a "${jvmdir}" != "/usr/lib/jvm/java-7-openjdk-common" ]
+        then
+            OPENJDKS=$jvmdir
+        fi
+    done
+    for jvmdir in /usr/lib/jvm/java-6-openjdk-*
+    do
+        if [ -d "${jvmdir}" -a "${jvmdir}" != "/usr/lib/jvm/java-6-openjdk-common" ]
+        then
+            OPENJDKS="${OPENJDKS} ${jvmdir}"
+        fi
+    done
+}
+
+# function used by debian to set JAVA_HOME
+# taken from /etc/init.d/tomcat7
+set_java_home()
+{
+    find_openjdks
+    # The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
+    # defined in $DEFAULT)
+    JDK_DIRS="/usr/lib/jvm/default-java ${OPENJDKS} /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-7-oracle"
+
+    # Look for the right JVM to use
+    for jdir in $JDK_DIRS; do
+        if [ -r "$jdir/bin/java" -a -z "${JAVA_HOME}" ]; then
+            JAVA_HOME="$jdir"
+        fi
+    done
+    export JAVA_HOME
+}
+
+# used to start debian instances
+# taken from /etc/init.d/tomcat7
+catalina_sh() {
+    # Escape any double quotes in the value of JAVA_OPTS
+    JAVA_OPTS="$(echo $JAVA_OPTS | sed 's/\"/\\\"/g')"
+
+    AUTHBIND_COMMAND=""
+    if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
+            JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
+            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
+    fi
+
+    # Define the command to run Tomcat's catalina.sh as a daemon
+    # set -a tells sh to export assigned variables to spawned shells.
+    TOMCAT_SH="set -a; JAVA_HOME=\"$JAVA_HOME\"; source \"$DEFAULT\"; \
+            CATALINA_HOME=\"$CATALINA_HOME\"; \
+            CATALINA_BASE=\"$CATALINA_BASE\"; \
+            JAVA_OPTS=\"$JAVA_OPTS\"; \
+            CATALINA_PID=\"$CATALINA_PID\"; \
+            CATALINA_TMPDIR=\"$CATALINA_TMPDIR\"; \
+            LANG=\"$LANG\"; JSSE_HOME=\"$JSSE_HOME\"; \
+            cd \"$CATALINA_BASE\"; \
+            \"$CATALINA_SH\" $@"
+
+    if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
+            TOMCAT_SH="'$TOMCAT_SH'"
+    fi
+
+    # Run the catalina.sh script as a daemon
+    touch "$CATALINA_PID" "$CATALINA_BASE"/logs/catalina.out
+    chown $TOMCAT7_USER "$CATALINA_PID" "$CATALINA_BASE"/logs/catalina.out
+    start-stop-daemon --start -b -u "$TOMCAT7_USER" -g "$TOMCAT7_GROUP" \
+            -c "$TOMCAT7_USER" -d "$CATALINA_TMPDIR" -p "$CATALINA_PID" \
+            -x /bin/bash -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
+    status="$?"
+    set +a
+    return $status
+}
+
+set_debian_tomcat_parameters()
+{
+    set_java_home
+    CATALINA_HOME=/usr/share/tomcat7
+    CATALINA_BASE=/var/lib/pki/${PKI_INSTANCE_NAME}
+    DESC="Tomcat 7 instance for ${PKI_INSTANCE_NAME}"
+
+    if [ -z "$JAVA_OPTS" ]; then
+        JAVA_OPTS="-Djava.awt.headless=true -Xmx128M"
+    fi
+
+    # overwrite with settings from the registry file
+    if [ -f /etc/sysconfig/${PKI_INSTANCE_NAME} ]; then
+        . /etc/sysconfig/${PKI_INSTANCE_NAME}
+    fi
+
+    JVM_TMP=/tmp/tomcat7-${PKI_INSTANCE_NAME}-tmp
+    if [ -z "$CATALINA_TMPDIR" ]; then
+        CATALINA_TMPDIR="$JVM_TMP"
+    fi
+
+    # Set the JSP compiler if set in the tomcat7.default file
+    if [ -n "$JSP_COMPILER" ]; then
+        JAVA_OPTS="$JAVA_OPTS -Dbuild.compiler=\"$JSP_COMPILER\""
+    fi
+
+    # Generate catalina.policy dynamically.
+    # for now, do not generate policy here, because we need to figure out
+    # where to get the tomcat policy.
+
+    TOMCAT7_SECURITY=no
+    SECURITY=""
+    if [ "$TOMCAT7_SECURITY" = "True" ]; then
+        SECURITY="-security"
+    fi
+
+    # Define other required variables
+    CATALINA_PID="/var/run/${PKI_INSTANCE_NAME}.pid"
+    CATALINA_SH="$CATALINA_HOME/bin/catalina.sh"
+
+    # Look for Java Secure Sockets Extension (JSSE) JARs
+    if [ -z "${JSSE_HOME}" -a -r "${JAVA_HOME}/jre/lib/jsse.jar" ]; then
+        JSSE_HOME="${JAVA_HOME}/jre/"
+    fi
+
+    TOMCAT7_USER=$TOMCAT_USER
+    TOMCAT7_GROUP=$TOMCAT_USER
+}
+
+start_deb_instance()
+{
+    rv=0
+
+    if [ -f ${RESTART_SERVER} ] ; then
+        rm -f ${RESTART_SERVER}
+    fi
+
+    # Verify symbolic links (detecting and correcting them if possible)
+    verify_symlinks
+    rv=$?
+    if [ $rv -ne 0 ] ; then
+        return $rv
+    fi
+
+    set_debian_tomcat_parameters
+
+    if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
+           --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
+           >/dev/null; then
+
+        # Remove / recreate JVM_TMP directory
+        rm -rf "$JVM_TMP"
+        mkdir -p "$JVM_TMP" || {
+            log_failure_msg "could not create JVM temporary directory"
+            exit 1
+        }
+        chown $TOMCAT7_USER "$JVM_TMP"
+
+        catalina_sh start $SECURITY
+        sleep 5
+        if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
+               --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
+               >/dev/null; then
+            if [ -f "$CATALINA_PID" ]; then
+                rm -f "$CATALINA_PID"
+            fi
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+    else
+        log_progress_msg "(already running)"
+        log_end_msg 0
+    fi
+
+    check_pki_configuration_status
+    rv=$?
+    if [ $rv -eq 6 ]; then
+        # 6 program is not configured
+        return 6
+    else
+        # 0 success
+        return 0
+    fi
+}
+
+# used to stop debian instances
+# taken from /etc/init.d/tomcat7
+stop_instance()
+{
+    set_debian_tomcat_parameters
+    log_daemon_msg "Stopping $DESC" "${PKI_INSTANCE_NAME}"
+
+    if [ -f "$CATALINA_PID" ]; then
+        start-stop-daemon --stop --pidfile "$CATALINA_PID" \
+                --user "$TOMCAT7_USER" \
+                --retry=TERM/20/KILL/5 >/dev/null
+        if [ $? -eq 1 ]; then
+            log_progress_msg "$DESC is not running but pid file exists, cleaning up"
+        elif [ $? -eq 3 ]; then
+            PID="`cat $CATALINA_PID`"
+            log_failure_msg "Failed to stop $PKI_INSTANCE_NAME (pid $PID)"
+            exit 1
+        fi
+        rm -f "$CATALINA_PID"
+        rm -rf "$JVM_TMP"
+    else
+        log_progress_msg "(not running)"
+    fi
+    log_end_msg 0
+}
+
+stop()
+{
+    error_rv=0
+    rv=0
+    errors=0
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
+        echo
+        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
+        # 5 program is not installed
+        return 5
+    fi
+
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
+        echo "BEGIN SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S):"
+    fi
+
+    # Shutdown every PKI instance of this type that is running
+    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
+        # Source values associated with this particular PKI instance
+        [ -f ${PKI_REGISTRY_ENTRY} ] &&
+        . ${PKI_REGISTRY_ENTRY}
+
+        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
+
+        stop_instance
+        rv=$?
+        if [ $rv != 0 ] ; then
+            errors=`expr $errors + 1`
+            error_rv=$rv
+        fi
+    done
+
+    # ONLY print a "WARNING" message if multiple
+    # instances are being examined
+    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
+        if [ ${errors} -eq 1 ]; then
+            # Since only ONE error exists, return that "bad" error code.
+            rv=${error_rv}
+        elif [ ${errors} -gt 1 ]; then
+            # Since MORE than ONE error exists, return an OVERALL status
+            # of "1 generic or unspecified error (current practice)"
+            rv=1
+        fi
+
+        if [ ${errors} -ge 1 ]; then
+            echo
+            echo -n "WARNING:  "
+            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
+            echo -n "'${PKI_TYPE}' instances were "
+            echo -n "unsuccessfully stopped!"
+            echo
+        fi
+
+        echo
+        echo "FINISHED SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S)."
+    fi
+
+    return $rv
+}
+
+restart()
+{
+    stop
+    sleep 2
+    start
+
+    return $?
+}
+
+
 start()
 {
     error_rv=0
@@ -1395,8 +1740,14 @@ start()
 
         [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
-        start_instance
-        rv=$?
+        if ! $debian; then
+            start_instance
+            rv=$?
+        else
+            start_deb_instance
+            rv=$?
+        fi
+
         if [ $rv = 6 ] ; then
             # Since at least ONE configuration error exists, then there
             # is at least ONE unconfigured instance from the PKI point
@@ -1417,7 +1768,6 @@ start()
             error_rv=$rv
         fi
     done
-
     # ONLY print a "WARNING" message if multiple
     # instances are being examined
     if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
@@ -1482,8 +1832,13 @@ registry_status()
 
         case $PKI_WEB_SERVER_TYPE in
             tomcat)
-                display_instance_status_systemd
-                rv=$?
+                if $debian; then
+                    display_instance_status_debian
+                    rv=$?
+                else
+                    display_instance_status_systemd
+                    rv=$?
+                fi
                 ;;
             apache)
                 display_instance_status

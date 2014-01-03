@@ -163,14 +163,14 @@ class PKIConfigParser:
 
         # RESTEasy
         resteasy_lib = subprocess.check_output(
-            'source /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
             shell=True)
         # workaround for pylint error E1103
         resteasy_lib = str(resteasy_lib).strip()
 
         # JNI jar location
         jni_jar_dir = subprocess.check_output(
-            'source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR',
+            '. /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR',
             shell=True)
         # workaround for pylint error E1103
         jni_jar_dir = str(jni_jar_dir).strip()

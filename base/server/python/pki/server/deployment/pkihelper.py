@@ -3073,7 +3073,13 @@ class Systemd:
                 service = "pki-tomcatd" + "@" +\
                           self.master_dict['pki_instance_name'] + "." +\
                           "service"
-            command = ["systemctl", "start", service]
+
+            if pki.system.SYSTEM_TYPE == "debian":
+                command = ["/etc/init.d/pki-tomcatd", "start",
+                            self.master_dict['pki_instance_name']]
+            else:
+                command = ["systemctl", "start", service]
+
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
@@ -3081,6 +3087,9 @@ class Systemd:
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
+            if pki.system.SYSTEM_TYPE == "debian":
+                if exc.returncode == 6:
+                    return
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:
@@ -3099,7 +3108,13 @@ class Systemd:
                 service = "pki-tomcatd" + "@" +\
                           self.master_dict['pki_instance_name'] + "." +\
                           "service"
-            command = ["systemctl", "stop", service]
+
+            if pki.system.SYSTEM_TYPE == "debian":
+                command = ["/etc/init.d/pki-tomcatd", "stop",
+                            self.master_dict['pki_instance_name']]
+            else:
+                command = ["systemctl", "stop", service]
+
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
@@ -3125,7 +3140,13 @@ class Systemd:
                 service = "pki-tomcatd" + "@" +\
                           self.master_dict['pki_instance_name'] + "." +\
                           "service"
-            command = ["systemctl", "restart", service]
+
+            if pki.system.SYSTEM_TYPE == "debian":
+                command = ["/etc/init.d/pki-tomcatd", "restart",
+                            self.master_dict['pki_instance_name']]
+            else:
+                command = ["systemctl", "restart", service]
+
             # Display this "systemd" execution managment command
             config.pki_log.info(
                 log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
@@ -3133,6 +3154,9 @@ class Systemd:
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
+            if pki.system.SYSTEM_TYPE == "debian":
+                if exc.returncode == 6:
+                    return
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure == True:

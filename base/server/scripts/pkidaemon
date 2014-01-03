@@ -34,6 +34,17 @@ PKI_SYSTEMD_TARGET="pki-${pki_instance_type}d"
 # Source the PKI function library
 . /usr/share/pki/scripts/operations
 
+print_usage()
+{
+    echo
+    usage
+    echo "where valid instance types include:"
+    list_instance_types
+    echo "and where valid instance names include:"
+    list_instances
+    exit ${default_error}
+}
+
 # See how we were called.
 case $command in
     status)
@@ -43,6 +54,22 @@ case $command in
     start)
         start
         exit $?
+        ;;
+    stop)
+        if $debian; then
+            stop
+        else
+            echo "invalid action ($command)"
+            print_usage
+        fi
+        ;;
+    restart)
+        if $debian; then
+            restart
+        else
+            echo "invalid action ($command)"
+            print_usage
+        fi
         ;;
     *)
         echo "unknown action ($command)"
