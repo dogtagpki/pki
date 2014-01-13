@@ -71,7 +71,7 @@ if( $ARCHITECTURE eq "i686" ) {
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
-my $RESTEASY_LIB = `source /etc/pki/pki.conf && echo \$RESTEASY_LIB`;
+my $RESTEASY_LIB = `. /etc/pki/pki.conf && echo \$RESTEASY_LIB`;
 chomp($RESTEASY_LIB);
 
 $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-certsrv.jar:"
@@ -109,7 +109,7 @@ if( $ARCHITECTURE eq "x86_64" ) {
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
 
-my $PKI_CLI_OPTIONS = `source /etc/pki/pki.conf && echo \$PKI_CLI_OPTIONS`;
+my $PKI_CLI_OPTIONS = `. /etc/pki/pki.conf && echo \$PKI_CLI_OPTIONS`;
 chomp($PKI_CLI_OPTIONS);
 
 my @args = ();
