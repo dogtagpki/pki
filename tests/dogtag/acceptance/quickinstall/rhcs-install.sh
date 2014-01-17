@@ -56,7 +56,6 @@ run_rhcs_install_subsystems() {
         rlLog "MASTER_CA: $MASTER_CA"
         rlLog "CLONE: $CLONE"
 
-	rlRun "setenforce 0"
         echo "export BEAKERMASTER=$MASTER" >> /opt/rhqa_pki/env.sh
         echo "export BEAKERMASTER_CA=$MASTER_CA" >> /opt/rhqa_pki/env.sh
         echo "export BEAKERCLONE=$CLONE" >> /opt/rhqa_pki/env.sh
