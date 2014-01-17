@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following ipa cli commands needs to be tested:
@@ -46,7 +46,7 @@
 run_pki-user-cli-user-del-kra_tests(){
     rlPhaseStartSetup "pki_user_cli_user_add-kra-startup:Getting the temp directory and nss certificate db "
 	 rlLog "nss_db directory = $TmpDir/nssdb"
-	 rlLog "temp directory = /tmp/requestdb"
+	 rlLog "temp directory = $CERTDB_DIR"
     rlPhaseEnd
 
     rlPhaseStartCleanup "pki_user_cli_user_add-cleanup: Delete temp dir"
@@ -55,9 +55,9 @@ run_pki-user-cli-user-del-kra_tests(){
 	#===Deleting users created using KRA_adminV cert===#
 	i=1
 	while [ $i -lt 25 ] ; do
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n KRA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-del  u$i > $TmpDir/pki-user-del-kra-user-00$i.out" \
                            0 \
                            "Deleted user  u$i"
@@ -68,9 +68,9 @@ run_pki-user-cli-user-del-kra_tests(){
 	j=1
         while [ $j -lt 8 ] ; do
 	       eval usr=\$user$j
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n KRA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-del  $usr > $TmpDir/pki-user-del-kra-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
@@ -89,13 +89,5 @@ run_pki-user-cli-user-del-kra_tests(){
                 rlAssertGrep "Deleted user \"$userid_del\"" "$TmpDir/pki-user-del-kra-00$i.out"
                 let i=$i+1
         done
-
-
-#	rlRun "rm -r $TmpDir" 0 "Removing temp directory"
-#	rlRun "popd"
- #       rlRun "rm -rf /tmp/requestdb"
-  #      rlRun "rm -rf /tmp/dummydb"
-
-
     rlPhaseEnd
 }

@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   rhcs_install.sh of /CoreOS/rhcs/acceptance/quickinstall
+#   rhcs_install.sh of /CoreOS/dogtag/acceptance/quickinstall
 #   Description: CS quickinstall acceptance tests for new install
 #                functions.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,27 +54,12 @@ run_rhcs_install_subsystems() {
         rlLog "HOSTNAME: $myhostname"
         rlLog "MASTER: $MASTER"
         rlLog "MASTER_CA: $MASTER_CA"
-        rlLog "MASTER3: $MASTER3"
-        rlLog "MASTER4: $MASTER4"
-        rlLog "MASTER5: $MASTER5"
-        rlLog "MASTER6: $MASTER6"
         rlLog "CLONE: $CLONE"
-        rlLog "CLONE2: $CLONE2"
-        rlLog "CLONE3: $CLONE3"
-        rlLog "CLONE4: $CLONE4"
-        rlLog "CLONE5: $CLONE5"
 
+	rlRun "setenforce 0"
         echo "export BEAKERMASTER=$MASTER" >> /opt/rhqa_pki/env.sh
         echo "export BEAKERMASTER_CA=$MASTER_CA" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERMASTER3=$MASTER3" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERMASTER4=$MASTER4" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERMASTER5=$MASTER5" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERMASTER6=$MASTER6" >> /opt/rhqa_pki/env.sh
         echo "export BEAKERCLONE=$CLONE" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERCLONE2=$CLONE2" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERCLONE3=$CLONE3" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERCLONE4=$CLONE4" >> /opt/rhqa_pki/env.sh
-        echo "export BEAKERCLONE5=$CLONE5" >> /opt/rhqa_pki/env.sh
         echo "export HOSTNAME=$HOSTNAME" >> /opt/rhqa_pki/env.sh
 
 
@@ -106,17 +91,33 @@ run_rhcs_install_subsystems() {
 	echo $MASTER | grep $HOSTNAME
 	if [ $? -eq 0 ] ; then
 		yum clean all
+		yum -y update
 		#CA install
 		rc=0
 		rlLog "CA instance will be installed on $HOSTNAME"
+		rlLog "yum -y install $COMMON_SERVER_PACKAGES"
 		yum -y install $COMMON_SERVER_PACKAGES
+		rlLog "yum -y install $CA_SERVER_PACKAGES"
 		yum -y install $CA_SERVER_PACKAGES
-
 		echo "export CA_SERVER_CERT_SUBJECT_NAME= CN=$HOSTNAME,O=redhat" >> /opt/rhqa_pki/env.sh
+		#codecoverage setup
+		if [ "$CODE_COVERAGE" = "TRUE" ] ; then
+			rlLog "Setup for codecoverage"
+			yum -y install jacoco wget objectweb-asm4 screen
+
+			#get jacocoant.jar file
+                        rlRun "cp  /usr/share/java/jacoco/org.jacoco.agent.rt.jar /usr/lib/jvm/java/jre/lib/."
+
+                        # Adding JAVA_OPTS to configfile /usr/share/pki/server/conf/tomcat.conf for the jacoco javaagent
+                       rlLog "Adding JAVA_OPTS to configfile /usr/share/pki/server/conf/tomcat.conf for the jacoco javaagent"
+                       local configfile="/usr/share/pki/server/conf/tomcat.conf"
+                       rlRun "sed -e 's/JAVA\_OPTS\=\\\"\-DRESTEASY\_LIB\=\[PKI_RESTEASY_LIB\]\\\"/JAVA\_OPTS\=\\\"\-DRESTEASY\_LIB\=\[PKI_RESTEASY_LIB\] -javaagent:\/usr\/lib\/jvm\/java\/jre\/lib\/org.jacoco.agent.rt.jar=destfile=\/tmp\/jacoco.exec,output=file\\\"/g' -i $configfile"
+                       rlLog "Check if the javaagent added to /usr/share/pki/server/conf/tomcat.conf"
+                       rlRun "cat $configfile"
+                       rlRun "sleep 20"
+		fi
 
 		if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-			yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -129,7 +130,6 @@ run_rhcs_install_subsystems() {
 			done
 		else
 			yum -y install $RHELRHCS_SERVER_PACKAGES
-			yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -152,8 +152,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $KRA_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-	                yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $KRA_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -166,8 +164,6 @@ run_rhcs_install_subsystems() {
 			done
                  else
                         yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
-
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $KRA_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -190,8 +186,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $OCSP_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-			yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OCSP_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -204,7 +198,6 @@ run_rhcs_install_subsystems() {
 			done
                  else
                         yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OCSP_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 			       rpm -qa | grep $item
@@ -227,8 +220,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $RA_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $RA_SERVER_PACKAGES"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -241,7 +232,6 @@ run_rhcs_install_subsystems() {
                          done
                 else
                          yum -y install $RHELRHCS_SERVER_PACKAGES
-                         yum -y update
 			 ALL_PACKAGES="$COMMON_SERVER_PACKAGES $RA_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
 			 for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -265,8 +255,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $TKS_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $TKS_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -279,7 +267,6 @@ run_rhcs_install_subsystems() {
                         done
                 else
 			yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $TKS_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -303,8 +290,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $TPS_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $TPS_SERVER_PACKAGES $DOGTAG_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -317,7 +302,6 @@ run_rhcs_install_subsystems() {
                         done
                 else
 			yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $TPS_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -343,6 +327,7 @@ run_rhcs_install_subsystems() {
         echo $MASTER_CA | grep $HOSTNAME
         if [ $? -eq 0 ] ; then
                 yum clean all
+		yum -y update
                 rlLog "CA instance will be installed on $HOSTNAME"
 		rc=0
                 yum -y install $COMMON_SERVER_PACKAGES
@@ -351,8 +336,6 @@ run_rhcs_install_subsystems() {
                 echo "export CA_SERVER_CERT_SUBJECT_NAME= CN=$HOSTNAME,O=redhat" >> /opt/rhqa_pki/env.sh
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-                        #yum -y install $DOGTAG_PACKAGES
-                        yum -y update
                         ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
                                 rpm -qa | grep $item
@@ -365,7 +348,6 @@ run_rhcs_install_subsystems() {
                         done
                 else
                         yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
                         ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
                                 rpm -qa | grep $item
@@ -391,6 +373,7 @@ run_rhcs_install_subsystems() {
         echo $CLONE | grep $HOSTNAME
         if [ $? -eq 0 ] ; then
 		yum clean all
+		yum -y update
 		#Clone CA install
 		rlLog "Clone CA instance will be installed on $HOSTNAME"
 		rc=0
@@ -398,8 +381,6 @@ run_rhcs_install_subsystems() {
                 yum -y install $CA_SERVER_PACKAGES
 
                 if [ "$FLAVOR" == "Fedora" ] ; then
-			#yum -y install $DOGTAG_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -412,7 +393,6 @@ run_rhcs_install_subsystems() {
                          done
                 else
 			yum -y install $RHELRHCS_SERVER_PACKAGES
-                        yum -y update
 			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES $RHELRHCS_SERVER_PACKAGES"
                         for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
@@ -436,14 +416,4 @@ run_rhcs_install_subsystems() {
         fi
 
 	rlPhaseEnd
-
-	rlPhaseStartCleanup "pki_user_cli_user_add-cleanup: pki install cleanup"
-		rlLog "pki install clean-up"
-	rlPhaseEnd
-
-   #rlJournalPrintText
-   #report=/tmp/rhts.report.$RANDOM.txt
-   #makereport $report
-   #rhts-submit-log -l $report
-  #rlPhaseEnd
 }

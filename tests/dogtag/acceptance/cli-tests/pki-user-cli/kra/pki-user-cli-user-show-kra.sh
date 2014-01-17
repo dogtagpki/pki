@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following ipa cli commands needs to be tested:
@@ -52,17 +52,17 @@
 run_pki-user-cli-user-show-kra_tests(){
     rlPhaseStartSetup "pki_user_cli_user_show-kra-startup:Getting the temp directory and nss certificate db "
 	 rlLog "nss_db directory = $TmpDir/nssdb"
-	 rlLog "temp directory = /tmp/requestdb"
+	 rlLog "temp directory = $CERTDB_DIR"
     rlPhaseEnd
      ##### Tests to show KRA users ####
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001: Add a user to KRA using KRA_adminV"
-        rlLog "Executing: pki -d $TmpDir/nssdb \
+        rlLog "Executing: pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user1"
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user1 > $TmpDir/pki-user-show-kra-001.out" \
 		    0 \
 		    "Show pki KRA_adminV user"
@@ -71,9 +71,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-show-kra-001.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_1:maximum length of user id "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user2 > $TmpDir/pki-user-show-kra-001_1.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -82,9 +82,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_1.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_2:User id with # character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user3 > $TmpDir/pki-user-show-kra-001_2.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -93,9 +93,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_2.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_3:User id with $ character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user4 > $TmpDir/pki-user-show-kra-001_3.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -104,9 +104,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_3.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_4:User id with @ character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user5 > $TmpDir/pki-user-show-kra-001_4.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -115,9 +115,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_4.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_5:User id with ? character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user6 > $TmpDir/pki-user-show-kra-001_5.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -126,9 +126,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_5.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_6:User id as 0"
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show $user7 > $TmpDir/pki-user-show-kra-001_6.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -137,9 +137,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-kra-001_6.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_7:--email with maximum length "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u1 > $TmpDir/pki-user-show-kra-001_7.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -149,9 +149,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-show-kra-001_7.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_8:--email with maximum length and symbols "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u2 > $TmpDir/pki-user-show-kra-001_8.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -161,9 +161,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: abcdefghijklmnopqrstuvwxyx12345678\\#\\?*$@" "$TmpDir/pki-user-show-kra-001_8.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_9:--email with # character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u3 > $TmpDir/pki-user-show-kra-001_9.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -173,9 +173,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: #" "$TmpDir/pki-user-show-kra-001_9.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_10:--email with * character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u4 > $TmpDir/pki-user-show-kra-001_10.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -185,9 +185,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: *" "$TmpDir/pki-user-show-kra-001_10.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_11:--email with $ character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u5 > $TmpDir/pki-user-show-kra-001_11.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -197,9 +197,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: \\$" "$TmpDir/pki-user-show-kra-001_11.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_12:--email as number 0 "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u6 > $TmpDir/pki-user-show-kra-001_12.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -209,9 +209,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Email: 0" "$TmpDir/pki-user-show-kra-001_12.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_13:--state with maximum length "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u7 > $TmpDir/pki-user-show-kra-001_13.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -221,9 +221,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "State: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-show-kra-001_13.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_14:--state with maximum length and symbols "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u8 > $TmpDir/pki-user-show-kra-001_14.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -233,9 +233,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "State: abcdefghijklmnopqrstuvwxyx12345678\\#\\?*$@" "$TmpDir/pki-user-show-kra-001_14.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_15:--state with # character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u9 > $TmpDir/pki-user-show-kra-001_15.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -245,9 +245,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "State: #" "$TmpDir/pki-user-show-kra-001_15.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_16:--state with * character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u10 > $TmpDir/pki-user-show-kra-001_16.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -257,9 +257,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "State: *" "$TmpDir/pki-user-show-kra-001_16.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_17:--state with $ character "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u11 > $TmpDir/pki-user-show-kra-001_17.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -269,9 +269,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "State: \\$" "$TmpDir/pki-user-show-kra-001_17.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_18:--state as number 0 "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u12 > $TmpDir/pki-user-show-kra-001_18.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -282,9 +282,9 @@ run_pki-user-cli-user-show-kra_tests(){
     rlPhaseEnd
 	#https://www.redhat.com/archives/pki-users/2010-February/msg00015.html
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_19:--phone with maximum length "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u13 > $TmpDir/pki-user-show-kra-001_19.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -294,9 +294,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Phone: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-show-kra-001_19.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_24:--phone as negative number -1230 "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u14 > $TmpDir/pki-user-show-kra-001_24.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -307,9 +307,9 @@ run_pki-user-cli-user-show-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_25:--type as Auditors"
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u15 > $TmpDir/pki-user-show-kra-001_25.out" \
                     0 \
                     "Show pki KRA_adminV user"
@@ -319,9 +319,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Auditors" "$TmpDir/pki-user-show-kra-001_25.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_26:--type Certificate Manager Agents "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u16 > $TmpDir/pki-user-show-kra-001_26.out" \
                     0 \
                     "Show pki KRA user"
@@ -331,9 +331,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Certificate Manager Agents" "$TmpDir/pki-user-show-kra-001_26.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_27:--type Registration Manager Agents "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u17 > $TmpDir/pki-user-show-kra-001_27.out" \
                     0 \
                     "Show pki KRA user"
@@ -343,9 +343,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Registration Manager Agents" "$TmpDir/pki-user-show-kra-001_27.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_28:--type Subsytem Group "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u18 > $TmpDir/pki-user-show-kra-001_28.out" \
                     0 \
                     "Show pki KRA user"
@@ -355,9 +355,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Subsytem Group" "$TmpDir/pki-user-show-kra-001_28.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_29:--type Security Domain Administrators "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u19 > $TmpDir/pki-user-show-kra-001_29.out" \
                     0 \
                     "Show pki KRA user"
@@ -367,9 +367,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Security Domain Administrators" "$TmpDir/pki-user-show-kra-001_29.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_30:--type ClonedSubsystems "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u20 > $TmpDir/pki-user-show-kra-001_30.out" \
                     0 \
                     "Show pki KRA user"
@@ -379,9 +379,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: ClonedSubsystems" "$TmpDir/pki-user-show-kra-001_30.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_31:--type Trusted Managers "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                     user-show u21 > $TmpDir/pki-user-show-kra-001_31.out" \
                     0 \
                     "Show pki KRA user"
@@ -391,9 +391,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Type: Trusted Managers" "$TmpDir/pki-user-show-kra-001_31.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_32: Add a user to KRA with -t option"
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
                     user-show u22 > $TmpDir/pki-user-show-kra-001_32.out" \
                     0 \
@@ -403,9 +403,9 @@ run_pki-user-cli-user-show-kra_tests(){
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-show-kra-001_32.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_33:  Add a user -- all options provided"
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
                     user-show u23 > $TmpDir/pki-user-show-kra-001_33.out" \
                     0 \
@@ -421,9 +421,9 @@ run_pki-user-cli-user-show-kra_tests(){
     rlPhaseEnd
     #Negative Cases
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_34: Missing required option user id "
-	rlRun "pki -d /tmp/requestdb \
+	rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
                     user-show  > $TmpDir/pki-user-show-kra-001_34.out 2>&1" \
                     1 \
@@ -431,16 +431,13 @@ run_pki-user-cli-user-show-kra_tests(){
 	rlAssertGrep "usage: user-show <User ID>" "$TmpDir/pki-user-show-kra-001_34.out"
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_show-KRA-001_35: Checking if user id case sensitive "
-        rlRun "pki -d /tmp/requestdb \
+        rlRun "pki -d $CERTDB_DIR \
                    -n KRA_adminV \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
                     user-show U23 > $TmpDir/pki-user-show-kra-001_35.out 2>&1" \
                     1 \
                     "Cannot show user since the  user id is case sensitive"
         rlAssertGrep "UserNotFoundException: User U23 not found" "$TmpDir/pki-user-show-kra-001_35.out"
     rlPhaseEnd
-
-
-
 }

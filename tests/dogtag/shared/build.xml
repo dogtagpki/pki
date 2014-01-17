@@ -1,0 +1,50 @@
+<!--
+     vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   build.xml  of /CoreOS/dogtag/shared/
+#   Description: Ant task to generate report from the coverage file jacoco.exec
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  jacoco.exec file must be generated before executing the ant task to generate report.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   Authors: Asha Akkiangady <aakkiang@redhat.com> and Laxmi Sunkara <lsunkara@redhat.com>
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Copyright (c) 2013 Red Hat, Inc. All rights reserved.
+#
+#   This copyrighted material is made available to anyone wishing
+#   to use, modify, copy, or redistribute it subject to the terms
+#   and conditions of the GNU General Public License version 2.
+#
+#   This program is distributed in the hope that it will be
+#   useful, but WITHOUT ANY WARRANTY; without even the implied
+#   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#   PURPOSE. See the GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public
+#   License along with this program; if not, write to the Free
+#   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#   Boston, MA 02110-1301, USA.
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<project name="CodeCoveragePKITest" xmlns:jacoco="antlib:org.jacoco.ant">
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="/usr/share/java/jacoco/org.jacoco.agent.jar:/usr/share/java/jacoco/org.jacoco.agent.rt.jar:/usr/share/java/jacoco/org.jacoco.ant.jar:/usr/share/java/jacoco/org.jacoco.core.jar:/usr/share/java/jacoco/org.jacoco.report.jar:/usr/share/java/objectweb-asm4/asm-all.jar:/usr/share/java/objectweb-asm4/asm-analysis.jar:/usr/share/java/objectweb-asm4/asm-commons.jar:/usr/share/java/objectweb-asm4/asm-tree.jar:/usr/share/java/objectweb-asm4/asm-util.jar:/usr/share/java/objectweb-asm4/asm-xml.jar:/usr/share/java/objectweb-asm4/asm.jar" />
+	</taskdef>
+	<target name="report" >
+	<jacoco:report>
+		<executiondata>
+			<file file="/opt/rhqa_pki/jacoco.exec" />
+		</executiondata>
+		<structure name="PKICodeCoverage">
+			<classfiles>
+				<fileset dir="/usr/share/java/pki/" />
+			</classfiles>
+		</structure>
+		<html destdir="/opt/rhqa_pki/CodeCoveragePKIhtml"/>
+		<csv destfile="/opt/rhqa_pki/CodeCoveragePKItest.csv" />
+		<xml destfile="/opt/rhqa_pki/CodeCoveragePKItest.xml" />
+	</jacoco:report>
+	</target>
+</project>

@@ -4,7 +4,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following ipa cli commands needs to be tested:
@@ -70,13 +70,12 @@ export KRA_adminV_user KRA_adminR_user KRA_adminE_user KRA_adminUTKRA_user KRA_a
 ######################################################################
 
 run_pki-user-cli-user-kra_tests(){
-    rlPhaseStartSetup "pki_user_cli_user_add-kra-startup:Getting the temp directory and nss certificate db "
-         rlLog "nss_db directory = $TmpDir/nssdb"
-         rlLog "temp directory = /tmp/requestdb"
+    rlPhaseStartSetup "pki_user_cli_user_add-kra-startup:Getting nss certificate db "
+         rlLog "Certificate directory = $CERTDB_DIR"
     rlPhaseEnd
     rlPhaseStartSetup "pki_user_cli_user_kra-startup: Importing kra agent cert into certificate db and trust KRA root cert"
-	rlRun "install_and_trust_KRA_cert $KRA_SERVER_ROOT $TmpDir/nssdb"
-        rlRun "install_and_trust_KRA_cert $KRA_SERVER_ROOT /tmp/requestdb"
+	rlRun "install_and_trust_KRA_cert $KRA_SERVER_ROOT $CERTDB_DIR"
+        rlRun "install_and_trust_KRA_cert $KRA_SERVER_ROOT $CERTDB_DIR"
     rlPhaseEnd
     rlPhaseStartSetup "Creating user, create user and add it to the user, add user to the group"
 	 user=($KRA_adminV_user $KRA_adminV_fullName $KRA_adminR_user $KRA_adminR_fullName $KRA_adminE_user $KRA_adminE_fullName $KRA_adminUTKRA_user $KRA_adminUTKRA_fullName $KRA_agentV_user $KRA_agentV_fullName $KRA_agentR_user $KRA_agentR_fullName $KRA_agentE_user $KRA_agentE_fullName $KRA_agentUTKRA_user $KRA_agentUTKRA_fullName $KRA_auditV_user $KRA_auditV_fullName $KRA_operatorV_user $KRA_operatorV_fullName)
@@ -86,14 +85,14 @@ run_pki-user-cli-user-kra_tests(){
 	       userfullName=${user[$i+1]}
 
 	      #Create $userid  user
-	       rlLog "Executing: pki -d $TmpDir/nssdb \
+	       rlLog "Executing: pki -d $CERTDB_DIR \
 			  -n \"$admin_cert_nickname\" \
-			  -c $nss_db_password \
+			  -c $CERTDB_DIR_PASSWORD \
 			  -t kra \
 			   user-add --fullName=\"$userfullName\" $userid"
-	       rlRun "pki -d $TmpDir/nssdb \
+	       rlRun "pki -d $CERTDB_DIR \
 			  -n \"$admin_cert_nickname\" \
-			  -c $nss_db_password \
+			  -c $CERTDB_DIR_PASSWORD \
 			  -t kra \
 			   user-add --fullName=\"$userfullName\" $userid" \
 			   0 \
@@ -101,9 +100,9 @@ run_pki-user-cli-user-kra_tests(){
 
 	       #=====Adding user to respective  group. Administrator, Date Recovery Manager Agent, Auditor=====#
 		if [ $userid == $KRA_adminV_user -o $userid == $KRA_adminR_user -o $userid == $KRA_adminE_user -o $userid == $KRA_adminUTKRA_user ]; then
-			    rlRun "pki -d $TmpDir/nssdb \
+			    rlRun "pki -d $CERTDB_DIR \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
 			    group-add-member Administrators $userid > $TmpDir/pki-user-add-kra-group001$i.out"  \
 			    0 \
@@ -111,9 +110,9 @@ run_pki-user-cli-user-kra_tests(){
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-kra-group001$i.out"
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-kra-group001$i.out"
 		elif [ $userid == $KRA_agentV_user -o $userid == $KRA_agentR_user -o $userid == $KRA_agentE_user -o $userid == $KRA_agentUTKRA_user ]; then
-			    rlRun "pki -d $TmpDir/nssdb \
+			    rlRun "pki -d $CERTDB_DIR \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
 			    group-add-member \"Data Recovery Manager Agents\" $userid > $TmpDir/pki-user-add-kra-group001$i.out"  \
 			    0 \
@@ -122,9 +121,9 @@ run_pki-user-cli-user-kra_tests(){
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-kra-group001$i.out"
 
 		elif [ $userid == $KRA_auditV_user ]; then
-			    rlRun "pki -d $TmpDir/nssdb \
+			    rlRun "pki -d $CERTDB_DIR \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
 			    group-add-member Auditors $userid > $TmpDir/pki-user-add-kra-group001$i.out"  \
 			    0 \
@@ -133,9 +132,9 @@ run_pki-user-cli-user-kra_tests(){
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-kra-group001$i.out"
 
 		elif [ $userid == $KRA_operatorV_user ]; then
-			    rlRun "pki -d $TmpDir/nssdb \
+			    rlRun "pki -d $CERTDB_DIR \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
 			    group-add-member \"Trusted Managers\"  $userid > $TmpDir/pki-user-add-kra-group001$i.out"  \
 			    0 \
@@ -151,17 +150,17 @@ run_pki-user-cli-user-kra_tests(){
 			rlLog "Admin Certificate is located at: $KRA_ADMIN_CERT_LOCATION"
 			local sample_request_file1="/opt/rhqa_pki/cert_request_caUserCert1_1.in"
 			local sample_request_file2="/opt/rhqa_pki/cert_request_caUserCert1_2.in"
-			local temp_file="/tmp/requestdb/certrequest_kra_001$i.in"
-			#rlRun "create_certdb \"/tmp/requestdb\" Password" 0 "Create a certificate db"
-			rlRun "generate_PKCS10 \"/tmp/requestdb\"  Password rsa 2048 \"/tmp/requestdb/request_kra_001$i.out\" \"CN=adminV\" " 0 "generate PKCS10 certificate"
+			local temp_file="$CERTDB_DIR/certrequest_kra_001$i.in"
+			#rlRun "create_certdb \"$CERTDB_DIR\" Password" 0 "Create a certificate db"
+			rlRun "generate_PKCS10 \"$CERTDB_DIR\"  Password rsa 2048 \"$CERTDB_DIR/request_kra_001$i.out\" \"CN=adminV\" " 0 "generate PKCS10 certificate"
 
 			rlLog "Create a certificate request XML file.."
 			local search_string1="<InputAttr name=\"cert_request_type\">crmf<\/InputAttr>"
 			local replace_string1="\<InputAttr name=\"cert_request_type\"\>pkcs10\<\/InputAttr\>"
-			rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i /tmp/requestdb/request_kra_001$i.out"
-			rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i /tmp/requestdb/request_kra_001$i.out"
+			rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i $CERTDB_DIR/request_kra_001$i.out"
+			rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i $CERTDB_DIR/request_kra_001$i.out"
 			#local cert_request=`cat /tmp/request_001$i.out`
-			rlRun "cat $sample_request_file1 /tmp/requestdb/request_kra_001$i.out $sample_request_file2 >  $temp_file"
+			rlRun "cat $sample_request_file1 $CERTDB_DIR/request_kra_001$i.out $sample_request_file2 >  $temp_file"
 			rlLog "Executing: sed -e 's/$search_string1/$replace_string1/' -i $temp_file"
 			rlRun "sed -e 's/$search_string1/$replace_string1/' -i  $temp_file"
 			local search_string2="testuser"
@@ -176,53 +175,53 @@ run_pki-user-cli-user-kra_tests(){
 			if [ $userid == $KRA_adminV_user -o $userid == $KRA_adminR_user -o $userid == $KRA_agentV_user -o $userid == $KRA_agentR_user -o $userid == $KRA_auditV_user -o $userid == $KRA_operatorV_user ]; then
 				#cert-request-submit=====
 				rlLog "Executing: pki cert-request-submit  $temp_file"
-				rlRun "pki cert-request-submit  $temp_file > /tmp/requestdb/certrequest_kra_$i.out" 0 "Executing pki cert-request-submit"
-				rlAssertGrep "Submitted certificate request" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Request ID:" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Status: pending" "/tmp/requestdb/certrequest_kra_$i.out"
-				local request_id=`cat /tmp/requestdb/certrequest_kra_$i.out | grep "Request ID:" | awk '{print $3}'`
+				rlRun "pki cert-request-submit  $temp_file > $CERTDB_DIR/certrequest_kra_$i.out" 0 "Executing pki cert-request-submit"
+				rlAssertGrep "Submitted certificate request" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Request ID:" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequest_kra_$i.out"
+				local request_id=`cat $CERTDB_DIR/certrequest_kra_$i.out | grep "Request ID:" | awk '{print $3}'`
 				rlLog "Request ID=$request_id"
-				rlRun "pki cert-request-show $request_id > /tmp/requestdb/certrequestshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
-				rlAssertGrep "Request ID: $request_id" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Status: pending" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Operation Result: success" "/tmp/requestdb/certrequestshow_kra_001$i.out"
+				rlRun "pki cert-request-show $request_id > $CERTDB_DIR/certrequestshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Operation Result: success" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
 				 #Agent Approve the certificate after reviewing the cert for the user
-				rlLog "Executing: pki -d /tmp/requestdb/ \
+				rlLog "Executing: pki -d $CERTDB_DIR/ \
 					   -n \"$admin_cert_nickname\" \
-					   -c $nss_db_password \
+					   -c $CERTDB_DIR_PASSWORD \
 					   -t kra \
 					    cert-request-review --action=approve $request_id"
 
-				rlRun "pki -d /tmp/requestdb/ \
+				rlRun "pki -d $CERTDB_DIR/ \
 					   -n \"$admin_cert_nickname\" \
-					   -c $nss_db_password \
+					   -c $CERTDB_DIR_PASSWORD \
 					   -t kra \
-					    cert-request-review --action=approve $request_id > /tmp/requestdb/certapprove_kra_001$i.out" \
+					    cert-request-review --action=approve $request_id > $CERTDB_DIR/certapprove_kra_001$i.out" \
 					    0 \
 					    "KRA agent approve the cert"
-				rlAssertGrep "Approved certificate request $request_id" "/tmp/requestdb/certapprove_kra_001$i.out"
-				rlRun "pki cert-request-show $request_id > /tmp/requestdb/certrequestapprovedshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
-				rlAssertGrep "Request ID: $request_id" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Status: complete" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Certificate ID:" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				local certificate_serial_number=`cat /tmp/requestdb/certrequestapprovedshow_kra_001$i.out | grep "Certificate ID:" | awk '{print $3}'`
+				rlAssertGrep "Approved certificate request $request_id" "$CERTDB_DIR/certapprove_kra_001$i.out"
+				rlRun "pki cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Status: complete" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Certificate ID:" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				local certificate_serial_number=`cat $CERTDB_DIR/certrequestapprovedshow_kra_001$i.out | grep "Certificate ID:" | awk '{print $3}'`
 				rlLog "Cerificate Serial Number=$certificate_serial_number"
 
 				#Verify the certificate is valid
-				rlRun "pki cert-show  $certificate_serial_number --encoded > /tmp/requestdb/certificate_show_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
-				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "/tmp/requestdb/certificate_show_kra_001$i.out"
-				rlAssertGrep "Status: VALID" "/tmp/requestdb/certificate_show_kra_001$i.out"
+				rlRun "pki cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_kra_001$i.out"
+				rlAssertGrep "Status: VALID" "$CERTDB_DIR/certificate_show_kra_001$i.out"
 
-				rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' /tmp/requestdb/certificate_show_kra_001$i.out > /tmp/requestdb/validcert_kra_001$i.pem"
-				rlRun "certutil -d /tmp/requestdb -A -n $userid -i /tmp/requestdb/validcert_kra_001$i.pem  -t "u,u,u""
-				rlRun "pki -d /tmp/requestdb/ \
+				rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $CERTDB_DIR/certificate_show_kra_001$i.out > $CERTDB_DIR/validcert_kra_001$i.pem"
+				rlRun "certutil -d $CERTDB_DIR -A -n $userid -i $CERTDB_DIR/validcert_kra_001$i.pem  -t "u,u,u""
+				rlRun "pki -d $CERTDB_DIR/ \
 					   -n \"$admin_cert_nickname\" \
-					   -c $nss_db_password \
+					   -c $CERTDB_DIR_PASSWORD \
 					   -t kra \
-					    user-add-cert $userid --input /tmp/requestdb/validcert_kra_001$i.pem  > /tmp/requestdb/useraddcert_kra_001$i.out" \
+					    user-add-cert $userid --input $CERTDB_DIR/validcert_kra_001$i.pem  > $CERTDB_DIR/useraddcert_kra_001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 
@@ -237,45 +236,45 @@ run_pki-user-cli-user-kra_tests(){
 				rlRun "systemctl restart pki-tomcatd\@pki-tomcat.service"
 				#cert-request-submit=====
 				rlLog "Executing: pki cert-request-submit  $temp_file"
-				rlRun "pki cert-request-submit  $temp_file > /tmp/requestdb/certrequest_kra_$i.out" 0 "Executing pki cert-request-submit"
-				rlAssertGrep "Submitted certificate request" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Request ID:" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequest_kra_$i.out"
-				rlAssertGrep "Status: pending" "/tmp/requestdb/certrequest_kra_$i.out"
-				local request_id=`cat /tmp/requestdb/certrequest_kra_$i.out | grep "Request ID:" | awk '{print $3}'`
+				rlRun "pki cert-request-submit  $temp_file > $CERTDB_DIR/certrequest_kra_$i.out" 0 "Executing pki cert-request-submit"
+				rlAssertGrep "Submitted certificate request" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Request ID:" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequest_kra_$i.out"
+				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequest_kra_$i.out"
+				local request_id=`cat $CERTDB_DIR/certrequest_kra_$i.out | grep "Request ID:" | awk '{print $3}'`
 				rlLog "Request ID=$request_id"
-				rlRun "pki cert-request-show $request_id > /tmp/requestdb/certrequestshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
-				rlAssertGrep "Request ID: $request_id" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Status: pending" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlAssertGrep "Operation Result: success" "/tmp/requestdb/certrequestshow_kra_001$i.out"
-				rlRun "pki -d /tmp/requestdb/ \
+				rlRun "pki cert-request-show $request_id > $CERTDB_DIR/certrequestshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlAssertGrep "Operation Result: success" "$CERTDB_DIR/certrequestshow_kra_001$i.out"
+				rlRun "pki -d $CERTDB_DIR/ \
 					   -n \"$admin_cert_nickname\" \
-					   -c $nss_db_password \
+					   -c $CERTDB_DIR_PASSWORD \
 					   -t kra \
-					    cert-request-review --action=approve  $request_id > /tmp/requestdb/certapprove_kra_001$i.out" \
+					    cert-request-review --action=approve  $request_id > $CERTDB_DIR/certapprove_kra_001$i.out" \
 					    0 \
 					    "KRA agent approve the cert"
-				rlLog "cat /tmp/requestdb/certapprove_kra_001$i.out"
-				rlAssertGrep "Approved certificate request $request_id" "/tmp/requestdb/certapprove_kra_001$i.out"
-				rlRun "pki cert-request-show $request_id > /tmp/requestdb/certrequestapprovedshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
-				rlAssertGrep "Request ID: $request_id" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Type: enrollment" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Status: complete" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				rlAssertGrep "Certificate ID:" "/tmp/requestdb/certrequestapprovedshow_kra_001$i.out"
-				local certificate_serial_number=`cat /tmp/requestdb/certrequestapprovedshow_kra_001$i.out | grep "Certificate ID:" | awk '{print $3}'`
+				rlLog "cat $CERTDB_DIR/certapprove_kra_001$i.out"
+				rlAssertGrep "Approved certificate request $request_id" "$CERTDB_DIR/certapprove_kra_001$i.out"
+				rlRun "pki cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_kra_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Status: complete" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				rlAssertGrep "Certificate ID:" "$CERTDB_DIR/certrequestapprovedshow_kra_001$i.out"
+				local certificate_serial_number=`cat $CERTDB_DIR/certrequestapprovedshow_kra_001$i.out | grep "Certificate ID:" | awk '{print $3}'`
 				rlLog "Cerificate Serial Number=$certificate_serial_number"
 				#Verify the certificate is expired
-				rlRun "pki cert-show  $certificate_serial_number --encoded > /tmp/requestdb/certificate_show_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
-                                rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "/tmp/requestdb/certificate_show_kra_001$i.out"
-                                rlAssertGrep "Status: VALID" "/tmp/requestdb/certificate_show_kra_001$i.out"
-				rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' /tmp/requestdb/certificate_show_kra_001$i.out > /tmp/requestdb/validcert_kra_001$i.pem"
-				rlRun "certutil -d /tmp/requestdb -A -n $userid -i /tmp/requestdb/validcert_kra_001$i.pem  -t "u,u,u""
-				rlRun "pki -d /tmp/requestdb/ \
+				rlRun "pki cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+                                rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_kra_001$i.out"
+                                rlAssertGrep "Status: VALID" "$CERTDB_DIR/certificate_show_kra_001$i.out"
+				rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $CERTDB_DIR/certificate_show_kra_001$i.out > $CERTDB_DIR/validcert_kra_001$i.pem"
+				rlRun "certutil -d $CERTDB_DIR -A -n $userid -i $CERTDB_DIR/validcert_kra_001$i.pem  -t "u,u,u""
+				rlRun "pki -d $CERTDB_DIR/ \
 					   -n \"$admin_cert_nickname\" \
-					   -c $nss_db_password \
+					   -c $CERTDB_DIR_PASSWORD \
 					   -t kra \
-					    user-add-cert $userid --input /tmp/requestdb/validcert_kra_001$i.pem  > /tmp/requestdb/useraddcert_kra_001$i.out" \
+					    user-add-cert $userid --input $CERTDB_DIR/validcert_kra_001$i.pem  > $CERTDB_DIR/useraddcert_kra_001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 				rlLog "Modifying profile back to the defaults"
@@ -285,50 +284,50 @@ run_pki-user-cli-user-kra_tests(){
 				rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
 				rlRun "date"
-				rlRun "pki cert-show  $certificate_serial_number --encoded > /tmp/requestdb/certificate_show_exp_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
-				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "/tmp/requestdb/certificate_show_exp_kra_001$i.out"
-				rlAssertGrep "Status: EXPIRED" "/tmp/requestdb/certificate_show_exp_kra_001$i.out"
+				rlRun "pki cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_exp_kra_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_exp_kra_001$i.out"
+				rlAssertGrep "Status: EXPIRED" "$CERTDB_DIR/certificate_show_exp_kra_001$i.out"
                                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 			fi
      fi
-	#Add the certificate to /tmp/requestdb
-	#note: certificate b664 at /tmp/requestdb/certificate_show_kra_001$i.out
+	#Add the certificate to $CERTDB_DIR
+	#note: certificate b664 at $CERTDB_DIR/certificate_show_kra_001$i.out
 	if [ $userid == $KRA_adminUTKRA_user ]; then
-		rlRun "certutil -d /tmp/dummydb -A -n $userid -i /opt/rhqa_pki/dummycert1.pem -t ",,""
-		rlRun "pki -d /tmp/requestdb/ \
+		rlRun "certutil -d /tmp/untrusted_cert_db -A -n $userid -i /opt/rhqa_pki/dummycert1.pem -t ",,""
+		rlRun "pki -d $CERTDB_DIR/ \
                    -n \"$admin_cert_nickname\" \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
-                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert_kra_001$i.out" \
+                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > $CERTDB_DIR/useraddcert_kra_001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	elif [ $userid == $KRA_agentUTKRA_user ]; then
-		rlRun "certutil -d /tmp/dummydb -A -n $userid -i /opt/rhqa_pki/dummycert1.pem -t ",,""
-		rlRun "pki -d /tmp/requestdb/ \
+		rlRun "certutil -d /tmp/untrusted_cert_db -A -n $userid -i /opt/rhqa_pki/dummycert1.pem -t ",,""
+		rlRun "pki -d $CERTDB_DIR/ \
                    -n \"$admin_cert_nickname\" \
-                   -c $nss_db_password \
+                   -c $CERTDB_DIR_PASSWORD \
                    -t kra \
-                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > /tmp/requestdb/useraddcert_kra_001$i.out" \
+                    user-add-cert $userid --input /opt/rhqa_pki/dummycert1.pem  > $CERTDB_DIR/useraddcert_kra_001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	#Revoke certificate of user KRA_adminR and KRA_agentR
 	elif [ $userid == $KRA_adminR_user -o $userid == $KRA_agentR_user ] ;then
 			rlLog "$userid"
-			rlLog "pki -d /tmp/requestdb/ \
+			rlLog "pki -d $CERTDB_DIR/ \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
-			    cert-revoke $certificate_serial_number  --force   --reason = Unspecified  > /tmp/requestdb/revokecert_kra_001$i.out"
-			rlRun "pki -d /tmp/requestdb/ \
+			    cert-revoke $certificate_serial_number  --force   --reason = Unspecified  > $CERTDB_DIR/revokecert_kra_001$i.out"
+			rlRun "pki -d $CERTDB_DIR/ \
 			   -n \"$admin_cert_nickname\" \
-			   -c $nss_db_password \
+			   -c $CERTDB_DIR_PASSWORD \
 			   -t kra \
-			    cert-revoke $certificate_serial_number  --force   --reason=Unspecified  > /tmp/requestdb/revokecert_kra_001$i.out" \
+			    cert-revoke $certificate_serial_number  --force   --reason=Unspecified  > $CERTDB_DIR/revokecert_kra_001$i.out" \
 			    0 \
 			    "Certificate of user $userid is revoked"
-			rlAssertGrep "Serial Number: $certificate_serial_number" "/tmp/requestdb/revokecert_kra_001$i.out"
-			rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "/tmp/requestdb/revokecert_kra_001$i.out"
-			rlAssertGrep "Status: REVOKED" "/tmp/requestdb/revokecert_kra_001$i.out"
+			rlAssertGrep "Serial Number: $certificate_serial_number" "$CERTDB_DIR/revokecert_kra_001$i.out"
+			rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/revokecert_kra_001$i.out"
+			rlAssertGrep "Status: REVOKED" "$CERTDB_DIR/revokecert_kra_001$i.out"
 	fi
               let i=$i+2
 	done

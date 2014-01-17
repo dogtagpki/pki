@@ -2,14 +2,14 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following ipa cli commands needs to be tested:
 #  pki-user-cli-user-add    Add users to pki subsystems.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Author: Laxmi Sunkara <lsunkara@redhat.com>
+#   Author: Laxmi Sunkara <lsunkara@redhat.com> and Asha Akkiangady <aakkiang@redhat.com>
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -54,25 +54,21 @@ user7=0
 ########################################################################
 
 run_pki-user-cli-user-find-ca_tests(){
-    rlPhaseStartSetup "pki_user_cli_user_find-ca-startup:Getting the temp directory and nss certificate db "
-         rlLog "nss_db directory = $TmpDir/nssdb"
-         rlLog "temp directory = /tmp/requestdb"
-    rlPhaseEnd
     rlPhaseStartSetup "pki_user_cli_user_find-ca-startup-addusers:Add users to test the user-find functionality"
 	i=1
         while [ $i -lt 25 ] ; do
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-add --fullName=test_user u$i"
                 let i=$i+1
         done
         j=1
         while [ $j -lt 8 ] ; do
                eval usr=\$user$j
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-add  --fullName=test_user $usr"
                 let j=$j+1
         done
@@ -80,9 +76,9 @@ run_pki-user-cli-user-find-ca_tests(){
 
     rlPhaseEnd
     rlPhaseStartTest "pki_user_cli_user_find-ca-001: Find 5 users, --size=5"
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=5  > $TmpDir/pki-user-find-ca-001.out 2>&1" \
                          0 \
                         "Found 5 users"
@@ -91,9 +87,9 @@ run_pki-user-cli-user-find-ca_tests(){
 
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-002: Find non user, --size=0"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=0  > $TmpDir/pki-user-find-ca-002.out 2>&1" \
                          0 \
                         "Found no users"
@@ -102,9 +98,9 @@ run_pki-user-cli-user-find-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-003: Find all users, maximum possible value as input"
         maximum_check=1000000
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003.out 2>&1" \
                          0 \
                         "All users"
@@ -112,9 +108,9 @@ run_pki-user-cli-user-find-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-004: Find users, check for negative input --size=-1"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=-1  > $TmpDir/pki-user-find-ca-004.out 2>&1" \
                          0 \
                         "No  users returned as the size entered is negative value"
@@ -123,13 +119,13 @@ run_pki-user-cli-user-find-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-005: Find users for size input as noninteger, --size=abc"
         size_noninteger="abc"
-	rlLog "Executing: pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlLog "Executing: pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1"
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1" \
                          1 \
                         "No users returned"
@@ -137,9 +133,9 @@ run_pki-user-cli-user-find-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-006: Find users, check for no input --size= "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
                          1 \
                         "No users returned, as --size= "
@@ -148,19 +144,35 @@ run_pki-user-cli-user-find-ca_tests(){
 
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-007: Find users, --start=10 "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	#Find the 10th user
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
+                                user-find  > $TmpDir/pki-user-find-ca-00_7_1.out 2>&1" \
+                         0 \
+                        "Get all users in CA"
+	user_entry_10=`cat /tmp/tmp.Dwp9zdjPpB/pki-user-find-ca-007_1.out | grep "User ID" | head -10 | tail -1`
+
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=10  > $TmpDir/pki-user-find-ca-007.out 2>&1" \
                          0 \
                         "Displays users from the 10th user and the next to the maximum 20 users, if available "
-        rlAssertGrep "20 user(s) matched" "$TmpDir/pki-user-find-ca-007.out"
+	#First user in the response should be the 10th user $user_entry_10
+	user_entry_1=`cat /tmp/tmp.Dwp9zdjPpB/pki-user-find-ca-007.out | grep "User ID" | head -1`
+	if [ $user_entry_1 = $user_entry_10 ]; then
+		rlPass "Displays users from the 10th user"
+	else
+		rlFail "Display did not start from the 10th user"
+	fi
+        rlAssertGrep "Number of entries returned 20" "$TmpDir/pki-user-find-ca-007.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-008: Find users, --start=10000, maximum possible input "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=10000  > $TmpDir/pki-user-find-ca-008.out 2>&1" \
                          0 \
                         "No users"
@@ -168,9 +180,9 @@ run_pki-user-cli-user-find-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-009: Find users, --start=0"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=0  > $TmpDir/pki-user-find-ca-009.out 2>&1" \
                          0 \
                         "Displays from the zeroth user, maximum possible are 20 users in a page"
@@ -178,34 +190,32 @@ run_pki-user-cli-user-find-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-0010: Find users, --start=-1"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=-1  > $TmpDir/pki-user-find-ca-0010.out 2>&1" \
                          0 \
                         "Maximum possible 20 users are returned, starting from the zeroth user"
-        rlAssertGrep "19 user(s) matched" "$TmpDir/pki-user-find-ca-0010.out"
+        rlAssertGrep "Number of entries returned 19" "$TmpDir/pki-user-find-ca-0010.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-0011: Find users for size input as noninteger, --start=abc"
         size_noninteger="abc"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"CA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=$size_noninteger  > $TmpDir/pki-user-find-ca-0011.out 2>&1" \
                          1 \
                         "Incorrect input to find user"
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-0011.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_cleanup-001_36: Deleting the temp directory and users"
-        del_user=($CA_adminV_user $CA_adminR_user $CA_adminE_user $CA_adminUTCA_user $CA_agentV_user $CA_agentR_user $CA_agentE_user $CA_agentUTCA_user $CA_auditV_user $CA_operatorV_user)
-
+    rlPhaseStartTest "pki_user_cli_user_cleanup-001_36: Deleting users"
         #===Deleting users created using CA_adminV cert===#
         i=1
         while [ $i -lt 25 ] ; do
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-del  u$i > $TmpDir/pki-user-del-ca-user-00$i.out" \
                            0 \
                            "Deleted user  u$i"
@@ -216,34 +226,15 @@ run_pki-user-cli-user-find-ca_tests(){
         j=1
         while [ $j -lt 8 ] ; do
                eval usr=\$user$j
-               rlRun "pki -d /tmp/requestdb \
+               rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
-                          -c $nss_db_password \
+                          -c $CERTDB_DIR_PASSWORD \
                            user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
-        i=0
-        while [ $i -lt ${#del_user[@]} ] ; do
-               userid_del=${del_user[$i]}
-               rlRun "pki -d $TmpDir/nssdb \
-                          -n \"$admin_cert_nickname\" \
-                          -c $nss_db_password \
-                           user-del  $userid_del > $TmpDir/pki-user-del-ca-00$i.out"  \
-                           0 \
-                           "Deleted user  $userid_del"
-                rlAssertGrep "Deleted user \"$userid_del\"" "$TmpDir/pki-user-del-ca-00$i.out"
-                let i=$i+1
-        done
-
-
-        rlRun "rm -r $TmpDir" 0 "Removing temp directory"
-        rlRun "popd"
-        rlRun "rm -rf /tmp/requestdb"
-        rlRun "rm -rf /tmp/dummydb"
-
     rlPhaseEnd
 
 }

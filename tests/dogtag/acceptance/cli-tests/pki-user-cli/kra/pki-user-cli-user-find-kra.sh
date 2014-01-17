@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following ipa cli commands needs to be tested:
@@ -48,26 +48,17 @@ user1fullname="Test kra_agent"
 ########################################################################
 
 run_pki-user-cli-user-find-kra_tests(){
-    rlPhaseStartSetup "pki_user_cli_user_find-startup: Create temp directory and import KRA agent cert into a nss certificate db and trust KRA root cert"
-        admin_cert_nickname="PKI Administrator for $KRA_DOMAIN"
-        nss_db_password="Password"
-        rlLog "Admin Certificate is located at: $KRA_ADMIN_CERT_LOKRATION"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-        rlLog "Temp Directory = $TmpDir"
-        rlRun "mkdir $TmpDir/nssdb"
-        rlLog "importP12File $KRA_ADMIN_CERT_LOKRATION $KRA_CLIENT_PKCS12_PASSWORD $TmpDir/nssdb $nss_db_password $admin_cert_nickname"
-        rlRun "importP12File $KRA_ADMIN_CERT_LOKRATION $KRA_CLIENT_PKCS12_PASSWORD $TmpDir/nssdb $nss_db_password $admin_cert_nickname" 0 "Import Admin certificate to $TmpDir/nssdb"
-        rlRun "install_and_trust_KRA_cert $KRA_SERVER_ROOT $TmpDir/nssdb"
+    rlPhaseStartSetup "pki_user_cli_user_find-startup: Getting nss certificate db"
+        rlLog "Certificate directory = $CERTDB_DIR"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-KRA-add: Add users to KRA"
 	i=1
 	while [ $i -le 5 ] ; do
 		rlLog "Adding user user1$i"
-		rlRun "pki -d $TmpDir/nssdb \
-			-n \"$admin_cert_nickname\" \
-				-c $nss_db_password \
+		rlRun "pki -d $CERTDB_DIR \
+			-n \"$KRA_adminV\" \
+				-c $CERTDB_DIR_PASSWORD \
 				user-add --fullName=\"fullname1$i\" user1$i > $TmpDir/pki-user-find-kra-a00$i.out 2>&1" \
 			 0 \
 			"Add user user1$i to KRA"
@@ -79,9 +70,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-001: Find 5 users, --size=5"
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=5  > $TmpDir/pki-user-find-kra-001.out 2>&1" \
                          0 \
                         "Found 5 users"
@@ -90,9 +81,9 @@ run_pki-user-cli-user-find-kra_tests(){
 
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-002: Find non user, --size=0"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=0  > $TmpDir/pki-user-find-kra-002.out 2>&1" \
                          0 \
                         "Found no users"
@@ -101,9 +92,9 @@ run_pki-user-cli-user-find-kra_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-003: Find all users, maximum possible value as input"
         maximum_check=1000000
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$maximum_check  > $TmpDir/pki-user-find-kra-003.out 2>&1" \
                          0 \
                         "All users"
@@ -111,9 +102,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-004: Find users, check for negative input --size=-1"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=-1  > $TmpDir/pki-user-find-kra-004.out 2>&1" \
                          0 \
                         "No  users returned as the size entered is negative value"
@@ -122,13 +113,13 @@ run_pki-user-cli-user-find-kra_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-005: Find users for size input as noninteger, --size=abc"
         size_noninteger="abc"
-	rlLog "Executing: pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlLog "Executing: pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$size_noninteger  > $TmpDir/pki-user-find-kra-005.out 2>&1"
-	rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+	rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=$size_noninteger  > $TmpDir/pki-user-find-kra-005.out 2>&1" \
                          1 \
                         "Found 5 users"
@@ -136,9 +127,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-006: Find users, check for no input --size= "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --size=  > $TmpDir/pki-user-find-kra-006.out 2>&1" \
                          1 \
                         "No users returned, as --size= "
@@ -147,9 +138,9 @@ run_pki-user-cli-user-find-kra_tests(){
 
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-007: Find users, --start=10 "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=10  > $TmpDir/pki-user-find-kra-007.out 2>&1" \
                          0 \
                         "Displays users from the 10th user and the next to the maximum 20 users, if available "
@@ -157,9 +148,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-008: Find users, --start=10000, maximum possible input "
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=10000  > $TmpDir/pki-user-find-kra-008.out 2>&1" \
                          0 \
                         "No users"
@@ -167,9 +158,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-009: Find users, --start=0"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=0  > $TmpDir/pki-user-find-kra-009.out 2>&1" \
                          0 \
                         "Displays from the zeroth user, maximum possible are 20 users in a page"
@@ -177,9 +168,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-0010: Find users, --start=-1"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=-1  > $TmpDir/pki-user-find-kra-0010.out 2>&1" \
                          0 \
                         "Maximum possible 20 users are returned, starting from the zeroth user"
@@ -188,9 +179,9 @@ run_pki-user-cli-user-find-kra_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-kra-0011: Find users for size input as noninteger, --start=abc"
         size_noninteger="abc"
-        rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+        rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=$size_noninteger  > $TmpDir/pki-user-find-kra-0011.out 2>&1" \
                          1 \
                         "Incorrect input to find user"
@@ -200,9 +191,9 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseStartTest "Cleanup: Delete the KRA users"
 	i=1
         while [ $i -le 5 ] ; do
-                rlRun "pki -d $TmpDir/nssdb \
-                        -n \"$admin_cert_nickname\" \
-                                -c $nss_db_password \
+                rlRun "pki -d $CERTDB_DIR \
+                        -n \"$KRA_adminV\" \
+                                -c $CERTDB_DIR_PASSWORD \
                                 user-del user1$i" \
                          0 \
                         "Delete user user1$i"
@@ -211,10 +202,6 @@ run_pki-user-cli-user-find-kra_tests(){
     rlPhaseEnd
 
     rlPhaseStartCleanup "pki_user_cli_user_find-cleanup: Delete temp dir"
-#        rlRun "popd"
-#        rlRun "rm -r $TmpDir" 0 "Removing temp directory"
+	rlLog "Deleting users created in the above tests"
     rlPhaseEnd
-
-
-
 }

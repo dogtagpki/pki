@@ -1,8 +1,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Makefile of /CoreOS/rhcs/PKI_TEST_USER_ID
-#   Description: Basic install test for rhcs
-#   Author: Laxmi Sunkara <lsunkara@redhat.com>
+#   Description: PKI Automation Tests
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -24,7 +23,6 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 export TEST=/CoreOS/dogtag/PKI_TEST_USER_ID
 export TESTVERSION=1.0.8_RPM_IDENTIFIER
 
@@ -45,35 +43,37 @@ run: $(FILES) build
 	cp ./shared/rhcs-install-shared.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-user-cli-lib.sh
 	cp ./shared/pki-user-cli-lib.sh /opt/rhqa_pki/.
-	rm -f /opt/rhqa_pki/set-root-pw.exp
-	cp ./shared/set-root-pw.exp /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-cert-cli-lib.sh
 	cp ./shared/pki-cert-cli-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/dummycert1.pem
 	cp ./shared/dummycert1.pem /opt/rhqa_pki/.
-	chmod 755 /opt/rhqa_pki/*.sh
+	rm -f /opt/rhqa_pki/build.xml
+	cp ./shared/build.xml /opt/rhqa_pki/.
+	chmod a+x /opt/rhqa_pki/*.sh
 	./runtest.sh
 
 build: $(BUILT_FILES)
 	#shared
-	chmod 755 ./shared/rhcs-shared.sh
-	chmod 755 ./shared/rhcs-install-shared.sh
-	chmod 755 ./shared/set-root-pw.exp
-	chmod 755 ./shared/pki-user-cli-lib.sh
-	chmod 755 ./shared/dummycert1.pem
-	chmod 755 ./shared/pki-cert-cli-lib.sh
+	chmod a+x ./shared/rhcs-shared.sh
+	chmod a+x ./shared/rhcs-install-shared.sh
+	chmod a+x ./shared/pki-user-cli-lib.sh
+	chmod a+x ./shared/dummycert1.pem
+	chmod a+x ./shared/pki-cert-cli-lib.sh
 	chmod a+x runtest.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
 	chmod a+x ./acceptance/quickinstall/rhcs-install-lib.sh
 	chmod a+x ./acceptance/quickinstall/rhds-install.sh
 	#CA
-	chmod 777 ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
-	chmod 777 ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
-	chmod 777 ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
-	chmod 777 ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-find-ca.sh
-	chmod 777 ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-del-ca.sh
-
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)

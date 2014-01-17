@@ -3,13 +3,10 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   runtest.sh of /CoreOS/rhcs/PKI_TEST_USER_ID
-#   Description: CS testing
+#   Description: Dogtag-10/CS-9 testing
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Libraries Included:
-#	rhcs-shared.sh
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-#   Author: Laxmi Sunkara <lsunkara@redhat.com>
+#	rhcs-shared.sh pki-user-cli-lib.sh rhcs-install-shared.sh
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -47,13 +44,22 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-del-ca.sh
 . ./dev_java_tests/run_junit_tests.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-add-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
 
 PACKAGE="pki-tools"
 
 # Make sure TESTORDER is initialized or multihost may have issues
 TESTORDER=1
+dir1="/opt/rhqa_pki/CodeCoveragePKIhtml"
+cmd1="python -m SimpleHTTPServer"
+dir2="/opt/rhqa_pki/"
+cmd2="ant report"
+
 rlJournalStart
-    rlPhaseStartSetup "list files in /opt/rhqa_pki"
+    rlPhaseStartSetup "list files in /opt/rhqa_pki and begin code coverage"
 	rlRun "ls /opt/rhqa_pki" 0 "Listing files in /opt/rhqa_pki"
 	rlRun "export MASTER=`hostname`"
         rlRun "env|sort"
@@ -63,36 +69,60 @@ rlJournalStart
 	#Execute pki user config tests
         if [ "$QUICKINSTALL" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                   run_rhcs_install_subsystems
+		  run_pki-user-cli-user-ca_tests
         fi
         if [ "$USER_ADD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-add-ca tests
-		  run_pki-user-cli-user-ca_tests
                   run_pki-user-cli-user-add-ca_tests
         fi
         if [ "$USER_SHOW_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-show-ca tests
-                  run_pki-user-cli-user-ca_tests
                   run_pki-user-cli-user-show-ca_tests
         fi
         if [ "$USER_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-find-ca tests
-                  run_pki-user-cli-user-ca_tests
 		  run_pki-user-cli-user-find-ca_tests
         fi
         if [ "$USER_DEL_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-del-ca tests
-	          run_pki-user-cli-user-ca_tests
 		  run_pki-user-cli-user-del-ca_tests
-
         fi
-    rlPhaseEnd
+	if [ "$USER_MEM_ADD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+                # Execute pki user-mem-add-ca tests
+                  run_pki-user-cli-user-membership-add-ca_tests
+        fi
+	if [ "$USER_MEM_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+                # Execute pki user-mem-find-ca tests
+                  run_pki-user-cli-user-membership-find-ca_tests
+        fi
+        if [ "$USER_MEM_DEL_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+                # Execute pki user-mem-del-ca tests
+                  run_pki-user-cli-user-membership-del-ca_tests
+        fi
+        #Clean up role users (admin agent etc) created in CA
+        if [ "$USER_CLEANUP_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+                # Execute pki user-cleanup-ca tests
+                  run_pki-user-cli-user-cleanup-ca_tests
+        fi
+        rlPhaseEnd
 
-    if [ "$DEV_JAVA_TESTS" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+        if [ "$DEV_JAVA_TESTS" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
         rlPhaseStartSetup "Dev Tests"
              run_dev_junit_tests
         rlPhaseEnd
-    fi
+        fi
 
+    if [ $CODE_COVERAGE = "TRUE" ] ; then
+        rlPhaseStartSetup "JACOCO Code coverage report"
+                rlRun "cp /tmp/jacoco.exec /opt/rhqa_pki/."
+                rlLog "ant task to create a report"
+                rlRun "cd $dir2 && $cmd2"
+                rlRun "ls /opt/rhqa_pki" 0 "Listing files in /opt/rhqa_pki"
+                rlLog "Jacoco coverage report can be viewed at http://`hostname`:8000/"
+                rlRun "screen -d -m sh -c 'cd $dir1 ; $cmd1'"
+		rhts-submit-log -l $dir1
+        rlPhaseEnd
+    fi
     rlJournalPrintText
     report=/tmp/rhts.report.$RANDOM.txt
     makereport $report

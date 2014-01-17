@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   rhcs_install.sh of /CoreOS/rhcs/acceptance/quickinstall
+#   rhcs_install.sh of /CoreOS/dogtag/acceptance/quickinstall
 #   Description: CS quickinstall acceptance tests for new install
 #                functions.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
