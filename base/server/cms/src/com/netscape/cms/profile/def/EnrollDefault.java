@@ -497,6 +497,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
+                    CMS.debug("OtherName about to create OtherName object:");
+                    CMS.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_PrintableString, on_value);
                 } else {
                     return null;

@@ -138,6 +138,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
         } catch (Exception e) {
             // failed to insert subject name
             CMS.debug("UserSubjectNameDefault: populate " + e.toString());
+            throw new EProfileException(e.toString());
         }
     }
 }

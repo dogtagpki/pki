@@ -57,6 +57,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     public static final String CONFIG_PATTERN = "subjAltExtPattern_";
     public static final String CONFIG_SOURCE = "subjAltExtSource_";
     public static final String CONFIG_SOURCE_UUID4 = "UUID4";
+    public static final String CONFIG_SAN_REQ_PATTERN_PREFIX = "$request.req_san_pattern_";
 
     public static final String CONFIG_OLD_TYPE = "subjAltExtType";
     public static final String CONFIG_OLD_PATTERN = "subjAltExtPattern";
@@ -447,6 +448,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 }
 
                 if (!pattern.equals("")) {
+                    CMS.debug("SubjectAltNameExtDefault: createExtension() pattern="+ pattern);
                     String gname = "";
 
                     // cfu - see if this is server-generated (e.g. UUID4)
@@ -480,8 +482,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                         }
                     }
 
-                    if (gname.equals("")) {
-                        CMS.debug("gname is empty, not added");
+                    if (gname.equals("") || gname.contains("$")) {
+                        CMS.debug("ubjectAltNameExtDefault: mapPattern()failed. Not added. gname="+ gname);
                         continue;
                     }
                     CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" + gname);

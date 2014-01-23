@@ -38,6 +38,7 @@ import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.util.Base64OutputStream;
@@ -421,6 +422,7 @@ public class TokenKeyRecoveryService implements IService {
                 }
             }
 
+            Type keyType = PrivateKey.RSA;
             byte wrapped[];
             if (allowEncDecrypt_recovery == true) {
                 // Unwrap the archived private key
@@ -478,6 +480,20 @@ public class TokenKeyRecoveryService implements IService {
                 wrapped = cipher.doFinal(privateKeyData);
             } else { //allowEncDecrypt_recovery == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
+                if (privKey == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    CMS.debug("TokenKeyRecoveryService: failed getting private key");
+                    auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        agentId);
+
+                    audit(auditMessage);
+                    return false;
+                }
+
                 KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
 
@@ -511,7 +527,15 @@ public class TokenKeyRecoveryService implements IService {
             }
 
             //convert and put in the public key
-            String PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(pubData);
+            String PubKey = "";
+            if (keyType == PrivateKey.EC) {
+                /* url encode */
+                PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(pubData);
+                CMS.debug("TokenKeyRecoveryService: EC PubKey special encoded");
+            } else {
+                PubKey = base64Encode(pubData);
+                CMS.debug("TokenKeyRecoveryService: RSA PubKey base64 encoded");
+            }
 
             auditMessage = CMS.getLogMessage(
                     LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST,

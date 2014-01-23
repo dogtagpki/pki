@@ -124,6 +124,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      * input params are:
      *  CUID - the CUID of the old token where the keys/certs were initially for
      *  userid - the userid that belongs to both the old token and the new token
+     *  keyid - the keyid in DRM for recovery using keyid
      *  drm_trans_desKey - the des key generated for the NEW token
      *                            wrapped with DRM transport key
      *  cert - the user cert corresponding to the key to be recovered
@@ -155,6 +156,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         String rCUID = req.getParameter("CUID");
         String rUserid = req.getParameter("userid");
+        String rKeyid = req.getParameter("keyid");
         String rdesKeyString = req.getParameter("drm_trans_desKey");
         String rCert = req.getParameter("cert");
 
@@ -174,8 +176,9 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             missingParam = true;
         }
 
-        if ((rCert == null) || (rCert.equals(""))) {
-            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: cert");
+        if (((rCert == null) || (rCert.equals(""))) &&
+            ((rKeyid == null) || (rKeyid.equals("")))) {
+            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: cert or keyid");
             missingParam = true;
         }
 
@@ -186,7 +189,14 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(IRequest.NETKEY_ATTR_USERID, rUserid);
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
-            thisreq.setExtData(IRequest.NETKEY_ATTR_USER_CERT, rCert);
+            if ((rCert != null) && (!rCert.equals(""))) {
+                thisreq.setExtData(IRequest.NETKEY_ATTR_USER_CERT, rCert);
+               CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
+            }
+            if ((rKeyid != null) && (!rKeyid.equals(""))) {
+                thisreq.setExtData(IRequest.NETKEY_ATTR_KEYID, rKeyid); 
+                CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: keyid");
+            }
 
             //XXX auto process for netkey
             queue.processRequest(thisreq);
