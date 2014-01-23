@@ -714,7 +714,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminE-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a agent cert"
-        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-adminE-002.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-adminE-002.out"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -732,10 +732,10 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentE-002.out 2>&1" \
                     1 \
                     "Cannot add  user $user1 using a agent cert"
-        rlAssertGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-agentE-002.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-agentE-002.out"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
-
+#======https://fedorahosted.org/pki/ticket/821============#
 	##### Tests to add users using audit users#####
     rlPhaseStartTest "pki_user_cli_user_add-CA-0012: Cannot add user using a CA_auditV"
 

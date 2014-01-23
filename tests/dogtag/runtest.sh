@@ -41,6 +41,7 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-mod-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-del-ca.sh
 . ./dev_java_tests/run_junit_tests.sh
@@ -79,6 +80,10 @@ rlJournalStart
                 # Execute pki user-show-ca tests
                   run_pki-user-cli-user-show-ca_tests
         fi
+	if [ "$USER_MOD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+                # Execute pki user-mod-ca tests
+                  run_pki-user-cli-user-mod-ca_tests
+	fi
         if [ "$USER_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-find-ca tests
 		  run_pki-user-cli-user-find-ca_tests
