@@ -24,7 +24,6 @@ package com.netscape.certsrv.key;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -33,91 +32,93 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="KeyArchivalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyArchivalRequest {
+public class KeyArchivalRequest extends Request {
 
     private static final String CLIENT_ID = "clientID";
-    private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
     private static final String DATA_TYPE = "dataType";
     private static final String WRAPPED_PRIVATE_DATA = "wrappedPrivateData";
-
-    @XmlElement
-    protected String clientId;
-
-    @XmlElement
-    protected String transWrappedSessionKey;
-
-    @XmlElement
-    protected String dataType;
-
-    @XmlElement
-    protected String wrappedPrivateData;
 
     public KeyArchivalRequest() {
         // required for JAXB (defaults)
     }
 
     public KeyArchivalRequest(MultivaluedMap<String, String> form) {
-        clientId = form.getFirst(CLIENT_ID);
-        transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
-        dataType = form.getFirst(DATA_TYPE);
-        wrappedPrivateData = form.getFirst(WRAPPED_PRIVATE_DATA);
+        this.properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        this.properties.put(DATA_TYPE, form.getFirst(DATA_TYPE));
+        this.properties.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
     }
 
     /**
      * @return the clientId
      */
     public String getClientId() {
-        return clientId;
+        return properties.get(CLIENT_ID);
     }
 
     /**
      * @param clientId the clientId to set
      */
     public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    /**
-     * @return the transWrappedSessionKey
-     */
-    public String getTransWrappedSessionKey() {
-        return transWrappedSessionKey;
-    }
-
-    /**
-     * @param transWrappedSessionKey the transWrappedSessionKey to set
-     */
-    public void setTransWrappedSessionKey(String transWrappedSessionKey) {
-        this.transWrappedSessionKey = transWrappedSessionKey;
+        this.properties.put(CLIENT_ID, clientId);
     }
 
     /**
      * @return the dataType
      */
     public String getDataType() {
-        return dataType;
+        return this.properties.get(DATA_TYPE);
     }
 
     /**
      * @param dataType the dataType to set
      */
     public void setDataType(String dataType) {
-        this.dataType = dataType;
+        this.properties.put(DATA_TYPE, dataType);
     }
 
     /**
      * @return the wrappedPrivateData
      */
     public String getWrappedPrivateData() {
-        return wrappedPrivateData;
+        return this.properties.get(WRAPPED_PRIVATE_DATA);
     }
 
     /**
      * @param wrappedPrivateData the wrappedPrivateData to set
      */
     public void setWrappedPrivateData(String wrappedPrivateData) {
-        this.wrappedPrivateData = wrappedPrivateData;
+        this.properties.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
     }
 
+    public String toString() {
+        try {
+            return Request.marshal(this, KeyArchivalRequest.class);
+        } catch (Exception e) {
+            return super.toString();
+        }
+    }
+
+    public static KeyArchivalRequest valueOf(String string) throws Exception {
+        try {
+            return Request.unmarshal(string, KeyArchivalRequest.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        KeyArchivalRequest before = new KeyArchivalRequest();
+        before.setClientId("vek 12345");
+        before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
+        before.setRequestType(KeyRequestResource.ARCHIVAL_REQUEST);
+        before.setWrappedPrivateData("XXXXABCDEFXXX");
+
+        String string = before.toString();
+        System.out.println(string);
+
+        KeyArchivalRequest after = KeyArchivalRequest.valueOf(string);
+        System.out.println(before.equals(after));
+    }
 
 }

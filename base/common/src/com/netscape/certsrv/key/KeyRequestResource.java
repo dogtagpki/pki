@@ -22,9 +22,15 @@ import com.netscape.certsrv.request.RequestId;
 @AuthMethodMapping("keyrequests")
 public interface KeyRequestResource {
 
+    /* Data types */
     public final String SYMMETRIC_KEY_TYPE = "symmetricKey";
     public final String PASS_PHRASE_TYPE = "passPhrase";
     public final String ASYMMETRIC_KEY_TYPE = "asymmetricKey";
+
+    /* Request types */
+    public final String ARCHIVAL_REQUEST = "archival";
+    public final String KEY_GENERATION_REQUEST = "keygen";
+    public final String RECOVERY_REQUEST = "recovery";
 
     /**
      * Used to generate list of key requests based on the search parameters
