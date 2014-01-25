@@ -41,9 +41,11 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.key.KeyRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfos;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
@@ -376,5 +378,31 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
                 requestId != null? requestId.toString(): "null",
                 clientId);
         auditor.log(msg);
+    }
+
+    @Override
+    public Response createRequest(MultivaluedMap<String, String> form) {
+        KeyRequest data = new KeyRequest(form);
+        return createRequest(data);
+    }
+
+    @Override
+    public Response createRequest(KeyRequest data) {
+        String requestType = data.getRequestType();
+        switch(requestType) {
+        case KeyRequestResource.ARCHIVAL_REQUEST:
+            return archiveKey((KeyArchivalRequest) data);
+        case KeyRequestResource.RECOVERY_REQUEST:
+            return recoverKey((KeyRecoveryRequest) data);
+        case KeyRequestResource.KEY_GENERATION_REQUEST:
+            return generateSymKey((SymKeyGenerationRequest) data);
+        default:
+            throw new BadRequestException("Invalid request");
+        }
+    }
+
+    public Response generateSymKey(SymKeyGenerationRequest data) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

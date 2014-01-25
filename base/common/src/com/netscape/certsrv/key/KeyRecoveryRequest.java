@@ -35,7 +35,7 @@ import com.netscape.certsrv.request.RequestId;
  */
 @XmlRootElement(name="KeyRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRecoveryRequest extends Request {
+public class KeyRecoveryRequest extends KeyRequest {
 
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
@@ -167,7 +167,7 @@ public class KeyRecoveryRequest extends Request {
 
     public static KeyRecoveryRequest valueOf(String string) throws Exception {
         try {
-            return Request.unmarshal(string, KeyRecoveryRequest.class);
+            return KeyRequest.unmarshal(string, KeyRecoveryRequest.class);
         } catch (Exception e) {
             return null;
         }
@@ -175,7 +175,7 @@ public class KeyRecoveryRequest extends Request {
 
     public String toString() {
         try {
-            return Request.marshal(this, KeyRecoveryRequest.class);
+            return KeyRequest.marshal(this, KeyRecoveryRequest.class);
         } catch (Exception e) {
             return super.toString();
         }

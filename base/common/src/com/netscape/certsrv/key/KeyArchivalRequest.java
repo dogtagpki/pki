@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="KeyArchivalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyArchivalRequest extends Request {
+public class KeyArchivalRequest extends KeyRequest {
 
     private static final String CLIENT_ID = "clientID";
     private static final String DATA_TYPE = "dataType";
@@ -92,7 +92,7 @@ public class KeyArchivalRequest extends Request {
 
     public String toString() {
         try {
-            return Request.marshal(this, KeyArchivalRequest.class);
+            return KeyRequest.marshal(this, KeyArchivalRequest.class);
         } catch (Exception e) {
             return super.toString();
         }
@@ -100,7 +100,7 @@ public class KeyArchivalRequest extends Request {
 
     public static KeyArchivalRequest valueOf(String string) throws Exception {
         try {
-            return Request.unmarshal(string, KeyArchivalRequest.class);
+            return KeyRequest.unmarshal(string, KeyArchivalRequest.class);
         } catch (Exception e) {
             return null;
         }

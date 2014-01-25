@@ -45,6 +45,18 @@ public interface KeyRequestResource {
                                             @QueryParam("maxResults") Integer maxResults,
                                             @QueryParam("maxTime") Integer maxTime);
 
+    // Archiving - used to test integration with a browser
+    @POST
+    @ClientResponseType(entityType=KeyRequestInfo.class)
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
+    public Response createRequest(MultivaluedMap<String, String> form);
+
+    @POST
+    @ClientResponseType(entityType=KeyRequestInfo.class)
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response createRequest(KeyRequest data);
 
     /**
      * Used to retrieve key request info for a specific request

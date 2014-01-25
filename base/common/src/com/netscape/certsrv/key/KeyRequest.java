@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -23,11 +24,21 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 /**
  * @author Ade Lee
  */
-public class Request {
+public class KeyRequest {
 
     Map<String, String> properties = new LinkedHashMap<String, String>();
     Link link;
     String requestType;
+
+    public KeyRequest() {
+        // required for jax-b
+    }
+
+    public KeyRequest(MultivaluedMap<String, String> form) {
+        for (Map.Entry<String, List<String>> entry: form.entrySet()) {
+            properties.put(entry.getKey(), entry.getValue().get(0));
+        }
+    }
 
     @XmlElement(name = "RequestType")
     public String getRequestType() {
@@ -128,7 +139,7 @@ public class Request {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Request other = (Request) obj;
+        KeyRequest other = (KeyRequest) obj;
         if (link == null) {
             if (other.link != null)
                 return false;
