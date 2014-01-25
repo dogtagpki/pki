@@ -45,7 +45,6 @@ public interface KeyRequestResource {
                                             @QueryParam("maxResults") Integer maxResults,
                                             @QueryParam("maxTime") Integer maxTime);
 
-    // Archiving - used to test integration with a browser
     @POST
     @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -65,36 +64,6 @@ public interface KeyRequestResource {
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public KeyRequestInfo getRequestInfo(@PathParam("id") RequestId id);
-
-    // Archiving - used to test integration with a browser
-    @POST
-    @Path("archive")
-    @ClientResponseType(entityType=KeyRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public Response archiveKey(MultivaluedMap<String, String> form);
-
-    @POST
-    @Path("archive")
-    @ClientResponseType(entityType=KeyRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response archiveKey(KeyArchivalRequest data);
-
-    //Recovery - used to test integration with a browser
-    @POST
-    @Path("recover")
-    @ClientResponseType(entityType=KeyRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public Response recoverKey(MultivaluedMap<String, String> form);
-
-    @POST
-    @Path("recover")
-    @ClientResponseType(entityType=KeyRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response recoverKey(KeyRecoveryRequest data);
 
     @POST
     @Path("{id}/approve")

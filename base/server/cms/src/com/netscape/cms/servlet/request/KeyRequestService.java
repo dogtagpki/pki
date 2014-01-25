@@ -126,14 +126,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         return info;
     }
 
-    // Archiving - used to test integration with a browser
-    @Override
-    public Response archiveKey(MultivaluedMap<String, String> form) {
-        KeyArchivalRequest data = new KeyArchivalRequest(form);
-        return archiveKey(data);
-    }
-
-    @Override
     public Response archiveKey(KeyArchivalRequest data) {
         // auth and authz
         // Catch this before internal server processing has to deal with it
@@ -162,14 +154,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
-    //Recovery - used to test integration with a browser
-    @Override
-    public Response recoverKey(MultivaluedMap<String, String> form) {
-        KeyRecoveryRequest data = new KeyRecoveryRequest(form);
-        return recoverKey(data);
-    }
-
-    @Override
     public Response recoverKey(KeyRecoveryRequest data) {
         // auth and authz
 
