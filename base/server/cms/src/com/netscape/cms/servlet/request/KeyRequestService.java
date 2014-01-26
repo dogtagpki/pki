@@ -386,7 +386,25 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     }
 
     public Response generateSymKey(SymKeyGenerationRequest data) {
-        // TODO Auto-generated method stub
-        return null;
+        if (data == null) {
+            throw new BadRequestException("Invalid key generation request.");
+        }
+
+        KeyRequestDAO dao = new KeyRequestDAO();
+        KeyRequestInfo info;
+        try {
+            info = dao.submitRequest(data, uriInfo);
+            auditArchivalRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
+
+            return Response
+                    .created(new URI(info.getRequestURL()))
+                    .entity(info)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } catch (EBaseException | URISyntaxException e) {
+            e.printStackTrace();
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
+            throw new PKIException(e.toString());
+        }
     }
 }

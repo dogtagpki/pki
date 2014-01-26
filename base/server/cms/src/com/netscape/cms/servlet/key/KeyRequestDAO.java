@@ -26,7 +26,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
@@ -37,6 +41,7 @@ import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfos;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
+import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.CMSRequestInfo;
@@ -194,6 +199,62 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(ATTR_SERIALNO, keyId.toString());
 
         queue.processRequest(request);
+
+        return createKeyRequestInfo(request, uriInfo);
+    }
+
+    public KeyRequestInfo submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
+        String clientId = data.getClientId();
+        String algName = data.getKeyAlgorithm();
+        int size = data.getKeySize();
+        List<String> usages = data.getUsages();
+
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(algName) || (size<=0)) {
+            throw new BadRequestException("Invalid key generation request. Missing parameters");
+        }
+
+        boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
+        if (keyExists == true) {
+            throw new BadRequestException("Can not archive already active existing key!");
+        }
+
+        boolean isValid = true;
+        switch(algName) {
+        case "DES":
+            if (! KeyGenAlgorithm.DES.isValidStrength(size)) isValid = false;
+            break;
+        case "DESede":
+            if (! KeyGenAlgorithm.DESede.isValidStrength(size)) isValid = false;
+            break;
+        case "DES3":
+            if (! KeyGenAlgorithm.DES3.isValidStrength(size)) isValid = false;
+            break;
+        case "RC4":
+            if (! KeyGenAlgorithm.RC4.isValidStrength(size)) isValid = false;
+            break;
+        case "AES":
+            if (! KeyGenAlgorithm.AES.isValidStrength(size)) isValid = false;
+            break;
+        case "RC2":
+            if (! KeyGenAlgorithm.RC2.isValidStrength(size)) isValid = false;
+            break;
+        default:
+            throw new BadRequestException("Invalid algorithm");
+        }
+
+        if (!isValid) {
+            throw new BadRequestException("Invalid key size for this algorithm");
+        }
+
+        IRequest request = queue.newRequest(IRequest.SYMKEY_GENERATION_REQUEST);
+
+        request.setExtData(IRequest.SYMKEY_GEN_ALGORITHM, algName);
+        request.setExtData(IRequest.SYMKEY_GEN_SIZE, size);
+        request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
+        request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
+
+        queue.processRequest(request);
+        queue.markAsServiced(request);
 
         return createKeyRequestInfo(request, uriInfo);
     }
